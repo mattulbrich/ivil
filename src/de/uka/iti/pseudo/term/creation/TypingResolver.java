@@ -20,10 +20,10 @@ import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
-import de.uka.iti.pseudo.parser.term.ASTTypeRef;
+import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
+import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
@@ -160,7 +160,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         asType.setTyping(new Typing(resultingType, typingContext));
         
         try {
-			typingContext.solveConstraint(resultingType, asType.getTyping().getRawtType());
+			typingContext.solveConstraint(resultingType, 
+			        asType.getTerm().getTyping().getRawtType());
 		} catch (UnificationException e) {
 			throw new ASTVisitException("Type inference failed for explicitly typed term" +
 					"\nExplicit Type: " + asType.getTyping().getRawtType() +
@@ -221,7 +222,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     
     @Override
-    public void visit(ASTTypeRef typeRef) throws ASTVisitException {
+    public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         String typeName = typeRef.getTypeToken().image;
         
         List<ASTElement> children = typeRef.getChildren();
@@ -236,6 +237,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         } catch (TermException e) {
             throw new ASTVisitException(e, typeRef);
         }
+    }
+
+    public void visit(ASTTypeVar typeVar) throws ASTVisitException {
+        resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
 
 }

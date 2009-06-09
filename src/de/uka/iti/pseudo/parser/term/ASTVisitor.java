@@ -34,12 +34,16 @@ public interface ASTVisitor {
 
 	void visit(ASTNumberLiteralTerm numberLiteralTerm) throws ASTVisitException;
 
-	void visit(ASTTypeRef typeRef) throws ASTVisitException;
+	void visit(ASTTypeApplication typeRef) throws ASTVisitException;
+	
+	void visit(ASTTypeVar typeVar) throws ASTVisitException;
 
 	void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm) throws ASTVisitException;
 
 	void visit(ASTFixTerm infixTerm) throws ASTVisitException;
 
     void visit(ASTAsType asType) throws ASTVisitException;
+
+    
 
 }

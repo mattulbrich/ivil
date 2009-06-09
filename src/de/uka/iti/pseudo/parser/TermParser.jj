@@ -109,7 +109,7 @@ ASTTerm ModalityTerm():
 ASTTerm AsTerm():
 { 
   ASTTerm term;
-  ASTTypeRef type; 
+  ASTType type; 
 }
 {
         term=BaseTerm()
@@ -138,7 +138,7 @@ ASTBinderTerm BinderTerm():
 {
   Token binderToken;
   Token varToken;
-  ASTTypeRef type; 
+  ASTType type; 
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
 }
@@ -150,11 +150,11 @@ ASTBinderTerm BinderTerm():
    { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
 }
 
-ASTTypeRef TypeRef():
+ASTType TypeRef():
 {
   Token token;
-  List<ASTTypeRef> args = new ArrayList<ASTTypeRef>();
-  ASTTypeRef ty;
+  List<ASTType> args = new ArrayList<ASTType>();
+  ASTType ty;
 }
 {
 		token = <IDENTIFIER>
@@ -163,7 +163,10 @@ ASTTypeRef TypeRef():
 		  		( "," ty=TypeRef() { args.add(ty); } )*
 		  ")"
 		)?
-		{ return new ASTTypeRef(token, args); }
+		{ return new ASTTypeApplication(token, args); }
+	|
+		token = <TYVARIDENTIFIER>
+		{ return new ASTTypeVar(token); }
 }
 
 

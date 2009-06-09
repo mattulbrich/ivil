@@ -2,6 +2,7 @@ include "$base.p"
 
 sort
 	poly('a, 'b)
+	set('a)
 
 function
 	int i1

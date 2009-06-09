@@ -16,10 +16,10 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 public class ASTBinderTerm extends ASTTerm {
 
     private Token binderToken;
-    private ASTTypeRef variableType;
+    private ASTType variableType;
     private Token variableToken;
     
-    public ASTBinderTerm(Token binderToken, ASTTypeRef variableType,
+    public ASTBinderTerm(Token binderToken, ASTType variableType,
             Token variableToken, List<ASTTerm> subterms) {
         super(subterms);
         this.binderToken = binderToken;
@@ -38,7 +38,7 @@ public class ASTBinderTerm extends ASTTerm {
         return binderToken;
     }
 
-    public final ASTTypeRef getVariableType() {
+    public final ASTType getVariableType() {
         return variableType;
     }
 

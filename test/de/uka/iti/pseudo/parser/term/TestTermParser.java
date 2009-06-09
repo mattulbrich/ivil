@@ -58,6 +58,20 @@ public class TestTermParser extends TestCase {
         testTerm("Q(P(arb, arb))", "Q(P(arb as '2,arb as '2) as poly('2,'2)) as '2",true);
     }
     
+    public void testOccurCheck() throws Exception {
+        try {
+            TermMaker.makeTerm("arb as 'a = arb as set('a)", env);
+            fail("should not be parsable");
+        } catch (ASTVisitException e) {
+        }
+    }
+    
+    public void testAs() throws Exception {
+        testTerm("arb as int", "arb as int", true);
+        testTerm("P(0 as 'a, arb as 'a)", "P(0 as int,arb as int) as poly(int,int)", true);
+        testTerm("arb as 'a", "arb as '1", true);
+    }
+    
     public void testPrecedence() throws Exception {
         testTerm("i1+i2^i3*i4", "$plus(i1,$mult($pow(i2,i3),i4))", false);
         testTerm("i1+i2^i3*i4", "$plus(i1,$mult($pow(i2,i3),i4))", false);

@@ -53,8 +53,12 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         defaultVisit(numberLiteralTerm);
     }
 
-    public void visit(ASTTypeRef typeRef) throws ASTVisitException {
+    public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         defaultVisit(typeRef);
+    }
+    
+    public void visit(ASTTypeVar asType) throws ASTVisitException {
+        defaultVisit(asType);
     }
 
     public void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm)

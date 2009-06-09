@@ -6,9 +6,9 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTAsType extends ASTTerm {
 
-    private ASTTypeRef asType;
+    private ASTType asType;
 
-    public ASTAsType(ASTTerm term, ASTTypeRef type) {
+    public ASTAsType(ASTTerm term, ASTType type) {
         super(Collections.<ASTTerm>singletonList(term));
         addChild(type);
         this.asType = type;
@@ -24,7 +24,7 @@ public class ASTAsType extends ASTTerm {
         v.visit(this);
     }
 
-    public ASTTypeRef getAsType() {
+    public ASTType getAsType() {
         return asType;
     }
     

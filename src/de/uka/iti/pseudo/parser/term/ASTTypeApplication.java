@@ -8,17 +8,16 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
-import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTTypeRef extends ASTElement {
+public class ASTTypeApplication extends ASTType {
     
     private Token token;
-    private List<ASTTypeRef> argumentTypeRefs;
+    private List<ASTType> argumentTypeRefs;
 
-    public ASTTypeRef(Token token, List<ASTTypeRef> argumentTypeRefs) {
+    public ASTTypeApplication(Token token, List<ASTType> argumentTypeRefs) {
         this.token = token;
         this.argumentTypeRefs = argumentTypeRefs;
         
@@ -29,8 +28,8 @@ public class ASTTypeRef extends ASTElement {
 		return token;
 	}
 
-	public List<ASTTypeRef> getArgumentTypeRefs() {
-		return Collections.unmodifiableList(argumentTypeRefs);
+	public List<ASTType> getArgumentTypeRefs() {
+		return argumentTypeRefs;
 	}
 
 	@Override
