@@ -12,6 +12,8 @@ public class RuleApplication {
     private TermSelector findSelector;
     private TermSelector assumeSelectors[];
     private Pair<SchemaVariable, Term> interactiveInstantiations[];
+    
+    
     public Rule getRule() {
         return rule;
     }

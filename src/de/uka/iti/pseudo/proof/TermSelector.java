@@ -1,5 +1,11 @@
 package de.uka.iti.pseudo.proof;
 
+import java.util.List;
+
+import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.SubtermCollector;
+
 public class TermSelector {
 
     public static final boolean ANTECEDENT = true;
@@ -15,16 +21,16 @@ public class TermSelector {
         this.subtermNo = subtermNo;
         
         assert termNo >= 0;
-        assert subtermNo >= -1;
+        assert subtermNo >= 0;
     }
     
     public TermSelector(boolean inAntecendent, int termNo) {
-        this(inAntecendent, termNo, -1);
+        this(inAntecendent, termNo, 0);
     }
     
     public TermSelector(String descr) throws FormatException {
         String[] sect = descr.split("\\.");
-        if(sect.length < 2 || sect.length > 3)
+        if(sect.length != 3)
             throw new FormatException("TermSelector", "illegally separated string", descr);
         
         if("A".equals(sect[0])) {
@@ -42,30 +48,24 @@ public class TermSelector {
             throw new FormatException("TermSelector", "not a number: " + sect[1], descr);
         }
         
-        if(sect.length == 3) {
-            try {
-                subtermNo = Integer.parseInt(sect[2]);
-                if(subtermNo < 0)
-                    throw new FormatException("TermSelector", "negative: " + sect[2], descr);
-            } catch (NumberFormatException e) {
-                throw new FormatException("TermSelector", "not a number: " + sect[2], descr);
-            }
-        } else {
-            subtermNo = -1;
+        try {
+            subtermNo = Integer.parseInt(sect[2]);
+            if(subtermNo < 0)
+                throw new FormatException("TermSelector", "negative: " + sect[2], descr);
+        } catch (NumberFormatException e) {
+            throw new FormatException("TermSelector", "not a number: " + sect[2], descr);
         }
     }
 
-   
-
     public String toString() {
-        return (inAntecedent ? "A." : "S.") + termNo + (subtermNo > 0 ? "."+subtermNo : "");
+        return (inAntecedent ? "A." : "S.") + termNo + "." + subtermNo;
     }
 
     public boolean isAntecedent() {
         return inAntecedent;
     }
     
-    public boolean isSucedent() {
+    public boolean isSuccedent() {
         return !inAntecedent;
     }
 
@@ -73,18 +73,47 @@ public class TermSelector {
         return termNo;
     }
 
-    public boolean hasSubtermNo() {
-        return subtermNo >= 0;
+    public boolean isToplevel() {
+        return subtermNo == 0;
     }
     
     public int getSubtermNo() {
-        assert subtermNo >= 0;
         return subtermNo;
     }
 
     public TermSelector selectSubterm(int subtermNo) {
         assert subtermNo >= 0;
         return new TermSelector(inAntecedent, termNo, subtermNo);
+    }
+    
+    public Term selectTopterm(Sequent sequent) throws ProofException {
+        List<Term> terms;
+        if (isAntecedent()) {
+            terms = sequent.getAntecedent();
+        } else {
+            terms = sequent.getSuccedent();
+        }
+
+        int termNo = getTermNo();
+        if (termNo < 0 || termNo >= terms.size())
+            throw new ProofException("Can select " + this);
+
+        return terms.get(termNo);
+    }
+    
+    public Term selectSubterm(Sequent sequent) throws ProofException {
+        Term term = selectTopterm(sequent);
+        if (isToplevel()) {
+            return term;
+        } else {
+            List<Term> subterms = SubtermCollector.collect(term);
+
+            int subtermNo = getSubtermNo();
+            if (subtermNo < 0 || subtermNo >= subterms.size())
+                throw new ProofException("Can select " + this);
+
+            return subterms.get(subtermNo);
+        }
     }
     
 }

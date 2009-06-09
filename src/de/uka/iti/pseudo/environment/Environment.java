@@ -53,6 +53,11 @@ public class Environment {
      * The parent environment. Null only for the built in environment
      */
     private @Nullable Environment parentEnvironment;
+    
+    /**
+     * Has this environment been fixed?
+     */
+    private boolean fixed;
 
     /**
      * The mappings from names (strings) to the various elements
@@ -67,9 +72,7 @@ public class Environment {
     private Map<BigInteger, NumberLiteral> numberMap = null;
 
     /**
-     * The rules are kept as a list
-     * 
-     * TODO have a map here also?
+     * The rules are kept as a sorted set and as a map
      */
     private List<Rule> rules = new ArrayList<Rule>();
 
@@ -133,9 +136,29 @@ public class Environment {
                 || !binderMap.isEmpty() || !rules.isEmpty()) {
             dump();
             throw new EnvironmentException(
-                    "setting name on inhabited environment forbidden");
+                    "setting parent on inhabited environment forbidden");
         }
         parentEnvironment = environment;
+    }
+    
+    /**
+     * set this environment as fixed. After this, no new symbols may be added to
+     * it. A call to {@link #addBinder(Binder)}, {@link #addFunction(Function)},
+     * ... yields an {@link EnvironmentException}.
+     */
+    public void setFixed() {
+        fixed = true;
+    }
+
+    /**
+     * Has this environment already been fixed? Or may new symbols still be
+     * declared?
+     * 
+     * @return true if this environment has been fixed and does not allow to add
+     *         new symbols
+     */
+    public boolean isFixed() {
+        return fixed;
     }
 
     //
@@ -148,9 +171,15 @@ public class Environment {
      *            the sort
      * 
      * @throws EnvironmentException
-     *             a sort of this name already exists.
+     *             a sort of this name already exists or the environment has
+     *             been fixed.
      */
     public void addSort(Sort sort) throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         String name = sort.getName();
         Sort existing = getSort(name);
 
@@ -219,9 +248,15 @@ public class Environment {
      *            the function to add to the environment
      * 
      * @throws EnvironmentException
-     *             if a function by that name already exists.
+     *             if a function by that name already exists or the environment
+     *             has been fixed
      */
     public void addFunction(Function function) throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         String name = function.getName();
         Function existing = getFunction(name);
 
@@ -306,9 +341,15 @@ public class Environment {
      * 
      * @throws EnvironmentException
      *             if an infix operator for this operation has already been defined
+     *             or the environment has been fixed
      */
     public void addInfixOperator(FixOperator infixOperator)
             throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         FixOperator existing = getInfixOperator(infixOperator.getOpIdentifier());
 
         if (existing != null) {
@@ -350,10 +391,15 @@ public class Environment {
      * 
      * @throws EnvironmentException
      *             iff the operator symbol has already been defined as a prefix
-     *             operator.
+     *             operator or the environment has been fixed.
      */
     public void addPrefixOperator(@NonNull FixOperator prefixOperator)
             throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         FixOperator existing = getPrefixOperator(prefixOperator
                 .getOpIdentifier());
 
@@ -414,9 +460,15 @@ public class Environment {
      *            the binder to add
      * 
      * @throws EnvironmentException
-     *             iff a binder has already been defined for that name.
+     *             iff a binder has already been defined for that name or the
+     *             environment has been fixed
      */
     public void addBinder(Binder binder) throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         String name = binder.getName();
         Binder existing = getBinder(name);
 
@@ -496,10 +548,32 @@ public class Environment {
      * 
      * @param rule
      *            the rule to add
+     * @throws EnvironmentException if there is already a rule by that name or if the environment has been fixed
      * 
      */
-    public void addRule(@NonNull Rule rule) {
+    public void addRule(@NonNull Rule rule) throws EnvironmentException {
+        
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
         rules.add(rule);
+    }
+    
+    /**
+     * get a list of all defined rules including those defined in a parent environment.
+     * 
+     * @return a freshly created list of rules.
+     */
+    public @NonNull List<Rule> getAllRules() {
+        List<Rule> retval;
+        if(parentEnvironment == null) {
+            retval = new ArrayList<Rule>();
+        } else {
+            retval = parentEnvironment.getAllRules();
+        }
+        retval.addAll(rules);
+        return retval;
     }
 
     /**

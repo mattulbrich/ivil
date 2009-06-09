@@ -94,10 +94,10 @@ public class ProofNode {
     }
 
     private void replaceTerm(TermSelector sel, Term replaceWith, List<Term> antecedent, List<Term> succedent) throws ProofException, TermException {
-        Term oldTerm = selectTerm(sel);
+        Term oldTerm = sel.selectTopterm(sequent);
         Term newTerm;
         
-        if(sel.hasSubtermNo()) {
+        if(!sel.isToplevel()) {
             newTerm = SubtermReplacer.replace(oldTerm, sel.getSubtermNo(), replaceWith);
         } else {
             newTerm = replaceWith;
@@ -129,7 +129,7 @@ public class ProofNode {
     private void matchFindClause(RuleApplication ruleApp, MatchingContext mc,
             Rule rule) throws ProofException {
         TermSelector findSelector = ruleApp.getFindSelector();
-        Term findSubTerm = selectSubterm(findSelector);
+        Term findSubTerm = findSelector.selectSubterm(sequent);
 
         LocatedTerm findClause = rule.getFindClause();
         if (!findClause.isFittingSelect(findSelector)) {
@@ -146,8 +146,8 @@ public class ProofNode {
         assert length == assumeSelectors.length;
 
         for (int i = 0; i < length; i++) {
-            assert !assumeSelectors[i].hasSubtermNo();
-            Term assumeTerm = selectTerm(assumeSelectors[i]);
+            assert assumeSelectors[i].isToplevel();
+            Term assumeTerm = assumeSelectors[i].selectTopterm(sequent);
             LocatedTerm assumption = rule.getAssumptions()[i];
             if (!assumption.isFittingSelect(assumeSelectors[i])) {
                 throw new ProofException("Illegal selector for assume (" + i
@@ -157,36 +157,7 @@ public class ProofNode {
         }
     }
 
-    public Term selectTerm(TermSelector s) throws ProofException {
-        List<Term> terms;
-        if (s.isAntecedent()) {
-            terms = sequent.getAntecedent();
-        } else {
-            terms = sequent.getSuccedent();
-        }
-
-        int termNo = s.getTermNo();
-        if (termNo < 0 || termNo >= terms.size())
-            throw new ProofException("Can select " + s);
-
-        return terms.get(termNo);
-    }
-
-    public Term selectSubterm(TermSelector s) throws ProofException {
-        Term term = selectTerm(s);
-        if (!s.hasSubtermNo()) {
-            return term;
-        } else {
-            List<Term> subterms = SubtermCollector.collect(term);
-
-            int subtermNo = s.getSubtermNo();
-            if (subtermNo < 0 || subtermNo >= subterms.size())
-                throw new ProofException("Can select " + s);
-
-            return subterms.get(subtermNo);
-        }
-    }
-
+ 
     public List<ProofNode> getChildren() {
         if(children != null)
             return Util.readOnlyArrayList(children);
@@ -200,6 +171,10 @@ public class ProofNode {
 
     public ProofNode getParent() {
         return parent;
+    }
+
+    public Sequent getSequent() {
+        return sequent;
     }
 
 }

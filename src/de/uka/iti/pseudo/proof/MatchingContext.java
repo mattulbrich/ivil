@@ -5,9 +5,9 @@ import de.uka.iti.pseudo.term.Term;
 
 public class MatchingContext {
 
-    public void leftMatch(Term term, Term findSubTerm) {
+    public boolean leftMatch(Term term, Term findSubTerm) {
         // TODO Auto-generated method stub
-        
+        return false;
     }
 
     public Term instantiate(SchemaVariable sv) {
@@ -23,6 +23,11 @@ public class MatchingContext {
     public Term instantiate(Term replaceWith) {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    public MatchingContext clone() { 
+        // TODO Auto-generated method stub
+        return (MatchingContext) null;
     }
 
 }

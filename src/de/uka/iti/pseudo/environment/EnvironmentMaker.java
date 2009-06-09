@@ -509,7 +509,11 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             }
 
             Rule rule = new Rule(name, assumes, find, wheres, actions, description, properties);
-            env.addRule(rule);
+            try {
+                env.addRule(rule);
+            } catch (EnvironmentException e) {
+                throw new ASTVisitException(e);
+            }
 
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);

@@ -18,6 +18,10 @@ public class Rule {
     public String getDescription() {
         return description;
     }
+    
+    public String getProperty(String string) {
+        return properties.get(string);
+    }
 
     public String getName() {
         return name;
@@ -84,4 +88,5 @@ public class Rule {
         
         
     }
+
 }

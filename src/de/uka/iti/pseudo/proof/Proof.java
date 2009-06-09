@@ -42,5 +42,9 @@ public class Proof {
     public void fireNodeChanged(ProofNode proofNode) {
         changeObservable.notifyObservers(proofNode);
     }
+
+    public ProofNode getGoal(int goalNo) {
+        return openGoals.get(goalNo);
+    }
     
 }

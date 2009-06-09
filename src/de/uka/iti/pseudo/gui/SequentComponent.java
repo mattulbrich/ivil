@@ -22,8 +22,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.RuleApplicationFinder;
+import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -104,7 +105,8 @@ public class SequentComponent extends JPanel {
             // we listen only to TermComponents, this will not fail
             TermComponent tc = (TermComponent) e.getSource();
             
-            showRulePopup(e.getPoint(), tc.getTermAt(e.getPoint()));
+            TermSelector termSelector = tc.getTermAt(e.getPoint());
+            fireRuleApp(termSelector);
         }  
     };
 
@@ -143,25 +145,8 @@ public class SequentComponent extends JPanel {
         }
     }
     
-    private void showRulePopup(Point p, TermSelector termSelector) {
-        RuleApplicationFinder raf = new RuleApplicationFinder(sequent, termSelector, env);
-        List<RuleApplication> ruleAppList = raf.findAll();
-        
-        JPopupMenu menu = new JPopupMenu();
-        for (final RuleApplication ruleApp : ruleAppList) {
-            JMenuItem item = new JMenuItem(ruleApp.getRule().getName());
-            // TODO
-            item.setToolTipText("to be done");
-            item.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    fireRuleApp(ruleApp);
-                } });
-        }
-    }
-    
-    private void fireRuleApp(RuleApplication ruleApp) {
-        ruleApplicationObservable.notifyObservers(ruleApp);
+    private void fireRuleApp(TermSelector termSelector) {
+        ruleApplicationObservable.notifyObservers(termSelector);
     }
     
     public void addRuleApplicationObserver(Observer obs) {

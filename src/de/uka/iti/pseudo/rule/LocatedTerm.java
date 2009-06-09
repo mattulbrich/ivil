@@ -38,7 +38,7 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
         case ANTECEDENT:
             return selector.isAntecedent();
         case SUCCEDENT:
-            return selector.isSucedent();
+            return selector.isSuccedent();
         case BOTH:
             return true;
         }
