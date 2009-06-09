@@ -18,8 +18,8 @@ function  # infixes
         bool $equiv(bool, bool) infix <->  10 
         
 function  # prefixes
-        int $neg(int)           prefix -
-        bool $not(bool)         prefix !         
+        int $neg(int)           prefix - 60
+        bool $not(bool)         prefix ! 45      
 
 function  # consts
         bool true

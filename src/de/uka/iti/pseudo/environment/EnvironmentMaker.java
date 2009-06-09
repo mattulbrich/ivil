@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.environment;
 
 import java.io.File;
@@ -162,13 +170,13 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         if (arg.isInfix()) {
             String infix = arg.getOperatorIdentifier().image;
             int precedence = Integer.parseInt(arg.getPrecedence().image);
-            env.addInfixOperator(new FixOperator(name, infix, 2,
-                            precedence, arg));
+            env.addInfixOperator(new FixOperator(name, infix, precedence, 2, arg));
         }
         
         if(arg.isPrefix()) {
         	String prefix = arg.getOperatorIdentifier().image;
-            env.addPrefixOperator(new FixOperator(name, prefix, 1, 0, arg));
+        	int precedence = Integer.parseInt(arg.getPrecedence().image);
+            env.addPrefixOperator(new FixOperator(name, prefix, precedence, 1, arg));
         }
     }
 

@@ -174,7 +174,7 @@ ASTFunctionDeclaration FunctionDeclaration():
         (
           fix="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
         |
-          fix="prefix" as=<OP_IDENTIFIER>
+          fix="prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
         )?
         
         ( "unique" { unique=true; } )?
