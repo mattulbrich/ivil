@@ -79,6 +79,7 @@ public class ProofNode {
         List<ProofNode> newNodes = new LinkedList<ProofNode>();
         List<Term> antecedent = new ArrayList<Term>();
         List<Term> succedent = new ArrayList<Term>();
+        MetaEvaluator metaEval = new MetaEvaluator(ruleApp);
         
         try {
             
@@ -98,8 +99,7 @@ public class ProofNode {
                 TermSelector findSelector = ruleApp.getFindSelector();
                 if(replaceWith != null) {
                     Term instantiated = inst.instantiate(replaceWith);
-                    if(TermUnification.containsSchemaIdentifier(instantiated))
-                        throw new ProofException("Remaining schema identifier in term " + instantiated);
+                    instantiated = metaEval.evalutate(instantiated);
                     replaceTerm(findSelector, instantiated, antecedent, succedent);
                 } else if(action.isRemoveOriginalTerm()) {
                     assert findSelector.isToplevel();
@@ -111,15 +111,12 @@ public class ProofNode {
                 
                 for (Term add : action.getAddAntecedent()) {
                     Term toAdd = inst.instantiate(add);
-                    if(TermUnification.containsSchemaIdentifier(toAdd))
-                        throw new ProofException("Remaining schema identifier in term " + toAdd);
+                    toAdd = metaEval.evalutate(toAdd);
                     antecedent.add(toAdd);
                 }
                 
                 for (Term add : action.getAddSuccedent()) {
                     Term toAdd = inst.instantiate(add);
-                    if(TermUnification.containsSchemaIdentifier(toAdd))
-                        throw new ProofException("Remaining schema identifier in term " + toAdd);
                     succedent.add(toAdd);
                 }
                 
