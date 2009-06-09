@@ -10,7 +10,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestNewSkolem extends TestCaseWithEnv {
-
+/*
     public void testTryNewSkolem() throws Exception {
         NewSkolem newSK = new NewSkolem();
         
@@ -90,4 +90,5 @@ public class TestNewSkolem extends TestCaseWithEnv {
             // expected
         }
     }
+    */
 }
