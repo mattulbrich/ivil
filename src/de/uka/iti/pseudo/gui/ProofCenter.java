@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.bar.BarManager;
@@ -18,7 +20,6 @@ import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.term.Term;
 
 
 // the center of this all
@@ -75,24 +76,32 @@ public class ProofCenter implements TermSelectionListener {
         listeners.remove(l);
     }
     
-    public void fireSelectedProofNode(ProofNode node) {
+    public void fireSelectedProofNode(final ProofNode node) {
         if(!isFiring) {
             isFiring = true;
-            for (ProofNodeSelectionListener l : listeners) {
-                l.proofNodeSelected(node);
-            }
-            currentProofNode = node;
-            isFiring = false;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    for (ProofNodeSelectionListener l : listeners) {
+                        l.proofNodeSelected(node);
+                    }
+                    currentProofNode = node;
+                    isFiring = false;
+                }
+            });
         }
     }
     
-    public void fireSelectedRuleApplication(RuleApplication ruleApplication) {
+    public void fireSelectedRuleApplication(final RuleApplication ruleApplication) {
         if(!isFiring) {
             isFiring = true;
-            for (ProofNodeSelectionListener l : listeners) {
-                l.ruleApplicationSelected(ruleApplication);
-            }
-            isFiring = false;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    for (ProofNodeSelectionListener l : listeners) {
+                        l.ruleApplicationSelected(ruleApplication);
+                    }
+                    isFiring = false;
+                }
+            });
         }
     }
     
@@ -147,10 +156,6 @@ public class ProofCenter implements TermSelectionListener {
 
     public ProofNode getCurrentProofNode() {
         return currentProofNode;
-    }
-
-    public void replaceProof(Proof newProof) {
-        this.proof = newProof;
     }
 
     public BarManager getBarManager() {
