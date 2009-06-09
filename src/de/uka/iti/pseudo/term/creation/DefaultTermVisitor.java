@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 
+// TODO DOC
 public abstract class DefaultTermVisitor implements ModalityVisitor, TermVisitor {
     
     public static class DepthTermVisitor extends DefaultTermVisitor {

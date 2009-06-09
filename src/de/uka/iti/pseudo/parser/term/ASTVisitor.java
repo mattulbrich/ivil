@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+// TODO DOC
+
 public interface ASTVisitor {
 
 	void visit(ASTApplicationTerm applicationTerm) throws ASTVisitException;

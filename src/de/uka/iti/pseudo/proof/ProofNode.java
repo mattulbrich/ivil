@@ -18,6 +18,8 @@ import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
+// TODO DOC
+
 public class ProofNode {
 
     private Sequent sequent;

@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term;
 
+// TODO DOC
+
 public class SchemaModality extends Modality {
     
     private String schemaIdentifier;

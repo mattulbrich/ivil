@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+//TODO DOC
+
 public class ASTHeadElement extends ASTElement {
     
     public ASTHeadElement(ASTElement element) {

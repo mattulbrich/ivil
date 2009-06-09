@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 
+// TODO DOC
+
 public class SchemaVariable extends Term {
 
     private String name;

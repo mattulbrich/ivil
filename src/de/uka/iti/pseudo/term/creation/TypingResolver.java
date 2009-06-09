@@ -33,7 +33,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
-
+// TODO DOC
 public class TypingResolver extends ASTDefaultVisitor {
     
     private Environment env;

@@ -12,6 +12,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
+// TODO DOC
+
 public class InteractiveRuleApplicationFinder {
     
     private static final int MAX_NUMBER_APPLICATIONS = 20;

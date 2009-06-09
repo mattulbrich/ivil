@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 
+// TODO DOC
+
 public abstract class Type {
 
     public abstract Type visit(TypeVisitor visitor) throws TermException;

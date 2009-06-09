@@ -21,6 +21,8 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 
+// TODO DOC
+
 public class SequentComponent extends JPanel implements ProofNodeSelectionListener {
     
     private static final long serialVersionUID = -3882151273674917147L;

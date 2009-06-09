@@ -4,7 +4,7 @@ import java.math.BigInteger;
 
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Type;
-
+//TODO DOC
 public class NumberLiteral extends Function {
     
     private static final Type[] NO_ARGS = new Type[0];

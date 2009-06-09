@@ -24,6 +24,7 @@ import com.javadocking.model.FloatDockModel;
 
 
 // the center of this all
+// TODO DOC
 
 public class MainWindow extends JFrame {
 

@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
+// TODO DOC
+
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {

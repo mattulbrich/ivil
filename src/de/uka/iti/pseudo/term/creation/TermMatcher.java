@@ -15,7 +15,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
-
+// TODO DOC
 public class TermMatcher extends DefaultTermVisitor {
 
     private TermUnification termUnification;

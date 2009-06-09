@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.rule;
 
+// TODO DOC
 public class RuleException extends Exception {
 
     public RuleException() {

@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.term;
 import java.util.LinkedList;
 import java.util.List;
 
+// TODO DOC
+
 public class UnificationException extends TermException {
     
     private List<String> details = new LinkedList<String>();

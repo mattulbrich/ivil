@@ -5,11 +5,11 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 
+//TODO DOC
 public class LocatedTerm extends Pair<Term, MatchingLocation> {
 
     public LocatedTerm(Term term, MatchingLocation matchingLocation) {
         super(term, matchingLocation);
-        // TODO Auto-generated constructor stub
     }
 
     public Term getTerm() {

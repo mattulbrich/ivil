@@ -1,7 +1,7 @@
 package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
-
+// TODO DOC
 public abstract class ASTDefaultVisitor implements ASTVisitor {
 
     protected abstract void defaultVisit(ASTElement term) throws ASTVisitException;

@@ -15,6 +15,8 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 import de.uka.iti.pseudo.util.Util;
 
+// TODO DOC
+
 public class RebuildingTermVisitor extends DefaultTermVisitor {
 
     protected Modality resultingModality;

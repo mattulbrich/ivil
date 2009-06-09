@@ -9,8 +9,12 @@
 
 package de.uka.iti.pseudo.environment;
 
-
-//TODO DOC
+/**
+ * Exceptions of class EnvironmentException are mainly thrown 
+ * by classes in the package de.uka.iti.pseudo.environment to 
+ * indicate that something related to environment creation or
+ * usage has gone wrong.
+ */
 public class EnvironmentException extends Exception {
 
     private static final long serialVersionUID = -7443118615154672177L;

@@ -10,9 +10,13 @@ package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.environment.Environment;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class WhileModality encapsulates 
+ * The Class WhileModality encapsulates a while loop as an object.
+ * 
+ * A while loop has got another modality as body and a condition term
+ * whose type must be boolean.
+ * 
+ * The body is stored as first submodality.
  */
 public class WhileModality extends Modality {
 
@@ -27,10 +31,10 @@ public class WhileModality extends Modality {
      * @param conditionTerm
      *            the condition term
      * @param body
-     *            the body
+     *            the body modaliy
      * 
      * @throws TermException
-     *             the term exception
+     *             if conditionTerm is not typed bool
      */
     public WhileModality(Term conditionTerm, Modality body) throws TermException {
         super(body);
@@ -39,7 +43,7 @@ public class WhileModality extends Modality {
     }
 
     /**
-     * Type check this while modality.
+     * Type check the while modality.
      * 
      * @throws TermException
      *             thrown if the condition term is not boolean
@@ -76,9 +80,9 @@ public class WhileModality extends Modality {
     }
     
     /**
-     * Gets the body.
+     * Gets the while body.
      * 
-     * @return the body
+     * @return the body modality-
      */
     public Modality getBody() {
         return getSubModality(0);

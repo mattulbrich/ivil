@@ -20,7 +20,7 @@ import javax.swing.Icon;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Term;
 
-
+// TODO DOC
 public class Util {
 	
 	public static final Icon UNKNOWN_ICON = new Icon() {

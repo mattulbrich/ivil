@@ -7,6 +7,8 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 
+// TODO DOC
+
 public class RuleApplication {
 
     private Rule rule;

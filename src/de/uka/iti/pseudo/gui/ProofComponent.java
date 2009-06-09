@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.util.Util;
-
+//TODO DOC
 public class ProofComponent extends JTree implements ProofNodeSelectionListener {
 
     private static final long serialVersionUID = 6352175425195393727L;

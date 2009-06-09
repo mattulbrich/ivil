@@ -8,6 +8,9 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
+// TODO DOC
+// proucer pattern?
+
 public class RuleApplicationMaker {
     
     private Rule rule;

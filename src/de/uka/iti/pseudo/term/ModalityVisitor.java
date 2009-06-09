@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term;
 
+// TODO DOC
+
 public interface ModalityVisitor {
 
     void visit(AssignModality assignModality) throws TermException;

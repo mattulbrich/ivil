@@ -5,6 +5,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.util.Util;
 
+// TODO DOC
 public class Rule {
     
     private String name;
@@ -52,7 +53,7 @@ public class Rule {
     }
 
     private void checkRule() throws RuleException {
-        // TODO
+        // TODO Auto-generated method stub
         // e.g.: locations in assumes and finds
         // closegoal is empty
         // newgoal has no replace

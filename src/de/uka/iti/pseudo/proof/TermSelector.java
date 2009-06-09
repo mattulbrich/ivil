@@ -6,6 +6,8 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
 
+// TODO DOC
+// TODO Use proofexception?
 public class TermSelector {
 
     public static final boolean ANTECEDENT = true;

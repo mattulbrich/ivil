@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.proof;
 
+// TODO DOC
+
 public class ProofException extends Exception {
 
     public ProofException() {

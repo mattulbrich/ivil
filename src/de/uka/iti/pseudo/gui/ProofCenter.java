@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.term.Sequent;
 
 
 // the center of this all
-
+//TODO DOC
 public class ProofCenter implements TermSelectionListener {
 
     private MainWindow mainWindow;

@@ -11,7 +11,6 @@ package de.uka.iti.pseudo.term;
 import de.uka.iti.pseudo.environment.Environment;
 import nonnull.Nullable;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class IfModality captures a conditional program modality.
  */

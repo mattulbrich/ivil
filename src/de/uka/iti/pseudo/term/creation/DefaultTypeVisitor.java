@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 
+// TODO DOC
 public class DefaultTypeVisitor implements TypeVisitor {
 
     public Type visit(TypeApplication typeApplication) throws TermException {

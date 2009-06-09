@@ -57,7 +57,6 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class has two purposes:
  * 

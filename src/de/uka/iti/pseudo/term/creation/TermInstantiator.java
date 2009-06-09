@@ -5,7 +5,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-
+// TODO DOC
 public class TermInstantiator extends RebuildingTermVisitor {
 
     private TermUnification termUnification;

@@ -12,8 +12,6 @@ package de.uka.iti.pseudo.environment;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 
-// TODO: Auto-generated Javadoc
-
 /**
  * The Class FixOperator provides a connection between function symbols and
  * inifix (or prefix) written operator symbols.
@@ -44,7 +42,7 @@ public class FixOperator {
     private ASTLocatedElement declaration;
 
     /**
-     * The arity of the operation
+     * The arity of the operation (1 or 2)
      */
     private int arity;
 
@@ -52,9 +50,9 @@ public class FixOperator {
      * Instantiates a new fix operator.
      * 
      * @param name
-     *            the name
+     *            the name of the underlying function
      * @param opIdentifier
-     *            the operator identifier
+     *            the symolic operator identifier 
      * @param precedence
      *            the precedence (>= 0)
      * @param arity
@@ -97,16 +95,16 @@ public class FixOperator {
     }
 
     /**
-     * Gets the precedence.
+     * Gets the precedence of the fixed symbol.
      * 
-     * @return the precedence
+     * @return a non-negative number
      */
     public int getPrecedence() {
         return precedence;
     }
 
     /**
-     * Gets the declaration.
+     * Gets the location of the declaration of this symbol
      * 
      * @return the declaration
      */

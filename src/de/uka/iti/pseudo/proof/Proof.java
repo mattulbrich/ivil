@@ -11,6 +11,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.DeferredObservable;
 
+// TODO DOC
+
 public class Proof extends Observable {
 
     protected ProofNode root;

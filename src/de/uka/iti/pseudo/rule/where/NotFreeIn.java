@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
+// TODO DOC l8er
 public class NotFreeIn extends WhereCondition {
 
     public NotFreeIn() {

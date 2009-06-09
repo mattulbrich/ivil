@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 
+// TODO DOC
+
 public class ModalityTerm extends Term {
 
 	private Modality modality; 

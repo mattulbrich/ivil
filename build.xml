@@ -82,6 +82,19 @@
     </junit>
   </target>
 
+  <target name="javadoc" depends="init" description="Build Javadoc.">
+    <mkdir dir="javadoc"/>
+    <javadoc destdir="javadoc">
+      <sourcepath>
+        <pathelement location="src"/>
+      </sourcepath>
+      <fileset dir="src">
+        <include name="**/*.java"/>
+      </fileset>
+      <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+    </javadoc>
+  </target>
+
   <target name="clean">
     <delete dir="classes" />
     <delete dir="classes-test" />

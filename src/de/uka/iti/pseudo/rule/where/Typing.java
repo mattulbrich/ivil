@@ -9,6 +9,9 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
+
+// TODO DOC l8er
+
 public class Typing extends WhereCondition {
 
     public Typing() {

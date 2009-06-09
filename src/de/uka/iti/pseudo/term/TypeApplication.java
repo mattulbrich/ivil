@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.environment.Sort;
 
+// TODO DOC
+
 public class TypeApplication extends Type {
     
     private static final Type[] NO_ARGS = new Type[0];

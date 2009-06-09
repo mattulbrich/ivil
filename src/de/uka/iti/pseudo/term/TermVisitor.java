@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term;
 
+// TODO DOC
+
 public interface TermVisitor {
 
 	void visit(Variable variable) throws TermException;

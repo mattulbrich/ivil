@@ -16,6 +16,8 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 
+//TODO DOC
+
 public class GoalList extends JList implements ProofNodeSelectionListener {
 
     private static final long serialVersionUID = 4802864505685652999L;

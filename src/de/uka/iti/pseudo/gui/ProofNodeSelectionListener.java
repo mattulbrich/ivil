@@ -1,7 +1,7 @@
 package de.uka.iti.pseudo.gui;
 
 import de.uka.iti.pseudo.proof.ProofNode;
-
+//TODO DOC
 public interface ProofNodeSelectionListener {
 
     public void proofNodeSelected(ProofNode node);

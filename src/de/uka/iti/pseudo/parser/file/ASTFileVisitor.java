@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+// TODO DOC
+
 public interface ASTFileVisitor {
 
 	public void visit(ASTFile file) throws ASTVisitException;

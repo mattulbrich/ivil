@@ -93,7 +93,8 @@ public class TypeUnification {
     }
 
     /**
-     * Use the substitution that has been gathered during unification and apply it to a type.
+     * Use the substitution that has been gathered during unification and apply
+     * it to a type.
      * 
      * @param type
      *            some type

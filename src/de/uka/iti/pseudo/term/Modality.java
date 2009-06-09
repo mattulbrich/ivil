@@ -14,6 +14,8 @@ import nonnull.NonNull;
 
 import de.uka.iti.pseudo.util.Util;
 
+// TODO DOC
+
 public abstract class Modality {
     
     private Modality subModality[];

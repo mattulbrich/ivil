@@ -6,6 +6,8 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
+// TODO DOC l8er
+
 public class WhereClause {
     
     private WhereCondition whereCondition;

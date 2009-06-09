@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+// TODO DOC
+
 public class TermException extends Exception {
 
 	public TermException() {

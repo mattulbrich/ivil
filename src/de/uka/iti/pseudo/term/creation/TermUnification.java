@@ -10,7 +10,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
-
+// TODO DOC DOC
 public class TermUnification {
     
     private TypeUnification typeUnification = new TypeUnification();

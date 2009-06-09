@@ -23,6 +23,8 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 
+// TODO DOC
+
 public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener {
     
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
