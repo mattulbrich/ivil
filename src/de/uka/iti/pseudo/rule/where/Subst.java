@@ -9,6 +9,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -60,7 +61,8 @@ public class Subst extends WhereCondition {
     private static class TermReplacer extends RebuildingTermVisitor {
         
         private Term termToReplace;
-        private  Term replaceWith;
+        private Term replaceWith;
+        private boolean disabled = false;
         
         @Override 
         protected void defaultVisitTerm(Term term)
@@ -68,6 +70,14 @@ public class Subst extends WhereCondition {
             if(term.equals(termToReplace)) {
                 resultingTerm = replaceWith;
             }
+        }
+        
+        @Override public void visit(Binding binding) throws TermException {
+            // TODO method documentation
+            // FIXME do not replace bound variables.
+            //if(binding.boundvariable equals termToReplace 
+            // then set disabled, run super and unset
+            super.visit(binding);
         }
         
         Term replace(Term termToReplace, Term replaceWith, Term replaceIn) throws TermException {

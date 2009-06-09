@@ -9,6 +9,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 // TODO DOC DOC
 public class TermUnification {
@@ -18,6 +19,8 @@ public class TermUnification {
     private Map<String, Modality> modalityInstantiation = new HashMap<String, Modality>();
     private TermInstantiator termInstantiator = new TermInstantiator(this);
     private TermMatcher termMatcher = new TermMatcher(this);
+    
+    private boolean containsSchema = false;
     
     public boolean leftUnify(Term adaptingTerm, Term fixTerm) {
         
@@ -39,18 +42,53 @@ public class TermUnification {
     
     public void addInstantiation(SchemaVariable sv, Term term) throws TermException {
         
-        assert !containsSchemaIdentifier(term) : term;
+        SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
+        scv.collect(term);
+        
+        if(scv.getSchemaVariables().contains(sv)) {
+            throw new UnificationException("The schema variable cannot be instantiated, occur check failed", sv, term);
+        }
+        
         assert instantiation.get(sv) == null;
         
         instantiation.put(sv.getName(), term);
+        
+        if(containsSchema) {
+            for (String s : instantiation.keySet()) {
+                instantiation.put(s, instantiate(instantiation.get(s)));
+            }
+            for (String s : modalityInstantiation.keySet()) {
+                modalityInstantiation.put(s, instantiate(modalityInstantiation.get(s)));
+            }
+        }
+        
+        containsSchema |= !scv.isEmpty();
     }
     
     public void addInstantiation(SchemaModality sm, Modality mod) throws TermException {
 
-        assert !containsSchemaIdentifier(mod) : mod;
+        SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
+        scv.collect(mod);
+        
+        if(scv.getSchemaModalities().contains(sm)) {
+            throw new UnificationException("The schema modalitycannot be instantiated, occur check failed", sm, mod);
+        }
+        
         assert modalityInstantiation.get(sm) == null;
         
         modalityInstantiation.put(sm.getName(), mod);
+        
+        // TODO see above
+        if(containsSchema) {
+            for (String s : instantiation.keySet()) {
+                instantiation.put(s, instantiate(instantiation.get(s)));
+            }
+            for (String s : modalityInstantiation.keySet()) {
+                modalityInstantiation.put(s, instantiate(modalityInstantiation.get(s)));
+            }
+        }
+        
+        containsSchema |= !scv.isEmpty();
     }
     
     public Term getTermFor(SchemaVariable sv) {
