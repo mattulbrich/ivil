@@ -3,20 +3,22 @@ package de.uka.iti.pseudo.environment;
 import java.util.List;
 import java.util.Set;
 
+import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFileDefaultVisitor;
-import de.uka.iti.pseudo.parser.file.ASTFileElement;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
-import de.uka.iti.pseudo.parser.file.ASTType;
-import de.uka.iti.pseudo.parser.file.ASTTypeRef;
-import de.uka.iti.pseudo.parser.file.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTType;
+import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.creation.TermMaker;
 
 
-public class EnvironmentDefinitionVisitor extends ASTFileDefaultVisitor {
+public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
 
     /**
      * The environment that is being built.
@@ -30,12 +32,12 @@ public class EnvironmentDefinitionVisitor extends ASTFileDefaultVisitor {
     }
 
     /*
-     * default behaviour
+     * default behaviour: depth visiting
      * 
      * visit children
      */
-    protected void visitDefault(ASTFileElement arg) throws ASTVisitException {
-        for (ASTFileElement child : arg.getChildren()) {
+    protected void visitDefault(ASTElement arg) throws ASTVisitException {
+        for (ASTElement child : arg.getChildren()) {
             child.visit(this);
         }
     }
@@ -160,31 +162,8 @@ public class EnvironmentDefinitionVisitor extends ASTFileDefaultVisitor {
     /*
      * Type application
      */
-    public void visit(ASTTypeRef arg) throws ASTVisitException {
-
-        String name = arg.getTypeToken().image;
-
-        List<ASTType> argumentTypes = arg.getArgTypes();
-        Type domTy[] = new Type[argumentTypes.size()];
-
-        for (int i = 0; i < domTy.length; i++) {
-            argumentTypes.get(i).visit(this);
-            domTy[i] = resultingTypeRef;
-        }
-
-        try {
-            resultingTypeRef = env.mkType(name, domTy);
-        } catch (Exception e) {
-            throw new ASTVisitException(arg, e);
-        }
-    }
-
-    /*
-     * type variable
-     */
-    public void visit(ASTTypeVar arg) throws ASTVisitException {
-        resultingTypeRef = new TypeVariable(arg.getTypeVarToken().image
-                .substring(1));
+    public void visit(ASTType arg) throws ASTVisitException {
+        resultingTypeRef = TermMaker.makeType(arg, env);
     }
 
 }

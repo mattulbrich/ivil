@@ -11,10 +11,13 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.term.ASTType;
 
-public class ASTBinderDeclaration extends ASTFileElement {
+public class ASTBinderDeclaration extends ASTElement {
 
     private ASTType variableType;
 
@@ -36,7 +39,7 @@ public class ASTBinderDeclaration extends ASTFileElement {
         addChildren(tyrefs);
     }
 
-    public void visit(ASTFileVisitor v) throws ASTVisitException {
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
@@ -56,7 +59,7 @@ public class ASTBinderDeclaration extends ASTFileElement {
         return name;
     }
 
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
 		return name;
 	}
 

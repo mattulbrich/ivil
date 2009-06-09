@@ -10,20 +10,17 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
-import de.uka.iti.pseudo.parser.term.ASTDefaultVisitor;
-import de.uka.iti.pseudo.parser.term.ASTElement;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
-import de.uka.iti.pseudo.parser.term.ASTModAssignment;
-import de.uka.iti.pseudo.parser.term.ASTModIf;
-import de.uka.iti.pseudo.parser.term.ASTModWhile;
-import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -33,6 +30,8 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+
+
 // TODO DOC
 public class TypingResolver extends ASTDefaultVisitor {
     
@@ -48,7 +47,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
 
     @Override
-    protected void defaultVisit(ASTElement element) throws ASTVisitException {
+    protected void visitDefault(ASTElement element) throws ASTVisitException {
         for(ASTElement e : element.getChildren()) {
             e.visit(this);
         }
@@ -289,93 +288,18 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     
     @Override 
-    public void visit(ASTModalityTerm modalityTerm)
+    public void visit(ASTProgramTerm modalityTerm)
             throws ASTVisitException {
         super.visit(modalityTerm);
+        
+        
+        // FIXME!
         
         ASTTerm subterm = modalityTerm.getSubterms().get(0);
         modalityTerm.setTyping(subterm.getTyping());
         
     }
     
-    @Override
-    public void visit(ASTModAssignment modAssignment)
-            throws ASTVisitException {
-        
-        super.visit(modAssignment);
-
-        String symbol = modAssignment.getAssignedIdentifier().image;
-        Type targetType;
-        
-        if(symbol.startsWith("%")) {
-            
-            targetType = new TypeVariable(symbol);
-            
-        } else {
-
-            Function fct = env.getFunction(symbol);
-
-            if(fct == null)
-                throw new ASTVisitException("Unknown assigned identifier " + symbol, modAssignment);
-
-            if(!fct.isAssignable())
-                throw new ASTVisitException("Assigned identifier " + symbol + " is not assignable.", modAssignment);
-
-            // assignables have no free type variables, therefore typingContext.makeNewSignature is
-            // not needed
-            targetType = fct.getResultType();
-        }
-        
-        try {
-            typingContext.solveConstraint( 
-                    targetType,
-                    modAssignment.getAssignedTerm().getTyping().getRawType());
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Incompatibles types in assignmend." +
-                    "\nIdentifier type: " + targetType +
-                    "\nAssigned term type: " + modAssignment.getAssignedTerm().getTyping().getRawType() +
-                    "\n" + e.getDetailedMessage(), e);
-        }
-
-    }
-
-    @Override
-    public void visit(ASTModIf modIf) throws ASTVisitException {
-        
-        super.visit(modIf);
-
-        try {
-            typingContext.solveConstraint(Environment.getBoolType(),
-                    modIf.getConditionTerm().getTyping().getRawType());
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Condition in if-modality not boolean." +
-                    "\ncondition term type: " +  modIf.getConditionTerm().getTyping().getRawType() +
-                    "\n" + e.getDetailedMessage(), e);
-        }
-
-        
-    }
-
-    @Override
-    public void visit(ASTModWhile modWhile) throws ASTVisitException {
-        super.visit(modWhile);
-
-        try {
-            typingContext.solveConstraint(Environment.getBoolType(),
-                    modWhile.getConditionTerm().getTyping().getRawType());
-            
-            ASTTerm inv = modWhile.getInvariantTerm();
-            if(inv != null) {
-                typingContext.solveConstraint(Environment.getBoolType(), 
-                        inv.getTyping().getRawType());
-            }
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Condition in if-modality not boolean." +
-                    "\ncondition term type: " +  modWhile.getConditionTerm().getTyping().getRawType() +
-                    "\n" + e.getDetailedMessage(), e);
-        }
-    }
-
     @Override
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         String typeName = typeRef.getTypeToken().image;

@@ -28,12 +28,6 @@ public interface ASTFileVisitor {
 
 	public void visit(ASTFunctionDeclarationBlock functionDeclarationBlock) throws ASTVisitException;
 
-	public void visit(ASTRawTerm rawTerm) throws ASTVisitException;
-
-	public void visit(ASTTypeRef typeRef) throws ASTVisitException;
-
-	public void visit(ASTTypeVar typeVarRef) throws ASTVisitException;
-
 	public void visit(ASTRule rule) throws ASTVisitException;
 
 	public void visit(ASTRuleFind ruleFind) throws ASTVisitException;
@@ -50,8 +44,6 @@ public interface ASTFileVisitor {
 
     public void visit(ASTWhereClause whereClause) throws ASTVisitException;
     
-    public void visit(ASTWithClause withClause) throws ASTVisitException;
-
     public void visit(ASTLocatedTerm locatedTerm) throws ASTVisitException;
 
     public void visit(ASTGoalAction goalAction) throws ASTVisitException;

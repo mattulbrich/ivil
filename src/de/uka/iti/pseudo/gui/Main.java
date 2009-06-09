@@ -9,7 +9,7 @@ import java.util.Properties;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
-import de.uka.iti.pseudo.parser.file.FileParser;
+import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 
 public class Main {
@@ -38,7 +38,7 @@ public class Main {
             startupWindow.setVisible(true);
         } else {
             // XXX now, this is 'f course still alpha
-            FileParser fp = new FileParser();
+            Parser fp = new Parser();
 
             String arg =  args[0];
 

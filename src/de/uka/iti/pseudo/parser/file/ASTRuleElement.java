@@ -8,7 +8,10 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
-public abstract class ASTRuleElement extends ASTFileElement {
+import de.uka.iti.pseudo.parser.ASTElement;
+import de.uka.iti.pseudo.parser.Token;
+
+public abstract class ASTRuleElement extends ASTElement {
 
 	protected Token firstToken;
 
@@ -20,7 +23,7 @@ public abstract class ASTRuleElement extends ASTFileElement {
         return firstToken;
     }
     
-    @Override protected Token getLocationToken() {
+    public Token getLocationToken() {
         return getFirstToken();
     }
 }

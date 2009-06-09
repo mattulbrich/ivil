@@ -1,130 +1,7 @@
 
-options {
-   STATIC=false;
-}
-
-PARSER_BEGIN(FileParser)
-package de.uka.iti.pseudo.parser.file;
-
-import java.util.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
-import java.io.StringReader;
-
-import de.uka.iti.pseudo.util.Pair;
-
-public class FileParser {
-
-    public FileParser() {
-       this(new StringReader(""));
-    }
-
-    public ASTFile parseFile(File file) throws FileNotFoundException, ParseException {
-       return parseFile(new FileReader(file), file.getPath());
-    }
-    
-    public ASTFile parseFile(Reader reader, String filename) throws ParseException {
-        ReInit(reader);
-        ASTFile result = File();
-        result.setFilename(filename);
-        return result;
-    }
-    
-}
-
-PARSER_END(FileParser)
 
 //
-// (* COMMENTS *)
-TOKEN_MGR_DECLS : {
-    int commentNestingDepth ; 
-}
-    
-// When a "(*" is encounted in the DEFAULT state, set the counter to 1 and enter the COMMENT state:
-SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
-
-// When a "(*" is encounted in the COMMENT state, increment the counter:
-< COMMENT >  SKIP : {  "(*" { commentNestingDepth += 1 ; } }
-
-// When a "*)" is encountered in the COMMENT state, either switch back to the DEFAULT state or stay in the comment state:
-< COMMENT >  SKIP : {  "*)" { commentNestingDepth -= 1; SwitchTo( 
-	                          commentNestingDepth==0 ? DEFAULT : COMMENT ) ; } } 
-
-// Finally a rule is needed to mop up all the other characters in the comment.
-< COMMENT >  SKIP : {  < ~[] > }
-
-
-SKIP :
-{
-  " "
-| "\t"
-| "\n"
-| "\r"
-| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
-}
-
-TOKEN :
-{
-
-// keywords
-  < INCLUDE: "include" >
-| < SORT: "sort" >
-| < FUNCTION: "function" >
-| < BINDER: "binder" >
-| < INFIX: "infix" >
-| < PREFIX: "prefix" >
-| < ASSIGNABLE: "assignable" >
-| < UNIQUE: "unique" >
-| < PROBLEM: "problem" >
-| < RULE: "rule" >
-| < FIND: "find" >
-| < ASSUME: "assume" >
-| < REPLACE: "replace" >
-| < REMOVE: "remove" >
-| < WHERE: "where" >
-| < ADD: "add" >
-| < SAMEGOAL: "samegoal" >
-| < NEWGOAL: "newgoal" >
-| < CLOSE: "closegoal" >
-| < DESCRIPTION: "description" >
-| < TAGS: "tags" >
-// the following are keywords in the inner language. 
-// They are added here to prevent people from using them as
-// identifiers.
-| < AS: "as" >
-// ....
-
-// Literals
-| < TERM: "{" ( ~["}"] )* "}" >
-| < STRING: "\"" ( ~["\""] )* "\"" >
-| < NATURAL: ( ["0" - "9"] )+ >
-
-// Logics
-| < LEFTPAREN: "(" >
-| < RIGHTPAREN: ")" >
-| < COMMA: "," >
-| < SEMICOLON: ";" >
-| < SEP: "|-" >
-
-// Identifiers
-| < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >
-| < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
-| < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
-| < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
-| < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
-
-//| < OTHER: ["\u0000"-"\uFFFF"] >
-// if outer language hides an identifier in the inner language:
-| < HIDDEN_IDENTIFIER: "`" <IDENTIFIER> "`" >
-  { matchedToken.kind = IDENTIFIER;
-  	String s = matchedToken.image;
-  	matchedToken.image = s.substring(1, s.length()-1); }
-}
-
-//
+// This file contains the grammar for files with sorts/functions/rules/program and problem definitions
 // structural elements that have nothing to do with Terms
 //
 
@@ -133,7 +10,7 @@ ASTFile File():
 {
   ASTDeclarationBlock block;
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
-  ASTRawTerm problem = null;
+  ASTTerm problem = null;
 }
 {      (
         ( block=IncludeDeclarationBlock()
@@ -144,7 +21,7 @@ ASTFile File():
         )   { blocks.add(block); }
        )*
        
-       ( "problem" problem=RawTerm() )?
+       ( "problem" problem=Term() )?
        
        <EOF>
        
@@ -206,13 +83,13 @@ ASTFunctionDeclaration FunctionDeclaration():
   List<ASTType> tyrefs = new ArrayList<ASTType>();
 }
 {
-        range=TypeReference()
+        range=TypeRef()
         
         ( name=<IDENTIFIER> | name=<INTERNAL_IDENTIFIER> )
         
         (
-          "(" ty=TypeReference() { tyrefs.add(ty); }
-             ( "," ty=TypeReference() { tyrefs.add(ty); } )*
+          "(" ty=TypeRef() { tyrefs.add(ty); }
+             ( "," ty=TypeRef() { tyrefs.add(ty); } )*
           ")"
         )?
         
@@ -249,49 +126,18 @@ ASTBinderDeclaration BinderDeclaration():
   List<ASTType> tyrefs = new ArrayList<ASTType>();
 }
 {
-	range=TypeReference() "("
+	range=TypeRef() "("
         
     name=<BINDER_IDENTIFIER>
     
-    varty=TypeReference()
+    varty=TypeRef()
      
-    ( ";" ty=TypeReference() { tyrefs.add(ty); } )+
+    ( ";" ty=TypeRef() { tyrefs.add(ty); } )+
 
     ")"
 
     { return new ASTBinderDeclaration(name, range, varty, tyrefs); }
 }
-
-
-ASTRawTerm RawTerm():
-{
-  Token token;
-}
-{
-   token=<TERM> { return new ASTRawTerm(token); }
-}
-
-ASTType TypeReference():
-{
-  Token token;
-  ASTType ty;
-  List<ASTType> args = new ArrayList<ASTType>();
-}
-{
-  (
-     token=<IDENTIFIER>
-     ( LOOKAHEAD(2)  // might have a binder id in a binder declaration
-        "(" ty=TypeReference() { args.add(ty); }
-             ( "," ty=TypeReference() { args.add(ty); } )*
-        ")"
-     )?
-      { return new ASTTypeRef(token, args); }
-   |
-     token=<TYVAR_IDENTIFIER>
-      { return new ASTTypeVar(token); }
-  )
-}
-
 
 ASTRule RuleDeclaration():
 {
@@ -342,28 +188,28 @@ ASTRule RuleDeclaration():
 
 ASTLocatedTerm LocatedTerm(boolean bothAllowed):
 {
-	ASTRawTerm rt;
+	ASTTerm rt;
 }
 {
-      LOOKAHEAD(2) rt=RawTerm() "|-"
+      LOOKAHEAD(2) rt=Term() "|-"
         { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); }
-    | "|-" rt=RawTerm()
+    | "|-" rt=Term()
         { return new ASTLocatedTerm(rt, MatchingLocation.SUCCEDENT); }
-    | LOOKAHEAD({bothAllowed}) rt=RawTerm()
+    | LOOKAHEAD({bothAllowed}) rt=Term()
         { return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
 }
 
 List<ASTRuleElement> AddReplaces():
 {
 	Token t;
-	ASTRawTerm rt;
+	ASTTerm term;
 	ASTLocatedTerm lt;
 	List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
 }
 {
   ( 
     t="add" lt=LocatedTerm(false) { list.add(new ASTRuleAdd(t, lt)); }
-  | t="replace" rt=RawTerm() { list.add(new ASTRuleReplace(t, rt)); }
+  | t="replace" term=Term() { list.add(new ASTRuleReplace(t, term)); }
   | t="remove" { list.add(new ASTRuleRemove(t)); }
   )+
   { return list; }
@@ -372,11 +218,11 @@ List<ASTRuleElement> AddReplaces():
 ASTWhereClause WhereClause(Token headToken):
 {
 	Token t;
-	ASTRawTerm rt;
-	List<ASTRawTerm> args = new ArrayList<ASTRawTerm>();
+	ASTTerm term;
+	List<ASTTerm> args = new ArrayList<ASTTerm>();
 }
 {
 	   t=<IDENTIFIER>
-	   ( rt=RawTerm() { args.add(rt); } )*
+	   ( term=Term() { args.add(term); } )*
        { return new ASTWhereClause(headToken, t, args); }	   
 }

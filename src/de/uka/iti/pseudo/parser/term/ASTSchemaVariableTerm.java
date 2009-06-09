@@ -3,8 +3,9 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.Collections;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTSchemaVariableTerm extends ASTTerm {
     
@@ -15,7 +16,7 @@ public class ASTSchemaVariableTerm extends ASTTerm {
         schemaToken = t;
     }
 
-    @Override protected Token getLocationToken() {
+    @Override public Token getLocationToken() {
         return schemaToken;
     }
 

@@ -16,12 +16,12 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ParseException;
+import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
-import de.uka.iti.pseudo.parser.file.ASTRawTerm;
-import de.uka.iti.pseudo.parser.file.FileParser;
-import de.uka.iti.pseudo.parser.file.ParseException;
-import de.uka.iti.pseudo.parser.file.Token;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
@@ -52,7 +52,7 @@ public class EnvironmentMaker {
     /**
      * The parser to use to parse include files
      */
-    private FileParser parser;
+    private Parser parser;
 
     /**
      * Instantiates a new environment maker.
@@ -74,7 +74,7 @@ public class EnvironmentMaker {
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
-    public EnvironmentMaker(FileParser parser, File file)
+    public EnvironmentMaker(Parser parser, File file)
     throws FileNotFoundException, ParseException, ASTVisitException {
         this(parser, file, Environment.BUILT_IN_ENV);
     }
@@ -99,7 +99,7 @@ public class EnvironmentMaker {
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
-    private EnvironmentMaker(FileParser parser, File file, Environment parent)
+    private EnvironmentMaker(Parser parser, File file, Environment parent)
     throws FileNotFoundException, ASTVisitException, ParseException {
         this(parser, parser.parseFile(file), file.getPath(), parent);
 
@@ -120,7 +120,7 @@ public class EnvironmentMaker {
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
-    private EnvironmentMaker(@NonNull FileParser parser,
+    private EnvironmentMaker(@NonNull Parser parser,
             @NonNull ASTFile astFile, @NonNull String name,
             @NonNull Environment parent) throws ASTVisitException {
         this.parser = parser;
@@ -137,11 +137,13 @@ public class EnvironmentMaker {
 
 
 
+    /*
+     * convert the AST term problem description to a real term obejct.
+     */
     private void doProblem(ASTFile astFile) throws ASTVisitException {
-        // TODO method documentation
-        ASTRawTerm term = astFile.getProblemTerm();
+        ASTTerm term = astFile.getProblemTerm();
         if(term != null) {
-            problemTerm = TermMaker.makeTerm(term.getTermAST(), env);
+            problemTerm = TermMaker.makeTerm(term, env);
 
             if(TermUnification.containsSchemaIdentifier(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
@@ -190,7 +192,7 @@ public class EnvironmentMaker {
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
-    public EnvironmentMaker(FileParser parser, ASTFile astFile, String name)
+    public EnvironmentMaker(Parser parser, ASTFile astFile, String name)
             throws ASTVisitException {
         this(parser, astFile, name, Environment.BUILT_IN_ENV);
     }

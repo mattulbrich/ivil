@@ -9,6 +9,8 @@
 package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTRuleFind extends ASTRuleElement {
 
@@ -17,12 +19,12 @@ public class ASTRuleFind extends ASTRuleElement {
 		addChild(locatedTerm);
 	}
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
+	public void visit(ASTVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 	
 	@Override
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
 		return getFirstToken();
 	}
 	

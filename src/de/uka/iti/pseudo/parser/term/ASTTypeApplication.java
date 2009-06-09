@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTTypeApplication extends ASTType {
     
@@ -37,8 +39,7 @@ public class ASTTypeApplication extends ASTType {
         v.visit(this);
     }
     
-    @Override
-	protected Token getLocationToken() {
+    @Override public Token getLocationToken() {
     	return token;
 	}
 

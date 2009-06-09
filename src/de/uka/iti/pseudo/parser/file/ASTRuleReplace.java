@@ -9,28 +9,31 @@
 package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTRuleReplace extends ASTRuleElement {
 
-	private ASTRawTerm rawTerm;
+	private ASTTerm rawTerm;
 
-	public ASTRuleReplace(Token first, ASTRawTerm rawTerm) {
+	public ASTRuleReplace(Token first, ASTTerm rawTerm) {
 		super(first);
 		this.rawTerm = rawTerm;
 		addChild(rawTerm);
 	}
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
+	public void visit(ASTVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 	
 	@Override
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
 		return rawTerm.getLocationToken();
 	}
 	
-	public ASTRawTerm getRawTerm() {
-	    return (ASTRawTerm) getChildren().get(0);
+	public ASTTerm getTerm() {
+	    return (ASTTerm) getChildren().get(0);
 	}
 
 }

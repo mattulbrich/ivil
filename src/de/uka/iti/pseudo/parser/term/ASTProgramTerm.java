@@ -11,29 +11,27 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.Collections;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
-public class ASTModalityTerm extends ASTTerm {
+public class ASTProgramTerm extends ASTTerm {
+
+    private boolean terminating;
     
-    private ASTModality modality;
-
-    public ASTModalityTerm(ASTModality modality, ASTTerm term) {
-        super(Collections.<ASTTerm>singletonList(term));
-        this.modality = modality;
-        addChild(modality);
+    public ASTProgramTerm(boolean terminating, ASTNumberLiteralTerm position) {
+        super(Collections.<ASTTerm>emptyList());
+        this.terminating = terminating;
+        super.addChild(position);
     }
-    
+
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
-    public final ASTModality getModality() {
-        return modality;
-    }
-    
     @Override
-	protected Token getLocationToken() {
-    	return modality.getLocationToken();
+	public Token getLocationToken() {
+    	return getChildren().get(0).getLocationToken();
 	}
 
 }

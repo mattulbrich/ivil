@@ -31,22 +31,18 @@ import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.term.ParseException;
+import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.where.Interactive;
-import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
 
@@ -196,7 +192,10 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             Type svType;
             try {
                 svType = TermMaker.makeType(entry.getValue(), env);
-            } catch (TermException e) {
+            } catch (ASTVisitException e) {
+                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
+                continue;
+            } catch (ParseException e) {
                 System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
                 continue;
             }

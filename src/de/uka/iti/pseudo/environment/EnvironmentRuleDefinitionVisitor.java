@@ -5,25 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ASTFileDefaultVisitor;
-import de.uka.iti.pseudo.parser.file.ASTFileElement;
+import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
-import de.uka.iti.pseudo.parser.file.ASTRawTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
-import de.uka.iti.pseudo.parser.file.ASTType;
-import de.uka.iti.pseudo.parser.file.ASTTypeRef;
-import de.uka.iti.pseudo.parser.file.ASTTypeVar;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.parser.file.Token;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
+import de.uka.iti.pseudo.parser.term.ASTType;
+import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
@@ -38,7 +36,7 @@ import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO Documentation needed
-public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
+public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
     /**
      * Results of various types are transferred during traversal using the
@@ -58,10 +56,10 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
     /*
      * default behaviour
      * 
-     * visit children
+     * visit children - depth
      */
-    protected void visitDefault(ASTFileElement arg) throws ASTVisitException {
-        for (ASTFileElement child : arg.getChildren()) {
+    protected void visitDefault(ASTElement arg) throws ASTVisitException {
+        for (ASTElement child : arg.getChildren()) {
             child.visit(this);
         }
     }
@@ -76,7 +74,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
         try {
 
             String name = arg.getName().image;
-            List<ASTFileElement> children = arg.getChildren();
+            List<ASTElement> children = arg.getChildren();
             
             List<LocatedTerm> assumes = new ArrayList<LocatedTerm>();
             {
@@ -165,7 +163,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
             throw new ASTVisitException("Unknown where condition: "
                     + identifier, arg);
 
-        List<ASTRawTerm> raws = SelectList.select(ASTRawTerm.class, arg
+        List<ASTTerm> raws = SelectList.select(ASTTerm.class, arg
                 .getChildren());
         Term[] terms = new Term[raws.size()];
         for (int i = 0; i < terms.length; i++) {
@@ -230,40 +228,15 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
     /*
      * Type application
      */
-    public void visit(ASTTypeRef arg) throws ASTVisitException {
-
-        String name = arg.getTypeToken().image;
-
-        List<ASTType> argumentTypes = arg.getArgTypes();
-        Type domTy[] = new Type[argumentTypes.size()];
-
-        for (int i = 0; i < domTy.length; i++) {
-            argumentTypes.get(i).visit(this);
-            domTy[i] = resultingTypeRef;
-        }
-
-        try {
-            resultingTypeRef = env.mkType(name, domTy);
-        } catch (Exception e) {
-            throw new ASTVisitException(arg, e);
-        }
-    }
-
-    /*
-     * type variable
-     */
-    public void visit(ASTTypeVar arg) throws ASTVisitException {
-        resultingTypeRef = new TypeVariable(arg.getTypeVarToken().image
-                .substring(1));
+    public void visit(ASTType arg) throws ASTVisitException {
+        resultingTypeRef = TermMaker.makeType(arg, env);
     }
 
     /*
      * transform a ASTTerm to a Term.
      */
-    public void visit(ASTRawTerm arg) throws ASTVisitException {
-        ASTTerm ast = arg.getTermAST();
-        assert ast != null;
-        resultingTerm = TermMaker.makeTerm(ast, env);
+    public void visit(ASTTerm arg) throws ASTVisitException {
+        resultingTerm = TermMaker.makeTerm(arg, env);
     }
 
     /*

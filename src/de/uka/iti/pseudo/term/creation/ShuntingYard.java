@@ -9,15 +9,16 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
+
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
-import de.uka.iti.pseudo.parser.term.Token;
 import de.uka.iti.pseudo.util.Pair;
 
 /**

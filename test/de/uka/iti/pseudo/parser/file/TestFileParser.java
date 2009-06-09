@@ -14,11 +14,12 @@ import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.Parser;
 
 public class TestFileParser extends TestCase {
 
     private Environment testEnv(String string) throws Exception {
-        FileParser fp = new FileParser();
+        Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " + string), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
         Environment env = em.getEnvironment();

@@ -26,7 +26,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.term.ParseException;
+import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.FormatException;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;

@@ -1,21 +1,26 @@
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 
-public class ASTLocatedTerm extends ASTFileElement {
+public class ASTLocatedTerm extends ASTElement {
     
     private MatchingLocation matchingLocation;
 
-    public ASTLocatedTerm(ASTRawTerm rt, MatchingLocation matchingLocation) {
+    public ASTLocatedTerm(ASTTerm rt, MatchingLocation matchingLocation) {
         this.matchingLocation = matchingLocation;
         addChild(rt);
     }
 
-    @Override protected Token getLocationToken() {
+    @Override 
+    public Token getLocationToken() {
         return getChildren().get(0).getLocationToken();
     }
 
-    @Override public void visit(ASTFileVisitor v) throws ASTVisitException {
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
@@ -23,8 +28,8 @@ public class ASTLocatedTerm extends ASTFileElement {
         return matchingLocation;
     }
     
-    public ASTRawTerm getTerm() {
-        return (ASTRawTerm) getChildren().get(0);
+    public ASTTerm getTerm() {
+        return (ASTTerm) getChildren().get(0);
     }
 
 }

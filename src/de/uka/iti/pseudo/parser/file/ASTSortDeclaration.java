@@ -11,10 +11,12 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
-public class ASTSortDeclaration extends ASTFileElement {
+public class ASTSortDeclaration extends ASTElement {
 
     private List<Token> typeVariables;
 
@@ -33,11 +35,11 @@ public class ASTSortDeclaration extends ASTFileElement {
         return name;
     }
 
-    public void visit(ASTFileVisitor v) throws ASTVisitException {
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
     	return name;
 	}
 

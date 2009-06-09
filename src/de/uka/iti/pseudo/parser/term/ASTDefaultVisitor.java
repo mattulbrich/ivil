@@ -8,12 +8,15 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
 
 /**
  * This default visitor allows extending classes to define a default action on
  * the ast nodes.
  */
+@Deprecated
 public abstract class ASTDefaultVisitor implements ASTVisitor {
 
     /**
@@ -41,32 +44,8 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         defaultVisit(listTerm);
     }
 
-    public void visit(ASTModalityTerm modalityTerm) throws ASTVisitException {
+    public void visit(ASTProgramTerm modalityTerm) throws ASTVisitException {
         defaultVisit(modalityTerm);
-    }
-
-    public void visit(ASTModAssignment modAssignment) throws ASTVisitException {
-        defaultVisit(modAssignment);
-    }
-
-    public void visit(ASTModCompound modCompound) throws ASTVisitException {
-        defaultVisit(modCompound);
-    }
-
-    public void visit(ASTModIf modIf) throws ASTVisitException {
-        defaultVisit(modIf);
-    }
-
-    public void visit(ASTModSkip modSkip) throws ASTVisitException {
-        defaultVisit(modSkip);
-    }
-
-    public void visit(ASTModWhile modWhile) throws ASTVisitException {
-        defaultVisit(modWhile);
-    }
-    
-    public void visit(ASTModSchema modSchema) throws ASTVisitException {
-        defaultVisit(modSchema);
     }
 
     public void visit(ASTNumberLiteralTerm numberLiteralTerm) throws ASTVisitException {

@@ -11,7 +11,7 @@ import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.StateConstants;
-import de.uka.iti.pseudo.parser.file.FileParser;
+import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 
 /**
@@ -40,7 +40,7 @@ public class LoadProblemAction extends AbstractStateListeningAction {
         int result = fileChooser.showOpenDialog(root);
         if(result == JFileChooser.APPROVE_OPTION) {
             try {
-                FileParser fp = new FileParser();
+                Parser fp = new Parser();
                 EnvironmentMaker em = new EnvironmentMaker(fp, fileChooser.getSelectedFile());
                 Environment env = em.getEnvironment();
                 Proof proof = new Proof(em.getProblemTerm());

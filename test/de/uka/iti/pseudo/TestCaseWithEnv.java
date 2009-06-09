@@ -7,8 +7,8 @@ import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.FileParser;
-import de.uka.iti.pseudo.parser.file.ParseException;
+import de.uka.iti.pseudo.parser.ParseException;
+import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
@@ -18,7 +18,7 @@ public class TestCaseWithEnv extends TestCase {
     protected static Environment env;
     
     protected static void loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
-        FileParser fp = new FileParser();
+        Parser fp = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(fp, new File("test/de/uka/iti/pseudo/testenv.p"));
         env = em.getEnvironment();
     }

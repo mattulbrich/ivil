@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.term.creation.Typing;
 
 public class ASTBinderTerm extends ASTTerm {
@@ -49,8 +51,7 @@ public class ASTBinderTerm extends ASTTerm {
         return variableToken;
     }
     
-    @Override
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
     	return binderToken;
 	}
 

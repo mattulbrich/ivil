@@ -1,100 +1,8 @@
 
-options {
-        STATIC = false;
-}
-
-PARSER_BEGIN(TermParser)
-package de.uka.iti.pseudo.parser.term;
-
-import java.util.*;
-import java.io.*;
-
-public class TermParser {
-
-    private String fileName;
-
-    public TermParser(String string, String fileName, int line, int col) {
-        this(new StringReader(string));
-        this.fileName = fileName;
-        jj_input_stream.line = line;
-        jj_input_stream.column = col;
-    }
-    
-    public ASTTerm parseTerm() throws ParseException 
-    {
-    	ASTTerm term = Term();
-    	term.setFilename(fileName);
-    	return term;
-    }
-  
-}
-
-PARSER_END(TermParser)
-
 //
-// (* COMMENTS *)
-TOKEN_MGR_DECLS : {
-    int commentNestingDepth ; 
-}
-    
-// When a "(*" is encounted in the DEFAULT state, set the counter to 1 and enter the COMMENT state:
-SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
+// This file contains partial parser defition for terms only
+//
 
-// When a "(*" is encounted in the COMMENT state, increment the counter:
-< COMMENT >  SKIP : {  "(*" { commentNestingDepth += 1 ; } }
-
-// When a "*)" is encountered in the COMMENT state, either switch back to the DEFAULT state or stay in the comment state:
-< COMMENT >  SKIP : {  "*)" { commentNestingDepth -= 1; SwitchTo( 
-                              commentNestingDepth==0 ? DEFAULT : COMMENT ) ; } } 
-
-// Finally a rule is needed to mop up all the other characters in the comment.
-< COMMENT >  SKIP : {  < ~[] > }
-
-SKIP :
-{
-  " "
-| "\t"
-| "\n"
-| "\r"
-}
-
-TOKEN :
-{
-
-// Logics
-  < LEFTPAREN: "(" >
-| < RIGHTPAREN: ")" >
-| < LEFTSQUARE: "[" >
-| < RIGHTSQUARE: "]" >
-| < COMMA: "," >
-| < SEMICOLON: ";" >
-| < AS: "as" >
-
-// Programs
-| < _SKIP: "skip" >
-| < IF: "if" >
-| < THEN: "then" >
-| < ELSE: "else" >
-| < WHILE: "while" >
-| < INV: "inv" >
-| < DO: "do" >
-| < END: "end" >
-| < ASSIGN: ":=" >
-
-// Identifiers
-| < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
-| < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
-| < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
-| < SCHEMAMOD_IDENTIFIER: "&" <IDENTIFIER> >
-| < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
-| < META_IDENTIFIER: "$$" <IDENTIFIER> >
-| < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
-
-// Literals
-| < NUMBERLITERAL: ( ["0" - "9"] )+ >
-
-}
 
 ASTTerm Term():
 { 
@@ -119,15 +27,15 @@ ASTTerm Term():
 
 ASTTerm ModalityTerm():
 {
-  ASTModality modality = null;
-  ASTTerm term;
+  ASTNumberLiteralTerm position;
+  // ASTStatement statement = null;
 }
 {
-      "[" modality=ModalityList() "]" term=ModalityTerm()
-         { return new ASTModalityTerm(modality, term); }
-    | 
-      term=AsTerm()
-         { return term; } 
+       ( "[" position=NumberLiteral() // ( ":" statement=Statement() )? "]" 
+           { return new ASTProgramTerm(false, position/*, statement*/); } )
+           
+    |  ( "[[" position=NumberLiteral() // ( ":" statement=Statement() )? "]]"
+           { return new ASTProgramTerm(true, position/*, statement*/); } )
 }
 
 ASTTerm AsTerm():
@@ -233,7 +141,7 @@ ASTNumberLiteralTerm NumberLiteral():
   Token t;
 }
 {
-        t=<NUMBERLITERAL>
+        t=<NATURAL>
   { return new ASTNumberLiteralTerm(t); }
 }
 
@@ -244,43 +152,4 @@ ASTSchemaVariableTerm SchemaVariable():
 {
         t=<SCHEMA_IDENTIFIER>
   { return new ASTSchemaVariableTerm(t); }
-}
-
-ASTModality ModalityList():
-{
-  ASTModality mod;
-  List<ASTModality> list = new ArrayList<ASTModality>();
-}
-{
-  mod=Modality()
-    { list.add(mod); }
-  (
-    ";"
-    mod=Modality()
-      { list.add(mod); }
-  )*
-  
-  { return list.size() == 1 ? 
-  	   mod : new ASTModCompound(list); }
-}
-
-ASTModality Modality():
-{
-  ASTTerm term, term2 = null, term3;
-  ASTModality mod, mod2 = null;
-  Token id;
-  Token t;
-}
-{
-        ( id=<IDENTIFIER> | id=<SCHEMA_IDENTIFIER> ) ":=" term=Term()
-            { return new ASTModAssignment(id, term); }
-        | t="while" term=Term() ( "inv" term2=Term() )? "do" mod=ModalityList() "end"
-            { return new ASTModWhile(t, term, term2, mod); }
-        | t="if" term=Term() "then" mod=ModalityList() 
-            ( "else" mod2=ModalityList() )? "end"
-            { return new ASTModIf(t, term, mod, mod2); }
-        | t="skip"
-            { return new ASTModSkip(t); }
-        | id=<SCHEMAMOD_IDENTIFIER>
-            { return new ASTModSchema(id); }
 }

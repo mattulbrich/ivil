@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.ParserConstants;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 
@@ -22,18 +25,19 @@ public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 		
 		includeStrings = list;
 		
+		// TODO really needed?!
 		assert onlyStringTokens();
 	}
 
 	private boolean onlyStringTokens() {
 		for (Token token : includeStrings) {
-			if(token.kind != FileParserConstants.STRING)
+			if(token.kind != ParserConstants.STRING)
 				return false;
 		}
 		return true;
 	}
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
+	public void visit(ASTVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 

@@ -6,7 +6,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT for details.
  */
-package de.uka.iti.pseudo.parser.term;
+package de.uka.iti.pseudo.parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,11 +14,10 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.ASTVisitException;
 
 /**
- * The Class ASTElement.
+ * The class ASTElement is the base class for all AST elements that arise
+ * when parsing files, programs or terms.
  */
 @NonNull
 public abstract class ASTElement implements ASTLocatedElement {
@@ -166,7 +165,7 @@ public abstract class ASTElement implements ASTLocatedElement {
 	 * 
 	 * @return the location token
 	 */
-	protected abstract Token getLocationToken();
+	public abstract Token getLocationToken();
 
     /**
      * Gets the parent element, null if there is no such element

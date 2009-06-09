@@ -10,8 +10,9 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
-import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTApplicationTerm extends ASTTerm {
     
@@ -33,7 +34,7 @@ public class ASTApplicationTerm extends ASTTerm {
     }
     
     @Override
-	protected Token getLocationToken() {
+	public Token getLocationToken() {
     	return functionToken;
 	}
 

@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.Token;
 
 public class ASTTypeVar extends ASTType {
     
@@ -10,8 +12,7 @@ public class ASTTypeVar extends ASTType {
         typeVarToken = token;
     }
 
-    @Override
-    protected Token getLocationToken() {
+    @Override public Token getLocationToken() {
         return getTypeVarToken();
     }
 

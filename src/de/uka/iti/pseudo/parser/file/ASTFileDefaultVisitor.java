@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 /**
@@ -25,7 +26,7 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
 	 * 
 	 * @throws ASTVisitException may be thrown by any implementation
 	 */
-	protected abstract void visitDefault(ASTFileElement arg) throws ASTVisitException;
+	protected abstract void visitDefault(ASTElement arg) throws ASTVisitException;
 	
 	public void visit(ASTFile arg) throws ASTVisitException {
 		visitDefault(arg);
@@ -48,18 +49,6 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
 	}
 
 	public void visit(ASTFunctionDeclarationBlock arg) throws ASTVisitException {
-		visitDefault(arg);
-	}
-
-	public void visit(ASTRawTerm arg) throws ASTVisitException {
-		visitDefault(arg);
-	}
-
-	public void visit(ASTTypeRef arg) throws ASTVisitException {
-		visitDefault(arg);
-	}
-
-	public void visit(ASTTypeVar arg) throws ASTVisitException {
 		visitDefault(arg);
 	}
 
@@ -99,10 +88,6 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
         visitDefault(arg);
     }
     
-    public void visit(ASTWithClause arg) throws ASTVisitException {
-        visitDefault(arg);
-    }
-
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
         visitDefault(arg);
     }

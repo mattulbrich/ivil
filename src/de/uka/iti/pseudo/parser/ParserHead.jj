@@ -1,0 +1,160 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
+ 
+options {
+   STATIC=false;
+}
+
+PARSER_BEGIN(Parser)
+package de.uka.iti.pseudo.parser;
+
+import de.uka.iti.pseudo.parser.file.*;
+import de.uka.iti.pseudo.parser.term.*;
+// import de.uka.iti.pseudo.parser.program.*;
+
+import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
+
+import de.uka.iti.pseudo.util.Pair;
+
+public class Parser {
+
+    public Parser() {
+       this(new StringReader(""));
+    }
+
+    public ASTFile parseFile(File file) throws FileNotFoundException, ParseException {
+       return parseFile(new FileReader(file), file.getPath());
+    }
+    
+    public ASTFile parseFile(Reader reader, String filename) throws ParseException {
+        ReInit(reader);
+        ASTFile result = File();
+        result.setFilename(filename);
+        return result;
+    }
+    
+    public ASTTerm parseTerm(Reader reader, String filename) throws ParseException
+    {  
+        ReInit(reader);
+        ASTTerm term = Term();
+        term.setFilename(filename);
+        return term;
+    }
+    
+    
+    /*
+    public ASTTerm parseProgram() throws ParseException 
+    {
+        ASTProgram term = Program();
+        term.setFilename(fileName);
+        return term;
+    }
+    */
+    
+}
+
+PARSER_END(Parser)
+
+//
+// (* COMMENTS *)
+TOKEN_MGR_DECLS : {
+    int commentNestingDepth ; 
+}
+    
+// When a "(*" is encounted in the DEFAULT state, set the counter to 1 and enter the COMMENT state:
+SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
+
+// When a "(*" is encounted in the COMMENT state, increment the counter:
+< COMMENT >  SKIP : {  "(*" { commentNestingDepth += 1 ; } }
+
+// When a "*)" is encountered in the COMMENT state, either switch back to the DEFAULT state or stay in the comment state:
+< COMMENT >  SKIP : {  "*)" { commentNestingDepth -= 1; SwitchTo( 
+	                          commentNestingDepth==0 ? DEFAULT : COMMENT ) ; } } 
+
+// Finally a rule is needed to mop up all the other characters in the comment.
+< COMMENT >  SKIP : {  < ~[] > }
+
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN :
+{
+
+// file parser
+  < ADD: "add" >
+| < ASSIGNABLE: "assignable" >
+| < ASSUME: "assume" >
+| < BINDER: "binder" >
+| < CLOSE: "closegoal" >
+| < DESCRIPTION: "description" >
+| < FIND: "find" >
+| < FUNCTION: "function" >
+| < INCLUDE: "include" >
+| < INFIX: "infix" >
+| < NEWGOAL: "newgoal" >
+| < PREFIX: "prefix" >
+| < PROBLEM: "problem" >
+| < REMOVE: "remove" >
+| < REPLACE: "replace" >
+| < RULE: "rule" >
+| < SAMEGOAL: "samegoal" >
+| < SORT: "sort" >
+| < TAGS: "tags" >
+| < UNIQUE: "unique" >
+| < WHERE: "where" >
+
+// Logics
+| < LEFTPAREN: "(" >
+| < RIGHTPAREN: ")" >
+| < LEFTSQUARE: "[" >
+| < LEFTDSQUARE: "[[" >
+| < RIGHTSQUARE: "]" >
+| < RIGHTDSQUARE: "]]" >
+| < COMMA: "," >
+| < SEMICOLON: ";" >
+| < COLON: ":" >
+| < AS: "as" >
+| < SEP: "|-" >
+
+// Programs
+// "assume" see above
+| < ASSERT: "assert" >
+| < GOTO: "goto" >
+| < HAVOC: "havoc" >
+| < END: "end" >
+| < ASSIGN: ":=" >
+
+// Literals
+| < STRING: "\"" ( ~["\""] )* "\"" >
+| < NATURAL: ( ["0" - "9"] )+ >
+
+
+// Identifiers-
+| < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
+| < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+| < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
+| < SCHEMAMOD_IDENTIFIER: "&" <IDENTIFIER> >
+| < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
+| < META_IDENTIFIER: "$$" <IDENTIFIER> >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
+| < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
+
+}

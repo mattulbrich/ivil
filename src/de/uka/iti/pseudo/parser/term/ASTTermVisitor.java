@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
  * The implementing visit methods may throw ASTVisitExceptions if their
  * visitation fails.
  */
-public interface ASTVisitor {
+public interface ASTTermVisitor {
 
 	void visit(ASTApplicationTerm applicationTerm) throws ASTVisitException;
 
@@ -36,22 +36,10 @@ public interface ASTVisitor {
 
     void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException;
 
-    void visit(ASTModalityTerm modalityTerm) throws ASTVisitException;
-
-	void visit(ASTModAssignment modAssignment) throws ASTVisitException;
-
-	void visit(ASTModCompound modCompound) throws ASTVisitException;
-
-	void visit(ASTModIf modIf) throws ASTVisitException;
-
-	void visit(ASTModSkip modSkip) throws ASTVisitException;
-
-	void visit(ASTModWhile modWhile) throws ASTVisitException;
+    void visit(ASTProgramTerm modalityTerm) throws ASTVisitException;
 
 	void visit(ASTTypeApplication typeRef) throws ASTVisitException;
 	
 	void visit(ASTTypeVar typeVar) throws ASTVisitException;
-
-    void visit(ASTModSchema modSchema) throws ASTVisitException;
 
 }

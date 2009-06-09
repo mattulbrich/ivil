@@ -9,7 +9,6 @@
 package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.parser.file.ASTFileVisitor;
-import de.uka.iti.pseudo.parser.term.ASTVisitor;
 
 /**
  * This class of exceptions may be thrown during visiting using a

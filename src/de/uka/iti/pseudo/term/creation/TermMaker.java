@@ -13,12 +13,16 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
+import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.ParseException;
+import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -26,24 +30,14 @@ import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
-import de.uka.iti.pseudo.parser.term.ASTModAssignment;
-import de.uka.iti.pseudo.parser.term.ASTModCompound;
-import de.uka.iti.pseudo.parser.term.ASTModIf;
-import de.uka.iti.pseudo.parser.term.ASTModSchema;
-import de.uka.iti.pseudo.parser.term.ASTModSkip;
-import de.uka.iti.pseudo.parser.term.ASTModWhile;
-import de.uka.iti.pseudo.parser.term.ASTModality;
-import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
-import de.uka.iti.pseudo.parser.term.ASTVisitor;
-import de.uka.iti.pseudo.parser.term.ParseException;
-import de.uka.iti.pseudo.parser.term.TermParser;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.BindableIdentifier;
@@ -72,36 +66,23 @@ import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
  * 
  * It is a AST Term visitor that creates a term out of a ASTTerm object.
  */
-public class TermMaker implements ASTVisitor {
+public class TermMaker extends ASTDefaultVisitor {
 
     //
     // --- Static translation nature
     //
 
     /**
-     * Make a term from a string.
+     * Make a term from a ast term object.
      * 
-     * A parser is created, a term is parsed the AST is then subjected to a
-     * {@link TypingResolver} visitor that infers the necessary typing
-     * information. An instance of this class then creates a {@link Term} object
-     * out of the AST.
+     * This is the same thing except that the parser step is omitted
      * 
-     * @param content
-     *            the string to parse
+     * @param astTerm
+     *            the term represented in an ast.
      * @param env
-     *            the environment
-     * @param fileName
-     *            the file name to report to the parser
-     * @param beginLine
-     *            the begin line to report to the parser
-     * @param beginColumn
-     *            the begin column to report to the parser
-     * @param schemaVariableTypes a mapping from schema identifiers to types. This indicates the set of known schema variables.
+     *            the environment to use
+     * @return a term representing the ast
      * 
-     * @return a term representing the string
-     * 
-     * @throws ParseException
-     *             thrown by the parser
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
@@ -200,8 +181,8 @@ public class TermMaker implements ASTVisitor {
             @NonNull Environment env, @NonNull String context, @Nullable Type targetType)
             throws ParseException, ASTVisitException {
         
-        TermParser parser = new TermParser(content, context, 1, 1);
-        ASTTerm ast = parser.parseTerm();
+        Parser parser = new Parser();
+        ASTTerm ast = parser.parseTerm(new StringReader(content), context);
 
         // ast.dumpTree();
 
@@ -227,28 +208,35 @@ public class TermMaker implements ASTVisitor {
         return termMaker.resultTerm;
     }
     
-    public static Type makeType(String typeString, Environment env) throws TermException {
+    public static Type makeType(String typeString, Environment env) throws ASTVisitException, ParseException {
         // TODO method documentation
         
-        TermParser parser = new TermParser(new StringReader(typeString));
+        Parser parser = new Parser(new StringReader(typeString));
+
+        ASTType ast = parser.TypeRef();
+
+        return makeType(ast, env);
+    }
+    
+    public static Type makeType(ASTType astType, Environment env) throws ASTVisitException {
+        // TODO method documentation
         
-        try {
-            ASTType ast = parser.TypeRef();
-            TermMaker termMaker = new TermMaker(env);
-            ast.visit(termMaker);
-            
-            return termMaker.resultType;
-        } catch (ParseException e) {
-            throw new TermException(e);
-        } catch (ASTVisitException e) {
-            throw new TermException(e);
-        }
+        TermMaker termMaker = new TermMaker(env);
+        astType.visit(termMaker);
+
+        return termMaker.resultType;
     }
 
 
     //
     // --- Visitor nature ---
     //
+
+    /*
+     * default behaviour: do nothing
+     */
+    @Override protected void visitDefault(ASTElement arg) throws ASTVisitException {
+    }
 
     /*
      * The result... fields hold intermediate calculation results.
@@ -410,107 +398,11 @@ public class TermMaker implements ASTVisitor {
 
     }
 
-    public void visit(ASTModalityTerm modalityTerm) throws ASTVisitException {
+    public void visit(ASTProgramTerm modalityTerm) throws ASTVisitException {
 
-        modalityTerm.getModality().visit(this);
-        Modality modality = resultModality;
-
-        Term[] subterms = collectSubterms(modalityTerm);
-        assert subterms.length == 1;
-
-        resultTerm = new ModalityTerm(modality, subterms[0]);
-    }
-
-    public void visit(ASTModAssignment modAssignment) throws ASTVisitException {
-        String symb = modAssignment.getAssignedIdentifier().image;
-        AssignTarget target;
+        // FIXME
+        throw new Error("FIXME");
         
-        modAssignment.getAssignedTerm().visit(this);
-        Term term = resultTerm;
-        try {
-            if(symb.startsWith("%")) {
-                target = new SchemaVariable(symb, term.getType());
-            } else {
-                Function f = env.getFunction(symb);
-                // checked elsewhere
-                assert f != null && f.getArity() == 0;
-                target = f;
-            }
-
-            resultModality = new AssignModality(target, term);
-        } catch (TermException e) {
-            throw new ASTVisitException(modAssignment, e);
-        }
-    }
-
-    /*
-     * this method pairs the elements of a compound modality 
-     * LEFT ASSOCIATIVELY.
-     */
-    public void visit(ASTModCompound modCompound) throws ASTVisitException {
-        
-        int count = modCompound.getChildren().size();
-
-        modCompound.getModality(0).visit(this);
-        Modality mod = resultModality;
-        for(int j = 1; j < count; j++) {
-            modCompound.getModality(j).visit(this);
-            mod = new CompoundModality(mod, resultModality);
-        }
-        
-        resultModality = mod;
-    }
-
-    public void visit(ASTModIf modIf) throws ASTVisitException {
-        modIf.getConditionTerm().visit(this);
-        Term condTerm = resultTerm;
-        
-        modIf.getThenModality().visit(this);
-        Modality thenMod = resultModality;
-        
-        try {
-            if(modIf.hasElseModality()) {
-                modIf.getElseModality().visit(this);
-                Modality elseMod = resultModality;
-                resultModality = new IfModality(condTerm, thenMod, elseMod);
-            } else {
-                resultModality = new IfModality(condTerm, thenMod);
-            }
-        } catch (TermException e) {
-            throw new ASTVisitException(e);
-        }
-        
-        
-    }
-
-    public void visit(ASTModSkip modSkip) throws ASTVisitException {
-        resultModality = new SkipModality();
-    }
-    
-    public void visit(ASTModSchema modSchema)    throws ASTVisitException {
-        resultModality = new SchemaModality(modSchema.getSchemaIdentifier().image);
-    }
-
-
-    public void visit(ASTModWhile modWhile) throws ASTVisitException {
-        modWhile.getConditionTerm().visit(this);
-        Term condTerm = resultTerm;
-        Term invariant = null;
-        
-        ASTTerm astInv = modWhile.getInvariantTerm();
-        if(astInv != null) {
-            astInv.visit(this);
-            invariant = resultTerm;
-        }
-        
-        modWhile.getBodyModality().visit(this);
-        Modality body = resultModality;
-        
-        try {
-            resultModality = new WhileModality(condTerm, body, invariant);
-        } catch (TermException e) {
-            throw new ASTVisitException(e);
-        }
     }
 
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
@@ -535,5 +427,4 @@ public class TermMaker implements ASTVisitor {
         resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
 
-    
 }
