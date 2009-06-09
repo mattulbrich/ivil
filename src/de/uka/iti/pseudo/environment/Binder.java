@@ -131,4 +131,8 @@ public class Binder {
         return varType;
     }
 
+	public int getArity() {
+		return getArgumentTypes().length;
+	}
+
 }

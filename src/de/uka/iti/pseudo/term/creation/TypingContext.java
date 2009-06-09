@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
@@ -53,7 +54,12 @@ public class TypingContext {
     private int counter = 0;
 
     public Type instantiate(Type rawType) {
-        return rawType.visit(instantiater);
+        try {
+			return rawType.visit(instantiater);
+		} catch (TermException e) {
+			// is never thrown within this code
+			throw new Error(e);
+		}
     }
 
     public void addConstraint(Type formal, Type actual, ASTLocatedElement location) {
@@ -66,13 +72,18 @@ public class TypingContext {
     }
 
     public Type[] makeNewSignature(Type resultType, Type[] argumentTypes) {
-        Type[] retval = new Type[argumentTypes.length + 1];
-        TypeVisitor sv = new SignatureVisitor();
-        retval[0] = resultType.visit(sv);
-        for (int i = 0; i < argumentTypes.length; i++) {
-            retval[i+1] = argumentTypes[i].visit(sv); 
-        }
-        return retval;
+        try {
+			Type[] retval = new Type[argumentTypes.length + 1];
+			TypeVisitor sv = new SignatureVisitor();
+			retval[0] = resultType.visit(sv);
+			for (int i = 0; i < argumentTypes.length; i++) {
+			    retval[i+1] = argumentTypes[i].visit(sv); 
+			}
+			return retval;
+		} catch (TermException e) {
+			// never thrown in this code
+			throw new Error(e);
+		}
     }
 
 }

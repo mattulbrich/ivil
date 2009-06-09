@@ -10,8 +10,9 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
+import de.uka.iti.pseudo.term.creation.TypeUnification;
+import de.uka.iti.pseudo.util.Util;
 
-@NonNull 
 public class Binding extends Term {
 	
 	
@@ -19,20 +20,40 @@ public class Binding extends Term {
 	private Type variableType;
 	private String variableName;
 
-	public Binding(Binder binder, Type variableType, String variableName,
+	public Binding(Binder binder, Type type, Type variableType, String variableName,
 			Term[] subterms) throws TermException {
-		super(subterms);
+		super(subterms, type);
 		this.binder = binder;
 		this.variableType = variableType;
 		this.variableName = variableName;
-	}
-
-	@Override
-	protected Type inferType() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		typeCheck();
 	}
 	
+	private void typeCheck() throws TermException {
+
+		if(countSubterms() != binder.getArity()) {
+			throw new TermException("Binder " + binder + " expects " + 
+					binder.getArity() + " arguments, but got:\n" +
+					Util.listTerms(getSubterms()));
+		}
+
+		TypeUnification unify = new TypeUnification();
+		Type[] argumentTypes = binder.getArgumentTypes();
+
+		try {
+			for (int i = 0; i < countSubterms(); i++) {
+				unify.leftUnify(argumentTypes[i], TypeUnification.makeVariant(getSubterm(i).getType()));
+			}
+			unify.leftUnify(binder.getVarType(), TypeUnification.makeVariant(getVariableType()));
+			unify.leftUnify(binder.getResultType(), TypeUnification.makeVariant(getType()));
+		} catch(UnificationException e) {
+			throw new TermException("Term " + toString() + "cannot be typed.\nFunction symbol: " + binder +
+					"\nTypes of subterms:\n" + Util.listTypes(getSubterms()));
+		}
+
+	}
+
 	@Override
 	public @NonNull String toString() {
 		String retval = "(" + binder.getName() + ";" + variableType + " " + variableName + ";";

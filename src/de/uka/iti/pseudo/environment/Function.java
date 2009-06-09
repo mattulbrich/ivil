@@ -51,15 +51,24 @@ public class Function {
     }
     
     public String toString() {
-        String ret = "Function[" + name + ";ret: " + resultType +";args:";
-        for (Type tr : argumentTypes) {
-            ret += " " + tr;
-        }
-        return ret + "]";
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(resultType + " " + name);
+    	if(getArity() > 0) {
+    		for (int i = 0; i < argumentTypes.length; i++) {
+    			sb.append(i == 0 ? "(" : ", ");
+				sb.append(argumentTypes[i]);
+			}
+    		sb.append(")");
+    	}
+        return sb.toString();
     }
 
 	public boolean isUnique() {
 		return unique;
+	}
+
+	public int getArity() {
+		return argumentTypes.length;
 	}
 	
 

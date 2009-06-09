@@ -99,7 +99,7 @@ ASTTerm ModalityTerm():
   ASTTerm term;
 }
 {
-      "[" modality=ModalityList() "]" term=AsTerm()
+      "[" modality=ModalityList() "]" term=ModalityTerm()
          { return new ASTModalityTerm(modality, term); }
     | 
       term=AsTerm()

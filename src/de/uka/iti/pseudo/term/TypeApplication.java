@@ -59,6 +59,21 @@ public class TypeApplication extends Type {
     }
     
     @Override
+	public boolean equals(Object obj) {
+		if (obj instanceof TypeApplication) {
+			TypeApplication tya = (TypeApplication) obj;
+			if(tya.sort != sort)
+				return false;
+			for (int i = 0; i < typeParamters.length; i++) {
+				if(!tya.typeParamters[i].equals(typeParamters[i]))
+					return false;
+	        }
+			return true;
+		}
+		return false;
+	}
+    
+    @Override
     public Type visit(TypeVisitor visitor) throws TermException {
         return visitor.visit(this);
     }

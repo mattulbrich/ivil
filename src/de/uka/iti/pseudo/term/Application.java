@@ -9,21 +9,46 @@
 package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.term.creation.TypeUnification;
+import de.uka.iti.pseudo.util.Util;
 
 public class Application extends Term {
 	
 	private Function function;
 
-	public Application(Function funct, Type type, Term[] subterms) {
+	public Application(Function funct, Type type, Term[] subterms) throws TermException {
 		super(subterms, type);
 		this.function = funct;
-		// TODO type checking, arity checking
+		typeCheck();
 	}
 
-	public Application(Function funct, Type type) {
+	public Application(Function funct, Type type) throws TermException {
 		super(type);
 		this.function = funct;
-		// TODO type checking, arity checking
+		typeCheck();
+	}
+	
+	private void typeCheck() throws TermException {
+		
+		if(countSubterms() != function.getArity()) {
+			throw new TermException("Function " + function + " expects " + 
+					function.getArity() + " arguments, but got:\n" +
+					Util.listTerms(getSubterms()));
+		}
+		
+		TypeUnification unify = new TypeUnification();
+		Type[] argumentTypes = function.getArgumentTypes();
+		
+		try {
+			for (int i = 0; i < countSubterms(); i++) {
+				unify.leftUnify(argumentTypes[i], TypeUnification.makeVariant(getSubterm(i).getType()));
+			}
+			unify.leftUnify(function.getResultType(), TypeUnification.makeVariant(getType()));
+		} catch(UnificationException e) {
+			throw new TermException("Term " + toString() + "cannot be typed.\nFunction symbol: " + function +
+					"\nTypes of subterms:\n" + Util.listTypes(getSubterms()));
+		}
+		
 	}
 
 	@Override

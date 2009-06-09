@@ -15,5 +15,8 @@ public abstract class Type {
     public abstract void collectTypeVariables(Collection<String> coll);
 
     public abstract Type visit(TypeVisitor visitor) throws TermException;
+    
+    @Override
+    public abstract String toString();
 
 }

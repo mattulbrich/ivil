@@ -8,12 +8,12 @@ public class Typing {
 
     private Type rawType;
 
-    private TypingContext instantiation;
+    private TypingContext typingContext;
 
     public Typing(Type rawType, TypingContext instantiation) {
         super();
         this.rawType = rawType;
-        this.instantiation = instantiation;
+        this.typingContext = instantiation;
     }
 
     public Type getRawtType() {
@@ -21,6 +21,6 @@ public class Typing {
     }
 
     public Type getType() {
-        return rawType.instantiate(instantiation);
+        return typingContext.instantiate(rawType);
     }
 }

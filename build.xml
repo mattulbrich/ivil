@@ -14,15 +14,17 @@
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
     <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>  	
     <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="src:test"/>
-    <javac srcdir="src" destdir="classes" debug="${compile.debug}"/>
+    <javac srcdir="src" destdir="classes" debug="${compile.debug}">
+      <compilerarg value="-Xlint"/>
+    </javac>
   </target>
 	
   <target name="nonnull" depends="build" description="patches the class files with r/t checks" if="compile.nonnullchecks">
     <java classname="nonnull.NonNullPatch">
-    <arg value="classes"/>
-    <classpath>
-      <pathelement location="nonnull.jar"/>
-    </classpath>
+      <arg value="classes"/>
+      <classpath>
+        <pathelement location="nonnull.jar"/>
+      </classpath>
     </java> 
   </target>
 	

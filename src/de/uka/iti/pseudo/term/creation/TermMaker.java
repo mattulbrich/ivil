@@ -110,7 +110,11 @@ public class TermMaker implements ASTVisitor {
 		Term[] subterms = collectSubterms(applicationTerm);
 		
 		Type type = applicationTerm.getTyping().getType();
-		resultTerm = new Application(funct, type, subterms);
+		try {
+			resultTerm = new Application(funct, type, subterms);
+		} catch (TermException e) {
+			throw new ASTVisitException(e, applicationTerm);
+		}
 	}
 
 	
@@ -130,7 +134,7 @@ public class TermMaker implements ASTVisitor {
 		Term[] subterms = collectSubterms(binderTerm);
 		
 		try {
-			resultTerm = new Binding(binder, variableType, variableName, subterms);
+			resultTerm = new Binding(binder, binderTerm.getTyping().getType(), variableType, variableName, subterms);
 		} catch(TermException ex) {
 			throw new ASTVisitException(ex, binderTerm);
 		}
@@ -146,7 +150,11 @@ public class TermMaker implements ASTVisitor {
 		Term[] subterms = collectSubterms(fixTerm);
 		
 		Type type = fixTerm.getTyping().getType();
-		resultTerm = new Application(function, type, subterms);
+		try {
+			resultTerm = new Application(function, type, subterms);
+		} catch (TermException e) {
+			throw new ASTVisitException(e, fixTerm);
+			}
 	}
 
 	
@@ -155,11 +163,16 @@ public class TermMaker implements ASTVisitor {
 		String name = identifierTerm.getSymbol().image;
 		Function funcSymbol = env.getFunction(name);
         Type type = identifierTerm.getTyping().getType();
-        if (funcSymbol != null) {
-            resultTerm = new Application(funcSymbol, type);
-        } else {
-            resultTerm = new Variable(name, type);
-        }
+
+        try {
+			if (funcSymbol != null) {
+			    resultTerm = new Application(funcSymbol, type);
+			} else {
+			    resultTerm = new Variable(name, type);
+			}
+		} catch (TermException e) {
+			throw new ASTVisitException(e, identifierTerm);
+		}
 	}
 
 	

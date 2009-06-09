@@ -8,6 +8,11 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.util.Collections;
+import java.util.List;
+
+import de.uka.iti.pseudo.util.Util;
+
 public abstract class Term {
 	
 	private static final Term[] NO_ARGUMENTS = new Term[0];
@@ -39,6 +44,10 @@ public abstract class Term {
 	
 	public Term getSubterm(int i) {
 		return subterms[i];
+	}
+	
+	public List<Term> getSubterms() {
+		return Util.readOnlyArrayList(subterms);
 	}
 	
 	// to enforce overriding

@@ -17,7 +17,7 @@ import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
-import de.uka.iti.pseudo.term.ShuntingYard;
+import de.uka.iti.pseudo.term.creation.ShuntingYard;
 
 public class TestTermParser {
 
