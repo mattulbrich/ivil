@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
@@ -51,7 +52,7 @@ public class ProofNode {
         setChildren(null);
     }
 
-    public void apply(RuleApplication ruleApp, TermUnification mc, Environment env, Properties whereClauseProperties)
+    public void apply(RuleApplication ruleApp, TermInstantiator inst, Environment env, Properties whereClauseProperties)
             throws ProofException {
         
         if(appliedRuleApp != null)
@@ -59,17 +60,17 @@ public class ProofNode {
         
         Rule rule = ruleApp.getRule();
 
-        matchFindClause(ruleApp, mc, rule);
-        matchAssumeClauses(ruleApp, mc, rule);
-        matchWhereClauses(ruleApp, mc, rule, env, whereClauseProperties);
+        matchFindClause(ruleApp, inst, rule);
+        matchAssumeClauses(ruleApp, inst, rule);
+        matchWhereClauses(ruleApp, inst, rule, env, whereClauseProperties);
 
-        setChildren(doAction(ruleApp, mc, rule));
+        setChildren(doActions(ruleApp, inst, rule));
 
         this.appliedRuleApp = ruleApp;
 
     }
 
-    private ProofNode[] doAction(RuleApplication ruleApp, TermUnification mc, Rule rule)
+    private ProofNode[] doActions(RuleApplication ruleApp, TermInstantiator inst, Rule rule)
         throws ProofException {
         List<ProofNode> newNodes = new LinkedList<ProofNode>();
         List<Term> antecedent = new ArrayList<Term>();
@@ -92,7 +93,7 @@ public class ProofNode {
                 Term replaceWith = action.getReplaceWith();
                 TermSelector findSelector = ruleApp.getFindSelector();
                 if(replaceWith != null) {
-                    Term instantiated = mc.instantiate(replaceWith);
+                    Term instantiated = inst.instantiate(replaceWith);
                     if(TermUnification.containsSchemaIdentifier(instantiated))
                         throw new ProofException("Remaining schema identifier in term " + instantiated);
                     replaceTerm(findSelector, instantiated, antecedent, succedent);
@@ -105,14 +106,14 @@ public class ProofNode {
                 }
                 
                 for (Term add : action.getAddAntecedent()) {
-                    Term toAdd = mc.instantiate(add);
+                    Term toAdd = inst.instantiate(add);
                     if(TermUnification.containsSchemaIdentifier(toAdd))
                         throw new ProofException("Remaining schema identifier in term " + toAdd);
                     antecedent.add(toAdd);
                 }
                 
                 for (Term add : action.getAddSuccedent()) {
-                    Term toAdd = mc.instantiate(add);
+                    Term toAdd = inst.instantiate(add);
                     if(TermUnification.containsSchemaIdentifier(toAdd))
                         throw new ProofException("Remaining schema identifier in term " + toAdd);
                     succedent.add(toAdd);
@@ -146,11 +147,11 @@ public class ProofNode {
         }
     }
 
-    private void matchWhereClauses(RuleApplication ruleApp, TermUnification mc,
+    private void matchWhereClauses(RuleApplication ruleApp, TermInstantiator inst,
             Rule rule, Environment env, Properties whereClauseProperties) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                if (!whereClause.applyTo(mc, ruleApp, this, env, whereClauseProperties))
+                if (!whereClause.checkApplication(inst, ruleApp, this, env, whereClauseProperties))
                     throw new ProofException(
                             "WhereClause does not evaluate to true : "
                                     + whereClause);
@@ -161,7 +162,7 @@ public class ProofNode {
         }
     }
 
-    private void matchFindClause(RuleApplication ruleApp, TermUnification mc,
+    private void matchFindClause(RuleApplication ruleApp, TermInstantiator inst,
             Rule rule) throws ProofException {
         TermSelector findSelector = ruleApp.getFindSelector();
         Term findSubTerm = findSelector.selectSubterm(sequent);
@@ -170,12 +171,20 @@ public class ProofNode {
         if (!findClause.isFittingSelect(findSelector)) {
             throw new ProofException("Illegal selector for find");
         }
-        if(!mc.leftUnify(findClause.getTerm(), findSubTerm))
+        
+        Term instantiated;
+        try {
+            instantiated = inst.instantiate(findClause.getTerm());
+        } catch (TermException e) {
+            throw new ProofException("cannot instantiate find clause", e);
+        }
+        
+        if(!findSubTerm.equals(instantiated))
             throw new ProofException("find clause does not match");
     }
 
     private void matchAssumeClauses(RuleApplication ruleApp,
-            TermUnification mc, Rule rule) throws ProofException {
+            TermInstantiator inst, Rule rule) throws ProofException {
         
         List<TermSelector> assumeSelectors = ruleApp.getAssumeSelectors();
         int length = assumeSelectors.size();
@@ -189,7 +198,13 @@ public class ProofNode {
                 throw new ProofException("Illegal selector for assume (" + i
                         + ")");
             }
-            if(!mc.leftUnify(assumption.getTerm(), assumeTerm))
+            Term instantiated;
+            try {
+                instantiated = inst.instantiate(assumption.getTerm());
+            } catch (TermException e) {
+                throw new ProofException("cannot instantiate assume clause", e);
+            }
+            if(!assumeTerm.equals(instantiated))
                 throw new ProofException("assumption clause does not match");
         }
     }

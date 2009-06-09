@@ -80,9 +80,10 @@ public class InteractiveRuleApplicationFinder {
     private void matchAssumptions(List<LocatedTerm> assumptions, TermUnification mc, int assIdx) throws RuleException {
         
         if(assIdx >= assumptions.size()) {
-            ruleAppMaker.getInstantiationsFrom(mc);
-            if(matchWhereClauses(mc))
+            if(matchWhereClauses(mc)) {
+                ruleAppMaker.getInstantiationsFrom(mc);
                 applications.add(ruleAppMaker.make());
+            }
             return;
         }
         

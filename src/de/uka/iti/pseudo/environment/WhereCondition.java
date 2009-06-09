@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.rule.where.NewSkolem;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
 import de.uka.iti.pseudo.rule.where.Subst;
@@ -25,7 +26,8 @@ public abstract class WhereCondition {
         new NotFreeIn(),
         // new Typing(),
         new NewSkolem(),
-        new Subst()
+        new Subst(),
+        new Interactive()
     };
     
     static {

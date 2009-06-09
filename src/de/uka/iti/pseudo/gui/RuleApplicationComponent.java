@@ -10,7 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -22,20 +24,21 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.Interactive;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.Pair;
 
 // TODO DOC
 
@@ -60,6 +63,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     private JPanel applicableListPanel;
     private ProofCenter proofCenter;
+    private Map<SchemaVariable,JTextComponent> interactionMapping =  new HashMap<SchemaVariable, JTextComponent>();
 
     public RuleApplicationComponent(ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
@@ -159,22 +163,36 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     
     private void setInstantiations(RuleApplication app) {
         instantiationsPanel.removeAll();
+        interactionMapping.clear();
         for (String schemaName : app.getSchemaVariableNames()) {
-            JLabel label = new JLabel(schemaName);
+            
+            Term t = app.getTermInstantiation(schemaName);
+            assert t != null;
+            
+            JLabel label = new JLabel(schemaName + " as " + t.getType());
             instantiationsPanel.add(label);
             
-            JTextField textField = new JTextField();
-            Term t = app.getTermInstantiation(schemaName);
-            if(t != null) {
-                textField.setText(PrettyPrint.print(env, t).toString());
-                textField.setEditable(false);
-            } else {
+            if(isInteraction(t)) {
+                instantiationsPanel.add(label);
+                BracketMatchingTextArea textField = new BracketMatchingTextArea();
                 textField.addActionListener(this);
+                instantiationsPanel.add(textField);
+                interactionMapping.put(new SchemaVariable(schemaName, t.getType()), textField);
+                instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
+            } else {
+                JTextField textField = new JTextField();
+                textField.setText(PrettyPrint.print(env, t, true, true).toString());
+                textField.setEditable(false);
+                instantiationsPanel.add(textField);
             }
-            instantiationsPanel.add(textField);
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
         }
-        instantiationsPanel.add(Box.createVerticalGlue());
+       
+    }
+
+    private boolean isInteraction(Term t) {
+        return t instanceof Application 
+            && ((Application)t).getFunction() == Environment.getInteractionSymbol();
     }
 
     private void setRuleText(Rule rule) {
@@ -222,5 +240,5 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         ProofNode proofNode = (ProofNode) arg;
         setAppliedRule(null);
     }
-
+    
 }

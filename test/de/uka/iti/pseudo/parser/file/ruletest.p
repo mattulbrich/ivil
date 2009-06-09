@@ -9,6 +9,13 @@ rule rule_Test1
         samegoal
                 replace { 2 }
 
+rule forall_left
+   find { (\forall x as 'a; %b) } |-
+   where
+      interact { %inst as 'a}
+   samegoal
+      add |- { %inst = %inst }
+
 rule forall_right
    find |- { (\forall x as int; x = 0) }
    samegoal

@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.term.TypeVariable;
 
 /**
  * The Class Environment captures definitions and provides lookup facilities for
@@ -105,6 +106,7 @@ public class Environment {
         try {
             addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
             addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
+            addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
         } catch (EnvironmentException e) {
             throw new Error("Fatal during creation of interal elements", e);
         }
@@ -330,6 +332,15 @@ public class Environment {
         }
         
         return nl;
+    }
+    
+    /**
+     * Gets the $interaction symbol which is always present
+     * 
+     * @return the unique $interaction function symbol.
+     */
+    public static @NonNull Function getInteractionSymbol() {
+        return BUILT_IN_ENV.getFunction("$interaction");
     }
 
 

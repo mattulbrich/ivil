@@ -12,6 +12,7 @@ import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
@@ -35,6 +36,7 @@ public class TermMatcher extends DefaultTermVisitor {
                 compare(inst, t2);
             } else {
                 termUnification.addInstantiation(sv, t2);
+                termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), t2.getType());
             }
         } else if(t1.getClass() == t2.getClass()) {
             compareTerm = t2;

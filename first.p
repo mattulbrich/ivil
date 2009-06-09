@@ -6,4 +6,5 @@ function
   bool p(int)
 
 problem
-  { (\exists x; p(x)) -> !(\forall x; !p(x)) }
+{ (\exists x; p(x)) }
+  #{ (\exists x; p(x)) -> !(\forall x; !p(x)) }

@@ -59,11 +59,16 @@ public class UnificationException extends TermException {
 
 	public String getDetailedMessage() {
 	    StringBuilder sb = new StringBuilder();
-	    sb.append(getMessage());
+	    sb.append(super.getMessage());
 	    for (String detail : details) {
             sb.append("\n").append(detail);
         }
 		return sb.toString();
+	}
+	
+	// lets assume detailled messaged are always welcome
+	public String getMessage() {
+	    return getDetailedMessage();
 	}
 
 }

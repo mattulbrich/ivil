@@ -79,7 +79,6 @@ TOKEN :
 | < UNIQUE: "unique" >
 | < PROBLEM: "problem" >
 | < RULE: "rule" >
-| < WITH: "with" >
 | < FIND: "find" >
 | < ASSUME: "assume" >
 | < REPLACE: "replace" >
@@ -312,7 +311,7 @@ ASTRule RuleDeclaration():
     t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
   | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
   | t="where" ( elem=WhereClause(t) { list.add(elem); } )+
-  | t="with" ( elem=WithClause(t) { list.add(elem); } ) + 
+ /* | t="with" ( elem=WithClause(t) { list.add(elem); } ) +*/ 
   )+
   
   (
@@ -376,7 +375,7 @@ ASTWhereClause WhereClause(Token headToken):
 	   ( rt=RawTerm() { args.add(rt); } ) +
        { return new ASTWhereClause(headToken, t, args); }	   
 }
-
+/*
 ASTWithClause WithClause(Token headToken):
 {
 	ASTType type;
@@ -387,3 +386,4 @@ ASTWithClause WithClause(Token headToken):
        schemaIdentifier=<SCHEMA_IDENTIFIER>
        { return new ASTWithClause(headToken, type, schemaIdentifier); }      
 }
+*/

@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.parser.term;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
 public class TestTermParser extends TestCaseWithEnv {
@@ -29,10 +28,18 @@ public class TestTermParser extends TestCaseWithEnv {
 
     private void testTermFail(String term) throws Exception {
         try {
-            TermMaker.makeAndTypeTerm(term, env);
-            fail(term + " should not be parsable");
+            Term t = TermMaker.makeAndTypeTerm(term, env);
+            fail(term + " should not be parsable, but parses as: " + t.toString(true));
         } catch (ASTVisitException e) {
         }
+    }
+    
+    // emerged from a bug (3)
+    public void testBinder() throws Exception {
+        testTerm("(\\some %x as 't;true as bool)", "(\\some %x as 't;true as bool) as 't", true); 
+        testTerm("(\\forall %x; %x = 5)", "(\\forall %x as int;$eq(%x as int,5 as int) as bool) as bool", true);
+        
+        testTermFail("(\\forall %x as bool; %x as int > 5)"); 
     }
 
     public void testNumbers() throws Exception {

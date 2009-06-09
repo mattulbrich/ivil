@@ -7,6 +7,10 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 
 public class TestRuleParsing extends TestCase {
+    
+    static {
+        System.setProperty("pseudo.showtypes", "true");
+    }
 
     public void testRuleParsing() throws Exception {
         FileParser fp = new FileParser();

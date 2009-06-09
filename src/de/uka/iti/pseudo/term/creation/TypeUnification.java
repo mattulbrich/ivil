@@ -373,4 +373,14 @@ public class TypeUnification {
         }
     }
 
+    /**
+     * get the instantiation map which maps type variables to types.
+     * 
+     * @return a mapping from type variables to maps.
+     */
+    public Map<TypeVariable, Type> getInstantiation() {
+        // possibly wrap in Collections.unmodifiable?
+        return instantiation;
+    }
+
 }

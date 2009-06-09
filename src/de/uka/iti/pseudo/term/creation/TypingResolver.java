@@ -110,53 +110,7 @@ public class TypingResolver extends ASTDefaultVisitor {
                     "\n" + e.getDetailedMessage(), fixTerm);
         }
     }
-
-    // DOC!
-    @Override
-    public void visit(ASTBinderTerm binderTerm)
-            throws ASTVisitException {
-        
-        String var = binderTerm.getVariableToken().image;
-        Type varType;
-        ASTType astVarType = binderTerm.getVariableType();
-        if(astVarType != null) {
-            astVarType.visit(this);
-            varType = resultingType;
-        } else {
-            varType = typingContext.newTypeVariable();
-        }
-            
-        boundVariables.put(var, varType);
-        super.visit(binderTerm);
-        boundVariables.remove(var);
-        
-        String binderSymb = binderTerm.getBinderToken().image;
-        Binder binder = env.getBinder(binderSymb);
-        
-        if(binder == null)
-            throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
-        
-        List<ASTTerm> subterms = binderTerm.getSubterms();
-        Type variableType = binder.getVarType();
-        Type[] arguments = binder.getArgumentTypes();
-        Type result = binder.getResultType();
-        
-        if(arguments.length != subterms.size())
-            throw new ASTVisitException("Binder symbol " + binderSymb + " expects " + 
-                    arguments.length + " arguments, but received " + subterms.size(), binderTerm);
-
-        binderTerm.setVariableTyping(new Typing(varType, typingContext));
-
-        try {
-            typingContext.solveConstraint(variableType, varType);
-            setTyping(binderTerm, subterms, result, arguments);
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Type inference failed for function " + binderSymb +
-                    "\nFunction: " + binder +
-                    "\n" + e.getDetailedMessage(), binderTerm);
-        }
-    }
-
+    
     private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
         
         assert subterms.size() == arguments.length;
@@ -167,14 +121,95 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         for (int i = 1; i < sig.length; i++) {
             try {
-				typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType());
-			} catch (UnificationException e) {
-				e.addDetail("in subterm " + (i-1));
-				throw e;
-			}
+                typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType());
+            } catch (UnificationException e) {
+                e.addDetail("in subterm " + (i-1));
+                throw e;
+            }
+        }
+    }
+
+
+    // DOC!
+    @Override
+    public void visit(ASTBinderTerm binderTerm)
+            throws ASTVisitException {
+        
+        String var = binderTerm.getVariableToken().image;
+        Type varType = null;
+        ASTType astVarType = binderTerm.getVariableType();
+        
+        if(!var.startsWith("%")) {
+            varType = typingContext.newTypeVariable();
+            boundVariables.put(var, varType);
+            super.visit(binderTerm);
+            boundVariables.remove(var);
+        } else {
+            varType = new TypeVariable(var);
+            super.visit(binderTerm);
+        }
+        
+        //
+        // handle explicit (\binder x as type; ...) typings
+        if(astVarType != null) {
+            astVarType.visit(this);
+            try {
+                typingContext.solveConstraint(varType, resultingType);
+            } catch (UnificationException e) {
+                throw new ASTVisitException("Type inference failed for binder variable for " + var +
+                        "\nVariable type: " + varType +
+                        "\n" + e.getDetailedMessage(), binderTerm, e);
+            }
+        }
+        
+        binderTerm.setVariableTyping(new Typing(varType, typingContext));
+        
+        String binderSymb = binderTerm.getBinderToken().image;
+        Binder binder = env.getBinder(binderSymb);
+        
+        if(binder == null)
+            throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
+        
+        List<ASTTerm> subterms = binderTerm.getSubterms();
+        Type[] arguments = binder.getArgumentTypes();
+        
+        if(arguments.length != subterms.size())
+            throw new ASTVisitException("Binder symbol " + binderSymb + " expects " + 
+                    arguments.length + " arguments, but received " + subterms.size(), binderTerm);
+
+        try {
+            setBinderTyping(binderTerm, subterms, binder);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for binder " + binderSymb +
+                    "\nBinder: " + binder +
+                    "\n" + e.getDetailedMessage(), binderTerm, e);
         }
     }
     
+    // special version of setTyping adapted for the needs of binding terms
+    // TODO DOC this method
+    private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder) throws UnificationException {
+        
+        Type resulType = binder.getResultType();
+        Type varType = binder.getVarType();
+        Type[] argType = binder.getArgumentTypes();
+     
+        Type[] sig = typingContext.makeNewSignature(resulType, varType, argType);
+        
+        term.setTyping(new Typing(sig[0], typingContext));
+
+        typingContext.solveConstraint(sig[1], term.getVariableTyping().getRawtType());
+        
+        for (int i = 2; i < sig.length; i++) {
+            try {
+                typingContext.solveConstraint(sig[i], subterms.get(i-2).getTyping().getRawtType());
+            } catch (UnificationException e) {
+                e.addDetail("in subterm " + (i-1));
+                throw e;
+            }
+        }
+    }
+
     @Override
     public void visit(ASTAsType asType) throws ASTVisitException {
         asType.getTerm().visit(this);

@@ -32,12 +32,12 @@ public class TestSubst extends TestCaseWithEnv {
     public void testSubst() throws Exception {
         Subst subst = new Subst();
 
-        Term[] t = { makeTerm("%i"), makeTerm("3"), makeTerm("4"), makeTerm("4+3") };
+        Term[] t = { makeTerm("%i as int"), makeTerm("3"), makeTerm("4"), makeTerm("4+3") };
         WhereClause wc = new WhereClause(subst, t);
         TermUnification mc = new TermUnification();
         
         subst.applyTo(wc, mc);
-        assertEquals(makeTerm("4+4"), mc.instantiate(makeTerm("%i")));
+        assertEquals(makeTerm("4+4"), mc.instantiate(makeTerm("%i as int")));
         
         // assert I can apply a second time
         subst.applyTo(wc, mc);

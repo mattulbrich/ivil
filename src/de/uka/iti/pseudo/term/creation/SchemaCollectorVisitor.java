@@ -8,7 +8,7 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import de.uka.iti.pseudo.rule.GoalAction;
@@ -32,12 +32,12 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     /**
      * The set of collected schema variables, identified by their name
      */
-    private Set<SchemaVariable> schemaVariables = new HashSet<SchemaVariable>();
+    private Set<SchemaVariable> schemaVariables = new LinkedHashSet<SchemaVariable>();
     
     /**
      * The set of collected schema modalities.
      */
-    private Set<SchemaModality> schemaModalities = new HashSet<SchemaModality>();
+    private Set<SchemaModality> schemaModalities = new LinkedHashSet<SchemaModality>();
     
     /**
      * perform collection of schema identifiers in a term

@@ -147,6 +147,9 @@ public class TermComponent extends JTextArea {
                 int begin = annotatedString.getBegin(index);
                 int end = annotatedString.getEnd(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
+                
+                Term term = annotatedString.getAttributeAt(index);
+                setToolTipText(term.getType().toString());
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
             }

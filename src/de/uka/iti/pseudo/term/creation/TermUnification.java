@@ -1,8 +1,10 @@
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -21,6 +23,9 @@ public class TermUnification {
     private TermMatcher termMatcher = new TermMatcher(this);
     
     private boolean containsSchema = false;
+    
+    public TermUnification() {
+    }
     
     public boolean leftUnify(Term adaptingTerm, Term fixTerm) {
         
@@ -78,7 +83,6 @@ public class TermUnification {
         
         modalityInstantiation.put(sm.getName(), mod);
         
-        // TODO see above
         if(containsSchema) {
             for (String s : instantiation.keySet()) {
                 instantiation.put(s, instantiate(instantiation.get(s)));
@@ -159,11 +163,11 @@ public class TermUnification {
     }
 
     public Map<String, Term> getTermInstantiation() {
-        return new HashMap<String, Term>(instantiation);
+        return Collections.unmodifiableMap(instantiation);
     }
 
     public Map<String, Modality> getModalityInstantiation() {
-        return new HashMap<String, Modality>(modalityInstantiation);
+        return Collections.unmodifiableMap(modalityInstantiation);
     }
 
 

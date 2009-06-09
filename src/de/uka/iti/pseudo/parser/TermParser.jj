@@ -17,7 +17,7 @@ public class TermParser {
         this(new StringReader(string));
         this.fileName = fileName;
         jj_input_stream.line = line;
-        jj_input_stream.column = col - 1;
+        jj_input_stream.column = col;
     }
     
     public ASTTerm parseTerm() throws ParseException 

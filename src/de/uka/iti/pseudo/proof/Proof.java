@@ -11,11 +11,17 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
 
 public class Proof extends Observable {
+    
+    public static class Instantiater extends RebuildingTermVisitor {
+        
+    }
 
     protected ProofNode root;
     
@@ -27,12 +33,12 @@ public class Proof extends Observable {
     
     public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {
         
-        TermUnification mc = new TermUnification();
+        TermInstantiator inst = new TermInstantiator(ruleApp);
         
         int goalno = extractGoalNo(ruleApp);
         ProofNode goal = openGoals.get(goalno);
         
-        goal.apply(ruleApp, mc, env, whereClauseProperties);
+        goal.apply(ruleApp, inst, env, whereClauseProperties);
         
         openGoals.remove(goalno);
         openGoals.addAll(goalno, goal.getChildren());

@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.util.AbstractList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
@@ -110,6 +111,21 @@ public class Util {
 				sb.append("\n");
 		}
 		return sb.toString();
+	}
+	
+	public static String join(List<?> list, String sep) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<?> it = list.iterator();
+        while(it.hasNext()) {
+            sb.append(it.next());
+            if(it.hasNext())
+                sb.append(sep);
+        }
+        return sb.toString();
+    }
+	
+	public static String commatize(List<?> list) {
+	    return join(list, ", ");
 	}
 
     @SuppressWarnings("unchecked") 

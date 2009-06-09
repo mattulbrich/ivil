@@ -155,8 +155,8 @@ public class Binding extends Term {
                     .makeVariant(getType()));
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
-                    + "cannot be typed.\nFunction symbol: " + binder
-                    + "\nTypes of subterms:\n" + Util.listTypes(getSubterms()));
+                    + " cannot be typed.\nFunction symbol: " + binder
+                    + "\nTypes of subterms:\n" + Util.listTypes(getSubterms()), e);
         }
 
     }

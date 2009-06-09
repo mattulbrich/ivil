@@ -137,5 +137,27 @@ public class TypingContext {
 			throw new Error(e);
 		}
     }
+    
+    /**
+     * Make new distinct signature clone.
+     *
+     * TODO: Auto-generated Javadoc not finished
+     * 
+     */
+    public Type[] makeNewSignature(Type resultType, Type varType, Type[] argumentTypes) {
+        try {
+            Type[] retval = new Type[argumentTypes.length + 2];
+            TypeVisitor sv = new SignatureVisitor();
+            retval[0] = resultType.visit(sv);
+            retval[1] = varType.visit(sv);
+            for (int i = 0; i < argumentTypes.length; i++) {
+                retval[i+2] = argumentTypes[i].visit(sv); 
+            }
+            return retval;
+        } catch (TermException e) {
+            // never thrown in this code
+            throw new Error(e);
+        }
+    }
 
 }

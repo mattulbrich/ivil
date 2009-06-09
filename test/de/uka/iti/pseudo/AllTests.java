@@ -13,6 +13,7 @@ import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.creation.SubtermReplacerTest;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
+import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 
 public class AllTests {
@@ -36,6 +37,7 @@ public class AllTests {
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
+        suite.addTestSuite(TestTermInstantiator.class);
         //$JUnit-END$
         return suite;
     }

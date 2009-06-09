@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
@@ -27,10 +28,7 @@ public class WhereClause {
     
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(whereCondition.getName());
-        for (Term arg : arguments) {
-            sb.append(" " + arg);
-        }
+        sb.append(whereCondition.getName()).append(" ").append(Util.commatize(getArguments()));
         return sb.toString();
     }
 
@@ -49,6 +47,14 @@ public class WhereClause {
 
     public WhereCondition getWhereCondition() {
         return whereCondition;
+    }
+
+    public boolean checkApplication(TermInstantiator inst,
+            RuleApplication ruleApp, ProofNode proofNode, Environment env,
+            Properties whereClauseProperties) throws RuleException {
+        // TODO Implement WhereClause.checkApplication
+        // TODO method documentation
+        return true;
     }
 
 }

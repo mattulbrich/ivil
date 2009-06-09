@@ -2,12 +2,9 @@ package de.uka.iti.pseudo.proof;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestTermUnification extends TestCaseWithEnv {
@@ -15,7 +12,25 @@ public class TestTermUnification extends TestCaseWithEnv {
     private static Term mt(String s) throws Exception {
         return makeTerm(s);
     }
-
+    
+//    public void testSchemas() throws Exception {
+//        TermUnification mc = new TermUnification();
+//        
+//        Term t1 = mt("%a as int");
+//        mc.leftUnify(t1, t1);
+//        
+//        Term t2 = mt("%a as 'a");
+//        mc.leftUnify(t2, t2);
+//        
+//        assertEquals(t1, mc.instantiate(t2));
+//        
+//        Term t3 = mt("%a as bool");
+//        if(mc.leftUnify(t3, t3)) {
+//            fail("should have failed but didnt: " + t3);
+//        }
+//        
+//    }
+    
     public void testLeftUnify1() throws Exception {
         TermUnification mc = new TermUnification();
         
@@ -68,7 +83,7 @@ public class TestTermUnification extends TestCaseWithEnv {
         TermUnification mc = new TermUnification();
         mc.leftUnify(mt("%a"), mt("2"));
         
-        assertEquals(mt("arb = 2"), mc.instantiate(mt("arb = %a")));
+        assertEquals(mt("arb = 2"), mc.instantiate(mt("arb = %a as int")));
     }
     
     public void testOccurCheck() throws Exception {
