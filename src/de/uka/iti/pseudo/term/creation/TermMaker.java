@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.parser.term.ASTModIf;
 import de.uka.iti.pseudo.parser.term.ASTModSchema;
 import de.uka.iti.pseudo.parser.term.ASTModSkip;
 import de.uka.iti.pseudo.parser.term.ASTModWhile;
+import de.uka.iti.pseudo.parser.term.ASTModality;
 import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
@@ -442,15 +443,22 @@ public class TermMaker implements ASTVisitor {
         }
     }
 
+    /*
+     * this method pairs the elements of a compound modality 
+     * LEFT ASSOCIATIVELY.
+     */
     public void visit(ASTModCompound modCompound) throws ASTVisitException {
         
-        modCompound.getModality1().visit(this);
-        Modality mod1 = resultModality;
+        int count = modCompound.getChildren().size();
+
+        modCompound.getModality(0).visit(this);
+        Modality mod = resultModality;
+        for(int j = 1; j < count; j++) {
+            modCompound.getModality(j).visit(this);
+            mod = new CompoundModality(mod, resultModality);
+        }
         
-        modCompound.getModality2().visit(this);
-        Modality mod2 = resultModality;
-        
-        resultModality = new CompoundModality(mod1, mod2);
+        resultModality = mod;
     }
 
     public void visit(ASTModIf modIf) throws ASTVisitException {

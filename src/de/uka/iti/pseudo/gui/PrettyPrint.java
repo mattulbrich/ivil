@@ -9,49 +9,126 @@
 
 package de.uka.iti.pseudo.gui;
 
-import java.util.List;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.Binder;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.FixOperator;
-import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
-import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.AssignModality;
-import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.CompoundModality;
-import de.uka.iti.pseudo.term.IfModality;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.ModalityTerm;
-import de.uka.iti.pseudo.term.ModalityVisitor;
-import de.uka.iti.pseudo.term.SchemaModality;
-import de.uka.iti.pseudo.term.SchemaVariable;
-import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.TermVisitor;
-import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.WhileModality;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.Util;
 
-/**
- * The Class PrettyPrint provides mean to prettyprint terms while keeping the
- * information about subterms in the resulting string.
- * 
- * Parentheses are introduced only where necessary. This is done using
- * 
- * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
- * visitors {@link SubtermCollector}
- */
+// TODO: Auto-generated Javadoc
 
-public class PrettyPrint implements TermVisitor, ModalityVisitor {
 
+public class PrettyPrint {
+
+    public static final String TYPED_PROPERTY = "PP.typed";
+    public static final String PRINT_FIX_PROPERTY = "PP.printFix";
+    public static final String INITIALSTYLE_PROPERTY = "PP.initialstyle";
+    public static final String BREAK_MODALITIES_PROPERTY = "PP.breakModalities";
+
+    /**
+     * The environment to lookup infix and prefix operators
+     */
+    private Environment env;
+
+    /**
+     * whether or not types are to be printed.
+     */
+    private boolean typed;
+
+    /**
+     * whether or not fix operators are printed as such.
+     */
+    private boolean printFix;
+    
+    /**
+     * whether or not to break lines in modalities and indent 
+     */
+    private boolean breakModalities = Boolean.getBoolean("pseudo.breakModalities");
+
+    /**
+     * the style (attribute string) to be set in the beginning.
+     * may be null if no special attributes are to be set.
+     */
+    private String initialStyle;
+
+    /**
+     * create a new pretty printer with some properties preset.
+     * 
+     * @param env
+     *            the environment to lookup infix and prefix operators
+     * @param typed
+     *            terms are printed with their types if set to true
+     * @param printFix
+     *            fix terms are printed as infix/prefix if true, otherwise as
+     *            functions.
+     */
+    public PrettyPrint(@NonNull Environment env, boolean typed,
+            boolean printFix) {
+        this.env = env;
+        this.typed = typed;
+        this.printFix = printFix;
+    }
+    
+    /**
+     * pretty print a term using the currently set properties on this object.
+     * 
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * @param term
+     *            the term to pretty print
+     * @return a freshly created annotated string object
+     */
+    public AnnotatedStringWithStyles<Term> print(Term term) {
+        return print(term, new AnnotatedStringWithStyles<Term>());
+    }
+    
+    /**
+     * pretty print a term using the currently set properties on this object.
+     * 
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * @param term
+     *            the term to pretty print
+     * @param printer
+     *            the annotated string to appent the term to
+     * @return printer
+     */
+    public AnnotatedStringWithStyles<Term> print(Term term, AnnotatedStringWithStyles<Term> printer) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
+        
+        try {
+            if(initialStyle != null)
+                printer.setStyle(initialStyle);
+            
+            term.visit(visitor);
+            
+            if(initialStyle != null)
+                printer.resetPreviousStyle();
+        } catch (TermException e) {
+            // not thrown in this code
+            throw new Error(e);
+        }
+
+        assert printer.hasEmptyStack();
+        
+        return printer;
+    }
+
+    
     /**
      * Prints a term without explicit typing, but fix operators in prefix or
      * infix notation.
+     * 
+     * A temporary pretty printer is created for printing.
      * 
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
@@ -70,6 +147,8 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
 
     /**
      * Prints a term without explicit typing.
+     * 
+     * A temporary pretty printer object is created for printing.
      * 
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
@@ -92,23 +171,13 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
             boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
 
-        try {
-            pp.printer.setStyle("normal");
-            term.visit(pp);
-            pp.printer.resetPreviousStyle();
-        } catch (TermException e) {
-            // not thrown in this code
-            throw new Error(e);
-        }
-
-        assert pp.printer.hasEmptyStack();
-
-        return pp.printer;
-
+        return pp.print(term);        
     }
 
     /**
      * Prints a located term without explicit typing.
+     * 
+     * A temporary pretty printer is created for printing.
      * 
      * <p>The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
@@ -131,6 +200,8 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     
     /**
      * Prints a located term.
+     * 
+     * A temporary pretty printer is created for printing.
      * 
      * <p>The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
@@ -155,344 +226,176 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
             @NonNull Environment env, @NonNull LocatedTerm lterm,
             boolean typed, boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
+        AnnotatedStringWithStyles<Term> retval;
 
-        try {
-            switch (lterm.getMatchingLocation()) {
-            case ANTECEDENT:
-                lterm.getTerm().visit(pp);
-                pp.printer.append(" |-");
-                assert pp.printer.hasEmptyStack();
-                return pp.printer;
+        switch (lterm.getMatchingLocation()) {
+        case ANTECEDENT:
+            retval = pp.print(lterm.getTerm());
+            retval.append(" |-");
+            assert retval.hasEmptyStack();
+            return retval;
 
-            case SUCCEDENT:
-                pp.printer.append("|- ");
-                lterm.getTerm().visit(pp);
-                assert pp.printer.hasEmptyStack();
-                return pp.printer;
+        case SUCCEDENT:
+            retval = new AnnotatedStringWithStyles<Term>();
+            retval.append("|- ");
+            pp.print(lterm.getTerm(), retval);
+            assert retval.hasEmptyStack();
+            return retval;
 
-            case BOTH:
-                lterm.getTerm().visit(pp);
-                assert pp.printer.hasEmptyStack();
-                return pp.printer;
-            }
-            // unreachable
-            throw new Error();
-        } catch (TermException e) {
-            // not thrown in this code
-            throw new Error(e);
+        case BOTH:
+            retval = pp.print(lterm.getTerm());
+            assert retval.hasEmptyStack();
+            return retval;
         }
+        // unreachable
+        throw new Error();
     }
 
     /**
-     * The environment to lookup infix and prefix operators
+     * Sets the typed.
+     * 
+     * All registered {@link PropertyChangeListener} are informed of this
+     * change if the current value differs from the set value.
+     * 
+     * @param typed the new typed
      */
-    private Environment env;
-
-    /**
-     * whether or not types are to be printed.
-     */
-    private boolean typed;
-
-    /**
-     * whether or not fix operators are printed as such.
-     */
-    private boolean printFix;
-
-    /*
-     * Instantiates a new pretty print.
-     */
-    private PrettyPrint(@NonNull Environment env, boolean typed,
-            boolean printFix) {
-        this.env = env;
+    public void setTyped(boolean typed) {
+        boolean old = this.typed;
         this.typed = typed;
-        this.printFix = printFix;
+        firePropertyChanged(TYPED_PROPERTY, old, typed);
+    }        
 
-        printer = new AnnotatedStringWithStyles<Term>();
-    }
 
-    private boolean isTyped() {
+    /**
+     * Checks if is typed.
+     * 
+     * @return true, if is typed
+     */
+    public boolean isTyped() {
         return typed;
     }
 
-    private boolean isPrintingFix() {
+    /**
+     * Checks if is printing fix.
+     * 
+     * @return true, if is printing fix
+     */
+    public boolean isPrintingFix() {
         return printFix;
+    }
+    
+    /**
+     * Sets the printing fix.
+     * 
+     * All registered {@link PropertyChangeListener} are informed of this
+     * change if the current value differs from the set value.
+     * 
+     * @param printFix the new printing fix
+     */
+    public void setPrintingFix(boolean printFix) {
+        boolean old = this.printFix;
+        this.printFix = printFix;
+        firePropertyChanged(PRINT_FIX_PROPERTY, old, printFix);
     }
 
     /**
      * The underlying annotating string
      */
-    private AnnotatedStringWithStyles<Term> printer;
+    //private AnnotatedStringWithStyles<Term> printer;
+
+    private PropertyChangeSupport propertiesSupport;
+
 
     /**
-     * Indicator that the current subterm is to put in parentheses
-     */
-    private boolean inParens;
-    
-    /*
-     * Visit a subterm and put it in parens possibly.
+     * get the style (attribute string) that is to be set in the beginning
      * 
-     * Parens are included if the subterm's precedence is less than
-     * the precedence of the surrounding term
-     * 
-     * If typing is switched on, parentheses are included if the 
-     * term has a non-maximal precedence, i.e. if it is a prefixed 
-     * or infixed expression
+     * @return a string or possibly null 
      */
-    private void visitMaybeParen(Term subterm, int precedence)
-            throws TermException {
-
-        int innerPrecedence = getPrecedence(subterm);
-        if ((isTyped() && innerPrecedence < Integer.MAX_VALUE)
-                || (!isTyped() && innerPrecedence < precedence)) {
-            inParens = true;
-            subterm.visit(this);
-        } else {
-            subterm.visit(this);
-        }
-
+    public @Nullable String getInitialStyle() {
+        return initialStyle;
     }
 
-    /*
-     * Gets the precedence of a term. This is straight forward if it is a fixed term.
-     * Then the precedence of the operator is returned.
-     * 
-     * In any other case the precedence is maximal ({@link Integer#MAX_VALUE}
-     * This is because every infix and prefix operator binds less than other term
-     * constructions (binders, applications, even modalities)
-     */
-    private int getPrecedence(Term subterm) {
-
-        if (isPrintingFix() && subterm instanceof Application) {
-            Application appl = (Application) subterm;
-            FixOperator fix = env.getReverseFixOperator(appl.getFunction()
-                    .getName());
-            if (fix != null)
-                return fix.getPrecedence();
-        }
-
-        return Integer.MAX_VALUE;
-    }
-
-    /*
-     * Prints a term in prefix way.
-     * 
-     * Possibly insert an extra space if needed, that is if
-     * two operators follow directly one another.
-     */
-    private void printPrefix(Application application, FixOperator fixOperator)
-            throws TermException {
-        
-        assert fixOperator.getArity() == 1;
-        
-        Term subterm = application.getSubterm(0);
-        if (printer.length() > 0 && isOperatorChar(printer.getLastCharacter()))
-            printer.append(" ");
-        printer.append(fixOperator.getOpIdentifier());
-        visitMaybeParen(subterm, fixOperator.getPrecedence());
-    }
-
-    // keep this updated with TermParser.jj
     /**
-     * Checks if a character is an operator char.
+     * set the style (attribute string) that is to be set in the beginning.
+     * 
+     * All registered {@link PropertyChangeListener} are informed of this
+     * change if the current value differs from the set value.
+     * 
+     * @param initialStyle
+     *   the style to be set at top level, or null if none is to be set
      */
-    private boolean isOperatorChar(char c) {
-        return "+-<>&|=*/!^".indexOf(c) != -1;
+    public void setInitialStyle(@Nullable String initialStyle) {
+        String old = this.initialStyle;
+        this.initialStyle = initialStyle;
+        firePropertyChanged(INITIALSTYLE_PROPERTY, old, initialStyle);
     }
-
-    /*
-     * Prints a term in infix way.
-     * 
-     * The first subterm is visited to be put in parens if the precedence is
-     * strictly higher than that of this term.
-     * 
-     * The second subterm is visited to be put in parens if the precedence is
-     * at least as high as that of this term.
-     * 
-     * Therefore plus(a,plus(b,c)) is put as a + (b + c)
-     * and plus(plus(a,b),c) is put as a + b + c
-     * 
-     * All operators are left associative automatically.
-     * 
-     */
-    private void printInfix(Application application, FixOperator fixOperator)
-            throws TermException {
-        visitMaybeParen(application.getSubterm(0), fixOperator.getPrecedence());
-        printer.append(" ").append(fixOperator.getOpIdentifier()).append(" ");
-        visitMaybeParen(application.getSubterm(1),
-                fixOperator.getPrecedence() + 1);
-    }
-
-    /*
-     * print an application in non-operator prefix form.
-     */
-    private void printApplication(Application application, String fctname)
-            throws TermException {
-        printer.append(fctname);
-        List<Term> subterms = application.getSubterms();
-        if (subterms.size() > 0) {
-            boolean first = true;
-            for (Term t : subterms) {
-                printer.append(first ? "(" : ", ");
-                first = false;
-                t.visit(this);
-            }
-            printer.append(")");
-        }
-        if (isTyped())
-            printer.append(" as " + application.getType());
-    }
-
-    //
-    // Visitors
-    //
     
-    public void visit(Variable variable) throws TermException {
-        printer.setStyle("variable");
-        printer.begin(variable).append(variable.toString(isTyped())).end();
-        printer.resetPreviousStyle();
+    /**
+     * Checks if is this printer indents in modalities and breaks lines in modalities
+     * 
+     * @return true, if is this breaks lines and indents modalities
+     */
+    public boolean isBreakModalities() {
+        return breakModalities;
     }
 
-    public void visit(ModalityTerm modalityTerm) throws TermException {
-        printer.begin(modalityTerm);
-        printer.setStyle("modality");
-        printer.append("[ ");
-        modalityTerm.getModality().visit(this);
-        printer.append(" ]");
-        printer.resetPreviousStyle();
-        visitMaybeParen(modalityTerm.getSubterm(0), Integer.MAX_VALUE);
-        printer.end();
+    /**
+     * Sets if is this printer should indent in modalities and break lines in
+     * modalities.
+     * 
+     * All registered {@link PropertyChangeListener} are informed of this
+     * change if the current value differs from the set value.
+     * 
+     * @param breakModalities
+     *            if true, this breaks lines and indents modalities from now on.
+     */
+    public void setBreakModalities(boolean breakModalities) {
+        boolean old = this.breakModalities;
+        this.breakModalities = breakModalities;
+        firePropertyChanged(BREAK_MODALITIES_PROPERTY, old, breakModalities);
     }
 
-    public void visit(Binding binding) throws TermException {
-        printer.begin(binding);
-        Binder binder = binding.getBinder();
-        String bindname = binder.getName();
-        printer.append("(").append(bindname).append(" ");
-        printer.setStyle("variable");
-        printer.append(binding.getVariableName());
-        if (isTyped())
-            printer.append(" as ").append(binding.getType().toString());
-        printer.resetPreviousStyle();
-        for (Term t : binding.getSubterms()) {
-            printer.append("; ");
-            t.visit(this);
-        }
-        printer.append(")");
-        printer.end();
+
+    /**
+     * get the environment upon which the pretty printer relies.
+     * 
+     * @return the underlying environment
+     */
+    public Environment getEnvironment() {
+        return env;
+    }
+    
+    /**
+     * Adds the property change listener.
+     * 
+     * @param listener the listener
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        if(propertiesSupport == null)
+            propertiesSupport = new PropertyChangeSupport(this);
+        propertiesSupport.addPropertyChangeListener(listener);
+    }
+    
+    /**
+     * Removes the property change listener.
+     * 
+     * @param listener the listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        if(propertiesSupport != null)
+            propertiesSupport.removePropertyChangeListener(listener);
     }
 
-    public void visit(Application application) throws TermException {
-        printer.begin(application);
-        boolean isInParens = inParens;
-        inParens = false;
-        if (isInParens)
-            printer.append("(");
-
-        Function function = application.getFunction();
-        String fctname = function.getName();
-
-        FixOperator fixOperator = null;
-        if (printFix)
-            fixOperator = env.getReverseFixOperator(fctname);
-
-        if (fixOperator != null) {
-            if (isTyped())
-                printer.append("(");
-
-            if (function.getArity() == 1) {
-                printPrefix(application, fixOperator);
-            } else {
-                printInfix(application, fixOperator);
-            }
-
-            if (isTyped())
-                printer.append(") as ")
-                        .append(application.getType().toString());
-
-        } else {
-
-            printApplication(application, fctname);
-
-        }
-
-        if (isInParens)
-            printer.append(")");
-        printer.end();
+    /**
+     * Fire property changed.
+     * 
+     * @param property the property
+     * @param oldVal the old val
+     * @param newVal the new val
+     */
+    private <E> void firePropertyChanged(String property, E oldVal, E newVal) {
+        if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal))
+            propertiesSupport.firePropertyChange(property, oldVal, newVal);
     }
-
-    public void visit(SchemaVariable schemaVariable) throws TermException {
-        printer.begin(schemaVariable)
-                .append(schemaVariable.toString(isTyped())).end();
-    }
-
-    public void visit(AssignModality assignModality) throws TermException {
-        printer.append(assignModality.getAssignTarget().getName()).append(" := ");
-        assignModality.getAssignedTerm().visit(this);
-    }
-
-    public void visit(CompoundModality compoundModality) throws TermException {
-        compoundModality.getSubModality(0).visit(this);
-        printer.append("; ");
-        compoundModality.getSubModality(1).visit(this);
-    }
-
-    public void visit(IfModality ifModality) throws TermException {
-        printer.setStyle("keyword");
-        printer.append("if ");
-        printer.resetPreviousStyle();
-        
-        ifModality.getConditionTerm().visit(this);
-        
-        printer.setStyle("keyword");
-        printer.append(" then ");
-        printer.resetPreviousStyle();
-        
-        ifModality.getThenModality().visit(this);
-        Modality elseModality = ifModality.getElseModality();
-        if (elseModality != null) {
-            printer.setStyle("keyword");
-            printer.append(" else ");
-            printer.resetPreviousStyle();
-            
-            elseModality.visit(this);
-        }
-        
-        printer.setStyle("keyword");
-        printer.append(" end");
-        printer.resetPreviousStyle();
-
-    }
-
-    public void visit(SkipModality skipModality) throws TermException {
-        printer.append("skip");
-    }
-
-    public void visit(SchemaModality schemaModality) throws TermException {
-        printer.append(schemaModality.getName());
-    }
-
-    public void visit(WhileModality whileModality) throws TermException {
-        printer.setStyle("keyword");
-        printer.append("while ");
-        printer.resetPreviousStyle();
-        
-        whileModality.getConditionTerm().visit(this);
-        if(whileModality.hasInvariantTerm()) {
-            printer.setStyle("keyword");
-            printer.append(" inv ");
-            printer.resetPreviousStyle();
-            
-            whileModality.getInvariantTerm().visit(this);
-        }
-        printer.setStyle("keyword");
-        printer.append(" do ");
-        printer.resetPreviousStyle();
-        
-        whileModality.getBody().visit(this);
-        
-        printer.setStyle("keyword");
-        printer.append(" end");
-        printer.resetPreviousStyle();
-    }
-
+    
 }

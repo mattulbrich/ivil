@@ -47,9 +47,9 @@ public class IntEvalMetaFunction extends MetaFunction {
             return makeBool(diff.signum() >= 0, env);
         }
         
-        if(fctname.equals("$gte")) {
+        if(fctname.equals("$lte")) {
             BigInteger diff = val1.subtract(val2);
-            return makeBool(diff.signum() >= 0, env);
+            return makeBool(diff.signum() <= 0, env);
         }
         
         if(fctname.equals("$plus")) {

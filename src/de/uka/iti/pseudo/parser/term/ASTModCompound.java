@@ -8,15 +8,17 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTModCompound extends ASTModality {
     
-    public ASTModCompound(ASTModality modality1, ASTModality modality2) {
-        addChild(modality1);
-        addChild(modality2);
+    public ASTModCompound(List<ASTModality> list) {
+        assert list.size() > 1;
+        addChildren(list);
     }
-    
+
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
@@ -24,15 +26,11 @@ public class ASTModCompound extends ASTModality {
     
     @Override
 	protected Token getLocationToken() {
-    	return getModality1().getLocationToken();
+    	return getModality(0).getLocationToken();
 	}
 
-    public ASTModality getModality1() {
-        return (ASTModality) getChildren().get(0);
-    }
-
-    public ASTModality getModality2() {
-        return (ASTModality) getChildren().get(1);
+    public ASTModality getModality(int i) {
+        return (ASTModality) getChildren().get(i);
     }
 
 }

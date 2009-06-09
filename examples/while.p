@@ -13,7 +13,7 @@ problem
     val1AtPre = val1 
   & val1 >= 0
   -> 
-     [ val2 := 0;
+     [ val2 := 0; val2:=0;
        while val1 > 0
        inv
          val1 + val2 = val1AtPre & val1 >= 0

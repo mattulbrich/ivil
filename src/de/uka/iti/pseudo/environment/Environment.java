@@ -762,6 +762,16 @@ public class Environment {
         return false;
     }
 
+    /**
+     * get the stored name of this environment.
+     * This is either the filename or some internal name.
+     * 
+     * @return the resource name for this environment
+     */
+    public @NonNull String getResourceName() {
+        return resourceName;
+    }
+
     
 
 }

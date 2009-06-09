@@ -31,6 +31,25 @@ public class TermParser {
 
 PARSER_END(TermParser)
 
+//
+// (* COMMENTS *)
+TOKEN_MGR_DECLS : {
+    int commentNestingDepth ; 
+}
+    
+// When a "(*" is encounted in the DEFAULT state, set the counter to 1 and enter the COMMENT state:
+SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
+
+// When a "(*" is encounted in the COMMENT state, increment the counter:
+< COMMENT >  SKIP : {  "(*" { commentNestingDepth += 1 ; } }
+
+// When a "*)" is encountered in the COMMENT state, either switch back to the DEFAULT state or stay in the comment state:
+< COMMENT >  SKIP : {  "*)" { commentNestingDepth -= 1; SwitchTo( 
+                              commentNestingDepth==0 ? DEFAULT : COMMENT ) ; } } 
+
+// Finally a rule is needed to mop up all the other characters in the comment.
+< COMMENT >  SKIP : {  < ~[] > }
+
 SKIP :
 {
   " "
@@ -229,16 +248,20 @@ ASTSchemaVariableTerm SchemaVariable():
 
 ASTModality ModalityList():
 {
-  ASTModality mod, mod2;
+  ASTModality mod;
+  List<ASTModality> list = new ArrayList<ASTModality>();
 }
 {
   mod=Modality()
+    { list.add(mod); }
   (
     ";"
-    mod2=ModalityList()
-      { mod = new ASTModCompound(mod, mod2); }
-  )?
-  { return mod; }
+    mod=Modality()
+      { list.add(mod); }
+  )*
+  
+  { return list.size() == 1 ? 
+  	   mod : new ASTModCompound(list); }
 }
 
 ASTModality Modality():

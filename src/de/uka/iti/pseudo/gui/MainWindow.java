@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URL;
 
@@ -9,8 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -26,6 +26,8 @@ import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
 import de.uka.iti.pseudo.gui.bar.BarManager;
+import de.uka.iti.pseudo.gui.bar.CloseAction;
+import de.uka.iti.pseudo.gui.bar.ExitAction;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -46,12 +48,11 @@ public class MainWindow extends JFrame {
 
     private BarManager barManager;
     
-    public MainWindow(ProofCenter proofCenter) throws IOException {
-        super("Pseudo");
+    public MainWindow(ProofCenter proofCenter, String resourceName) throws IOException {
+        super("Pseudo - " + resourceName);
         this.proofCenter = proofCenter;
         makeGUI();
     }
-
 
     private void makeGUI() throws IOException {
         
@@ -133,6 +134,14 @@ public class MainWindow extends JFrame {
             setJMenuBar(barManager.makeMenubar(resource));
             getContentPane().add(barManager.makeToolbar(resource), BorderLayout.NORTH);
         }
+        {
+            // ExitAction is actually also a WindowListener. ...
+            // we call the bar manager so that no unnecessary copy 
+            // is created if it already exists.
+            addWindowListener((WindowListener) barManager.makeAction(CloseAction.class.getName()));    
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        }
+        setSize(1000, 600);
 
     }
 
@@ -153,6 +162,11 @@ public class MainWindow extends JFrame {
 
     public RuleApplicationComponent getRuleApplicationComponent() {
         return ruleApplicationComponent;
+    }
+
+
+    public BarManager getBarManager() {
+        return barManager;
     }
    
 }

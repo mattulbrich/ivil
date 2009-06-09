@@ -1,11 +1,13 @@
 package de.uka.iti.pseudo.util;
 
-import junit.framework.TestCase;
+import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.term.Term;
 
-public class TestAnnotatedString extends TestCase {
+public class TestAnnotatedString extends TestCaseWithEnv {
 
-    public TestAnnotatedString(String name) {
-        super(name);
+    public TestAnnotatedString() {
+        super();
     }
 
     public void testOne() {
@@ -52,5 +54,12 @@ public class TestAnnotatedString extends TestCase {
         assertEquals(1, as.getAttributeIndexAt(47));
         assertEquals(null, as.getAttributeAt(48));
         assertEquals(-1, as.getAttributeIndexAt(48));
+    }
+    
+    // from a bug
+    public void testTerm() throws Exception {
+        Term t = makeTerm("b1 & b2 -> b2");
+        AnnotatedString<Term> as = PrettyPrint.print(env, t);
+        assertEquals(0, as.getAttributeIndexAt(8));
     }
 }

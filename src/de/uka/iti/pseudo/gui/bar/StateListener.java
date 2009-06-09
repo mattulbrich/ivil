@@ -7,9 +7,11 @@ import javax.swing.Action;
 // TODO Documentation needed
 public interface StateListener {
     
-    public interface StateListeningAction extends Action, StateListener {}
+    public interface StateListeningAction extends Action, StateListener { }
 
     public static class StateChangeEvent extends EventObject {
+        
+        public static final String INITIALISED = "initialised";
 
         private static final long serialVersionUID = -7918620500210682982L;
 

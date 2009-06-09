@@ -4,11 +4,8 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.TermMaker;
 
 public class ShowSequentComponent extends TestCaseWithEnv {
     

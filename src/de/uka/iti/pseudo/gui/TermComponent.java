@@ -113,13 +113,15 @@ public class TermComponent extends JTextPane {
      * @param termSelector
      *            selector object describing the position of the displayed term
      *            in its sequent
+     * @param prettyPrinter
+     *            the pretty printer to print the term in this component
      */
     public TermComponent(@NonNull Term t, @NonNull Environment env,
-            @NonNull TermSelector termSelector) {
+            @NonNull TermSelector termSelector, PrettyPrint prettyPrinter) {
         this.env = env;
         this.term = t;
         this.termSelector = termSelector;
-        this.annotatedString = PrettyPrint.print(env, t);
+        this.annotatedString = prettyPrinter.print(t);
 
         //
         // Set display properties
@@ -152,11 +154,11 @@ public class TermComponent extends JTextPane {
         }
     }
 
-    private static AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
+    private static Map<String, AttributeSet> attributeCache = new HashMap<String, AttributeSet>();
+    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
         new AnnotatedStringWithStyles.AttributeSetFactory() {
-            private Map<String, AttributeSet> cache = new HashMap<String, AttributeSet>();
             public AttributeSet makeStyle(String descr) {
-                AttributeSet cached = cache.get(descr);
+                AttributeSet cached = attributeCache.get(descr);
                 
                 if(cached != null)
                     return cached;
@@ -164,6 +166,9 @@ public class TermComponent extends JTextPane {
                 MutableAttributeSet retval = new SimpleAttributeSet();
                 StyleConstants.setFontFamily(retval, FONT_NAME);
                 StyleConstants.setFontSize(retval, FONT_SIZE);
+                
+                if(descr.contains("closed")) 
+                    StyleConstants.setForeground(retval, Color.DARK_GRAY);
                 
                 if(descr.contains("modality"))
                     StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
@@ -174,7 +179,7 @@ public class TermComponent extends JTextPane {
                 if(descr.contains("variable"))
                     StyleConstants.setItalic(retval, true);
                 
-                cache.put(descr, retval);
+                attributeCache.put(descr, retval);
                 
                 return retval;
             }
@@ -227,6 +232,7 @@ public class TermComponent extends JTextPane {
     public TermSelector getTermAt(Point point) {
         int charIndex = viewToModel(point);
         int termIndex = annotatedString.getAttributeIndexAt(charIndex);
+        assert termIndex >= 0 : charIndex + " in " + annotatedString;
         return termSelector.selectSubterm(termIndex);
     }
 
@@ -234,6 +240,10 @@ public class TermComponent extends JTextPane {
     public int viewToModel(Point p) {
         String seqText = getText();
 
+        // bugfix for empty strings
+        if(seqText.length() == 0)
+            return 0;
+        
         int cursorPosition = super.viewToModel(p);
 
         cursorPosition -= (cursorPosition > 0 ? 1 : 0);
@@ -241,6 +251,7 @@ public class TermComponent extends JTextPane {
         cursorPosition = (cursorPosition >= seqText.length() ? seqText.length() - 1
                 : cursorPosition);
         cursorPosition = (cursorPosition >= 0 ? cursorPosition : 0);
+        
         int previousCharacterWidth = getFontMetrics(getFont()).charWidth(
                 seqText.charAt(cursorPosition));
 
@@ -251,16 +262,6 @@ public class TermComponent extends JTextPane {
     }
     
     
-    // it is some hack ... how do you do it correctly?
-//    @Override 
-//    public Dimension getMinimumSize() {
-//        Dimension dim = super.getMinimumSize();
-//        if(dim.width > 200) {
-//            dim.width = 200;
-//        }
-//        return dim;
-//    }
-
     public void markSubterm(int subtermNo, int type) {
         if(type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();

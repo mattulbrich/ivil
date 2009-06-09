@@ -273,9 +273,6 @@ public class AnnotatedString<T> implements CharSequence {
         return elementStack.isEmpty();
     }
     
-    
-    
-  
     /**
      * Gets the beginning index of the block with the number number.
      * 
@@ -339,13 +336,6 @@ public class AnnotatedString<T> implements CharSequence {
      * Gets the element at an index. Linear search is used. If multiple blocks
      * are found, the last (=innermost) wins.
      */
-    /**
-     * Gets the element.
-     * 
-     * @param index the index
-     * 
-     * @return the element
-     */
     private Element<T> getElement(int index) {
         Element<T> retval = null;
         for (Element<T> element : allElements) {
@@ -365,5 +355,5 @@ public class AnnotatedString<T> implements CharSequence {
     @Override public String toString() {
         return builder.toString();
     }
-
+    
 }

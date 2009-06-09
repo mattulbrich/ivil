@@ -54,24 +54,26 @@ public class AnnotatedStringWithStyles<Annotation> extends AnnotatedString<Annot
         
         try {
             
+            String str;
+            String style;
+            
             if(length > 0) {
-                String str = string.substring(0, positions.get(0));
-                String style = styles.get(0);
+                str = string.substring(0, positions.get(0));
                 document.insertString(document.getLength(), str, factory.makeStyle(""));
-            }
-            
-            for (int i = 0; i < styles.size() - 1; i++) {
-                Integer begin = positions.get(i);
-                Integer end = positions.get(i+1);
-                String str = string.substring(begin, end);
-                String style = styles.get(i);
+
+                for (int i = 0; i < length - 1; i++) {
+                    Integer begin = positions.get(i);
+                    Integer end = positions.get(i+1);
+                    str = string.substring(begin, end);
+                    style = styles.get(i);
+                    document.insertString(document.getLength(), str, factory.makeStyle(style));
+                }
+                
+                str = string.substring(positions.get(length-1));
+                style = styles.get(length-1);
                 document.insertString(document.getLength(), str, factory.makeStyle(style));
-            }
-            
-            if(length > 0) {
-                String str = string.substring(positions.get(length-1));
-                String style = styles.get(length-1);
-                document.insertString(document.getLength(), str, factory.makeStyle(style));
+            } else {
+                document.insertString(document.getLength(), string, factory.makeStyle(""));
             }
         } catch (BadLocationException e) {
             // This is designed to never happen
@@ -82,4 +84,11 @@ public class AnnotatedStringWithStyles<Annotation> extends AnnotatedString<Annot
     @Override public boolean hasEmptyStack() {
         return super.hasEmptyStack() && styleStack.isEmpty();
     }
+    
+//    @Override public void clear() {
+//        super.clear();
+//        styleStack.clear();
+//        styles.clear();
+//        positions.clear();
+//    }
 }

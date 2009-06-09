@@ -7,6 +7,7 @@ import java.util.List;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.bar.StateListener.StateChangeEvent;
 import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -16,12 +17,13 @@ import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.term.Term;
 
 
 // the center of this all
 //TODO DOC
 public class ProofCenter implements TermSelectionListener {
-
+    
     private MainWindow mainWindow;
     private Environment env;
     private Proof proof;
@@ -35,10 +37,14 @@ public class ProofCenter implements TermSelectionListener {
     public ProofCenter(@NonNull Proof proof, @NonNull Environment env) throws IOException {
         this.proof = proof;
         this.env = env;
-        mainWindow = new MainWindow(this);
+        mainWindow = new MainWindow(this, env.getResourceName());
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
+        
+        // propagate end of initialisation to everyone
+        StateChangeEvent evt = new StateChangeEvent(this, StateChangeEvent.INITIALISED, true);
+        mainWindow.getBarManager().fireStateChange(evt);
     }
 
     private void prepareRuleLists() {
@@ -140,6 +146,10 @@ public class ProofCenter implements TermSelectionListener {
 
     public ProofNode getCurrentProofNode() {
         return currentProofNode;
+    }
+
+    public void replaceProof(Proof newProof) {
+        this.proof = newProof;
     }
 
 }

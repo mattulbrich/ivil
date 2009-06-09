@@ -9,6 +9,8 @@ import java.awt.LayoutManager;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -23,7 +25,7 @@ import de.uka.iti.pseudo.term.Term;
 
 // TODO DOC
 
-public class SequentComponent extends JPanel implements ProofNodeSelectionListener {
+public class SequentComponent extends JPanel implements ProofNodeSelectionListener, PropertyChangeListener {
     
     private static final long serialVersionUID = -3882151273674917147L;
     
@@ -116,10 +118,13 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     private Separator separator = new Separator();
     private Sequent sequent;
     private Environment env;
+    private PrettyPrint prettyPrinter;
 
     public SequentComponent(@NonNull Environment env) {
         this.env = env;
         this.setLayout(new Layout());
+        prettyPrinter = new PrettyPrint(env, false, true);
+        prettyPrinter.addPropertyChangeListener(this);
     }
     
     public void setSequent(Sequent sequent) {
@@ -129,7 +134,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         int i = 0;
         for (Term t : sequent.getAntecedent()) {
-            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.ANTECEDENT, i));
+            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.ANTECEDENT, i), prettyPrinter);
             termComp.addMouseListener(termMouseListener);
             add(termComp);
             i++;
@@ -139,7 +144,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         i = 0;
         for (Term t : sequent.getSuccedent()) {
-            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.SUCCEDENT, i));
+            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.SUCCEDENT, i), prettyPrinter);
             termComp.addMouseListener(termMouseListener);
             add(termComp);
             i++;
@@ -164,6 +169,11 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     }
 
     public void proofNodeSelected(ProofNode node) {
+        if(node.getChildren() == null)
+            prettyPrinter.setInitialStyle(null);
+        else
+            prettyPrinter.setInitialStyle("closed");
+        
         setSequent(node.getSequent());
         RuleApplication ruleApp = node.getAppliedRuleApp();
         if(ruleApp != null)
@@ -204,5 +214,16 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
             markTerm(sel, 1);
         }
+    }
+
+    public PrettyPrint getPrettyPrinter() {
+        return prettyPrinter;
+    }
+
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        // property on the pretty printer has changed --> remake the term components
+        if(sequent != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
+            setSequent(sequent);
     }
 }

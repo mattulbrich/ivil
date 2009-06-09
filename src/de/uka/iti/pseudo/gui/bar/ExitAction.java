@@ -2,20 +2,19 @@ package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.StateConstants;
-import de.uka.iti.pseudo.gui.bar.StateListener.StateListeningAction;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class ExitAction extends AbstractAction implements StateListeningAction {
+public class ExitAction extends AbstractStateListeningAction {
 
     public ExitAction() {
-        super("Exit", BarManager.makeIcon(ExitAction.class.getResource("img/exit.png")));
+        super("Exit", BarManager.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
         putValue(ACTION_COMMAND_KEY, "exit");
+        putValue(SHORT_DESCRIPTION, "closes all open windows of the program");
     }
     
     public void stateChanged(StateChangeEvent e) {
@@ -25,17 +24,15 @@ public class ExitAction extends AbstractAction implements StateListeningAction {
         }
     }
     
-    private ProofCenter getProofCenter() {
-        return (ProofCenter) getValue(BarManager.CENTER);
+    public void actionPerformed(ActionEvent e) {
+        tryExit();
     }
 
-    public void actionPerformed(ActionEvent e) {
-        System.err.println(e);
-        
-        boolean changed = getProofCenter().getProof().hasUnsafedChanges();
+    private void tryExit() {
+        boolean changed = Main.proofCentersHaveChanges();
         if(changed) {
             int result = JOptionPane.showConfirmDialog(getProofCenter().getMainWindow(),
-                    "There are changes in the current proof. Exit anyway?",
+                    "There are changes in the a proof. Exit anyway?",
                     "Exit", JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
             

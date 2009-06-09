@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
@@ -36,8 +37,7 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static File SYS_DIR = new File(System.getProperty(
-            "pseudo.systemdir", "sys"));
+    private static File SYS_DIR = new File(Main.SYSTEM_DIRECTORY);
 
     /**
      * The environment that is being built.

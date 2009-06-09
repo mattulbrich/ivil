@@ -11,6 +11,7 @@ function  # infixes
         bool $lt(int, int)      infix <  50
         bool $gt(int, int)      infix >  50
         bool $gte(int, int)     infix >= 50
+        bool $lte(int, int)     infix <= 50
         
 function  # prefixes
         int $neg(int)           prefix - 60

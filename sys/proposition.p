@@ -172,10 +172,10 @@ rule impl_right
 
 rule impl_left
   find { %a -> %b } |-
-  samegoal "show %a"
+  samegoal "show {%a}"
     remove
     add |- { %a }
-  samegoal "use %b"
+  samegoal "use {%b}"
     replace { %b }
 
 rule impl_false_l

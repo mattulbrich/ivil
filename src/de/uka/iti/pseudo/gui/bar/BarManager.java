@@ -14,9 +14,11 @@ import java.util.Properties;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
@@ -86,8 +88,14 @@ public class BarManager {
                     if(actionListener != null)
                         menuItem.addActionListener(actionListener);
                     
-                    addStateListener(action);
-                    action.putValue(CENTER, centerObject);
+                    if(args.length == 3) {
+                        if(args[2].equals("ICON")) {
+                            menuItem.setText("");
+                        } else if(args[2].equals("TEXT")) {
+                            menuItem.setIcon(null);
+                        }
+                    }
+                    
                     result.add(menuItem);
                     
                 } else if(args[0].equals("COMMAND")) {
@@ -107,8 +115,14 @@ public class BarManager {
                     if(actionListener != null)
                         menuItem.addActionListener(actionListener);
                     
-                    action.putValue(CENTER, centerObject);
-                    addStateListener(action);
+                    if(args.length == 3) {
+                        if(args[2].equals("ICON")) {
+                            menuItem.setText("");
+                        } else if(args[2].equals("TEXT")) {
+                            menuItem.setIcon(null);
+                        }
+                    }
+                    
                     result.add(menuItem);
                     
                 } else if(args[0].equals("TODO")){
@@ -178,8 +192,8 @@ public class BarManager {
                     result.add(new JSeparator());
                     
                 } else if(args[0].equals("SUBMENU")) {
-                    String subName = args[1];
-                    result.add(makeMenu(subName, name, packagePrefix, properties));
+                    String subName = value.substring(8);
+                    result.add(makeMenu(subName, name + ".", packagePrefix, properties));
                     
                 } else if(args[0].equals("ACTION")) {
                     String className = packagePrefix + args[1];
@@ -188,8 +202,24 @@ public class BarManager {
                     if(actionListener != null)
                         menuItem.addActionListener(actionListener);
                     
-                    addStateListener(action);
-                    action.putValue(CENTER, centerObject);
+                    result.add(menuItem);
+                    
+                } else if(args[0].equals("RADIO_ACTION")) {
+                    String className = packagePrefix + args[1];
+                    StateListeningAction action = makeAction(className);
+                    JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action);
+                    if(actionListener != null)
+                        menuItem.addActionListener(actionListener);
+                    
+                    result.add(menuItem);
+                 
+                } else if(args[0].equals("CHECKBOX_ACTION")) {
+                    String className = packagePrefix + args[1];
+                    StateListeningAction action = makeAction(className);
+                    JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(action);
+                    if(actionListener != null)
+                        menuItem.addActionListener(actionListener);
+                    
                     result.add(menuItem);
                     
                 } else if(args[0].equals("COMMAND")) {
@@ -209,12 +239,10 @@ public class BarManager {
                     if(actionListener != null)
                         menuItem.addActionListener(actionListener);
                     
-                    action.putValue(CENTER, centerObject);
-                    addStateListener(action);
                     result.add(menuItem);
                     
                 } else if(args[0].equals("TODO")){
-                    JMenuItem menuItem = new JMenuItem(args[1]);
+                    JMenuItem menuItem = new JMenuItem(value.substring(5));
                     menuItem.setEnabled(false);
                     result.add(menuItem);
                     
@@ -232,7 +260,7 @@ public class BarManager {
     }
 
 
-    private StateListeningAction makeAction(String className) throws IOException {
+    public StateListeningAction makeAction(String className) throws IOException {
         try {
             Class<?> clss = Class.forName(className);
             
@@ -243,7 +271,10 @@ public class BarManager {
             
             StateListeningAction action = (StateListeningAction) clss.newInstance();
             actionCache.put(clss, action);
+            addStateListener(action);
             
+            if(CENTER != null)
+                action.putValue(CENTER, centerObject);
             return action;
         } catch (Exception e) {
             throw new IOException("cannot create Action instance of " + className, e);
@@ -263,9 +294,19 @@ public class BarManager {
     public void clearCache() {
         actionCache.clear();
     }
-    
+
+    /**
+     * add a state listener.
+     * 
+     * If the same object has already been registered as state listener, nothing
+     * is done.
+     * 
+     * @param listener
+     *            listener to register for future events
+     */
     public void addStateListener(StateListener listener) {
-        listeners.add(listener);
+        if(!listeners.contains(listener))
+            listeners.add(listener);
     }
     
     public void removeStateListener(StateListener listener) {
