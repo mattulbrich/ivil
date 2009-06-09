@@ -13,17 +13,11 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import nonnull.NonNull;
-
-import com.sun.istack.internal.Nullable;
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.where.DistinctAssumeAndFind;
-import de.uka.iti.pseudo.rule.where.IntLiteral;
-import de.uka.iti.pseudo.rule.where.Interactive;
-import de.uka.iti.pseudo.rule.where.NotFreeIn;
-import de.uka.iti.pseudo.rule.where.ProgramFree;
 import de.uka.iti.pseudo.term.Term;
 
 

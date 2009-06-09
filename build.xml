@@ -34,17 +34,24 @@
 	
   <target name="javacc" depends="init">
     <exec executable="javacc">
-    	<arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/file"/>
-    	<arg value="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/file"/>
+      <arg value="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
     </exec>
     <exec executable="javacc">
-        <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/term"/>
-        <arg value="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/term"/>
+      <arg value="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
     </exec>
 
   </target>
 	
   <target name="copy" depends="init">
+    <copy todir="classes">
+      <fileset dir="src">
+        <include name="**/*.png" />
+        <include name="**/*.properties" />
+        <include name="META-INF/**" />     
+      </fileset>  
+    </copy>
   </target>
 
   <target name="jar" depends="build, nonnull" description="creates the jar file">
@@ -71,14 +78,16 @@
 
 	
   <target name="test" depends="build-test" description="run junit tests">
-    <junit>
+    <junit printsummary="yes" fork="yes" haltonfailure="yes">
       <classpath>
-        <pathelement location="classes"/>
-        <pathelement location="classes-test"/>
-        <pathelement path="lib/javadocking.jar"/>
-        <pathelement path="junit.jar"/>
+        <pathelement path="classes"/>
+        <pathelement path="classes-test"/>
+        <!--<pathelement location="lib/javadocking.jar"/>-->
+        <pathelement location="lib/nonnull.jar"/>
+        <pathelement path="lib/junit.jar"/>
       </classpath>
       <test name="de.uka.iti.pseudo.AllTests"/>
+      <formatter type="plain" />
     </junit>
   </target>
 

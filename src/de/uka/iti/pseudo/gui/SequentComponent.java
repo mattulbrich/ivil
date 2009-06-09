@@ -1,6 +1,5 @@
 package de.uka.iti.pseudo.gui;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -17,6 +16,7 @@ import javax.swing.SwingUtilities;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -30,7 +30,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     private static int SEP_LENGTH = 32;
     private static int SEP_WIDTH = 6;
     private static int GAP = 3;
-    private static Color BACKGROUND = new Color(240, 240, 255);
     
     private static class Separator extends Component {
         
@@ -121,7 +120,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     public SequentComponent(@NonNull Environment env) {
         this.env = env;
         this.setLayout(new Layout());
-        this.setBackground(BACKGROUND);
     }
     
     public void setSequent(Sequent sequent) {
@@ -167,5 +165,44 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
 
     public void proofNodeSelected(ProofNode node) {
         setSequent(node.getSequent());
+        RuleApplication ruleApp = node.getAppliedRuleApp();
+        if(ruleApp != null)
+            ruleApplicationSelected(ruleApp);
+    }
+
+    public void markTerm(TermSelector selector, int type) {
+        
+        if(sequent == null)
+            return;
+        
+        TermComponent termComp;
+        if(selector.isAntecedent()) {
+            termComp = (TermComponent) getComponent(selector.getTermNo()); 
+        } else {
+            // need to jump over antecedent and separator
+            int offset = sequent.getAntecedent().size() + 1;
+            termComp = (TermComponent) getComponent(offset + selector.getTermNo());
+        }
+        
+        termComp.markSubterm(selector.getSubtermNo(), type);
+    }
+
+    public void ruleApplicationSelected(RuleApplication ruleApplication) {
+        //
+        // clear all previous markings on the term components
+        for (int i = 0; i < getComponentCount(); i++) {
+            Component c = getComponent(i);
+            if (c instanceof TermComponent) {
+                TermComponent termComponent = (TermComponent) c;
+                termComponent.clearMarks();
+            }
+        }
+        
+        //
+        // set the current markings
+        markTerm(ruleApplication.getFindSelector(), 0);
+        for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
+            markTerm(sel, 1);
+        }
     }
 }

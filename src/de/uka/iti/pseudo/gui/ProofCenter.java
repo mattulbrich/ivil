@@ -79,6 +79,16 @@ public class ProofCenter implements TermSelectionListener {
         }
     }
     
+    public void fireSelectedRuleApplication(RuleApplication ruleApplication) {
+        if(!isFiring) {
+            isFiring = true;
+            for (ProofNodeSelectionListener l : listeners) {
+                l.ruleApplicationSelected(ruleApplication);
+            }
+            isFiring = false;
+        }
+    }
+    
     public void termSelected(Sequent sequent, TermSelector termSelector) {
 
         int goalNo = proof.getOpenGoals().indexOf(currentProofNode);
@@ -110,8 +120,12 @@ public class ProofCenter implements TermSelectionListener {
             // still a goal
             next = parent;
         } else if(children.isEmpty()) {
-            // select first open remaining goal
-            next = proof.getGoal(0);
+            if(proof.hasOpenGoals()) {
+                // select first open remaining goal
+                next = proof.getGoal(0);
+            } else {
+                next = proof.getRoot();
+            }
         } else {
             // select first child goal
             next = children.get(0);

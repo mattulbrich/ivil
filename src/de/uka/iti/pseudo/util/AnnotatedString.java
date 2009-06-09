@@ -17,6 +17,7 @@ import java.util.Stack;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+// TODO: Auto-generated Javadoc
 /**
  * This class allows to build a string of nested blocks. To each block is
  * assigned an attribute which is an object of type T.
@@ -84,10 +85,24 @@ public class AnnotatedString<T> implements CharSequence {
      */
     private static class Element<T> {
 
+        /**
+         * The begin.
+         */
         int begin;
+        
+        /**
+         * The end.
+         */
         int end;
+        
+        /**
+         * The attr.
+         */
         T attr;
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         @Override public String toString() {
             return "Element[begin=" + begin + ";end=" + end + ";attr=" + attr
                     + "]";
@@ -95,7 +110,7 @@ public class AnnotatedString<T> implements CharSequence {
     }
 
     /**
-     * The underlying builder that is used to construct the result
+     * The underlying builder that is used to construct the result.
      */
     private StringBuilder builder = new StringBuilder();
 
@@ -112,20 +127,29 @@ public class AnnotatedString<T> implements CharSequence {
     /*
      * we need to override these since we implement CharSequence
      */
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#charAt(int)
+     */
     public char charAt(int index) throws IndexOutOfBoundsException {
         return builder.charAt(index);
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#length()
+     */
     public int length() {
         return builder.length();
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.CharSequence#subSequence(int, int)
+     */
     public CharSequence subSequence(int start, int end) {
         return builder.subSequence(start, end);
     }
     
     /**
-     * Gets the last character of the character sequence
+     * Gets the last character of the character sequence.
      * 
      * @return the last character if there is one
      * 
@@ -134,19 +158,28 @@ public class AnnotatedString<T> implements CharSequence {
     public char getLastCharacter() {
         return charAt(length() - 1);
     }
+    
+    /**
+     * Gets the attribute of the number-th block in the list 
+     * 
+     * @param number the number of the block
+     * 
+     * @return the attribute of the block at the given position.
+     */
+    public T getAttributeOf(int number) {
+        return allElements.get(number).attr;
+    }
 
     /**
      * Gets the attribute of the most inner block to which the character at
-     * index belongs
+     * index belongs.
      * 
-     * @param index
-     *            index of the character to inspect
+     * @param index index of the character to inspect
      * 
      * @return the attribute of the innerst block which contains the character
-     *         at index, null if there is no such block.
+     * at index, null if there is no such block.
      * 
-     * @throws IndexOutOfBoundsException
-     *             if index is outside the bounds of the string
+     * @throws IndexOutOfBoundsException if index is outside the bounds of the string
      */
     public @Nullable T getAttributeAt(int index) {
         Element<T> elem = getElement(index);
@@ -158,14 +191,12 @@ public class AnnotatedString<T> implements CharSequence {
 
     /**
      * Gets the index of the innermost block to which the character at index
-     * belongs
+     * belongs.
      * 
-     * @param index
-     *            index of the character to inspect
+     * @param index index of the character to inspect
      * 
      * @return the largest index of a block, so that the character at index
-     *         belongs to the block
-     * 
+     * belongs to the block
      */
     public int getAttributeIndexAt(int index) {
         Element<T> element = getElement(index);
@@ -193,8 +224,7 @@ public class AnnotatedString<T> implements CharSequence {
      * Append text to the string. All open blocks remain open and the appended
      * texts belongs to them
      * 
-     * @param string
-     *            the string ao append
+     * @param string the string ao append
      * 
      * @return reference to <code>this</code>
      */
@@ -206,8 +236,7 @@ public class AnnotatedString<T> implements CharSequence {
     /**
      * Begin a new annotated block. Use the parameter als annotation object.
      * 
-     * @param attr
-     *            the annotation to use in the new block
+     * @param attr the annotation to use in the new block
      * 
      * @return reference to <code>this</code>
      */
@@ -226,8 +255,7 @@ public class AnnotatedString<T> implements CharSequence {
      * 
      * @return reference to <code>this</code>
      * 
-     * @throws EmptyStackException
-     *             if there is no open block.
+     * @throws EmptyStackException if there is no open block.
      */
     public AnnotatedString<T> end() throws EmptyStackException {
 
@@ -244,26 +272,31 @@ public class AnnotatedString<T> implements CharSequence {
     public boolean hasEmptyStack() {
         return elementStack.isEmpty();
     }
-
-    // public AttributedString<T> append(AttributedString<? extends T> astring)
-    // {
-    // builder.append(astring.builder);
-    // attributes.addAll(astring.attributes);
-    //        
-    // assert length() == attributes.size();
-    // return this;
-    // }
+    
+    
+    
+  
+    /**
+     * Gets the beginning index of the block with the number number.
+     * 
+     * @param number
+     *            the number of the block to inspect
+     * 
+     * @return the beginning of the block with the given number
+     */
+    public int getBeginOf(int number) {
+        return allElements.get(number).begin;
+    }
 
     /**
      * Gets the beginning index of the innermost block which contains the
-     * character at index
+     * character at index.
      * 
-     * @param index
-     *            index to consider for lookup
+     * @param index index to consider for lookup
      * 
      * @return the index of the innermost block, 0 if there is no such block
      */
-    public int getBegin(int index) {
+    public int getBeginAt(int index) {
         Element<T> elem = getElement(index);
         if (elem != null)
             return elem.begin;
@@ -272,16 +305,27 @@ public class AnnotatedString<T> implements CharSequence {
     }
 
     /**
-     * Gets the end index of the innermost block which contains the character at
-     * index
+     * Gets the end index of the block with the number number.
      * 
-     * @param index
-     *            index to consider for lookup
+     * @param number
+     *            the number of the block to inspect
+     * 
+     * @return the end of the block with the given number
+     */
+    public int getEndOf(int number) {
+        return allElements.get(number).end;
+    }
+
+    /**
+     * Gets the end index of the innermost block which contains the character at
+     * index.
+     * 
+     * @param index index to consider for lookup
      * 
      * @return the index of the innermost block, equal to {@link #length()} if
-     *         no such block
+     * no such block
      */
-    public int getEnd(int index) {
+    public int getEndAt(int index) {
         Element<T> elem = getElement(index);
         if (elem != null)
             return elem.end;
@@ -294,6 +338,13 @@ public class AnnotatedString<T> implements CharSequence {
     /*
      * Gets the element at an index. Linear search is used. If multiple blocks
      * are found, the last (=innermost) wins.
+     */
+    /**
+     * Gets the element.
+     * 
+     * @param index the index
+     * 
+     * @return the element
      */
     private Element<T> getElement(int index) {
         Element<T> retval = null;
@@ -308,6 +359,9 @@ public class AnnotatedString<T> implements CharSequence {
         return retval;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override public String toString() {
         return builder.toString();
     }

@@ -18,7 +18,6 @@ public class ExitAction extends AbstractAction implements StateListeningAction {
         putValue(ACTION_COMMAND_KEY, "exit");
     }
     
-    @Override 
     public void stateChanged(StateChangeEvent e) {
         if(e.getState().equals(StateConstants.IN_PROOF)) {
             // switch off if within proof action
@@ -30,7 +29,6 @@ public class ExitAction extends AbstractAction implements StateListeningAction {
         return (ProofCenter) getValue(BarManager.CENTER);
     }
 
-    @Override 
     public void actionPerformed(ActionEvent e) {
         System.err.println(e);
         

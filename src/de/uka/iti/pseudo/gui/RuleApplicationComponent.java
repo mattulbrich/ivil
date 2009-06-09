@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Application;
@@ -153,10 +154,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         applicableListPanel.setVisible(true);
     }
     
-    public void setAppliedRule(RuleApplication ruleApp) {
+    public void ruleApplicationSelected(RuleApplication ruleApp) {
         this.ruleApplication = ruleApp;
-        this.interactiveApplications = null;
-        applicableListPanel.setVisible(false);
         displayRuleApp(ruleApp);
     }
     
@@ -165,8 +164,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             ruleText.setText("");
             instantiationsPanel.removeAll();
         } else {
-        setRuleText(app.getRule());
-        setInstantiations(app);
+            setRuleText(app.getRule());
+            setInstantiations(app);
         }
     }
     
@@ -219,11 +218,14 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     public void proofNodeSelected(ProofNode node) {
         RuleApplication ruleApp = node.getAppliedRuleApp();
-        if(ruleApp != null)
-            setAppliedRule(ruleApp);
-        // otherwise ? everthing to null?
+        applicableListPanel.setVisible(false);
+        ruleApplicationSelected(ruleApp);
     }
 
+    /*
+     * This method is called when a new value in the rule application
+     * list is selected.
+     */
     public void valueChanged(ListSelectionEvent e) {
         // ignore those "adjusting" events
         if(e.getValueIsAdjusting())
@@ -232,9 +234,20 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
-            displayRuleApp(ruleApp);
+            proofCenter.fireSelectedRuleApplication(ruleApp);
         }
     }
+
+    /*
+     * This method is called by the observable (the proof) if the 
+     * proof changes. In that case we choose to display nothing. 
+     */
+    public void update(Observable o, Object arg) {
+        assert o == proofCenter.getProof();
+        // ProofNode proofNode = (ProofNode) arg;
+        ruleApplicationSelected(null);
+    }
+
 
     // chosen ruleappl
     public void actionPerformed(ActionEvent e) {
@@ -275,10 +288,5 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         }
     }
 
-    public void update(Observable o, Object arg) {
-        assert o == proofCenter.getProof();
-        ProofNode proofNode = (ProofNode) arg;
-        setAppliedRule(null);
-    }
     
 }

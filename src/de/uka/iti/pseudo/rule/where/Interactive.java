@@ -30,8 +30,9 @@ public class Interactive extends WhereCondition {
             Environment env) throws RuleException {
         if(ruleApp.hasMutableProperties()) {
             SchemaVariable sv = (SchemaVariable) formalArguments[0];
+            Term actualTerm = actualArguments[0];
             ruleApp.getProperties().put(INTERACTION + "(" + sv.getName() + ")", 
-                    sv.getType().toString());
+                    actualTerm.getType().toString());
         }
         return true;
     }

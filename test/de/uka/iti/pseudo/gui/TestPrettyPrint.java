@@ -45,26 +45,26 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         Term t = TermMaker.makeAndTypeTerm("i1 + i2 + i3", env);
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("i1 + i2 + i3", as.toString());
-        assertEquals(0, as.getBegin(3));
-        assertEquals(7, as.getEnd(3));
-        assertEquals(0, as.getBegin(9));
-        assertEquals(12, as.getEnd(9));
-        assertEquals(10, as.getBegin(10));
-        assertEquals(12, as.getEnd(10));
+        assertEquals(0, as.getBeginAt(3));
+        assertEquals(7, as.getEndAt(3));
+        assertEquals(0, as.getBeginAt(9));
+        assertEquals(12, as.getEndAt(9));
+        assertEquals(10, as.getBeginAt(10));
+        assertEquals(12, as.getEndAt(10));
     }
 
     public void testAnnotations2() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("[ i1 := i2 + i3 ](i1 = i3)", env);
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("[ i1 := i2 + i3 ](i1 = i3)", as.toString());
-        assertEquals(8, as.getBegin(11));
-        assertEquals(15, as.getEnd(11));
-        assertEquals(0, as.getBegin(2));
-        assertEquals(26, as.getEnd(2));
-        assertEquals(17, as.getBegin(17));
-        assertEquals(26, as.getEnd(17));
-        assertEquals(17, as.getBegin(21));
-        assertEquals(26, as.getEnd(21));
+        assertEquals(8, as.getBeginAt(11));
+        assertEquals(15, as.getEndAt(11));
+        assertEquals(0, as.getBeginAt(2));
+        assertEquals(26, as.getEndAt(2));
+        assertEquals(17, as.getBeginAt(17));
+        assertEquals(26, as.getEndAt(17));
+        assertEquals(17, as.getBeginAt(21));
+        assertEquals(26, as.getEndAt(21));
 
     }
     
@@ -73,16 +73,16 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         //                           01234567890
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
-        assertEquals(0, as.getBegin(0));
-        assertEquals(1, as.getEnd(0));
-        assertEquals(0, as.getBegin(1));
-        assertEquals(11, as.getEnd(1));
-        assertEquals(4, as.getBegin(4));
-        assertEquals(11, as.getEnd(4));
-        assertEquals(5, as.getBegin(5));
-        assertEquals(6, as.getEnd(5));
-        assertEquals(4, as.getBegin(7));
-        assertEquals(11, as.getEnd(7));
+        assertEquals(0, as.getBeginAt(0));
+        assertEquals(1, as.getEndAt(0));
+        assertEquals(0, as.getBeginAt(1));
+        assertEquals(11, as.getEndAt(1));
+        assertEquals(4, as.getBeginAt(4));
+        assertEquals(11, as.getEndAt(4));
+        assertEquals(5, as.getBeginAt(5));
+        assertEquals(6, as.getEndAt(5));
+        assertEquals(4, as.getBeginAt(7));
+        assertEquals(11, as.getEndAt(7));
     }
     
     public void testOrderConincidesWithSubtermCollector() throws Exception {

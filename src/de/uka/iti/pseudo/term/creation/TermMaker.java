@@ -12,8 +12,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import nonnull.NonNull;
-
-import com.sun.istack.internal.Nullable;
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;

@@ -16,8 +16,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
-// TODO: Auto-generated Javadoc
-// TODO DOC WIP
 /**
  * The Class GoalAction encapsulates a list of action to take on a goal. Such an
  * action can start a new goal, copy the current goal or close the current goal.
@@ -89,7 +87,7 @@ public class GoalAction {
     }
 
     /**
-     * Gets the adds the antecedent.
+     * Gets the terms to be added to the antecedent.
      * 
      * @return the adds the antecedent
      */
@@ -98,7 +96,7 @@ public class GoalAction {
     }
 
     /**
-     * Gets the adds the succedent.
+     * Gets the terms to be added to the succedent.
      * 
      * @return the adds the succedent
      */
@@ -109,17 +107,21 @@ public class GoalAction {
     /**
      * Instantiates a new goal action.
      * 
-     * @param kindString the kind string
-     * @param name the name
-     * @param remove the remove
-     * @param replaceWith the replace with
-     * @param addAntecendent the add antecendent
-     * @param addSuccendent the add succendent
+     * <p>The kind is encoded in a string which must be either "closegoal",
+     * "newgoal", or "samegoal".
+     * 
+     * @param kindString the kind of the token
+     * @param name the name of the the action (optional) 
+     * @param remove should the original term be removed
+     * @param replaceWith the replacement for the original term
+     * @param addAntecendent the terms to be added to antecendent
+     * @param addSuccendent the terms to be added to succendent
      * 
      * @throws RuleException the rule exception
      */
-    public GoalAction(String kindString, String name, boolean remove, Term replaceWith,
-            List<Term> addAntecendent, List<Term> addSuccendent) throws RuleException {
+    public GoalAction(@NonNull String kindString, @Nullable String name, 
+            boolean remove, Term replaceWith, List<Term> addAntecendent, 
+            List<Term> addSuccendent) throws RuleException {
         
         if (kindString.equals("closegoal")) {
             this.kind = Kind.CLOSE;
@@ -153,7 +155,7 @@ public class GoalAction {
     }
 
     /**
-     * Dump.
+     * Dump the goal action to stdout.
      */
     public void dump() {
         System.out.println("      action " + kind + (name == null ? "" : " \""+name+"\""));
@@ -171,21 +173,21 @@ public class GoalAction {
     }
 
     /**
-     * Gets the name.
+     * Gets the name of this goal action.
+     * May be null since the name is optional
      * 
-     * @return the name
+     * @return the name of the action
      */
-    public String getName() {
+    public @Nullable String getName() {
         return name;
     }
 
     /**
-     * Checks if is removes the original term.
+     * Is this action to remove the original term.
      * 
-     * @return true, if is removes the original term
+     * @return true, if this action is to remove the original term
      */
     public boolean isRemoveOriginalTerm() {
         return removeOriginalTerm;
     }
-
 }

@@ -9,6 +9,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -43,7 +45,6 @@ public class MainWindow extends JFrame {
     private RuleApplicationComponent ruleApplicationComponent;
 
     private BarManager barManager;
-    
     
     public MainWindow(ProofCenter proofCenter) throws IOException {
         super("Pseudo");

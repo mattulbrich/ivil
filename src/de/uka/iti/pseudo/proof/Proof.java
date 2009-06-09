@@ -96,5 +96,9 @@ public class Proof extends Observable {
         changedSinceSave = false;
     }
 
+    public boolean hasOpenGoals() {
+        return !openGoals.isEmpty();
+    }
+
     
 }

@@ -14,8 +14,6 @@ import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.util.Util;
 //TODO DOC
 public class ProofComponent extends JTree implements ProofNodeSelectionListener {
@@ -76,7 +74,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return new ImageIcon(resource);
         else
             return Util.UNKNOWN_ICON;
-        }
+    }
     
     public void proofNodeSelected(ProofNode node) {
         setSelectionPath(proofModel.getPath(node));
@@ -89,6 +87,10 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return proofModel.getProofNode(selectionPath);
         else
             return null;
+    }
+
+    public void ruleApplicationSelected(RuleApplication ruleApplication) {
+        // we do not care about rule applications.
     }
 
 }

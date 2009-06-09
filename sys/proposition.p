@@ -234,7 +234,3 @@ rule not_not
   replace { %b }
   tags rewrite "concrete"
 
-
-(*
- *  De Morgan
- *)

@@ -15,6 +15,8 @@ import javax.swing.event.ListDataListener;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.TermSelector;
 
 //TODO DOC
 
@@ -89,6 +91,10 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
     public ProofNode getSelectedProofNode() {
         ProofNode selectedValue = (ProofNode) getSelectedValue();
         return selectedValue;
+    }
+
+    public void ruleApplicationSelected(RuleApplication ruleApplication) {
+        // the goal list does not bother about ruleApplications
     }
 
 }

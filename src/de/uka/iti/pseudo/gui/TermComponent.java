@@ -10,28 +10,35 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.AnnotatedStringsWithStyles;
+import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
@@ -45,14 +52,28 @@ public class TermComponent extends JTextPane {
      */
     private static final String FONT_NAME = System.getProperty(
             "pseudo.termfont.name", "Monospaced");
+    
     private static final Integer FONT_SIZE = Integer.getInteger(
             "pseudo.termfont.size", 14);
+    
     private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
-    private static final Color HIGHLIGHT_COLOR = Color.CYAN;
+    
+    // the highlight color should be bright 
+    private static final Color HIGHLIGHT_COLOR = new Color(0xFFB366);
+    
+    // the modality background should be rather unnoticed
     private static final Color MODALITY_BACKGROUND = new Color(240, 240, 255);
+    
+    // empty border
     private static final Border BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.LIGHT_GRAY), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
+    
+    // darker and a lighter color for marking
+    private HighlightPainter[] MARKINGS = { 
+            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9999FF)),
+            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x99CCFF))
+    };
     
     /**
      * The term displayed
@@ -72,12 +93,15 @@ public class TermComponent extends JTextPane {
     /**
      * The annotated string containing the pretty printed term
      */
-    private AnnotatedStringsWithStyles<Term> annotatedString;
+    private AnnotatedStringWithStyles<Term> annotatedString;
 
     /**
      * The highlight object as returned by the highlighter
      */
     private Object theHighlight;
+
+    // TODO DOC
+    private List<Object> marks = new ArrayList<Object>();
 
     /**
      * Instantiates a new term component.
@@ -103,8 +127,7 @@ public class TermComponent extends JTextPane {
         setFont(FONT);
         setBorder(BORDER);
         // setLineWrap(true);
-        StyledDocument styledDoc = prepareDoc();
-        annotatedString.appendToDocument(styledDoc);
+        annotatedString.appendToDocument(getDocument(), attributeFactory);
         // setText(annotatedString.toString());
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
@@ -129,30 +152,35 @@ public class TermComponent extends JTextPane {
         }
     }
 
-    private StyledDocument prepareDoc() {
-        StyledDocument doc = getStyledDocument();
-        Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
-
-        Style regular = doc.addStyle("normal", def);
-        StyleConstants.setFontFamily(def, FONT_NAME);
-        StyleConstants.setFontSize(def, FONT_SIZE);
+    private static AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
+        new AnnotatedStringWithStyles.AttributeSetFactory() {
+            private Map<String, AttributeSet> cache = new HashMap<String, AttributeSet>();
+            public AttributeSet makeStyle(String descr) {
+                AttributeSet cached = cache.get(descr);
+                
+                if(cached != null)
+                    return cached;
+                
+                MutableAttributeSet retval = new SimpleAttributeSet();
+                StyleConstants.setFontFamily(retval, FONT_NAME);
+                StyleConstants.setFontSize(retval, FONT_SIZE);
+                
+                if(descr.contains("modality"))
+                    StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+                    
+                if(descr.contains("keyword"))
+                    StyleConstants.setBold(retval, true);
+                
+                if(descr.contains("variable"))
+                    StyleConstants.setItalic(retval, true);
+                
+                cache.put(descr, retval);
+                
+                return retval;
+            }
         
-        Style modality = doc.addStyle("normal modality", regular);
-        StyleConstants.setBackground(modality, MODALITY_BACKGROUND);
-
-        Style s = doc.addStyle("normal variable", regular);
-        StyleConstants.setItalic(s, true);
-
-        s = doc.addStyle("normal modality keyword", modality);
-        StyleConstants.setBold(s, true);
-        StyleConstants.setBackground(s, MODALITY_BACKGROUND);
-        
-        s = doc.addStyle("normal modality variable", modality);
-        StyleConstants.setItalic(s, true);
-        
-        return doc;
-    }
-
+    };
+    
     /*
      * Mouse exited the component: remove highlighting
      */
@@ -173,8 +201,8 @@ public class TermComponent extends JTextPane {
         int index = viewToModel(p);
         try {
             if (index >= 0 && index < annotatedString.length()) {
-                int begin = annotatedString.getBegin(index);
-                int end = annotatedString.getEnd(index);
+                int begin = annotatedString.getBeginAt(index);
+                int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 
                 Term term = annotatedString.getAttributeAt(index);
@@ -224,13 +252,36 @@ public class TermComponent extends JTextPane {
     
     
     // it is some hack ... how do you do it correctly?
-    @Override 
-    public Dimension getMinimumSize() {
-        Dimension dim = super.getMinimumSize();
-        if(dim.width > 200) {
-            dim.width = 200;
+//    @Override 
+//    public Dimension getMinimumSize() {
+//        Dimension dim = super.getMinimumSize();
+//        if(dim.width > 200) {
+//            dim.width = 200;
+//        }
+//        return dim;
+//    }
+
+    public void markSubterm(int subtermNo, int type) {
+        if(type < 0 || type >= MARKINGS.length) {
+            throw new IndexOutOfBoundsException();
         }
-        return dim;
+        
+        int begin = annotatedString.getBeginOf(subtermNo);
+        int end = annotatedString.getEndOf(subtermNo);
+        
+        try {
+            Object mark = getHighlighter().addHighlight(begin, end, MARKINGS[type]);
+            marks .add(mark);
+        } catch (BadLocationException e) {
+            throw new Error(e);
+        }
+    }
+
+    public void clearMarks() {
+        for (Object highlight : marks) {
+            getHighlighter().removeHighlight(highlight);
+        }
+        marks.clear();
     }
 
 }

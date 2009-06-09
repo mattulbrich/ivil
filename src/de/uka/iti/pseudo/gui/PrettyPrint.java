@@ -35,7 +35,7 @@ import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
-import de.uka.iti.pseudo.util.AnnotatedStringsWithStyles;
+import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 /**
  * The Class PrettyPrint provides mean to prettyprint terms while keeping the
@@ -63,7 +63,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringsWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull Term term) {
         return print(env, term, false, true);
     }
@@ -87,7 +87,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringsWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull Term term, boolean typed,
             boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
@@ -124,7 +124,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringsWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false, true);
     }
@@ -151,7 +151,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringsWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
             boolean typed, boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
@@ -207,7 +207,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         this.typed = typed;
         this.printFix = printFix;
 
-        printer = new AnnotatedStringsWithStyles<Term>();
+        printer = new AnnotatedStringWithStyles<Term>();
     }
 
     private boolean isTyped() {
@@ -221,7 +221,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     /**
      * The underlying annotating string
      */
-    private AnnotatedStringsWithStyles<Term> printer;
+    private AnnotatedStringWithStyles<Term> printer;
 
     /**
      * Indicator that the current subterm is to put in parentheses

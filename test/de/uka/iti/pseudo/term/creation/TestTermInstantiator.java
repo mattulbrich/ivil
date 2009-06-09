@@ -21,6 +21,17 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         
     }
     
+    // from a bug
+    public void testInModalities() throws Exception {
+        
+        Term orig = makeTerm("[if %c then skip else skip end]true");
+        TermInstantiator inst = new TermInstantiator();
+        inst.getTermMap().put("%c", makeTerm("false"));
+        
+        assertEquals(makeTerm("[if false then skip else skip end]true"), inst.instantiate(orig));
+
+    }
+    
     public void testStringInst() throws Exception {
         
         TermInstantiator inst = new TermInstantiator();
@@ -45,6 +56,5 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         Term t = inst.instantiate(makeTerm("[%x:=%v]i2"));
         assertEquals(makeTerm("[i1:=2]i2"), t);
     }
-
 
 }

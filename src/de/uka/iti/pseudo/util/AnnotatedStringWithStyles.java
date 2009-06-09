@@ -4,11 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.Document;
 
 // TODO Documentation needed
-public class AnnotatedStringsWithStyles<Annotation> extends AnnotatedString<Annotation> {
+public class AnnotatedStringWithStyles<Annotation> extends AnnotatedString<Annotation> {
+    
+    public static interface AttributeSetFactory {
+        public AttributeSet makeStyle(String descr);
+    }
 
     private List<String> styles = new ArrayList<String>();
     private List<Integer> positions = new ArrayList<Integer>();
@@ -40,7 +45,7 @@ public class AnnotatedStringsWithStyles<Annotation> extends AnnotatedString<Anno
     }
 
     
-    public void appendToDocument(StyledDocument document) {
+    public void appendToDocument(Document document, AttributeSetFactory factory) {
 
         assert styles.size() == positions.size();
         
@@ -48,18 +53,25 @@ public class AnnotatedStringsWithStyles<Annotation> extends AnnotatedString<Anno
         String string = toString();
         
         try {
+            
+            if(length > 0) {
+                String str = string.substring(0, positions.get(0));
+                String style = styles.get(0);
+                document.insertString(document.getLength(), str, factory.makeStyle(""));
+            }
+            
             for (int i = 0; i < styles.size() - 1; i++) {
                 Integer begin = positions.get(i);
                 Integer end = positions.get(i+1);
                 String str = string.substring(begin, end);
                 String style = styles.get(i);
-                document.insertString(document.getLength(), str, document.getStyle(style));
+                document.insertString(document.getLength(), str, factory.makeStyle(style));
             }
             
             if(length > 0) {
                 String str = string.substring(positions.get(length-1));
                 String style = styles.get(length-1);
-                document.insertString(document.getLength(), str, document.getStyle(style));
+                document.insertString(document.getLength(), str, factory.makeStyle(style));
             }
         } catch (BadLocationException e) {
             // This is designed to never happen

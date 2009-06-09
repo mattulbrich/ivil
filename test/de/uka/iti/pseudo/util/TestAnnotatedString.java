@@ -12,10 +12,10 @@ public class TestAnnotatedString extends TestCase {
         AnnotatedString<Integer> as = new AnnotatedString<Integer>();
         as.append("0123").begin(1).append("456").begin(2).append("789").end()
                 .end();
-        assertEquals(4, as.getBegin(5));
-        assertEquals(10, as.getEnd(5));
-        assertEquals(0, as.getBegin(0));
-        assertEquals(10, as.getEnd(0));
+        assertEquals(4, as.getBeginAt(5));
+        assertEquals(10, as.getEndAt(5));
+        assertEquals(0, as.getBeginAt(0));
+        assertEquals(10, as.getEndAt(0));
         assertNull(as.getAttributeAt(0));
         assertEquals((Integer) 2, as.getAttributeAt(8));
     }
