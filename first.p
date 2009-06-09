@@ -5,4 +5,4 @@ function
   bool b2
 
 problem
-  { (b1 | b2 ) -> (b2|b1) }
+  { (!b1 -> b2 ) -> (b2|b1) }

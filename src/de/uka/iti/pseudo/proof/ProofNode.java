@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
@@ -13,7 +14,6 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
@@ -50,7 +50,7 @@ public class ProofNode {
         setChildren(null);
     }
 
-    public void apply(RuleApplication ruleApp, TermUnification mc)
+    public void apply(RuleApplication ruleApp, TermUnification mc, Environment env)
             throws ProofException {
         
         if(appliedRuleApp != null)
@@ -60,7 +60,7 @@ public class ProofNode {
 
         matchFindClause(ruleApp, mc, rule);
         matchAssumeClauses(ruleApp, mc, rule);
-        matchWhereClauses(ruleApp, mc, rule);
+        matchWhereClauses(ruleApp, mc, rule, env);
 
         setChildren(doAction(ruleApp, mc, rule));
 
@@ -139,10 +139,10 @@ public class ProofNode {
     }
 
     private void matchWhereClauses(RuleApplication ruleApp, TermUnification mc,
-            Rule rule) throws ProofException {
+            Rule rule, Environment env) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                if (!whereClause.applyTo(mc, ruleApp, this))
+                if (!whereClause.applyTo(mc, ruleApp, this, env))
                     throw new ProofException(
                             "WhereClause does not evaluate to true : "
                                     + whereClause);

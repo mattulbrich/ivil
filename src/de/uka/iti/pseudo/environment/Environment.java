@@ -619,6 +619,33 @@ public class Environment {
         }
 
     }
+    
+    private int skolemCounter = 1;
+
+    public Function createNewSkolemConst(Type type) {
+        // TODO method documentation
+        
+        assert !isFixed();
+        
+        String newName;
+        Function existing;
+        do {
+            newName = "sk" + skolemCounter;
+            skolemCounter ++;
+            existing = getFunction(newName);
+        } while(existing != null);
+        
+        Function newFunction = new Function(newName, type, new Type[0], 
+                false, false, ASTLocatedElement.BUILTIN);
+        
+        try {
+            addFunction(newFunction);
+        } catch (EnvironmentException e) {
+            throw new Error("Internal error: Skolem creation fails", e);
+        }
+        
+        return newFunction;
+    }
 
 
 }

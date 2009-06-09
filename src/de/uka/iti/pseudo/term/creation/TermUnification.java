@@ -37,7 +37,7 @@ public class TermUnification {
         
     }
     
-    /*package*/ void addInstantiation(SchemaVariable sv, Term term) throws TermException {
+    public void addInstantiation(SchemaVariable sv, Term term) throws TermException {
         
         assert !containsSchemaIdentifier(term) : term;
         assert instantiation.get(sv) == null;
@@ -45,7 +45,7 @@ public class TermUnification {
         instantiation.put(sv.getName(), term);
     }
     
-    /*package*/ void addInstantiation(SchemaModality sm, Modality mod) throws TermException {
+    public void addInstantiation(SchemaModality sm, Modality mod) throws TermException {
 
         assert !containsSchemaIdentifier(mod) : mod;
         assert modalityInstantiation.get(sm) == null;

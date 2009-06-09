@@ -562,7 +562,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
 
         String kind = arg.getGoalKind().image;
         Token nameToken = arg.getName();
-        String name = nameToken == null ? null : nameToken.image;
+        String name = nameToken == null ? null : stripQuotes(nameToken.image);
         
         List<Term> addAntecendent = new ArrayList<Term>();
         List<Term> addSuccendent = new ArrayList<Term>();

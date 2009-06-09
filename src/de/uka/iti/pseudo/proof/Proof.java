@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Observable;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -19,14 +20,14 @@ public class Proof extends Observable {
     
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
     
-    public synchronized void apply(@NonNull RuleApplication ruleApp) throws ProofException {
+    public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
         
         TermUnification mc = new TermUnification();
         
         int goalno = extractGoalNo(ruleApp);
         ProofNode goal = openGoals.get(goalno);
         
-        goal.apply(ruleApp, mc);
+        goal.apply(ruleApp, mc, env);
         
         openGoals.remove(goalno);
         openGoals.addAll(goalno, goal.getChildren());

@@ -281,7 +281,7 @@ ASTRule RuleDeclaration():
   ASTGoalAction action;
   ASTRuleElement elem;
   ASTLocatedTerm lt;
-  Token t, v, first, name, descr = null;
+  Token t, v = null, first, name, descr = null;
 }
 {
   first="rule" name=<IDENTIFIER>
@@ -293,8 +293,8 @@ ASTRule RuleDeclaration():
   
   (
     t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (t="samegoal" | t="newgoal") ( name=<STRING> )? aclist=AddReplaces() 
-         { actions.add(new ASTGoalAction(t, name, aclist)); }
+  | (t="samegoal" | t="newgoal") ( v=<STRING> )? aclist=AddReplaces() 
+         { actions.add(new ASTGoalAction(t, v, aclist)); }
   )+
   
   (

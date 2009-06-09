@@ -2,12 +2,14 @@ package de.uka.iti.pseudo.environment;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.rule.where.NewSkolem;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
-import de.uka.iti.pseudo.rule.where.Typing;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
@@ -20,7 +22,8 @@ public abstract class WhereCondition {
     private static final WhereCondition CONDITIONS[] =
     {
         new NotFreeIn(),
-        new Typing()
+        // new Typing(),
+        new NewSkolem()
     };
     
     static {
@@ -48,7 +51,11 @@ public abstract class WhereCondition {
     
     public abstract void tryToApplyTo(Term[] arguments) throws RuleException;
 
-    public abstract boolean applyTo(Term[] arguments, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal) throws RuleException;
+    public abstract boolean applyTo(WhereClause whereClause, TermUnification mc,
+            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException;
+
+    public void wasImported(WhereClause whereClause, Environment env) throws RuleException {
+        // default behaviour is to do nothing.
+    }
 
 }
