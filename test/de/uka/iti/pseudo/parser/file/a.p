@@ -18,7 +18,7 @@ function  # infixes
         bool $equiv(bool, bool) infix <->  10 
         
 function  # prefixes
-        int $neg(int)           prefix -
+        int $neg(int)           prefix - 
         bool $not(bool)         prefix !         
 
 function  # consts

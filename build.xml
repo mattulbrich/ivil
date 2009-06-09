@@ -12,7 +12,7 @@
   </target>
 
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
-    <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>  	
+    <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>
     <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="src:test"/>
     <javac srcdir="src" destdir="classes" debug="${compile.debug}">
       <compilerarg value="-Xlint"/>

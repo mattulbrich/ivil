@@ -16,6 +16,7 @@ public class ASTTypeVar extends ASTType {
 
     public ASTTypeVar(Token token) {
         this.typeVarToken = token;
+        assert token.image.charAt(0) == '\'';
     }
 
     public void visit(ASTFileVisitor v) throws ASTVisitException {

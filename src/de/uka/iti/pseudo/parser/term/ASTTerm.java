@@ -10,9 +10,12 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.term.creation.Typing;
 import de.uka.iti.pseudo.util.SelectList;
 
+@NonNull
 public abstract class ASTTerm extends ASTElement {
     
     private Typing typing;

@@ -24,18 +24,10 @@ public class TypeVariable extends Type {
 
     private String typeVar;
     
-    /* to distinguish from normal type variables, they can have same name */
-    private boolean formal;
-
     public TypeVariable(String typeVar) {
-    	this(typeVar, false);
+    	this.typeVar = typeVar;
     }
     
-    public TypeVariable(String typeVar, boolean formal) {
-        this.typeVar = typeVar;
-        this.formal = formal;
-	}
-
 	@Override
     public void collectTypeVariables(Collection<String> coll) {
         coll.add(typeVar);
@@ -50,10 +42,6 @@ public class TypeVariable extends Type {
         return typeVar; 
     }
 
-	public boolean isFormal() {
-		return formal;
-	}
-	
 	@Override
 	public Type visit(TypeVisitor visitor) throws TermException {
 	    return visitor.visit(this);

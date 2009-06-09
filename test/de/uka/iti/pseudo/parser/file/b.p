@@ -1,7 +1,10 @@
-include "a.p"
+include "$base.p"
 
 function
         bool X('a, 'a)
+        int a
+        int b
+        int c
 
 problem
-       { -a/b/c }
+       { X(-a/b/c,a) }

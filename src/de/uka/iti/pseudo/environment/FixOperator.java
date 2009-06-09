@@ -58,9 +58,7 @@ public class FixOperator {
     }
 
     public int getArity() {
-        // DOC
-        // TODO Auto-generated method stub
-        return 0;
+        return arity;
     }
 
 }

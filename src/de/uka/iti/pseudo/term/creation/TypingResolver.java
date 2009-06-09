@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -14,6 +15,7 @@ import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.term.ASTElement;
+import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -27,7 +29,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     private Environment env;
     private Map<String, TypeVariable> boundVariables = new HashMap<String, TypeVariable>();
-    private TypingContext typingContext;
+    private TypingContext typingContext = new TypingContext();
     private Type resultingType;
     
     public TypingResolver(Environment env) {
@@ -71,6 +73,33 @@ public class TypingResolver extends ASTDefaultVisitor {
 		}
     }
     
+    @Override public void visit(ASTFixTerm fixTerm) throws ASTVisitException {
+        
+        super.visit(fixTerm);
+        
+        FixOperator fixOp = fixTerm.getFixOperator();
+        Function funct = env.getFunction(fixOp.getName());
+        
+        if(funct == null)
+            throw new ASTVisitException("Unknown fixed function symbol " + fixOp, fixTerm);
+        
+        List<ASTTerm> subterms = fixTerm.getSubterms();
+        Type[] argumentTypes = funct.getArgumentTypes();
+        Type resultType = funct.getResultType();
+        
+        if(argumentTypes.length != subterms.size())
+            throw new ASTVisitException("Fixed function symbol " + fixOp + " expects " + 
+                    argumentTypes.length + " arguments, but received " + subterms.size(), fixTerm);
+
+        try {
+            setTyping(fixTerm, subterms, resultType, argumentTypes);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for function " + fixOp.getName() +
+                    "\nFunction: " + funct+
+                    "\n" + e.getDetailedMessage(), fixTerm);
+        }
+    }
+
     @Override
     public void visit(ASTBinderTerm binderTerm)
             throws ASTVisitException {

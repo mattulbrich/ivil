@@ -11,6 +11,9 @@ package de.uka.iti.pseudo.util;
 import java.util.AbstractList;
 import java.util.List;
 
+// is this efficient?
+//make a copy in the beginning?
+
 public class SelectList<E> extends AbstractList<E> {
 	
 	private Class<E> clss;

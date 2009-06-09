@@ -40,8 +40,8 @@ import de.uka.iti.pseudo.util.SelectList;
 
 public class EnvironmentMaker extends ASTFileDefaultVisitor {
 
-    // WHERE?
-    private static File SYS_DIR = new File(".");
+    // TODO WHERE MUST THIS CONSTANT LIVE
+    private static File SYS_DIR = new File("sys");
 
     private Environment env;
 
@@ -156,25 +156,32 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         String name = arg.getName().image;
 
         arg.getRangeType().visit(this);
-        Type rangeTy = resultingTypeRef;
+        Type resultTy = resultingTypeRef;
         List<ASTType> argumentTypes = arg.getArgumentTypes();
-        Type domTy[] = new Type[argumentTypes.size()];
+        Type argTy[] = new Type[argumentTypes.size()];
+        int arity = argTy.length;
 
-        for (int i = 0; i < domTy.length; i++) {
+        for (int i = 0; i < arity; i++) {
             argumentTypes.get(i).visit(this);
-            domTy[i] = resultingTypeRef;
+            argTy[i] = resultingTypeRef;
         }
 
-        env.addFunction(new Function(name, rangeTy, domTy, arg.isUnique(), arg));
+        env.addFunction(new Function(name, resultTy, argTy, arg.isUnique(), arg));
 
         if (arg.isInfix()) {
+            if(arity != 2) 
+            	throw new ASTVisitException("Arity of infix operator " + name + " is not 2", arg);
+            
             String infix = arg.getOperatorIdentifier().image;
             int precedence = Integer.parseInt(arg.getPrecedence().image);
             env.addInfixOperator(new FixOperator(name, infix, precedence, 2, arg));
         }
         
         if(arg.isPrefix()) {
-        	String prefix = arg.getOperatorIdentifier().image;
+        	if(arity != 1) 
+            	throw new ASTVisitException("Arity of prefix operator " + name + " is not 1", arg);
+        	
+        	String prefix = arg.getOperatorIdentifier().image;        	
         	int precedence = Integer.parseInt(arg.getPrecedence().image);
             env.addPrefixOperator(new FixOperator(name, prefix, precedence, 1, arg));
         }
@@ -221,15 +228,14 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
     }
     
     public void visit(ASTTypeVar arg) throws ASTVisitException {
-        resultingTypeRef = new TypeVariable(arg.getTypeVarToken().image, /*formal=*/true);
+        resultingTypeRef = new TypeVariable(arg.getTypeVarToken().image.substring(1));
     }
 
     public void visit(ASTRawTerm arg) throws ASTVisitException {
     	Token token = arg.getTermToken();
     	String content = stripQuotes(token.image);
-    	TermMaker termMaker = new TermMaker(content, env, arg.getFileName(), token.beginLine, token.beginColumn);
     	try {
-			resultingTerm = termMaker.getTerm();
+			resultingTerm = TermMaker.makeTerm(content, env, arg.getFileName(), token.beginLine, token.beginColumn);
 		} catch (de.uka.iti.pseudo.parser.term.ParseException e) {
 			throw new ASTVisitException(e, arg);
 		}

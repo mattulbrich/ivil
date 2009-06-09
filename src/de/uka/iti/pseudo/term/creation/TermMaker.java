@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -18,6 +20,7 @@ import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
+import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTModAssignment;
@@ -43,43 +46,16 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.Variable;
 
+@NonNull
 public class TermMaker implements ASTVisitor {
 
-	private String content;
-	private Environment env;
-	private String fileName;
-	private int beginLine;
-	private int beginColumn;
-	
-	private Term endResultTerm;
-	
 	private Term resultTerm;
 	private Type resultType;
 	private Modality resultModality;
+	private Environment env;
 
-	public TermMaker(String content, Environment env, String fileName,
-			int beginLine, int beginColumn) {
-		this.content = content;
+	public TermMaker(Environment env) {
 		this.env = env;
-		this.fileName = fileName;
-		this.beginLine = beginLine;
-		this.beginColumn = beginColumn;
-	}
-	
-	public TermMaker(String content, Environment env, String contextDescr) {
-		this(content, env, contextDescr, 1, 1);
-	}
-
-	public Term getTerm() throws ParseException, ASTVisitException {
-		
-		if(endResultTerm == null) {
-			TermParser parser = new TermParser(content, fileName, beginLine, beginColumn);
-			ASTTerm ast = parser.parseTerm();
-			ast.dumpTree();
-			ast.visit(this);
-			endResultTerm = resultTerm;
-		}
-		return endResultTerm;
 	}
 	
 	private Term[] collectSubterms(ASTTerm term) throws ASTVisitException {
@@ -262,6 +238,36 @@ public class TermMaker implements ASTVisitor {
         // TODO Auto-generated method stub
         
     }
+    
+    public static Term makeTerm(String content, Environment env) throws ParseException, ASTVisitException {
+    	return makeTerm(content, env, "");
+    }
+    
+    public static Term makeTerm(String content, Environment env, String context) throws ParseException, ASTVisitException {
+    	return makeTerm(content, env, context, 1, 1);
+    }
+
+	public static Term makeTerm(String content, Environment env,
+			String fileName, int beginLine, int beginColumn) throws ParseException, ASTVisitException {
+		
+		TermParser parser = new TermParser(content, fileName, beginLine, beginColumn);
+		ASTTerm ast = parser.parseTerm();
+		ast.dumpTree();
+		
+		// We have to embed the AST into a container because the structure may
+		// change if it is a ASTListTerm.
+		ASTHeadElement head = new ASTHeadElement(ast);
+		TypingResolver typingResolver = new TypingResolver(env);
+		ast.visit(typingResolver);
+		ast = (ASTTerm)head.getWrappedElement();
+		
+        ast.dumpTree();
+		
+		TermMaker termMaker = new TermMaker(env);
+		ast.visit(termMaker);
+		
+		return termMaker.resultTerm;
+	}
 
 	
 

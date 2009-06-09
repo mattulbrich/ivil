@@ -21,13 +21,12 @@ public class TypingContext {
 	 * This visitor replaces every type variable with a fresh type variables.
 	 * Occurences of the same type variable are replaces by the same fresh symbol.
 	 */
-	@NonNull
     private class SignatureVisitor extends DefaultTypeVisitor {
         private Map<TypeVariable, TypeVariable> varMap = 
             new HashMap<TypeVariable, TypeVariable>();
         
         @Override
-        public Type visit(TypeVariable typeVariable) {
+        public @NonNull Type visit(@NonNull TypeVariable typeVariable) {
             TypeVariable tv = varMap.get(typeVariable);
             if(tv == null) {
                 tv = newTypeVariable();

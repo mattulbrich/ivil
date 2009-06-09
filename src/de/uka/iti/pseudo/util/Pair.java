@@ -10,8 +10,6 @@ package de.uka.iti.pseudo.util;
 
 public class Pair<E,F> {
 	
-	
-	
 	private E fstComponent;
 	private F sndComponent;
 

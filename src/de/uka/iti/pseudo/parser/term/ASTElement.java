@@ -8,16 +8,16 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+@NonNull
 public abstract class ASTElement implements ASTLocatedElement {
 
     private String fileName;
@@ -35,7 +35,10 @@ public abstract class ASTElement implements ASTLocatedElement {
     }
 
     public List<ASTElement> getChildren() {
-        return children;
+        if(children == null)
+            return Collections.emptyList();
+        else
+            return children;
     }
 
     protected void addChildren(List<? extends ASTElement> elements) {
@@ -46,7 +49,7 @@ public abstract class ASTElement implements ASTLocatedElement {
 
     protected void addChild(@NonNull ASTElement element) {
         if (this.children == null)
-            this.children = new LinkedList<ASTElement>();
+            this.children = new ArrayList<ASTElement>(2);
 
         this.children.add(element);
         element.parent = this;
