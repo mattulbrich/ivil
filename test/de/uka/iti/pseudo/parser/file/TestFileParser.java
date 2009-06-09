@@ -63,6 +63,13 @@ public class TestFileParser extends TestCase {
         
         Environment e = testEnv("rule something find {1} samegoal replace {%a}");
     }
+    
+    // due to problems with cuts
+    public void testGoalActionNaming() throws Exception {
+        Environment e = testEnv("rule something find {1} samegoal \"actionname\" replace {2}");
+        assertEquals("actionname", e.getRule("something").getGoalActions()[0].getName());
+        
+    }
 
     
 }

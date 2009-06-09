@@ -13,7 +13,7 @@ public interface RuleApplication {
 
     public Rule getRule();
     
-    public boolean isMutable();
+    public boolean hasMutableProperties();
 
     public int getGoalNumber();
 

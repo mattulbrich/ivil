@@ -302,7 +302,7 @@ ASTRule RuleDeclaration():
   ASTGoalAction action;
   ASTRuleElement elem;
   ASTLocatedTerm lt;
-  Token t, v = null, first, name, descr = null;
+  Token t, v = null, first, name, descr = null, target = null;
 }
 {
   first="rule" name=<IDENTIFIER>
@@ -316,8 +316,8 @@ ASTRule RuleDeclaration():
   
   (
     t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (t="samegoal" | t="newgoal") ( v=<STRING> )? aclist=AddReplaces() 
-         { actions.add(new ASTGoalAction(t, v, aclist)); }
+  | (target="samegoal" | target="newgoal")? ( v=<STRING> )? aclist=AddReplaces() 
+         { actions.add(new ASTGoalAction(target, v, aclist)); target = null; }
   )+
   
   (
@@ -372,7 +372,7 @@ ASTWhereClause WhereClause(Token headToken):
 }
 {
 	   t=<IDENTIFIER>
-	   ( rt=RawTerm() { args.add(rt); } ) +
+	   ( rt=RawTerm() { args.add(rt); } )*
        { return new ASTWhereClause(headToken, t, args); }	   
 }
 /*

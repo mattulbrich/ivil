@@ -44,6 +44,12 @@ public class Environment {
      * defined in {@link #addBuiltIns()}.
      */
     public static final Environment BUILT_IN_ENV = new Environment();
+    
+    // This is not included in the standard constructor
+    // since meta functions might want access to BUILT_IN_ENV.
+    static {
+        BUILT_IN_ENV.addBuiltIns();
+    }
 
     /**
      * The resource name from which this environment is from
@@ -76,13 +82,13 @@ public class Environment {
      * The rules are kept as a sorted set and as a map
      */
     private List<Rule> rules = new ArrayList<Rule>();
+    private Map<String, Rule> ruleMap = new HashMap<String, Rule>();
 
     /**
      * Instantiates a new environment which only contains the built ins.
      */
     private Environment() {
         this.resourceName = "built-in";
-        addBuiltIns();
     }
 
     /**
@@ -112,7 +118,7 @@ public class Environment {
             addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
             addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
             addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
-            for (MetaFunction metaFunction : MetaFunction.META_FUNCTIONS) {
+            for (MetaFunction metaFunction : MetaFunction.SERVICES) {
                 addFunction(metaFunction);
             }
         } catch (EnvironmentException e) {
@@ -347,9 +353,9 @@ public class Environment {
      * 
      * @return the unique $interaction function symbol.
      */
-    public static @NonNull Function getInteractionSymbol() {
-        return BUILT_IN_ENV.getFunction("$interaction");
-    }
+//    public static @NonNull Function getInteractionSymbol() {
+//        return BUILT_IN_ENV.getFunction("$interaction");
+//    }
 
 
     /**
@@ -576,7 +582,38 @@ public class Environment {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
         
+        String name = rule.getName();
+        Rule existing = getRule(name);
+        if(existing != null) {
+            new EnvironmentException("Rule " + name
+                    + " has already been defined at "
+                    + existing.getDeclaration());
+        }
+        
         rules.add(rule);
+        ruleMap.put(name, rule);
+    }
+    
+    /**
+     * Gets a rule for a name. Delegates the lookup to the parent environment
+     * (if present). Returns null if in no environment in the parent chain a
+     * definition can be found.
+     * 
+     * @param name
+     *            the name to look up
+     * 
+     * @return a rule with the name <code>name</code>, null if none found
+     * 
+     * @param name
+     *            the name to lookup
+     * 
+     * @return a rule by that name
+     */
+    public Rule getRule(String name) {
+        Rule rule = ruleMap.get(name);
+        if (rule == null && parentEnvironment != null)
+            rule = parentEnvironment.getRule(name);
+        return rule;
     }
     
     /**
@@ -686,6 +723,23 @@ public class Environment {
         }
         
         return newFunction;
+    }
+
+    /**
+     * is there a direct or inderect parent which as the given string as resource name
+     * 
+     * @param path resource to look up
+     * 
+     * @return if this or any parent has the resource set to path
+     */
+    public boolean hasParentResource(String path) {
+        if(resourceName.equals(path))
+            return true;
+        
+        if(parentEnvironment != null)
+            return parentEnvironment.hasParentResource(path);
+            
+        return false;
     }
 
 

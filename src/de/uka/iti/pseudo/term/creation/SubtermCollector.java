@@ -36,7 +36,7 @@ public class SubtermCollector extends DefaultTermVisitor {
     /*
      * constructor hidden to avoid unwanted objects
      */
-    private SubtermCollector() { }
+    protected SubtermCollector() { }
     
     /**
      * Collect all subterms of a term.

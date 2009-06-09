@@ -209,7 +209,7 @@ public class TermSelector {
      * object and the subterm subtermNo
      */
     public TermSelector selectSubterm(int subtermNo) {
-        assert subtermNo >= 0;
+        assert subtermNo >= 0 : subtermNo;
         return new TermSelector(inAntecedent, termNo, subtermNo);
     }
     

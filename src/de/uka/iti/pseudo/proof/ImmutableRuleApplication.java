@@ -72,7 +72,7 @@ public class ImmutableRuleApplication implements RuleApplication {
         return typeVariableMap;
     }
 
-    public boolean isMutable() {
+    public boolean hasMutableProperties() {
         return false;
     }
 }

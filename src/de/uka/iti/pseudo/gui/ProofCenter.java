@@ -118,13 +118,4 @@ public class ProofCenter implements TermSelectionListener {
         fireSelectedProofNode(next);
     }
 
-    /**
-     * go over all "replace" and "add" statements and remove the 
-     * meta functions. This needs to be done 
-     * @param ruleApp
-     */
-    private void preApply(RuleApplication ruleApp) {
-        TermInstantiator inst = new TermInstantiator(ruleApp);
-        
-    }
 }

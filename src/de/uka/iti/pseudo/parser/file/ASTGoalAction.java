@@ -2,33 +2,38 @@ package de.uka.iti.pseudo.parser.file;
 
 import java.util.List;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTGoalAction extends ASTFileElement {
     
-    Token goalKind;
+    @Nullable Token goalKindToken;
     Token name;
 
-    public ASTGoalAction(Token t) {
-        goalKind = t;
+    public ASTGoalAction(@NonNull Token t) {
+        goalKindToken = t;
     }
 
     public ASTGoalAction(Token t, Token name, List<ASTRuleElement> list) {
-        goalKind = t;
+        goalKindToken = t;
         this.name = name;
         addChildren(list);
     }
 
     @Override protected Token getLocationToken() {
-        return goalKind;
+        if(goalKindToken != null)
+            return goalKindToken;
+        else
+            return getChildren().get(0).getLocationToken();
     }
 
     @Override public void visit(ASTFileVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
-    public Token getGoalKind() {
-        return goalKind;
+    public @Nullable Token getGoalKindToken() {
+        return goalKindToken;
     }
 
     public Token getName() {

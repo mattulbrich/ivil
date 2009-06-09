@@ -156,6 +156,10 @@ public class EnvironmentMaker {
             for (Token token : block.getIncludeStrings()) {
                 String filename = Util.stripQuotes(token.image);
                 File file = mkFile(astFile.getFileName(), filename);
+                
+                if(env.hasParentResource(file.getPath()))
+                    continue;
+                
                 try {
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
                             parser, file, env.getParent());

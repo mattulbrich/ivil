@@ -305,23 +305,34 @@ public class TypingResolver extends ASTDefaultVisitor {
         super.visit(modAssignment);
 
         String symbol = modAssignment.getAssignedIdentifier().image;
-        Function fct = env.getFunction(symbol);
+        Type targetType;
         
-        if(fct == null)
-            throw new ASTVisitException("Unknown assigned identifier " + symbol, modAssignment);
-        
-        if(!fct.isAssignable())
-            throw new ASTVisitException("Assigned identifier " + symbol + " is not assignable.", modAssignment);
-        
-        Type[] targetType = typingContext.makeNewSignature(fct.getResultType(), new Type[0]);
+        if(symbol.startsWith("%")) {
+            
+            targetType = new TypeVariable(symbol);
+            
+        } else {
+
+            Function fct = env.getFunction(symbol);
+
+            if(fct == null)
+                throw new ASTVisitException("Unknown assigned identifier " + symbol, modAssignment);
+
+            if(!fct.isAssignable())
+                throw new ASTVisitException("Assigned identifier " + symbol + " is not assignable.", modAssignment);
+
+            // assignables have no free type variables, therefore typingContext.makeNewSignature is
+            // not needed
+            targetType = fct.getResultType();
+        }
         
         try {
             typingContext.solveConstraint( 
-                    targetType[0],
+                    targetType,
                     modAssignment.getAssignedTerm().getTyping().getRawType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Incompatibles types in assignmend." +
-                    "\nIdentifier type: " + targetType[0] +
+                    "\nIdentifier type: " + targetType +
                     "\nAssigned term type: " + modAssignment.getAssignedTerm().getTyping().getRawType() +
                     "\n" + e.getDetailedMessage(), e);
         }
@@ -334,7 +345,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         super.visit(modIf);
 
         try {
-            typingContext.solveConstraint(env.getBoolType(),
+            typingContext.solveConstraint(Environment.getBoolType(),
                     modIf.getConditionTerm().getTyping().getRawType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Condition in if-modality not boolean." +

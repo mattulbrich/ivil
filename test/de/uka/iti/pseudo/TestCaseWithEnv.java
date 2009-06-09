@@ -2,8 +2,6 @@ package de.uka.iti.pseudo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
@@ -12,8 +10,6 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
 // TODO Documentation needed
@@ -32,7 +28,7 @@ public class TestCaseWithEnv extends TestCase {
         try {
             loadEnv();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new Error(e);
         }
     }
     

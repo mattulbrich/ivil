@@ -25,13 +25,17 @@ public class NumberLiteral extends Function {
      * The Constant NO_ARGS is kept for the
      * super constructor call.
      */
-    private static final Type[] NO_ARGS = new Type[0];
+    public static final Type[] NO_ARGS = new Type[0];
 
     /**
      * The value of the number literal.
      */
     private BigInteger value;
     
+    public BigInteger getValue() {
+        return value;
+    }
+
     /**
      * Instantiates a new number literal.
      * 
@@ -44,15 +48,11 @@ public class NumberLiteral extends Function {
             throws EnvironmentException {
         super(value.toString(), Environment.getIntType(), NO_ARGS, true, false,
                 ASTLocatedElement.BUILTIN);
+        
+        this.value = value;
+        
         if(value.signum() == -1)
             throw new EnvironmentException("A number literal must be positive: " + value);
     }
     
-    public NumberLiteral add(NumberLiteral otherLiteral, Environment env) {
-        BigInteger result = value.add(otherLiteral.value);
-        return env.getNumberLiteral(result);
-    }
-    
-    // ...
-
 }

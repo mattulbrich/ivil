@@ -38,11 +38,16 @@ import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Triple;
+import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 
@@ -66,8 +71,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     private JPanel applicableListPanel;
     private ProofCenter proofCenter;
-    private List<Pair<SchemaVariable,? extends JTextComponent>> interactionList = 
-        new ArrayList<Pair<SchemaVariable, ? extends JTextComponent>>();
+    private List<Triple<String, Type, ? extends JTextComponent>> interactionList = 
+        new ArrayList<Triple<String, Type, ? extends JTextComponent>>();
 
     public RuleApplicationComponent(ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
@@ -169,7 +174,6 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         instantiationsPanel.removeAll();
         interactionList.clear();
         for (Map.Entry<String, Term> entry : app.getSchemaVariableMapping().entrySet()) {
-            
             String schemaName = entry.getKey();
             Term t = entry.getValue();
             assert t != null;
@@ -177,27 +181,36 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             JLabel label = new JLabel(schemaName + " as " + t.getType());
             instantiationsPanel.add(label);
             
-            if(isInteraction(t)) {
-                instantiationsPanel.add(label);
-                BracketMatchingTextArea textField = new BracketMatchingTextArea();
-                textField.addActionListener(this);
-                instantiationsPanel.add(textField);
-                interactionList.add(Pair.make(new SchemaVariable(schemaName, t.getType()), textField));
-                instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
-            } else {
-                JTextField textField = new JTextField();
-                textField.setText(PrettyPrint.print(env, t, true, true).toString());
-                textField.setEditable(false);
-                instantiationsPanel.add(textField);
+            JTextField textField = new JTextField();
+            textField.setText(PrettyPrint.print(env, t, true, true).toString());
+            textField.setEditable(false);
+            instantiationsPanel.add(textField);
+            instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
+        }
+        
+        for(Map.Entry<String, String> entry : app.getProperties().entrySet()) {
+            String key = entry.getKey();
+            if(!key.startsWith(Interactive.INTERACTION))
+               continue;
+            
+            String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
+            Type svType;
+            try {
+                svType = TermMaker.makeType(entry.getValue(), env);
+            } catch (TermException e) {
+                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
+                continue;
             }
+            
+            JLabel label = new JLabel(svName + " as " + svType);
+            instantiationsPanel.add(label);
+            BracketMatchingTextArea textField = new BracketMatchingTextArea();
+            textField.addActionListener(this);
+            instantiationsPanel.add(textField);
+            interactionList.add(Triple.make(svName, svType, textField));
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
         }
        
-    }
-
-    private boolean isInteraction(Term t) {
-        return t instanceof Application 
-            && ((Application)t).getFunction() == Environment.getInteractionSymbol();
     }
 
     private void setRuleText(Rule rule) {
@@ -234,14 +247,18 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
                 
                 // collect the user instantiations
-                for (Pair<SchemaVariable, ? extends JTextComponent> pair : interactionList) {
-                    SchemaVariable schemaVar = pair.fst();
-                    Term term = TermMaker.makeAndTypeTerm(pair.snd().getText(), env, 
-                            "User input for " + schemaVar, schemaVar.getType());
+                for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
+                    String varname = pair.fst();
+                    Type type = pair.snd();
+                    String content = pair.trd().getText();
                     
-                    assert schemaVar.getType().equals(term.getType());
                     
-                    app.getSchemaVariableMapping().put(schemaVar.getName(), term);
+                    Term term = TermMaker.makeAndTypeTerm(content, env, 
+                            "User input for " + varname, type);
+                    
+                    assert type.equals(term.getType());
+                    
+                    app.getSchemaVariableMapping().put(varname, term);
                 }
                 
                 proofCenter.apply(app);

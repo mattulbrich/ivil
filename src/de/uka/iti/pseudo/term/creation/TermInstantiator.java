@@ -11,7 +11,11 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.HashMap;
 import java.util.Map;
 
+import nonnull.NonNull;
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Modality;
@@ -21,6 +25,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 import de.uka.iti.pseudo.util.Util;
 // TODO DOC
 public class TermInstantiator extends RebuildingTermVisitor {
@@ -30,6 +35,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
     private TypeUnification typeMapper;
     
 
+    // needed in tests
     public Map<String, Term> getTermMap() {
         return termMap;
     }
@@ -74,6 +80,54 @@ public class TermInstantiator extends RebuildingTermVisitor {
             return resultingModality;
         else
             return toInst;
+    }
+    
+    /**
+     * Replace schema variables and modalities in a string.
+     * 
+     * For instance <code>Assume %c in &a</code> might become
+     * <code>Assume x=3 in y:=2</code>
+     * 
+     * @param string the string to instantiate
+     * 
+     * @return the string with subterms replaced
+     */
+    public @NonNull String replaceInString(@NonNull String string) {
+        
+        StringBuilder retval = new StringBuilder();
+        StringBuilder curley = new StringBuilder();
+        
+        int len = string.length();
+        
+        boolean inCurley = false;
+        for (int i = 0; i < len; i++) {
+            char c = string.charAt(i);
+            switch(c) {
+            case '{':
+                inCurley = true;
+                break;
+                
+            case '}':
+                String lookup = curley.toString();
+                Object o = null;
+                switch(lookup.charAt(0)) {
+                case '%': o = termMap.get(lookup); break;
+                case '&': o = modalityMap.get(lookup); break;
+                }
+                retval.append(o == null ? "??" : o);
+                inCurley = false;
+                curley.setLength(0);
+                break;
+                
+            default:
+                if(inCurley)
+                    curley.append(c);
+                else
+                    retval.append(c);
+            }
+        }
+        
+        return retval.toString();
     }
     
     @Override
@@ -130,4 +184,50 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
+    @Override 
+    public void visit(AssignModality assignModality) throws TermException {
+
+        defaultVisitModality(assignModality);
+
+        if(resultingModality == null) {
+            assignModality.getAssignedTerm().visit(this);
+            boolean changed = false;
+
+            Term assignedTerm;
+            if(resultingTerm == null) {
+                assignedTerm = assignModality.getAssignedTerm();
+            } else {
+                assignedTerm = resultingTerm;
+                changed = true;
+            }
+
+            AssignTarget assignTarget;
+            if(assignModality.isSchemaAssignment()) {
+                SchemaVariable sv = (SchemaVariable) assignModality.getAssignTarget();
+                sv.visit(this);
+                if(resultingTerm != null) {
+
+                    if(!(resultingTerm instanceof Application)) {
+                        throw new UnificationException("Only an application can be bound into an assignment modality", sv, resultingTerm);
+                    }
+
+                    Function fct = ((Application)resultingTerm).getFunction();
+
+                    if(!fct.isAssignable()) {
+                        throw new UnificationException("Only assignables can be assigned a value", sv, resultingTerm);
+                    }
+
+                    assignTarget = fct;
+                    changed = true;
+                } else {
+                    assignTarget = assignModality.getAssignTarget();
+                }
+
+                if(changed) {
+                    resultingModality = new AssignModality(assignTarget, assignedTerm);
+                    resultingTerm = null;
+                }
+            }
+        }
+    }
 }

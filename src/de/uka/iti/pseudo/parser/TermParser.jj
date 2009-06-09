@@ -248,7 +248,7 @@ ASTModality Modality():
   Token t;
 }
 {
-          id=<IDENTIFIER> ":=" term=Term()
+        ( id=<IDENTIFIER> | id=<SCHEMA_IDENTIFIER> ) ":=" term=Term()
             { return new ASTModAssignment(id, term); }
         | t="while" term=Term() "do" mod=ModalityList() "end"
             { return new ASTModWhile(t,term, mod); }

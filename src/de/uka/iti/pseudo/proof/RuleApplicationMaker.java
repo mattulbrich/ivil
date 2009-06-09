@@ -86,8 +86,11 @@ public class RuleApplicationMaker implements RuleApplication {
         return termUnification.getTypeUnification().getInstantiation();
     }
 
-    // this is only indirectly mutable, therefore: no
-    public boolean isMutable() {
-        return false;
+    public boolean hasMutableProperties() {
+        return true;
+    }
+
+    public void clearProperties() {
+        getProperties().clear();
     }
 }

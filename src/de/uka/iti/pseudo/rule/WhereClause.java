@@ -34,9 +34,20 @@ public class WhereClause {
         return sb.toString();
     }
 
-    public boolean applyTo(TermUnification mc, RuleApplication ruleApp,
-            ProofNode goal, Environment env, Map<String, String> properties, boolean commit) throws RuleException {
-        return whereCondition.applyTo(arguments, mc, ruleApp, goal, env, properties, commit);
+    public boolean applyTo(TermInstantiator inst, RuleApplication ruleApp,
+            ProofNode goal, Environment env) throws RuleException {
+        Term actualArgs[];
+        try {
+            actualArgs = new Term[arguments.length];
+            for (int i = 0; i < actualArgs.length; i++) {
+                actualArgs[i] = inst.instantiate(arguments[i]);
+            }
+            
+        } catch (TermException e) {
+            throw new RuleException("Exception during instantiation", e);
+        }
+        
+        return whereCondition.check(arguments, actualArgs, ruleApp, goal, env);
     }
     
     public List<Term> getArguments() {
@@ -45,20 +56,6 @@ public class WhereClause {
 
     public WhereCondition getWhereCondition() {
         return whereCondition;
-    }
-
-    public void verify(TermInstantiator termInst, Map<String, String> properties) throws RuleException {
-        Term[] actual;
-        try {
-            actual = new Term[arguments.length];
-            for (int i = 0; i < actual.length; i++) {
-                actual[i] = termInst.instantiate(arguments[i]);
-            }
-        } catch (TermException e) {
-            throw new RuleException("Exception during instantiation", e);
-        }
-        
-        whereCondition.verify(arguments, actual, properties);
     }
 
 }

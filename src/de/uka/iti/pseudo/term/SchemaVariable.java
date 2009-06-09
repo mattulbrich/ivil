@@ -1,16 +1,21 @@
 package de.uka.iti.pseudo.term;
 
+import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 import nonnull.NonNull;
 
 // TODO DOC
 
-public class SchemaVariable extends BindableIdentifier {
+public class SchemaVariable extends BindableIdentifier implements AssignTarget {
 
+    public static final String SCHEMA_PREFIX = "%";
+    
     private String name;
 
-    public SchemaVariable(String name, Type type) {
+    public SchemaVariable(String name, Type type) throws TermException {
         super(type);
         this.name = name;
+        if(!name.startsWith(SCHEMA_PREFIX))
+            throw new TermException("Schema variables need to have a name starting with " + SCHEMA_PREFIX);
     }
     
     @Override
@@ -37,6 +42,13 @@ public class SchemaVariable extends BindableIdentifier {
             return sv.getName().equals(getName()) && getType().equals(sv.getType());
         }
         return false;
+    }
+
+    /* 
+     * this is for AssignTarget and returns the same as getType()
+     */
+    public Type getResultType() {
+        return getType();
     }
 
 }

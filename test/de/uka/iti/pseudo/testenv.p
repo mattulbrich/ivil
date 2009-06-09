@@ -1,4 +1,6 @@
-include "$base.p"
+include
+        "$base.p"
+        "$int.p"
 
 sort
 	poly('a, 'b)

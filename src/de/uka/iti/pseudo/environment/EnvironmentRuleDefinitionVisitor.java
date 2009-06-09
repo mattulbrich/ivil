@@ -21,7 +21,6 @@ import de.uka.iti.pseudo.parser.file.ASTType;
 import de.uka.iti.pseudo.parser.file.ASTTypeRef;
 import de.uka.iti.pseudo.parser.file.ASTTypeVar;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
-import de.uka.iti.pseudo.parser.file.ASTWithClause;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.file.Token;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -135,7 +134,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
             }
 
             try {
-                Rule rule = new Rule(name, assumes, find, wheres, actions, properties);
+                Rule rule = new Rule(name, assumes, find, wheres, actions, properties, arg);
                 env.addRule(rule);
             } catch (EnvironmentException e) {
                 throw new ASTVisitException(e);
@@ -181,7 +180,14 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
     public void visit(ASTGoalAction arg) throws ASTVisitException {
         super.visit(arg);
 
-        String kind = arg.getGoalKind().image;
+        Token kindToken = arg.getGoalKindToken();
+        String kind;
+        if(kindToken != null) {
+            kind = kindToken.image;
+        } else {
+            // if no action target is specified, samegoal is the default
+            kind = "samegoal";
+        }
         Token nameToken = arg.getName();
         String name = nameToken == null ? null : Util.stripQuotes(nameToken.image);
         

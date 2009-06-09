@@ -138,7 +138,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingModality == null) {
             assignModality.getAssignedTerm().visit(this);
             if(resultingTerm != null) {
-                resultingModality = new AssignModality(assignModality.getAssignedConstant(), resultingTerm);
+                resultingModality = new AssignModality(assignModality.getAssignTarget(), resultingTerm);
                 resultingTerm = null;
             }
         }

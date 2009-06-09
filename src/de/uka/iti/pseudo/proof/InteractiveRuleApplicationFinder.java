@@ -48,6 +48,7 @@ public class InteractiveRuleApplicationFinder {
                     break;
 
                 ruleAppMaker.setRule(rule);
+                ruleAppMaker.clearProperties();
                 ruleAppMaker.setFindSelector(termSelector);
 
                 LocatedTerm findClause = rule.getFindClause();
@@ -113,7 +114,7 @@ public class InteractiveRuleApplicationFinder {
     private boolean matchWhereClauses(TermUnification mc) throws RuleException {
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for ( WhereClause wc : whereClauses ) {
-            if(!wc.applyTo(mc, ruleAppMaker, goal, env, ruleAppMaker.getProperties(), false))
+            if(!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, goal, env))
                 return false;
         }
         return true;

@@ -5,6 +5,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestTermUnification extends TestCaseWithEnv {
@@ -75,9 +76,24 @@ public class TestTermUnification extends TestCaseWithEnv {
         TermUnification mc = new TermUnification();
         
         assertTrue(mc.leftUnify(mt("[ &a ; &b]b1"), mt("[i1:=1 ; i1:=2]b1")));
-        assertFalse(mc.leftUnify(mt("[ &a ; &a]b1"), mt("[i1:=1 ; i1:=2]b1")));
+        assertFalse(mc.leftUnify(mt("[ &c ; &c]b1"), mt("[i1:=1 ; i1:=2]b1")));
         assertTrue(mc.leftUnify(mt("[ &a ; &a]b1"), mt("[i1:=1 ; i1:=1]b1")));
+        
+        // ensure that &a is now bound ...
+        assertFalse(mc.leftUnify(mt("[ &a ]b1"), mt("[ i1:=0 ]b1")));
+        
+        // and &c is not
+        assertTrue(mc.leftUnify(mt("[ &c ]b1"), mt("[ i1:=0 ]b1")));
     }
+    
+    // extracted from a bug
+    public void testMatchIfThenElse() throws Exception {
+        TermUnification mc = new TermUnification();
+        
+        assertTrue(mc.leftUnify(makeTerm("[if %b then &a else &a end]true"), makeTerm("[if b1 then skip else skip end]true")));
+        assertFalse(mc.leftUnify(makeTerm("[if %b then &a end]true"), makeTerm("[if b1 then skip else skip end]true")));
+    }
+    
     
     public void testTyping() throws Exception {
         TermUnification mc = new TermUnification();

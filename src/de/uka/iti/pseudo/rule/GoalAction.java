@@ -16,7 +16,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
-// TODO DOC DOC
+// TODO: Auto-generated Javadoc
+// TODO DOC WIP
 /**
  * The Class GoalAction encapsulates a list of action to take on a goal. Such an
  * action can start a new goal, copy the current goal or close the current goal.
@@ -27,37 +28,89 @@ public class GoalAction {
      * The enumeration of kinds of actions.
      */
     public enum Kind {
-        CLOSE, COPY, NEW
+        CLOSE, 
+        COPY, 
+        NEW
     }
 
+    /**
+     * The kind of this action
+     */
     private @NonNull Kind kind;
     
+    /**
+     * The name of the action. It may be null if no name has been provided
+     */
     private @Nullable String name;
     
+    /**
+     * The replace with.
+     */
     private Term replaceWith;
 
+    /**
+     * The add antecedent.
+     */
     private Term[] addAntecedent;
 
+    /**
+     * The add succedent.
+     */
     private Term[] addSuccedent;
 
+    /**
+     * The remove original term.
+     */
     private boolean removeOriginalTerm;
 
+    /**
+     * Gets the kind.
+     * 
+     * @return the kind
+     */
     public Kind getKind() {
         return kind;
     }
     
+    /**
+     * Gets the replace with.
+     * 
+     * @return the replace with
+     */
     public Term getReplaceWith() {
         return replaceWith;
     }
 
+    /**
+     * Gets the adds the antecedent.
+     * 
+     * @return the adds the antecedent
+     */
     public List<Term> getAddAntecedent() {
         return Util.readOnlyArrayList(addAntecedent);
     }
 
+    /**
+     * Gets the adds the succedent.
+     * 
+     * @return the adds the succedent
+     */
     public List<Term> getAddSuccedent() {
         return Util.readOnlyArrayList(addSuccedent);
     }
 
+    /**
+     * Instantiates a new goal action.
+     * 
+     * @param kindString the kind string
+     * @param name the name
+     * @param remove the remove
+     * @param replaceWith the replace with
+     * @param addAntecendent the add antecendent
+     * @param addSuccendent the add succendent
+     * 
+     * @throws RuleException the rule exception
+     */
     public GoalAction(String kindString, String name, boolean remove, Term replaceWith,
             List<Term> addAntecendent, List<Term> addSuccendent) throws RuleException {
         
@@ -68,7 +121,7 @@ public class GoalAction {
         } else if (kindString.equals("samegoal")) {
             this.kind = Kind.COPY;
         } else
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(kindString);
 
         // CLOSE implies empty
         if(this.kind == Kind.CLOSE && (!addAntecendent.isEmpty() || !addSuccendent.isEmpty() || replaceWith != null))
@@ -92,8 +145,11 @@ public class GoalAction {
         this.addSuccedent = Util.listToArray(addSuccendent, Term.class);
     }
 
+    /**
+     * Dump.
+     */
     public void dump() {
-        System.out.println("      action " + kind + (name == null ? "" : "\""+name+"\""));
+        System.out.println("      action " + kind + (name == null ? "" : " \""+name+"\""));
         
         if(replaceWith != null)
             System.out.println("        replace " + replaceWith);
@@ -107,10 +163,20 @@ public class GoalAction {
         }
     }
 
+    /**
+     * Gets the name.
+     * 
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Checks if is removes the original term.
+     * 
+     * @return true, if is removes the original term
+     */
     public boolean isRemoveOriginalTerm() {
         return removeOriginalTerm;
     }

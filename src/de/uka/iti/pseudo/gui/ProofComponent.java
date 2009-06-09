@@ -40,14 +40,12 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
                 ProofNode proofNode = treenode.getProofNode();
                 RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
                 
+                setText(treenode.getLabel());
                 if(!treenode.isLeaf()) {
-                    setText(getBranchName(proofNode));
                     setFont(italicFont);
                 } else if(appliedRuleApp != null) {
-                    setText(appliedRuleApp.getRule().getName());
                     setFont(null);
                 } else {
-                    setText("OPEN");
                     setFont(boldFont);
                 }
                 
@@ -62,26 +60,6 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return this;
         }
 
-        private String getBranchName(ProofNode proofNode) {
-            ProofNode parent = proofNode.getParent();
-            
-            if(parent == null)
-                return "";
-            
-            int index = parent.getChildren().indexOf(proofNode);
-            assert index != -1;
-            
-            RuleApplication appliedRuleApp = parent.getAppliedRuleApp();
-            if(appliedRuleApp == null)
-                return "branch " + (index+1);
-            
-            Rule rule = appliedRuleApp.getRule();
-            GoalAction ga = rule.getGoalActions()[index];
-            String actionName = ga.getName();
-            
-            return actionName == null ? "branch " + (index+1) : actionName;
-        }
-        
     }
 
     public ProofComponent(Proof proof) {

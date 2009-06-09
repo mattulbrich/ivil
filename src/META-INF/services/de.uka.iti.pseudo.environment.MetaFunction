@@ -1,0 +1,20 @@
+#
+# This file is part of PSEUDO
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+# 
+# The system is protected by the GNU General Public License. 
+# See LICENSE.TXT for details.
+#
+
+# This file lists all applicable MetaFunctions
+
+# general substitution
+de.uka.iti.pseudo.rule.meta.SubstMetaFunction
+
+# skolem symbol generation
+de.uka.iti.pseudo.rule.meta.SkolemMetaFunction
+
+# int literal evaluation
+de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction
+

@@ -14,6 +14,10 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 // TODO DOC
 
@@ -28,6 +32,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         private ProofNode proofNode;
         private Vector<ProofTreeNode> children;
         private ProofTreeNode parent;
+        private String label;
 
         public ProofTreeNode(ProofTreeNode parent, ProofNode proofNode, boolean leaf) {
             this.parent = parent;
@@ -97,6 +102,46 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
 
         public void invalidate() {
             children = null;
+        }
+
+        public String getLabel() {
+            if(label == null) {
+                if(!isLeaf()) {
+                    label = getBranchName();
+                } else {
+                    RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
+                    if(appliedRuleApp != null) {
+                        label = appliedRuleApp.getRule().getName();
+                    } else {
+                        label = "OPEN";
+                    }
+                }
+            }
+            return label;
+        }
+
+        private String getBranchName() {
+            ProofNode parent = proofNode.getParent();
+            
+            if(parent == null)
+                return "";
+            
+            int index = parent.getChildren().indexOf(proofNode);
+            assert index != -1;
+            
+            RuleApplication appliedRuleApp = parent.getAppliedRuleApp();
+            
+            // just in case ...
+            if(appliedRuleApp == null)
+                return "branch " + (index+1);
+            
+            Rule rule = appliedRuleApp.getRule();
+            GoalAction ga = rule.getGoalActions()[index];
+            String actionName = ga.getName();
+            
+            TermInstantiator termInst = new TermInstantiator(appliedRuleApp);
+            
+            return actionName == null ? "branch " + (index+1) : termInst.replaceInString(actionName);
         }
         
     }

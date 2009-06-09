@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * The Class LinearLookupMap is a very space optimised implementation of the
@@ -144,5 +145,18 @@ public class LinearLookupMap<K, V> implements Map<K, V> {
             
         }
         
+    }
+    
+    @Override 
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        for (int i = 0; i < keys.length; i++) {
+            sb.append(keys[i]).append("=").append(values[i]);
+            if(i < keys.length - 1)
+                sb.append(", ");
+        }
+        sb.append("}");
+        return sb.toString();
     }
 }

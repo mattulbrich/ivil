@@ -9,13 +9,12 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.io.StringReader;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import nonnull.NonNull;
 
 import com.sun.istack.internal.Nullable;
 
-import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -63,6 +62,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
+import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 
 /**
  * This class has two purposes:
@@ -309,25 +309,26 @@ public class TermMaker implements ASTVisitor {
     }
 
     public void visit(ASTBinderTerm binderTerm) throws ASTVisitException {
-        String binderSymb = binderTerm.getBinderToken().image;
-        Binder binder = env.getBinder(binderSymb);
-
-        // checked elsewhere
-        assert binder != null;
-
-        Type variableType = binderTerm.getVariableTyping().getType();
-        String variableName = binderTerm.getVariableToken().image;
-        BindableIdentifier boundId;
-        
-        if(variableName.startsWith("%")) {
-            boundId = new SchemaVariable(variableName, variableType);
-        } else {
-            boundId = new Variable(variableName, variableType);
-        }
-
-        Term[] subterms = collectSubterms(binderTerm);
-
         try {
+            String binderSymb = binderTerm.getBinderToken().image;
+            Binder binder = env.getBinder(binderSymb);
+
+            // checked elsewhere
+            assert binder != null;
+
+            Type variableType = binderTerm.getVariableTyping().getType();
+            String variableName = binderTerm.getVariableToken().image;
+            BindableIdentifier boundId;
+
+            if(variableName.startsWith("%")) {
+                boundId = new SchemaVariable(variableName, variableType);
+            } else {
+                boundId = new Variable(variableName, variableType);
+            }
+
+            Term[] subterms = collectSubterms(binderTerm);
+
+
             resultTerm = new Binding(binder, binderTerm.getTyping().getType(),
                     boundId, subterms);
         } catch (TermException e) {
@@ -372,7 +373,11 @@ public class TermMaker implements ASTVisitor {
             throws ASTVisitException {
         Type type = schemaVariableTerm.getTyping().getType();
         String name = schemaVariableTerm.getName();
-        resultTerm = new SchemaVariable(name, type);
+        try {
+            resultTerm = new SchemaVariable(name, type);
+        } catch (TermException e) {
+            throw new ASTVisitException(schemaVariableTerm, e);
+        }
     }
 
 
@@ -418,16 +423,21 @@ public class TermMaker implements ASTVisitor {
 
     public void visit(ASTModAssignment modAssignment) throws ASTVisitException {
         String symb = modAssignment.getAssignedIdentifier().image;
-        Function f = env.getFunction(symb);
-        
-        // checked elsewhere
-        assert f != null && f.getArity() == 0;
+        AssignTarget target;
         
         modAssignment.getAssignedTerm().visit(this);
         Term term = resultTerm;
-        
         try {
-            resultModality = new AssignModality(f, term);
+            if(symb.startsWith("%")) {
+                target = new SchemaVariable(symb, term.getType());
+            } else {
+                Function f = env.getFunction(symb);
+                // checked elsewhere
+                assert f != null && f.getArity() == 0;
+                target = f;
+            }
+
+            resultModality = new AssignModality(target, term);
         } catch (TermException e) {
             throw new ASTVisitException(modAssignment, e);
         }

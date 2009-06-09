@@ -414,8 +414,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
     public void visit(AssignModality assignModality) throws TermException {
-        printer.append(assignModality.getAssignedConstant().getName()).append(
-                " := ");
+        printer.append(assignModality.getAssignTarget().getName()).append(" := ");
         assignModality.getAssignedTerm().visit(this);
     }
 

@@ -10,8 +10,12 @@ package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-// TODO DOC
-
+/**
+ * The Interface ASTVisitor is part of the visitor pattern for Term ASTs.
+ * 
+ * The implementing visit methods may throw ASTVisitExceptions if their
+ * visitation fails.
+ */
 public interface ASTVisitor {
 
 	void visit(ASTApplicationTerm applicationTerm) throws ASTVisitException;
@@ -21,8 +25,18 @@ public interface ASTVisitor {
 	void visit(ASTIdentifierTerm identifierTerm) throws ASTVisitException;
 
 	void visit(ASTListTerm listTerm) throws ASTVisitException;
+	
+	void visit(ASTNumberLiteralTerm numberLiteralTerm) throws ASTVisitException;
 
-	void visit(ASTModalityTerm modalityTerm) throws ASTVisitException;
+	void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm) throws ASTVisitException;
+
+    void visit(ASTFixTerm infixTerm) throws ASTVisitException;
+
+    void visit(ASTAsType asType) throws ASTVisitException;
+
+    void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException;
+
+    void visit(ASTModalityTerm modalityTerm) throws ASTVisitException;
 
 	void visit(ASTModAssignment modAssignment) throws ASTVisitException;
 
@@ -34,22 +48,10 @@ public interface ASTVisitor {
 
 	void visit(ASTModWhile modWhile) throws ASTVisitException;
 
-	void visit(ASTNumberLiteralTerm numberLiteralTerm) throws ASTVisitException;
-
 	void visit(ASTTypeApplication typeRef) throws ASTVisitException;
 	
 	void visit(ASTTypeVar typeVar) throws ASTVisitException;
 
-	void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm) throws ASTVisitException;
-
-	void visit(ASTFixTerm infixTerm) throws ASTVisitException;
-
-    void visit(ASTAsType asType) throws ASTVisitException;
-
-    void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException;
-
     void visit(ASTModSchema modSchema) throws ASTVisitException;
-
-    
 
 }

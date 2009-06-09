@@ -76,35 +76,32 @@ rule close_false_left
 rule replace_known_left
   find { %b }
   assume { %b } |-
+  where
+    distinctAssumeAndFind
   samegoal replace { true }
 
 rule replace_known_right
   find { %b }
   assume |- { %b }
+  where
+    distinctAssumeAndFind
   samegoal replace { false }
 
 rule cut
   find { %c }
   where
     interact { %inst as bool }
-  samegoal add |- { %inst }
-  samegoal add    { %inst } |-
+  samegoal "Assume true for {%c}"
+    add    { %inst } |-
+  samegoal "Assume false for {%c}"
+    add |- { %inst }
 
 rule cutOnThat
   find { %c }
-  samegoal
+  samegoal "Assume true for {%c}"
     replace { true }
     add { %c } |-
-  samegoal
+  samegoal "Assume false for {%c}"
     replace { false }
     add |- { %c }
 
-
-#rule forAllRight
-#        find  |- { (\forall %x; %b) }
-#        replace { (\subst %x; c; %b) }
-
-#rule andRight
-#        find  |- {%b & %c}
-#        replace {%b}
-#        replace {%c}

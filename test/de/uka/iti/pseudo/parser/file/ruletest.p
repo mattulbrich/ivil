@@ -1,5 +1,6 @@
 include
         "$base.p"
+        "$int.p"
         
 function
 	int t
@@ -31,11 +32,11 @@ rule close_false
    closegoal
    
 rule test_where
-   find { 1 }
+   find { (\forall %x; %b) }
    where
-     notFreeIn { 0 } { 1 }
+     notFreeIn { %x } { 1 }
    samegoal
-     replace { 2 }
+     replace { true }
      
 rule test_schema_mod
    find { [ &a ; if %c then &b else &c end ] %val }

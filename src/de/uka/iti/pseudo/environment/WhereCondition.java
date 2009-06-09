@@ -10,6 +10,7 @@ package de.uka.iti.pseudo.environment;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import nonnull.NonNull;
 
@@ -18,11 +19,12 @@ import com.sun.istack.internal.Nullable;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.where.DistinctAssumeAndFind;
+import de.uka.iti.pseudo.rule.where.IntLiteral;
 import de.uka.iti.pseudo.rule.where.Interactive;
-import de.uka.iti.pseudo.rule.where.NewSkolem;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
+import de.uka.iti.pseudo.rule.where.ProgramFree;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 
 
 /**
@@ -40,24 +42,12 @@ public abstract class WhereCondition {
     private static Map<String, WhereCondition> whereConditionTable =
         new HashMap<String, WhereCondition>();
     
-    /**
-     * The array of all known conditions.
-     * Please add your WhereCondition here.
-     * 
-     * TODO possibly do this this services and providers etc.
-     */
-    private static final WhereCondition CONDITIONS[] =
-    {
-        new NotFreeIn(),
-        new NewSkolem(),
-        new Interactive()
-    };
-    
     /*
-     * add all conditions from CONDITIONS to the hash table
+     * add all known conditions to the hash table
      */
     static {
-        for (WhereCondition wc : CONDITIONS) {
+        ServiceLoader<WhereCondition> loader = ServiceLoader.load(WhereCondition.class);
+        for (WhereCondition wc : loader) {
             String name = wc.getName();
             if(whereConditionTable.get(name) != null)
                 System.err.println("Warning: where condition " + name + " registered more than once.");
@@ -123,24 +113,7 @@ public abstract class WhereCondition {
   //TODO DOC
     
     
-    public abstract boolean applyTo(Term[] arguments, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env, 
-            Map<String, String> properties, boolean commit) throws RuleException;
-    
-    /**
-     * Was imported.
-     * 
-     * @param whereClause the where clause
-     * @param env the env
-     * @param properties the properties
-     * 
-     * @throws RuleException the rule exception
-     */
-    public void wasImported(Term[] formalArguments, Environment env, Map<String, String> properties) throws RuleException {
-        // default behaviour is to do nothing.
-    }
-    
-    
-    public abstract void verify(Term[] formalArguments, Term[] actualArguments, Map<String, String> properties) throws RuleException;
+    public abstract boolean check(Term[] formalArguments, Term[] actualArguments, 
+            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException;
 
 }

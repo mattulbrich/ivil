@@ -1,0 +1,33 @@
+#
+# This file is part of PSEUDO
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+# 
+# The system is protected by the GNU General Public License. 
+# See LICENSE.TXT for details.
+#
+
+# This file lists all applicable WhereConditions.
+
+# check whether a variable appears free in a term
+de.uka.iti.pseudo.rule.where.NotFreeIn
+
+# mark a schema variable as interactive
+de.uka.iti.pseudo.rule.where.Interactive
+
+# check whether a term does not contain modalities
+de.uka.iti.pseudo.rule.where.ProgramFree
+
+# check whether a term is a number literal
+de.uka.iti.pseudo.rule.where.IntLiteral
+
+# check whether the find selector does not coincide
+# with an assumption selector
+de.uka.iti.pseudo.rule.where.DistinctAssumeAndFind
+
+# check whether the find selector is not whitin a modality
+# or in the range of a modality term
+de.uka.iti.pseudo.rule.where.TopLevel
+
+# check whether a term using meta functions can be evaluated
+de.uka.iti.pseudo.rule.where.CanEvaluateMeta

@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.Binding;
@@ -17,6 +18,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 // TODO DOC
+// for left unification only
 public class TermMatcher extends DefaultTermVisitor {
 
     private TermUnification termUnification;
@@ -115,7 +117,8 @@ public class TermMatcher extends DefaultTermVisitor {
         defaultVisitTerm(b1);
     }
 
-    @Override public void visit(Application a1) throws TermException {
+    @Override 
+    public void visit(Application a1) throws TermException {
         Application a2 = (Application) compareTerm;
         
         // there is only one function symbols, check via ==
@@ -144,14 +147,32 @@ public class TermMatcher extends DefaultTermVisitor {
     public void visit(AssignModality am1) throws TermException {
         AssignModality am2 = (AssignModality) compareModality;
         
-        if(!am1.getAssignedConstant().equals(am2.getAssignedConstant()))
-            throw new UnificationException("different assigned consts", am1, am2);
+        if(am1.isSchemaAssignment()) {
+            // this is left unification: there are no schemas on rhs.
+            assert !am2.isSchemaAssignment();
+            
+            SchemaVariable schemaVar = (SchemaVariable) am1.getAssignTarget();
+            Function function = (Function) am2.getAssignTarget();
+            assert function.isAssignable();
+            
+            // there are no free type vars, so this is ok
+            Application replaceBy = new Application(function, function.getResultType());
+            
+            termUnification.getTypeUnification().leftUnify(schemaVar.getType(), function.getResultType());
+            termUnification.addInstantiation(schemaVar, replaceBy);
+        } else {
+            if(!am1.getAssignTarget().equals(am2.getAssignTarget()))
+                throw new UnificationException("different assigned consts", am1, am2);
+        }
         
         compare(am1.getAssignedTerm(), am2.getAssignedTerm());
     }
 
     @Override public void visit(IfModality ifModality) throws TermException {
         IfModality ifModality2 = (IfModality)compareModality;
+        
+        if(ifModality.countModalities() != ifModality2.countModalities())
+            throw new UnificationException("One if has else, one has not", ifModality, ifModality2);
         
         defaultVisitModality(ifModality);
         

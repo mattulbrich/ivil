@@ -1,17 +1,17 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Map;
-
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.WhereCondition;
+import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO Documentation needed
-public class Interactive extends SimpleWhereCondition {
+public class Interactive extends WhereCondition {
+
+    public static final String INTERACTION = "interact";
 
     public Interactive() {
         super("interact");
@@ -24,26 +24,16 @@ public class Interactive extends SimpleWhereCondition {
             throw new RuleException("interact expects schema varible as first argument");
     }
 
-    protected boolean applyTo(Term[] arguments, TermUnification mc)
-            throws RuleException {
-        SchemaVariable sv = (SchemaVariable) arguments[0];
-        Term subst = mc.getTermFor(sv);
-        if(subst == null) {
-            try {
-                mc.addInstantiation(sv, new Application(Environment.getInteractionSymbol(), 
-                        mc.instantiateType(sv.getType())));
-            } catch (TermException e) {
-                throw new RuleException(e);
-            }
-        }
-        
-        return true;
-    }
-
     @Override 
-    public void verify(Term[] formalArguments,
-            Term[] actualArguments, Map<String, String> properties) throws RuleException {
-        // any instantiation is good enough for an interactive application
+    public boolean check(Term[] formalArguments,
+            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Environment env) throws RuleException {
+        if(ruleApp.hasMutableProperties()) {
+            SchemaVariable sv = (SchemaVariable) formalArguments[0];
+            ruleApp.getProperties().put(INTERACTION + "(" + sv.getName() + ")", 
+                    sv.getType().toString());
+        }
+        return true;
     }
     
 }

@@ -25,6 +25,18 @@ rule equality
   find { %t = %t }
   samegoal replace { true }
 
+rule equality_comm
+  find { %t = %u }
+  samegoal replace { %u = %t }
+
+rule eq_apply
+  find { %t }
+  assume { %t = %u } |-
+  where
+    toplevel
+  samegoal
+    replace  { %u }
+
 rule cond_true
   find { cond(true, %a, %b) }
   samegoal replace { %a }

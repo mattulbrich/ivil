@@ -62,7 +62,7 @@ public class ProofNode {
 
         matchFindClause(ruleApp, inst, rule);
         matchAssumeClauses(ruleApp, inst, rule);
-        verifyWhereClauses(ruleApp, inst, rule, env, whereClauseProperties);
+        verifyWhereClauses(ruleApp, inst, rule, env);
 
         setChildren(doActions(ruleApp, inst, env, rule));
 
@@ -149,13 +149,13 @@ public class ProofNode {
     }
 
     private void verifyWhereClauses(RuleApplication ruleApp, TermInstantiator inst,
-            Rule rule, Environment env, Properties whereClauseProperties) throws ProofException {
+            Rule rule, Environment env) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                whereClause.verify(inst, ruleApp.getProperties());
+                if(!whereClause.applyTo(inst, ruleApp, this, env))
+                    throw new ProofException("WhereClause failed: " + whereClause);
             } catch (RuleException e) {
-                throw new ProofException("WhereClause not applicable: "
-                        + whereClause, e);
+                throw new ProofException("WhereClause not applicable: " + whereClause, e);
             }
         }
     }

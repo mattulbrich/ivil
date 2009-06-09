@@ -6,6 +6,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
@@ -20,6 +21,8 @@ public class Rule {
     private WhereClause whereClauses[];
     private GoalAction goalActions[];
     private Map<String, String> properties;
+
+    private ASTLocatedElement location;
     
     public String getProperty(String string) {
         return properties.get(string);
@@ -27,6 +30,10 @@ public class Rule {
 
     public String getName() {
         return name;
+    }
+    
+    public ASTLocatedElement getDeclaration() {
+        return location;
     }
 
     public List<LocatedTerm> getAssumptions() {
@@ -47,7 +54,7 @@ public class Rule {
 
     public Rule(String name, List<LocatedTerm> assumes, LocatedTerm find,
             List<WhereClause> wheres, List<GoalAction> actions,
-            Map<String, String> properties)
+            Map<String, String> properties, ASTLocatedElement location)
             throws RuleException {
         this.name = name;
         this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
@@ -55,6 +62,8 @@ public class Rule {
         this.whereClauses = Util.listToArray(wheres, WhereClause.class);
         this.goalActions = Util.listToArray(actions, GoalAction.class);
         this.properties = properties;
+        this.location = location;
+        
         checkRule();
     }
 
@@ -112,6 +121,7 @@ public class Rule {
             case COPY: sb.append("  samegoal"); break;
             case NEW: sb.append("  newgoal"); break;
             }
+            
             sb.append(NEWLINE);
             Term rep = action.getReplaceWith();
             if(rep != null)

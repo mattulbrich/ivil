@@ -32,7 +32,7 @@ public class SkolemMetaFunction extends MetaFunction {
         String property = SKOLEM_NAME_PROPERTY + "(" + application.getSubterm(0).toString(true) + ")";
         String name = ruleApp.getProperties().get(property);
         if(name == null) {
-            if(ruleApp.isMutable()) {
+            if(ruleApp.hasMutableProperties()) {
                 name = env.createNewFunctionName("sk");
                 ruleApp.getProperties().put(property, name);
             } else {
@@ -40,14 +40,16 @@ public class SkolemMetaFunction extends MetaFunction {
             }
         }
         
-        Function newFunction = new Function(name, application.getType(), new Type[0], 
-                false, false, SKOLEM);
-    
-        try {
-            env.addFunction(newFunction);
-        } catch (EnvironmentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        Function newFunction = env.getFunction(name);
+        if(newFunction == null) {
+            newFunction = new Function(name, application.getType(), new Type[0], 
+                    false, false, SKOLEM);
+
+            try {
+                env.addFunction(newFunction);
+            } catch (EnvironmentException e) {
+                throw new TermException(e);
+            }
         }
         
         return new Application(newFunction, application.getType());

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -103,10 +102,6 @@ public class TermUnification {
         return modalityInstantiation.get(sm.getName());
     }
 
-//    public void match(Term term1, Term term2) {
-//        // TODO Auto-generated method stub
-//    }
-
     public Term instantiate(Term toInst) throws TermException {
         return termInstantiator.instantiate(toInst);
     }
@@ -168,6 +163,10 @@ public class TermUnification {
 
     public Map<String, Modality> getModalityInstantiation() {
         return Collections.unmodifiableMap(modalityInstantiation);
+    }
+
+    public TermInstantiator getTermInstantiator() {
+        return termInstantiator;
     }
 
 

@@ -15,8 +15,13 @@ public class ShowMainWindow {
         
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
         FileParser fp = new FileParser();
-        EnvironmentMaker em = new EnvironmentMaker(fp, new File("first.p"));
+        
+        String arg = args.length > 0 ? args[0] : "examples/first.p";
+        
+        EnvironmentMaker em = new EnvironmentMaker(fp, new File(arg));
         Environment env = em.getEnvironment();
+        
+        env.dump();
         
         Proof proof = new Proof(em.getProblemTerm());
         
