@@ -12,23 +12,22 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTRuleAssume extends ASTRuleElement {
 
-	private ASTRawTerm rawTerm;
-	private MatchingLocation matchingLocation;
+    public ASTRuleAssume(Token t, ASTLocatedTerm locatedTerm) {
+        super(t);
+        addChild(locatedTerm);
+    }
 
-	public ASTRuleAssume(Token first, ASTRawTerm rawTerm, MatchingLocation matchingLocation) {
-		super(first);
-		this.rawTerm = rawTerm;
-		this.matchingLocation = matchingLocation;
-		addChild(rawTerm);
-	}
+    public void visit(ASTFileVisitor v) throws ASTVisitException {
+        v.visit(this);
+    }
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
-		v.visit(this);
-	}
-	
-	@Override
-	protected Token getLocationToken() {
-		return rawTerm.getLocationToken();
-	}
+    public MatchingLocation getMatchingLocation() {
+        return getLocatedTerm().getMatchingLocation();
+    }
 
+    private ASTLocatedTerm getLocatedTerm() {
+        return (ASTLocatedTerm) getChildren().get(0);
+    }
+    
+    
 }

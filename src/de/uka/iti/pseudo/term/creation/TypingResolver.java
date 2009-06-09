@@ -241,8 +241,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         if(fct == null)
             throw new ASTVisitException("Unknown assigned identifier " + symbol, modAssignment);
         
-        if(fct.getArity() != 0)
-            throw new ASTVisitException("Assigned identifier " + symbol + " is not nullary.", modAssignment);
+        if(!fct.isAssignable())
+            throw new ASTVisitException("Assigned identifier " + symbol + " is not assignable.", modAssignment);
         
         Type[] targetType = typingContext.makeNewSignature(fct.getResultType(), new Type[0]);
         
@@ -307,7 +307,8 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException(e, typeRef);
         }
     }
-
+    
+    @Override
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
         resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }

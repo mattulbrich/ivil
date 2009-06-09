@@ -55,13 +55,6 @@ public abstract class ASTElement implements ASTLocatedElement {
         element.parent = this;
     }
 
-    public Iterator<ASTElement> iterator() {
-        if (children == null)
-            return Collections.<ASTElement> emptyList().iterator();
-        else
-            return children.iterator();
-    }
-    
     public String toString() {
         return getClass().getSimpleName();
     }

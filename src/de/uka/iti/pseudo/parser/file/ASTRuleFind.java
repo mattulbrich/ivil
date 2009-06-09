@@ -12,15 +12,9 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTRuleFind extends ASTRuleElement {
 
-	private MatchingLocation matchingLocation;
-	private ASTRawTerm rawTerm;
-
-	public ASTRuleFind(Token t, ASTRawTerm rawTerm, MatchingLocation matchingLocation) {
+	public ASTRuleFind(Token t, ASTLocatedTerm locatedTerm) {
 		super(t);
-		this.rawTerm = rawTerm;
-		this.matchingLocation = matchingLocation;
-		
-		addChild(rawTerm);
+		addChild(locatedTerm);
 	}
 
 	public void visit(ASTFileVisitor v) throws ASTVisitException {
@@ -29,7 +23,15 @@ public class ASTRuleFind extends ASTRuleElement {
 	
 	@Override
 	protected Token getLocationToken() {
-		return rawTerm.getLocationToken();
+		return getFirstToken();
 	}
+	
+    public MatchingLocation getMatchingLocation() {
+        return getLocatedTerm().getMatchingLocation();
+    }
 
+    private ASTLocatedTerm getLocatedTerm() {
+        return (ASTLocatedTerm) getChildren().get(0);
+    }
+    
 }

@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.environment;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -20,15 +22,25 @@ import de.uka.iti.pseudo.term.TypeApplication;
 
 public class Environment {
     
+    public static final Environment BUILT_IN_ENV = new Environment();
+    
+    private String resourceName;
+    private @Nullable Environment parentEnvironment;
+    
     private Map<String, Sort> sortMap = new LinkedHashMap<String, Sort>();
     private Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
     private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     
-    
-    public Environment() {
-    	addBuiltIns();
+    private Environment() {
+        this.resourceName = "built-in";
+        addBuiltIns();
+    }
+     
+    public Environment(@NonNull String resourceName, @NonNull Environment parentEnvironment) {
+        this.resourceName = resourceName;   
+        this.parentEnvironment = parentEnvironment;
     }
 
     private void addBuiltIns() {
@@ -58,7 +70,10 @@ public class Environment {
     }
     
     public @Nullable Sort getSort(String name) {
-        return sortMap.get(name);
+        Sort sort = sortMap.get(name);
+        if(sort == null && parentEnvironment != null)
+            sort = parentEnvironment.getSort(name);
+        return sort;
     }
     
     public @NonNull Type getIntType() {
@@ -101,7 +116,10 @@ public class Environment {
     }
     
     public Function getFunction(String name) {
-        return functionMap.get(name);
+        Function function = functionMap.get(name);
+        if(function == null && parentEnvironment != null)
+            function = parentEnvironment.getFunction(name);
+        return function;
     }
     
     public Function getNumberLiteral(String numberliteral) {
@@ -109,7 +127,7 @@ public class Environment {
     	if(retval == null) {
     		try {
 				retval = new Function(numberliteral, mkType("int"), new Type[0], 
-								true, ASTLocatedElement.BUILTIN);
+								true, false, ASTLocatedElement.BUILTIN);
 				addFunction(retval);
 			} catch (Exception e) {
 				throw new Error("Fatal while creating number constant for " + numberliteral, e);
@@ -175,7 +193,10 @@ public class Environment {
     }
     
 	public FixOperator getInfixOperator(String opSymb) {
-		return infixMap.get(opSymb);
+		FixOperator fixOperator = infixMap.get(opSymb);
+		if(fixOperator == null && parentEnvironment != null)
+		    fixOperator = parentEnvironment.getInfixOperator(opSymb);
+        return fixOperator;
 	}
 	
     public void addPrefixOperator(FixOperator prefixOperator) throws EnvironmentException {
@@ -194,7 +215,10 @@ public class Environment {
 
 	
 	public FixOperator getPrefixOperator(String opSymb) {
-		return prefixMap.get(opSymb);
+		FixOperator fixOperator = prefixMap.get(opSymb);
+		if(fixOperator == null && parentEnvironment != null)
+		    fixOperator = parentEnvironment.getPrefixOperator(opSymb);
+        return fixOperator;
 	}
 
 
@@ -218,7 +242,10 @@ public class Environment {
     }
 
     public Binder getBinder(String name) {
-        return binderMap.get(name);
+        Binder binder = binderMap.get(name);
+        if(binder == null && parentEnvironment != null)
+            binder = parentEnvironment.getBinder(name);
+        return binder;
     }
 
     public Type mkType(String name, Type... domTy) throws EnvironmentException, TermException {
@@ -235,6 +262,9 @@ public class Environment {
 
     
     public void dump() {
+        
+        System.out.println("Environment '" + resourceName + "':");
+        
         System.out.println("Sorts:");
         for (String name : sortMap.keySet()) {
             System.out.println("  " + sortMap.get(name));
@@ -259,8 +289,21 @@ public class Environment {
         for (String name : binderMap.keySet()) {
             System.out.println("  " + binderMap.get(name));
         }
+        
+        if(parentEnvironment != null) {
+            System.out.print("extending ");
+            parentEnvironment.dump();
+        }
+        
     }
 
+    // null only for the built-in
+    public  Environment getParent() {
+        return parentEnvironment;
+    }
 
+    public void setParent(@NonNull Environment environment) {
+        parentEnvironment = environment;
+    }
 
 }

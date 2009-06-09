@@ -8,18 +8,31 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
+import java.util.List;
+
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTModIf extends ASTModality {
     
     private Token headToken;
+    private boolean hasElse;
 
-    public ASTModIf(Token t, ASTTerm condTerm, ASTModality thenMod, ASTModality elseMod) {
+    public ASTModIf(@NonNull Token t, 
+            @NonNull ASTTerm condTerm, 
+            @NonNull ASTModality thenMod, 
+            @Nullable ASTModality elseMod) {
         this.headToken = t;
         
         addChild(condTerm);
         addChild(thenMod);
-        addChild(elseMod);
+        if(elseMod != null) {
+            hasElse = true;
+            addChild(elseMod);
+        } else {
+            hasElse = false;
+        }
     }
     
     @Override
@@ -40,8 +53,13 @@ public class ASTModIf extends ASTModality {
         return (ASTModality) getChildren().get(1);
     }
 
-    public ASTModality getElseModality() {
+    public @NonNull ASTModality getElseModality() {
+        assert hasElseModality();
         return (ASTModality) getChildren().get(2);
+    }
+    
+    public boolean hasElseModality() {
+        return hasElse;
     }
 
 }

@@ -45,6 +45,13 @@ public abstract class ASTFileElement implements Iterable<ASTFileElement>, ASTLoc
 
         this.children.add(element);
     }
+    
+    public List<ASTFileElement> getChildren() {
+        if(children == null)
+            return Collections.emptyList();
+        else
+            return children;
+    }
 
     public Iterator<ASTFileElement> iterator() {
         if (children == null)

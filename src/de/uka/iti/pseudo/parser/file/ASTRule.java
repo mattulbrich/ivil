@@ -17,7 +17,7 @@ public class ASTRule extends ASTDeclarationBlock {
 	private Token name;
 	private List<ASTRuleElement> ruleElements;
 
-	public ASTRule(Token first, Token name, List<ASTRuleElement> list) {
+	public ASTRule(Token first, Token name, List<ASTRuleElement> list, List<ASTGoalAction> actions) {
 		super(first);
 		this.name = name;
 		this.ruleElements = list;
@@ -28,5 +28,9 @@ public class ASTRule extends ASTDeclarationBlock {
 	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
+
+    public Token getName() {
+        return name;
+    }
 
 }

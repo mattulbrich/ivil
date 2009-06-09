@@ -15,4 +15,12 @@ public abstract class ASTRuleElement extends ASTFileElement {
 	public ASTRuleElement(Token first) {
 		this.firstToken = first;
 	}
+
+    public Token getFirstToken() {
+        return firstToken;
+    }
+    
+    @Override protected Token getLocationToken() {
+        return getFirstToken();
+    }
 }

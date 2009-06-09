@@ -10,7 +10,9 @@ package de.uka.iti.pseudo.environment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
@@ -24,6 +26,8 @@ import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTRawTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
+import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
+import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTType;
@@ -32,6 +36,9 @@ import de.uka.iti.pseudo.parser.file.ASTTypeVar;
 import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.file.Token;
+import de.uka.iti.pseudo.rule.Assume;
+import de.uka.iti.pseudo.rule.Find;
+import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
@@ -47,24 +54,34 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
 
     private Type resultingTypeRef;
     
-    private FileParser parser;
-
 	private Term resultingTerm;
-
-	private File file;
 
 	private Term problemTerm;
 
-    public EnvironmentMaker(FileParser parser, File file) {
+    private ASTFile astFile;
+
+    private String envName;
+
+    private FileParser parser;
+    
+    private Environment parent = Environment.BUILT_IN_ENV;
+
+    public EnvironmentMaker(FileParser parser, File file) throws FileNotFoundException, ParseException {
         this.parser = parser;
-        this.file = file;
+        astFile = parser.parseFile(file);
+        envName = file.getPath();
     }
     
-    public Environment getEnvironment() throws FileNotFoundException, ParseException, ASTVisitException {
+    public EnvironmentMaker(FileParser parser, ASTFile astFile, String name) {
+        this.parser = parser;
+        this.astFile = astFile;
+        this.envName = name;
+    }
+    
+    public Environment getEnvironment() throws ASTVisitException {
     	if(env == null) {
-    		env = new Environment();
-    		ASTFile f = parser.parseFile(file);
-    		visit(f);
+    		env = new Environment(envName, parent);
+    		visit(astFile);
     	}
         return env;
     }
@@ -131,7 +148,9 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             String filename = stripQuotes(token.image);
             File file = mkFile(arg.getFileName(), filename);
             try {
-                visit(parser.parseFile(file));
+                EnvironmentMaker includeMaker = new EnvironmentMaker(parser, file);
+                includeMaker.parent = env.getParent();
+                env.setParent(includeMaker.getEnvironment());
             } catch (FileNotFoundException e) {
                 throw new ASTVisitException("Cannot include " + file
                         + " (not found)", arg);
@@ -165,8 +184,18 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             argumentTypes.get(i).visit(this);
             argTy[i] = resultingTypeRef;
         }
+        
+        if(arg.isAssignable()) {
+            if(arity != 0)
+                throw new ASTVisitException("Assignable operator " + name + " is not nullary", arg);
+            
+            Set<TypeVariable> typVars = TypeVariableCollector.collect(resultTy);
+            
+            if(!typVars.isEmpty())
+                throw new ASTVisitException("Type of assignable operator " + name + " contains free type variables " + typVars, arg);
+        }
 
-        env.addFunction(new Function(name, resultTy, argTy, arg.isUnique(), arg));
+        env.addFunction(new Function(name, resultTy, argTy, arg.isUnique(), arg.isAssignable(), arg));
 
         if (arg.isInfix()) {
             if(arity != 2) 
@@ -206,6 +235,35 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         }
 
         env.addBinder(new Binder(name, rangeTy, varTy, domTy, arg));
+    }
+    
+    public void visit(ASTRule arg) throws ASTVisitException {
+       
+        try {
+            
+            String name = arg.getName().image;
+            List<ASTFileElement> children = arg.getChildren();
+            
+            List<Assume> assumes = new ArrayList<Assume>();
+            List<ASTRuleAssume> assumeASTs = SelectList.select(ASTRuleAssume.class, children);
+            for (ASTRuleAssume assume : assumeASTs) {
+                assume.visit(this);
+                assumes.add(new Assume(resultingTerm, assume.getMatchingLocation()));
+            }
+            
+            List<ASTRuleFind> findASTs = SelectList.select(ASTRuleFind.class, children);
+            if(findASTs.size() != 1) {
+                throw new ASTVisitException("There is not exactly one find clause.", arg);
+            }
+            ASTRuleFind astFind = findASTs.get(0);
+            astFind.visit(this);
+            Find find = new Find(resultingTerm, astFind.getMatchingLocation());
+            
+            
+            
+        } catch (RuleException e) {
+            throw new ASTVisitException(e, arg);
+        }
     }
     
     public void visit(ASTTypeRef arg) throws ASTVisitException {

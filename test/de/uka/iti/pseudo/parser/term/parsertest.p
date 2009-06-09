@@ -5,7 +5,7 @@ sort
 	set('a)
 
 function
-	int i1
+	int i1  assignable
 	int i2
 	int i3
 	int i4

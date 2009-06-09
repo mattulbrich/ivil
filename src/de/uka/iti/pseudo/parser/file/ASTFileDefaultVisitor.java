@@ -78,4 +78,16 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
 		visitDefault(arg);
 	}
 
+    public void visit(ASTWhereClause arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    public void visit(ASTLocatedTerm arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    @Override public void visit(ASTGoalAction arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
 }

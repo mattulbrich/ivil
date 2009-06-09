@@ -8,20 +8,50 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.StringReader;
 
+import junit.framework.TestCase;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class TestFileParser {
+public class TestFileParser extends TestCase {
 
-    public static void main(String[] args) throws FileNotFoundException,
-            ParseException, ASTVisitException {
+    private Environment testEnv(String string) throws Exception {
         FileParser fp = new FileParser();
-        EnvironmentMaker em = new EnvironmentMaker(fp, new File(args[0]));
-        em.getEnvironment().dump();
-        System.out.println(em.getProblemTerm().toString(false));
-        System.out.println(em.getProblemTerm().toString(true));
+        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " + string), "test");
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
+        Environment env = em.getEnvironment();
+        env.dump();
+        return env;
     }
+    
+    private void assertEnvFail(String string) throws Exception {
+        try {
+            testEnv(string);
+            fail("should fail");
+        } catch(ASTVisitException e) {
+            // this should happen
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public TestFileParser() throws FileNotFoundException, ParseException, ASTVisitException  {
+    }
+
+    public void testPolymorphSorts() throws Exception {
+        Environment env = testEnv("sort poly('a, 'b)");
+        assertEquals("Sort[poly;2]", env.getSort("poly").toString());
+        
+        env = testEnv("sort poly('a, 'b)");
+        assertEquals("Sort[poly;2]", env.getSort("poly").toString());
+    }
+    
+    public void testAssignableFunctions() throws Exception {
+        assertEnvFail("function int f(int) assignable");
+        assertEnvFail("function 'a f assignable");
+    }
+
+    
 }

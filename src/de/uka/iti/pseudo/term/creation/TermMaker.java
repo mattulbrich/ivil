@@ -365,10 +365,15 @@ public class TermMaker implements ASTVisitor {
         modIf.getThenModality().visit(this);
         Modality thenMod = resultModality;
         
-        modIf.getElseModality().visit(this);
-        Modality elseMod = resultModality;
+        if(modIf.hasElseModality()) {
+            modIf.getElseModality().visit(this);
+            Modality elseMod = resultModality;
+            resultModality = new IfModality(condTerm, thenMod, elseMod);
+        } else {
+            resultModality = new IfModality(condTerm, thenMod);
+        }
         
-        resultModality = new IfModality(condTerm, thenMod, elseMod);
+        
     }
 
     public void visit(ASTModSkip modSkip) throws ASTVisitException {

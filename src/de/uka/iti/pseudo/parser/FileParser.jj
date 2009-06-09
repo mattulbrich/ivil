@@ -29,6 +29,7 @@ public class FileParser {
         result.setFilename(filename);
         return result;
     }
+    
 }
 
 PARSER_END(FileParser)
@@ -52,13 +53,24 @@ TOKEN :
 | < BINDER: "binder" >
 | < INFIX: "infix" >
 | < PREFIX: "prefix" >
+| < ASSIGNABLE: "assignable" >
 | < UNIQUE: "unique" >
 | < PROBLEM: "problem" >
 | < RULE: "rule" >
 | < FIND: "find" >
 | < ASSUME: "assume" >
 | < REPLACE: "replace" >
+| < WHERE: "where" >
 | < ADD: "add" >
+| < GOAL: "copygoal" >
+| < NEWGOAL: "newgoal" >
+| < CLOSE: "closegoal" >
+| < DESCRIPTION: "description" >
+| < TAGS: "tags" >
+// the following are keywords in the inner language. 
+// They are added here to prevent people from using them as
+// identifiers.
+| < AS: "as" >
 // ....
 
 // Literals
@@ -81,6 +93,11 @@ TOKEN :
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
 //| < OTHER: ["\u0000"-"\uFFFF"] >
+// if outer language hides an identifier in the inner language:
+| < HIDDEN_IDENTIFIER: "`" <IDENTIFIER> "`" >
+  { matchedToken.kind = IDENTIFIER;
+  	String s = matchedToken.image;
+  	matchedToken.image = s.substring(1, s.length()-1); }
 }
 
 //
@@ -160,7 +177,7 @@ ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
-  Token name, as = null, fix = null, precedence = null;
+  Token name, as = null, modifier = null, precedence = null;
   ASTType range, ty;
   List<ASTType> tyrefs = new ArrayList<ASTType>();
   boolean unique = false;
@@ -177,15 +194,17 @@ ASTFunctionDeclaration FunctionDeclaration():
         )?
         
         (
-          fix="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+          modifier="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
         |
-          fix="prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+          modifier="prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+        |
+          modifier="assignable"
+        |
+          modifier="unique"
         )?
         
-        ( "unique" { unique=true; } )?
-
     { 
-      return new ASTFunctionDeclaration(range, name, tyrefs, unique, fix, as, precedence);
+      return new ASTFunctionDeclaration(range, name, tyrefs, modifier, as, precedence);
     }
 }
 
@@ -254,22 +273,73 @@ ASTType TypeReference():
 ASTRule RuleDeclaration():
 {
   List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
-  ASTRawTerm rt;
+  List<ASTGoalAction> actions = new ArrayList<ASTGoalAction>();
+  ASTGoalAction action;
+  ASTRuleElement elem;
+  ASTLocatedTerm lt;
   Token t, first, name;
 }
 {
   first="rule" name=<IDENTIFIER>
   (
-    LOOKAHEAD(3) t="find" rt=RawTerm() "|-" { list.add(new ASTRuleFind(t, rt, MatchingLocation.ANTECEDENT)); }
-  | LOOKAHEAD(2) t="find" "|-" rt=RawTerm() { list.add(new ASTRuleFind(t, rt, MatchingLocation.SUCCEDENT)); }
-  |              t="find" rt=RawTerm()      { list.add(new ASTRuleFind(t, rt, MatchingLocation.BOTH)); }
-  
-  | LOOKAHEAD(2) t="assume" "|-" rt=RawTerm() { list.add(new ASTRuleAssume(t, rt, MatchingLocation.SUCCEDENT)); }
-  |              t="assume" rt=RawTerm() "|-" { list.add(new ASTRuleAssume(t, rt, MatchingLocation.ANTECEDENT)); }
-  
-  | t="replace" rt=RawTerm() { list.add(new ASTRuleReplace(t, rt)); }
-  | LOOKAHEAD(2) t="add" "|-" rt=RawTerm() { list.add(new ASTRuleAdd(t, rt, MatchingLocation.SUCCEDENT)); }
-  |              t="add" rt=RawTerm() "|-" { list.add(new ASTRuleAdd(t, rt, MatchingLocation.ANTECEDENT)); }
+    t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
+  | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
+  | t="where" ( elem=WhereClause(t) { list.add(elem); } )+ 
   )+
-  { return new ASTRule(first, name, list); }
+  
+  (
+    t="closegoal" { actions.add(new ASTGoalAction(t)); }
+  | (t="copygoal" | t="newgoal") list=AddReplaces() 
+         { actions.add(new ASTGoalAction(t, list)); }
+  )+
+  
+  (
+    "description" <STRING>
+  )?
+  
+  (
+    "tags" ( <STRING> )+
+  )?
+  
+  { return new ASTRule(first, name, list, actions); }
+}
+
+ASTLocatedTerm LocatedTerm(boolean bothAllowed):
+{
+	ASTRawTerm rt;
+}
+{
+      LOOKAHEAD(2) rt=RawTerm() "|-"
+        { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); }
+    | LOOKAHEAD({bothAllowed}) rt=RawTerm()
+        { return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
+    | "|-" rt=RawTerm()
+        { return new ASTLocatedTerm(rt, MatchingLocation.SUCCEDENT); }
+}
+
+List<ASTRuleElement> AddReplaces():
+{
+	Token t;
+	ASTRawTerm rt;
+	ASTLocatedTerm lt;
+	List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
+}
+{
+  (
+    t="add" lt=LocatedTerm(false) { list.add(new ASTRuleAdd(t, lt)); }
+  | t="replace" rt=RawTerm() { list.add(new ASTRuleReplace(t, rt)); }
+  )+
+  { return list; }
+}
+
+ASTWhereClause WhereClause(Token headToken):
+{
+	Token t;
+	ASTRawTerm rt;
+	List<ASTRawTerm> args = new ArrayList<ASTRawTerm>();
+}
+{
+	   t=<IDENTIFIER>
+	   ( rt=RawTerm() { args.add(rt); } ) +
+       { return new ASTWhereClause(headToken, t, args); }	   
 }

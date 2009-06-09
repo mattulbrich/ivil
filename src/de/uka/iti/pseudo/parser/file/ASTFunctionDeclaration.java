@@ -11,7 +11,6 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTFunctionDeclaration extends ASTFileElement {
@@ -22,25 +21,19 @@ public class ASTFunctionDeclaration extends ASTFileElement {
 
     private Token precedence;
 
-    private Token fixity;
+    private Token modifier;
 
     private Token name;
     
-    private boolean unique;
-
 	private Token operatorIdentifier;
 
     public ASTFunctionDeclaration(ASTType range, Token name,
-            List<ASTType> tyrefs, boolean unique) {
-    	this(range, name, tyrefs, unique, null, null, null);
-    }
-
-    public ASTFunctionDeclaration(ASTType range, Token name,
-            List<ASTType> tyrefs, boolean unique, Token fixOperator, Token operatorIdentifier, Token precedence) {
+            List<ASTType> tyrefs, Token modifier,
+            Token operatorIdentifier, Token precedence) {
     	this.rangeType = range;
     	this.argumentTypes = tyrefs;
     	this.name = name;
-    	this.fixity = fixOperator;
+    	this.modifier = modifier;
     	this.operatorIdentifier = operatorIdentifier;
     	this.precedence = precedence;
     	addChild(range);
@@ -68,11 +61,15 @@ public class ASTFunctionDeclaration extends ASTFileElement {
     }
 
     public boolean isInfix() {
-        return fixity != null && fixity.image.equals("infix");
+        return modifier != null && modifier.image.equals("infix");
     }
     
     public boolean isPrefix() {
-        return fixity != null && fixity.image.equals("prefix");
+        return modifier != null && modifier.image.equals("prefix");
+    }
+    
+    public boolean isAssignable() {
+        return modifier != null && modifier.image.equals("assignable");
     }
 
     public Token getOperatorIdentifier() {
@@ -84,7 +81,7 @@ public class ASTFunctionDeclaration extends ASTFileElement {
     }
 
 	public boolean isUnique() {
-		return unique;
+		return modifier != null && modifier.image.equals("unique");
 	}
 
 }
