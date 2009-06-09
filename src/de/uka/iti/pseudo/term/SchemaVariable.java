@@ -17,8 +17,7 @@ public class SchemaVariable extends Term {
         return retval;
     }
 
-    @Override
-    protected void visit(TermVisitor visitor) {
+    @Override public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
     

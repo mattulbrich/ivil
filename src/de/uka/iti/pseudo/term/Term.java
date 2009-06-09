@@ -58,7 +58,7 @@ public abstract class Term {
 	
 	public abstract String toString(boolean typed);
 	
-	protected abstract void visit(TermVisitor visitor);
+	public abstract void visit(TermVisitor visitor) throws TermException;
 
 	
 }

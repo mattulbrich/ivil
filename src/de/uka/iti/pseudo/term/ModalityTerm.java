@@ -17,8 +17,7 @@ public class ModalityTerm extends Term {
 		this.modality = modality;
 	}
 
-	@Override
-	protected void visit(TermVisitor visitor) {
+	@Override public void visit(TermVisitor visitor) throws TermException {
 		visitor.visit(this);
 	}
 

@@ -33,6 +33,7 @@ public class Environment {
     private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
+    private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
 
     private List<Rule> rules = new ArrayList<Rule>();
     
@@ -193,6 +194,7 @@ public class Environment {
     	assert infixOperator.getArity() == 2;
     	
     	infixMap.put(infixOperator.getOpIdentifier(), infixOperator);
+    	reverseFixityMap.put(infixOperator.getName(), infixOperator);
     }
     
 	public FixOperator getInfixOperator(String opSymb) {
@@ -214,6 +216,7 @@ public class Environment {
     	assert prefixOperator.getArity() == 1;
     	
     	prefixMap.put(prefixOperator.getOpIdentifier(), prefixOperator);
+    	reverseFixityMap.put(prefixOperator.getName(), prefixOperator);
     }
 
 	
@@ -314,8 +317,14 @@ public class Environment {
         return parentEnvironment;
     }
 
+    // used during creation
     public void setParent(@NonNull Environment environment) {
         parentEnvironment = environment;
+    }
+
+    // TODO parental lookup
+    public FixOperator getReverseFixOperator(String fctname) {
+        return reverseFixityMap.get(fctname);
     }
 
 }

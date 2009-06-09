@@ -9,11 +9,11 @@
 
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Application encapsulates a term with a toplevel function symbol.
  * There may be argument terms but it may also be a constant w/o arguments.
@@ -118,9 +118,16 @@ public class Application extends Term {
         return retval;
     }
 
-    @Override
-    protected void visit(TermVisitor visitor) {
+    @Override public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
+    }
+
+    /**
+     * retrieve the top level symbol of this application
+     * @return the top level function symbol
+     */
+    public @NonNull Function getFunction() {
+        return function;
     }
 
 }

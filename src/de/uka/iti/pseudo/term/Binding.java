@@ -74,8 +74,7 @@ public class Binding extends Term {
 		return sb.toString();
 	}
 	
-	@Override
-	protected void visit(TermVisitor visitor) {
+	@Override public void visit(TermVisitor visitor) throws TermException {
 		visitor.visit(this);
 	}
 
