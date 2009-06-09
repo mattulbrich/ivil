@@ -8,9 +8,12 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 
+@NonNull 
 public class Binding extends Term {
+	
 	
 	private Binder binder;
 	private Type variableType;
@@ -31,7 +34,7 @@ public class Binding extends Term {
 	}
 	
 	@Override
-	public String toString() {
+	public @NonNull String toString() {
 		String retval = "(" + binder.getName() + ";" + variableType + " " + variableName + ";";
 		for (int i = 0; i < countSubterms(); i++) {
 			retval += getSubterm(i);
@@ -41,5 +44,19 @@ public class Binding extends Term {
 		retval += ")";
 		return retval;
 	}
+	
+	@Override
+	protected void visit(TermVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	public String getVariableName() {
+		return variableName;
+	}
+
+	public Type getVariableType() {
+		return variableType;
+	}
+
 
 }

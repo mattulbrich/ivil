@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
 
-<project name="PseudoHybris" default="build" basedir=".">
+<project name="PseudoHybris" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
+  <property name="compile.nonnullchecks" value="true" />
  
   <target name="init">
     <mkdir dir="classes"/>
@@ -14,6 +15,15 @@
     <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>  	
     <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="src:test"/>
     <javac srcdir="src" destdir="classes" debug="${compile.debug}"/>
+  </target>
+	
+  <target name="nonnull" depends="build" description="patches the class files with r/t checks" if="compile.nonnullchecks">
+    <java classname="nonnull.NonNullPatch">
+    <arg value="classes"/>
+    <classpath>
+      <pathelement location="nonnull.jar"/>
+    </classpath>
+    </java> 
   </target>
 	
   <target name="javacc" depends="init">
@@ -31,9 +41,8 @@
   <target name="copy" depends="init">
   </target>
 
-  <target name="jar" depends="build" description="creates the jar file">
-    <jar jarfile="tablet.jar" basedir="classes" manifest="MANIFEST.MF"/>
-    <signjar jar="tablet.jar" alias="mykey" storepass="keystore"/>
+  <target name="jar" depends="build, nonnull" description="creates the jar file">
+    <jar jarfile="pseudo.jar" basedir="classes"/>
   </target>
 
   <target name="clean">

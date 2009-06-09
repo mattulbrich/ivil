@@ -16,4 +16,14 @@ public class ModalityTerm extends Term {
 		super(new Term[] { subterm }, subterm.getType());
 	}
 
+	@Override
+	protected void visit(TermVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	public String toString() {
+		return "[MOD]" + getSubterm(0);
+	}
+
 }

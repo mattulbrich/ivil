@@ -22,4 +22,13 @@ public class Variable extends Term {
 		return name;
 	}
 
+	@Override
+	protected void visit(TermVisitor visitor) {
+		visitor.visit(this);
+	}
+	
+	public String getName() {
+		return name;
+	}
+
 }

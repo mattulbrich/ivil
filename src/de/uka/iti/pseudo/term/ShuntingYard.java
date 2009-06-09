@@ -9,7 +9,7 @@
 package de.uka.iti.pseudo.term;
 
 import java.util.Stack;
-
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -18,7 +18,6 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.Token;
-import de.uka.iti.pseudo.util.NonNull;
 import de.uka.iti.pseudo.util.Pair;
 
 /**
@@ -131,9 +130,6 @@ public class ShuntingYard {
 	 *             in case of a not-found operator or a syntactical error.
 	 */
     @NonNull public static ASTTerm shuntingYard(@NonNull Environment env, @NonNull ASTListTerm listTerm) throws ASTVisitException {
-    	
-    	assert env != null;
-    	assert listTerm != null;
     	
         Stack<Pair<Token, FixOperator>> opStack =
             new Stack<Pair<Token,FixOperator>>();

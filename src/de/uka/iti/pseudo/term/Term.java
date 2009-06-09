@@ -59,6 +59,11 @@ public abstract class Term {
 	protected Type inferType() {
 		throw new Error("The method may only be called on certain subclasses");
 	};
+	
+	// to enforce overriding
+	public abstract String toString();
+	
+	protected abstract void visit(TermVisitor visitor);
 
 	
 }

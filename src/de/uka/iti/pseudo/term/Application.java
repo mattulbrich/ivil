@@ -50,5 +50,11 @@ public class Application extends Term {
 		}
 		return retval;
 	}
+	
+	@Override
+	protected void visit(TermVisitor visitor) {
+		visitor.visit(this);
+	}
+
 
 }
