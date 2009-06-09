@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui;
 
 import java.util.Enumeration;
@@ -13,15 +21,17 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
-// TODO DOC
-
+/**
+ * A proof component model is a specialised tree model for the ProofComponent
+ *
+ * @see ProofComponent
+ */
 public class ProofComponentModel extends DefaultTreeModel implements Observer {
     
     private static final long serialVersionUID = -6525872309302128760L;
@@ -170,6 +180,12 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         return treeNode.proofNode;
     }
 
+    /**
+     * get the path to the node which corresponds to a certain proof node.
+     * TODO is this depth first search? can we do better? do we need to?
+     * @param node
+     * @return
+     */
     public TreePath getPath(ProofNode node) {
         LinkedList<Object> list = new LinkedList<Object>();
         if(findProofNode((ProofTreeNode) root, node, list)) {

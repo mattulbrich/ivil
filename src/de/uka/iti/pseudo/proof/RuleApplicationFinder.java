@@ -42,7 +42,7 @@ public class RuleApplicationFinder {
     /**
      * The default limit of the number of applicable rules to return.
      */
-    private static final int DEFAULT_NUMBER_APPLICATIONS = 20;
+    private static final int MAX_NUMBER_APPLICATIONS = 20;
     
     /**
      * The sequent under inspection (needed to find assumptions)
@@ -50,7 +50,7 @@ public class RuleApplicationFinder {
     private Sequent sequent;
     
     /**
-     * The environment
+     * The environment - needed to check where clauses
      */
     private Environment env;
     
@@ -62,17 +62,23 @@ public class RuleApplicationFinder {
     /**
      * The currently built rule application.
      */
-    private RuleApplicationMaker ruleAppMaker = new RuleApplicationMaker();
+    private RuleApplicationMaker ruleAppMaker;
     
     /**
      * The goal that we work on.
      */
     private ProofNode goal;
+    
+    /**
+     * and its number
+     */
+    private int goalNo;
 
     /**
      * the number of hits after which the search should stop.
      */
     private int stopAtSize;
+
 
     /**
      * Instantiates a new interactive rule application finder.
@@ -82,26 +88,38 @@ public class RuleApplicationFinder {
      * @param env the environment in the background
      */
     public RuleApplicationFinder(Proof proof, int goalNo, Environment env) {
-        this(proof, goalNo, env, DEFAULT_NUMBER_APPLICATIONS);
-    }
-        
-    /**
-     * Instantiates a new interactive rule application finder.
-     * 
-     * @param proof the proof to inspect
-     * @param goalNo the goal no of the inspected node in the proof
-     * @param env the environment in the background
-     * @param stopAtSize the number of hits after which the search should stop
-     */
-    public RuleApplicationFinder(Proof proof, int goalNo, Environment env, int stopAtSize) {
         this.goal = proof.getGoal(goalNo);
         this.sequent = goal.getSequent();
         this.env = env;
-        this.stopAtSize = stopAtSize;
-        this.ruleAppMaker.setGoalNumber(goalNo);
+        this.goalNo = goalNo;
+    }
+        
+ //     TODO: Auto-generated Javadoc
+    
+    
+    public RuleApplicationMaker findOne(TermSelector termSelector,  
+            List<Rule> sortedAllRules) throws ProofException {
+        stopAtSize = 1;
+        
+        try {
+            find(termSelector, sortedAllRules);
+            return null;
+        } catch (EnoughException e) {
+            return ruleAppMaker;
+        }
     }
     
- //     TODO: Auto-generated Javadoc
+    public List<RuleApplication> findAll(TermSelector termSelector,  
+            List<Rule> sortedAllRules) throws ProofException {
+        stopAtSize = MAX_NUMBER_APPLICATIONS;
+        
+        try {
+            find(termSelector, sortedAllRules);
+        } catch (EnoughException e) {
+        }
+        
+        return applications;
+    }
     
     /**
      * Find all.
@@ -112,17 +130,20 @@ public class RuleApplicationFinder {
      * @return the list< rule application>
      * 
      * @throws ProofException the proof exception
+     * @throws EnoughException if enough applications have been found
      */
-    public List<RuleApplication> findAll(TermSelector termSelector,  
-            List<Rule> sortedAllRules) throws ProofException {
+    public void find(TermSelector termSelector,  
+            List<Rule> sortedAllRules) throws ProofException, EnoughException {
 
         applications = new ArrayList<RuleApplication>();
+        ruleAppMaker = new RuleApplicationMaker();
+        ruleAppMaker.setGoalNumber(goalNo);
         
         try {
             for (Rule rule : sortedAllRules) {
 
-                ruleAppMaker.setRule(rule);
                 ruleAppMaker.clearProperties();
+                ruleAppMaker.setRule(rule);
                 ruleAppMaker.setFindSelector(termSelector);
 
                 LocatedTerm findClause = rule.getFindClause();
@@ -147,13 +168,8 @@ public class RuleApplicationFinder {
             }
         } catch (RuleException e) {
             throw new ProofException("Error during finding of applicable rules", e);
-        } catch (EnoughException e) {
-            // thrown to indicate that no more hits are to be recorded. Return the hits
-            // which have been collected so far.
-            return applications;
-        }
+        } 
         
-        return applications;
     }
 
     /**
@@ -171,7 +187,7 @@ public class RuleApplicationFinder {
         if(assIdx >= assumptions.size()) {
             if(matchWhereClauses(mc)) {
                 applications.add(ruleAppMaker.make());
-                if (applications.size() > stopAtSize)
+                if (applications.size() >= stopAtSize)
                     throw new EnoughException();
             }
             return;

@@ -17,7 +17,6 @@ import java.util.Stack;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class allows to build a string of nested blocks. To each block is
  * assigned an attribute which is an object of type T.
@@ -85,24 +84,10 @@ public class AnnotatedString<T> implements CharSequence {
      */
     private static class Element<T> {
 
-        /**
-         * The begin.
-         */
         int begin;
-        
-        /**
-         * The end.
-         */
         int end;
-        
-        /**
-         * The attr.
-         */
         T attr;
 
-        /* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
         @Override public String toString() {
             return "Element[begin=" + begin + ";end=" + end + ";attr=" + attr
                     + "]";
@@ -127,23 +112,18 @@ public class AnnotatedString<T> implements CharSequence {
     /*
      * we need to override these since we implement CharSequence
      */
-    /* (non-Javadoc)
-     * @see java.lang.CharSequence#charAt(int)
-     */
     public char charAt(int index) throws IndexOutOfBoundsException {
         return builder.charAt(index);
     }
 
-    /* (non-Javadoc)
+    /**
+     * get the length of this annotated string
      * @see java.lang.CharSequence#length()
      */
     public int length() {
         return builder.length();
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.CharSequence#subSequence(int, int)
-     */
     public CharSequence subSequence(int start, int end) {
         return builder.subSequence(start, end);
     }
@@ -349,10 +329,8 @@ public class AnnotatedString<T> implements CharSequence {
         return retval;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override public String toString() {
+    @Override 
+    public String toString() {
         return builder.toString();
     }
     

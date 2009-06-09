@@ -62,6 +62,7 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
      * Checks whether this located term could possibly fit a term selector.
      * This is the case if the selector is on "the same side" of
      * the sequent or if the term is not bound to a side.
+     * Bugfix: Also, if constraint, it needs to be a toplevel term. 
      * 
      * @param selector the selector
      * 
@@ -70,9 +71,9 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
     public boolean isFittingSelect(TermSelector selector) {
         switch(getMatchingLocation()) {
         case ANTECEDENT:
-            return selector.isAntecedent();
+            return selector.isAntecedent() && selector.isToplevel();
         case SUCCEDENT:
-            return selector.isSuccedent();
+            return selector.isSuccedent() && selector.isToplevel();
         case BOTH:
             return true;
         }

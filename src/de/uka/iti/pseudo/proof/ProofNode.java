@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 
+// FIXME application of toplevel rules only to toplevel terms
 public class ProofNode {
 
     private Sequent sequent;

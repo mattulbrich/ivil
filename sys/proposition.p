@@ -16,7 +16,6 @@ rule close_succedent
   find { %b } |-
   assume |- { %b }
   closegoal
-  tags rewrite "close"
 
 rule close_true_right
   find |- { true }

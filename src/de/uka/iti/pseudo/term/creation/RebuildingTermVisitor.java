@@ -185,7 +185,10 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 m1 = m1 == null ? ifModality.getThenModality() : m1;
                 m2 = m2 == null ? elseModality : m2;
 
-                resultingModality = new IfModality(c, m1, m2);
+                if(elseModality != null)
+                    resultingModality = new IfModality(c, m1, m2);
+                else
+                    resultingModality = new IfModality(c, m1);
             } 
 
             resultingTerm = null;

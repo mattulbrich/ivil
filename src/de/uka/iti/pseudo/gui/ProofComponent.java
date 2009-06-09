@@ -10,17 +10,32 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.Util;
-//TODO DOC
+
+/**
+ * A proof component is a specialised JTree which is used to visualise proof trees.
+ * 
+ * <p>There is a specialised {@link Renderer} which is an extension to the {@link DefaultTreeCellRenderer}
+ * and marks open leafs bold and branching points in italics. 
+ *
+ * <p>The model of the tree is a ProofComponentModel which maps a proof to a tree.
+ * 
+ * @see ProofComponentModel
+ */
 public class ProofComponent extends JTree implements ProofNodeSelectionListener {
 
     private static final long serialVersionUID = 6352175425195393727L;
-    
-    // private Proof proof;
+
+    /*
+     * some UI constants
+     */
     private ProofComponentModel proofModel;
     private static final Icon GREEN_ICON = mkIcon("img/green.png");
     private static final Icon GREY_ICON = mkIcon("img/grey.png");
@@ -60,13 +75,19 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
 
     }
 
-    public ProofComponent(Proof proof) {
+    /**
+     * create a new proof component which shows the given proof.
+     * 
+     * @param proof to be displaed
+     */
+    public ProofComponent(@NonNull Proof proof) {
         // this.proof = proof;
         proofModel = new ProofComponentModel(proof.getRoot());
         proof.addObserver(proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());
     }
+
 
     private static Icon mkIcon(String string) {
         URL resource = ProofComponent.class.getResource(string);
@@ -76,17 +97,26 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return Util.UNKNOWN_ICON;
     }
     
-    public void proofNodeSelected(ProofNode node) {
-        setSelectionPath(proofModel.getPath(node));
-        repaint();
-    }
-
-    public ProofNode getSelectedProofNode() {
+    /**
+     * returns the proof node to which the currently selected item refers.
+     * The result may be null if nothing is selected or the selection does
+     * not belong to a proof node
+     * @return the currently selected proof node
+     */
+    public @Nullable ProofNode getSelectedProofNode() {
         TreePath selectionPath = getSelectionPath();
         if(selectionPath != null)
             return proofModel.getProofNode(selectionPath);
         else
             return null;
+    }
+    
+    /*
+     * methods from the ProofNodeSelectionListener interface
+     */
+    public void proofNodeSelected(ProofNode node) {
+        setSelectionPath(proofModel.getPath(node));
+        repaint();
     }
 
     public void ruleApplicationSelected(RuleApplication ruleApplication) {

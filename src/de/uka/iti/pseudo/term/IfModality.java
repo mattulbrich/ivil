@@ -8,8 +8,9 @@
  */
 package de.uka.iti.pseudo.term;
 
-import de.uka.iti.pseudo.environment.Environment;
+import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Environment;
 
 /**
  * The Class IfModality captures a conditional program modality.
@@ -54,7 +55,8 @@ public class IfModality extends Modality {
      * @throws TermException
      *             if typing is illegal
      */
-    public IfModality(Term condTerm, Modality thenMod, Modality elseMod) throws TermException {
+    public IfModality(@NonNull Term condTerm, @NonNull Modality thenMod,
+                      @NonNull Modality elseMod) throws TermException {
         super(thenMod, elseMod);
         this.conditionTerm = condTerm;
         this.hasElseModality = true;

@@ -24,7 +24,7 @@ public class AutoProofAction extends AbstractStateListeningAction implements Run
 
     public AutoProofAction() {
         super("Automatic Proof", goIcon);
-        putValue(SHORT_DESCRIPTION, "Cut the current proof at the selected node");
+        putValue(SHORT_DESCRIPTION, "Run automatic proving on the current node");
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -52,7 +52,7 @@ public class AutoProofAction extends AbstractStateListeningAction implements Run
         try {
             if(strategy == null)
                 strategy = new MyStrategy(getProofCenter().getEnvironment());
-
+            
             while(true) {
                 RuleApplication ruleAppl = strategy.findRuleApplication(getProofCenter().getProof());
 

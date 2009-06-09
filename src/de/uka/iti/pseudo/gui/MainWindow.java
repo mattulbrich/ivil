@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
@@ -48,6 +56,13 @@ public class MainWindow extends JFrame {
 
     private BarManager barManager;
     
+    /**
+     * Instantiates a new main window.
+     * 
+     * @param proofCenter the underlying proof center
+     * @param resourceName the resource name to be used as title
+     * @throws IOException if the barmanager fails to find needed resources
+     */
     public MainWindow(ProofCenter proofCenter, String resourceName) throws IOException {
         super("Pseudo - " + resourceName);
         this.proofCenter = proofCenter;

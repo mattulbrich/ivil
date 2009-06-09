@@ -5,7 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -24,10 +28,16 @@ import de.uka.iti.pseudo.term.creation.TermUnification;
 public class RewriteRuleCollection {
     
     Map<String, List<Rule>> classificationMap;
+    Environment env;
+    String category;
+    private int size;
     
-    public RewriteRuleCollection(List<Rule> rules, String category) throws RuleException {
+    public RewriteRuleCollection(List<Rule> rules, String category, Environment env) throws RuleException {
+        this.category = category;
         classificationMap = new HashMap<String, List<Rule>>();
+        this.size = 0;
         collectRules(rules, category);
+        this.env = env;
     }
     
     private void collectRules(List<Rule> rules, String category) throws RuleException {
@@ -49,35 +59,15 @@ public class RewriteRuleCollection {
             }
             
             targetList.add(rule);
+            size ++;
         }
         
     }
 
     private boolean checkRule(Rule rule) throws RuleException {
-        LocatedTerm find = rule.getFindClause();
-        
-//        if(find.getMatchingLocation() != MatchingLocation.BOTH) {
-//            System.err.println("Rule " + rule.getName() +  
-//                    " A rewrite rule must not have a top level find (" + 
-//                    rule.getDeclaration() + ")");
-//            return false;
-//        }
-        
-        if(rule.getAssumptions().size() > 0) {
-            System.err.println("Rule " + rule.getName() + 
-                    " A rewrite rule must not have assumptions (" + 
-                    rule.getDeclaration() + ")");
-            return false;
-        }
-        
-        if(rule.getWhereClauses().size() > 0) {
-            System.err.println("Rule " + rule.getName() + 
-                    " A rewrite rule must not have where clauses (" + 
-                    rule.getDeclaration() + ")");
-            return false;
-        }
-        
+
         return true;
+        
     }
 
     private String getClassification(Term term) {
@@ -100,79 +90,54 @@ public class RewriteRuleCollection {
         return "[generic]";
     }
     
-    public RuleApplicationMaker findRuleApplication(Sequent sequent) {
+    public RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
         
-        List<Term> ante = sequent.getAntecedent();
-        RuleApplicationMaker ram = findRuleApplication(ante, TermSelector.ANTECEDENT);
+        RuleApplicationFinder finder = new RuleApplicationFinder(proof, goalNo, env);
+        Sequent seq = proof.getGoal(goalNo).getSequent();
+        
+        List<Term> ante = seq.getAntecedent();
+        RuleApplicationMaker ram = findRuleApplication(finder, ante, TermSelector.ANTECEDENT);
         
         if(ram == null) {
-            List<Term> succ = sequent.getSuccedent();
-            ram = findRuleApplication(succ, TermSelector.SUCCEDENT);
+            List<Term> succ = seq.getSuccedent();
+            ram = findRuleApplication(finder, succ, TermSelector.SUCCEDENT);
         }
 
         return ram;
         
     }
     
-    private RuleApplicationMaker findRuleApplication(List<Term> terms, boolean side) {
+    private RuleApplicationMaker findRuleApplication(RuleApplicationFinder finder, List<Term> terms, boolean side) {
         for (int termno = 0; termno < terms.size(); termno++) {
             List<Term> subterms = SubtermCollector.collect(terms.get(termno));
             for (int subtermno = 0; subtermno < subterms.size(); subtermno++) {
-                RuleApplicationMaker application = findRuleApplication(subterms.get(subtermno));
-                if(application != null && checkLocation(application, side, termno)) {
-                    application.setFindSelector(new TermSelector(side, termno, subtermno));
-                    return application;
+                Term term = subterms.get(subtermno);
+                try {
+                    TermSelector selector = new TermSelector(side, termno, subtermno);
+                    List<Rule> ruleset = getRuleSet(term);
+                    if(ruleset != null && ruleset.size() > 0) {
+                        RuleApplicationMaker ram = finder.findOne(selector, ruleset);
+                        if(ram != null) {
+                            return ram;
+                        }
+                    }
+                } catch (ProofException e) {
+                    System.err.println("Error while finding rules for " + term);
+                    System.err.println("Continuing anyway");
+                    e.printStackTrace();
                 }
             }
         }
         return null;
     }
     
-    private boolean checkLocation(RuleApplicationMaker application, boolean side, int termno) {
-        MatchingLocation findLocation = application.getRule().getFindClause().getMatchingLocation();
-        switch(findLocation) {
-        case BOTH:
-            return true;
-            
-        case ANTECEDENT:
-            return termno == 0 && side == TermSelector.ANTECEDENT;
-            
-        case SUCCEDENT:
-            return termno == 0 && side == TermSelector.SUCCEDENT;
-        }
-        // unreachable
-        throw new Error();
+    private List<Rule> getRuleSet(Term term) {
+        String classif = getClassification(term);
+        return classificationMap.get(classif);
     }
-
-    public RuleApplicationMaker findRuleApplication(Term term) {
-        String classification = getClassification(term);
-        
-        List<Rule> candidates = classificationMap.get(classification);
-        RuleApplicationMaker result = findRuleApplication(term, candidates);
-        
-        if(result == null && !classification.equals("[generic]")) {
-            candidates = classificationMap.get(classification);
-            result = findRuleApplication(term, candidates);
-        }
-        
-        return result;
+    
+    @Override public String toString() {
+        return "RuleCollection[" + category + "] with " + size + " rules";
     }
-
-
-    private RuleApplicationMaker findRuleApplication(Term term, List<Rule> candidates) {
-        if(candidates != null) {
-            for (Rule rule : candidates) {
-                TermUnification mc = new TermUnification();
-                if(mc.leftUnify(rule.getFindClause().getTerm(), term)) {
-                    RuleApplicationMaker ram = new RuleApplicationMaker();
-                    ram.setRule(rule);
-                    ram.setTermUnification(mc);
-                    return ram;
-                }
-                System.out.println("Tried: " + rule.getName() + " on " + term);
-            }
-        }
-        return null;
-    }
-
+    
 }
