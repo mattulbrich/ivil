@@ -4,7 +4,7 @@ import nonnull.NonNull;
 
 // TODO DOC
 
-public class SchemaVariable extends Term implements BindableIdentifier {
+public class SchemaVariable extends BindableIdentifier {
 
     private String name;
 

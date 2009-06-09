@@ -8,12 +8,23 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
-// TODO DOC
-
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+/**
+ * The Class ASTFileDefaultVisitor provides a default 
+ * method which is applied on every argument.
+ */
 public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
 
+	/**
+	 * Extending classes need to implement a default behaviour.
+	 * 
+	 * <p>This method will be called unless a visit method is overridden.
+	 * 
+	 * @param arg the file element to apply to
+	 * 
+	 * @throws ASTVisitException may be thrown by any implementation
+	 */
 	protected abstract void visitDefault(ASTFileElement arg) throws ASTVisitException;
 	
 	public void visit(ASTFile arg) throws ASTVisitException {

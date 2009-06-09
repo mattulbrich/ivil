@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
 import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
+import de.uka.iti.pseudo.util.TestAnnotatedString;
 
 public class AllTests {
     
@@ -31,6 +32,7 @@ public class AllTests {
         suite.addTestSuite(TestNewSkolem.class);
         suite.addTestSuite(TestSubst.class);
         suite.addTestSuite(TestPrettyPrint.class);
+        suite.addTestSuite(TestAnnotatedString.class);
         suite.addTestSuite(TestSubtermCollector.class);
         suite.addTestSuite(SubtermReplacerTest.class);
         suite.addTestSuite(TestTermUnification.class);

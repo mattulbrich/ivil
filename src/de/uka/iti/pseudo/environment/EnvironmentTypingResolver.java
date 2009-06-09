@@ -51,7 +51,7 @@ public class EnvironmentTypingResolver extends ASTFileDefaultVisitor {
         if(arg.getMatchingLocation() != MatchingLocation.BOTH) {
             try {
                 typingContext.solveConstraint(Environment.getBoolType(), 
-                        term.getTermAST().getTyping().getRawtType());
+                        term.getTermAST().getTyping().getRawType());
             } catch (UnificationException e) {
                 throw new ASTVisitException("Located term must have boolean type", arg, e);
             }

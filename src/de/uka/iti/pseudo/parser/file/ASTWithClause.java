@@ -2,7 +2,9 @@ package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-// TODO Documentation needed
+//  Documentation needed
+// probably do not need it any more
+@Deprecated
 public class ASTWithClause extends ASTRuleElement {
     
     Token schemaIdentifier;

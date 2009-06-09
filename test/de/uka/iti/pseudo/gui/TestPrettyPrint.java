@@ -18,9 +18,12 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     public void testPrettyPrint() throws Exception {
         testTerm("i1+(i2+i3)", "i1 + (i2 + i3)", false);
         testTerm("(i1+i2)+i3", "i1 + i2 + i3", false);
+        testTerm("i1+i2+i3", "i1 + i2 + i3", false);
         testTerm("(i1+i2)*i3", "(i1 + i2) * i3", false);
         testTerm("[skip](i1+i2)", "[ skip ](i1 + i2)", false);
         testTerm("([skip]i1)+i2", "[ skip ]i1 + i2", false);
+        testTerm("[skip]i1+i2", "[ skip ]i1 + i2", false);
+        testTerm("[skip][skip]i1", "[ skip ][ skip ]i1", false);
         testTerm("! !b1", "! !b1", false);
         testTerm("! -5 = -3", "! -5 = -3", false);
         testTerm("!((!b1) = true)", "!(!b1) = true", false);

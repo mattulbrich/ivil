@@ -4,11 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 public class Sequent {
-
+    
     private Term[] antecedent;
     
     private Term[] succedent;
@@ -24,10 +25,12 @@ public class Sequent {
     }
 
     private void typeCheck() throws TermException {
+        ToplevelCheckVisitor checker = new ToplevelCheckVisitor();
         for (Term t : antecedent) {
-            if(!t.getType().equals(Environment.getBoolType())) {
-                throw new TermException("Expecting boolean terms in sequents");
-            }
+            t.visit(checker);
+        }
+        for (Term t : succedent) {
+            t.visit(checker);
         }
     }
 

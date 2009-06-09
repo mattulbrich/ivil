@@ -10,12 +10,22 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 
-// TODO DOC
-
-public class Variable extends Term implements BindableIdentifier {
+/**
+ * The Class Variable captures a bound variable in a term
+ */
+public class Variable extends BindableIdentifier {
 	
+	/**
+	 * The name of the bound variable
+	 */
 	private String name;
 
+	/**
+	 * Instantiates a new variable.
+	 * 
+	 * @param name the name of the variable
+	 * @param type the type of the variable
+	 */
 	public Variable(String name, Type type) {
 		super(type);
 		this.name = name;
@@ -33,6 +43,11 @@ public class Variable extends Term implements BindableIdentifier {
 		visitor.visit(this);
 	}
 	
+	/**
+	 * Gets the name of the variable
+	 * 
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}

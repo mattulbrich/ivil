@@ -1,7 +1,8 @@
 package de.uka.iti.pseudo.proof;
 
 // TODO DOC
-// XXX or throw it away? Very rarely used. use proof exc instead?
+// it will be used by other read from string methods as well
+
 public class FormatException extends Exception {
     
     private String kind;

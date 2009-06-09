@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.AssignModality;
@@ -101,34 +102,48 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
     /**
-     * Prints the.
+     * Prints a located term without explicit typing.
+     * 
+     * <p>The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * If the matching location of the located term is not
+     * {@link MatchingLocation#BOTH} the sequent separator "|-" is added
+     * to the string on the appropriate side.
      * 
      * @param env
-     *            the env
+     *            the environment to use
      * @param lterm
-     *            the lterm
+     *            the located term to print
      * 
-     * @return the annotated string< term>
+     * @return an annotated string
      */
     public static @NonNull AnnotatedString<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false, true);
     }
     
- // TODO: Auto-generated Javadoc
     /**
-     * Prints the.
+     * Prints a located term.
+     * 
+     * <p>The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * If the matching location of the located term is not
+     * {@link MatchingLocation#BOTH} the sequent separator "|-" is added
+     * to the string on the appropriate side.
      * 
      * @param env
-     *            the env
+     *            the environment to use
      * @param lterm
-     *            the lterm
+     *            the located term to print
      * @param typed
-     *            the typed
+     *            if true, the string will be printed typed
      * @param printFix
-     *            the print fix
+     *            if true print operator in infix or prefix
+     *            notation
      * 
-     * @return the annotated string< term>
+     * @return an annotated string
      */
     public static @NonNull AnnotatedString<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
@@ -207,27 +222,22 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      */
     private boolean inParens;
     
-    // TODO DOC fertigmacen
-
     /*
      * Visit a subterm and put it in parens possibly.
      * 
-     * If typing is switched on, many parentheses are included
+     * Parens are included if the subterm's precedence is less than
+     * the precedence of the surrounding term
      * 
-     * @param subterm
-     *            the subterm
-     * @param precedence
-     *            the precedence
-     * 
-     * @throws TermException
-     *             the term exception
+     * If typing is switched on, parentheses are included if the 
+     * term has a non-maximal precedence, i.e. if it is a prefixed 
+     * or infixed expression
      */
     private void visitMaybeParen(Term subterm, int precedence)
             throws TermException {
 
         int innerPrecedence = getPrecedence(subterm);
-        if (isTyped() && innerPrecedence < Integer.MAX_VALUE || !isTyped()
-                && innerPrecedence < precedence) {
+        if ((isTyped() && innerPrecedence < Integer.MAX_VALUE)
+                || (!isTyped() && innerPrecedence < precedence)) {
             inParens = true;
             subterm.visit(this);
         } else {
@@ -236,18 +246,13 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
 
     }
 
-    /**
+    /*
      * Gets the precedence of a term. This is straight forward if it is a fixed term.
      * Then the precedence of the operator is returned.
      * 
      * In any other case the precedence is maximal ({@link Integer#MAX_VALUE}
      * This is because every infix and prefix operator binds less than other term
      * constructions (binders, applications, even modalities)
-     * 
-     * @param subterm
-     *            the subterm to inspect
-     * 
-     * @return the precedence
      */
     private int getPrecedence(Term subterm) {
 
@@ -262,18 +267,83 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         return Integer.MAX_VALUE;
     }
 
-    /**
-     * @param variable
-     * @throws TermException
+    /*
+     * Prints a term in prefix way.
+     * 
+     * Possibly insert an extra space if needed, that is if
+     * two operators follow directly one another.
      */
+    private void printPrefix(Application application, FixOperator fixOperator)
+            throws TermException {
+        
+        assert fixOperator.getArity() == 1;
+        
+        Term subterm = application.getSubterm(0);
+        if (printer.length() > 0 && isOperatorChar(printer.getLastCharacter()))
+            printer.append(" ");
+        printer.append(fixOperator.getOpIdentifier());
+        visitMaybeParen(subterm, fixOperator.getPrecedence());
+    }
+
+    // keep this updated with TermParser.jj
+    /**
+     * Checks if a character is an operator char.
+     */
+    private boolean isOperatorChar(char c) {
+        return "+-<>&|=*/!^".indexOf(c) != -1;
+    }
+
+    /*
+     * Prints a term in infix way.
+     * 
+     * The first subterm is visited to be put in parens if the precedence is
+     * strictly higher than that of this term.
+     * 
+     * The second subterm is visited to be put in parens if the precedence is
+     * at least as high as that of this term.
+     * 
+     * Therefore plus(a,plus(b,c)) is put as a + (b + c)
+     * and plus(plus(a,b),c) is put as a + b + c
+     * 
+     * All operators are left associative automatically.
+     * 
+     */
+    private void printInfix(Application application, FixOperator fixOperator)
+            throws TermException {
+        visitMaybeParen(application.getSubterm(0), fixOperator.getPrecedence());
+        printer.append(" ").append(fixOperator.getOpIdentifier()).append(" ");
+        visitMaybeParen(application.getSubterm(1),
+                fixOperator.getPrecedence() + 1);
+    }
+
+    /*
+     * print an application in non-operator prefix form.
+     */
+    private void printApplication(Application application, String fctname)
+            throws TermException {
+        printer.append(fctname);
+        List<Term> subterms = application.getSubterms();
+        if (subterms.size() > 0) {
+            boolean first = true;
+            for (Term t : subterms) {
+                printer.append(first ? "(" : ", ");
+                first = false;
+                t.visit(this);
+            }
+            printer.append(")");
+        }
+        if (isTyped())
+            printer.append(" as " + application.getType());
+    }
+
+    //
+    // Visitors
+    //
+    
     public void visit(Variable variable) throws TermException {
         printer.begin(variable).append(variable.toString(isTyped())).end();
     }
 
-    /**
-     * @param modalityTerm
-     * @throws TermException
-     */
     public void visit(ModalityTerm modalityTerm) throws TermException {
         printer.begin(modalityTerm);
         printer.append("[ ");
@@ -283,10 +353,6 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer.end();
     }
 
-    /**
-     * @param binding
-     * @throws TermException
-     */
     public void visit(Binding binding) throws TermException {
         printer.begin(binding);
         Binder binder = binding.getBinder();
@@ -303,10 +369,6 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer.end();
     }
 
-    /**
-     * @param application
-     * @throws TermException
-     */
     public void visit(Application application) throws TermException {
         printer.begin(application);
         boolean isInParens = inParens;
@@ -346,120 +408,23 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer.end();
     }
 
-    /**
-     * Prints the prefix.
-     * 
-     * @param application
-     *            the application
-     * @param fixOperator
-     *            the fix operator
-     * 
-     * @throws TermException
-     *             the term exception
-     */
-    private void printPrefix(Application application, FixOperator fixOperator)
-            throws TermException {
-        Term subterm = application.getSubterm(0);
-        if (printer.length() > 0 && isOperatorChar(printer.getLastCharacter()))
-            printer.append(" ");
-        printer.append(fixOperator.getOpIdentifier());
-        visitMaybeParen(subterm, fixOperator.getPrecedence());
-    }
-
-    // keep this updated with TermParser.jj
-    /**
-     * Checks if is operator char.
-     * 
-     * @param c
-     *            the c
-     * 
-     * @return true, if is operator char
-     */
-    private boolean isOperatorChar(char c) {
-        return "+-<>&|=*/!^".indexOf(c) != -1;
-    }
-
-    /**
-     * Prints the infix.
-     * 
-     * @param application
-     *            the application
-     * @param fixOperator
-     *            the fix operator
-     * 
-     * @throws TermException
-     *             the term exception
-     */
-    private void printInfix(Application application, FixOperator fixOperator)
-            throws TermException {
-        visitMaybeParen(application.getSubterm(0), fixOperator.getPrecedence());
-        printer.append(" ").append(fixOperator.getOpIdentifier()).append(" ");
-        // TODO explain
-        visitMaybeParen(application.getSubterm(1),
-                fixOperator.getPrecedence() + 1);
-    }
-
-    /**
-     * Prints the application.
-     * 
-     * @param application
-     *            the application
-     * @param fctname
-     *            the fctname
-     * 
-     * @throws TermException
-     *             the term exception
-     */
-    private void printApplication(Application application, String fctname)
-            throws TermException {
-        printer.append(fctname);
-        List<Term> subterms = application.getSubterms();
-        if (subterms.size() > 0) {
-            boolean first = true;
-            for (Term t : subterms) {
-                printer.append(first ? "(" : ", ");
-                first = false;
-                t.visit(this);
-            }
-            printer.append(")");
-        }
-        if (isTyped())
-            printer.append(" as " + application.getType());
-    }
-
-    /**
-     * @param schemaVariable
-     * @throws TermException
-     */
     public void visit(SchemaVariable schemaVariable) throws TermException {
         printer.begin(schemaVariable)
                 .append(schemaVariable.toString(isTyped())).end();
     }
 
-    /**
-     * @param assignModality
-     * @throws TermException
-     */
     public void visit(AssignModality assignModality) throws TermException {
         printer.append(assignModality.getAssignedConstant().getName()).append(
                 " := ");
         assignModality.getAssignedTerm().visit(this);
     }
 
-    /**
-     * @param compoundModality
-     * @throws TermException
-     */
     public void visit(CompoundModality compoundModality) throws TermException {
         compoundModality.getSubModality(0).visit(this);
         printer.append("; ");
         compoundModality.getSubModality(1).visit(this);
     }
 
-    /**
-     * @param ifModality
-     * @throws TermException
-     */
     public void visit(IfModality ifModality) throws TermException {
         printer.append("if ");
         ifModality.getConditionTerm().visit(this);
@@ -473,26 +438,14 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
 
     }
 
-    /**
-     * @param skipModality
-     * @throws TermException
-     */
     public void visit(SkipModality skipModality) throws TermException {
         printer.append("skip");
     }
 
-    /**
-     * @param schemaModality
-     * @throws TermException
-     */
     public void visit(SchemaModality schemaModality) throws TermException {
         printer.append(schemaModality.getName());
     }
 
-    /**
-     * @param whileModality
-     * @throws TermException
-     */
     public void visit(WhileModality whileModality) throws TermException {
         printer.append("while ");
         whileModality.getConditionTerm().visit(this);

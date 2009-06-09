@@ -121,7 +121,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         for (int i = 1; i < sig.length; i++) {
             try {
-                typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType());
+                typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawType());
             } catch (UnificationException e) {
                 e.addDetail("in subterm " + (i-1));
                 throw e;
@@ -198,11 +198,11 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         term.setTyping(new Typing(sig[0], typingContext));
 
-        typingContext.solveConstraint(sig[1], term.getVariableTyping().getRawtType());
+        typingContext.solveConstraint(sig[1], term.getVariableTyping().getRawType());
         
         for (int i = 2; i < sig.length; i++) {
             try {
-                typingContext.solveConstraint(sig[i], subterms.get(i-2).getTyping().getRawtType());
+                typingContext.solveConstraint(sig[i], subterms.get(i-2).getTyping().getRawType());
             } catch (UnificationException e) {
                 e.addDetail("in subterm " + (i-1));
                 throw e;
@@ -219,11 +219,11 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         try {
 			typingContext.solveConstraint( 
-			        asType.getTerm().getTyping().getRawtType(),
+			        asType.getTerm().getTyping().getRawType(),
 			        resultingType);
 		} catch (UnificationException e) {
 			throw new ASTVisitException("Type inference failed for explicitly typed term" +
-					"\nExplicit Type: " + asType.getTyping().getRawtType() +
+					"\nExplicit Type: " + asType.getTyping().getRawType() +
 					"\n" + e.getDetailedMessage(), e);
 			}
     }
@@ -318,11 +318,11 @@ public class TypingResolver extends ASTDefaultVisitor {
         try {
             typingContext.solveConstraint( 
                     targetType[0],
-                    modAssignment.getAssignedTerm().getTyping().getRawtType());
+                    modAssignment.getAssignedTerm().getTyping().getRawType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Incompatibles types in assignmend." +
                     "\nIdentifier type: " + targetType[0] +
-                    "\nAssigned term type: " + modAssignment.getAssignedTerm().getTyping().getRawtType() +
+                    "\nAssigned term type: " + modAssignment.getAssignedTerm().getTyping().getRawType() +
                     "\n" + e.getDetailedMessage(), e);
         }
 
@@ -335,10 +335,10 @@ public class TypingResolver extends ASTDefaultVisitor {
 
         try {
             typingContext.solveConstraint(env.getBoolType(),
-                    modIf.getConditionTerm().getTyping().getRawtType());
+                    modIf.getConditionTerm().getTyping().getRawType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Condition in if-modality not boolean." +
-                    "\ncondition term type: " +  modIf.getConditionTerm().getTyping().getRawtType() +
+                    "\ncondition term type: " +  modIf.getConditionTerm().getTyping().getRawType() +
                     "\n" + e.getDetailedMessage(), e);
         }
 
@@ -351,10 +351,10 @@ public class TypingResolver extends ASTDefaultVisitor {
 
         try {
             typingContext.solveConstraint(env.getBoolType(),
-                    modWhile.getConditionTerm().getTyping().getRawtType());
+                    modWhile.getConditionTerm().getTyping().getRawType());
         } catch (UnificationException e) {
             throw new ASTVisitException("Condition in if-modality not boolean." +
-                    "\ncondition term type: " +  modWhile.getConditionTerm().getTyping().getRawtType() +
+                    "\ncondition term type: " +  modWhile.getConditionTerm().getTyping().getRawType() +
                     "\n" + e.getDetailedMessage(), e);
         }
     }
