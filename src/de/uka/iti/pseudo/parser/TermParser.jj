@@ -49,6 +49,7 @@ TOKEN :
 | < RIGHTSQUARE: "]" >
 | < COMMA: "," >
 | < SEMICOLON: ";" >
+| < AS: "as" >
 
 // Programs
 | < _SKIP: "skip" >
@@ -79,10 +80,10 @@ ASTTerm Term():
 {
 
         ( term=OpIdentifier() { list.add(term); } )*
-        term=BaseTerm() { list.add(term); }
+        term=ModalityTerm() { list.add(term); }
         (
           ( term=OpIdentifier() { list.add(term); } )+
-          term=BaseTerm() { list.add(term); }
+          term=ModalityTerm() { list.add(term); }
         )*
    { 
      if(list.size() > 1)
@@ -92,15 +93,45 @@ ASTTerm Term():
    }
 }
 
+ASTTerm ModalityTerm():
+{
+  ASTModality modality = null;
+  ASTTerm term;
+}
+{
+      "[" modality=ModalityList() "]" term=AsTerm()
+         { return new ASTModalityTerm(modality, term); }
+    | 
+      term=AsTerm()
+         { return term; } 
+}
+
+ASTTerm AsTerm():
+{ 
+  ASTTerm term;
+  ASTTypeRef type; 
+}
+{
+        term=BaseTerm()
+        (
+          "as"
+          type=TypeRef()
+            { term = new ASTAsType(term, type); }
+        )?  
+         { return term; }
+}
+
 ASTTerm BaseTerm():
-{ ASTTerm term; }
+{ 
+  ASTTerm term;
+}
 {
         ( LOOKAHEAD(2) "(" term=BinderTerm() ")"
         | "(" term=Term() ")"
         | term=ApplicationTerm()
         | term=NumberLiteral()
-        | term=ModalityTerm()
-        ) { return term; }
+        )
+        { return term; }
 }
 
 ASTBinderTerm BinderTerm():
@@ -191,17 +222,6 @@ ASTNumberLiteralTerm NumberLiteral():
 {
         t=<NUMBERLITERAL>
   { return new ASTNumberLiteralTerm(t); }
-}
-
-ASTModalityTerm ModalityTerm():
-{
-  ASTModality modality;
-  ASTTerm term;
-}
-{
-        "[" modality=ModalityList() "]"
-        term=BaseTerm() 
-  { return new ASTModalityTerm(modality, term); }
 }
 
 ASTModality ModalityList():

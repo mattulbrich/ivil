@@ -9,11 +9,9 @@
 package de.uka.iti.pseudo.term;
 
 import java.util.List;
-import java.util.Stack;
 
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTFixTerm;

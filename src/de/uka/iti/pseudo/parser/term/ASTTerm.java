@@ -12,7 +12,9 @@ import java.util.List;
 
 public abstract class ASTTerm extends ASTElement {
     
-    private List<ASTTerm> subterms; 
+    private List<ASTTerm> subterms;
+    
+    private Typing typing;
 
     public ASTTerm(List<ASTTerm> subterms) {
         this.subterms = subterms;
@@ -22,5 +24,5 @@ public abstract class ASTTerm extends ASTElement {
     public List<ASTTerm> getSubterms() {
         return subterms;
     }
-
+    
 }

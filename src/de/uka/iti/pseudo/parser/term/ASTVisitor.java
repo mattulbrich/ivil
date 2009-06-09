@@ -41,4 +41,6 @@ public interface ASTVisitor {
 
 	void visit(ASTFixTerm infixTerm) throws ASTVisitException;
 
+    void visit(ASTAsType asType) throws ASTVisitException;
+
 }
