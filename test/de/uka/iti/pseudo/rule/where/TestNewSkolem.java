@@ -1,18 +1,12 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Properties;
+import java.util.HashMap;
+import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestNewSkolem extends TestCaseWithEnv {
@@ -38,11 +32,11 @@ public class TestNewSkolem extends TestCaseWithEnv {
         }
     }
     
-    RuleApplication mockRuleApp = new RuleApplicationMaker() {
-        @Override public String getWhereProperty(String key) {
-            return "skolemName(%i)".equals(key) ? "sk100" : null;
-        }
-    };
+//    RuleApplication mockRuleApp = new RuleApplicationMaker() {
+//        @Override public String getWhereProperty(String key) {
+//            return "skolemName(%i)".equals(key) ? "sk100" : null;
+//        }
+//    };
     
     public void testNewSkolem() throws Exception {
         NewSkolem newSK = new NewSkolem();
@@ -51,14 +45,13 @@ public class TestNewSkolem extends TestCaseWithEnv {
         newSK.checkSyntax(t);
         
         TermUnification mc = new TermUnification();
-        WhereClause wc = new WhereClause(newSK, t);
-        Properties properties = new Properties();
+        Map<String, String> properties = new HashMap<String, String>();
         
-        newSK.applyTo(t, mc, mockRuleApp, null, env, properties, false);
+        newSK.applyTo(t, mc, null, null, env, properties, false);
         
         assertEquals(makeTerm("%i as int"), mc.instantiate(schema));
         
-        newSK.applyTo(t, mc, mockRuleApp, null, env, properties, true);
+        newSK.applyTo(t, mc, null, null, env, properties, true);
         
         assertEquals(makeTerm("sk1 as int"), mc.instantiate(schema));
         assertEquals("sk1", properties.get("skolemName(%i)"));
@@ -67,7 +60,7 @@ public class TestNewSkolem extends TestCaseWithEnv {
         loadEnv();
         mc = new TermUnification();
         
-        newSK.applyTo(t, mc, mockRuleApp, null, env, null, true);
+        newSK.applyTo(t, mc, null, null, env, null, true);
         assertEquals(makeTerm("sk1 as int"), mc.instantiate(schema));
     }
     
@@ -77,7 +70,7 @@ public class TestNewSkolem extends TestCaseWithEnv {
         //
         // on import
         
-        Properties properties = new Properties();
+        Map<String, String> properties = new HashMap<String, String>();
         properties.put("skolemName(%i)", "sk100");
         properties.put("skolemType(%i)", "int");
         Term[] formal = { makeTerm("%i as int") };

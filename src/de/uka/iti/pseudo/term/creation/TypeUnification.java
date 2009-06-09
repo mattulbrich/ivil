@@ -46,7 +46,7 @@ public class TypeUnification {
     /**
      * This mapping records the substitution.
      */
-    private Map<TypeVariable, Type> instantiation = new HashMap<TypeVariable, Type>();
+    private Map<String, Type> instantiation;
 
     /**
      * A visitor that replaces all type variables with variants. Since
@@ -63,13 +63,32 @@ public class TypeUnification {
      */
     private TypeVisitor instantiater = new DefaultTypeVisitor() {
         public Type visit(TypeVariable typeVariable) {
-            Type replace = instantiation.get(typeVariable);
+            Type replace = instantiation.get(typeVariable.getVariableName());
             if (replace != null)
                 return replace;
             else
                 return typeVariable;
         };
     };
+    
+    /**
+     * create a new type unification with an empty mapping from 
+     * type variables to types.
+     */
+    public TypeUnification() {
+        instantiation = new HashMap<String, Type>();
+    }
+
+    /**
+     * create a new type unification with the given initial mapping.
+     * 
+     * It is not checked if the mapping is valid (for instance acyclic)
+     * 
+     * @param mapping from type variable names to types
+     */
+    public TypeUnification(Map<String, Type> map) {
+        instantiation = new HashMap<String, Type>(map);
+    }
 
     /**
      * Make variant of a type.
@@ -135,7 +154,7 @@ public class TypeUnification {
     public @NonNull Type leftUnify(@NonNull Type adaptingType,
             @NonNull Type fixType) throws UnificationException {
 
-        Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(
+        Map<String, Type> copy = new HashMap<String, Type>(
                 instantiation);
 
         try {
@@ -160,7 +179,7 @@ public class TypeUnification {
 
         if (adaptingType instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) adaptingType;
-            if (instantiation.containsKey(tv))
+            if (instantiation.containsKey(tv.getVariableName()))
                 adaptingType = instantiate(tv);
         }
 
@@ -246,7 +265,7 @@ public class TypeUnification {
      */
     public @NonNull Type unify(@NonNull Type type1, @NonNull Type type2)
             throws UnificationException {
-        Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(
+        Map<String, Type> copy = new HashMap<String, Type>(
                 instantiation);
 
         try {
@@ -263,8 +282,7 @@ public class TypeUnification {
     }
     
     public TypeUnification clone() {
-        TypeUnification retval = new TypeUnification();
-        retval.instantiation.putAll(instantiation);
+        TypeUnification retval = new TypeUnification(instantiation);
         return retval;
     }
 
@@ -275,13 +293,13 @@ public class TypeUnification {
 
         if (type1 instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) type1;
-            if (instantiation.containsKey(tv))
+            if (instantiation.containsKey(tv.getVariableName()))
                 type1 = instantiate(tv);
         }
 
         if (type2 instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) type2;
-            if (instantiation.containsKey(tv))
+            if (instantiation.containsKey(tv.getVariableName()))
                 type2 = instantiate(tv);
         }
 
@@ -338,13 +356,13 @@ public class TypeUnification {
      */
     private void addMapping(TypeVariable tv, Type type) {
 
-        assert instantiation.get(tv) == null;
+        assert instantiation.get(tv.getVariableName()) == null;
         assert !occursIn(tv, type);
 
-        instantiation.put(tv, type);
+        instantiation.put(tv.getVariableName(), type);
         
         // check whether this is needed or not: it is :)
-        for (TypeVariable t : instantiation.keySet()) {
+        for (String t : instantiation.keySet()) {
             instantiation.put(t, instantiate(instantiation.get(t)));
         }
 
@@ -378,7 +396,7 @@ public class TypeUnification {
      * 
      * @return a mapping from type variables to maps.
      */
-    public Map<TypeVariable, Type> getInstantiation() {
+    public Map<String, Type> getInstantiation() {
         // possibly wrap in Collections.unmodifiable?
         return instantiation;
     }

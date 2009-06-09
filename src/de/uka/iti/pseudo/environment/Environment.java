@@ -99,14 +99,22 @@ public class Environment {
         this.parentEnvironment = parentEnvironment;
     }
 
-    /*
-     * Adds the built ins.
+    /**
+     * Adds the built ins. They are:
+     * <ul>
+     * <li>Types int and bool
+     * <li>The $interaction marker function symbol
+     * <li>All defined {@link MetaFunction}s
+     * </ul>
      */
     private void addBuiltIns() {
         try {
             addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
             addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
             addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
+            for (MetaFunction metaFunction : MetaFunction.META_FUNCTIONS) {
+                addFunction(metaFunction);
+            }
         } catch (EnvironmentException e) {
             throw new Error("Fatal during creation of interal elements", e);
         }
@@ -631,8 +639,30 @@ public class Environment {
 
     }
     
-    private int skolemCounter = 1;
+    /**
+     * create a new symbol name which is not yet used.
+     * 
+     * @param prefix
+     *            the resulting function name will start with this prefix
+     * @return an identifier that can be used as a function name for this
+     *         environment
+     */
+    public String createNewFunctionName(String prefix) {
+        String newName;
+        int counter = 1;
+        boolean exists;
+        do {
+            newName = prefix + counter;
+            counter ++;
+            exists = getFunction(newName) != null;
+        } while(exists);
+        
+        return newName;
+    }
 
+    private int skolemCounter = 1;
+    
+    @Deprecated
     public Function createNewSkolemConst(Type type) {
         // TODO method documentation
         

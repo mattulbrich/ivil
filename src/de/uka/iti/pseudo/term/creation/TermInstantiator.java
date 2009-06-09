@@ -55,17 +55,9 @@ public class TermInstantiator extends RebuildingTermVisitor {
     }
 
     public TermInstantiator(RuleApplication ruleApp) {
-        this.termMap = new HashMap<String, Term>();
-        for (String name : ruleApp.getSchemaVariableNames()) {
-            termMap.put(name, ruleApp.getTermInstantiation(name));
-        }
-        
-        this.modalityMap = new HashMap<String, Modality>();
-        for (String name : ruleApp.getSchemaVariableNames()) {
-            modalityMap.put(name, ruleApp.getModalityInstantiation(name));
-        }
-        
-        this.typeMapper = null;
+        this.termMap = ruleApp.getSchemaVariableMapping();
+        this.modalityMap = ruleApp.getSchemaModalityMapping();
+        this.typeMapper = new TypeUnification(ruleApp.getTypeVariableMapping());
     }
 
     public Term instantiate(Term toInst) throws TermException {

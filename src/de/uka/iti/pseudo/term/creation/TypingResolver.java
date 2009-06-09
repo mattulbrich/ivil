@@ -384,4 +384,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
 
+    public TypingContext getTypingContext() {
+        return typingContext;
+    }
+
 }

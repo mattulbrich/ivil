@@ -48,7 +48,7 @@ public class VerticalLayout implements LayoutManager {
         }
     }
     
-    @Override public Dimension minimumLayoutSize(Container parent) {
+    public Dimension minimumLayoutSize(Container parent) {
         int h = 0;
         int w = 0;
         for(int i = 0; i < parent.getComponentCount(); i++) {
@@ -61,7 +61,7 @@ public class VerticalLayout implements LayoutManager {
                 h+ insets.top + insets.bottom);
     }
 
-    @Override public Dimension preferredLayoutSize(Container parent) {
+    public Dimension preferredLayoutSize(Container parent) {
         int h = 0;
         int w = 0;
         for(int i = 0; i < parent.getComponentCount(); i++) {

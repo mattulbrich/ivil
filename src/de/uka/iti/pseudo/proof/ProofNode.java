@@ -66,7 +66,11 @@ public class ProofNode {
 
         setChildren(doActions(ruleApp, inst, rule));
 
-        this.appliedRuleApp = ruleApp;
+        if(!(ruleApp instanceof ImmutableRuleApplication))
+            this.appliedRuleApp = new ImmutableRuleApplication(ruleApp);
+        else
+            this.appliedRuleApp = ruleApp;
+        
 
     }
 
@@ -151,7 +155,7 @@ public class ProofNode {
             Rule rule, Environment env, Properties whereClauseProperties) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                whereClause.verify(inst, whereClauseProperties);
+                whereClause.verify(inst, ruleApp.getProperties());
             } catch (RuleException e) {
                 throw new ProofException("WhereClause not applicable: "
                         + whereClause, e);

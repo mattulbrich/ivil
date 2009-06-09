@@ -1,6 +1,6 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Properties;
+import java.util.Map;
 
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Binding;
@@ -53,7 +53,7 @@ public class Subst extends SimpleWhereCondition {
     
     @Override 
     public void verify(Term[] formalArguments,
-            Term[] actualArguments, Properties properties) throws RuleException {
+            Term[] actualArguments, Map<String, String> properties) throws RuleException {
        Term toReplace = actualArguments[1];
        Term replaceWith = actualArguments[2];
        Term replaceIn = actualArguments[3];
@@ -88,36 +88,6 @@ public class Subst extends SimpleWhereCondition {
             throw new RuleException("In subst second and third (replace and replacewith) need to have same type");
     }
     
-    private static class TermReplacer extends RebuildingTermVisitor {
-        
-        private Term termToReplace;
-        private Term replaceWith;
-        
-        @Override 
-        protected void defaultVisitTerm(Term term)
-                throws TermException {
-            if(term.equals(termToReplace)) {
-                resultingTerm = replaceWith;
-            }
-        }
-        
-        @Override public void visit(Binding binding) throws TermException {
-            // TODO method documentation
-            // TODO make test case for that
-            if(binding.getVariable().equals(termToReplace))
-                resultingTerm = null;
-            else
-                super.visit(binding);
-        }
-        
-        Term replace(Term termToReplace, Term replaceWith, Term replaceIn) throws TermException {
-            this.termToReplace = termToReplace;
-            this.replaceWith = replaceWith;
-            replaceIn.visit(this);
-            return resultingTerm == null ? replaceIn : resultingTerm;
-        }
-        
-    }
-
+ 
 
 }

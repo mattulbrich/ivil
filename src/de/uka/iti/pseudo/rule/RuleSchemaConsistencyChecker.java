@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SchemaCollectorVisitor;
 
 // TODO Documentation needed
+@Deprecated
 public class RuleSchemaConsistencyChecker extends SchemaCollectorVisitor {
 
     public static void check(Rule rule) throws RuleException {

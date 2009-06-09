@@ -30,6 +30,10 @@ rule exists_left
   samegoal replace { %subst }
 
 
+rule equality
+  find { %t = %t }
+  samegoal replace { true }
+
 #rule andRight
 #        find  |- {%b & %c}
 #        replace {%b}

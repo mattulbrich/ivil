@@ -1,6 +1,6 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Properties;
+import java.util.Map;
 
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -53,7 +53,7 @@ public class NotFreeIn extends SimpleWhereCondition {
 
     @Override 
     public void verify(Term[] formalArguments,
-            Term[] actualArguments, Properties properties) throws RuleException {
+            Term[] actualArguments, Map<String, String> properties) throws RuleException {
         if(!verify(actualArguments)) {
             throw new RuleException("Variable " + actualArguments[0] + 
                     " is not free in " + actualArguments[1]);

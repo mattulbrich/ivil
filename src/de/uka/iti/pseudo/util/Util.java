@@ -28,28 +28,27 @@ import de.uka.iti.pseudo.term.Term;
  * This is a collection of static methods  
  */
 public class Util {
-	
-	/**
-	 * An icon which can be used instead an image if the image
-	 * cannot be loaded.
-	 * <p> When drawn it shows the string "??".
-	 */
-	public static final Icon UNKNOWN_ICON = new Icon() {
 
-        @Override public int getIconHeight() {
+    /**
+     * An icon which can be used instead an image if the image cannot be loaded.
+     * <p>When drawn it shows the string "??".
+     */
+    public static final Icon UNKNOWN_ICON = new Icon() {
+
+        public int getIconHeight() {
             return 16;
         }
 
-        @Override public int getIconWidth() {
+        public int getIconWidth() {
             return 16;
         }
 
-        @Override public void paintIcon(Component c, Graphics g, int x, int y) {
+        public void paintIcon(Component c, Graphics g, int x, int y) {
             g.setColor(Color.red);
-            g.drawString("??", x, y+16);
+            g.drawString("??", x, y + 16);
         }
-	
-	};
+
+    };
 
 	
 	/**

@@ -63,6 +63,7 @@ public class InteractiveRuleApplicationFinder {
                     continue;
 
                 TermUnification mc = new TermUnification();
+                ruleAppMaker.setTermUnification(mc);
 
                 if (mc.leftUnify(findClause.getTerm(), termSelector
                         .selectSubterm(sequent)))
@@ -81,7 +82,6 @@ public class InteractiveRuleApplicationFinder {
         
         if(assIdx >= assumptions.size()) {
             if(matchWhereClauses(mc)) {
-                ruleAppMaker.getInstantiationsFrom(mc);
                 applications.add(ruleAppMaker.make());
             }
             return;
@@ -113,7 +113,7 @@ public class InteractiveRuleApplicationFinder {
     private boolean matchWhereClauses(TermUnification mc) throws RuleException {
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for ( WhereClause wc : whereClauses ) {
-            if(!wc.applyTo(mc, ruleAppMaker, goal, env, ruleAppMaker.getWhereProperties(), false))
+            if(!wc.applyTo(mc, ruleAppMaker, goal, env, ruleAppMaker.getProperties(), false))
                 return false;
         }
         return true;

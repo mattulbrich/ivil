@@ -1,18 +1,18 @@
 package de.uka.iti.pseudo.proof;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Stack;
 
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
-// proucer pattern?
+// producer pattern?
 
 public class RuleApplicationMaker implements RuleApplication {
     
@@ -20,10 +20,12 @@ public class RuleApplicationMaker implements RuleApplication {
     private int goalNumber;
     private TermSelector findSelector;
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
-    private Map<String, Term> schemaVariableInstantiations;
-    private Map<String, Modality> schemaModalityInstantiations;
-    private Properties whereProperties = new Properties();
+    private TermUnification termUnification = new TermUnification();
+    private Map<String, String> properties = new HashMap<String, String>();
     
+    public RuleApplicationMaker() {
+    }
+
     public void setGoalNumber(int goalNumber) {
         this.goalNumber = goalNumber;
     }
@@ -48,63 +50,44 @@ public class RuleApplicationMaker implements RuleApplication {
         assumeSelectors.pop();
     }
 
-    public void setSchemaVariableInstantiations(
-            Map<String, Term> schemaVariableInstantiations) {
-        this.schemaVariableInstantiations = schemaVariableInstantiations;
+    public void setTermUnification(TermUnification mc) {
+        termUnification = mc;
     }
 
-    public void setSchemaModalityInstantiations(
-            Map<String, Modality> schemaModalityInstantiations) {
-        this.schemaModalityInstantiations = schemaModalityInstantiations;
-    }
-
-    public void getInstantiationsFrom(TermUnification mc) {
-        setSchemaVariableInstantiations(mc.getTermInstantiation());
-        setSchemaModalityInstantiations(mc.getModalityInstantiation());
-    }
-
-    @Override public List<TermSelector> getAssumeSelectors() {
+    public List<TermSelector> getAssumeSelectors() {
         return assumeSelectors;
     }
 
-    @Override public TermSelector getFindSelector() {
+    public TermSelector getFindSelector() {
         return findSelector;
     }
 
-    @Override public int getGoalNumber() {
+    public int getGoalNumber() {
         return goalNumber;
     }
 
-    @Override public Rule getRule() {
+    public Rule getRule() {
         return rule;
     }
 
-    @Override public String getWhereProperty(String key) {
-        return whereProperties.getProperty(key);
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    @Override public Collection<String> getWherePropertyNames() {
-        return whereProperties.stringPropertyNames();
+    public Map<String, Modality> getSchemaModalityMapping() {
+        return termUnification.getModalityInstantiation();
     }
 
-    @Override public Modality getModalityInstantiation(String schemaModalityName) {
-        return schemaModalityInstantiations.get(schemaModalityName);
+    public Map<String, Term> getSchemaVariableMapping() {
+        return termUnification.getTermInstantiation();
     }
 
-    @Override public Collection<String> getSchemaModalityNames() {
-        return schemaModalityInstantiations.keySet();
+    public Map<String, Type> getTypeVariableMapping() {
+        return termUnification.getTypeUnification().getInstantiation();
     }
 
-    @Override public Collection<String> getSchemaVariableNames() {
-        return schemaVariableInstantiations.keySet();
+    // this is only indirectly mutable, therefore: no
+    public boolean isMutable() {
+        return false;
     }
-
-    @Override public Term getTermInstantiation(String schemaVariableName) {
-        return schemaVariableInstantiations.get(schemaVariableName);
-    }
-
-    public Properties getWhereProperties() {
-        return whereProperties;
-    }
-
 }

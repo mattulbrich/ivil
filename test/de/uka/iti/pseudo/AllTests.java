@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.proof.TestTermUnification;
+import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestNewSkolem;
 import de.uka.iti.pseudo.rule.where.TestSubst;
 import de.uka.iti.pseudo.term.TestApplication;
@@ -40,6 +41,7 @@ public class AllTests {
         suite.addTestSuite(TestApplication.class);
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTermInstantiator.class);
+        suite.addTestSuite(TestTermReplacer.class);
         //$JUnit-END$
         return suite;
     }

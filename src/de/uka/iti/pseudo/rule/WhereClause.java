@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.rule;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import de.uka.iti.pseudo.environment.Environment;
@@ -34,7 +35,7 @@ public class WhereClause {
     }
 
     public boolean applyTo(TermUnification mc, RuleApplication ruleApp,
-            ProofNode goal, Environment env, Properties properties, boolean commit) throws RuleException {
+            ProofNode goal, Environment env, Map<String, String> properties, boolean commit) throws RuleException {
         return whereCondition.applyTo(arguments, mc, ruleApp, goal, env, properties, commit);
     }
     
@@ -46,7 +47,7 @@ public class WhereClause {
         return whereCondition;
     }
 
-    public void verify(TermInstantiator termInst, Properties properties) throws RuleException {
+    public void verify(TermInstantiator termInst, Map<String, String> properties) throws RuleException {
         Term[] actual;
         try {
             actual = new Term[arguments.length];

@@ -48,6 +48,21 @@ public class Pair<E,F> {
         this.fstComponent = fst;
         this.sndComponent = snd;
     }
+    
+    /**
+     * Alternative way to create a pair. Java is able to infer type arguments for
+     * methods (like this) but not for constructors. It is therefore easier to 
+     * use this
+     * 
+     * @param fst
+     *            the first component
+     * @param snd
+     *            the second component
+     * @return a freshle created pair
+     */
+    public static <E,F> Pair<E,F> make(E fst, F snd) {
+        return new Pair<E, F>(fst, snd);
+    }
 
 	/**
      * get the object at the first component.

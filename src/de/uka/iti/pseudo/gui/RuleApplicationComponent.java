@@ -10,11 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -30,15 +31,20 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplicationMaker;
+import de.uka.iti.pseudo.proof.RuleApplicationWrapper;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Pair;
 
 // TODO DOC
 
@@ -62,7 +68,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     private JPanel applicableListPanel;
     private ProofCenter proofCenter;
-    private Map<SchemaVariable,JTextComponent> interactionMapping =  new HashMap<SchemaVariable, JTextComponent>();
+    private List<Pair<SchemaVariable,? extends JTextComponent>> interactionList = 
+        new ArrayList<Pair<SchemaVariable, ? extends JTextComponent>>();
 
     public RuleApplicationComponent(ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
@@ -162,10 +169,11 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     
     private void setInstantiations(RuleApplication app) {
         instantiationsPanel.removeAll();
-        interactionMapping.clear();
-        for (String schemaName : app.getSchemaVariableNames()) {
+        interactionList.clear();
+        for (Map.Entry<String, Term> entry : app.getSchemaVariableMapping().entrySet()) {
             
-            Term t = app.getTermInstantiation(schemaName);
+            String schemaName = entry.getKey();
+            Term t = entry.getValue();
             assert t != null;
             
             JLabel label = new JLabel(schemaName + " as " + t.getType());
@@ -176,7 +184,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                 BracketMatchingTextArea textField = new BracketMatchingTextArea();
                 textField.addActionListener(this);
                 instantiationsPanel.add(textField);
-                interactionMapping.put(new SchemaVariable(schemaName, t.getType()), textField);
+                interactionList.add(Pair.make(new SchemaVariable(schemaName, t.getType()), textField));
                 instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
             } else {
                 JTextField textField = new JTextField();
@@ -218,22 +226,39 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     }
 
     // chosen ruleappl
-    @Override 
     public void actionPerformed(ActionEvent e) {
         System.out.println(e);
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
             // TODO this works if no user instantiations
             try {
-                proofCenter.apply((RuleApplication) selected);
-            } catch (ProofException e1) {
+                
+                MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
+                
+                // collect the user instantiations
+                for (Pair<SchemaVariable, ? extends JTextComponent> pair : interactionList) {
+                    SchemaVariable schemaVar = pair.fst();
+                    Term term = TermMaker.makeAndTypeTerm(pair.snd().getText(), env, "User input for " + schemaVar, schemaVar.getType());
+                    
+                    assert schemaVar.getType().equals(term.getType());
+                    
+                    app.getSchemaVariableMapping().put(schemaVar.getName(), term);
+                }
+                
+                proofCenter.apply(app);
+            } catch (ProofException ex) {
                 // TODO gescheite Fehlerausgabe
-                e1.printStackTrace();
+                ex.printStackTrace();
+            } catch (ParseException ex) {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
+            } catch (ASTVisitException ex) {
+                // TODO Auto-generated catch block
+                ex.printStackTrace();
             }
         }
     }
 
-    @Override
     public void update(Observable o, Object arg) {
         assert o == proofCenter.getProof();
         ProofNode proofNode = (ProofNode) arg;

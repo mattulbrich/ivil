@@ -1,17 +1,19 @@
 package de.uka.iti.pseudo.proof;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.term.Type;
 
 // TODO Documentation needed
 public interface RuleApplication {
 
     public Rule getRule();
+    
+    public boolean isMutable();
 
     public int getGoalNumber();
 
@@ -19,16 +21,11 @@ public interface RuleApplication {
 
     public List<TermSelector> getAssumeSelectors();
 
-    public Collection<String> getSchemaVariableNames();
+    public Map<String, Term> getSchemaVariableMapping();
 
-    public Term getTermInstantiation(String schemaVariableName);
+    public Map<String, Modality> getSchemaModalityMapping();
     
-    public Collection<String> getSchemaModalityNames();
+    public Map<String, Type> getTypeVariableMapping();
 
-    public Modality getModalityInstantiation(String schemaModalityName);
-
-    public String getWhereProperty(String key);
-
-    public Collection<String> getWherePropertyNames();
-
+    public Map<String, String> getProperties();
 }

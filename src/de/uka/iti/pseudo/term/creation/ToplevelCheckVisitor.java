@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.Stack;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.MetaFunction;
+import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -29,6 +31,7 @@ import de.uka.iti.pseudo.term.Variable;
  * <li>no schema modality is present
  * <li>no schema variable is present as subterm
  * <li>no schema variable is bound in a binding
+ * <li>no meta function appears
  * </ul>
  * 
  * There may be free type variables (as in for instance)
@@ -68,6 +71,14 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         allowedVariables.push((Variable) binding.getVariable());
         super.visit(binding);
         allowedVariables.pop();
+    }
+    
+    public void visit(Application application) throws TermException {
+
+        if(application.getFunction() instanceof MetaFunction)
+            throw new TermException("Top level term contains meta function " + application);
+        
+        super.visit(application);
     }
 
 }

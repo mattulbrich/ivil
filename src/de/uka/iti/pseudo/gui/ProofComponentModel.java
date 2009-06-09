@@ -36,35 +36,35 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 children = EMPTY_VECTOR;
         }
 
-        @Override public Enumeration<?> children() {
+        public Enumeration<?> children() {
             expand();
             return children.elements();
         }
 
-        @Override public boolean getAllowsChildren() {
+        public boolean getAllowsChildren() {
             return true;
         }
 
-        @Override public TreeNode getChildAt(int childIndex) {
+        public TreeNode getChildAt(int childIndex) {
             expand();
             return children.elementAt(childIndex);
         }
 
-        @Override public int getChildCount() {
+        public int getChildCount() {
             expand();
             return children.size();
         }
 
-        @Override public int getIndex(TreeNode node) {
+        public int getIndex(TreeNode node) {
             expand();
             return children.indexOf(node);
         }
 
-        @Override public TreeNode getParent() {
+        public TreeNode getParent() {
             return parent;
         }
 
-        @Override public boolean isLeaf() {
+        public boolean isLeaf() {
             expand();
             return children.isEmpty();
         }

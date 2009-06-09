@@ -1,6 +1,6 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Properties;
+import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.rule.RuleException;
@@ -42,7 +42,7 @@ public class Interactive extends SimpleWhereCondition {
 
     @Override 
     public void verify(Term[] formalArguments,
-            Term[] actualArguments, Properties properties) throws RuleException {
+            Term[] actualArguments, Map<String, String> properties) throws RuleException {
         // any instantiation is good enough for an interactive application
     }
     

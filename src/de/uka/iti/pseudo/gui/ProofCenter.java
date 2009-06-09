@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 
 // the center of this all
@@ -103,6 +104,7 @@ public class ProofCenter implements TermSelectionListener {
 
     public void apply(RuleApplication ruleApp) throws ProofException {
         ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
+        
         proof.apply(ruleApp, env);
         
         // next to select is first child (or self if no children)
@@ -114,5 +116,15 @@ public class ProofCenter implements TermSelectionListener {
             next = parent;
         }
         fireSelectedProofNode(next);
+    }
+
+    /**
+     * go over all "replace" and "add" statements and remove the 
+     * meta functions. This needs to be done 
+     * @param ruleApp
+     */
+    private void preApply(RuleApplication ruleApp) {
+        TermInstantiator inst = new TermInstantiator(ruleApp);
+        
     }
 }

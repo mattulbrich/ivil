@@ -22,9 +22,19 @@ package de.uka.iti.pseudo.term;
 
 public class TypeVariable extends Type {
 
-    private String typeVar;
+    /** 
+     * a predefined type variable for convenience 
+     */
+    public final static TypeVariable ALPHA = new TypeVariable("a");
+    
+    /** 
+     * a second predefined type variable for convenience 
+     */
+    public final static TypeVariable BETA = new TypeVariable("b");
     
     public static final String VARIANT_PREFIX = "#";
+    
+    private String typeVar;
     
     public TypeVariable(String typeVar) {
     	this.typeVar = typeVar;

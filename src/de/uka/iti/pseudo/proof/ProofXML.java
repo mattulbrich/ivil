@@ -40,8 +40,8 @@ public class ProofXML {
         
         // allow the where clauses to possibly drop additional stuff
         RuleApplication ra = null;
-        for (String key : ra.getWherePropertyNames()) {
-            System.out.println(ra.getWhereProperty(key));
+        for (String key : ra.getProperties().keySet()) {
+            System.out.println(ra.getProperties().get(key));
         }
         return null;
     }

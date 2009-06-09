@@ -13,7 +13,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
 

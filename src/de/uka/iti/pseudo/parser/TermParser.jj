@@ -62,12 +62,14 @@ TOKEN :
 | < ASSIGN: ":=" >
 
 // Identifiers
-| < BINDERIDENTIFIER: "\\" <IDENTIFIER> >
-| < TYVARIDENTIFIER: "'" <IDENTIFIER> >
-| < SCHEMAIDENTIFIER: "%" <IDENTIFIER> >
-| < SCHEMAMODIDENTIFIER: "&" <IDENTIFIER> >
+| < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
+| < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+| < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
+| < SCHEMAMOD_IDENTIFIER: "&" <IDENTIFIER> >
+| < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
+| < META_IDENTIFIER: "$$" <IDENTIFIER> >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
-| < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 
 // Literals
 | < NUMBERLITERAL: ( ["0" - "9"] )+ >
@@ -146,9 +148,9 @@ ASTBinderTerm BinderTerm():
   List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
 }
 {
-        binderToken = <BINDERIDENTIFIER>
+        binderToken = <BINDER_IDENTIFIER>
         
-        ( varToken=<IDENTIFIER> | varToken=<SCHEMAIDENTIFIER> )
+        ( varToken=<IDENTIFIER> | varToken=<SCHEMA_IDENTIFIER> )
         ( "as" type = TypeRef() )?
         ( ";" t=Term() { subterms.add(t); } )+
    { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
@@ -169,7 +171,7 @@ ASTType TypeRef():
 		)?
 		{ return new ASTTypeApplication(token, args); }
 	|
-		token = <TYVARIDENTIFIER>
+		token = <TYVAR_IDENTIFIER>
 		{ return new ASTTypeVar(token); }
 }
 
@@ -181,7 +183,7 @@ ASTTerm ApplicationTerm():
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
 }
 {
-        symbol=<IDENTIFIER>
+        (symbol=<IDENTIFIER> | symbol=<META_IDENTIFIER> | symbol=<INTERNAL_IDENTIFIER>)
         
         ( /* parentheses are not empty, constants dont have them */ 
           "("
@@ -202,7 +204,7 @@ ASTTerm OpIdentifier():
   Token t;
 }
 {
-        t=<OPIDENTIFIER> 
+        t=<OP_IDENTIFIER> 
   { return new ASTOperatorIdentifierTerm(t); }
 }
 
@@ -220,7 +222,7 @@ ASTSchemaVariableTerm SchemaVariable():
 	Token t;
 }
 {
-        t=<SCHEMAIDENTIFIER>
+        t=<SCHEMA_IDENTIFIER>
   { return new ASTSchemaVariableTerm(t); }
 }
 
@@ -255,6 +257,6 @@ ASTModality Modality():
             { return new ASTModIf(t, term, mod, mod2); }
         | t="skip"
             { return new ASTModSkip(t); }
-        | id=<SCHEMAMODIDENTIFIER>
+        | id=<SCHEMAMOD_IDENTIFIER>
             { return new ASTModSchema(id); }
 }

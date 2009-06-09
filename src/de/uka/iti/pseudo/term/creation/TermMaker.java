@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.istack.internal.Nullable;
+
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -58,6 +60,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 
@@ -160,7 +163,41 @@ public class TermMaker implements ASTVisitor {
      *             thrown on error during AST traversal.
      */
     public static @NonNull Term makeAndTypeTerm(@NonNull String content,
-            @NonNull Environment env, @NonNull String context)
+            @NonNull Environment env, @NonNull String context) 
+            throws ParseException, ASTVisitException {
+        return makeAndTypeTerm(content, env, context, null);
+    }
+    
+    
+    /**
+     * Make a term from a string.
+     * 
+     * A parser is created, a term is parsed the AST is then subjected to a
+     * {@link TypingResolver} visitor that infers the necessary typing
+     * information. An instance of this class then creates a {@link Term} object
+     * out of the AST.
+     * 
+     * <p>The resulting term is typed as targetType. If this is not possible, an
+     * exception is thrown.
+     * 
+     * @param content
+     *            the string to parse
+     * @param env
+     *            the environment
+     * @param context
+     *            the context name to be reported as file name to the parser
+     * @param targetType
+     *            the target type of the whole term.
+     * 
+     * @return a term representing the string, it has type targetType
+     * 
+     * @throws ParseException
+     *             thrown by the parser
+     * @throws ASTVisitException
+     *             thrown on error during AST traversal.
+     */
+    public static @NonNull Term makeAndTypeTerm(@NonNull String content,
+            @NonNull Environment env, @NonNull String context, @Nullable Type targetType)
             throws ParseException, ASTVisitException {
         
         TermParser parser = new TermParser(content, context, 1, 1);
@@ -174,7 +211,14 @@ public class TermMaker implements ASTVisitor {
         TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
         ast.visit(typingResolver);
         ast = (ASTTerm) head.getWrappedElement();
-
+        
+        try {
+            if(targetType != null)
+                typingResolver.getTypingContext().solveConstraint(ast.getTyping().getRawType(), targetType);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("cannot type term as " + targetType, ast, e);
+        }
+        
         // ast.dumpTree();
 
         TermMaker termMaker = new TermMaker(env);

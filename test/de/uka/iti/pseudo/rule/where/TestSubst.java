@@ -7,7 +7,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestSubst extends TestCaseWithEnv {
-
+/*
     public void testTrySubst() throws Exception {
         Subst subst = new Subst();
 
@@ -62,4 +62,5 @@ public class TestSubst extends TestCaseWithEnv {
         }
 
     }
+    */
 }
