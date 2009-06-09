@@ -2,6 +2,10 @@ package de.uka.iti.pseudo.parser;
 
 public interface ASTLocatedElement {
     
-    public String getLocation();
+    ASTLocatedElement BUILTIN = new ASTLocatedElement() {
+		public String getLocation() { return "#builtin"; }   	
+    };
+
+	public String getLocation();
     
 }

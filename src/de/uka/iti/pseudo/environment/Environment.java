@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 
@@ -13,9 +15,28 @@ public class Environment {
     private Map<String, Sort> sortMap = new HashMap<String, Sort>();
     private Map<String, Function> functionMap = new HashMap<String, Function>();
     private Map<String, Binder> binderMap = new HashMap<String, Binder>();
-    private Map<String, InfixOperator> infixMap = new HashMap<String, InfixOperator>();
+    private Map<String, FixOperator> infixMap = new HashMap<String, FixOperator>();
+    private Map<String, FixOperator> prefixMap = new HashMap<String, FixOperator>();
+    
+    
+    public Environment() {
+    	addBuiltIns();
+    }
 
-    public void addSort(Sort sort) throws EnvironmentException {
+    private void addBuiltIns() {
+    	try {
+			addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
+			addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
+		} catch (EnvironmentException e) {
+			throw new Error("Fatal during creation of interal elements", e);
+		}
+	}
+
+    
+    //
+    // Sorts
+    // 
+	public void addSort(Sort sort) throws EnvironmentException {
         String name = sort.getName();
         Sort existing = getSort(name);
         
@@ -31,6 +52,18 @@ public class Environment {
     public Sort getSort(String name) {
         return sortMap.get(name);
     }
+    
+    public Sort getSortInt() {
+    	return getSort("int");
+    }
+    
+    public Sort getSortBool() {
+    	return getSort("bool");
+    }
+    
+    //
+    // Functions
+    //
 
     public void addFunction(Function function) throws EnvironmentException {
         String name = function.getName();
@@ -51,6 +84,20 @@ public class Environment {
     
     public Function getFunction(String name) {
         return functionMap.get(name);
+    }
+    
+    public Function getNumberLiteral(String numberliteral) {
+    	Function retval = getFunction(numberliteral);
+    	if(retval == null) {
+    		try {
+				retval = new Function(numberliteral, mkType("int"), new Type[0], 
+								true, ASTLocatedElement.BUILTIN);
+				addFunction(retval);
+			} catch (Exception e) {
+				throw new Error("Fatal while creating number constant for " + numberliteral, e);
+			}
+    	}
+    	return retval;
     }
 
     /**
@@ -93,11 +140,40 @@ public class Environment {
 
 
 
-    public void addInfixOperator(InfixOperator infixOperator) {
-        // DOC
-        // TODO Auto-generated method stub
-
+    public void addInfixOperator(FixOperator infixOperator) throws EnvironmentException {
+    	FixOperator existing = getInfixOperator(infixOperator.getOpIdentifier());
+    	
+    	if(existing != null) {
+            throw EnvironmentException.definedTwice("Infix operator " + infixOperator.getOpIdentifier(), 
+                    existing.getDeclaration(),
+                    infixOperator.getDeclaration());
+        }
+    	
+    	infixMap.put(infixOperator.getOpIdentifier(), infixOperator);
     }
+    
+	public FixOperator getInfixOperator(String opSymb) {
+		return infixMap.get(opSymb);
+	}
+	
+    public void addPrefixOperator(FixOperator prefixOperator) throws EnvironmentException {
+    	FixOperator existing = getPrefixOperator(prefixOperator.getOpIdentifier());
+    	
+    	if(existing != null) {
+            throw EnvironmentException.definedTwice("Prefix operator " + prefixOperator.getOpIdentifier(), 
+                    existing.getDeclaration(),
+                    prefixOperator.getDeclaration());
+        }
+    	
+    	prefixMap.put(prefixOperator.getOpIdentifier(), prefixOperator);
+    }
+
+	
+	public FixOperator getPrefixOperator(String opSymb) {
+		return prefixMap.get(opSymb);
+	}
+
+
 
     public void addBinder(Binder binder) throws EnvironmentException {
         String name = binder.getName();
@@ -121,7 +197,7 @@ public class Environment {
         return binderMap.get(name);
     }
 
-    public Type mkType(String name, Type[] domTy) throws EnvironmentException {
+    public Type mkType(String name, Type... domTy) throws EnvironmentException, TermException {
         // DOC
         
         Sort sort = getSort(name);
@@ -129,7 +205,7 @@ public class Environment {
         if(sort == null) {
             throw new EnvironmentException("Sort " + name + " unknown");
         }
-        
+             
         return new TypeApplication(sort, domTy);
     }
 
@@ -150,10 +226,17 @@ public class Environment {
             System.out.println("  " + infixMap.get(name));
         }
         
+        System.out.println("Prefix Functions:");
+        for (String name : prefixMap.keySet()) {
+            System.out.println("  " + prefixMap.get(name));
+        }
+        
         System.out.println("Binders:");
         for (String name : binderMap.keySet()) {
             System.out.println("  " + binderMap.get(name));
         }
     }
+
+
 
 }

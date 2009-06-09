@@ -4,27 +4,28 @@ import java.util.Collections;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTNumberLiteralTerm extends ASTTerm {
-    
-    private Token numberToken;
+public class ASTOperatorIdentifierTerm extends ASTTerm {
 
-    public ASTNumberLiteralTerm(Token t) {
+    private Token symbol;
+
+    public ASTOperatorIdentifierTerm(Token symbol) {
         super(Collections.<ASTTerm>emptyList());
-        numberToken = t;
+        this.symbol = symbol;
     }
     
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
+
+    public final Token getSymbol() {
+        return symbol;
+    }
     
     @Override
 	protected Token getLocationToken() {
-    	return numberToken;
+    	return symbol;
 	}
 
-	public Token getNumberToken() {
-		return numberToken;
-	}
-    
+
 }

@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.environment;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.term.Type;
 
@@ -11,15 +12,17 @@ public class Function {
 
     private Type argumentTypes[];
     
-    private ASTFunctionDeclaration declaration;
+    private boolean unique;
+    
+    private ASTLocatedElement declaration;
 
     public Function(String name, Type resultType,
-            Type[] argumentTypes, ASTFunctionDeclaration declaration) {
-        super();
+            Type[] argumentTypes, boolean unique, ASTLocatedElement declaration) {
         this.name = name;
         this.resultType = resultType;
         this.argumentTypes = argumentTypes;
         this.declaration = declaration;
+        this.unique = unique;
     }
 
     public String getName() {
@@ -34,7 +37,7 @@ public class Function {
         return argumentTypes;
     }
 
-    public ASTFunctionDeclaration getDeclaration() {
+    public ASTLocatedElement getDeclaration() {
         return declaration;
     }
     
@@ -45,5 +48,9 @@ public class Function {
         }
         return ret + "]";
     }
+
+	public boolean isUnique() {
+		return unique;
+	}
 
 }

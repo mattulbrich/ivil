@@ -6,8 +6,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTBinderDeclaration extends ASTFileElement implements
-        ASTLocatedElement {
+public class ASTBinderDeclaration extends ASTFileElement {
 
     private ASTType variableType;
 
@@ -49,11 +48,6 @@ public class ASTBinderDeclaration extends ASTFileElement implements
         return name;
     }
 
-    public String getLocation() {
-        return getFileName() + ":" + name.beginLine;
-    }
-
-	@Override
 	protected Token getLocationToken() {
 		return name;
 	}

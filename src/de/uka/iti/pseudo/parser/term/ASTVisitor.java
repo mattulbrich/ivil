@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.term.ASTFixTerm;
 
 public interface ASTVisitor {
 
@@ -27,5 +28,9 @@ public interface ASTVisitor {
 	void visit(ASTNumberLiteralTerm numberLiteralTerm) throws ASTVisitException;
 
 	void visit(ASTTypeRef typeRef) throws ASTVisitException;
+
+	void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm) throws ASTVisitException;
+
+	void visit(ASTFixTerm infixTerm) throws ASTVisitException;
 
 }

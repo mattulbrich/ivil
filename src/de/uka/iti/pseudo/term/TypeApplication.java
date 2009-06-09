@@ -9,7 +9,15 @@ public class TypeApplication extends Type {
     private Type[] typeParamters;
     private Sort sort;
     
-    public TypeApplication(Sort sort, Type[] typeParameters) {
+    public TypeApplication(Sort sort, Type[] typeParameters) throws TermException {
+    	
+    	assert typeParameters != null;
+    	assert sort != null;
+    	
+    	if(sort.getArity() != typeParameters.length)
+    		throw new TermException("Sort " + sort.getName() + " expects " + sort.getArity() +
+    				" parameters, but received " + typeParameters.length);
+    	
         this.sort = sort;
         this.typeParamters = typeParameters;
     }
@@ -24,7 +32,7 @@ public class TypeApplication extends Type {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("!").append(sort.getName());
+        sb.append(sort.getName());
         for (int i = 0; i < typeParamters.length; i++) {
             sb.append(i == 0 ? "(" : ",");
             sb.append(typeParamters[i]);

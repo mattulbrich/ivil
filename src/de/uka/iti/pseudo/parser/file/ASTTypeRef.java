@@ -29,11 +29,6 @@ public class ASTTypeRef extends ASTType {
         return typeToken;
     }
 
-    public String getLocation() {
-        return getFileName() + ":" + typeToken.beginLine;
-    }
-    
-    @Override
 	protected Token getLocationToken() {
 		return typeToken;
 	}

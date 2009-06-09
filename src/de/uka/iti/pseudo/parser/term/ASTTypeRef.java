@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.term;
 
+import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -16,7 +17,15 @@ public class ASTTypeRef extends ASTElement {
         addChildren(argumentTypeRefs);
     }
     
-    @Override
+    public Token getTypeToken() {
+		return token;
+	}
+
+	public List<ASTTypeRef> getArgumentTypeRefs() {
+		return Collections.unmodifiableList(argumentTypeRefs);
+	}
+
+	@Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }

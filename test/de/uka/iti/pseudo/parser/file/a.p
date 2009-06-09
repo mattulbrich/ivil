@@ -1,6 +1,6 @@
-sort
-        bool 
-        int
+#sort
+#        bool   built in  
+#        int    built in
         
 function
 		'a cond(bool, 'a, 'a)
@@ -15,8 +15,12 @@ function  # infixes
         bool $or(bool, bool)    infix |  30 
         bool $impl(bool, bool)  infix ->  20 
         bool $equiv(bool, bool) infix <->  10 
+        
+function  # prefixes
+        int $neg(int)           prefix -
+        bool $not(bool)         prefix !         
 
-function # consts
+function  # consts
         bool true
         bool false
 
@@ -26,11 +30,11 @@ binder
         int (\sum int; int; int; int)
         'a (\some 'a; bool)
 
-rule forAllRight
-        find  |- { (\forall %x; %b) }
-        replace { (\subst %x; c; %b) }
+#rule forAllRight
+#        find  |- { (\forall %x; %b) }
+#        replace { (\subst %x; c; %b) }
 
-rule andRight
-        find  |- {%b & %c}
-        replace {%b}
-        replace {%c}
+#rule andRight
+#        find  |- {%b & %c}
+#        replace {%b}
+#        replace {%c}

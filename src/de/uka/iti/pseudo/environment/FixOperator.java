@@ -2,21 +2,21 @@ package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 
-public class InfixOperator {
+public class FixOperator {
 
     private String name;
 
-    private String infixOpName;
+    private String opIdentifier;
 
     private int precedence;
 
     private ASTFunctionDeclaration declaration;
 
-    public InfixOperator(String name, String infixOpName, int precedence,
+    public FixOperator(String name, String opIdentifier, int precedence,
             ASTFunctionDeclaration declaration) {
         super();
         this.name = name;
-        this.infixOpName = infixOpName;
+        this.opIdentifier = opIdentifier;
         this.precedence = precedence;
         this.declaration = declaration;
     }
@@ -25,8 +25,8 @@ public class InfixOperator {
         return name;
     }
 
-    public String getInfixOpName() {
-        return infixOpName;
+    public String getOpIdentifier() {
+        return opIdentifier;
     }
 
     public int getPrecedence() {
@@ -39,7 +39,7 @@ public class InfixOperator {
     
     @Override
     public String toString() {
-        return "InfixOperator[infix: " +infixOpName + ";prefix: " + name + ";precedence: " +precedence +"]"; 
+        return "FixOperator[op: " +opIdentifier + "; function: " + name + "; precedence: " +precedence +"]"; 
     }
 
 }

@@ -46,6 +46,8 @@ TOKEN :
 | < FUNCTION: "function" >
 | < BINDER: "binder" >
 | < INFIX: "infix" >
+| < PREFIX: "prefix" >
+| < UNIQUE: "unique" >
 | < PROBLEM: "problem" >
 | < RULE: "rule" >
 | < FIND: "find" >
@@ -70,7 +72,7 @@ TOKEN :
 | < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/"] )+ >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
 //| < OTHER: ["\u0000"-"\uFFFF"] >
@@ -96,7 +98,7 @@ ASTFile File():
         )   { blocks.add(block); }
        )*
        
-       ( problem=RawTerm() )?
+       ( "problem" problem=RawTerm() )?
        
        <EOF>
        
@@ -153,9 +155,10 @@ ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
-  Token name, as = null, infix = null;
+  Token name, as = null, fix = null, precedence = null;
   ASTType range, ty;
-  List<ASTType> tyrefs = new ArrayList<ASTType>(); 
+  List<ASTType> tyrefs = new ArrayList<ASTType>();
+  boolean unique = false;
 }
 {
         range=TypeReference()
@@ -169,12 +172,15 @@ ASTFunctionDeclaration FunctionDeclaration():
         )?
         
         (
-          "infix" ( as=<IDENTIFIER> | as=<OP_IDENTIFIER> )  infix=<NATURAL>
+          fix="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+        |
+          fix="prefix" as=<OP_IDENTIFIER>
         )?
-    { if(infix==null)
-        return new ASTFunctionDeclaration(range, name, tyrefs);
-      else
-        return new ASTFunctionDeclaration(range, name, tyrefs, as, infix);
+        
+        ( "unique" { unique=true; } )?
+
+    { 
+      return new ASTFunctionDeclaration(range, name, tyrefs, unique, fix, as, precedence);
     }
 }
 

@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.environment;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 
 public class Sort {
@@ -8,9 +9,9 @@ public class Sort {
 
     private int arity;
 
-    private ASTSortDeclaration declaration;
+    private ASTLocatedElement declaration;
 
-    public Sort(String name, int arity, ASTSortDeclaration declaration) {
+    public Sort(String name, int arity, ASTLocatedElement declaration) {
         super();
         this.name = name;
         this.arity = arity;
@@ -25,7 +26,7 @@ public class Sort {
         return arity;
     }
 
-    public ASTSortDeclaration getDeclaration() {
+    public ASTLocatedElement getDeclaration() {
         return declaration;
     }
     

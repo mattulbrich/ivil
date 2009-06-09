@@ -14,24 +14,29 @@ public class ASTFunctionDeclaration extends ASTFileElement {
 
     private Token precedence;
 
-    private Token infixOperator;
+    private Token fixity;
 
     private Token name;
+    
+    private boolean unique;
+
+	private Token operatorIdentifier;
 
     public ASTFunctionDeclaration(ASTType range, Token name,
-            List<ASTType> tyrefs) {
-        this.rangeType = range;
-        this.argumentTypes = tyrefs;
-        this.name = name;
-        addChild(range);
-        addChildren(tyrefs);
+            List<ASTType> tyrefs, boolean unique) {
+    	this(range, name, tyrefs, unique, null, null, null);
     }
 
     public ASTFunctionDeclaration(ASTType range, Token name,
-            List<ASTType> tyrefs, Token infixOperator, Token precedence) {
-        this(range, name, tyrefs);
-        this.infixOperator = infixOperator;
-        this.precedence = precedence;
+            List<ASTType> tyrefs, boolean unique, Token fixOperator, Token operatorIdentifier, Token precedence) {
+    	this.rangeType = range;
+    	this.argumentTypes = tyrefs;
+    	this.name = name;
+    	this.fixity = fixOperator;
+    	this.operatorIdentifier = operatorIdentifier;
+    	this.precedence = precedence;
+    	addChild(range);
+    	addChildren(tyrefs);
     }
 
     public void visit(ASTFileVisitor v) throws ASTVisitException {
@@ -50,20 +55,28 @@ public class ASTFunctionDeclaration extends ASTFileElement {
         return precedence;
     }
 
-    public Token getInfixOperator() {
-        return infixOperator;
-    }
-
     public Token getName() {
         return name;
     }
 
     public boolean isInfix() {
-        return infixOperator != null;
+        return fixity != null && fixity.image.equals("infix");
+    }
+    
+    public boolean isPrefix() {
+        return fixity != null && fixity.image.equals("prefix");
     }
 
-    public Token getLocationToken() {
+    public Token getOperatorIdentifier() {
+		return operatorIdentifier;
+	}
+
+	public Token getLocationToken() {
         return name;
     }
+
+	public boolean isUnique() {
+		return unique;
+	}
 
 }
