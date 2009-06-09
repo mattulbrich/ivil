@@ -10,12 +10,10 @@ package de.uka.iti.pseudo.term;
 
 import java.util.Collection;
 
-import de.uka.iti.pseudo.term.creation.TypingContext;
-
 public abstract class Type {
 
     public abstract void collectTypeVariables(Collection<String> coll);
 
-    public abstract Type visit(TypeVisitor visitor);
+    public abstract Type visit(TypeVisitor visitor) throws TermException;
 
 }

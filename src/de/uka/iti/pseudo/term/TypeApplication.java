@@ -59,7 +59,7 @@ public class TypeApplication extends Type {
     }
     
     @Override
-    public Type visit(TypeVisitor visitor) {
+    public Type visit(TypeVisitor visitor) throws TermException {
         return visitor.visit(this);
     }
 

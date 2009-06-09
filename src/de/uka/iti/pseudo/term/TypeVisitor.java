@@ -4,6 +4,6 @@ public interface TypeVisitor {
 
     Type visit(TypeApplication typeApplication) throws TermException;
     
-    Type visit(TypeVariable typeVariable);
+    Type visit(TypeVariable typeVariable) throws TermException;
 
 }
