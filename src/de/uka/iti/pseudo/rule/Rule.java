@@ -24,6 +24,15 @@ public class Rule {
 
     private ASTLocatedElement location;
     
+    /**
+     * gets a property. Properties are specified using the "tag" keyword in
+     * environments. If the property is not set, null is returned. If the
+     * property has been defined without a value, an empty string "" is returned
+     * 
+     * @param string
+     *            name of the property to retrieve
+     * @return the property if it is defined, null otherwise
+     */
     public String getProperty(String string) {
         return properties.get(string);
     }

@@ -124,7 +124,6 @@ public class Environment {
             addFunction(new Function("true", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("false", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             Class<SubstMetaFunction> s = SubstMetaFunction.class;
-            Class c = s.getSuperclass();
             for (MetaFunction metaFunction : MetaFunction.SERVICES) {
                 addFunction(metaFunction);
             }
@@ -635,9 +634,13 @@ public class Environment {
             rule = parentEnvironment.getRule(name);
         return rule;
     }
-    
+
     /**
-     * get a list of all defined rules including those defined in a parent environment.
+     * get a list of all defined rules including those defined in a parent
+     * environment.
+     * 
+     * The result is a freshly created list which can be modified if you
+     * wish.
      * 
      * @return a freshly created list of rules.
      */

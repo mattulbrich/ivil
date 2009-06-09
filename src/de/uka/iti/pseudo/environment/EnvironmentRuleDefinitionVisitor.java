@@ -128,11 +128,11 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
                     Token token = prop.snd();
                     String value;
                     if(token != null)
-                        value = token.image;
+                        value = Util.stripQuotes(token.image);
                     else
                         value = "";
                     
-                    properties.put(prop.fst().image, Util.stripQuotes(value));
+                    properties.put(prop.fst().image, value);
                 }
                 Token description = arg.getDescription();
                 if(description != null)

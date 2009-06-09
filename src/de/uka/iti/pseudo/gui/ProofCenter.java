@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.gui;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import de.uka.iti.pseudo.term.Sequent;
 // the center of this all
 //TODO DOC
 public class ProofCenter implements TermSelectionListener {
+    
+    private static final String AUTOONLY_TAG = "autoonly";
     
     private MainWindow mainWindow;
     private Environment env;
@@ -51,6 +54,13 @@ public class ProofCenter implements TermSelectionListener {
 
     private void prepareRuleLists() {
         rulesSortedForInteraction = env.getAllRules();
+        
+        Iterator<Rule> it = rulesSortedForInteraction.iterator();
+        while (it.hasNext()) {
+            Rule rule = it.next();
+            if(rule.getProperty(AUTOONLY_TAG) != null)
+                it.remove();
+        }
         Collections.sort(rulesSortedForInteraction, new RulePriorityComparator());
         
         // other rule lists: simplifications with priority codes.

@@ -15,8 +15,8 @@ public class MyStrategy implements Strategy {
     
     private final static String[] REWRITE_CATEGORIES = {
         "concrete",
-        "prop simp",
-        "symbolic execution"
+        "prop simp"
+        // "symbex"
     };
     
     private RewriteRuleCollection ruleCollections[];
@@ -33,8 +33,10 @@ public class MyStrategy implements Strategy {
         List<ProofNode> openGoals = proof.getOpenGoals();
         for (int i = 0; i < openGoals.size(); i++) {
             RuleApplicationMaker ram = findRuleApplication(openGoals.get(i).getSequent());
-            if(ram != null)
+            if(ram != null) {
+                ram.setGoalNumber(i);
                 return ram;
+            }
         }
         
         return null;

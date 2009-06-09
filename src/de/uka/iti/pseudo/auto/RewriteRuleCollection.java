@@ -70,6 +70,13 @@ public class RewriteRuleCollection {
             return false;
         }
         
+        if(rule.getWhereClauses().size() > 0) {
+            System.err.println("Rule " + rule.getName() + 
+                    " A rewrite rule must not have where clauses (" + 
+                    rule.getDeclaration() + ")");
+            return false;
+        }
+        
         return true;
     }
 
@@ -162,7 +169,7 @@ public class RewriteRuleCollection {
                     ram.setTermUnification(mc);
                     return ram;
                 }
-                    
+                System.out.println("Tried: " + rule.getName() + " on " + term);
             }
         }
         return null;
