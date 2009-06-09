@@ -18,12 +18,56 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.Token;
+import de.uka.iti.pseudo.util.NonNull;
 import de.uka.iti.pseudo.util.Pair;
 
+/**
+ * The Class ShuntingYard encapsulates a static method to perform the shunting
+ * yard algorithm. It is described in
+ * {@linkplain http://en.wikipedia.org/wiki/Shunting_yard_algorithm}. This
+ * version here supports also prefix operators.
+ * 
+ * There are two stacks: One for operators, one for data.
+ * 
+ * When a new operator has been found, the stack is reduced by those operators
+ * that have higher precedence. They are contracted to new Objects.
+ * 
+ * The algorithm operates on a {@link ASTListTerm} and creates a nested
+ * {@link ASTFixTerm} as a result. The filename attribute is set in the result.
+ * 
+ * @author mattias ulbrich
+ * 
+ */
 public class ShuntingYard {
     
-    // TODO
-    
+    /**
+	 * Reduce the operator stack by those operations that have higher (or equal)
+	 * priority than a threshold.
+	 * 
+	 * <pre>
+	 * while precedence(op_stack.peek() &gt;= threshold)
+	 *    op_stack.pop()
+	 *    if op is unary
+	 *       pop value vom term stack
+	 *       wrap it in a ASTFixTerm with op
+	 *       push it on the term stack again
+	 *    else (binary)
+	 *       pop two values from term stack
+	 *       wrap them into a ASTFixTerm with op
+	 *       push it on the term stack again
+	 *    end
+	 * end
+	 * </pre>
+	 * 
+	 * @param threshold
+	 *            the threshold for the flushing
+	 * @param opStack
+	 *            the operator stack
+	 * @param termStack
+	 *            the term stack
+	 * @param env
+	 *            the environment to extract information about fix operators.
+	 */
     private static void flushStack(int threshold, 
             Stack<Pair<Token, FixOperator>> opStack,
             Stack<ASTTerm> termStack,
@@ -52,7 +96,45 @@ public class ShuntingYard {
         
     }
     
-    public static ASTTerm shuntingYard(Environment env, ASTListTerm listTerm) throws ASTVisitException {
+    /**
+	 * The shunting yard algorithm to convert an infix term construction into a AST.
+	 * 
+	 * <pre>
+	 * expect := operand
+	 * foreach symbol
+	 *   if expect operator
+	 *     get operator op
+	 *     flushStack(op.precedence)
+	 *     push operator
+	 *     expect := operand
+	 *   end
+	 *   if expect operand
+	 *     if prefix operator
+	 *       push operator
+	 *     else
+	 *       push value
+	 *   end
+	 * end
+	 * 
+	 * flushStack(0);
+	 * return termStack.peek();
+	 * </pre>
+	 * 
+	 * @param env
+	 *            the environment to retrieve fix information, non-null 
+	 * @param listTerm
+	 *            the term that is to be converted, non-null
+	 * 
+	 * @return the translated term, non-null
+	 * 
+	 * @throws ASTVisitException
+	 *             in case of a not-found operator or a syntactical error.
+	 */
+    @NonNull public static ASTTerm shuntingYard(@NonNull Environment env, @NonNull ASTListTerm listTerm) throws ASTVisitException {
+    	
+    	assert env != null;
+    	assert listTerm != null;
+    	
         Stack<Pair<Token, FixOperator>> opStack =
             new Stack<Pair<Token,FixOperator>>();
         Stack<ASTTerm> termStack =
@@ -110,6 +192,8 @@ public class ShuntingYard {
         
         ASTTerm term = termStack.pop();
         term.setFilename(listTerm.getFileName());
+        
+        assert term != null;
         
         return term;
     }
