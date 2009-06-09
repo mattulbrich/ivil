@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTSortDeclaration extends ASTFileElement {
 
 	private List<Token> typeVariables;
@@ -21,7 +23,7 @@ public class ASTSortDeclaration extends ASTFileElement {
 		return name;
 	}
 
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 

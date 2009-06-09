@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.parser.file;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTTypeRef extends ASTType {
 
 	private List<ASTType> argTypes;
@@ -14,7 +16,7 @@ public class ASTTypeRef extends ASTType {
 		addChildren(args);
 	}
 
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 

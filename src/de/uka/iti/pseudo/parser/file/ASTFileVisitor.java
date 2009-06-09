@@ -1,33 +1,39 @@
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public interface ASTFileVisitor {
 
-	public void visit(ASTFile file);
+	public void visit(ASTFile file) throws ASTVisitException;
 
-	public void visit(ASTIncludeDeclarationBlock includeDeclarationBlock);
+	public void visit(ASTIncludeDeclarationBlock includeDeclarationBlock) throws ASTVisitException;
 
-	public void visit(ASTSortDeclarationBlock sortDeclarationBlock);
+	public void visit(ASTSortDeclarationBlock sortDeclarationBlock) throws ASTVisitException;
 
-	public void visit(ASTSortDeclaration sortDeclaration);
+	public void visit(ASTSortDeclaration sortDeclaration) throws ASTVisitException;
 
-	public void visit(ASTFunctionDeclaration functionDeclaration);
+	public void visit(ASTFunctionDeclaration functionDeclaration) throws ASTVisitException;
 
-	public void visit(ASTFunctionDeclarationBlock functionDeclarationBlock);
+	public void visit(ASTFunctionDeclarationBlock functionDeclarationBlock) throws ASTVisitException;
 
-	public void visit(ASTRawTerm rawTerm);
+	public void visit(ASTRawTerm rawTerm) throws ASTVisitException;
 
-	public void visit(ASTTypeRef typeRef);
+	public void visit(ASTTypeRef typeRef) throws ASTVisitException;
 
-	public void visit(ASTTypeVar typeVarRef);
+	public void visit(ASTTypeVar typeVarRef) throws ASTVisitException;
 
-	public void visit(ASTRule rule);
+	public void visit(ASTRule rule) throws ASTVisitException;
 
-	public void visit(ASTRuleFind ruleFind);
+	public void visit(ASTRuleFind ruleFind) throws ASTVisitException;
 
-	public void visit(ASTRuleAssume ruleAssume);
+	public void visit(ASTRuleAssume ruleAssume) throws ASTVisitException;
 
-	public void visit(ASTRuleReplace ruleReplace);
+	public void visit(ASTRuleReplace ruleReplace) throws ASTVisitException;
 
-	public void visit(ASTRuleAdd ruleAdd);
+	public void visit(ASTRuleAdd ruleAdd) throws ASTVisitException;
+
+	public void visit(ASTBinderDeclarationBlock binderDeclarationBlock) throws ASTVisitException;
+
+	public void visit(ASTBinderDeclaration binderDeclaration) throws ASTVisitException;
 
 }

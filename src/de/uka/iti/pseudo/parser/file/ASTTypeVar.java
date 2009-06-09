@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTTypeVar extends ASTType {
 
 	private Token typeVarToken;
@@ -8,7 +10,7 @@ public class ASTTypeVar extends ASTType {
 		this.typeVarToken = token;
 	}
 
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 

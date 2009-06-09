@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTRawTerm extends ASTFileElement {
 	
 	private Token termToken;
@@ -10,7 +12,7 @@ public class ASTRawTerm extends ASTFileElement {
 		assert termToken.kind == FileParser.TERM;
 	}
  
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v)  throws ASTVisitException {
 		v.visit(this);
 	}
 

@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.parser.file;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTRule extends ASTDeclarationBlock {
 
 	private Token name;
@@ -15,7 +17,7 @@ public class ASTRule extends ASTDeclarationBlock {
 		addChildren(ruleElements);
 	}
 
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 

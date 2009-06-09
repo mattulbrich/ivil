@@ -3,93 +3,96 @@ options {
         STATIC = false;
 }
 
-PARSER_BEGIN(FormulaParser)
-package de.uka.ilkd.tablet;
+PARSER_BEGIN(TermParser)
+package de.uka.iti.pseudo.parser.term;
 
 import java.util.*;
+import java.io.*;
+import de.uka.iti.pseudo.environment.InfixOperator;
+import de.uka.iti.pseudo.util.Pair;
 
 public class TermParser {
 
-  // TODO to be moved elsewhere, but keep a (non-static) reference here
-  static HashMap<String, InfixOperator> infixTable = new HashMap<String, InfixOperator>();
+    private HashMap<String, InfixOperator> infixTable = new HashMap<String, InfixOperator>();
   
-  // likewise prefix
+    TermParser() {
+        this(new StringReader(""));
+    }
   
-  static {
-     infixTable.put("+", new InfixOperator("+", "$add", 50));
-  }
+    ASTTerm shuntingYard(int prec) throws ParseException {
+        Stack<Pair<Token, InfixOperator>> opStack =
+            new Stack<Pair<Token, InfixOperator>>();
+        Stack<ASTTerm> termStack =
+            new Stack<ASTTerm>();
 
-  ASTTerm shuntingYard(int prec) throws ParserException {
-     Stack<Pair<Token, InfixOperator>> opStack;
-     Stack<Term> termStack;
-     
-     loop: while(true) {
+        loop: while (true) {
 
-        Token token = getToken(1);
+            Token token = getToken(1);
 
-        InfixOperator infixOp;
+            InfixOperator infixOp = null;
 
-        switch(token.kind) {
-        case IDENTIFIER:
-          infixOp = infixTable.get(token.image);
-          if(infixOp == null) {
-              termStack.push(ApplicationTerm());
-              continue loop;
-          }
-          break;
-          
-        case OPIDENTIFIER:
-          infixOp = infixTable.get(token.image);
-          if(infixOp == null) {
-              throw new ParserException("think up something");
-          }
-          break;
-          
-        case NUMBERLITERAL:
-          termStack.push(NumberLiteral());
-          break;
-          
-        default:
-          break loop;
+            switch (token.kind) {
+            case IDENTIFIER:
+                infixOp = infixTable.get(token.image);
+                if (infixOp == null) {
+                    termStack.push(ApplicationTerm());
+                    continue loop;
+                }
+                break;
+
+            case OPIDENTIFIER:
+                infixOp = infixTable.get(token.image);
+                if (infixOp == null) {
+                    throw new ParseException("think up something");
+                }
+                break;
+
+            case NUMBERLITERAL:
+                termStack.push(NumberLiteral());
+                break;
+
+            default:
+                break loop;
+            }
+
+            assert infixOp != null;
+
+            if (opStack.empty()
+                    || opStack.peek().snd().getPrecedence() > infixOp
+                            .getPrecedence()) {
+                opStack.push(new Pair<Token, InfixOperator>(token, infixOp));
+            } else {
+                if (termStack.size() < 2) {
+                    throw new ParseException();
+                }
+                ASTTerm t2 = termStack.pop();
+                ASTTerm t1 = termStack.pop();
+                ASTTerm result = new ASTInfixTerm(token, infixOp, t1, t2);
+                termStack.push(result);
+            }
+
+            getNextToken();
+
         }
-        
-        assert infixOp != null;
-          
-        if(opStack.empty() || opStack.peek().snd().getPrecedence() > infixOp.getPrecedence()) {
-           opStack.push(new Pair<Token, InfixOperator>(token, infixOp));
-        } else {
-           if(termStack.size() < 2) { 
-              throw new ParserException();
-           }
-           ASTTerm t2 = termStack.pop();
-           ASTTerm t1 = termStack.pop();
-           ASTTerm result = new ASTInfixTerm(token, infixOp, t1, t2);
-           termStack.push(result);
-       }
-       
-       getNextToken();
-       
-    }
-  
-    while(termStack.size() >= 2) {
-       assert !opStack.empty();
-       Pair tokenAndOp = opStack.pop();
-       ASTTerm t2 = termStack.pop();
-       ASTTerm t1 = termStack.pop();
-       ASTTerm result = new ASTInfixTerm(tokenAndOp, t1, t2);
-       termStack.push(result);
-    }
-    
-    if(termStack.empty() != 1 || !opStack().empty()) {
-       throw new ParserException();
-    }
-    
-    return termStack.pop();
-  }
 
+        while (termStack.size() >= 2) {
+            assert !opStack.empty();
+            Pair<Token, InfixOperator> tokenAndOp = opStack.pop();
+            ASTTerm t2 = termStack.pop();
+            ASTTerm t1 = termStack.pop();
+            ASTTerm result = new ASTInfixTerm(tokenAndOp, t1, t2);
+            termStack.push(result);
+        }
+
+        if (termStack.size() != 1 || !opStack.empty()) {
+            throw new ParseException();
+        }
+
+        return termStack.pop();
+    }
 }
 
-PARSER_END(FormulaParser)
+PARSER_END(TermParser)
 
 SKIP :
 {
@@ -103,8 +106,10 @@ TOKEN :
 {
 
 // Logics
-| < LEFTPAREN: "(" >
+  < LEFTPAREN: "(" >
 | < RIGHTPAREN: ")" >
+| < LEFTSQUARE: "[" >
+| < RIGHTSQUARE: "]" >
 | < COMMA: "," >
 | < SEMICOLON: ";" >
 | < DOT: "." >
@@ -119,7 +124,7 @@ TOKEN :
 
 // Programs
 | < WHILE: "while" >
-| < WHILE: "do" >
+| < DO: "do" >
 | < END: "end" >
 | < ASSIGN: ":=" >
 
@@ -129,16 +134,18 @@ TOKEN :
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 | < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/"] )+ >
 
+// Literals
+| < NUMBERLITERAL: ( ["0" - "9"] )+ >
 | < OTHER: ["\u0000"-"\uFFFF"] >
 
 }
 
 ASTTerm Term():
-{ ASTTerm term;}
+{ ASTTerm term; }
 {
         (
-          LOOKAHEAD( GeneralIdentifier() ) term = PrecedenceTerm()
-        | AtomicTerm() 
+          LOOKAHEAD( GeneralIdentifier() ) term=PrecedenceTerm()
+        | term=AtomicTerm() 
         )
    { return term; }
 }
@@ -164,29 +171,47 @@ ASTBinderTerm BinderTerm():
 }
 {
         binderToken = <BINDERIDENTIFIER>
-        type = TypeRef();
+        type = TypeRef()
         varToken = <IDENTIFIER>
         ( ";" t=Term() { subterms.add(t); } )+
    { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
 }
 
-ASTIfThenElseTerm BinderTerm():
+ASTTypeRef TypeRef():
+{
+  Token token;
+  List<ASTTypeRef> args = new ArrayList<ASTTypeRef>();
+  ASTTypeRef ty;
+}
+{
+		token = <IDENTIFIER>
+		(
+		  "(" ty=TypeRef() { args.add(ty); }
+		  		( "," ty=TypeRef() { args.add(ty); } )*
+		  ")"
+		)?
+		{ return new ASTTypeRef(token, args); }
+}
+
+
+ASTIfThenElseTerm IfThenElseTerm():
 {
   ASTTerm condTerm, thenTerm, elseTerm; 
 }
 {
         "if"
-        condTerm = Term();
+        condTerm=Term()
         "then"
-        thenTerm = Term();
+        thenTerm=Term()
         "else"
-        elseTerm = Term();
+        elseTerm=Term()
    { return new ASTIfThenElseTerm(condTerm, thenTerm, elseTerm); }
 }  
         
 ASTApplicationTerm ApplicationTerm():
 {
   Token symbol;
+  ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
 }
 {
@@ -196,6 +221,7 @@ ASTApplicationTerm ApplicationTerm():
           "("
           t = Term() { subterms.add(t); }
           ( "," t = Term() { subterms.add(t); } )*
+          ")"
         )?
         
     { return new ASTApplicationTerm(symbol, subterms); }
@@ -206,8 +232,8 @@ Token GeneralIdentifier():
   Token t;
 }
 {
-        (t=<IDENTIFIER> | t=<OPIDENTIFIER) 
-  { return getToken(); }
+        (t=<IDENTIFIER> | t=<OPIDENTIFIER>) 
+  { return t; }
 }
 
 ASTNumberLiteralTerm NumberLiteral():
@@ -225,8 +251,8 @@ ASTModalityTerm ModalityTerm():
   ASTTerm term;
 }
 {
-        modality = Modality();
-        term = Term();
+        "[" modality=Modality() "]"
+        term=Term()
   { return new ASTModalityTerm(modality, term); }
 }
 
@@ -246,7 +272,7 @@ ASTModality Modality():
 }
 
 JAVACODE ASTTerm PrecedenceTerm() {
-    return precedenceClimbing(0);
+    return shuntingYard(0);
 }
 
 

@@ -1,17 +1,18 @@
 package de.uka.iti.pseudo.parser.file;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public abstract class ASTFileElement implements Iterable<ASTFileElement> {
 	
 	private String fileName;
 	List<ASTFileElement> children; 
 
-	public abstract void visit(ASTFileVisitor v);
+	public abstract void visit(ASTFileVisitor v) throws ASTVisitException;
 
 	public void setFilename(String fileName) {
 		this.fileName = fileName;
@@ -59,6 +60,10 @@ public abstract class ASTFileElement implements Iterable<ASTFileElement> {
 		for (ASTFileElement child : this) {
 			child.dumpTree(level+1);
 		}
+	}
+
+	public String getFileName() {
+		return fileName;
 	}
 	
 }

@@ -1,6 +1,9 @@
 package de.uka.iti.pseudo.parser.file;
 
+import java.util.Collections;
 import java.util.List;
+
+import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 
@@ -22,8 +25,12 @@ public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 		return true;
 	}
 
-	public void visit(ASTFileVisitor v) {
+	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
+	}
+
+	public List<Token> getIncludeStrings() {
+		return Collections.unmodifiableList(includeStrings);
 	}
 
 }

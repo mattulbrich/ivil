@@ -44,6 +44,7 @@ TOKEN :
   < INCLUDE: "include" >
 | < SORT: "sort" >
 | < FUNCTION: "function" >
+| < BINDER: "binder" >
 | < INFIX: "infix" >
 | < PROBLEM: "problem" >
 | < RULE: "rule" >
@@ -62,15 +63,17 @@ TOKEN :
 | < LEFTPAREN: "(" >
 | < RIGHTPAREN: ")" >
 | < COMMA: "," >
+| < SEMICOLON: ";" >
 | < SEP: "|-" >
 
 // Identifiers
-| < INTERNALIDENTIFIER: "$" <IDENTIFIER> >
-| < TYVARIDENTIFIER: "'" <IDENTIFIER> >
+| < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >
+| < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
+| < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
-| < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/"] )+ >
 
-| < OTHER: ["\u0000"-"\uFFFF"] >
+//| < OTHER: ["\u0000"-"\uFFFF"] >
 }
 
 //
@@ -88,6 +91,7 @@ ASTFile File():
         ( block=IncludeDeclarationBlock()
         | block=SortDeclarationBlock()
         | block=FunctionDeclarationBlock()
+        | block=BinderDeclarationBlock()
         | block=RuleDeclaration()
         )   { blocks.add(block); }
        )*
@@ -129,8 +133,8 @@ ASTSortDeclaration SortDeclaration():
 {
         name=<IDENTIFIER>
         (
-          "(" ty=<TYVARIDENTIFIER> { tyvars.add(ty); }
-             ( "," ty=<TYVARIDENTIFIER> { tyvars.add(ty); } )*
+          "(" ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); }
+             ( "," ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); } )*
           ")"
         )?
         { return new ASTSortDeclaration(name, tyvars); }
@@ -156,7 +160,7 @@ ASTFunctionDeclaration FunctionDeclaration():
 {
         range=TypeReference()
         
-        ( name=<IDENTIFIER> | name=<INTERNALIDENTIFIER> )
+        ( name=<IDENTIFIER> | name=<INTERNAL_IDENTIFIER> )
         
         (
           "(" ty=TypeReference() { tyrefs.add(ty); }
@@ -165,13 +169,44 @@ ASTFunctionDeclaration FunctionDeclaration():
         )?
         
         (
-          "infix" "(" as=<STRING> "," infix=<NATURAL> ")"
+          "infix" ( as=<IDENTIFIER> | as=<OP_IDENTIFIER> )  infix=<NATURAL>
         )?
     { if(infix==null)
-        return new ASTFunctionDeclaration(range, tyrefs);
+        return new ASTFunctionDeclaration(range, name, tyrefs);
       else
-        return new ASTFunctionDeclaration(range, tyrefs, as, infix);
+        return new ASTFunctionDeclaration(range, name, tyrefs, as, infix);
     }
+}
+
+ASTBinderDeclarationBlock BinderDeclarationBlock():
+{
+  Token first;
+  ASTBinderDeclaration bd;
+  List<ASTBinderDeclaration> list = new ArrayList<ASTBinderDeclaration>();
+}
+{
+	first="binder" ( bd=BinderDeclaration() { list.add(bd); } )+
+	   { return new ASTBinderDeclarationBlock(first, list); }
+}
+
+ASTBinderDeclaration BinderDeclaration():
+{
+  ASTType range, varty, ty;
+  Token name;
+  List<ASTType> tyrefs = new ArrayList<ASTType>();
+}
+{
+	range=TypeReference() "("
+        
+    name=<BINDER_IDENTIFIER>
+    
+    varty=TypeReference()
+     
+    ( ";" ty=TypeReference() { tyrefs.add(ty); } )+
+
+    ")"
+
+    { return new ASTBinderDeclaration(name, range, varty, tyrefs); }
 }
 
 
@@ -192,14 +227,14 @@ ASTType TypeReference():
 {
   (
      token=<IDENTIFIER>
-     (
+     ( LOOKAHEAD(2)  // might have a binder id in a binder declaration
         "(" ty=TypeReference() { args.add(ty); }
              ( "," ty=TypeReference() { args.add(ty); } )*
         ")"
      )?
       { return new ASTTypeRef(token, args); }
    |
-     token=<TYVARIDENTIFIER>
+     token=<TYVAR_IDENTIFIER>
       { return new ASTTypeVar(token); }
   )
 }
