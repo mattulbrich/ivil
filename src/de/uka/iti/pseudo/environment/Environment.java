@@ -214,9 +214,9 @@ public class Environment {
      * 
      * @return the type for integers
      */
-    public @NonNull Type getIntType() {
+    public static @NonNull Type getIntType() {
         try {
-            return new TypeApplication(getSort("int"));
+            return new TypeApplication(BUILT_IN_ENV.getSort("int"));
         } catch (TermException e) {
             // "int" is presend since builtin
             throw new Error(e);
@@ -228,9 +228,9 @@ public class Environment {
      * 
      * @return the type for booleans
      */
-    public @NonNull Type getBoolType() {
+    public static @NonNull Type getBoolType() {
         try {
-            return new TypeApplication(getSort("bool"));
+            return new TypeApplication(BUILT_IN_ENV.getSort("bool"));
         } catch (TermException e) {
             // "boolean" is presend since builtin
             throw new Error(e);

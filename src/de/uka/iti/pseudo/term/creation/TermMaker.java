@@ -374,12 +374,16 @@ public class TermMaker implements ASTVisitor {
         modIf.getThenModality().visit(this);
         Modality thenMod = resultModality;
         
-        if(modIf.hasElseModality()) {
-            modIf.getElseModality().visit(this);
-            Modality elseMod = resultModality;
-            resultModality = new IfModality(condTerm, thenMod, elseMod);
-        } else {
-            resultModality = new IfModality(condTerm, thenMod);
+        try {
+            if(modIf.hasElseModality()) {
+                modIf.getElseModality().visit(this);
+                Modality elseMod = resultModality;
+                resultModality = new IfModality(condTerm, thenMod, elseMod);
+            } else {
+                resultModality = new IfModality(condTerm, thenMod);
+            }
+        } catch (TermException e) {
+            throw new ASTVisitException(e);
         }
         
         
@@ -396,7 +400,11 @@ public class TermMaker implements ASTVisitor {
         modWhile.getBodyModality().visit(this);
         Modality body = resultModality;
         
-        resultModality = new WhileModality(condTerm, body);
+        try {
+            resultModality = new WhileModality(condTerm, body);
+        } catch (TermException e) {
+            throw new ASTVisitException(e);
+        }
     }
 
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
