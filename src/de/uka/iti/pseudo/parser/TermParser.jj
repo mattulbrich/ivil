@@ -64,6 +64,7 @@ TOKEN :
 // Identifiers
 | < BINDERIDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVARIDENTIFIER: "'" <IDENTIFIER> >
+| < SCHEMAIDENTIFIER: "%" <IDENTIFIER> >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 | < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 
@@ -129,6 +130,7 @@ ASTTerm BaseTerm():
         ( LOOKAHEAD(2) "(" term=BinderTerm() ")"
         | "(" term=Term() ")"
         | term=ApplicationTerm()
+        | term=SchemaVariable()
         | term=NumberLiteral()
         )
         { return term; }
@@ -138,14 +140,15 @@ ASTBinderTerm BinderTerm():
 {
   Token binderToken;
   Token varToken;
-  ASTType type; 
+  ASTType type = null; 
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
 }
 {
         binderToken = <BINDERIDENTIFIER>
-        type = TypeRef()
-        varToken = <IDENTIFIER>
+        
+        ( varToken=<IDENTIFIER> | varToken=<SCHEMAIDENTIFIER> )
+        ( "as" type = TypeRef() )?
         ( ";" t=Term() { subterms.add(t); } )+
    { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
 }
@@ -169,22 +172,6 @@ ASTType TypeRef():
 		{ return new ASTTypeVar(token); }
 }
 
-
-/*
-ASTIfThenElseTerm IfThenElseTerm():
-{
-  ASTTerm condTerm, thenTerm, elseTerm; 
-}
-{
-        "if"
-        condTerm=Term()
-        "then"
-        thenTerm=Term()
-        "else"
-        elseTerm=Term()
-   { return new ASTIfThenElseTerm(condTerm, thenTerm, elseTerm); }
-}
-*/ 
         
 ASTTerm ApplicationTerm():
 {
@@ -225,6 +212,15 @@ ASTNumberLiteralTerm NumberLiteral():
 {
         t=<NUMBERLITERAL>
   { return new ASTNumberLiteralTerm(t); }
+}
+
+ASTSchemaVariableTerm SchemaVariable():
+{
+	Token t;
+}
+{
+        t=<SCHEMAIDENTIFIER>
+  { return new ASTSchemaVariableTerm(t); }
 }
 
 ASTModality ModalityList():

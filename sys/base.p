@@ -11,7 +11,9 @@ function  # infixes
         int $mult(int, int)     infix *  70 
         int $plus(int, int)     infix +  60 
         int $minus(int, int)    infix -  60 
-        bool $eq('a, 'a)        infix =  50 
+        bool $eq('a, 'a)        infix =  50
+        bool $lt(int, int)      infix <  50
+        bool $gt(int, int)      infix >  50
         bool $and(bool, bool)   infix &  40 
         bool $or(bool, bool)    infix |  30 
         bool $impl(bool, bool)  infix ->  20 

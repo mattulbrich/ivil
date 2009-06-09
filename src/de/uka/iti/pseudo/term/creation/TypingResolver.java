@@ -19,13 +19,12 @@ import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTModAssignment;
-import de.uka.iti.pseudo.parser.term.ASTModCompound;
 import de.uka.iti.pseudo.parser.term.ASTModIf;
-import de.uka.iti.pseudo.parser.term.ASTModSkip;
 import de.uka.iti.pseudo.parser.term.ASTModWhile;
-import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
+import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.TermException;
@@ -36,7 +35,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 public class TypingResolver extends ASTDefaultVisitor {
     
     private Environment env;
-    private Map<String, TypeVariable> boundVariables = new HashMap<String, TypeVariable>();
+    private Map<String, Type> boundVariables = new HashMap<String, Type>();
     private TypingContext typingContext = new TypingContext();
     private Type resultingType;
     
@@ -109,12 +108,22 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
 
+    // DOC!
     @Override
     public void visit(ASTBinderTerm binderTerm)
             throws ASTVisitException {
         
         String var = binderTerm.getVariableToken().image;
-        boundVariables.put(var, typingContext.newTypeVariable());
+        Type varType;
+        ASTType astVarType = binderTerm.getVariableType();
+        if(astVarType != null) {
+            astVarType.visit(this);
+            varType = resultingType;
+        } else {
+            varType = typingContext.newTypeVariable();
+        }
+            
+        boundVariables.put(var, varType);
         super.visit(binderTerm);
         boundVariables.remove(var);
         
@@ -125,20 +134,24 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
         
         List<ASTTerm> subterms = binderTerm.getSubterms();
+        Type variableType = binder.getVarType();
         Type[] arguments = binder.getArgumentTypes();
         Type result = binder.getResultType();
         
         if(arguments.length != subterms.size())
             throw new ASTVisitException("Binder symbol " + binderSymb + " expects " + 
                     arguments.length + " arguments, but received " + subterms.size(), binderTerm);
-        
+
+        binderTerm.setVariableTyping(new Typing(varType, typingContext));
+
         try {
-			setTyping(binderTerm, subterms, result, arguments);
-		} catch (UnificationException e) {
-			throw new ASTVisitException("Type inference failed for function " + binderSymb +
-					"\nFunction: " + binder +
-					"\n" + e.getDetailedMessage(), binderTerm);
-			}
+            typingContext.solveConstraint(variableType, varType);
+            setTyping(binderTerm, subterms, result, arguments);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for function " + binderSymb +
+                    "\nFunction: " + binder +
+                    "\n" + e.getDetailedMessage(), binderTerm);
+        }
     }
 
     private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
@@ -199,7 +212,7 @@ public class TypingResolver extends ASTDefaultVisitor {
 						"\n" + e.getDetailedMessage(), identifierTerm);
 			}
         } else {
-            TypeVariable tv = boundVariables.get(name);
+            Type tv = boundVariables.get(name);
 
             if(tv == null)
                 throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
@@ -207,6 +220,14 @@ public class TypingResolver extends ASTDefaultVisitor {
             identifierTerm.setTyping(new Typing(tv, typingContext));
         }
 
+    }
+    
+    @Override
+    public void visit(ASTSchemaVariableTerm schemaVariableTerm)
+            throws ASTVisitException {
+        String name = schemaVariableTerm.getToken().image;
+        TypeVariable typeVar = new TypeVariable(name);
+        schemaVariableTerm.setTyping(new Typing(typeVar, typingContext));
     }
     
     @Override
@@ -227,7 +248,6 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         replacement.visit(this);
     }
-    
     
     @Override
     public void visit(ASTModAssignment modAssignment)

@@ -10,10 +10,12 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
-import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.term.creation.Typing;
 
 public class ASTBinderTerm extends ASTTerm {
+    
+    private Typing variableTyping;
 
     private Token binderToken;
     private ASTType variableType;
@@ -26,7 +28,8 @@ public class ASTBinderTerm extends ASTTerm {
         this.variableType = variableType;
         this.variableToken = variableToken;
         
-        addChild(variableType);
+        if(variableType != null)
+            addChild(variableType);
     }
     
     @Override
@@ -50,5 +53,13 @@ public class ASTBinderTerm extends ASTTerm {
 	protected Token getLocationToken() {
     	return binderToken;
 	}
+
+    public Typing getVariableTyping() {
+        return variableTyping;
+    }
+
+    public void setVariableTyping(Typing variableTyping) {
+        this.variableTyping = variableTyping;
+    }
 
 }

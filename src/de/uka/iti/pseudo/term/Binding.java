@@ -57,11 +57,11 @@ public class Binding extends Term {
 	@Override
 	public @NonNull String toString(boolean typed) {
 	    StringBuilder sb = new StringBuilder();
-	    sb.append("(").append(binder.getName()).append(";");
+	    sb.append("(").append(binder.getName()).append(" ").append(variableName);
 	    if(typed) {
-	        sb.append(variableType).append(" ");
-	    }
-	    sb.append(variableName).append(";");
+            sb.append(" as ").append(variableType);
+        }
+	    sb.append(";");
 		for (int i = 0; i < countSubterms(); i++) {
 			sb.append(getSubterm(i).toString(typed));
 			if(i != countSubterms() - 1)

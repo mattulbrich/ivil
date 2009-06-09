@@ -73,5 +73,9 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTAsType asType) throws ASTVisitException {
         defaultVisit(asType);
     }
+    
+    public void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException {
+        defaultVisit(schemaVariableTerm);
+    }
 
 }

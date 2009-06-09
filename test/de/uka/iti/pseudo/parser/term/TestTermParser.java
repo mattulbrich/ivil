@@ -98,5 +98,13 @@ public class TestTermParser extends TestCase {
         testTerm("[skip; skip; skip]b2", false); 
         testTermFail("[i2:=1]i2");
     }
+    
+    public void testSchemaVariable() throws Exception {
+        testTerm("%a", false);
+        testTerm("%a + 1", "$plus(%a as int,1 as int) as int", true);
+        testTerm("%a = %b", "$eq(%a as '%b,%b as '%b) as bool", true);
+        testTerm("%longName as bool", true);
+        testTerm("(\\forall %v; %v > 5)", "(\\forall %v;$gt(%v,5))", false);
+    }
 
 }

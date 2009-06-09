@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.parser.term.ASTModWhile;
 import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
@@ -44,6 +45,7 @@ import de.uka.iti.pseudo.term.CompoundModality;
 import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -242,9 +244,7 @@ public class TermMaker implements ASTVisitor {
         // checked elsewhere
         assert binder != null;
 
-        binderTerm.getVariableType().visit(this);
-        Type variableType = resultType;
-
+        Type variableType = binderTerm.getVariableTyping().getType();
         String variableName = binderTerm.getVariableToken().image;
 
         Term[] subterms = collectSubterms(binderTerm);
@@ -289,6 +289,14 @@ public class TermMaker implements ASTVisitor {
             throw new ASTVisitException(e, identifierTerm);
         }
     }
+    
+    public void visit(ASTSchemaVariableTerm schemaVariableTerm)
+            throws ASTVisitException {
+        Type type = schemaVariableTerm.getTyping().getType();
+        String name = schemaVariableTerm.getName();
+        resultTerm = new SchemaVariable(name, type);
+    }
+
 
     public void visit(ASTNumberLiteralTerm numberLiteralTerm)
             throws ASTVisitException {

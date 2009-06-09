@@ -10,4 +10,6 @@ public interface TermVisitor {
 
 	void visit(Application application);
 
+    void visit(SchemaVariable schemaVariable);
+
 }
