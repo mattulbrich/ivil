@@ -1,0 +1,229 @@
+
+options {
+   STATIC=false;
+}
+
+PARSER_BEGIN(FileParser)
+package de.uka.iti.pseudo.parser.file;
+
+import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.StringReader;
+
+public class FileParser {
+
+    public FileParser() {
+       this(new StringReader(""));
+    }
+
+    public ASTFile parseFile(File file) throws FileNotFoundException, ParseException {
+       ReInit(new FileReader(file));
+       ASTFile result = File();
+       result.setFilename(file.toString());
+       return result;
+    }
+}
+
+PARSER_END(FileParser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN :
+{
+
+// keywords
+  < INCLUDE: "include" >
+| < SORT: "sort" >
+| < FUNCTION: "function" >
+| < INFIX: "infix" >
+| < PROBLEM: "problem" >
+| < RULE: "rule" >
+| < FIND: "find" >
+| < ASSUME: "assume" >
+| < REPLACE: "replace" >
+| < ADD: "add" >
+// ....
+
+// Literals
+| < TERM: "{" ( ~["}"] )* "}" >
+| < STRING: "\"" ( ~["\""] )* "\"" >
+| < NATURAL: ( ["0" - "9"] )+ >
+
+// Logics
+| < LEFTPAREN: "(" >
+| < RIGHTPAREN: ")" >
+| < COMMA: "," >
+| < SEP: "|-" >
+
+// Identifiers
+| < INTERNALIDENTIFIER: "$" <IDENTIFIER> >
+| < TYVARIDENTIFIER: "'" <IDENTIFIER> >
+| < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
+| < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/"] )+ >
+
+| < OTHER: ["\u0000"-"\uFFFF"] >
+}
+
+//
+// structural elements that have nothing to do with Terms
+//
+
+
+ASTFile File():
+{
+  ASTDeclarationBlock block;
+  List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
+  ASTRawTerm problem = null;
+}
+{      (
+        ( block=IncludeDeclarationBlock()
+        | block=SortDeclarationBlock()
+        | block=FunctionDeclarationBlock()
+        | block=RuleDeclaration()
+        )   { blocks.add(block); }
+       )*
+       
+       ( problem=RawTerm() )?
+       
+       <EOF>
+       
+   { return new ASTFile(blocks, problem); }
+}
+
+ASTIncludeDeclarationBlock IncludeDeclarationBlock():
+{
+  Token first;
+  Token string;
+  List<Token> list = new ArrayList<Token>();
+}
+{
+        first="include" ( string=<STRING> { list.add(string); } )+
+          { return new ASTIncludeDeclarationBlock(first, list); }
+}
+
+ASTSortDeclarationBlock SortDeclarationBlock():
+{
+  Token first;
+  ASTSortDeclaration sd;
+  List<ASTSortDeclaration> list = new ArrayList<ASTSortDeclaration>();
+}
+{
+        first="sort" ( sd=SortDeclaration() { list.add(sd); } )+
+          {return new ASTSortDeclarationBlock(first, list); }
+}
+
+ASTSortDeclaration SortDeclaration():
+{
+  Token name, ty;
+  List<Token> tyvars = new ArrayList<Token>(); 
+}
+{
+        name=<IDENTIFIER>
+        (
+          "(" ty=<TYVARIDENTIFIER> { tyvars.add(ty); }
+             ( "," ty=<TYVARIDENTIFIER> { tyvars.add(ty); } )*
+          ")"
+        )?
+        { return new ASTSortDeclaration(name, tyvars); }
+}
+
+ASTFunctionDeclarationBlock FunctionDeclarationBlock():
+{
+  Token first;
+  ASTFunctionDeclaration fd;
+  List<ASTFunctionDeclaration> list = new ArrayList<ASTFunctionDeclaration>();
+}
+{
+        first = "function" ( fd=FunctionDeclaration() { list.add(fd); } )+
+           { return new ASTFunctionDeclarationBlock(first, list); }
+}
+
+ASTFunctionDeclaration FunctionDeclaration():
+{
+  Token name, as = null, infix = null;
+  ASTType range, ty;
+  List<ASTType> tyrefs = new ArrayList<ASTType>(); 
+}
+{
+        range=TypeReference()
+        
+        ( name=<IDENTIFIER> | name=<INTERNALIDENTIFIER> )
+        
+        (
+          "(" ty=TypeReference() { tyrefs.add(ty); }
+             ( "," ty=TypeReference() { tyrefs.add(ty); } )*
+          ")"
+        )?
+        
+        (
+          "infix" "(" as=<STRING> "," infix=<NATURAL> ")"
+        )?
+    { if(infix==null)
+        return new ASTFunctionDeclaration(range, tyrefs);
+      else
+        return new ASTFunctionDeclaration(range, tyrefs, as, infix);
+    }
+}
+
+
+ASTRawTerm RawTerm():
+{
+  Token token;
+}
+{
+   token=<TERM> { return new ASTRawTerm(token); }
+}
+
+ASTType TypeReference():
+{
+  Token token;
+  ASTType ty;
+  List<ASTType> args = new ArrayList<ASTType>();
+}
+{
+  (
+     token=<IDENTIFIER>
+     (
+        "(" ty=TypeReference() { args.add(ty); }
+             ( "," ty=TypeReference() { args.add(ty); } )*
+        ")"
+     )?
+      { return new ASTTypeRef(token, args); }
+   |
+     token=<TYVARIDENTIFIER>
+      { return new ASTTypeVar(token); }
+  )
+}
+
+
+ASTRule RuleDeclaration():
+{
+  List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
+  ASTRawTerm rt;
+  Token t, first, name;
+}
+{
+  first="rule" name=<IDENTIFIER>
+  (
+    LOOKAHEAD(3) t="find" rt=RawTerm() "|-" { list.add(new ASTRuleFind(t, rt, MatchingLocation.ANTECEDENT)); }
+  | LOOKAHEAD(2) t="find" "|-" rt=RawTerm() { list.add(new ASTRuleFind(t, rt, MatchingLocation.SUCCEDENT)); }
+  |              t="find" rt=RawTerm()      { list.add(new ASTRuleFind(t, rt, MatchingLocation.BOTH)); }
+  
+  | LOOKAHEAD(2) t="assume" "|-" rt=RawTerm() { list.add(new ASTRuleAssume(t, rt, MatchingLocation.SUCCEDENT)); }
+  |              t="assume" rt=RawTerm() "|-" { list.add(new ASTRuleAssume(t, rt, MatchingLocation.ANTECEDENT)); }
+  
+  | t="replace" rt=RawTerm() { list.add(new ASTRuleReplace(t, rt)); }
+  | LOOKAHEAD(2) t="add" "|-" rt=RawTerm() { list.add(new ASTRuleAdd(t, rt, MatchingLocation.SUCCEDENT)); }
+  |              t="add" rt=RawTerm() "|-" { list.add(new ASTRuleAdd(t, rt, MatchingLocation.ANTECEDENT)); }
+  )+
+  { return new ASTRule(first, name, list); }
+}

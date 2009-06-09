@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="PseudoHybris" default="build" basedir=".">
+
+  <property name="compile.debug" value="true" />
+ 
+  <target name="init">
+    <mkdir dir="classes"/>
+    <mkdir dir="genSrc"/>
+  </target>
+
+  <target name="build" depends="init, javacc, copy" description="compiles the sources">
+    <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>  	
+    <javac srcdir="test" destdir="classes" debug="${compile.debug}"/>
+    <javac srcdir="src" destdir="classes" debug="${compile.debug}"/>
+  </target>
+	
+  <target name="javacc" depends="init">
+    <exec executable="javacc">
+    	<arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/file"/>
+    	<arg value="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+    </exec>
+    <exec executable="javacc">
+        <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/term"/>
+        <arg value="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
+    </exec>
+
+  </target>
+	
+  <target name="copy" depends="init">
+  </target>
+
+  <target name="jar" depends="build" description="creates the jar file">
+    <jar jarfile="tablet.jar" basedir="classes" manifest="MANIFEST.MF"/>
+    <signjar jar="tablet.jar" alias="mykey" storepass="keystore"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="classes" />
+    <delete dir="genSrc" />
+  </target>
+
+</project>
