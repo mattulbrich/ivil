@@ -30,7 +30,8 @@ import de.uka.iti.pseudo.util.Util;
 public class GoalAction {
 
     /**
-     * The enumeration of kinds of actions.
+     * The enumeration of kinds of actions. Their string representations are
+     * "closegoal", "samegoal", "newgoal".
      */
     public enum Kind {
         CLOSE, 
@@ -39,7 +40,7 @@ public class GoalAction {
     }
 
     /**
-     * The kind of this action
+     * The kind of this action.
      */
     private @NonNull Kind kind;
     
@@ -87,18 +88,19 @@ public class GoalAction {
     }
 
     /**
-     * Gets the terms to be added to the antecedent.
+     * Gets a readonly list of the terms to be added on the antecedent side.
      * 
-     * @return the adds the antecedent
+     * @return the list of terms to add to the antecedent
      */
     public List<Term> getAddAntecedent() {
         return Util.readOnlyArrayList(addAntecedent);
     }
 
+
     /**
-     * Gets the terms to be added to the succedent.
+     * Gets a readonly list of the terms to be added on the succedent side.
      * 
-     * @return the adds the succedent
+     * @return the list of terms to add to the succdent
      */
     public List<Term> getAddSuccedent() {
         return Util.readOnlyArrayList(addSuccedent);
@@ -173,19 +175,20 @@ public class GoalAction {
     }
 
     /**
-     * Gets the name of this goal action.
-     * May be null since the name is optional
+     * Gets the name of this goal action. If the name is not specified,
+     * null is returned
      * 
-     * @return the name of the action
+     * @return the name of the action, possibly null
      */
     public @Nullable String getName() {
         return name;
     }
 
     /**
-     * Is this action to remove the original term.
+     * Checks if this goal action is to remove the original term from the sequent.
+     * This can only be the case in a samegoal action.
      * 
-     * @return true, if this action is to remove the original term
+     * @return true, if this is to remove the original term
      */
     public boolean isRemoveOriginalTerm() {
         return removeOriginalTerm;
