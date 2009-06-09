@@ -172,6 +172,8 @@ public class TypeUnification {
             if (occursIn(tv, fixType))
                 throw new UnificationException("Cannot unify (occur check)",
                         tv, fixType);
+            if(isImmutableVariant(tv))
+                throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, fixType);
             return;
         }
@@ -189,7 +191,7 @@ public class TypeUnification {
         TypeApplication adaptApp = (TypeApplication) adaptingType;
         TypeApplication fixApp = (TypeApplication) fixType;
 
-        if (adaptApp.getSort() != adaptApp.getSort()) {
+        if (adaptApp.getSort() != fixApp.getSort()) {
             throw new UnificationException("Incompatible sorts", adaptApp,
                     fixApp);
         }
@@ -201,6 +203,24 @@ public class TypeUnification {
             // possibly wrap in try/catch to add detail information
             leftUnify0(adaptArguments[i], fixArguments[i]);
         }
+    }
+
+    /*
+     * helper function to determine whether a type variable may be instantiated
+     * when type checking the application of terms to a function symbol
+     * some type variables may not be instantiated.
+     * 
+     * Example:
+     *   (arb as 'a)  and  (2 as int) 
+     * may not be presented to $eq('a,'a).
+     * 
+     * Type variants are made so that the check is
+     *   (arb as '#a) and (2 as int)
+     *   
+     * which cannot be instantiated if '#a may not be instantiated.
+     */
+    private boolean isImmutableVariant(TypeVariable tv) {
+        return tv.getVariableName().startsWith(TypeVariable.VARIANT_PREFIX);
     }
 
     /**

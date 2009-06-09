@@ -38,12 +38,13 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     private Environment env;
     private Map<String, Type> boundVariables = new HashMap<String, Type>();
-    private TypingContext typingContext = new TypingContext();
+    private TypingContext typingContext;
     private Type resultingType;
     
-    public TypingResolver(Environment env) {
+    public TypingResolver(Environment env, TypingContext typingContext) {
         super();
         this.env = env;
+        this.typingContext = typingContext;
     }
 
     @Override
@@ -236,7 +237,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     public void visit(ASTNumberLiteralTerm numberLiteralTerm)
             throws ASTVisitException {
         
-        numberLiteralTerm.setTyping(new Typing(env.getIntType(), typingContext));
+        numberLiteralTerm.setTyping(new Typing(Environment.getIntType(), typingContext));
         
     }
     

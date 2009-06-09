@@ -32,6 +32,26 @@ public abstract class DefaultTermVisitor implements ModalityVisitor, TermVisitor
                 t.visit(this);
             }
         }
+        
+        public void visit(ModalityTerm modalityTerm) throws TermException {
+            modalityTerm.getModality().visit(this);
+            defaultVisitTerm(modalityTerm);
+        }
+        
+        public void visit(AssignModality assignModality) throws TermException {
+            assignModality.getAssignedTerm().visit(this);
+            defaultVisitModality(assignModality);
+        }
+        
+        public void visit(IfModality ifModality) throws TermException {
+            ifModality.getConditionTerm().visit(this);
+            defaultVisitModality(ifModality);
+        }
+        
+        public void visit(WhileModality whileModality) throws TermException {
+            whileModality.getConditionTerm().visit(this);
+            defaultVisitModality(whileModality);
+        }
     }
 
     protected abstract void defaultVisitTerm(Term term) throws TermException;

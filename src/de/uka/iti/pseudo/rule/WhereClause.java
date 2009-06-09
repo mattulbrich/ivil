@@ -22,7 +22,7 @@ public class WhereClause {
         this.arguments = terms;
         this.whereCondition = where;
         
-        where.tryToApplyTo(arguments);
+        where.checkSyntax(arguments);
     }
     
     public String toString() {
@@ -39,8 +39,16 @@ public class WhereClause {
         return whereCondition.applyTo(this, mc, ruleApp, goal, env, properties);
     }
     
+    public boolean canApplyTo(TermUnification mc) throws RuleException {
+        return whereCondition.canApplyTo(this, mc);
+    }
+    
     public List<Term> getArguments() {
         return Util.readOnlyArrayList(arguments);
+    }
+
+    public WhereCondition getWhereCondition() {
+        return whereCondition;
     }
 
 }

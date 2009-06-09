@@ -9,40 +9,17 @@
 
 package de.uka.iti.pseudo.parser.term;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import junit.framework.TestCase;
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.FileParser;
-import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
-public class TestTermParser extends TestCase {
-
-    private static final String ENV_FILE = "test/de/uka/iti/pseudo/testenv.p";
-
-    private Environment env;
-
-    public static Environment loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
-        ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
-        FileParser fp = new FileParser();
-        EnvironmentMaker em = new EnvironmentMaker(fp, new File(ENV_FILE));
-        return em.getEnvironment();
-    }
-
-    public TestTermParser() throws FileNotFoundException, ParseException, ASTVisitException  {
-        env = loadEnv();
-        System.out.println("Environment: ");
-        env.dump();
-    }
+public class TestTermParser extends TestCaseWithEnv {
 
     private void testTerm(String term, String expected, boolean typed)
             throws Exception {
-        Term t = TermMaker.makeTerm(term, env);
+        Term t = makeTerm(term);
         assertEquals(expected, t.toString(typed));
     }
 
@@ -52,7 +29,7 @@ public class TestTermParser extends TestCase {
 
     private void testTermFail(String term) throws Exception {
         try {
-            TermMaker.makeTerm(term, env);
+            TermMaker.makeAndTypeTerm(term, env);
             fail(term + " should not be parsable");
         } catch (ASTVisitException e) {
         }
@@ -72,7 +49,7 @@ public class TestTermParser extends TestCase {
 
     public void testOccurCheck() throws Exception {
         try {
-            TermMaker.makeTerm("arb as 'a = arb as set('a)", env);
+            TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", env);
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         }
@@ -82,6 +59,7 @@ public class TestTermParser extends TestCase {
         testTerm("arb as int", "arb as int", true);
         testTerm("P(0 as 'a, arb as 'a)", "P(0 as int,arb as int) as poly(int,int)", true);
         testTerm("arb as 'a", "arb as 'a", true);
+        testTerm("arb = 2", "$eq(arb as int,2 as int) as bool", true);
     }
 
     public void testPrecedence() throws Exception {
@@ -111,11 +89,17 @@ public class TestTermParser extends TestCase {
     }
     
     public void testSchemaVariable() throws Exception {
-        testTerm("%a", false);
-        testTerm("%a + 1", "$plus(%a as int,1 as int) as int", true);
+        testTerm("%a as 'a", true);
+        testTerm("%b as bool", true);
+        
+        testTerm("%a as bool", true);
         testTerm("%a = %b", "$eq(%a as '%b,%b as '%b) as bool", true);
-        testTerm("%longName as bool", true);
-        testTerm("(\\forall %v; %v > 5)", "(\\forall %v;$gt(%v,5))", false);
+        
+        testTerm("%unknown", false);
+        
+        testTerm("%i + 1", "$plus(%i as int,1 as int) as int", true);
+        
+        testTerm("(\\forall %i; %i > 5)", "(\\forall %i;$gt(%i,5))", false);
     }
-
+    
 }

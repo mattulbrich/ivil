@@ -20,19 +20,19 @@ public class TestNewSkolem extends TestCaseWithEnv {
     public void testTryNewSkolem() throws Exception {
         NewSkolem newSK = new NewSkolem();
         
-        Term[] t = { makeTerm("%v as int") };
-        newSK.tryToApplyTo(t);
+        Term[] t = { makeTerm("%i as int") };
+        newSK.checkSyntax(t);
         
         try {
             Term[] t2 = { makeTerm("true") };
-            newSK.tryToApplyTo(t2);
+            newSK.checkSyntax(t2);
             fail("should fail");
         } catch(RuleException ex) {
         }
         
         try {
-            Term[] t2 = { makeTerm("%v"), makeTerm("%g") };
-            newSK.tryToApplyTo(t2);
+            Term[] t2 = { makeTerm("%i"), makeTerm("%b") };
+            newSK.checkSyntax(t2);
             fail("should fail");
         } catch(RuleException ex) {
         }
@@ -40,15 +40,15 @@ public class TestNewSkolem extends TestCaseWithEnv {
     
     RuleApplication mockRuleApp = new RuleApplicationMaker() {
         @Override public String getWhereProperty(String key) {
-            return "skolemName(%v)".equals(key) ? "sk100" : null;
+            return "skolemName(%i)".equals(key) ? "sk100" : null;
         }
     };
     
     public void testNewSkolem() throws Exception {
         NewSkolem newSK = new NewSkolem();
-        Term schema = makeTerm("%v as int");
+        Term schema = makeTerm("%i as int");
         Term[] t = { schema };
-        newSK.tryToApplyTo(t);
+        newSK.checkSyntax(t);
         
         TermUnification mc = new TermUnification();
         WhereClause wc = new WhereClause(newSK, t);
@@ -57,7 +57,7 @@ public class TestNewSkolem extends TestCaseWithEnv {
         newSK.applyTo(wc, mc, mockRuleApp, null, env, properties);
         
         assertEquals(makeTerm("sk1 as int"), mc.instantiate(schema));
-        assertEquals("sk1", properties.get("skolemName(%v)"));
+        assertEquals("sk1", properties.get("skolemName(%i)"));
         
         loadEnv();
         mc = new TermUnification();
@@ -68,9 +68,9 @@ public class TestNewSkolem extends TestCaseWithEnv {
     
     public void testNewSkolemImport() throws Exception {
         NewSkolem newSK = new NewSkolem();
-        Term schema = makeTerm("%v as int");
+        Term schema = makeTerm("%i as int");
         Term[] t = { schema };
-        newSK.tryToApplyTo(t);
+        newSK.checkSyntax(t);
         
         TermUnification mc = new TermUnification();
         WhereClause wc = new WhereClause(newSK, t);

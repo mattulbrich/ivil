@@ -12,7 +12,7 @@ import nonnull.NonNull;
 
 // TODO DOC
 
-public class Variable extends Term {
+public class Variable extends Term implements BindableIdentifier {
 	
 	private String name;
 

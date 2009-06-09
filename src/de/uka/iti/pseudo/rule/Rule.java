@@ -59,12 +59,14 @@ public class Rule {
     }
 
     private void checkRule() throws RuleException {
-        // TODO Auto-generated method stub
+        // XXX rule checking!!
         // ???
         // e.g.: locations in assumes and finds
         // closegoal is empty
         // newgoal has no replace
         // remove only if find is located 
+        // schema variables to always have same type
+        RuleSchemaConsistencyChecker.check(this);
     }
     
     public void dump() {
@@ -97,10 +99,13 @@ public class Rule {
         for (LocatedTerm ass : getAssumptions()) {
             sb.append("  assume ").append(PrettyPrint.print(env, ass)).append(NEWLINE);
         }
-        // TODO implement preint for where clauses
-//        for (WhereClause where : getWhereClauses()) {
-//            sb.append("  where ").append(where.prettyPrint(env)).append(NEWLINE);
-//        }
+        for (WhereClause where : getWhereClauses()) {
+            sb.append("  where ").append(where.getWhereCondition().getName());
+            for (Term arg : where.getArguments()) {
+                sb.append(" ").append(PrettyPrint.print(env, arg));
+            }
+            sb.append(NEWLINE);
+        }
         for (GoalAction action : getGoalActions()) {
             switch(action.getKind()) {
             case CLOSE: sb.append("  closegoal"); break;

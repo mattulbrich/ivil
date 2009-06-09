@@ -55,6 +55,7 @@ public class TestFileParser extends TestCase {
     public void testRules() throws Exception {
         // no replace in newgoals (was a bug) 
         assertEnvFail("rule something find {%a} newgoal replace {%b}");
+        assertEnvFail("rule something find {1} assume {%b} |- samegoal replace {%b+1}");
     }
 
     

@@ -14,5 +14,6 @@ function
 	bool b2
 	
 	int f('a)
+        'a id('a)
 	poly('a, 'b) P('a, 'b)
 	'a Q(poly('a,'a))

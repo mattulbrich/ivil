@@ -2,9 +2,9 @@ include
    "$proposition.p"
 
 rule forall_right
-  find  |- { (\forall %x; %b) }
+  find  |- { (\forall %x as 'a; %b) }
   where
-    newSkolem { %sk }
+    newSkolem { %sk as 'a}
     subst {%subst} (*:= subst*) {%x} (* <- *) {%sk} (* in *) {%b}
   samegoal replace { %subst }
 
@@ -15,15 +15,15 @@ rule exists_right
   samegoal replace { %subst }
 
 rule forall_left
-  find { (\forall %x; %b) } |-
+  find { (\forall %x as 'a; %b) } |-
   where
-    subst {%subst} {%x} {%inst} {%b}
+    subst {%subst as bool} {%x} {%inst as 'a} {%b}
   samegoal replace { %subst }
 
 rule exists_left
-  find  { (\exists %x; %b) } |-
+  find  { (\exists %x as 'a; %b) } |-
   where
-    newSkolem { %sk }
+    newSkolem { %sk as 'a}
     subst {%subst} (*:= subst*) {%x} (* <- *) {%sk} (* in *) {%b}
   samegoal replace { %subst }
 

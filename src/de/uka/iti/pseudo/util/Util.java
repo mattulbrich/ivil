@@ -117,4 +117,16 @@ public class Util {
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
     }
+    
+    /**
+     * Strip quoting or similar characters from a string.
+     * 
+     * @param s
+     *            some string with length >= 2
+     * 
+     * @return the string with first and last character removed
+     */
+    public static String stripQuotes(String s) {
+        return s.substring(1, s.length() - 1);
+    }
 }

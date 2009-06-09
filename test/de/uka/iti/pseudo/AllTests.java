@@ -9,8 +9,11 @@ import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.proof.TestTermUnification;
 import de.uka.iti.pseudo.rule.where.TestNewSkolem;
 import de.uka.iti.pseudo.rule.where.TestSubst;
+import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.creation.SubtermReplacerTest;
+import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
+import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 
 public class AllTests {
     
@@ -30,6 +33,9 @@ public class AllTests {
         suite.addTestSuite(TestSubtermCollector.class);
         suite.addTestSuite(SubtermReplacerTest.class);
         suite.addTestSuite(TestTermUnification.class);
+        suite.addTestSuite(TestTypeUnification.class);
+        suite.addTestSuite(TestApplication.class);
+        suite.addTestSuite(TestSchemaCollectorVisitor.class);
         //$JUnit-END$
         return suite;
     }

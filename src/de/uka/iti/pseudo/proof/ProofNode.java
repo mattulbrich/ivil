@@ -93,7 +93,8 @@ public class ProofNode {
                 TermSelector findSelector = ruleApp.getFindSelector();
                 if(replaceWith != null) {
                     Term instantiated = mc.instantiate(replaceWith);
-                    assert !mc.containsSchemaIdentifier(instantiated);
+                    if(TermUnification.containsSchemaIdentifier(instantiated))
+                        throw new ProofException("Remaining schema identifier in term " + instantiated);
                     replaceTerm(findSelector, instantiated, antecedent, succedent);
                 } else if(action.isRemoveOriginalTerm()) {
                     assert findSelector.isToplevel();
@@ -104,11 +105,17 @@ public class ProofNode {
                 }
                 
                 for (Term add : action.getAddAntecedent()) {
-                    antecedent.add(mc.instantiate(add));
+                    Term toAdd = mc.instantiate(add);
+                    if(TermUnification.containsSchemaIdentifier(toAdd))
+                        throw new ProofException("Remaining schema identifier in term " + toAdd);
+                    antecedent.add(toAdd);
                 }
                 
                 for (Term add : action.getAddSuccedent()) {
-                    succedent.add(mc.instantiate(add));
+                    Term toAdd = mc.instantiate(add);
+                    if(TermUnification.containsSchemaIdentifier(toAdd))
+                        throw new ProofException("Remaining schema identifier in term " + toAdd);
+                    succedent.add(toAdd);
                 }
                 
                 newNodes.add(new ProofNode(proof, this, antecedent, succedent));

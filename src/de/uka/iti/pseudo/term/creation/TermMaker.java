@@ -8,7 +8,9 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
@@ -42,6 +44,7 @@ import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.parser.term.TermParser;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.AssignModality;
+import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.CompoundModality;
 import de.uka.iti.pseudo.term.IfModality;
@@ -89,6 +92,7 @@ public class TermMaker implements ASTVisitor {
      *            the begin line to report to the parser
      * @param beginColumn
      *            the begin column to report to the parser
+     * @param schemaVariableTypes a mapping from schema identifiers to types. This indicates the set of known schema variables.
      * 
      * @return a term representing the string
      * 
@@ -97,29 +101,14 @@ public class TermMaker implements ASTVisitor {
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static @NonNull Term makeTerm(@NonNull String content,
-            @NonNull Environment env, @NonNull String fileName, int beginLine,
-            int beginColumn) throws ParseException, ASTVisitException {
-
-        TermParser parser = new TermParser(content, fileName, beginLine,
-                beginColumn);
-        ASTTerm ast = parser.parseTerm();
-
-        // ast.dumpTree();
-
-        // We have to embed the AST into a container because the structure may
-        // change if it is a ASTListTerm.
-        ASTHeadElement head = new ASTHeadElement(ast);
-        TypingResolver typingResolver = new TypingResolver(env);
-        ast.visit(typingResolver);
-        ast = (ASTTerm) head.getWrappedElement();
-
-        // ast.dumpTree();
+    public static @NonNull Term makeTerm(ASTTerm astTerm,
+            @NonNull Environment env) throws ASTVisitException {
 
         TermMaker termMaker = new TermMaker(env);
-        ast.visit(termMaker);
+        astTerm.visit(termMaker);
 
         return termMaker.resultTerm;
+        
     }
 
     /**
@@ -142,9 +131,9 @@ public class TermMaker implements ASTVisitor {
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static @NonNull Term makeTerm(@NonNull String content,
+    public static @NonNull Term makeAndTypeTerm(@NonNull String content,
             @NonNull Environment env) throws ParseException, ASTVisitException {
-        return makeTerm(content, env, "");
+        return makeAndTypeTerm(content, env, "");
     }
 
     /**
@@ -169,10 +158,28 @@ public class TermMaker implements ASTVisitor {
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static @NonNull Term makeTerm(@NonNull String content,
+    public static @NonNull Term makeAndTypeTerm(@NonNull String content,
             @NonNull Environment env, @NonNull String context)
             throws ParseException, ASTVisitException {
-        return makeTerm(content, env, context, 1, 1);
+        
+        TermParser parser = new TermParser(content, context, 1, 1);
+        ASTTerm ast = parser.parseTerm();
+
+        // ast.dumpTree();
+
+        // We have to embed the AST into a container because the structure may
+        // change if it is a ASTListTerm.
+        ASTHeadElement head = new ASTHeadElement(ast);
+        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
+        ast.visit(typingResolver);
+        ast = (ASTTerm) head.getWrappedElement();
+
+        // ast.dumpTree();
+
+        TermMaker termMaker = new TermMaker(env);
+        ast.visit(termMaker);
+
+        return termMaker.resultTerm;
     }
 
     //
@@ -248,12 +255,19 @@ public class TermMaker implements ASTVisitor {
 
         Type variableType = binderTerm.getVariableTyping().getType();
         String variableName = binderTerm.getVariableToken().image;
+        BindableIdentifier boundId;
+        
+        if(variableName.startsWith("%")) {
+            boundId = new SchemaVariable(variableName, variableType);
+        } else {
+            boundId = new Variable(variableName, variableType);
+        }
 
         Term[] subterms = collectSubterms(binderTerm);
 
         try {
             resultTerm = new Binding(binder, binderTerm.getTyping().getType(),
-                    variableType, variableName, subterms);
+                    boundId, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(binderTerm, e);
         }

@@ -87,6 +87,10 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
     public void visit(ASTWhereClause arg) throws ASTVisitException {
         visitDefault(arg);
     }
+    
+    public void visit(ASTWithClause arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
 
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
         visitDefault(arg);

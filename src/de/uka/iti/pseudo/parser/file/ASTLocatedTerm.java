@@ -22,5 +22,9 @@ public class ASTLocatedTerm extends ASTFileElement {
     public MatchingLocation getMatchingLocation() {
         return matchingLocation;
     }
+    
+    public ASTRawTerm getTerm() {
+        return (ASTRawTerm) getChildren().get(0);
+    }
 
 }

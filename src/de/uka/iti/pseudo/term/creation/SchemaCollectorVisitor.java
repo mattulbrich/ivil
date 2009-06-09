@@ -32,12 +32,12 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     /**
      * The set of collected schema variables, identified by their name
      */
-    private Set<String> schemaVariables = new HashSet<String>();
+    private Set<SchemaVariable> schemaVariables = new HashSet<SchemaVariable>();
     
     /**
      * The set of collected schema modalities.
      */
-    private Set<String> schemaModalities = new HashSet<String>();
+    private Set<SchemaModality> schemaModalities = new HashSet<SchemaModality>();
     
     /**
      * perform collection of schema identifiers in a term
@@ -90,11 +90,11 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     }
 
     public void visit(SchemaModality schemaModality) throws TermException {
-        schemaModalities.add(schemaModality.getName());
+        schemaModalities.add(schemaModality);
     }
     
     public void visit(SchemaVariable schemaVariable) throws TermException {
-        schemaVariables.add(schemaVariable.getName());
+        schemaVariables.add(schemaVariable);
     }
     
     /**
@@ -112,7 +112,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * 
      * @return the schema variables
      */
-    public Set<String> getSchemaVariables() {
+    public Set<SchemaVariable> getSchemaVariables() {
         return schemaVariables;
     }
 
@@ -121,7 +121,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * 
      * @return the schema modalities
      */
-    public Set<String> getSchemaModalities() {
+    public Set<SchemaModality> getSchemaModalities() {
         return schemaModalities;
     }
 

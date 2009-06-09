@@ -79,6 +79,7 @@ TOKEN :
 | < UNIQUE: "unique" >
 | < PROBLEM: "problem" >
 | < RULE: "rule" >
+| < WITH: "with" >
 | < FIND: "find" >
 | < ASSUME: "assume" >
 | < REPLACE: "replace" >
@@ -112,6 +113,7 @@ TOKEN :
 | < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+| < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
 | < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
@@ -305,10 +307,12 @@ ASTRule RuleDeclaration():
 }
 {
   first="rule" name=<IDENTIFIER>
+  
   (
     t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
   | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
-  | t="where" ( elem=WhereClause(t) { list.add(elem); } )+ 
+  | t="where" ( elem=WhereClause(t) { list.add(elem); } )+
+  | t="with" ( elem=WithClause(t) { list.add(elem); } ) + 
   )+
   
   (
@@ -371,4 +375,15 @@ ASTWhereClause WhereClause(Token headToken):
 	   t=<IDENTIFIER>
 	   ( rt=RawTerm() { args.add(rt); } ) +
        { return new ASTWhereClause(headToken, t, args); }	   
+}
+
+ASTWithClause WithClause(Token headToken):
+{
+	ASTType type;
+    Token schemaIdentifier;
+}
+{
+       type=TypeReference()
+       schemaIdentifier=<SCHEMA_IDENTIFIER>
+       { return new ASTWithClause(headToken, type, schemaIdentifier); }      
 }

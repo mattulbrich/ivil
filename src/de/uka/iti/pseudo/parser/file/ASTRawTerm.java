@@ -9,10 +9,12 @@
 package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTRawTerm extends ASTFileElement {
 	
 	private Token termToken;
+    private ASTTerm termAST;
 
 	public ASTRawTerm(Token token) {
 		this.termToken = token;
@@ -31,5 +33,13 @@ public class ASTRawTerm extends ASTFileElement {
 	protected Token getLocationToken() {
 		return termToken;
 	}
-	
+
+    public void setTermAST(ASTTerm ast) {
+        termAST = ast;
+    }
+
+    public ASTTerm getTermAST() {
+        return termAST;
+    }
+    
 }

@@ -9,6 +9,8 @@
 
 package de.uka.iti.pseudo.term;
 
+import java.util.List;
+
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
@@ -103,8 +105,8 @@ public class Application extends Term {
                     .makeVariant(getType()));
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
-                    + "cannot be typed.\nFunction symbol: " + function
-                    + "\nTypes of subterms:\n" + Util.listTypes(getSubterms()));
+                    + " cannot be typed.\nFunction symbol: " + function
+                    + "\nTypes of subterms:\n" + Util.listTypes(getSubterms()), e);
         }
 
     }

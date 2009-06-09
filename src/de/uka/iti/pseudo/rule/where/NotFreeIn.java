@@ -25,7 +25,7 @@ public class NotFreeIn extends WhereCondition {
     }
 
     @Override
-    public void tryToApplyTo(Term[] arguments) throws RuleException {
+    public void checkSyntax(Term[] arguments) throws RuleException {
         if(arguments.length != 2)
             throw new RuleException("notFreeIn expects exactly 2 arguments");
         if(arguments[0] instanceof SchemaVariable)
@@ -39,8 +39,15 @@ public class NotFreeIn extends WhereCondition {
         // instantiate
         // make sure it is a variable
         // make sure collect free vars does not find it.
+        // throw exeception if there is still a schema variable.
         
         return true;
+    }
+
+    @Override 
+    public boolean canApplyTo(WhereClause whereClause,
+            TermUnification mc) throws RuleException {
+        return applyTo(whereClause, mc);
     }
 
 }

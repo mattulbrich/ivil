@@ -1,12 +1,8 @@
 package de.uka.iti.pseudo.rule.where;
 
 import java.util.List;
-import java.util.Properties;
 
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
-import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Binding;
@@ -31,10 +27,18 @@ public class Subst extends WhereCondition {
         // ensured by tryApplyTo
         assert arguments.get(0) instanceof SchemaVariable;
         
-        SchemaVariable sv = (SchemaVariable) arguments.get(0);
-        Term toReplace = arguments.get(1);
-        Term replaceWith = arguments.get(2);
-        Term replaceIn = arguments.get(3);
+        SchemaVariable sv;
+        Term toReplace;
+        Term replaceWith;
+        Term replaceIn;
+        try {
+            sv = (SchemaVariable) arguments.get(0);
+            toReplace = mc.instantiate(arguments.get(1));
+            replaceWith = mc.instantiate(arguments.get(2));
+            replaceIn = mc.instantiate(arguments.get(3));
+        } catch (TermException e1) {
+            throw new RuleException("Exception during instantiations", e1);
+        }
         
         TermReplacer tr = new TermReplacer();
         Term result;
@@ -51,18 +55,17 @@ public class Subst extends WhereCondition {
     }
 
     @Override 
-    public void tryToApplyTo(Term[] arguments) throws RuleException {
+    public void checkSyntax(Term[] arguments) throws RuleException {
         if(arguments.length != 4)
-            throw new RuleException("newSkolem expects exactly 4 arguments");
+            throw new RuleException("subst expects exactly 4 arguments");
         if(!(arguments[0] instanceof SchemaVariable))
-            throw new RuleException("newSkolem expects schema varible as first argument");
+            throw new RuleException("subst expects schema varible as first argument");
     }
     
     private static class TermReplacer extends RebuildingTermVisitor {
         
         private Term termToReplace;
         private Term replaceWith;
-        private boolean disabled = false;
         
         @Override 
         protected void defaultVisitTerm(Term term)
@@ -74,10 +77,11 @@ public class Subst extends WhereCondition {
         
         @Override public void visit(Binding binding) throws TermException {
             // TODO method documentation
-            // FIXME do not replace bound variables.
-            //if(binding.boundvariable equals termToReplace 
-            // then set disabled, run super and unset
-            super.visit(binding);
+            // TODO make test case for that
+            if(binding.getVariable().equals(termToReplace))
+                resultingTerm = null;
+            else
+                super.visit(binding);
         }
         
         Term replace(Term termToReplace, Term replaceWith, Term replaceIn) throws TermException {
@@ -87,6 +91,12 @@ public class Subst extends WhereCondition {
             return resultingTerm == null ? replaceIn : resultingTerm;
         }
         
+    }
+
+    @Override 
+    public boolean canApplyTo(WhereClause whereClause,
+            TermUnification mc) throws RuleException {
+        return true;
     }
 
 }

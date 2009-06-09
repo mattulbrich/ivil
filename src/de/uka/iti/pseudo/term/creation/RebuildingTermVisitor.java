@@ -90,11 +90,15 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                     args[i] = resultingTerm;
                 }
             }
+            Type modifiedType = modifyType(binding.getType());
             if(args != null) {
-                resultingTerm = new Binding(binding.getBinder(), modifyType(binding.getType()),
-                        modifyType(binding.getVariableType()), binding.getVariableName(),
-                        args);
-            } else {
+                resultingTerm = new Binding(binding.getBinder(), modifiedType,
+                        binding.getVariable(), args);
+            } else if(!modifiedType.equals(binding.getType())) {
+                args = Util.listToArray(binding.getSubterms(), Term.class);
+                resultingTerm = new Binding(binding.getBinder(), modifiedType,
+                        binding.getVariable(), args);
+            }else {
                 resultingTerm = null;
             }
         }
@@ -114,9 +118,14 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                     args[i] = resultingTerm;
                 }
             }
+            Type modifiedType = modifyType(application.getType());
             if(args != null) {
                 resultingTerm = new Application(application.getFunction(), 
-                        modifyType(application.getType()), args);
+                        modifiedType, args);
+            } else if(!modifiedType.equals(application.getType())) {
+                args = Util.listToArray(application.getSubterms(), Term.class);
+                resultingTerm = new Application(application.getFunction(), 
+                        modifiedType, args);
             } else {
                 resultingTerm = null;
             }

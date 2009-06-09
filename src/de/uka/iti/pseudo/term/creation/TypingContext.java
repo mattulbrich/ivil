@@ -25,7 +25,7 @@ import de.uka.iti.pseudo.term.UnificationException;
  * allows to create new distinct type variables and to make types distinct.
  * 
  * Type inference is done by solving "constraints" via
- * {@link #solveConstraint(Type, Type)} which are bidreectional unification
+ * {@link #solveConstraint(Type, Type)} which are bidirectional unification
  * problems.
  * 
  * @see TypingResolver

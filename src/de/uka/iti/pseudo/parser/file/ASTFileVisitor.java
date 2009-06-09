@@ -47,6 +47,8 @@ public interface ASTFileVisitor {
 	public void visit(ASTBinderDeclaration binderDeclaration) throws ASTVisitException;
 
     public void visit(ASTWhereClause whereClause) throws ASTVisitException;
+    
+    public void visit(ASTWithClause withClause) throws ASTVisitException;
 
     public void visit(ASTLocatedTerm locatedTerm) throws ASTVisitException;
 

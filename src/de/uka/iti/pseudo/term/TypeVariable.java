@@ -24,6 +24,8 @@ public class TypeVariable extends Type {
 
     private String typeVar;
     
+    public static final String VARIANT_PREFIX = "#";
+    
     public TypeVariable(String typeVar) {
     	this.typeVar = typeVar;
     }

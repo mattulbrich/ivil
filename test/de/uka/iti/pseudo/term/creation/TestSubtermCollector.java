@@ -3,25 +3,12 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 
 import junit.framework.TestCase;
+import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.term.Term;
 
-public class TestSubtermCollector extends TestCase {
-
-    private static Environment env;
-
-    static {
-        try {
-            env = TestTermParser.loadEnv();
-        } catch (Exception e) {
-            throw new Error(e);
-        }
-    }
-
-    private static Term makeTerm(String string) throws Exception {
-        return TermMaker.makeTerm(string, env);
-    }
+public class TestSubtermCollector extends TestCaseWithEnv {
 
     public void testCollect() throws Exception {
 

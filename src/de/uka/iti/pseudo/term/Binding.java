@@ -28,26 +28,20 @@ public class Binding extends Term {
     private Binder binder;
 
     /**
-     * The type of the bound variable
+     * The bound variable. It is either an instance of {@link Variable} or 
+     * {@link SchemaVariable}.
      */
-    private Type variableType;
+    private BindableIdentifier variable;
 
     /**
-     * The name of the bound variable. Schema variable, if it begins with '%'
-     */
-    private String variableName;
-
-    /**
-     * Instantiates a new Binding.
+     * Instantiates a new Binding with a certain bound variable.
      * 
      * @param binder
      *            the binder symbol
      * @param type
      *            the type of the term
-     * @param variableType
-     *            the type of the bound variable
-     * @param variableName
-     *            the name of the bound variable
+     * @param variable
+     *            the bound variable
      * @param subterms
      *            the argument subterms
      * 
@@ -55,23 +49,51 @@ public class Binding extends Term {
      *             if the type check fails
      */
     public Binding(@NonNull Binder binder, @NonNull Type type,
-            @NonNull Type variableType, @NonNull String variableName,
+            @NonNull Variable variable,
             @NonNull Term[] subterms) throws TermException {
         super(subterms, type);
         this.binder = binder;
-        this.variableType = variableType;
-        this.variableName = variableName;
+        this.variable = variable;
+
+        typeCheck();
+    }
+    
+    /**
+     * Instantiates a new Binding in which the bound variable is represented
+     * by a schema variable
+     * 
+     * @param binder
+     *            the binder symbol
+     * @param type
+     *            the type of the term
+     * @param variable
+     *            the bound variable as schema variable
+     * @param subterms
+     *            the argument subterms
+     * 
+     * @throws TermException
+     *             if the type check fails
+     */
+    public Binding(@NonNull Binder binder, @NonNull Type type,
+            @NonNull BindableIdentifier variable,
+            @NonNull Term[] subterms) throws TermException {
+        super(subterms, type);
+        this.binder = binder;
+        this.variable = variable;
 
         typeCheck();
     }
 
     /**
-     * Gets the name of the bound variable
+     * Gets the name of the bound variable.
+     * 
+     * The name is retrieved by calling <code>toString(false)</code> which returns the
+     * name for variables and for schema variables.
      * 
      * @return the variable name
      */
     public @NonNull String getVariableName() {
-        return variableName;
+        return variable.toString(false);
     }
 
     /**
@@ -80,8 +102,14 @@ public class Binding extends Term {
      * @return the variable type
      */
     public @NonNull Type getVariableType() {
-        return variableType;
+        return variable.getType();
     }
+
+    
+    public BindableIdentifier getVariable() {
+        return variable;
+    }
+
 
     /**
      * Gets the binder symbol
@@ -136,10 +164,7 @@ public class Binding extends Term {
     @Override public @NonNull String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(binder.getName()).append(" ")
-                .append(variableName);
-        if (typed) {
-            sb.append(" as ").append(variableType);
-        }
+                .append(variable.toString(typed));
         sb.append(";");
         for (int i = 0; i < countSubterms(); i++) {
             sb.append(getSubterm(i).toString(typed));
@@ -195,5 +220,6 @@ public class Binding extends Term {
     public boolean hasSchemaVariable() {
         return getVariableName().startsWith("%");
     }
+
 
 }

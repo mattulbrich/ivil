@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.term.creation;
 
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -22,6 +23,14 @@ public class TermInstantiator extends RebuildingTermVisitor {
             return toInst;
     }
     
+    public Modality instantiate(Modality toInst) throws TermException {
+        toInst.visit(this);
+        if(resultingModality != null)
+            return resultingModality;
+        else
+            return toInst;
+    }
+    
     @Override
     protected Type modifyType(Type type) throws TermException {
         return termUnification.instantiateType(type);
@@ -36,4 +45,5 @@ public class TermInstantiator extends RebuildingTermVisitor {
     public void visit(SchemaModality schemaModality) throws TermException {
         resultingModality = termUnification.getModalityFor(schemaModality);
     }
+
 }

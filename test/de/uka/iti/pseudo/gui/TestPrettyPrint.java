@@ -1,28 +1,17 @@
 package de.uka.iti.pseudo.gui;
 
-import java.io.FileNotFoundException;
 import java.util.List;
 
-import junit.framework.TestCase;
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ParseException;
-import de.uka.iti.pseudo.parser.term.TestTermParser;
+import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
-public class TestPrettyPrint extends TestCase {
+public class TestPrettyPrint extends TestCaseWithEnv {
 
-    private Environment env;
-
-    public TestPrettyPrint() throws FileNotFoundException, ParseException, ASTVisitException  {
-        env = TestTermParser.loadEnv();
-    }
-    
     private void testTerm(String term, String expected, boolean typed) throws Exception {
-        Term t = TermMaker.makeTerm(term, env);
+        Term t = makeTerm(term);
         assertEquals(expected, PrettyPrint.print(env, t, typed, true).toString());   
     }
     
@@ -50,7 +39,7 @@ public class TestPrettyPrint extends TestCase {
     }
     
     public void testAnnotations1() throws Exception {
-        Term t = TermMaker.makeTerm("i1 + i2 + i3", env);
+        Term t = TermMaker.makeAndTypeTerm("i1 + i2 + i3", env);
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("i1 + i2 + i3", as.toString());
         assertEquals(0, as.getBegin(3));
@@ -62,7 +51,7 @@ public class TestPrettyPrint extends TestCase {
     }
 
     public void testAnnotations2() throws Exception {
-        Term t = TermMaker.makeTerm("[ i1 := i2 + i3 ](i1 = i3)", env);
+        Term t = TermMaker.makeAndTypeTerm("[ i1 := i2 + i3 ](i1 = i3)", env);
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("[ i1 := i2 + i3 ](i1 = i3)", as.toString());
         assertEquals(8, as.getBegin(11));
@@ -77,7 +66,7 @@ public class TestPrettyPrint extends TestCase {
     }
     
     public void testAnnotations3() throws Exception {
-        Term t = TermMaker.makeTerm("1 + (2 + 3)", env);
+        Term t = TermMaker.makeAndTypeTerm("1 + (2 + 3)", env);
         //                           01234567890
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
@@ -101,7 +90,7 @@ public class TestPrettyPrint extends TestCase {
     }
 
     private void testOrderEqual(String string) throws Exception {
-        Term t = TermMaker.makeTerm(string, env);
+        Term t = TermMaker.makeAndTypeTerm(string, env);
         List<Term> subterms = SubtermCollector.collect(t);
         AnnotatedString<Term> astring = PrettyPrint.print(env, t);
         List<Term> annotations = astring.getAllAttributes();

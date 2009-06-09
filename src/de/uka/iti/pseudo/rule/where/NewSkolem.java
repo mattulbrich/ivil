@@ -39,8 +39,9 @@ public class NewSkolem extends WhereCondition {
             if (instantiated instanceof SchemaVariable) {
                 SchemaVariable schemaVar = (SchemaVariable) instantiated;
                 Type type = schemaVar.getType();
-                Function skolem = env.createNewSkolemConst(type);
-                mc.addInstantiation(schemaVar, new Application(skolem, type));
+                Type instantiatedType = mc.instantiateType(type);
+                Function skolem = env.createNewSkolemConst(instantiatedType);
+                mc.addInstantiation(schemaVar, new Application(skolem, instantiatedType));
                 if(properties != null)
                     properties.put(property, skolem.getName());
             } else if(instantiated instanceof Application) {
@@ -61,7 +62,7 @@ public class NewSkolem extends WhereCondition {
     }
 
     @Override 
-    public void tryToApplyTo(Term[] arguments) throws RuleException {
+    public void checkSyntax(Term[] arguments) throws RuleException {
         if(arguments.length != 1)
             throw new RuleException("newSkolem expects exactly 1 argument");
         if(!(arguments[0] instanceof SchemaVariable))
@@ -72,6 +73,11 @@ public class NewSkolem extends WhereCondition {
     protected boolean applyTo(WhereClause whereClause,
             TermUnification mc) throws RuleException {
         throw new Error("cannot be invoked");
+    }
+
+    @Override 
+    public boolean canApplyTo(WhereClause whereClause, TermUnification mc) throws RuleException {
+        return true;
     }
 
 }

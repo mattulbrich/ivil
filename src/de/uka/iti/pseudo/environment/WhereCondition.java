@@ -51,7 +51,9 @@ public abstract class WhereCondition {
         return name;
     }
     
-    public abstract void tryToApplyTo(Term[] arguments) throws RuleException;
+    public abstract void checkSyntax(Term[] arguments) throws RuleException;
+    
+    public abstract boolean canApplyTo(WhereClause whereClause, TermUnification mc) throws RuleException;
 
     public boolean applyTo(WhereClause whereClause, TermUnification mc,
             RuleApplication ruleApp, ProofNode goal, Environment env, Properties properties) throws RuleException {
@@ -62,6 +64,14 @@ public abstract class WhereCondition {
     
     public void wasImported(WhereClause whereClause, Environment env, Properties properties) throws RuleException {
         // default behaviour is to do nothing.
+    }
+
+    public boolean canApplyTo(WhereClause whereClause, TermUnification mc,
+            RuleApplication ruleApp, ProofNode goal, Environment env,
+            Properties properties) {
+        // TODO Implement WhereCondition.canApplyTo
+        // TODO method documentation
+        return false;
     }
 
 }

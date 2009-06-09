@@ -107,6 +107,10 @@ public class TermUnification {
         return termInstantiator.instantiate(toInst);
     }
     
+    private Modality instantiate(Modality toInst) throws TermException {
+        return termInstantiator.instantiate(toInst);
+    }
+    
     public TermUnification clone() {
         TermUnification retval = new TermUnification();
         retval.instantiation.putAll(instantiation);
@@ -136,7 +140,7 @@ public class TermUnification {
         }
     };
     
-    public boolean containsSchemaIdentifier(Term t) {
+    public static boolean containsSchemaIdentifier(Term t) {
         try {
             t.visit(schemaFinder);
             return false;
@@ -145,7 +149,7 @@ public class TermUnification {
         }
     }
     
-    public boolean containsSchemaIdentifier(Modality m) {
+    public static boolean containsSchemaIdentifier(Modality m) {
         try {
             m.visit(schemaFinder);
             return false;
