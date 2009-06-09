@@ -3,6 +3,9 @@ package de.uka.iti.pseudo.environment;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.uka.iti.pseudo.proof.MatchingContext;
+import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
 import de.uka.iti.pseudo.rule.where.Typing;
@@ -44,5 +47,8 @@ public abstract class WhereCondition {
     }
     
     public abstract void tryToApplyTo(Term[] arguments) throws RuleException;
+
+    public abstract boolean applyTo(Term[] arguments, MatchingContext mc,
+            RuleApplication ruleApp, ProofNode goal) throws RuleException;
 
 }

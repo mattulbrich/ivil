@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
@@ -8,6 +9,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
@@ -89,7 +91,25 @@ public class TestPrettyPrint extends TestCase {
         assertEquals(6, as.getEnd(5));
         assertEquals(4, as.getBegin(7));
         assertEquals(11, as.getEnd(7));
+    }
+    
+    public void testOrderConincidesWithSubtermCollector() throws Exception {
+        testOrderEqual("1 + 2 +3");
+        testOrderEqual("1 + (2+3)");
+        testOrderEqual("[ i1 := i2 + i3 ](i1 = i3)");
+        testOrderEqual("[i1:=1 ; while b1 do if b2 then skip else i1:=1+1 end end](i1 = 3+2*1)");
+    }
 
+    private void testOrderEqual(String string) throws Exception {
+        Term t = TermMaker.makeTerm(string, env);
+        List<Term> subterms = SubtermCollector.collect(t);
+        AnnotatedString<Term> astring = PrettyPrint.print(env, t);
+        List<Term> annotations = astring.getAllAttributes();
+        
+        assertEquals(subterms.size(), annotations.size());
+        for(int i = 0; i < subterms.size(); i++) {
+            assertEquals(subterms.get(i), annotations.get(i));
+        }
     }
     
 }

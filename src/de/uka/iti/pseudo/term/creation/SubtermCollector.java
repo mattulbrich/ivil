@@ -75,7 +75,7 @@ public class SubtermCollector extends DefaultTermVisitor {
 
     public void visit(ModalityTerm modalityTerm) throws TermException {
         subtermsInOrder.add(modalityTerm);
-        defaultVisitModality(modalityTerm.getModality());
+        modalityTerm.getModality().visit(this);
         for (Term t : modalityTerm.getSubterms()) {
             t.visit(this);
         }

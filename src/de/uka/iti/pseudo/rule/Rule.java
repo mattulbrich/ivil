@@ -10,6 +10,26 @@ public class Rule {
     private WhereClause whereClauses[];
     private GoalAction goalActions[];
 
+    public String getName() {
+        return name;
+    }
+
+    public LocatedTerm[] getAssumptions() {
+        return assumptions;
+    }
+
+    public LocatedTerm getFindClause() {
+        return findClause;
+    }
+
+    public WhereClause[] getWhereClauses() {
+        return whereClauses;
+    }
+
+    public GoalAction[] getGoalActions() {
+        return goalActions;
+    }
+
     public Rule(String name, List<LocatedTerm> assumes, LocatedTerm find,
             List<WhereClause> wheres, List<GoalAction> actions) throws RuleException {
         this.name = name;
@@ -22,6 +42,10 @@ public class Rule {
     }
 
     private void checkRule() throws RuleException {
+        // TODO
+        // e.g.: locations in assumes and finds
+        // closegoal is empty
+        // newgoal has no replace
     }
     
     public void dump() {

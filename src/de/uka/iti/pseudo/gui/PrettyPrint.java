@@ -105,10 +105,12 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
     public void visit(ModalityTerm modalityTerm) throws TermException {
+        printer.begin(modalityTerm);
         printer.append("[ ");
         modalityTerm.getModality().visit(this);
         printer.append(" ]");
         visitMaybeParen(modalityTerm.getSubterm(0), Integer.MAX_VALUE);
+        printer.end();
     }
 
   

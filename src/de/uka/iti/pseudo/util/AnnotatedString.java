@@ -91,6 +91,22 @@ public class AnnotatedString<T> implements CharSequence {
         else
             return null;
     }
+    
+    public int getAttributeIndexAt(int index) {
+        Element<T> element = getElement(index);
+        if(element != null)
+            return allElements.indexOf(element);
+        else
+            return -1;
+    }
+    
+    public List<T> getAllAttributes() {
+        ArrayList<T> retval = new ArrayList<T>();
+        for (Element<T> elem : allElements) {
+            retval.add(elem.attr);
+        }
+        return retval;
+    }
 
 
     /**
@@ -154,7 +170,7 @@ public class AnnotatedString<T> implements CharSequence {
     // return this;
     // }
 
-    // I could hashmap that
+
     /**
      * Gets the begin.
      * 
@@ -187,6 +203,7 @@ public class AnnotatedString<T> implements CharSequence {
             return length();
     }
 
+    // I could hashmap that or possibly keep it in an array.
     /**
      * Gets the element.
      * 

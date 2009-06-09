@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.rule;
 
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 
@@ -27,6 +28,19 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
             return "|- " + getTerm();
         case BOTH:
             return getTerm().toString();
+        }
+        // unreachable
+        throw new Error();
+    }
+
+    public boolean isFittingSelect(TermSelector selector) {
+        switch(getMatchingLocation()) {
+        case ANTECEDENT:
+            return selector.isAntecedent();
+        case SUCCEDENT:
+            return selector.isSucedent();
+        case BOTH:
+            return true;
         }
         // unreachable
         throw new Error();
