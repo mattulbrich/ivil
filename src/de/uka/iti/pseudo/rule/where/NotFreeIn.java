@@ -2,14 +2,10 @@ package de.uka.iti.pseudo.rule.where;
 
 import java.util.Properties;
 
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.WhereCondition;
-import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC l8er
@@ -17,11 +13,10 @@ import de.uka.iti.pseudo.term.creation.TermUnification;
  * Format 
  *    notFreeIn { variable } { term }
  */
-public class NotFreeIn extends WhereCondition {
+public class NotFreeIn extends SimpleWhereCondition {
 
     public NotFreeIn() {
         super("notFreeIn");
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -31,23 +26,38 @@ public class NotFreeIn extends WhereCondition {
         if(arguments[0] instanceof SchemaVariable)
             throw new RuleException("notFreeIn expects schema varible as first argument");
     }
-
-    @Override 
-    public boolean applyTo(WhereClause wc, TermUnification mc) throws RuleException {
-
+    
+    protected boolean verify(Term[] arguments) {
+        // TODO Implement NotFreeIn verify
         // get schema variable
         // instantiate
         // make sure it is a variable
         // make sure collect free vars does not find it.
-        // throw exeception if there is still a schema variable.
+        // throw exception if there is still a schema variable.
         
         return true;
     }
 
     @Override 
-    public boolean canApplyTo(WhereClause whereClause,
-            TermUnification mc) throws RuleException {
-        return applyTo(whereClause, mc);
+    public boolean applyTo(Term[] arguments, TermUnification mc) throws RuleException {
+        try {
+            Term instantiated[] = new Term[arguments.length];
+            for (int i = 0; i < instantiated.length; i++) {
+                instantiated[i] = mc.instantiate(arguments[i]);
+            }
+            return verify(instantiated);
+        } catch (TermException e) {
+            throw new RuleException("Exception during instantiation", e);
+        }
+    }
+
+    @Override 
+    public void verify(Term[] formalArguments,
+            Term[] actualArguments, Properties properties) throws RuleException {
+        if(!verify(actualArguments)) {
+            throw new RuleException("Variable " + actualArguments[0] + 
+                    " is not free in " + actualArguments[1]);
+        }
     }
 
 }

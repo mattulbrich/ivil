@@ -30,7 +30,7 @@ public class ASTRuleFind extends ASTRuleElement {
         return getLocatedTerm().getMatchingLocation();
     }
 
-    private ASTLocatedTerm getLocatedTerm() {
+    public ASTLocatedTerm getLocatedTerm() {
         return (ASTLocatedTerm) getChildren().get(0);
     }
     

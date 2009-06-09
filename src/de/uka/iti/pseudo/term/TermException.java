@@ -6,30 +6,32 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT for details.
  */
+
 package de.uka.iti.pseudo.term;
 
-// TODO DOC
-
+/**
+ * Exceptions of type TermException are thrown during term creation, 
+ * by {@link TermVisitor}s, {@link ModalityVisitor}s to indicate that 
+ * some typing / unification / construction issue has been rised. 
+ */
 public class TermException extends Exception {
 
-	public TermException() {
+    private static final long serialVersionUID = -5653150088341377728L;
+
+    public TermException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public TermException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	public TermException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	public TermException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

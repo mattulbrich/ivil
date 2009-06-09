@@ -54,34 +54,47 @@ public class TestNewSkolem extends TestCaseWithEnv {
         WhereClause wc = new WhereClause(newSK, t);
         Properties properties = new Properties();
         
-        newSK.applyTo(wc, mc, mockRuleApp, null, env, properties);
+        newSK.applyTo(t, mc, mockRuleApp, null, env, properties, false);
+        
+        assertEquals(makeTerm("%i as int"), mc.instantiate(schema));
+        
+        newSK.applyTo(t, mc, mockRuleApp, null, env, properties, true);
         
         assertEquals(makeTerm("sk1 as int"), mc.instantiate(schema));
         assertEquals("sk1", properties.get("skolemName(%i)"));
+        assertEquals("int", properties.get("skolemType(%i)"));
         
         loadEnv();
         mc = new TermUnification();
         
-        newSK.applyTo(wc, mc, mockRuleApp, null, env, null);
+        newSK.applyTo(t, mc, mockRuleApp, null, env, null, true);
         assertEquals(makeTerm("sk1 as int"), mc.instantiate(schema));
     }
     
-    public void testNewSkolemImport() throws Exception {
+    public void testNewSkolemImportAndVerify() throws Exception {
         NewSkolem newSK = new NewSkolem();
-        Term schema = makeTerm("%i as int");
-        Term[] t = { schema };
-        newSK.checkSyntax(t);
         
-        TermUnification mc = new TermUnification();
-        WhereClause wc = new WhereClause(newSK, t);
+        //
+        // on import
+        
         Properties properties = new Properties();
+        properties.put("skolemName(%i)", "sk100");
+        properties.put("skolemType(%i)", "int");
+        Term[] formal = { makeTerm("%i as int") };
         
-        // after import the following might be set:
-        env.addFunction(new Function("sk100", Environment.getIntType(), new Type[0], false, false, ASTLocatedElement.BUILTIN));
-        mc.addInstantiation((SchemaVariable) schema, makeTerm("sk100"));
+        newSK.wasImported(formal, env, properties);
         
-        newSK.applyTo(wc, mc, mockRuleApp, null, env, properties);
-        
-        assertEquals(makeTerm("sk100 as int"), mc.instantiate(schema));
+        //
+        // on verify
+
+        Term[] actual = { makeTerm("sk100") }; 
+        newSK.verify(formal, actual, properties);
+
+        try {
+            newSK.verify(formal, new Term[] { makeTerm("arb as int") }, properties);
+            fail("should have failed");
+        } catch (RuleException e) {
+            // expected
+        }
     }
 }

@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +182,25 @@ public class TermMaker implements ASTVisitor {
 
         return termMaker.resultTerm;
     }
+    
+    public static Type makeType(String typeString, Environment env) throws TermException {
+        // TODO method documentation
+        
+        TermParser parser = new TermParser(new StringReader(typeString));
+        
+        try {
+            ASTType ast = parser.TypeRef();
+            TermMaker termMaker = new TermMaker(env);
+            ast.visit(termMaker);
+            
+            return termMaker.resultType;
+        } catch (ParseException e) {
+            throw new TermException(e);
+        } catch (ASTVisitException e) {
+            throw new TermException(e);
+        }
+    }
+
 
     //
     // --- Visitor nature ---
@@ -190,9 +210,7 @@ public class TermMaker implements ASTVisitor {
      * The result... fields hold intermediate calculation results.
      */
     private Term resultTerm;
-
     private Type resultType;
-
     private Modality resultModality;
 
     /**
@@ -449,4 +467,5 @@ public class TermMaker implements ASTVisitor {
         resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
 
+    
 }

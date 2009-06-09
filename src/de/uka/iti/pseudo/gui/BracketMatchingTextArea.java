@@ -21,12 +21,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.event.EventListenerList;
@@ -180,6 +179,8 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
                 }
             }
         });
+        
+        setBorder(BorderFactory.createEtchedBorder());
         
         DefaultHighlighter highlight = new DefaultHighlighter();
         // highlight.setDrawsLayeredHighlights(false);

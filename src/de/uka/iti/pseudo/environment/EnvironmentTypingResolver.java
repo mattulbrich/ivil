@@ -6,12 +6,15 @@ import de.uka.iti.pseudo.parser.file.ASTFileElement;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTRawTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
+import de.uka.iti.pseudo.parser.file.ASTRuleFind;
+import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.file.Token;
 import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.parser.term.TermParser;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TypingContext;
 import de.uka.iti.pseudo.term.creation.TypingResolver;
@@ -22,6 +25,7 @@ public class EnvironmentTypingResolver extends ASTFileDefaultVisitor {
 
     private Environment env;
     private TypingContext typingContext = new TypingContext();
+    private Type currentFindRawType;
 
     public EnvironmentTypingResolver(Environment env) {
         this.env = env;
@@ -39,7 +43,28 @@ public class EnvironmentTypingResolver extends ASTFileDefaultVisitor {
         
         // XXX make find and replace have same type
         
+        // reset context for next rule / problem
         typingContext = new TypingContext(); 
+        currentFindRawType = null;
+    }
+    
+    public void visit(ASTRuleFind arg) throws ASTVisitException {
+        super.visit(arg);
+        currentFindRawType = arg.getLocatedTerm().getTerm().getTermAST().
+                                getTyping().getRawType();
+    }
+    
+    public void visit(ASTRuleReplace arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        // there must be a find clause if there is a replace clause
+        assert currentFindRawType != null;
+        Type rawType = arg.getRawTerm().getTermAST().getTyping().getRawType();
+        try {
+            typingContext.solveConstraint(currentFindRawType, rawType);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Replace terms must have same type as find term", arg, e);
+        }
     }
     
     /*

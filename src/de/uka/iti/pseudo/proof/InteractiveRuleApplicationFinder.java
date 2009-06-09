@@ -113,7 +113,7 @@ public class InteractiveRuleApplicationFinder {
     private boolean matchWhereClauses(TermUnification mc) throws RuleException {
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for ( WhereClause wc : whereClauses ) {
-            if(!wc.canApplyTo(mc))
+            if(!wc.applyTo(mc, ruleAppMaker, goal, env, ruleAppMaker.getWhereProperties(), false))
                 return false;
         }
         return true;

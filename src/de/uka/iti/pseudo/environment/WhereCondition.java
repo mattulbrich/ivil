@@ -1,8 +1,20 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.environment;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import com.sun.istack.internal.Nullable;
+
+import nonnull.NonNull;
 
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -15,12 +27,28 @@ import de.uka.iti.pseudo.rule.where.Subst;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
-//TODO DOC
+
+/**
+ * The Class WhereCondition.
+ */
 public abstract class WhereCondition {
+
+    //////////////////////////////////////
+    // Static material
     
+    /**
+     * The condition table provides linear lookup possibility for 
+     * where conditions.
+     */
     private static Map<String, WhereCondition> whereConditionTable =
         new HashMap<String, WhereCondition>();
     
+    /**
+     * The array of all known conditions.
+     * Please add your WhereCondition here.
+     * 
+     * TODO possibly do this this services and providers etc.
+     */
     private static final WhereCondition CONDITIONS[] =
     {
         new NotFreeIn(),
@@ -30,6 +58,9 @@ public abstract class WhereCondition {
         new Interactive()
     };
     
+    /*
+     * add all conditions from CONDITIONS to the hash table
+     */
     static {
         for (WhereCondition wc : CONDITIONS) {
             String name = wc.getName();
@@ -39,41 +70,81 @@ public abstract class WhereCondition {
         }
     }
 
-    public static WhereCondition getWhereCondition(String identifier) {
-        return whereConditionTable.get(identifier);
+    /**
+     * retrieve a where condition of a given name
+     * 
+     * @param name name of the condition
+     * 
+     * @return the where condition if there is one by this name, null otherwise
+     */
+    public static @Nullable WhereCondition getWhereCondition(@NonNull String name) {
+        return whereConditionTable.get(name);
     }
     
+    //////////////////////////////////////
+    // Instance material
+    
+    /**
+     * The name.
+     */
     private String name;
     
-    protected WhereCondition(String name) {
+    /**
+     * Instantiates a new where condition.
+     * 
+     * @param name the name
+     */
+    protected WhereCondition(@NonNull String name) {
         this.name = name;
     }
 
+    /**
+     * Gets the name of this condition
+     * 
+     * @return the name
+     */
     public String getName() {
         return name;
     }
     
+    /**
+     * Any implementation must provide this method to check the syntax of 
+     * where clauses.
+     * 
+     * <p>This method is called when parsing rules. It should check type and 
+     * number of arguments and similar syntactical things.
+     * 
+     * <p>The array of arguments are the arguments that are applied to
+     * the condition in the rule definition, without any instantiations
+     * made. 
+     * 
+     * @param arguments the terms to which the condition is to be applied.
+     * 
+     * @throws RuleException if syntax is incorrect
+     */
     public abstract void checkSyntax(Term[] arguments) throws RuleException;
     
-    public abstract boolean canApplyTo(WhereClause whereClause, TermUnification mc) throws RuleException;
-
-    public boolean applyTo(WhereClause whereClause, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env, Properties properties) throws RuleException {
-        return applyTo(whereClause, mc);
-    }
+ // TODO: Auto-generated Javadoc
+  //TODO DOC
     
-    protected abstract boolean applyTo(WhereClause whereClause, TermUnification mc) throws RuleException;
     
-    public void wasImported(WhereClause whereClause, Environment env, Properties properties) throws RuleException {
+    public abstract boolean applyTo(Term[] arguments, TermUnification mc,
+            RuleApplication ruleApp, ProofNode goal, Environment env, Properties properties, boolean commit) throws RuleException;
+    
+    /**
+     * Was imported.
+     * 
+     * @param whereClause the where clause
+     * @param env the env
+     * @param properties the properties
+     * 
+     * @throws RuleException the rule exception
+     */
+    public void wasImported(Term[] formalArguments, Environment env, Properties properties) throws RuleException {
         // default behaviour is to do nothing.
     }
-
-    public boolean canApplyTo(WhereClause whereClause, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env,
-            Properties properties) {
-        // TODO Implement WhereCondition.canApplyTo
-        // TODO method documentation
-        return false;
-    }
+    
+    
+    public abstract void verify(Term[] formalArguments, Term[] actualArguments, Properties properties) throws RuleException;
 
 }

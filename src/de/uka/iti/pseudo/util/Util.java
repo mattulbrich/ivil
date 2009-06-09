@@ -12,7 +12,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -51,24 +53,27 @@ public class Util {
 
 	
 	/**
-	 * join a list of objects into a string, separated by ", "
-	 * 
-	 * @param list some list
-	 * 
-	 * @return the concatenated string, separated by commas
-	 */
+     * join a list of objects into a string, separated by ", "
+     * 
+     * @param list
+     *            some list
+     * 
+     * @return the concatenated string, separated by commas
+     */
 	public static String commatize(@NonNull List<?> list) {
 	    return join(list, ", ");
 	}
 	
 	/**
-	 * Join a list of objects separated by some string in between them.
-	 * 
-	 * @param list some list of objects 
-	 * @param sep the separating string
-	 * 
-	 * @return the concatenation of the objects as strings.
-	 */
+     * Join a list of objects separated by some string in between them.
+     * 
+     * @param list
+     *            some list of objects
+     * @param sep
+     *            the separating string
+     * 
+     * @return the concatenation of the objects as strings.
+     */
 	public static String join(List<?> list, String sep) {
 	    StringBuilder sb = new StringBuilder();
 	    Iterator<?> it = list.iterator();
@@ -110,13 +115,19 @@ public class Util {
 	
 
 	/**
-	 * Wrap an immutable list object around an array.
-	 * The elements in the array can by no means be altered.
-	 * 
-	 * @param array some array
-	 * 
-	 * @return an immutable list wrapping the argument array.
-	 */
+     * Wrap an immutable list object around an array. The elements in the array
+     * can by no means be altered. 
+     * 
+     * <p>The result is closely related to {@link Arrays#asList(Object...)} but
+     * is unmodifiable.
+     * 
+     * @param array
+     *            some array
+     * 
+     * @return an immutable list wrapping the argument array.
+     * 
+     * @see Arrays#asList(Object...)
+     */
 	public static <E> List<E> readOnlyArrayList(@NonNull E[] array) {
 	    return new ReadOnlyArrayList<E>(array);
 	}
@@ -125,9 +136,12 @@ public class Util {
 		E[] array;
 
 		public ReadOnlyArrayList(E[] array) {
+		    if(array == null)
+		        throw new NullPointerException();
 			this.array = array;
 		}
 
+		@Override
 		public E get(int index) {
 			return array[index];
 		}
@@ -141,6 +155,25 @@ public class Util {
 		public E[] toArray() {
 			return array.clone();
 		}
+		
+		@Override 
+		public int indexOf(Object o) {
+            if (o == null) {
+                for (int i = 0; i < array.length; i++)
+                    if (array[i] == null)
+                        return i;
+            } else {
+                for (int i = 0; i < array.length; i++)
+                    if (o.equals(array[i]))
+                        return i;
+            }
+            return -1;
+        }
+
+	    @Override 
+	    public boolean contains(Object o) {
+            return indexOf(o) != -1;
+        }
 		
 	}
 
@@ -165,7 +198,8 @@ public class Util {
     /**
      * List the types of terms of a list of terms on several lines
      * 
-     * @param terms the list of terms
+     * @param terms
+     *            the list of terms
      * 
      * @return the string consisting of a line per term
      */
@@ -181,19 +215,23 @@ public class Util {
 	}
 	
     /**
-     * Create an array containing the elements of a collection. 
-     * The method name is misleading.
+     * Create an array containing the elements of a collection. The method name
+     * is misleading.
      * 
-     * <p>This method is type safe. The type of the contents of the array
-     * must be compatible with the types of the elements in the array.
+     * <p>
+     * This method is type safe. The type of the contents of the array must be
+     * compatible with the types of the elements in the array.
      * 
-     * @param collection the collection to be saved in an array.
+     * @param collection
+     *            the collection to be saved in an array.
      * 
-     * @param clss the class of the array to create.
+     * @param clss
+     *            the class of the array to create.
      * 
      * @return an array whose content type is the specified class, whose length
-     * is the size of the collection and whose contents is the one of the
-     * collection as if retrieved by {@link Collection#toArray(Object[])}.
+     *         is the size of the collection and whose contents is the one of
+     *         the collection as if retrieved by
+     *         {@link Collection#toArray(Object[])}.
      */
     @SuppressWarnings("unchecked") 
     public static <E> E[] listToArray(@NonNull Collection<? extends E> collection, @NonNull Class<E> clss) {

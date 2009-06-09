@@ -57,6 +57,12 @@ public class TestFileParser extends TestCase {
         assertEnvFail("rule something find {%a} newgoal replace {%b}");
         assertEnvFail("rule something find {1} assume {%b} |- samegoal replace {%b+1}");
     }
+    
+    public void testFindReplaceSameType() throws Exception {
+        assertEnvFail("rule something find {1} newgoal replace {true}");
+        
+        Environment e = testEnv("rule something find {1} samegoal replace {%a}");
+    }
 
     
 }

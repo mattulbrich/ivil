@@ -28,5 +28,9 @@ public class ASTRuleReplace extends ASTRuleElement {
 	protected Token getLocationToken() {
 		return rawTerm.getLocationToken();
 	}
+	
+	public ASTRawTerm getRawTerm() {
+	    return (ASTRawTerm) getChildren().get(0);
+	}
 
 }

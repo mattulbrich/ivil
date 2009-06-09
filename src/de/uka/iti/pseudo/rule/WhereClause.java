@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
@@ -33,12 +34,8 @@ public class WhereClause {
     }
 
     public boolean applyTo(TermUnification mc, RuleApplication ruleApp,
-            ProofNode goal, Environment env, Properties properties) throws RuleException {
-        return whereCondition.applyTo(this, mc, ruleApp, goal, env, properties);
-    }
-    
-    public boolean canApplyTo(TermUnification mc) throws RuleException {
-        return whereCondition.canApplyTo(this, mc);
+            ProofNode goal, Environment env, Properties properties, boolean commit) throws RuleException {
+        return whereCondition.applyTo(arguments, mc, ruleApp, goal, env, properties, commit);
     }
     
     public List<Term> getArguments() {
@@ -49,12 +46,18 @@ public class WhereClause {
         return whereCondition;
     }
 
-    public boolean checkApplication(TermInstantiator inst,
-            RuleApplication ruleApp, ProofNode proofNode, Environment env,
-            Properties whereClauseProperties) throws RuleException {
-        // TODO Implement WhereClause.checkApplication
-        // TODO method documentation
-        return true;
+    public void verify(TermInstantiator termInst, Properties properties) throws RuleException {
+        Term[] actual;
+        try {
+            actual = new Term[arguments.length];
+            for (int i = 0; i < actual.length; i++) {
+                actual[i] = termInst.instantiate(arguments[i]);
+            }
+        } catch (TermException e) {
+            throw new RuleException("Exception during instantiation", e);
+        }
+        
+        whereCondition.verify(arguments, actual, properties);
     }
 
 }

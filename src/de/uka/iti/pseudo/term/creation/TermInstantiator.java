@@ -21,7 +21,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
-import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.util.Util;
 // TODO DOC
 public class TermInstantiator extends RebuildingTermVisitor {

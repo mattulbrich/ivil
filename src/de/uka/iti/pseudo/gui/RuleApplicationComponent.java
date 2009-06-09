@@ -45,7 +45,6 @@ import de.uka.iti.pseudo.term.Term;
 public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener, ListSelectionListener, ActionListener, Observer {
     
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
-    private static final String NEWLINE = "\n";
 
     private List<RuleApplication> interactiveApplications;
     

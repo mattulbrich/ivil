@@ -1,10 +1,8 @@
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.List;
+import java.util.Properties;
 
-import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -13,29 +11,28 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO Documentation needed
-public class Subst extends WhereCondition {
+public class Subst extends SimpleWhereCondition {
 
     public Subst() {
         super("subst");
     }
 
     @Override
-    public boolean applyTo(WhereClause whereClause,
+    public boolean applyTo(Term arguments[],
             TermUnification mc) throws RuleException {
-        List<Term> arguments = whereClause.getArguments();
         
-        // ensured by tryApplyTo
-        assert arguments.get(0) instanceof SchemaVariable;
+        // ensured by checkSyntax
+        assert arguments[0] instanceof SchemaVariable;
         
         SchemaVariable sv;
         Term toReplace;
         Term replaceWith;
         Term replaceIn;
         try {
-            sv = (SchemaVariable) arguments.get(0);
-            toReplace = mc.instantiate(arguments.get(1));
-            replaceWith = mc.instantiate(arguments.get(2));
-            replaceIn = mc.instantiate(arguments.get(3));
+            sv = (SchemaVariable) arguments[0];
+            toReplace = mc.instantiate(arguments[1]);
+            replaceWith = mc.instantiate(arguments[2]);
+            replaceIn = mc.instantiate(arguments[3]);
         } catch (TermException e1) {
             throw new RuleException("Exception during instantiations", e1);
         }
@@ -49,17 +46,46 @@ public class Subst extends WhereCondition {
         }
         
         if(!mc.leftUnify(sv, result))
-            throw new RuleException("Schema variable already instantiated");
+            throw new RuleException("Schema variable already instantiated differently");
         
         return true;
     }
+    
+    @Override 
+    public void verify(Term[] formalArguments,
+            Term[] actualArguments, Properties properties) throws RuleException {
+       Term toReplace = actualArguments[1];
+       Term replaceWith = actualArguments[2];
+       Term replaceIn = actualArguments[3];
+       
+       TermReplacer tr = new TermReplacer();
+       Term result;
+       try {
+           result = tr.replace(toReplace, replaceWith, replaceIn);
+       } catch (TermException e) {
+           throw new RuleException("Cannot substitute", e);
+       }
+       
+       if(!result.equals(actualArguments[0])) {
+           throw new RuleException("Unexpected substitution result\nExpected " +
+                   actualArguments[0] + "\nbut got: " + result);
+       }
+    }
+
 
     @Override 
     public void checkSyntax(Term[] arguments) throws RuleException {
         if(arguments.length != 4)
             throw new RuleException("subst expects exactly 4 arguments");
+        
         if(!(arguments[0] instanceof SchemaVariable))
             throw new RuleException("subst expects schema varible as first argument");
+        
+        if(!arguments[0].getType().equals(arguments[3].getType()))
+            throw new RuleException("In subst first and last (result and initial) need to have same type");
+        
+        if(!arguments[1].getType().equals(arguments[2].getType()))
+            throw new RuleException("In subst second and third (replace and replacewith) need to have same type");
     }
     
     private static class TermReplacer extends RebuildingTermVisitor {
@@ -93,10 +119,5 @@ public class Subst extends WhereCondition {
         
     }
 
-    @Override 
-    public boolean canApplyTo(WhereClause whereClause,
-            TermUnification mc) throws RuleException {
-        return true;
-    }
 
 }

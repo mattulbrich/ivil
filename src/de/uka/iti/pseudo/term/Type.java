@@ -8,7 +8,11 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.io.StringReader;
+
 import nonnull.NonNull;
+import de.uka.iti.pseudo.parser.term.ASTType;
+import de.uka.iti.pseudo.parser.term.TermParser;
 
 // TODO DOC
 
@@ -31,5 +35,7 @@ public abstract class Type {
         }
         return storedHashCode;
     }
+
+    
 
 }

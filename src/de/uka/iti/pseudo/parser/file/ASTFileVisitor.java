@@ -10,7 +10,9 @@ package de.uka.iti.pseudo.parser.file;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-// TODO DOC
+/**
+ * This interface is part of the visitor pattern for {@link ASTFileElement}s.
+ */
 
 public interface ASTFileVisitor {
 

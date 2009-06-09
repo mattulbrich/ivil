@@ -11,8 +11,8 @@ rule forall_right
 rule exists_right
   find  |- { (\exists %x as 'a; %b) }
   where
-    subst {%subst} (*:= subst*) {%x} (* <- *) {%inst as 'a} (* in *) {%b}
     interact {%inst}
+    subst {%subst} (*:= subst*) {%x} (* <- *) {%inst as 'a} (* in *) {%b}
   samegoal replace { %subst }
 
 rule forall_left
