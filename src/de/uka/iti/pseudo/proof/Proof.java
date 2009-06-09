@@ -2,8 +2,9 @@ package de.uka.iti.pseudo.proof;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
 
-public class Proof {
+public class Proof extends Observable {
 
     private ProofNode root;
     
@@ -23,6 +24,10 @@ public class Proof {
         if(goalno < 0 || goalno >= openGoals.size())
             throw new ProofException("Cannot apply ruleApplication. Illegal goal number in\n" + ruleApp);
         return openGoals.get(goalno);
+    }
+
+    public ProofNode getRoot() {
+        return root;
     }
     
 }

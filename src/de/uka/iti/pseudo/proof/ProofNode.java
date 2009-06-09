@@ -36,9 +36,13 @@ public class ProofNode {
         this.sequent = new Sequent(antecedent, succedent);
     }
 
-    public void makeChildren(ProofNode[] children) {
-        assert this.children == null;
+    private void setChildren(ProofNode[] children) {
         this.children = children;
+        proof.notifyObservers(this);
+    }
+    
+    public void prune() {
+        setChildren(null);
     }
 
     public void apply(RuleApplication ruleApp, MatchingContext mc)
@@ -49,7 +53,7 @@ public class ProofNode {
         matchAssumeClauses(ruleApp, mc, rule);
         matchWhereClauses(ruleApp, mc, rule);
 
-        children = doAction(ruleApp, mc, rule);
+        setChildren(doAction(ruleApp, mc, rule));
 
         this.appliedRuleApp = ruleApp;
 
@@ -181,6 +185,17 @@ public class ProofNode {
 
             return subterms.get(subtermNo);
         }
+    }
+
+    public List<ProofNode> getChildren() {
+        if(children != null)
+            return Util.readOnlyArrayList(children);
+        else
+            return null;
+    }
+
+    public RuleApplication getAppliedRuleApp() {
+        return appliedRuleApp;
     }
 
 }

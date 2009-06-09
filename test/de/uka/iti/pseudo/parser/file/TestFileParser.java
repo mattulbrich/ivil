@@ -8,7 +8,6 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
-import java.io.FileNotFoundException;
 import java.io.StringReader;
 
 import junit.framework.TestCase;
@@ -20,7 +19,7 @@ public class TestFileParser extends TestCase {
 
     private Environment testEnv(String string) throws Exception {
         FileParser fp = new FileParser();
-        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " + string), "test");
+        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " + string), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
         Environment env = em.getEnvironment();
         env.dump();
@@ -46,8 +45,16 @@ public class TestFileParser extends TestCase {
     }
     
     public void testAssignableFunctions() throws Exception {
+        // assignables must be nullary
         assertEnvFail("function int f(int) assignable");
+        // assignables must not have type vars in type
         assertEnvFail("function 'a f assignable");
+        assertEnvFail("sort S('a) function S('a) f assignable");
+    }
+    
+    public void testRules() throws Exception {
+        // no replace in newgoals (was a bug) 
+        assertEnvFail("rule something find {%a} newgoal replace {%b}");
     }
 
     
