@@ -32,7 +32,7 @@ public class Typing extends WhereCondition {
         SchemaVariable sv = (SchemaVariable) arguments[0];
         
         try {
-            mc.getTypeUnification().unify(sv.getType(), mc.instantiate(sv).getType());
+            mc.getTypeUnification().unify(sv.getType(), mc.getTermFor(sv).getType());
             return true;
         } catch (UnificationException e) {
             return false;

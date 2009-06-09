@@ -13,7 +13,7 @@ public class SchemaVariable extends Term {
     
     @Override
     public String toString(boolean typed) {
-        String retval = "%" + name;
+        String retval = name;
         if(typed)
             retval += " as " + getType();
         return retval;

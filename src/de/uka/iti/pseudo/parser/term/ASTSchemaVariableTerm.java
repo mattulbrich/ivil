@@ -24,11 +24,11 @@ public class ASTSchemaVariableTerm extends ASTTerm {
     }
 
     /**
-     * return the name of this schema variable wih the leading "%" dropped.
+     * return the name of this schema variable with the leading "%".
      * @return a string of positive length 
      */
     public @NonNull String getName() {
-        return schemaToken.image.substring(1);
+        return schemaToken.image;
     }
 
     public Token getToken() {

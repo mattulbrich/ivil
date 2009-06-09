@@ -29,7 +29,13 @@ public class TermMatcher extends DefaultTermVisitor {
     public void compare(Term t1, Term t2) throws TermException {
         termUnification.getTypeUnification().leftUnify(t1.getType(), t2.getType());
         if (t1 instanceof SchemaVariable) {
-            termUnification.addInstantiation((SchemaVariable) t1, t2);
+            SchemaVariable sv = (SchemaVariable) t1;
+            Term inst = termUnification.getTermFor(sv);
+            if(inst != null) {
+                compare(inst, t2);
+            } else {
+                termUnification.addInstantiation(sv, t2);
+            }
         } else if(t1.getClass() == t2.getClass()) {
             compareTerm = t2;
             t1.visit(this);
@@ -39,7 +45,13 @@ public class TermMatcher extends DefaultTermVisitor {
     
     private void compare(Modality m1, Modality m2) throws TermException {
         if (m1 instanceof SchemaModality) {
-            termUnification.addInstantiation((SchemaModality) m1, m2);
+            SchemaModality sm = (SchemaModality) m1;
+            Modality inst = termUnification.getModalityFor(sm);
+            if(inst != null) {
+                compare(inst, m2);
+            } else {
+                termUnification.addInstantiation(sm, m2);
+            }
         } else if(m1.getClass() == m2.getClass()) {
             compareModality = m2;
             m1.visit(this);
@@ -51,7 +63,7 @@ public class TermMatcher extends DefaultTermVisitor {
     @Override 
     protected void defaultVisitModality(Modality modality)    throws TermException {
         List<Modality> sub1 = modality.getSubModalities();
-        List<Modality> sub2 = modality.getSubModalities();
+        List<Modality> sub2 = compareModality.getSubModalities();
         
         for (int i = 0; i < sub1.size(); i++) {
             compare(sub1.get(i), sub2.get(i));

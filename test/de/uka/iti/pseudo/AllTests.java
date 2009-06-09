@@ -6,6 +6,7 @@ import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
+import de.uka.iti.pseudo.proof.TestTermUnification;
 import de.uka.iti.pseudo.rule.TestWhereCondition;
 import de.uka.iti.pseudo.term.creation.SubtermReplacerTest;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
@@ -26,6 +27,7 @@ public class AllTests {
         suite.addTestSuite(TestPrettyPrint.class);
         suite.addTestSuite(TestSubtermCollector.class);
         suite.addTestSuite(SubtermReplacerTest.class);
+        suite.addTestSuite(TestTermUnification.class);
         //$JUnit-END$
         return suite;
     }

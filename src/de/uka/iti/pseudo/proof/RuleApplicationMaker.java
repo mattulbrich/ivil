@@ -6,6 +6,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 public class RuleApplicationMaker {
     
@@ -32,8 +33,7 @@ public class RuleApplicationMaker {
     }
 
     public RuleApplication make() {
-        // TODO Auto-generated method stub
-        return null;
+        return new RuleApplication(rule, goalNumber, findSelector, Util.listToArray(assumeSelectors, TermSelector.class), null);
     }
 
     public void popAssumptionSelector() {

@@ -249,7 +249,7 @@ public void visit(SchemaVariable schemaVariable)
     }
     
     public void visit(SchemaModality schemaModality) throws TermException {
-        printer.append(schemaModality.getSchemaIdentifier());
+        printer.append(schemaModality.getName());
     }
 
     public void visit(WhileModality whileModality)

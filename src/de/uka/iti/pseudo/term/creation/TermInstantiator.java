@@ -26,11 +26,11 @@ public class TermInstantiator extends RebuildingTermVisitor {
     
     @Override
     public void visit(SchemaVariable schemaVariable) throws TermException {
-        resultingTerm = termUnification.instantiate(schemaVariable);
+        resultingTerm = termUnification.getTermFor(schemaVariable);
     }
     
     @Override 
     public void visit(SchemaModality schemaModality) throws TermException {
-        resultingModality = termUnification.instantiate(schemaModality);
+        resultingModality = termUnification.getModalityFor(schemaModality);
     }
 }

@@ -27,7 +27,7 @@ public class SchemaModality extends Modality {
         visitor.visit(this);
     }
 
-    public String getSchemaIdentifier() {
+    public String getName() {
         return schemaIdentifier;
     }
 

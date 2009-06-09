@@ -55,7 +55,8 @@ public class InteractiveRuleApplicationFinder {
                 matchAssumptions(rule.getAssumptions(), mc, 0);
             
         }
-        return null;
+        
+        return applications;
     }
 
     private void matchAssumptions(LocatedTerm[] assumptions, TermUnification mc, int assIdx) {

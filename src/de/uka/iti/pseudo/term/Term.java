@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.util.Util;
 public abstract class Term {
 	
 	private static final Term[] NO_ARGUMENTS = new Term[0];
+	private static final boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
 	
 	private Term[] subterms;
 	
@@ -53,7 +54,7 @@ public abstract class Term {
 	}
 	
 	public String toString() {
-	    return toString(false);
+	    return toString(SHOW_TYPES);
 	}
 	
 	public abstract String toString(boolean typed);
