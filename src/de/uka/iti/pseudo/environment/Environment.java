@@ -324,7 +324,10 @@ public class Environment {
 
     // TODO parental lookup
     public FixOperator getReverseFixOperator(String fctname) {
-        return reverseFixityMap.get(fctname);
+        FixOperator fixOperator = reverseFixityMap.get(fctname);
+        if(fixOperator == null && parentEnvironment != null)
+            fixOperator = parentEnvironment.getReverseFixOperator(fctname);
+        return fixOperator;
     }
 
 }

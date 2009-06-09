@@ -24,6 +24,12 @@ public abstract class Modality {
         return subModality[i];
     }
     
+    public int countModalities() {
+        return subModality.length;
+    }
+    
+    public abstract void visit(ModalityVisitor visitor) throws TermException;
+    
     public abstract String toString(boolean typed);
 
 }

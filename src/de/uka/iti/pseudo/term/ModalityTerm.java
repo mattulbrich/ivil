@@ -17,7 +17,8 @@ public class ModalityTerm extends Term {
 		this.modality = modality;
 	}
 
-	@Override public void visit(TermVisitor visitor) throws TermException {
+	@Override
+	public void visit(TermVisitor visitor) throws TermException {
 		visitor.visit(this);
 	}
 
@@ -30,5 +31,9 @@ public class ModalityTerm extends Term {
 	    else
 	        return "[" + m + "]" + t;
 	}
+
+    public Modality getModality() {
+        return modality;
+    }
 
 }

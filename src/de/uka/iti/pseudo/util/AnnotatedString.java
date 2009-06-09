@@ -15,6 +15,9 @@ import java.util.Stack;
 
 import nonnull.Nullable;
 
+
+// TODO doc
+
 /**
  * This class allows to build a string with nested attributes. An attribute is
  * an object of type T to which a subsequence of the string belongs. This is
@@ -22,7 +25,7 @@ import nonnull.Nullable;
  * in the term the smallest enclosing term can be obtained easily.
  */
 
-public class AttributedString<T> implements CharSequence {
+public class AnnotatedString<T> implements CharSequence {
 
     /**
      * The Class Element is used to keep information on one annotated block.
@@ -33,7 +36,8 @@ public class AttributedString<T> implements CharSequence {
         int end;
         T attr;
 
-        @Override public String toString() {
+        @Override 
+        public String toString() {
             return "Element[begin=" + begin + ";end=" + end + ";attr=" + attr
                     + "]";
         }
@@ -97,7 +101,7 @@ public class AttributedString<T> implements CharSequence {
      * 
      * @return the attributed string< t>
      */
-    public AttributedString<T> append(String string) {
+    public AnnotatedString<T> append(String string) {
         builder.append(string);
         return this;
     }
@@ -110,12 +114,13 @@ public class AttributedString<T> implements CharSequence {
      * 
      * @return the attributed string< t>
      */
-    public AttributedString<T> begin(T attr) {
+    public AnnotatedString<T> begin(T attr) {
         Element<T> newElem = new Element<T>();
         newElem.begin = length();
         newElem.attr = attr;
         elementStack.push(newElem);
         allElements.add(newElem);
+
         return this;
     }
 
@@ -124,7 +129,8 @@ public class AttributedString<T> implements CharSequence {
      * 
      * @return the attributed string< t>
      */
-    public AttributedString<T> end() {
+    public AnnotatedString<T> end() {
+        
         Element<T> element = elementStack.pop();
         element.end = length();
         return this;
@@ -206,6 +212,10 @@ public class AttributedString<T> implements CharSequence {
      */
     @Override public String toString() {
         return builder.toString();
+    }
+
+    public char getLastCharacter() {
+        return charAt(length() - 1);
     }
 
 }

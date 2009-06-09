@@ -7,4 +7,8 @@ public class SkipModality extends Modality {
         return "skip";
     }
 
+    @Override public void visit(ModalityVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
 }

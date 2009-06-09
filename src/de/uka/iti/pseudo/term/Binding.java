@@ -86,5 +86,11 @@ public class Binding extends Term {
 		return variableType;
 	}
 
+    public Binder getBinder() {
+        return binder;
+    }
+	
+	
+
 
 }

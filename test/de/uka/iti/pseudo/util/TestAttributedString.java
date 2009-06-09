@@ -10,7 +10,7 @@ public class TestAttributedString extends TestCase {
 
 
     public void testOne() {
-        AttributedString<Integer> as = new AttributedString<Integer>();
+        AnnotatedString<Integer> as = new AnnotatedString<Integer>();
         as.append("0123").begin(1).append("456").begin(2).append("789").end().end();
         assertEquals(4, as.getBegin(5));
         assertEquals(10, as.getEnd(5));
@@ -21,7 +21,7 @@ public class TestAttributedString extends TestCase {
     }
     
     public void testHasEmptyStack() {
-        AttributedString<Integer> as = new AttributedString<Integer>();
+        AnnotatedString<Integer> as = new AnnotatedString<Integer>();
         as.append("0123").begin(1).append("456").begin(2).append("789").end();
         assertFalse(as.hasEmptyStack());
         as.end();

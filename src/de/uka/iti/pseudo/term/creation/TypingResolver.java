@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTModAssignment;
 import de.uka.iti.pseudo.parser.term.ASTModIf;
 import de.uka.iti.pseudo.parser.term.ASTModWhile;
+import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -247,6 +248,17 @@ public class TypingResolver extends ASTDefaultVisitor {
         parent.replaceChild(listTerm, replacement);
         
         replacement.visit(this);
+    }
+    
+    
+    @Override 
+    public void visit(ASTModalityTerm modalityTerm)
+            throws ASTVisitException {
+        super.visit(modalityTerm);
+        
+        ASTTerm subterm = modalityTerm.getSubterms().get(0);
+        modalityTerm.setTyping(subterm.getTyping());
+        
     }
     
     @Override

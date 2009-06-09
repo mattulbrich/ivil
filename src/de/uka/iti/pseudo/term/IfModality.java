@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term;
 
+import nonnull.Nullable;
+
 public class IfModality extends Modality {
 
     private Term conditionTerm;
@@ -22,6 +24,25 @@ public class IfModality extends Modality {
                 + getSubModality(0).toString(typed) + 
                 (hasElseModality ? " else " + getSubModality(1).toString(typed) : "")
                 + " end";
+    }
+
+    @Override public void visit(ModalityVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
+    public Term getConditionTerm() {
+        return conditionTerm;
+    }
+    
+    public Modality getThenModality() {
+        return getSubModality(0);
+    }
+    
+    public @Nullable Modality getElseModality() {
+        if(countModalities() > 1)
+            return getSubModality(1);
+        else
+            return null;
     }
 
 }

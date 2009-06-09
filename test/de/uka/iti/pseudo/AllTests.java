@@ -2,6 +2,7 @@ package de.uka.iti.pseudo;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
@@ -20,6 +21,7 @@ public class AllTests {
         suite.addTestSuite(TestTermParser.class);
         suite.addTestSuite(TestRuleParsing.class);
         suite.addTestSuite(TestWhereCondition.class);
+        suite.addTestSuite(TestPrettyPrint.class);
         //$JUnit-END$
         return suite;
     }

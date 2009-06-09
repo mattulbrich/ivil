@@ -11,4 +11,9 @@ public class CompoundModality extends Modality {
         return getSubModality(0).toString(typed) + "; " + getSubModality(1).toString(typed);
     }
 
+    @Override
+    public void visit(ModalityVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
 }

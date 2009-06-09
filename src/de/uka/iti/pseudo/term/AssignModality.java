@@ -69,4 +69,17 @@ public class AssignModality extends Modality {
         return assignedConstant.getName() + ":=" + assignedTerm.toString(typed);
     }
 
+    @Override
+    public void visit(ModalityVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
+    public Function getAssignedConstant() {
+        return assignedConstant;
+    }
+
+    public Term getAssignedTerm() {
+        return assignedTerm;
+    }
+
 }

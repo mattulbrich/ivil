@@ -97,6 +97,17 @@ public class TestTermParser extends TestCase {
         testTerm("[if b1 then skip end]b2", false);
         testTerm("[skip; skip; skip]b2", false); 
         testTermFail("[i2:=1]i2");
+        testTerm("[i1:=1]i1", "[i1:=1 as int](i1 as int)", true);
+        testTerm("([skip]b1) = b1", "$eq([skip]b1,b1)", false);
+    }
+    
+//    public void testModalityPrecedence() throws Exception {
+//        Term t1 = TermMaker.makeTerm("[skip]b1 as bool", env);
+//        Term t2 = TermMaker.makeTerm("[skip](b1 as bool)", env);
+//    }
+    
+    public void testAssociativity() throws Exception {
+        testTerm("b1 -> b2 -> b1", "$impl($impl(b1,b2),b1)", false);
     }
     
     public void testSchemaVariable() throws Exception {
