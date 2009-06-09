@@ -69,13 +69,17 @@ public class TestTermParser extends TestCase {
     public void testAs() throws Exception {
         testTerm("arb as int", "arb as int", true);
         testTerm("P(0 as 'a, arb as 'a)", "P(0 as int,arb as int) as poly(int,int)", true);
-        testTerm("arb as 'a", "arb as '1", true);
+        testTerm("arb as 'a", "arb as 'a", true);
     }
     
     public void testPrecedence() throws Exception {
         testTerm("i1+i2^i3*i4", "$plus(i1,$mult($pow(i2,i3),i4))", false);
         testTerm("i1+i2^i3*i4", "$plus(i1,$mult($pow(i2,i3),i4))", false);
         testTerm("! -i1 = i2 -> b2", "$impl($not($eq($neg(i1),i2)),b2)", false);
+    }
+    
+    public void testModality() throws Exception {
+        testTerm("[i1:=1]i1", "[i1:=1]i1", false);
     }
 
 }

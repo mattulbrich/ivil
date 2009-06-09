@@ -38,14 +38,19 @@ import de.uka.iti.pseudo.parser.term.ASTVisitor;
 import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.parser.term.TermParser;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.CompoundModality;
+import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
+import de.uka.iti.pseudo.term.WhileModality;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -326,23 +331,58 @@ public class TermMaker implements ASTVisitor {
     }
 
     public void visit(ASTModAssignment modAssignment) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        String symb = modAssignment.getAssignedIdentifier().image;
+        Function f = env.getFunction(symb);
+        
+        // checked elsewhere
+        assert f != null && f.getArity() == 0;
+        
+        modAssignment.getAssignedTerm().visit(this);
+        Term term = resultTerm;
+        
+        try {
+            resultModality = new AssignModality(f, term);
+        } catch (TermException e) {
+            throw new ASTVisitException(e, modAssignment);
+        }
     }
 
     public void visit(ASTModCompound modCompound) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        
+        modCompound.getModality1().visit(this);
+        Modality mod1 = resultModality;
+        
+        modCompound.getModality2().visit(this);
+        Modality mod2 = resultModality;
+        
+        resultModality = new CompoundModality(mod1, mod2);
     }
 
     public void visit(ASTModIf modIf) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        modIf.getConditionTerm().visit(this);
+        Term condTerm = resultTerm;
+        
+        modIf.getThenModality().visit(this);
+        Modality thenMod = resultModality;
+        
+        modIf.getElseModality().visit(this);
+        Modality elseMod = resultModality;
+        
+        resultModality = new IfModality(condTerm, thenMod, elseMod);
     }
 
     public void visit(ASTModSkip modSkip) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        resultModality = new SkipModality();
     }
 
     public void visit(ASTModWhile modWhile) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        modWhile.getConditionTerm().visit(this);
+        Term condTerm = resultTerm;
+        
+        modWhile.getBodyModality().visit(this);
+        Modality body = resultModality;
+        
+        resultModality = new WhileModality(condTerm, body);
     }
 
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {

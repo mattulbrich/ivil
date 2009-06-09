@@ -13,11 +13,9 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 public class ASTModAssignment extends ASTModality {
     
     private Token assignedIdentifier;
-    private ASTTerm assignedTerm;
 
     public ASTModAssignment(Token assignedIdentifier, ASTTerm assignedTerm) {
         this.assignedIdentifier = assignedIdentifier;
-        this.assignedTerm = assignedTerm;
         addChild(assignedTerm);
     }
     
@@ -31,7 +29,8 @@ public class ASTModAssignment extends ASTModality {
     }
 
     public final ASTTerm getAssignedTerm() {
-        return assignedTerm;
+        // I know this is an ASTTerm.
+        return (ASTTerm)getChildren().get(0);
     }
     
     @Override

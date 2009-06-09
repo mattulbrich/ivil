@@ -14,6 +14,7 @@ public class ModalityTerm extends Term {
 
 	public ModalityTerm(Modality modality, Term subterm) {
 		super(new Term[] { subterm }, subterm.getType());
+		this.modality = modality;
 	}
 
 	@Override
@@ -23,10 +24,12 @@ public class ModalityTerm extends Term {
 
 	@Override
 	public String toString(boolean typed) {
+	    String m = modality.toString(typed);
+	    String t = getSubterm(0).toString(typed);
 	    if(typed)
-	        return "[MOD](" + getSubterm(0).toString(typed) + ")";
+	        return "[" + m + "](" + t + ")";
 	    else
-	        return "[MOD]" + getSubterm(0).toString(typed);
+	        return "[" + m + "]" + t;
 	}
 
 }

@@ -8,6 +8,22 @@
  */
 package de.uka.iti.pseudo.term;
 
-public class Modality {
+public abstract class Modality {
+    
+    private Modality subModality[];
+    
+    protected Modality(Modality... subModality) {
+        this.subModality = subModality;
+    }
+    
+    public String toString() {
+        return toString(false);
+    }
+    
+    public Modality getSubModality(int i) {
+        return subModality[i];
+    }
+    
+    public abstract String toString(boolean typed);
 
 }

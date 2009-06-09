@@ -12,13 +12,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTModCompound extends ASTModality {
     
-    private ASTModality modality1;
-    private ASTModality modality2;
-
-    public ASTModCompound(ASTModality mod1, ASTModality mod2) {
-        this.modality1 = mod1;
-        this.modality2 = mod2;
-        
+    public ASTModCompound(ASTModality modality1, ASTModality modality2) {
         addChild(modality1);
         addChild(modality2);
     }
@@ -30,7 +24,15 @@ public class ASTModCompound extends ASTModality {
     
     @Override
 	protected Token getLocationToken() {
-    	return modality1.getLocationToken();
+    	return getModality1().getLocationToken();
 	}
+
+    public ASTModality getModality1() {
+        return (ASTModality) getChildren().get(0);
+    }
+
+    public ASTModality getModality2() {
+        return (ASTModality) getChildren().get(1);
+    }
 
 }

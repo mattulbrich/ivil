@@ -13,15 +13,9 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 public class ASTModIf extends ASTModality {
     
     private Token headToken;
-    private ASTTerm conditionTerm;
-    private ASTModality thenModality;
-    private ASTModality elseModality;
 
     public ASTModIf(Token t, ASTTerm condTerm, ASTModality thenMod, ASTModality elseMod) {
         this.headToken = t;
-        this.conditionTerm = condTerm;
-        this.thenModality = thenMod;
-        this.elseModality = elseMod;
         
         addChild(condTerm);
         addChild(thenMod);
@@ -37,5 +31,17 @@ public class ASTModIf extends ASTModality {
 	protected Token getLocationToken() {
     	return headToken;
 	}
+
+    public ASTTerm getConditionTerm() {
+        return (ASTTerm) getChildren().get(0);
+    }
+
+    public ASTModality getThenModality() {
+        return (ASTModality) getChildren().get(1);
+    }
+
+    public ASTModality getElseModality() {
+        return (ASTModality) getChildren().get(2);
+    }
 
 }

@@ -18,6 +18,12 @@ import de.uka.iti.pseudo.parser.term.ASTElement;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTModAssignment;
+import de.uka.iti.pseudo.parser.term.ASTModCompound;
+import de.uka.iti.pseudo.parser.term.ASTModIf;
+import de.uka.iti.pseudo.parser.term.ASTModSkip;
+import de.uka.iti.pseudo.parser.term.ASTModWhile;
+import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
@@ -75,7 +81,8 @@ public class TypingResolver extends ASTDefaultVisitor {
 		}
     }
     
-    @Override public void visit(ASTFixTerm fixTerm) throws ASTVisitException {
+    @Override
+    public void visit(ASTFixTerm fixTerm) throws ASTVisitException {
         
         super.visit(fixTerm);
         
@@ -160,8 +167,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         asType.setTyping(new Typing(resultingType, typingContext));
         
         try {
-			typingContext.solveConstraint(resultingType, 
-			        asType.getTerm().getTyping().getRawtType());
+			typingContext.solveConstraint( 
+			        asType.getTerm().getTyping().getRawtType(),
+			        resultingType);
 		} catch (UnificationException e) {
 			throw new ASTVisitException("Type inference failed for explicitly typed term" +
 					"\nExplicit Type: " + asType.getTyping().getRawtType() +
@@ -221,6 +229,67 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
     
     
+    @Override
+    public void visit(ASTModAssignment modAssignment)
+            throws ASTVisitException {
+        
+        super.visit(modAssignment);
+
+        String symbol = modAssignment.getAssignedIdentifier().image;
+        Function fct = env.getFunction(symbol);
+        
+        if(fct == null)
+            throw new ASTVisitException("Unknown assigned identifier " + symbol, modAssignment);
+        
+        if(fct.getArity() != 0)
+            throw new ASTVisitException("Assigned identifier " + symbol + " is not nullary.", modAssignment);
+        
+        Type[] targetType = typingContext.makeNewSignature(fct.getResultType(), new Type[0]);
+        
+        try {
+            typingContext.solveConstraint( 
+                    targetType[0],
+                    modAssignment.getAssignedTerm().getTyping().getRawtType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Incompatibles types in assignmend." +
+                    "\nIdentifier type: " + targetType[0] +
+                    "\nAssigned term type: " + modAssignment.getAssignedTerm().getTyping().getRawtType() +
+                    "\n" + e.getDetailedMessage(), e);
+        }
+
+    }
+
+    @Override
+    public void visit(ASTModIf modIf) throws ASTVisitException {
+        
+        super.visit(modIf);
+
+        try {
+            typingContext.solveConstraint(env.getBoolType(),
+                    modIf.getConditionTerm().getTyping().getRawtType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Condition in if-modality not boolean." +
+                    "\ncondition term type: " +  modIf.getConditionTerm().getTyping().getRawtType() +
+                    "\n" + e.getDetailedMessage(), e);
+        }
+
+        
+    }
+
+    @Override
+    public void visit(ASTModWhile modWhile) throws ASTVisitException {
+        super.visit(modWhile);
+
+        try {
+            typingContext.solveConstraint(env.getBoolType(),
+                    modWhile.getConditionTerm().getTyping().getRawtType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Condition in if-modality not boolean." +
+                    "\ncondition term type: " +  modWhile.getConditionTerm().getTyping().getRawtType() +
+                    "\n" + e.getDetailedMessage(), e);
+        }
+    }
+
     @Override
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         String typeName = typeRef.getTypeToken().image;
