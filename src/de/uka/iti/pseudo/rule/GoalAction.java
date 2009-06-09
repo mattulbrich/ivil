@@ -21,6 +21,13 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * The Class GoalAction encapsulates a list of action to take on a goal. Such an
  * action can start a new goal, copy the current goal or close the current goal.
+ * 
+ * An action may contain a replace item and several add items for the antecedent
+ * and for the succedent.
+ * 
+ * A value of null for {@link #replaceWith} implies that the found term is not
+ * replaced but left untouched. If the originally found term is to be deleted
+ * set the {@link #removeOriginalTerm} flag.
  */
 public class GoalAction {
 
@@ -44,40 +51,40 @@ public class GoalAction {
     private @Nullable String name;
     
     /**
-     * The replace with.
+     * The term to replace the found term with.
      */
     private Term replaceWith;
 
     /**
-     * The add antecedent.
+     * The terms to be added to the antecedent.
      */
     private Term[] addAntecedent;
 
     /**
-     * The add succedent.
+     * The terms to be added to the succedent.
      */
     private Term[] addSuccedent;
 
     /**
-     * The remove original term.
+     * The flag whether or not the found term is to be deleted.
      */
     private boolean removeOriginalTerm;
 
     /**
-     * Gets the kind.
+     * Gets the kind of this action
      * 
      * @return the kind
      */
-    public Kind getKind() {
+    public @NonNull Kind getKind() {
         return kind;
     }
     
     /**
-     * Gets the replace with.
+     * Gets the term with which the found term is to be replaced.
      * 
      * @return the replace with
      */
-    public Term getReplaceWith() {
+    public @Nullable Term getReplaceWith() {
         return replaceWith;
     }
 
