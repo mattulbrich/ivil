@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -9,6 +10,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -17,11 +19,11 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
-public class ProofComponent extends JTree implements Observer {
+public class ProofComponent extends JTree {
 
     private Proof proof;
 
-    private class Model implements TreeModel {
+    private class Model implements TreeModel, Observer {
 
         /** Listeners. */
         protected EventListenerList listenerList = new EventListenerList();
@@ -72,11 +74,27 @@ public class ProofComponent extends JTree implements Observer {
                     "The tree nodes must not be altered");
         }
 
+        public void update(Observable proof, Object proofNode) {
+            LinkedList<Object> path = new LinkedList<Object>();
+            ProofNode node = (ProofNode) proofNode;
+            while(node != null) {
+                path.addFirst(node);
+                node = node.getParent();
+            }
+            
+            TreeModelEvent event = new TreeModelEvent(proof, path.toArray());
+            for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+                listener.treeNodesChanged(event);
+            }
+        }
+
     }
 
     public ProofComponent(Proof proof) {
         this.proof = proof;
-        setModel(new Model());
+        Model model = new Model();
+        proof.addObserver(model);
+        setModel(model);
         // DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         // Icon innerIcon = mkIcon("img/inner.png");
         // renderer.setIcon(innerIcon);
@@ -102,11 +120,6 @@ public class ProofComponent extends JTree implements Observer {
         } else {
             return "OPEN";
         }
-    }
-
-    @Override public void update(Observable o, Object arg) {
-        // TODO Auto-generated method stub
-        
     }
 
 }

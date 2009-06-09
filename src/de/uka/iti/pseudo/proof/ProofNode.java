@@ -198,4 +198,8 @@ public class ProofNode {
         return appliedRuleApp;
     }
 
+    public ProofNode getParent() {
+        return parent;
+    }
+
 }
