@@ -12,6 +12,7 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.RandomAccess;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Term;
 
 
@@ -87,4 +88,10 @@ public class Util {
 		}
 		return sb.toString();
 	}
+
+    @SuppressWarnings("unchecked") 
+    public static <E> E[] listToArray(@NonNull List<? extends E> list, @NonNull Class<E> clss) {
+        E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, list.size());
+        return list.toArray(array);
+    }
 }

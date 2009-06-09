@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.rule;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.util.Util;
+
 public class Rule {
     
     private String name;
@@ -33,10 +35,10 @@ public class Rule {
     public Rule(String name, List<LocatedTerm> assumes, LocatedTerm find,
             List<WhereClause> wheres, List<GoalAction> actions) throws RuleException {
         this.name = name;
-        this.assumptions = assumes.toArray(new LocatedTerm[assumes.size()]);
+        this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
         this.findClause = find;
-        this.whereClauses = wheres.toArray(new WhereClause[wheres.size()]);
-        this.goalActions = actions.toArray(new GoalAction[actions.size()]);
+        this.whereClauses = Util.listToArray(wheres, WhereClause.class);
+        this.goalActions = Util.listToArray(actions, GoalAction.class);
         
         checkRule();
     }

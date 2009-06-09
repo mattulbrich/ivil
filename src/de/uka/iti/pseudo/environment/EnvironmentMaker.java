@@ -17,7 +17,6 @@ import java.util.Set;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclarationBlock;
@@ -46,11 +45,8 @@ import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.file.Token;
-import de.uka.iti.pseudo.rule.AddModification;
 import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.GoalModification;
 import de.uka.iti.pseudo.rule.LocatedTerm;
-import de.uka.iti.pseudo.rule.ReplaceModification;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
@@ -87,31 +83,10 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
      * following fields:
      */
     private Type resultingTypeRef;
-
-    /**
-     * The resulting term.
-     */
     private Term resultingTerm;
-
-    /**
-     * The resulting matching location.
-     */
     private MatchingLocation resultingMatchingLocation;
-
-    /**
-     * The resulting whereclause.
-     */
     private WhereClause resultingWhereclause;
-
-    /**
-     * The resulting goal action.
-     */
     private GoalAction resultingGoalAction;
-
-    /**
-     * The resulting goal modification.
-     */
-    private GoalModification resultingGoalModification;
 
     /**
      * The parser to use to parse include files
@@ -565,31 +540,29 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         super.visit(arg);
 
         String kind = arg.getGoalKind().image;
-        List<GoalModification> mods = new ArrayList<GoalModification>();
+        List<Term> addAntecendent = new ArrayList<Term>();
+        List<Term> addSuccendent = new ArrayList<Term>();
+        Term replaceWith = null;
 
-        for (ASTFileElement elem : arg.getChildren()) {
-            elem.visit(this);
-            mods.add(resultingGoalModification);
+        for(ASTRuleAdd add : SelectList.select(ASTRuleAdd.class, arg.getChildren())) {
+            add.visit(this);
+            if(resultingMatchingLocation == MatchingLocation.ANTECEDENT)
+                addAntecendent.add(resultingTerm);
+            else
+                addSuccendent.add(resultingTerm);
+        }
+        
+        for(ASTRuleReplace replace : SelectList.select(ASTRuleReplace.class, arg.getChildren())) {
+            assert replaceWith == null;
+            replace.visit(this);
+            replaceWith = resultingTerm;
         }
 
         try {
-            resultingGoalAction = new GoalAction(kind, mods);
+            resultingGoalAction = new GoalAction(kind, replaceWith, addAntecendent, addSuccendent);
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }
-    }
-
-    public void visit(ASTRuleAdd arg) throws ASTVisitException {
-        super.visit(arg);
-
-        resultingGoalModification = new AddModification(resultingTerm,
-                resultingMatchingLocation);
-    }
-
-    public void visit(ASTRuleReplace arg) throws ASTVisitException {
-        super.visit(arg);
-
-        resultingGoalModification = new ReplaceModification(resultingTerm);
     }
 
     /*

@@ -16,6 +16,11 @@ public class Sequent {
         this.succedent = succedent;
     }
 
+    public Sequent(List<Term> antecedent, List<Term> succedent) {
+        this.antecedent = Util.listToArray(antecedent, Term.class);
+        this.succedent = Util.listToArray(succedent, Term.class);
+    }
+
     public List<Term> getAntecedent() {
         return Util.readOnlyArrayList(antecedent);
     }

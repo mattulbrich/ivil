@@ -30,6 +30,8 @@ public class Typing extends WhereCondition {
         SchemaVariable sv = (SchemaVariable) arguments[0];
         
         mc.match(sv, mc.instantiate(sv));
+        
+        return true;
     }
 
 

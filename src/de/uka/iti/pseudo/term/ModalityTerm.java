@@ -48,4 +48,8 @@ public class ModalityTerm extends Term {
         return false;
     }
 
+    public Term getSubterm() {
+        return getSubterm(0);
+    }
+
 }

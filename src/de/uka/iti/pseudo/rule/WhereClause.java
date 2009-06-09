@@ -28,7 +28,7 @@ public class WhereClause {
     }
 
     public boolean applyTo(MatchingContext mc, RuleApplication ruleApp,
-            ProofNode goal) {
+            ProofNode goal) throws RuleException {
         return whereCondition.applyTo(arguments, mc, ruleApp, goal);
     }
     

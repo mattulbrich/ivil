@@ -20,4 +20,9 @@ public class MatchingContext {
         
     }
 
+    public Term instantiate(Term replaceWith) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
