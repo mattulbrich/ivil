@@ -5,26 +5,32 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTSortDeclaration extends ASTFileElement {
+public class ASTSortDeclaration extends ASTFileElement implements
+        ASTLocatedElement {
 
-	private List<Token> typeVariables;
-	private Token name;
+    private List<Token> typeVariables;
 
-	public ASTSortDeclaration(Token name, List<Token> tyvars) {
-		this.name = name;
-		this.typeVariables = tyvars;
-	}
+    private Token name;
 
-	public List<Token> getTypeVariables() {
-		return Collections.unmodifiableList(typeVariables);
-	}
+    public ASTSortDeclaration(Token name, List<Token> tyvars) {
+        this.name = name;
+        this.typeVariables = tyvars;
+    }
 
-	public Token getName() {
-		return name;
-	}
+    public List<Token> getTypeVariables() {
+        return Collections.unmodifiableList(typeVariables);
+    }
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
-		v.visit(this);
-	}
+    public Token getName() {
+        return name;
+    }
+
+    public void visit(ASTFileVisitor v) throws ASTVisitException {
+        v.visit(this);
+    }
+
+    public String getLocation() {
+        return getFileName() + ":" + name.beginLine;
+    }
 
 }

@@ -118,9 +118,6 @@ TOKEN :
 | < IMPLIES: "->" >
 | < EQUIV: "<->" >
 | < EQUALS: "=" >  
-| < IF: "if" >
-| < THEN: "then" >
-| < ELSE: "else" >
 
 // Programs
 | < WHILE: "while" >
@@ -157,7 +154,6 @@ ASTTerm AtomicTerm():
         | LOOKAHEAD(2) "(" term=Term() ")"
         | term=ApplicationTerm()
         | term=ModalityTerm()
-        | "(" term=IfThenElseTerm() ")"
         ) { return term; }
 }
 
@@ -194,6 +190,7 @@ ASTTypeRef TypeRef():
 }
 
 
+/*
 ASTIfThenElseTerm IfThenElseTerm():
 {
   ASTTerm condTerm, thenTerm, elseTerm; 
@@ -206,7 +203,8 @@ ASTIfThenElseTerm IfThenElseTerm():
         "else"
         elseTerm=Term()
    { return new ASTIfThenElseTerm(condTerm, thenTerm, elseTerm); }
-}  
+}
+*/ 
         
 ASTApplicationTerm ApplicationTerm():
 {

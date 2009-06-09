@@ -8,62 +8,63 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public abstract class ASTFileElement implements Iterable<ASTFileElement> {
-	
-	private String fileName;
-	List<ASTFileElement> children; 
 
-	public abstract void visit(ASTFileVisitor v) throws ASTVisitException;
+    private String fileName;
 
-	public void setFilename(String fileName) {
-		this.fileName = fileName;
-		for (ASTFileElement element : this) {
-			element.setFilename(fileName);
-		}
-	}
-	
-	protected void addChildren(List<? extends ASTFileElement> children) {
-		for (ASTFileElement fileElement : children) {
-			addChild(fileElement);
-		}
-	}
-	
-	protected void addChild(ASTFileElement element) {
-		if(this.children == null)
-			this.children = new LinkedList<ASTFileElement>();
-		
-		assert element != null;
-		
-		this.children.add(element);
-	}
+    List<ASTFileElement> children;
 
-	public Iterator<ASTFileElement> iterator() {
-		if(children == null)
-			return Collections.<ASTFileElement>emptyList().iterator();
-		else
-			return children.iterator();
-	}
-	
-	public String toString() {
-		return getClass().getSimpleName();
-	}
-	
-	public void dumpTree() {
-		dumpTree(0);
-	}
-	
-	private void dumpTree(int level) {
-		for (int i = 0; i < level; i++) {
-			System.out.print("  ");
-		}
-		System.out.println(this);
-		
-		for (ASTFileElement child : this) {
-			child.dumpTree(level+1);
-		}
-	}
+    public abstract void visit(ASTFileVisitor v) throws ASTVisitException;
 
-	public String getFileName() {
-		return fileName;
-	}
-	
+    public void setFilename(String fileName) {
+        this.fileName = fileName;
+        for (ASTFileElement element : this) {
+            element.setFilename(fileName);
+        }
+    }
+
+    protected void addChildren(List<? extends ASTFileElement> children) {
+        for (ASTFileElement fileElement : children) {
+            addChild(fileElement);
+        }
+    }
+
+    protected void addChild(ASTFileElement element) {
+        if (this.children == null)
+            this.children = new LinkedList<ASTFileElement>();
+
+        assert element != null;
+
+        this.children.add(element);
+    }
+
+    public Iterator<ASTFileElement> iterator() {
+        if (children == null)
+            return Collections.<ASTFileElement> emptyList().iterator();
+        else
+            return children.iterator();
+    }
+
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+    public void dumpTree() {
+        dumpTree(0);
+    }
+
+    private void dumpTree(int level) {
+        for (int i = 0; i < level; i++) {
+            System.out.print("  ");
+        }
+        System.out.println(this);
+
+        for (ASTFileElement child : this) {
+            child.dumpTree(level + 1);
+        }
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
 }

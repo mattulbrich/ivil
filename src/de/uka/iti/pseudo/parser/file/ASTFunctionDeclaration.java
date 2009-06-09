@@ -5,55 +5,65 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTFunctionDeclaration extends ASTFileElement {
+public class ASTFunctionDeclaration extends ASTFileElement implements
+        ASTLocatedElement {
 
-	private ASTType rangeType;
-	private List<ASTType> argumentTypes;
-	private Token precedence;
-	private Token infixOperator;
-	private Token name;
-	
+    private ASTType rangeType;
 
-	public ASTFunctionDeclaration(ASTType range, Token name, List<ASTType> tyrefs) {
-		this.rangeType = range;
-		this.argumentTypes = tyrefs;
-		this.name = name;
-		addChild(range);
-		addChildren(tyrefs);
-	}
+    private List<ASTType> argumentTypes;
 
-	public ASTFunctionDeclaration(ASTType range, Token name, List<ASTType> tyrefs, Token infixOperator, Token precedence) {
-		this(range, name, tyrefs);
-		this.infixOperator = infixOperator;
-		this.precedence = precedence;
-	}
+    private Token precedence;
 
-	public void visit(ASTFileVisitor v) throws ASTVisitException {
-		v.visit(this);
-	}
+    private Token infixOperator;
 
-	public ASTType getRangeType() {
-		return rangeType;
-	}
+    private Token name;
 
-	public List<ASTType> getArgumentTypes() {
-		return Collections.unmodifiableList(argumentTypes);
-	}
+    public ASTFunctionDeclaration(ASTType range, Token name,
+            List<ASTType> tyrefs) {
+        this.rangeType = range;
+        this.argumentTypes = tyrefs;
+        this.name = name;
+        addChild(range);
+        addChildren(tyrefs);
+    }
 
-	public Token getPrecedence() {
-		return precedence;
-	}
+    public ASTFunctionDeclaration(ASTType range, Token name,
+            List<ASTType> tyrefs, Token infixOperator, Token precedence) {
+        this(range, name, tyrefs);
+        this.infixOperator = infixOperator;
+        this.precedence = precedence;
+    }
 
-	public Token getInfixOperator() {
-		return infixOperator;
-	}
+    public void visit(ASTFileVisitor v) throws ASTVisitException {
+        v.visit(this);
+    }
 
-	public Token getName() {
-		return name;
-	}
-	
-	public boolean isInfix() {
-		return infixOperator != null;
-	}
+    public ASTType getRangeType() {
+        return rangeType;
+    }
+
+    public List<ASTType> getArgumentTypes() {
+        return Collections.unmodifiableList(argumentTypes);
+    }
+
+    public Token getPrecedence() {
+        return precedence;
+    }
+
+    public Token getInfixOperator() {
+        return infixOperator;
+    }
+
+    public Token getName() {
+        return name;
+    }
+
+    public boolean isInfix() {
+        return infixOperator != null;
+    }
+
+    public String getLocation() {
+        return getFileName() + ":" + name.beginLine;
+    }
 
 }
