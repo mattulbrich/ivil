@@ -13,6 +13,7 @@ import java.util.List;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -233,7 +234,7 @@ public class TermMaker implements ASTVisitor {
         try {
             resultTerm = new Application(funct, type, subterms);
         } catch (TermException e) {
-            throw new ASTVisitException(e, applicationTerm);
+            throw new ASTVisitException(applicationTerm,e );
         }
     }
 
@@ -252,8 +253,8 @@ public class TermMaker implements ASTVisitor {
         try {
             resultTerm = new Binding(binder, binderTerm.getTyping().getType(),
                     variableType, variableName, subterms);
-        } catch (TermException ex) {
-            throw new ASTVisitException(ex, binderTerm);
+        } catch (TermException e) {
+            throw new ASTVisitException(binderTerm, e);
         }
     }
 
@@ -269,7 +270,7 @@ public class TermMaker implements ASTVisitor {
         try {
             resultTerm = new Application(function, type, subterms);
         } catch (TermException e) {
-            throw new ASTVisitException(e, fixTerm);
+            throw new ASTVisitException(fixTerm, e);
         }
     }
 
@@ -286,7 +287,7 @@ public class TermMaker implements ASTVisitor {
                 resultTerm = new Variable(name, type);
             }
         } catch (TermException e) {
-            throw new ASTVisitException(e, identifierTerm);
+            throw new ASTVisitException(identifierTerm, e);
         }
     }
     
@@ -305,7 +306,7 @@ public class TermMaker implements ASTVisitor {
         try {
             resultTerm = new Application(funct, env.getIntType());
         } catch (TermException e) {
-            throw new ASTVisitException(e, numberLiteralTerm);
+            throw new ASTVisitException(numberLiteralTerm, e);
         }
     }
 
@@ -351,7 +352,7 @@ public class TermMaker implements ASTVisitor {
         try {
             resultModality = new AssignModality(f, term);
         } catch (TermException e) {
-            throw new ASTVisitException(e, modAssignment);
+            throw new ASTVisitException(modAssignment, e);
         }
     }
 
@@ -409,7 +410,9 @@ public class TermMaker implements ASTVisitor {
         try {
             resultType = env.mkType(typeRef.getTypeToken().image, retval);
         } catch (TermException e) {
-            throw new ASTVisitException(e, typeRef);
+            throw new ASTVisitException(typeRef, e);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(typeRef, e);
         }
     }
     

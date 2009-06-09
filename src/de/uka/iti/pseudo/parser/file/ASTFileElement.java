@@ -16,6 +16,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+//TODO DOC
 public abstract class ASTFileElement implements Iterable<ASTFileElement>, ASTLocatedElement {
 
     private String fileName;

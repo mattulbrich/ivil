@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.util;
 
+//TODO DOC
 public class Pair<E,F> {
 	
 	private E fstComponent;

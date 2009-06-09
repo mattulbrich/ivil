@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -336,7 +337,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         try {
             resultingType = env.mkType(typeName, args);
         } catch (TermException e) {
-            throw new ASTVisitException(e, typeRef);
+            throw new ASTVisitException(typeRef, e);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(typeRef, e);
         }
     }
     

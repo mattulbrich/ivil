@@ -8,65 +8,72 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
+import nonnull.NonNull;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVisitor;
-import de.uka.iti.pseudo.term.creation.TypingContext;
 
-// TODO: Auto-generated Javadoc
 /**
  * A binder is a syntactical element that binds a single variable.
  * 
  * It has one or more subterms (apart from the variable which is not a subterm).
- * The name of a binder always starts with a backslash "\".
- * It is closely realted to {@link Function}.
+ * The name of a binder always starts with a backslash "\". It is closely
+ * realted to a {@link Function}.
  * 
- * @author mattias ulbrich
+ * The involved types may contain type variables if the binder is polymorphic.
+ * An example of a polymorphic binder is the choose binder
+ * <pre>
+ *   'a (\choose 'a; bool)
+ * </pre>
+ * or something like
+ * <pre>
+ *   Func('a,'b) (\lambda 'a; 'b) 
+ * </pre>
  * 
  */
 public class Binder {
-    
+
     /**
-	 * The name of the binder, starting with a backslash, non-null
-	 */
+     * The name of the binder, starting with a backslash
+     */
     private String name;
 
     /**
-	 * The result type 
-	 */
+     * The result type of this binder
+     */
     private Type resultType;
 
     /**
-	 * The argument types.
-	 */
-    private Type argumentTypes[];
-
-    /**
-	 * The declaration.
-	 */
-    private ASTBinderDeclaration declaration;
-
-    /**
-	 * The var type.
-	 */
+     * The type of the bound variable.
+     */
     private Type varType;
 
     /**
-	 * Instantiates a new binder.
-	 * 
-	 * @param name
-	 *            the name
-	 * @param resultType
-	 *            the result type
-	 * @param varTy
-	 *            the var ty
-	 * @param argumentTypes
-	 *            the argument types
-	 * @param declaration
-	 *            the declaration
-	 */
-    public Binder(String name, Type resultType, Type varTy,
-            Type[] argumentTypes, ASTBinderDeclaration declaration) {
+     * The types of the arguments to this binder
+     */
+    private Type argumentTypes[];
+
+    /**
+     * The declaration in the enviroment file
+     */
+    private ASTLocatedElement declaration;
+
+    /**
+     * Instantiates a new binder.
+     * 
+     * @param name
+     *            the name of the binder, must begin with a backslash
+     * @param resultType
+     *            the result type of this binder object
+     * @param varTy
+     *            the type of the variable
+     * @param argumentTypes
+     *            the argument types
+     * @param declaration
+     *            the declaration location in the sources
+     */
+    public Binder(@NonNull String name, @NonNull Type resultType,
+            @NonNull Type varTy, @NonNull Type[] argumentTypes,
+            @NonNull ASTLocatedElement declaration) {
         this.name = name;
         this.resultType = resultType;
         this.argumentTypes = argumentTypes;
@@ -74,65 +81,69 @@ public class Binder {
         this.varType = varTy;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
+    /**
+     * get the name of this binder
+     * 
+     * @return the name of the binder, a string beginning with a backslash
      */
+    public @NonNull String getName() {
+        return name;
+    }
+
+    /**
+     * the result type of this binder. This may contain type variables
+     * 
+     * @return the type of the resulting term
+     */
+    public @NonNull Type getResultType() {
+        return resultType;
+    }
+
+    /**
+     * the type that the bound variable has. may contain type variables
+     * 
+     * @return a type, possible with type variables
+     */
+    public @NonNull Type getVarType() {
+        return varType;
+    }
+
+    /**
+     * the types of the arguments. the length of this array is the arity of the
+     * binder. The types in this array may contain Type variables.
+     * 
+     * @return the expected arguments as array
+     */
+    public @NonNull Type[] getArgumentTypes() {
+        return argumentTypes;
+    }
+
+    /**
+     * the declaration location
+     * 
+     * @return the located element describing the definition location for this
+     *         object.
+     */
+    public @NonNull ASTLocatedElement getDeclaration() {
+        return declaration;
+    }
+
+    /**
+     * get the arity of this binder
+     * 
+     * @return the number of arguments this object expects
+     */
+    public int getArity() {
+        return getArgumentTypes().length;
+    }
+    
     public String toString() {
-        String ret = "Binder[" + name + ";ret: " + resultType + 
-            ";var: " + varType + ":args:";
+        String ret = "Binder[" + name + ";ret: " + resultType + ";var: "
+                + varType + ":args:";
         for (Type tr : argumentTypes) {
             ret += " " + tr;
         }
         return ret + "]";
     }
-
-    /**
-	 * Gets the name.
-	 * 
-	 * @return the name
-	 */
-    public String getName() {
-        return name;
-    }
-
-    /**
-	 * Gets the result type.
-	 * 
-	 * @return the result type
-	 */
-    public Type getResultType() {
-        return resultType;
-    }
-
-    /**
-	 * Gets the argument types.
-	 * 
-	 * @return the argument types
-	 */
-    public Type[] getArgumentTypes() {
-        return argumentTypes;
-    }
-
-    /**
-	 * Gets the declaration.
-	 * 
-	 * @return the declaration
-	 */
-    public ASTBinderDeclaration getDeclaration() {
-        return declaration;
-    }
-
-    /**
-	 * Gets the var type.
-	 * 
-	 * @return the var type
-	 */
-    public Type getVarType() {
-        return varType;
-    }
-
-	public int getArity() {
-		return getArgumentTypes().length;
-	}
 
 }

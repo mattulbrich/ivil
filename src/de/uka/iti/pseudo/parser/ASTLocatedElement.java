@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.parser;
 
+//TODO DOC
 public interface ASTLocatedElement {
     
     ASTLocatedElement BUILTIN = new ASTLocatedElement() {

@@ -13,7 +13,6 @@
 
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
     <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>
-    <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="src:test"/>
     <javac srcdir="src" destdir="classes" debug="${compile.debug}">
       <compilerarg value="-Xlint"/>
     </javac>
@@ -45,6 +44,25 @@
 
   <target name="jar" depends="build, nonnull" description="creates the jar file">
     <jar jarfile="pseudo.jar" basedir="classes"/>
+  </target>
+
+  <target name="build-test" depends="build, nonnull" description="build test cases">
+    <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="test">
+      <classpath>
+        <pathelement location="junit.jar" />
+      	<pathelement path="classes" />
+      </classpath>
+    </javac>
+  </target>
+	
+  <target name="test" depends="build-test" description="run junit tests">
+    <junit>
+      <classpath>
+        <pathelement location="classes"/>
+        <pathelement path="junit.jar"/>
+      </classpath>
+      <test name="de.uka.iti.pseudo.AllTests"/>
+    </junit>
   </target>
 
   <target name="clean">

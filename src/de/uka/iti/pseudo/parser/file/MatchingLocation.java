@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
+//TODO DOC
 public enum MatchingLocation {
 	ANTECEDENT, SUCCEDENT, BOTH
 

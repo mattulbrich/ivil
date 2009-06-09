@@ -23,7 +23,30 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
+//TODO DOC
 public class PrettyPrint implements TermVisitor, ModalityVisitor {
+    
+    
+    public static AnnotatedString<Term> print(Environment env, Term term) {
+        return print(env, term, false, true);
+    }
+
+    public static AnnotatedString<Term> print(Environment env, Term term, boolean typed, boolean printFix) {
+        PrettyPrint pp = new PrettyPrint(env, typed, printFix);
+        
+        try {
+            term.visit(pp);
+        } catch (TermException e) {
+            // not thrown in this code
+            throw new Error(e);
+        }
+        
+        assert pp.printer.hasEmptyStack();
+        
+        return pp.printer;
+        
+    }
+    
 
     private Environment env;
     private boolean typed;
@@ -77,12 +100,10 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         return Integer.MAX_VALUE;
     }
 
-    @Override
     public void visit(Variable variable) throws TermException {
         printer.begin(variable).append(variable.toString(isTyped())).end();
     }
 
-    @Override
     public void visit(ModalityTerm modalityTerm) throws TermException {
         printer.append("[ ");
         modalityTerm.getModality().visit(this);
@@ -91,7 +112,6 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
   
-    @Override
     public void visit(Binding binding) throws TermException {
         printer.begin(binding);
         Binder binder = binding.getBinder();
@@ -107,7 +127,6 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer.end();
     }
 
-    @Override
     public void visit(Application application) throws TermException {
         printer.begin(application);
         boolean isInParens = inParens;
@@ -187,26 +206,26 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
             printer.append(" as " + application.getType());
     }
 
-    @Override public void visit(SchemaVariable schemaVariable)
+public void visit(SchemaVariable schemaVariable)
             throws TermException {
         printer.begin(schemaVariable).append(schemaVariable.toString(isTyped())).end();
     }
 
     
-    @Override public void visit(AssignModality assignModality)
+    public void visit(AssignModality assignModality)
             throws TermException {
         printer.append(assignModality.getAssignedConstant().getName()).append(" := ");
         assignModality.getAssignedTerm().visit(this);
     }
 
-    @Override public void visit(CompoundModality compoundModality)
+    public void visit(CompoundModality compoundModality)
             throws TermException {
         compoundModality.getSubModality(0).visit(this);
         printer.append("; "); 
         compoundModality.getSubModality(1).visit(this);
     }
 
-    @Override public void visit(IfModality ifModality) throws TermException {
+    public void visit(IfModality ifModality) throws TermException {
         printer.append("if ");
         ifModality.getConditionTerm().visit(this);
         printer.append(" then ");
@@ -219,11 +238,11 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         
     }
 
-    @Override public void visit(SkipModality skipModality) throws TermException {
+    public void visit(SkipModality skipModality) throws TermException {
         printer.append("skip");
     }
 
-    @Override public void visit(WhileModality whileModality)
+    public void visit(WhileModality whileModality)
             throws TermException {
         printer.append("while ");
         whileModality.getConditionTerm().visit(this);
@@ -232,24 +251,4 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer.append(" end");
     }
     
-    public static AnnotatedString<Term> print(Environment env, Term term) {
-        return print(env, term, false, true);
-    }
-
-    public static AnnotatedString<Term> print(Environment env, Term term, boolean typed, boolean printFix) {
-        PrettyPrint pp = new PrettyPrint(env, typed, printFix);
-        
-        try {
-            term.visit(pp);
-        } catch (TermException e) {
-            // not thrown in this code
-            throw new Error(e);
-        }
-        
-        assert pp.printer.hasEmptyStack();
-        
-        return pp.printer;
-        
-    }
-
 }

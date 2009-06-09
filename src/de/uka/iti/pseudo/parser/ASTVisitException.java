@@ -8,7 +8,7 @@
  */
 package de.uka.iti.pseudo.parser;
 
-
+//TODO DOC
 public class ASTVisitException extends Exception {
 
 	private ASTLocatedElement location;
@@ -35,7 +35,7 @@ public class ASTVisitException extends Exception {
 		this.location = location;
 	}
 
-	public ASTVisitException(Throwable cause, ASTLocatedElement location) {
+	public ASTVisitException(ASTLocatedElement location, Throwable cause) {
 		super(cause);
 		this.location = location;
 	}

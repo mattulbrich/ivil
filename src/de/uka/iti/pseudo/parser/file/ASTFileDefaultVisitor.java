@@ -86,7 +86,7 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
         visitDefault(arg);
     }
 
-    @Override public void visit(ASTGoalAction arg) throws ASTVisitException {
+    public void visit(ASTGoalAction arg) throws ASTVisitException {
         visitDefault(arg);
     }
 

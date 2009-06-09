@@ -5,8 +5,10 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
+import de.uka.iti.pseudo.rule.where.Typing;
 import de.uka.iti.pseudo.term.Term;
 
+//TODO DOC
 public abstract class WhereCondition {
     
     private static Map<String, WhereCondition> whereConditionTable =
@@ -14,7 +16,8 @@ public abstract class WhereCondition {
     
     private static final WhereCondition CONDITIONS[] =
     {
-        new NotFreeIn()
+        new NotFreeIn(),
+        new Typing()
     };
     
     static {

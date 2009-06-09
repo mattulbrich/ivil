@@ -11,7 +11,6 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {

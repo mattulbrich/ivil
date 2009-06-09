@@ -6,25 +6,29 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT for details.
  */
+
 package de.uka.iti.pseudo.environment;
 
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class EnvironmentException extends ASTVisitException {
+//TODO DOC
+public class EnvironmentException extends Exception {
+
+    private static final long serialVersionUID = -7443118615154672177L;
 
     public EnvironmentException(String message) {
         super(message);
     }
 
-    public EnvironmentException(String message, ASTLocatedElement location) {
-        super(message, location);
+    public EnvironmentException() {
+        super();
     }
 
-    public static EnvironmentException definedTwice(String what,
-            ASTLocatedElement loc1, ASTLocatedElement loc2) {
-        return new EnvironmentException(what + " has been defined twice:\n  " +
-                loc1.getLocation() + "\n  " + loc2.getLocation());
+    public EnvironmentException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public EnvironmentException(Throwable cause) {
+        super(cause);
     }
 
 }

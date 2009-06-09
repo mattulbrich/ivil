@@ -10,7 +10,6 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -18,6 +17,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 @NonNull
+//TODO DOC
 public abstract class ASTElement implements ASTLocatedElement {
 
     private String fileName;
