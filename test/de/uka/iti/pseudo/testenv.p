@@ -13,5 +13,6 @@ function
 	bool b1
 	bool b2
 	
+	int f('a)
 	poly('a, 'b) P('a, 'b)
 	'a Q(poly('a,'a))

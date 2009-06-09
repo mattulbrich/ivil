@@ -121,7 +121,8 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         if(isTyped())
             printer.append(" as ").append(binding.getType().toString());
         for(Term t : binding.getSubterms()) {
-            printer.append("; ").append(t.toString(isTyped())); 
+            printer.append("; ");
+            t.visit(this);
         }
         printer.append(")");
         printer.end();

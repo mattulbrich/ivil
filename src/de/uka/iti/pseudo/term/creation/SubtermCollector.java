@@ -24,7 +24,7 @@ import de.uka.iti.pseudo.term.WhileModality;
 /**
  * The Class SubtermCollector provides a static method {@link #collect(Term)}
  * which allows to get a list of all subterms of a term. The result is
- * deterministic, it is the same every time the method is called.
+ * deterministic, it is the same for a term every time the method is called.
  */
 public class SubtermCollector extends DefaultTermVisitor {
     

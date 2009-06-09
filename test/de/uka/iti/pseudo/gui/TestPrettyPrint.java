@@ -34,6 +34,9 @@ public class TestPrettyPrint extends TestCase {
         testTerm("! -5 = -3", "! -5 = -3", false);
         testTerm("!((!b1) = true)", "!(!b1) = true", false);
         testTerm("!(1=1)", "!1 = 1", false);
+        testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)", false);
+        testTerm("(\\forall x; x > 5)", "(\\forall x; x > 5)", false);
+        testTerm("f(1+2)", "f(1 + 2)", false);
     }
     
     public void testTyped() throws Exception {
@@ -64,8 +67,8 @@ public class TestPrettyPrint extends TestCase {
         assertEquals(15, as.getEnd(11));
         assertEquals(0, as.getBegin(2));
         assertEquals(26, as.getEnd(2));
-//        assertEquals(17, as.getBegin(17));
-//        assertEquals(26, as.getEnd(17));
+        assertEquals(17, as.getBegin(17));
+        assertEquals(26, as.getEnd(17));
         assertEquals(17, as.getBegin(21));
         assertEquals(26, as.getEnd(21));
 
