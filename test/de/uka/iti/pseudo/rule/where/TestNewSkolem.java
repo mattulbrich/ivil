@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.rule;
+package de.uka.iti.pseudo.rule.where;
 
 import java.util.Properties;
 
@@ -7,13 +7,15 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.rule.where.NewSkolem;
+import de.uka.iti.pseudo.proof.RuleApplicationMaker;
+import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
-public class TestWhereCondition extends TestCaseWithEnv {
+public class TestNewSkolem extends TestCaseWithEnv {
 
     public void testTryNewSkolem() throws Exception {
         NewSkolem newSK = new NewSkolem();
@@ -36,7 +38,7 @@ public class TestWhereCondition extends TestCaseWithEnv {
         }
     }
     
-    RuleApplication mockRuleApp = new RuleApplication() {
+    RuleApplication mockRuleApp = new RuleApplicationMaker() {
         @Override public String getWhereProperty(String key) {
             return "skolemName(%v)".equals(key) ? "sk100" : null;
         }

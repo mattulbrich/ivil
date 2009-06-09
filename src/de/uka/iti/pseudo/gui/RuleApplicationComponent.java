@@ -31,6 +31,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
@@ -158,12 +159,12 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     
     private void setInstantiations(RuleApplication app) {
         instantiationsPanel.removeAll();
-        for (Pair<String, Term> pair : app.getTermInstantiations()) {
-            JLabel label = new JLabel(pair.fst());
+        for (String schemaName : app.getSchemaVariableNames()) {
+            JLabel label = new JLabel(schemaName);
             instantiationsPanel.add(label);
             
             JTextField textField = new JTextField();
-            Term t = pair.snd();
+            Term t = app.getTermInstantiation(schemaName);
             if(t != null) {
                 textField.setText(PrettyPrint.print(env, t).toString());
                 textField.setEditable(false);
@@ -193,7 +194,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             return;
         
         Object selected = applicableList.getSelectedValue();
-        if (selected instanceof RuleApplication) {
+        if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
             displayRuleApp(ruleApp);
         }
@@ -204,7 +205,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     public void actionPerformed(ActionEvent e) {
         System.out.println(e);
         Object selected = applicableList.getSelectedValue();
-        if (selected instanceof RuleApplication) {
+        if (selected instanceof ImmutableRuleApplication) {
             // TODO this works if no user instantiations
             try {
                 proofCenter.apply((RuleApplication) selected);

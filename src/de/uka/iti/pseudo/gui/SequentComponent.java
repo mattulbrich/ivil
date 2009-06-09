@@ -148,6 +148,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         }
         
         doLayout();
+        repaint();
     }
     
     private void fireRuleApp(TermSelector termSelector) {

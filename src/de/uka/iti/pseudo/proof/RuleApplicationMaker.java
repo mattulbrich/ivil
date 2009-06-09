@@ -1,18 +1,20 @@
 package de.uka.iti.pseudo.proof;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Stack;
 
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
-import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 // proucer pattern?
 
-public class RuleApplicationMaker {
+public class RuleApplicationMaker implements RuleApplication {
     
     private Rule rule;
     private int goalNumber;
@@ -20,6 +22,7 @@ public class RuleApplicationMaker {
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
     private Map<String, Term> schemaVariableInstantiations;
     private Map<String, Modality> schemaModalityInstantiations;
+    private Properties whereProperties = new Properties();
     
     public void setGoalNumber(int goalNumber) {
         this.goalNumber = goalNumber;
@@ -38,9 +41,7 @@ public class RuleApplicationMaker {
     }
 
     public RuleApplication make() {
-        return new RuleApplication(rule, goalNumber, findSelector, 
-                Util.listToArray(assumeSelectors, TermSelector.class), 
-                schemaVariableInstantiations, schemaModalityInstantiations);
+        return new ImmutableRuleApplication(this);
     }
 
     public void popAssumptionSelector() {
@@ -60,6 +61,50 @@ public class RuleApplicationMaker {
     public void getInstantiationsFrom(TermUnification mc) {
         setSchemaVariableInstantiations(mc.getTermInstantiation());
         setSchemaModalityInstantiations(mc.getModalityInstantiation());
+    }
+
+    @Override public List<TermSelector> getAssumeSelectors() {
+        return assumeSelectors;
+    }
+
+    @Override public TermSelector getFindSelector() {
+        return findSelector;
+    }
+
+    @Override public int getGoalNumber() {
+        return goalNumber;
+    }
+
+    @Override public Rule getRule() {
+        return rule;
+    }
+
+    @Override public String getWhereProperty(String key) {
+        return whereProperties.getProperty(key);
+    }
+
+    @Override public Collection<String> getWherePropertyNames() {
+        return whereProperties.stringPropertyNames();
+    }
+
+    @Override public Modality getModalityInstantiation(String schemaModalityName) {
+        return schemaModalityInstantiations.get(schemaModalityName);
+    }
+
+    @Override public Collection<String> getSchemaModalityNames() {
+        return schemaModalityInstantiations.keySet();
+    }
+
+    @Override public Collection<String> getSchemaVariableNames() {
+        return schemaVariableInstantiations.keySet();
+    }
+
+    @Override public Term getTermInstantiation(String schemaVariableName) {
+        return schemaVariableInstantiations.get(schemaVariableName);
+    }
+
+    public Properties getWhereProperties() {
+        return whereProperties;
     }
 
 }

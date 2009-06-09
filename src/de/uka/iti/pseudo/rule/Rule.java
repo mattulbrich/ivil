@@ -29,16 +29,16 @@ public class Rule {
         return name;
     }
 
-    public LocatedTerm[] getAssumptions() {
-        return assumptions;
+    public List<LocatedTerm> getAssumptions() {
+        return Util.readOnlyArrayList(assumptions);
     }
 
     public LocatedTerm getFindClause() {
         return findClause;
     }
 
-    public WhereClause[] getWhereClauses() {
-        return whereClauses;
+    public List<WhereClause> getWhereClauses() {
+        return Util.readOnlyArrayList(whereClauses);
     }
 
     public GoalAction[] getGoalActions() {

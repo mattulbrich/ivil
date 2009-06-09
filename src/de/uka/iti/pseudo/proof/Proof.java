@@ -22,7 +22,7 @@ public class Proof extends Observable {
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
     
     public void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
-        
+        apply(ruleApp, env, null);
     }
     
     public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {

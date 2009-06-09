@@ -13,6 +13,7 @@ import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;

@@ -7,7 +7,8 @@ import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.proof.TestTermUnification;
-import de.uka.iti.pseudo.rule.TestWhereCondition;
+import de.uka.iti.pseudo.rule.where.TestNewSkolem;
+import de.uka.iti.pseudo.rule.where.TestSubst;
 import de.uka.iti.pseudo.term.creation.SubtermReplacerTest;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
 
@@ -23,7 +24,8 @@ public class AllTests {
         suite.addTestSuite(TestFileParser.class);
         suite.addTestSuite(TestTermParser.class);
         suite.addTestSuite(TestRuleParsing.class);
-        suite.addTestSuite(TestWhereCondition.class);
+        suite.addTestSuite(TestNewSkolem.class);
+        suite.addTestSuite(TestSubst.class);
         suite.addTestSuite(TestPrettyPrint.class);
         suite.addTestSuite(TestSubtermCollector.class);
         suite.addTestSuite(SubtermReplacerTest.class);

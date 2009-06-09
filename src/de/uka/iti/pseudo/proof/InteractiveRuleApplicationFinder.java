@@ -7,6 +7,8 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -21,9 +23,11 @@ public class InteractiveRuleApplicationFinder {
     private Environment env;
     private ArrayList<RuleApplication> applications;
     private RuleApplicationMaker ruleAppMaker = new RuleApplicationMaker();
+    private ProofNode goal;
 
     public InteractiveRuleApplicationFinder(Proof proof, int goalNo, Environment env) {
-        this.sequent = proof.getGoal(goalNo).getSequent();
+        goal = proof.getGoal(goalNo);
+        this.sequent = goal.getSequent();
         this.env = env;
         ruleAppMaker.setGoalNumber(goalNo);
     }
@@ -38,43 +42,51 @@ public class InteractiveRuleApplicationFinder {
         
         applications = new ArrayList<RuleApplication>();
         
-        for (Rule rule : sortedAllRules) {
-            if(applications.size() > MAX_NUMBER_APPLICATIONS)
-                break;
+        try {
+            for (Rule rule : sortedAllRules) {
+                if (applications.size() > MAX_NUMBER_APPLICATIONS)
+                    break;
 
-            ruleAppMaker.setRule(rule);
-            ruleAppMaker.setFindSelector(termSelector);
+                ruleAppMaker.setRule(rule);
+                ruleAppMaker.setFindSelector(termSelector);
 
-            LocatedTerm findClause = rule.getFindClause();
+                LocatedTerm findClause = rule.getFindClause();
 
-            if(findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT 
-                    && (termSelector.isSuccedent() || !termSelector.isToplevel()))
-                continue;
+                if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
+                        && (termSelector.isSuccedent() || !termSelector
+                                .isToplevel()))
+                    continue;
 
-            if(findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT 
-                    && (termSelector.isAntecedent() || !termSelector.isToplevel()))
-                continue;
+                if (findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT
+                        && (termSelector.isAntecedent() || !termSelector
+                                .isToplevel()))
+                    continue;
 
+                TermUnification mc = new TermUnification();
 
-            TermUnification mc = new TermUnification();
+                if (mc.leftUnify(findClause.getTerm(), termSelector
+                        .selectSubterm(sequent)))
+                    matchAssumptions(rule.getAssumptions(), mc, 0);
 
-            if(mc.leftUnify(findClause.getTerm(), termSelector.selectSubterm(sequent)))
-                matchAssumptions(rule.getAssumptions(), mc, 0);
-            
+            }
+        } catch (RuleException e) {
+            throw new ProofException("Error during finding of applicable rules", e);
         }
+        
         
         return applications;
     }
 
-    private void matchAssumptions(LocatedTerm[] assumptions, TermUnification mc, int assIdx) {
+    private void matchAssumptions(List<LocatedTerm> assumptions, TermUnification mc, int assIdx) throws RuleException {
         
-        if(assIdx >= assumptions.length) {
+        if(assIdx >= assumptions.size()) {
             ruleAppMaker.getInstantiationsFrom(mc);
-            applications.add(ruleAppMaker.make());
+            if(matchWhereClauses(mc))
+                applications.add(ruleAppMaker.make());
             return;
         }
         
-        LocatedTerm assumption = assumptions[assIdx];
+        LocatedTerm assumption = assumptions.get(assIdx);
         List<Term> branch;
         boolean isAntecedent = assumption.getMatchingLocation() == MatchingLocation.ANTECEDENT;
         if(isAntecedent) {
@@ -95,5 +107,14 @@ public class InteractiveRuleApplicationFinder {
             }
             termNo++;
         }
+    }
+
+    private boolean matchWhereClauses(TermUnification mc) throws RuleException {
+        List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
+        for ( WhereClause wc : whereClauses ) {
+            if(wc.applyTo(mc, ruleAppMaker, goal, env, ruleAppMaker.getWhereProperties()))
+                return false;
+        }
+        return true;
     }
 }

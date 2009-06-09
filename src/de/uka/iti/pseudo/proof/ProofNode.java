@@ -169,16 +169,16 @@ public class ProofNode {
 
     private void matchAssumeClauses(RuleApplication ruleApp,
             TermUnification mc, Rule rule) throws ProofException {
-        int length = ruleApp.getAssumeSelectors().length;
-        TermSelector[] assumeSelectors = ruleApp.getAssumeSelectors();
-
-        assert length == assumeSelectors.length;
-
+        
+        List<TermSelector> assumeSelectors = ruleApp.getAssumeSelectors();
+        int length = assumeSelectors.size();
+        
         for (int i = 0; i < length; i++) {
-            assert assumeSelectors[i].isToplevel();
-            Term assumeTerm = assumeSelectors[i].selectTopterm(sequent);
-            LocatedTerm assumption = rule.getAssumptions()[i];
-            if (!assumption.isFittingSelect(assumeSelectors[i])) {
+            TermSelector assSel = assumeSelectors.get(i);
+            assert assSel.isToplevel();
+            Term assumeTerm = assSel.selectTopterm(sequent);
+            LocatedTerm assumption = rule.getAssumptions().get(i);
+            if (!assumption.isFittingSelect(assSel)) {
                 throw new ProofException("Illegal selector for assume (" + i
                         + ")");
             }

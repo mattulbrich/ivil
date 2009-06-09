@@ -5,7 +5,7 @@ import java.util.Properties;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.SchemaVariable;

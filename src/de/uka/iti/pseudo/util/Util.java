@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.util.AbstractList;
+import java.util.Collection;
 import java.util.List;
 import java.util.RandomAccess;
 
@@ -112,8 +113,8 @@ public class Util {
 	}
 
     @SuppressWarnings("unchecked") 
-    public static <E> E[] listToArray(@NonNull List<? extends E> list, @NonNull Class<E> clss) {
-        E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, list.size());
-        return list.toArray(array);
+    public static <E> E[] listToArray(@NonNull Collection<? extends E> collection, @NonNull Class<E> clss) {
+        E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
+        return collection.toArray(array);
     }
 }
