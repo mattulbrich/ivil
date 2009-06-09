@@ -11,7 +11,6 @@ package de.uka.iti.pseudo.gui;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,6 +23,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
@@ -51,6 +51,11 @@ public class TermComponent extends JTextArea {
     private Term term;
     
     /**
+     * the position of term within its sequent
+     */
+    private TermSelector termSelector;
+    
+    /**
      * The environment in which term lives
      */
     private Environment env;
@@ -72,10 +77,12 @@ public class TermComponent extends JTextArea {
      *            the term to display
      * @param env
      *            the environment to use for pretty printing
+     * @param termSelector selector object describing the position of the displayed term in its sequent
      */
-    public TermComponent(Term t, Environment env) {
+    public TermComponent(Term t, Environment env, TermSelector termSelector) {
         this.env = env;
         this.term = t;
+        this.termSelector = termSelector;
         this.annotatedString = PrettyPrint.print(env, t);
         
         //
@@ -141,16 +148,17 @@ public class TermComponent extends JTextArea {
     }
     
     /**
-     * Gets the subterm at a certain point in the component
+     * Gets the termselector for a subterm at a certain point in the component
      * 
      * @param point
      *            the point within the component
      * 
-     * @return the subterm at this point
+     * @return the selector for the subterm at this point
      */
-    public Term getTermAt(Point point) {
-        int index = viewToModel(point);
-        return annotatedString.getAttributeAt(index);
+    public TermSelector getTermAt(Point point) {
+        int charIndex = viewToModel(point);
+        int termIndex = annotatedString.getAttributeIndexAt(charIndex);
+        return termSelector.selectSubterm(termIndex);
     }
     
     // stolen from KeY

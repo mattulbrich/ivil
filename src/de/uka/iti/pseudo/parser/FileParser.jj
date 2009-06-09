@@ -13,6 +13,8 @@ import java.io.FileReader;
 import java.io.Reader;
 import java.io.StringReader;
 
+import de.uka.iti.pseudo.util.Pair;
+
 public class FileParser {
 
     public FileParser() {
@@ -62,7 +64,7 @@ TOKEN :
 | < REPLACE: "replace" >
 | < WHERE: "where" >
 | < ADD: "add" >
-| < GOAL: "copygoal" >
+| < SAMEGOAL: "samegoal" >
 | < NEWGOAL: "newgoal" >
 | < CLOSE: "closegoal" >
 | < DESCRIPTION: "description" >
@@ -180,7 +182,6 @@ ASTFunctionDeclaration FunctionDeclaration():
   Token name, as = null, modifier = null, precedence = null;
   ASTType range, ty;
   List<ASTType> tyrefs = new ArrayList<ASTType>();
-  boolean unique = false;
 }
 {
         range=TypeReference()
@@ -275,10 +276,11 @@ ASTRule RuleDeclaration():
   List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
   List<ASTGoalAction> actions = new ArrayList<ASTGoalAction>();
   List<ASTRuleElement> aclist;
+  List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
   ASTGoalAction action;
   ASTRuleElement elem;
   ASTLocatedTerm lt;
-  Token t, first, name;
+  Token t, v, first, name, descr = null;
 }
 {
   first="rule" name=<IDENTIFIER>
@@ -290,19 +292,23 @@ ASTRule RuleDeclaration():
   
   (
     t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (t="copygoal" | t="newgoal") aclist=AddReplaces() 
+  | (t="samegoal" | t="newgoal") aclist=AddReplaces() 
          { actions.add(new ASTGoalAction(t, aclist)); }
   )+
   
   (
-    "description" <STRING>
+    "description" descr=<STRING>
   )?
   
   (
-    "tags" ( <STRING> )+
+    "property" 
+    ( 
+      t=<IDENTIFIER> v=<STRING>
+        { properties.add(new Pair<Token, Token>(t, v)); } 
+    )+
   )?
   
-  { return new ASTRule(first, name, list, actions); }
+  { return new ASTRule(first, name, list, actions, descr, properties); }
 }
 
 ASTLocatedTerm LocatedTerm(boolean bothAllowed):

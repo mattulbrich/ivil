@@ -3,10 +3,15 @@ package de.uka.iti.pseudo.proof;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
-public class Proof extends Observable {
+import de.uka.iti.pseudo.util.DeferredObservable;
+
+public class Proof {
 
     private ProofNode root;
+    
+    private Observable changeObservable = new DeferredObservable();
     
     private List<ProofNode> openGoals = new LinkedList<ProofNode>();
     
@@ -28,6 +33,14 @@ public class Proof extends Observable {
 
     public ProofNode getRoot() {
         return root;
+    }
+
+    public void addChangeObserver(Observer obs) {
+        changeObservable.addObserver(obs);
+    }
+
+    public void fireNodeChanged(ProofNode proofNode) {
+        changeObservable.notifyObservers(proofNode);
     }
     
 }

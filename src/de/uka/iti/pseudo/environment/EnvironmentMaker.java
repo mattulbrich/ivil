@@ -12,7 +12,9 @@ package de.uka.iti.pseudo.environment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import nonnull.NonNull;
@@ -54,6 +56,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 
 /**
@@ -495,8 +498,17 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
                     actions.add(resultingGoalAction);
                 }
             }
+            
+            String description = arg.getDescription().image;
+            
+            Map<String, String> properties = new HashMap<String, String>();
+            {
+                for (Pair<Token, Token> prop : arg.getProperties()) {
+                    properties.put(prop.fst().image, stripQuotes(prop.snd().image));
+                }
+            }
 
-            Rule rule = new Rule(name, assumes, find, wheres, actions);
+            Rule rule = new Rule(name, assumes, find, wheres, actions, description, properties);
             env.addRule(rule);
 
         } catch (RuleException e) {

@@ -2,6 +2,9 @@ package de.uka.iti.pseudo.proof;
 
 public class TermSelector {
 
+    public static final boolean ANTECEDENT = true;
+    public static final boolean SUCCEDENT = false;
+    
     private boolean inAntecedent;
     private int termNo;
     private int subtermNo;
@@ -13,6 +16,10 @@ public class TermSelector {
         
         assert termNo >= 0;
         assert subtermNo >= -1;
+    }
+    
+    public TermSelector(boolean inAntecendent, int termNo) {
+        this(inAntecendent, termNo, -1);
     }
     
     public TermSelector(String descr) throws FormatException {
@@ -48,6 +55,8 @@ public class TermSelector {
         }
     }
 
+   
+
     public String toString() {
         return (inAntecedent ? "A." : "S.") + termNo + (subtermNo > 0 ? "."+subtermNo : "");
     }
@@ -71,6 +80,11 @@ public class TermSelector {
     public int getSubtermNo() {
         assert subtermNo >= 0;
         return subtermNo;
+    }
+
+    public TermSelector selectSubterm(int subtermNo) {
+        assert subtermNo >= 0;
+        return new TermSelector(inAntecedent, termNo, subtermNo);
     }
     
 }

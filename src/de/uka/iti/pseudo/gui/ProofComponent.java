@@ -93,7 +93,7 @@ public class ProofComponent extends JTree {
     public ProofComponent(Proof proof) {
         this.proof = proof;
         Model model = new Model();
-        proof.addObserver(model);
+        proof.addChangeObserver(model);
         setModel(model);
         // DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         // Icon innerIcon = mkIcon("img/inner.png");

@@ -38,7 +38,7 @@ public class ProofNode {
 
     private void setChildren(ProofNode[] children) {
         this.children = children;
-        proof.notifyObservers(this);
+        proof.fireNodeChanged(this);
     }
     
     public void prune() {

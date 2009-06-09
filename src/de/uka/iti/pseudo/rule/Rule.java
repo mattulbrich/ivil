@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.rule;
 
 import java.util.List;
+import java.util.Map;
 
 import de.uka.iti.pseudo.util.Util;
 
@@ -11,6 +12,12 @@ public class Rule {
     private LocatedTerm findClause;
     private WhereClause whereClauses[];
     private GoalAction goalActions[];
+    private Map<String, String> properties;
+    private String description;
+
+    public String getDescription() {
+        return description;
+    }
 
     public String getName() {
         return name;
@@ -33,13 +40,16 @@ public class Rule {
     }
 
     public Rule(String name, List<LocatedTerm> assumes, LocatedTerm find,
-            List<WhereClause> wheres, List<GoalAction> actions) throws RuleException {
+            List<WhereClause> wheres, List<GoalAction> actions,
+            String description, Map<String, String> properties)
+            throws RuleException {
         this.name = name;
         this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
         this.findClause = find;
         this.whereClauses = Util.listToArray(wheres, WhereClause.class);
         this.goalActions = Util.listToArray(actions, GoalAction.class);
-        
+        this.description = description;
+        this.properties = properties;
         checkRule();
     }
 
