@@ -39,5 +39,10 @@ public class TypeVariable extends Type {
 	public boolean isFormal() {
 		return formal;
 	}
+	
+	@Override
+	public Type visit(TypeVisitor visitor) {
+	    return visitor.visit(this);
+	}
 
 }

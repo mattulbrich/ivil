@@ -10,16 +10,17 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTApplicationTerm extends ASTTerm {
     
-    private Token functionSymbol;
-
-    public ASTApplicationTerm(Token functionSymbol, List<ASTTerm> subterms) {
+    private Token functionToken;
+    
+    public ASTApplicationTerm(Token functionToken, List<ASTTerm> subterms) {
         super(subterms);
-    	assert functionSymbol != null;
-    	this.functionSymbol = functionSymbol;
+    	assert functionToken != null;
+    	this.functionToken = functionToken;
     }
 
     @Override
@@ -27,13 +28,13 @@ public class ASTApplicationTerm extends ASTTerm {
         v.visit(this);
     }
 
-    public final Token getFunctionSymbol() {
-        return functionSymbol;
+    public final Token getFunctionToken() {
+        return functionToken;
     }
     
     @Override
 	protected Token getLocationToken() {
-    	return functionSymbol;
+    	return functionToken;
 	}
-    
+
 }

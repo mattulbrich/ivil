@@ -10,19 +10,27 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.term.creation.Typing;
+import de.uka.iti.pseudo.util.SelectList;
+
 public abstract class ASTTerm extends ASTElement {
-    
-    private List<ASTTerm> subterms;
     
     private Typing typing;
 
     public ASTTerm(List<ASTTerm> subterms) {
-        this.subterms = subterms;
         addChildren(subterms);
     }
 
     public List<ASTTerm> getSubterms() {
-        return subterms;
+        return SelectList.select(ASTTerm.class, getChildren());
+    }
+
+    public Typing getTyping() {
+        return typing;
+    }
+
+    public void setTyping(Typing typing) {
+        this.typing = typing;
     }
     
 }

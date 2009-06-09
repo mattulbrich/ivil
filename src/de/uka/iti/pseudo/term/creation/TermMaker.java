@@ -14,9 +14,10 @@ import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
+import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
+import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTModAssignment;
@@ -36,10 +37,10 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.ModalityTerm;
-import de.uka.iti.pseudo.term.ShuntingYard;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.Variable;
 
 public class TermMaker implements ASTVisitor {
@@ -100,28 +101,26 @@ public class TermMaker implements ASTVisitor {
 	
 	public void visit(ASTApplicationTerm applicationTerm)
 			throws ASTVisitException {
-		String functSymb = applicationTerm.getFunctionSymbol().image;
+		String functSymb = applicationTerm.getFunctionToken().image;
 		Function funct = env.getFunction(functSymb);
-		
-		if(funct == null)
-			throw new ASTVisitException("Unknown function symbol " + functSymb, applicationTerm);
+
+		// checked elsewhere
+		assert funct != null;
 		
 		Term[] subterms = collectSubterms(applicationTerm);
 		
-		try {
-			resultTerm = new Application(funct, subterms);
-		} catch(TermException ex) {
-			throw new ASTVisitException(ex, applicationTerm);
-		}
+		Type type = applicationTerm.getTyping().getType();
+		resultTerm = new Application(funct, type, subterms);
 	}
 
 	
 	public void visit(ASTBinderTerm binderTerm) throws ASTVisitException {
+	    // TODO s. appliation
 		String binderSymb = binderTerm.getBinderToken().image;
 		Binder binder = env.getBinder(binderSymb);
 		
-		if(binder == null)
-			throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
+		// checked elsewhere
+        assert binder != null;
 		
 		binderTerm.getVariableType().visit(this);
 		Type variableType = resultType;
@@ -142,19 +141,12 @@ public class TermMaker implements ASTVisitor {
 		String fctName = fixTerm.getFixOperator().getName();
 		Function function = env.getFunction(fctName);
 		
-		if(function == null) {
-			// cannot happen, but save is save.
-			throw new ASTVisitException("Unknown function symbol " + fctName, fixTerm);
-		}
+		assert function != null;
 		
 		Term[] subterms = collectSubterms(fixTerm);
 		
-		try {
-			resultTerm = new Application(function, subterms);
-		} catch(TermException ex) {
-			throw new ASTVisitException(ex, fixTerm);
-		}
-		
+		Type type = fixTerm.getTyping().getType();
+		resultTerm = new Application(function, type, subterms);
 	}
 
 	
@@ -162,25 +154,20 @@ public class TermMaker implements ASTVisitor {
 			throws ASTVisitException {
 		String name = identifierTerm.getSymbol().image;
 		Function funcSymbol = env.getFunction(name);
-		try {
-			if(funcSymbol != null) {
-				resultTerm = new Application(funcSymbol);
-			} else {
-				resultTerm = new Variable(name);
-			}
-		} catch(TermException ex) {
-			throw new ASTVisitException(ex, identifierTerm);
-		}
+        Type type = identifierTerm.getTyping().getType();
+        if (funcSymbol != null) {
+            resultTerm = new Application(funcSymbol, type);
+        } else {
+            resultTerm = new Variable(name, type);
+        }
 	}
 
 	
 	public void visit(ASTListTerm listTerm) throws ASTVisitException {
 		
-		ASTTerm replacement = ShuntingYard.shuntingYard(env, listTerm);
-		replacement.visit(this);
+	    throw new Error("This must not appear. These terms must have been resolved earlier");
 		
 	}
-
 	
 	public void visit(ASTModalityTerm modalityTerm) throws ASTVisitException {
 		
@@ -228,10 +215,10 @@ public class TermMaker implements ASTVisitor {
 			throws ASTVisitException {
 		Function funct = env.getNumberLiteral(numberLiteralTerm.getNumberToken().image);
 		try {
-			resultTerm = new Application(funct);
+            resultTerm = new Application(funct, new TypeApplication(env.getSortInt()));
 		} catch (TermException e) {
-			throw new ASTVisitException(e, numberLiteralTerm);
-		}
+		    throw new ASTVisitException(e, numberLiteralTerm);
+        }
 	}
 
 	
@@ -256,6 +243,12 @@ public class TermMaker implements ASTVisitor {
 		// TODO Auto-generated method stub
 		
 	}
+
+    public void visit(ASTAsType asType) throws ASTVisitException {
+        // DOC
+        // TODO Auto-generated method stub
+        
+    }
 
 	
 

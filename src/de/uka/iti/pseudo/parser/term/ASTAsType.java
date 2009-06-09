@@ -24,4 +24,12 @@ public class ASTAsType extends ASTTerm {
         v.visit(this);
     }
 
+    public ASTTypeRef getAsType() {
+        return asType;
+    }
+    
+    public ASTTerm getTerm() {
+        return getSubterms().get(0);
+    }
+
 }

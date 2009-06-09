@@ -16,17 +16,6 @@ public abstract class Term {
 	
 	private Type type;
 
-	protected Term(Term[] subterms) throws TermException {
-		
-		assert subterms != null;
-		this.subterms = subterms;
-		
-		Type type = inferType();
-		assert type == null;
-
-		this.type = type;
-	}
-	
 	protected Term(Term[] subterms, Type type) {
 		
 		assert subterms != null;
@@ -34,10 +23,6 @@ public abstract class Term {
 		
 		this.subterms = subterms;
 		this.type = type;
-	}
-	
-	protected Term() throws TermException {
-		this(NO_ARGUMENTS);
 	}
 	
 	public Term(Type type) {
@@ -55,10 +40,6 @@ public abstract class Term {
 	public Term getSubterm(int i) {
 		return subterms[i];
 	}
-	
-	protected Type inferType() {
-		throw new Error("The method may only be called on certain subclasses");
-	};
 	
 	// to enforce overriding
 	public abstract String toString();

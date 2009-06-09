@@ -12,8 +12,8 @@ public class Variable extends Term {
 	
 	private String name;
 
-	public Variable(String name) {
-		super(new TemporaryTypeVariable());
+	public Variable(String name, Type type) {
+		super(type);
 		this.name = name;
 	}
 	

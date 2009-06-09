@@ -14,28 +14,18 @@ public class Application extends Term {
 	
 	private Function function;
 
-	public Application(Function funct, Term[] subterms) throws TermException {
-		super(subterms);
+	public Application(Function funct, Type type, Term[] subterms) {
+		super(subterms, type);
 		this.function = funct;
+		// TODO type checking, arity checking
 	}
 
-	public Application(Function funct) throws TermException {
-		super();
+	public Application(Function funct, Type type) {
+		super(type);
 		this.function = funct;
+		// TODO type checking, arity checking
 	}
 
-	protected Type inferType() {
-		
-//		Type[] argumentTypes = function.getArgumentTypes();
-//		
-//		if(argumentTypes.length != countSubterms())
-//			throw new TermException("wrong number of arguments for function " + function.getName());
-//		
-//		// TODO
-		
-		return null;
-	}
-	
 	@Override
 	public String toString() {
 		String retval = function.getName();

@@ -9,7 +9,6 @@
 package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ASTFixTerm;
 
 public interface ASTVisitor {
 

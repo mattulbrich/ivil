@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.creation.TypingContext;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -128,7 +130,5 @@ public class Binder {
     public Type getVarType() {
         return varType;
     }
-    
-    
 
 }

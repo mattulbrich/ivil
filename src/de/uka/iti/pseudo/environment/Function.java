@@ -9,8 +9,9 @@
 package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.creation.TypingContext;
 
 public class Function {
 
@@ -60,5 +61,6 @@ public class Function {
 	public boolean isUnique() {
 		return unique;
 	}
+	
 
 }

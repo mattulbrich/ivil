@@ -10,6 +10,7 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTBinderTerm extends ASTTerm {
@@ -17,7 +18,7 @@ public class ASTBinderTerm extends ASTTerm {
     private Token binderToken;
     private ASTTypeRef variableType;
     private Token variableToken;
-
+    
     public ASTBinderTerm(Token binderToken, ASTTypeRef variableType,
             Token variableToken, List<ASTTerm> subterms) {
         super(subterms);
@@ -49,4 +50,5 @@ public class ASTBinderTerm extends ASTTerm {
 	protected Token getLocationToken() {
     	return binderToken;
 	}
+
 }

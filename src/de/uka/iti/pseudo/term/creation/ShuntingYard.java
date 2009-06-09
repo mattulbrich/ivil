@@ -6,14 +6,14 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT for details.
  */
-package de.uka.iti.pseudo.term;
+package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ASTFixTerm;
+import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;

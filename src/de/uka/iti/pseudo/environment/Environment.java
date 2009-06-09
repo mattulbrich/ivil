@@ -13,6 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -57,11 +60,11 @@ public class Environment {
         sortMap.put(name, sort);
     }
     
-    public Sort getSort(String name) {
+    public @Nullable Sort getSort(String name) {
         return sortMap.get(name);
     }
     
-    public Sort getSortInt() {
+    public @NonNull Sort getSortInt() {
     	return getSort("int");
     }
     

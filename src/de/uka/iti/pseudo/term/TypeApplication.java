@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.environment.Sort;
 
 public class TypeApplication extends Type {
     
+    private static final Type[] NO_ARGS = new Type[0];
     private Type[] typeParamters;
     private Sort sort;
     
@@ -30,6 +31,12 @@ public class TypeApplication extends Type {
         this.typeParamters = typeParameters;
     }
     
+    public TypeApplication(Sort sort) throws TermException {
+        this(sort, NO_ARGS);
+    }
+
+
+
     @Override
     public void collectTypeVariables(Collection<String> coll) {
         for (Type tr : typeParamters) {
@@ -49,5 +56,18 @@ public class TypeApplication extends Type {
             sb.append(")");
         
         return sb.toString();
+    }
+    
+    @Override
+    public Type visit(TypeVisitor visitor) {
+        return visitor.visit(this);
+    }
+
+    public Sort getSort() {
+        return sort;
+    }
+
+    public Type[] getArguments() {
+        return typeParamters;
     }
 }

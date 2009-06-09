@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.util;
 
+import java.util.List;
+
 
 public class Util {
 	
@@ -20,6 +22,16 @@ public class Util {
 		}
 		return sb.toString();
 	}
+
+    public static <E> boolean replaceInList(List<E> list,
+            E org, E replacement) {
+        int index = list.indexOf(org);
+        if(index != -1) {
+            list.set(index, replacement);
+            return true;
+        }
+        return false;
+    }
 
 
 }
