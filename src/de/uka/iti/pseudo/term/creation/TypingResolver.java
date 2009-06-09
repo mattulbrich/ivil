@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.parser.term.ASTTypeRef;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.UnificationException;
 
 public class TypingResolver extends ASTDefaultVisitor {
     
@@ -61,7 +62,13 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException("Function symbol " + functSymb + " expects " + 
                     argumentTypes.length + " arguments, but received " + subterms.size(), applicationTerm);
         
-        setTyping(applicationTerm, subterms, resultType, argumentTypes);
+        try {
+			setTyping(applicationTerm, subterms, resultType, argumentTypes);
+		} catch (UnificationException e) {
+			throw new ASTVisitException("Type inference failed for function " + functSymb +
+					"\nFunction: " + funct+
+					"\n" + e.getDetailedMessage(), applicationTerm);
+		}
     }
     
     @Override
@@ -87,10 +94,16 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException("Binder symbol " + binderSymb + " expects " + 
                     arguments.length + " arguments, but received " + subterms.size(), binderTerm);
         
-        setTyping(binderTerm, subterms, result, arguments);
+        try {
+			setTyping(binderTerm, subterms, result, arguments);
+		} catch (UnificationException e) {
+			throw new ASTVisitException("Type inference failed for function " + binderSymb +
+					"\nFunction: " + binder +
+					"\n" + e.getDetailedMessage(), binderTerm);
+			}
     }
 
-    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) {
+    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
         
         assert subterms.size() == arguments.length;
         
@@ -99,7 +112,12 @@ public class TypingResolver extends ASTDefaultVisitor {
         term.setTyping(new Typing(sig[0], typingContext));
         
         for (int i = 1; i < sig.length; i++) {
-            typingContext.addConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType(), term);
+            try {
+				typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType());
+			} catch (UnificationException e) {
+				e.setDetailLocation("subterm " + (i-1));
+				throw e;
+			}
         }
     }
     
@@ -110,7 +128,13 @@ public class TypingResolver extends ASTDefaultVisitor {
         asType.getAsType().visit(this);
         asType.setTyping(new Typing(resultingType, typingContext));
         
-        typingContext.addConstraint(resultingType, asType.getTyping().getRawtType(), asType);
+        try {
+			typingContext.solveConstraint(resultingType, asType.getTyping().getRawtType());
+		} catch (UnificationException e) {
+			throw new ASTVisitException("Type inference failed for explicitly typed term" +
+					"\nExplicit Type: " + asType.getTyping().getRawtType() +
+					"\n" + e.getDetailedMessage(), e);
+			}
     }
     
     @Override
@@ -127,7 +151,13 @@ public class TypingResolver extends ASTDefaultVisitor {
                 throw new ASTVisitException("Constant symbol " + funcSymbol + " expects " + 
                         arity + " arguments, but received none", identifierTerm);
 
-            setTyping(identifierTerm, Collections.<ASTTerm>emptyList(), result, new Type[0]);
+            try {
+				setTyping(identifierTerm, Collections.<ASTTerm>emptyList(), result, new Type[0]);
+			} catch (UnificationException e) {
+				throw new ASTVisitException("Type inference failed for constant " + name +
+						"\nFunction: " + funcSymbol +
+						"\n" + e.getDetailedMessage(), identifierTerm);
+			}
         } else {
             TypeVariable tv = boundVariables.get(name);
 

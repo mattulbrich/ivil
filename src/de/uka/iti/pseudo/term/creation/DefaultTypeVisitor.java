@@ -20,7 +20,7 @@ public class DefaultTypeVisitor implements TypeVisitor {
         return new TypeApplication(sort, result);
     }
 
-    public Type visit(TypeVariable typeVariable) {
+    public Type visit(TypeVariable typeVariable) throws TermException {
         return typeVariable;
     }
 

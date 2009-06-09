@@ -22,4 +22,18 @@ public class UnificationException extends TermException {
 		// TODO Auto-generated constructor stub
 	}
 
+	public UnificationException(String string, Type adaptingType, Type fixType) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public void setDetailLocation(String string) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public String getDetailedMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

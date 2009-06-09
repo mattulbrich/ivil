@@ -67,5 +67,10 @@ public class TypeVariable extends Type {
 		}
 		return false;
 	}
+	
+	@Override
+	public int hashCode() {
+		return typeVar.hashCode();
+	}
 
 }

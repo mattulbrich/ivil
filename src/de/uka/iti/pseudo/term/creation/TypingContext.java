@@ -5,28 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.UnificationException;
 
 public class TypingContext {
     
-    private static class Constraint {
-
-        Type formal;
-        Type actual;
-        ASTLocatedElement location;
-        
-        public Constraint(Type formal, Type actual, ASTLocatedElement location) {
-            super();
-            this.formal = formal;
-            this.actual = actual;
-            this.location = location;
-        }
-    }
-    
+	/**
+	 * This visitor replaces every type variable with a fresh type variables.
+	 * Occurences of the same type variable are replaces by the same fresh symbol.
+	 */
+	@NonNull
     private class SignatureVisitor extends DefaultTypeVisitor {
         private Map<TypeVariable, TypeVariable> varMap = 
             new HashMap<TypeVariable, TypeVariable>();
@@ -42,33 +37,24 @@ public class TypingContext {
         }
     }
 
-    private TypeVisitor instantiater = new DefaultTypeVisitor() {
-        public Type visit(TypeVariable typeVariable) {
-            return null;
-            // TODO return typeVariableMap.get( resp. typeVariable itself
-        };
-    };
     
-    private List<Constraint> constraints = new ArrayList<Constraint>();
     
     private int counter = 0;
+    private TypeUnification unify = new TypeUnification();
 
-    public Type instantiate(Type rawType) {
-        try {
-			return rawType.visit(instantiater);
-		} catch (TermException e) {
-			// is never thrown within this code
-			throw new Error(e);
-		}
+    public Type instantiate(Type type) {
+    	return unify.instantiate(type);
     }
 
-    public void addConstraint(Type formal, Type actual, ASTLocatedElement location) {
-        constraints.add(new Constraint(formal, actual, location));
+    public void solveConstraint(Type formal, Type actual) throws UnificationException {
+    	
+    	unify.unify(formal, actual);
+    	
     }
 
     public TypeVariable newTypeVariable() {
         counter ++;
-        return new TypeVariable("v" + counter);
+        return new TypeVariable(Integer.toString(counter));
     }
 
     public Type[] makeNewSignature(Type resultType, Type[] argumentTypes) {
