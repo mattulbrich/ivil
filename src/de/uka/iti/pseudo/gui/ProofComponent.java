@@ -26,6 +26,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     private static final Icon GREEN_ICON = mkIcon("img/green.png");
     private static final Icon GREY_ICON = mkIcon("img/grey.png");
     private final Font italicFont = getFont().deriveFont(Font.ITALIC);
+    private final Font boldFont = getFont().deriveFont(Font.BOLD);
     
     @SuppressWarnings("serial") 
     private class Renderer extends DefaultTreeCellRenderer {
@@ -46,7 +47,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
                     setFont(null);
                 } else {
                     setText("OPEN");
-                    setFont(null);
+                    setFont(boldFont);
                 }
                 
                 if(treenode.getParent() == null) {
@@ -85,7 +86,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     public ProofComponent(Proof proof) {
         // this.proof = proof;
         proofModel = new ProofComponentModel(proof.getRoot());
-        proof.addChangeObserver(proofModel);
+        proof.addObserver(proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());
     }
@@ -98,23 +99,6 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return Util.UNKNOWN_ICON;
         }
     
-//    public String convertValueToText(Object value, boolean selected,
-//            boolean expanded, boolean leaf, int row, boolean hasFocus) {
-//        if (value instanceof ProofNode) {
-//            ProofNode node = (ProofNode) value;
-//            RuleApplication appliedRuleApp = node.getAppliedRuleApp();
-//            if(appliedRuleApp != null) {
-//                return appliedRuleApp.getRule().getName();
-//            } else {
-//                return "OPEN";
-//            }
-//        } else {
-//            // unknown state ... can happen before new Model has been set.
-//            return "???";
-//        }
-//        
-//    }
-
     public void proofNodeSelected(ProofNode node) {
         setSelectionPath(proofModel.getPath(node));
         repaint();

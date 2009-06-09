@@ -32,8 +32,26 @@ public class UnificationException extends TermException {
 	    addDetail("Type 1: " + t1);
 	    addDetail("Type 2: " + t2);
 	}
+	
+	public UnificationException(String message, Term t1, Term t2) {
+	    this(message);
+	    addDetail("Term 1: " + t1);
+	    addDetail("Term 2: " + t2);
+	}
 
-	public void addDetail(String detail) {
+	public UnificationException(Term t1, Term t2) {
+	    this("Fail to unify");
+        addDetail("Term 1: " + t1);
+        addDetail("Term 2: " + t2);
+    }
+
+    public UnificationException(String string, Modality m1, Modality m2) {
+        this(string);
+        addDetail("Modality 1: " + m1);
+        addDetail("Modality 2: " + m2);
+    }
+
+    public void addDetail(String detail) {
 	    details.add(detail);
 	}
 

@@ -5,14 +5,15 @@ import javax.swing.WindowConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import de.uka.iti.pseudo.proof.MockingProof;
 import de.uka.iti.pseudo.proof.Proof;
 
 public class ShowProofComponent {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         JFrame f = new JFrame();
         
-        ProofComponent pc = new ProofComponent(new Proof());
+        ProofComponent pc = new ProofComponent(new MockingProof());
         
         DefaultMutableTreeNode root = new DefaultMutableTreeNode("Hello World");
         root.add(new DefaultMutableTreeNode("Child 1"));

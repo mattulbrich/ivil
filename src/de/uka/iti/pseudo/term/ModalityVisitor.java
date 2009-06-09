@@ -12,4 +12,6 @@ public interface ModalityVisitor {
 
     void visit(WhileModality whileModality) throws TermException;
 
+    void visit(SchemaModality schemaModality) throws TermException;
+
 }

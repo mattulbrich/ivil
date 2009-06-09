@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.gui;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import nonnull.NonNull;
 
@@ -15,11 +17,12 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Sequent;
 
 
 // the center of this all
 
-public class ProofCenter {
+public class ProofCenter implements TermSelectionListener {
 
     private MainWindow mainWindow;
     private Environment env;
@@ -29,6 +32,7 @@ public class ProofCenter {
     
     private List<ProofNodeSelectionListener> listeners = new LinkedList<ProofNodeSelectionListener>();
     private boolean isFiring = false;
+    private ProofNode currentProofNode;
     
     public ProofCenter(@NonNull Proof proof, @NonNull Environment env) {
         this.proof = proof;
@@ -72,15 +76,20 @@ public class ProofCenter {
             for (ProofNodeSelectionListener l : listeners) {
                 l.proofNodeSelected(node);
             }
+            currentProofNode = node;
             isFiring = false;
         }
     }
     
-    public void observe(Object source, Object arg) {
-        assert arg instanceof TermSelector;
+    public void termSelected(Sequent sequent, TermSelector termSelector) {
 
-        TermSelector termSelector = (TermSelector) arg;
-        InteractiveRuleApplicationFinder iraf = new InteractiveRuleApplicationFinder(proof, 2, env);
+        int goalNo = proof.getOpenGoals().indexOf(currentProofNode);
+        if(goalNo == -1) {
+            // current sequent is not a goal.
+            return;
+        }
+        
+        InteractiveRuleApplicationFinder iraf = new InteractiveRuleApplicationFinder(proof, goalNo, env);
         try {
             List<RuleApplication> result = iraf.findAll(termSelector, rulesSortedForInteraction);
             getMainWindow().getRuleApplicationComponent().setInteractiveApplications(result);
@@ -88,5 +97,6 @@ public class ProofCenter {
             // TODO gescheiter Report!
             e.printStackTrace();
         }
+        
     }
 }

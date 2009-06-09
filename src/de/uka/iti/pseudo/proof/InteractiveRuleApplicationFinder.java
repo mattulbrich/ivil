@@ -9,6 +9,8 @@ import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class InteractiveRuleApplicationFinder {
     
@@ -32,32 +34,31 @@ public class InteractiveRuleApplicationFinder {
         for (Rule rule : sortedAllRules) {
             if(applications.size() > MAX_NUMBER_APPLICATIONS)
                 break;
-            
+
             ruleAppMaker.setRule(rule);
             ruleAppMaker.setFindSelector(termSelector);
-            
+
             LocatedTerm findClause = rule.getFindClause();
-            
+
             if(findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT 
                     && (termSelector.isSuccedent() || !termSelector.isToplevel()))
                 continue;
-            
+
             if(findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT 
                     && (termSelector.isAntecedent() || !termSelector.isToplevel()))
                 continue;
-            
-            
-            MatchingContext mc = new MatchingContext();
-            
-            if(mc.leftMatch(findClause.getTerm(), termSelector.selectSubterm(sequent))) {
+
+
+            TermUnification mc = new TermUnification();
+
+            if(mc.leftUnify(findClause.getTerm(), termSelector.selectSubterm(sequent)))
                 matchAssumptions(rule.getAssumptions(), mc, 0);
-            } 
             
         }
         return null;
     }
 
-    private void matchAssumptions(LocatedTerm[] assumptions, MatchingContext mc, int assIdx) {
+    private void matchAssumptions(LocatedTerm[] assumptions, TermUnification mc, int assIdx) {
         
         if(assIdx >= assumptions.length) {
             applications.add(ruleAppMaker.make());
@@ -73,17 +74,16 @@ public class InteractiveRuleApplicationFinder {
             branch = sequent.getSuccedent();
         }
         
-        MatchingContext mcCopy = mc.clone();
+        TermUnification mcCopy = mc.clone();
         int termNo = 0;
         for (Term t : branch) {
-            if(mc.leftMatch(assumption.getTerm(), t)) {
+            if(mc.leftUnify(assumption.getTerm(), t)) {
                 ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo));
                 matchAssumptions(assumptions, mc, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();
                 mc = mcCopy;
                 mcCopy = mc.clone();
             }
-            termNo ++;
         }
     }
 }

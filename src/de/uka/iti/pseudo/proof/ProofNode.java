@@ -13,7 +13,9 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
+import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
 public class ProofNode {
@@ -47,7 +49,7 @@ public class ProofNode {
         setChildren(null);
     }
 
-    public void apply(RuleApplication ruleApp, MatchingContext mc)
+    public void apply(RuleApplication ruleApp, TermUnification mc)
             throws ProofException {
         Rule rule = ruleApp.getRule();
 
@@ -61,7 +63,7 @@ public class ProofNode {
 
     }
 
-    private ProofNode[] doAction(RuleApplication ruleApp, MatchingContext mc, Rule rule)
+    private ProofNode[] doAction(RuleApplication ruleApp, TermUnification mc, Rule rule)
         throws ProofException {
         List<ProofNode> newNodes = new LinkedList<ProofNode>();
         List<Term> antecedent = new ArrayList<Term>();
@@ -113,7 +115,7 @@ public class ProofNode {
         }
     }
 
-    private void matchWhereClauses(RuleApplication ruleApp, MatchingContext mc,
+    private void matchWhereClauses(RuleApplication ruleApp, TermUnification mc,
             Rule rule) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
@@ -128,7 +130,7 @@ public class ProofNode {
         }
     }
 
-    private void matchFindClause(RuleApplication ruleApp, MatchingContext mc,
+    private void matchFindClause(RuleApplication ruleApp, TermUnification mc,
             Rule rule) throws ProofException {
         TermSelector findSelector = ruleApp.getFindSelector();
         Term findSubTerm = findSelector.selectSubterm(sequent);
@@ -137,11 +139,12 @@ public class ProofNode {
         if (!findClause.isFittingSelect(findSelector)) {
             throw new ProofException("Illegal selector for find");
         }
-        mc.leftMatch(findClause.getTerm(), findSubTerm);
+        if(!mc.leftUnify(findClause.getTerm(), findSubTerm))
+            throw new ProofException("find clause does not match");
     }
 
     private void matchAssumeClauses(RuleApplication ruleApp,
-            MatchingContext mc, Rule rule) throws ProofException {
+            TermUnification mc, Rule rule) throws ProofException {
         int length = ruleApp.getAssumeSelectors().length;
         TermSelector[] assumeSelectors = ruleApp.getAssumeSelectors();
 
@@ -155,7 +158,8 @@ public class ProofNode {
                 throw new ProofException("Illegal selector for assume (" + i
                         + ")");
             }
-            mc.leftMatch(assumption.getTerm(), assumeTerm);
+            if(!mc.leftUnify(assumption.getTerm(), assumeTerm))
+                throw new ProofException("find clause does not match");
         }
     }
  

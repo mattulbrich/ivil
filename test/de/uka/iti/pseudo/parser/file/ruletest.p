@@ -6,12 +6,12 @@ function
         
 rule rule_Test1
         find { 1 }
-        copygoal
+        samegoal
                 replace { 2 }
 
 rule forall_right
    find |- { (\forall x as int; x > 0) }
-   copygoal
+   samegoal
       add |- { t > 0 }
 
 
@@ -27,5 +27,10 @@ rule test_where
    find { 1 }
    where
      notFreeIn { 0 } { 1 }
-   copygoal
+   samegoal
      replace { 2 }
+     
+rule test_schema_mod
+   find { [ &a ; if %c then &b else &c end ] %phi }
+   samegoal
+     replace { [ &a ] ((%c -> [&b]%phi) & (!%c -> [&c]%phi)) }

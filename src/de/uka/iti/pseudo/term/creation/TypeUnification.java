@@ -240,6 +240,12 @@ public class TypeUnification {
             throw e;
         }
     }
+    
+    public TypeUnification clone() {
+        TypeUnification retval = new TypeUnification();
+        retval.instantiation.putAll(instantiation);
+        return retval;
+    }
 
     /*
      * do the actual unification after Robinson

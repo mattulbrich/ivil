@@ -192,4 +192,8 @@ public class Binding extends Term {
         return false;
     }
 
+    public boolean hasSchemaVariable() {
+        return getVariableName().startsWith("%");
+    }
+
 }

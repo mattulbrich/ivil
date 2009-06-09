@@ -1,10 +1,10 @@
 package de.uka.iti.pseudo.rule;
 
 import de.uka.iti.pseudo.environment.WhereCondition;
-import de.uka.iti.pseudo.proof.MatchingContext;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class WhereClause {
     
@@ -27,7 +27,7 @@ public class WhereClause {
         return sb.toString();
     }
 
-    public boolean applyTo(MatchingContext mc, RuleApplication ruleApp,
+    public boolean applyTo(TermUnification mc, RuleApplication ruleApp,
             ProofNode goal) throws RuleException {
         return whereCondition.applyTo(arguments, mc, ruleApp, goal);
     }

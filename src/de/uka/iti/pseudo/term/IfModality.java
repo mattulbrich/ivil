@@ -66,7 +66,7 @@ public class IfModality extends Modality {
      * make sure that the type of the conditional expression is bool.
      */
     private void typeCheck() throws TermException {
-        if(conditionTerm.getType().equals(Environment.getBoolType()))
+        if(!conditionTerm.getType().equals(Environment.getBoolType()))
             throw new TermException("Condition term in IfModality must be boolean");
     }
 

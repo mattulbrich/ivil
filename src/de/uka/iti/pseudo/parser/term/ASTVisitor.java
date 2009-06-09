@@ -46,6 +46,8 @@ public interface ASTVisitor {
 
     void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException;
 
+    void visit(ASTModSchema modSchema) throws ASTVisitException;
+
     
 
 }

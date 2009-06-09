@@ -79,8 +79,10 @@ public class Rule {
         for (GoalAction ga : goalActions) {
             ga.dump();
         }
-        
-        
+    }
+    
+    @Override public String toString() {
+        return "Rule[" + name + "]";
     }
 
 }

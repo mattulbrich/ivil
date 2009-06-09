@@ -1,19 +1,16 @@
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
+
+// TODO DOC high prio
 
 public class TypingContext {
     

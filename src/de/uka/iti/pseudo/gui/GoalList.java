@@ -63,7 +63,7 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         }
 
         public int getSize() {
-            return proof.countOpenGoals();
+            return proof.getOpenGoals().size();
         }
 
         public void update(Observable o, Object arg) {

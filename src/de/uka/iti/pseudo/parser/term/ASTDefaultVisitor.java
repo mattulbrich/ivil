@@ -47,6 +47,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTModWhile modWhile) throws ASTVisitException {
         defaultVisit(modWhile);
     }
+    
+    public void visit(ASTModSchema modSchema) throws ASTVisitException {
+        defaultVisit(modSchema);
+    }
 
     public void visit(ASTNumberLiteralTerm numberLiteralTerm)
             throws ASTVisitException {

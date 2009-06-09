@@ -10,8 +10,6 @@ import java.awt.LayoutManager;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -22,7 +20,6 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.DeferredObservable;
 
 public class SequentComponent extends JPanel implements ProofNodeSelectionListener {
     
@@ -116,9 +113,8 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     };
 
     private Separator separator = new Separator();
-    // private Sequent sequent;
+    private Sequent sequent;
     private Environment env;
-    private Observable ruleApplicationObservable = new DeferredObservable();
 
     public SequentComponent(@NonNull Environment env) {
         this.env = env;
@@ -127,7 +123,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     }
     
     public void setSequent(Sequent sequent) {
-        //this.sequent = sequent;
+        this.sequent = sequent;
         
         this.removeAll();
         
@@ -153,15 +149,17 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     }
     
     private void fireRuleApp(TermSelector termSelector) {
-        ruleApplicationObservable.notifyObservers(termSelector);
+        for(TermSelectionListener ral : listenerList.getListeners(TermSelectionListener.class)) {
+            ral.termSelected(sequent, termSelector);
+        }
     }
     
-    public void addRuleApplicationObserver(Observer obs) {
-        ruleApplicationObservable.addObserver(obs);
+    public void addTermSelectionListener(TermSelectionListener obs) {
+        listenerList.add(TermSelectionListener.class, obs);
     }
 
-    public void removeRuleApplicationObserver(Observer obs) {
-        ruleApplicationObservable.deleteObserver(obs);
+    public void removeTermSelectionListener(TermSelectionListener obs) {
+        listenerList.remove(TermSelectionListener.class, obs);
     }
 
     public void proofNodeSelected(ProofNode node) {

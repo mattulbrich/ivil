@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTModAssignment;
 import de.uka.iti.pseudo.parser.term.ASTModCompound;
 import de.uka.iti.pseudo.parser.term.ASTModIf;
+import de.uka.iti.pseudo.parser.term.ASTModSchema;
 import de.uka.iti.pseudo.parser.term.ASTModSkip;
 import de.uka.iti.pseudo.parser.term.ASTModWhile;
 import de.uka.iti.pseudo.parser.term.ASTModalityTerm;
@@ -46,6 +47,7 @@ import de.uka.iti.pseudo.term.CompoundModality;
 import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
@@ -304,7 +306,7 @@ public class TermMaker implements ASTVisitor {
         Function funct = env.getNumberLiteral(numberLiteralTerm
                 .getNumberToken().image);
         try {
-            resultTerm = new Application(funct, env.getIntType());
+            resultTerm = new Application(funct, Environment.getIntType());
         } catch (TermException e) {
             throw new ASTVisitException(numberLiteralTerm, e);
         }
@@ -392,6 +394,11 @@ public class TermMaker implements ASTVisitor {
     public void visit(ASTModSkip modSkip) throws ASTVisitException {
         resultModality = new SkipModality();
     }
+    
+    public void visit(ASTModSchema modSchema)    throws ASTVisitException {
+        resultModality = new SchemaModality(modSchema.getSchemaIdentifier().image);
+    }
+
 
     public void visit(ASTModWhile modWhile) throws ASTVisitException {
         modWhile.getConditionTerm().visit(this);

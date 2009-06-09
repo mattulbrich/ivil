@@ -1,6 +1,10 @@
 package de.uka.iti.pseudo.proof;
 
+import java.io.FileNotFoundException;
+
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -12,6 +16,7 @@ public class MockingProof extends Proof {
     private Term[] trueTermArr;
 
     public MockingProof() throws Exception {
+        super();
         int no = 0;
         env = TestTermParser.loadEnv();
         trueTermArr = new Term[] { TermMaker.makeTerm("true as bool", env) };

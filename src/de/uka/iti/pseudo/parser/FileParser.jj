@@ -301,7 +301,7 @@ ASTRule RuleDeclaration():
   )?
   
   (
-    "property" 
+    "tags" 
     ( 
       t=<IDENTIFIER> v=<STRING>
         { properties.add(new Pair<Token, Token>(t, v)); } 

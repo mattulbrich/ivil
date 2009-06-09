@@ -69,11 +69,11 @@ public class GoalAction {
             throw new IllegalArgumentException();
 
         // CLOSE implies empty
-        if(this.kind != Kind.CLOSE || (addAntecendent.isEmpty() && addSuccendent.isEmpty() && replaceWith == null))
+        if(this.kind == Kind.CLOSE && (!addAntecendent.isEmpty() || !addSuccendent.isEmpty() || replaceWith != null))
             throw new RuleException("closeGoal actions may not contain add/replace elements");
         
         // no replace in NEW
-        if(this.kind != Kind.NEW || replaceWith == null)
+        if(this.kind == Kind.NEW && replaceWith != null)
             throw new RuleException("newgoal actions may not contain replace elements");
         
         this.name = name;

@@ -65,6 +65,7 @@ TOKEN :
 | < BINDERIDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVARIDENTIFIER: "'" <IDENTIFIER> >
 | < SCHEMAIDENTIFIER: "%" <IDENTIFIER> >
+| < SCHEMAMODIDENTIFIER: "&" <IDENTIFIER> >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 | < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 
@@ -254,4 +255,6 @@ ASTModality Modality():
             { return new ASTModIf(t, term, mod, mod2); }
         | t="skip"
             { return new ASTModSkip(t); }
+        | id=<SCHEMAMODIDENTIFIER>
+            { return new ASTModSchema(id); }
 }

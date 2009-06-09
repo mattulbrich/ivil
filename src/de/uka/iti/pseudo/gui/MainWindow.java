@@ -73,6 +73,7 @@ public class MainWindow extends JFrame {
         {
             sequentComponent = new SequentComponent(proofCenter.getEnvironment());
             sequentComponent.setBorder(new EmptyBorder(5,5,5,5));
+            sequentComponent.addTermSelectionListener(proofCenter);
             content.add(sequentComponent, JSplitPane.RIGHT);
             proofCenter.addProofNodeSelectionListener(sequentComponent);
         }
@@ -92,7 +93,7 @@ public class MainWindow extends JFrame {
             proofComponent = new ProofComponent(proofCenter.getProof());
             proofCenter.addProofNodeSelectionListener(proofComponent);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
-                @Override public void valueChanged(TreeSelectionEvent e) {
+                public void valueChanged(TreeSelectionEvent e) {
                     proofCenter.fireSelectedProofNode(proofComponent.getSelectedProofNode());
                 }
             });
@@ -114,12 +115,12 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(3));
         }
         
-        new Timer().schedule(new TimerTask() {
-
-            @Override public void run() {
-                System.out.println(content.getMaximumDividerLocation());
-                System.out.println(content.getMinimumDividerLocation());
-            } }, 0, 1000);
+//        new Timer().schedule(new TimerTask() {
+//
+//            @Override public void run() {
+//                System.out.println(content.getMaximumDividerLocation());
+//                System.out.println(content.getMinimumDividerLocation());
+//            } }, 0, 1000);
     }
 
 

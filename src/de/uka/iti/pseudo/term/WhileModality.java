@@ -39,13 +39,13 @@ public class WhileModality extends Modality {
     }
 
     /**
-     * Type check.
+     * Type check this while modality.
      * 
      * @throws TermException
-     *             the term exception
+     *             thrown if the condition term is not boolean
      */
     private void typeCheck() throws TermException {
-        if(conditionTerm.getType().equals(Environment.getBoolType()))
+        if(!conditionTerm.getType().equals(Environment.getBoolType()))
             throw new TermException("Condition term of a WhileModality must be boolean");
     }
 

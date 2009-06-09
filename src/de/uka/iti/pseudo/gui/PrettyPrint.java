@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.ModalityTerm;
 import de.uka.iti.pseudo.term.ModalityVisitor;
+import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
@@ -246,6 +247,10 @@ public void visit(SchemaVariable schemaVariable)
     public void visit(SkipModality skipModality) throws TermException {
         printer.append("skip");
     }
+    
+    public void visit(SchemaModality schemaModality) throws TermException {
+        printer.append(schemaModality.getSchemaIdentifier());
+    }
 
     public void visit(WhileModality whileModality)
             throws TermException {
@@ -255,5 +260,7 @@ public void visit(SchemaVariable schemaVariable)
         whileModality.getBody().visit(this);
         printer.append(" end");
     }
+
+    
     
 }
