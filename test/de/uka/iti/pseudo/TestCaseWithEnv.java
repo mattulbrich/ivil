@@ -17,7 +17,7 @@ public class TestCaseWithEnv extends TestCase {
     
     protected static Environment env;
 
-    private static void loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
+    protected static void loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
         FileParser fp = new FileParser();
         EnvironmentMaker em = new EnvironmentMaker(fp, new File("test/de/uka/iti/pseudo/testenv.p"));
         env = em.getEnvironment();

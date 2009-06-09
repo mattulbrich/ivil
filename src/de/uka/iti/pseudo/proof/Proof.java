@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Properties;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -20,14 +21,18 @@ public class Proof extends Observable {
     
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
     
-    public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
+    public void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
+        
+    }
+    
+    public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {
         
         TermUnification mc = new TermUnification();
         
         int goalno = extractGoalNo(ruleApp);
         ProofNode goal = openGoals.get(goalno);
         
-        goal.apply(ruleApp, mc, env);
+        goal.apply(ruleApp, mc, env, whereClauseProperties);
         
         openGoals.remove(goalno);
         openGoals.addAll(goalno, goal.getChildren());

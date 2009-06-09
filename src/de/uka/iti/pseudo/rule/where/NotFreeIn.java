@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Properties;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -31,8 +33,7 @@ public class NotFreeIn extends WhereCondition {
     }
 
     @Override 
-    public boolean applyTo(WhereClause wc, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException {
+    public boolean applyTo(WhereClause wc, TermUnification mc) throws RuleException {
 
         // get schema variable
         // instantiate

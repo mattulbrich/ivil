@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -50,7 +51,7 @@ public class ProofNode {
         setChildren(null);
     }
 
-    public void apply(RuleApplication ruleApp, TermUnification mc, Environment env)
+    public void apply(RuleApplication ruleApp, TermUnification mc, Environment env, Properties whereClauseProperties)
             throws ProofException {
         
         if(appliedRuleApp != null)
@@ -60,7 +61,7 @@ public class ProofNode {
 
         matchFindClause(ruleApp, mc, rule);
         matchAssumeClauses(ruleApp, mc, rule);
-        matchWhereClauses(ruleApp, mc, rule, env);
+        matchWhereClauses(ruleApp, mc, rule, env, whereClauseProperties);
 
         setChildren(doAction(ruleApp, mc, rule));
 
@@ -139,10 +140,10 @@ public class ProofNode {
     }
 
     private void matchWhereClauses(RuleApplication ruleApp, TermUnification mc,
-            Rule rule, Environment env) throws ProofException {
+            Rule rule, Environment env, Properties whereClauseProperties) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                if (!whereClause.applyTo(mc, ruleApp, this, env))
+                if (!whereClause.applyTo(mc, ruleApp, this, env, whereClauseProperties))
                     throw new ProofException(
                             "WhereClause does not evaluate to true : "
                                     + whereClause);

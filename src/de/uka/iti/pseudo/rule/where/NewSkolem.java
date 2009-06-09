@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Properties;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -17,18 +19,20 @@ import de.uka.iti.pseudo.term.creation.TermUnification;
 // TODO Documentation needed
 public class NewSkolem extends WhereCondition {
 
-    public static final String CONST_NAME_PROPERTY = "constName";
+    public static final String CONST_NAME_PROPERTY = "skolemName";
 
     public NewSkolem() {
         super("newSkolem");
     }
 
-    @Override public boolean applyTo(WhereClause wc, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException {
-        
-        Term argument = wc.getArguments().get(0);
-        
-        assert argument instanceof SchemaVariable;
+    @Override 
+    public boolean applyTo(WhereClause wc, TermUnification mc,
+            RuleApplication ruleApp, ProofNode goal, Environment env, 
+            Properties properties) throws RuleException {
+
+        // cast is safe ensured by tryApplyTo
+        SchemaVariable argument = (SchemaVariable) wc.getArguments().get(0);
+        String property = CONST_NAME_PROPERTY + "(" + argument.getName() + ")";
         
         try {
             Term instantiated = mc.instantiate(argument);
@@ -37,10 +41,12 @@ public class NewSkolem extends WhereCondition {
                 Type type = schemaVar.getType();
                 Function skolem = env.createNewSkolemConst(type);
                 mc.addInstantiation(schemaVar, new Application(skolem, type));
-                wc.getProperties().put(CONST_NAME_PROPERTY, skolem.getName());
+                if(properties != null)
+                    properties.put(property, skolem.getName());
             } else if(instantiated instanceof Application) {
                 Application app = (Application) instantiated;
-                if(!app.getFunction().getName().equals(wc.getProperties().get(CONST_NAME_PROPERTY))) {
+                String propertyStoredFunction = ruleApp.getWhereProperty(property);
+                if(!app.getFunction().getName().equals(propertyStoredFunction)) {
                     throw new RuleException("Unexpected skolem instantiation: " + app );
                 }
             } else {
@@ -60,6 +66,12 @@ public class NewSkolem extends WhereCondition {
             throw new RuleException("newSkolem expects exactly 1 argument");
         if(!(arguments[0] instanceof SchemaVariable))
             throw new RuleException("newSkolem expects schema varible as first argument");
+    }
+
+    @Override 
+    protected boolean applyTo(WhereClause whereClause,
+            TermUnification mc) throws RuleException {
+        throw new Error("cannot be invoked");
     }
 
 }

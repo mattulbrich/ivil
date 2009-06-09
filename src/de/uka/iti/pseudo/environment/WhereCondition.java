@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.where.NewSkolem;
 import de.uka.iti.pseudo.rule.where.NotFreeIn;
+import de.uka.iti.pseudo.rule.where.Subst;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
@@ -23,7 +24,8 @@ public abstract class WhereCondition {
     {
         new NotFreeIn(),
         // new Typing(),
-        new NewSkolem()
+        new NewSkolem(),
+        new Subst()
     };
     
     static {
@@ -51,10 +53,14 @@ public abstract class WhereCondition {
     
     public abstract void tryToApplyTo(Term[] arguments) throws RuleException;
 
-    public abstract boolean applyTo(WhereClause whereClause, TermUnification mc,
-            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException;
-
-    public void wasImported(WhereClause whereClause, Environment env) throws RuleException {
+    public boolean applyTo(WhereClause whereClause, TermUnification mc,
+            RuleApplication ruleApp, ProofNode goal, Environment env, Properties properties) throws RuleException {
+        return applyTo(whereClause, mc);
+    }
+    
+    protected abstract boolean applyTo(WhereClause whereClause, TermUnification mc) throws RuleException;
+    
+    public void wasImported(WhereClause whereClause, Environment env, Properties properties) throws RuleException {
         // default behaviour is to do nothing.
     }
 

@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +25,7 @@ public class RuleApplication {
     private TermSelector[] assumeSelectors;
     private Pair<String, Term>[] termInstantiations;
     private Pair<String, Modality>[] modalityInstantiations;
+    private Map<String, String> whereProperties;
     
     public RuleApplication(@NonNull Rule rule, 
             int goalNumber,
@@ -44,6 +46,11 @@ public class RuleApplication {
         this.modalityInstantiations = copyInst(modalityInstantiations, scv.getSchemaModalities());
         
         // TODO check all this ... nö
+    }
+    
+    // used for mock objects
+    protected RuleApplication() {
+        
     }
     
     @SuppressWarnings("unchecked") 
@@ -86,5 +93,15 @@ public class RuleApplication {
     public String toString() {
         return "Apply " + rule.getName();
     }
+
+    public String getWhereProperty(String key) {
+        if(whereProperties == null)
+            return null;
+        else
+            return whereProperties.get(key);
+    }
     
+    public Collection<String> getWherePropertyNames() {
+        return whereProperties.keySet();
+    }
 }

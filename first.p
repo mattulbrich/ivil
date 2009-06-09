@@ -1,8 +1,9 @@
-include "$proposition.p"
+include "$fol.p"
 
 function
   bool b1
   bool b2
+  bool p(int)
 
 problem
-  { (!b1 -> b2 ) -> (b2|b1) }
+  { (\forall x; p(x)) -> (\exists x; p(x)) }

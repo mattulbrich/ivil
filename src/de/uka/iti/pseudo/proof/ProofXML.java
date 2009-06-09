@@ -39,9 +39,9 @@ public class ProofXML {
         // TODO Implement ProofXML.exportRuleApplication
         
         // allow the where clauses to possibly drop additional stuff
-        WhereClause c = null;
-        if(c.hasProperties()) {
-            Properties properties = c.getProperties();
+        RuleApplication ra = null;
+        for (String key : ra.getWherePropertyNames()) {
+            System.out.println(ra.getWhereProperty(key));
         }
         return null;
     }
@@ -50,10 +50,9 @@ public class ProofXML {
         // TODO Implement ProofXML.importRuleApplication
         
         // allow the where clauses to read their properties first!
-        WhereClause c = null;
-        Properties properties = null;
-        c.importProperties(properties, env);
+        RuleApplicationMaker ram = null;
         
+        // ram.putWhereProperty()
         return null;
     }
 
