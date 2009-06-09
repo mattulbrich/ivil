@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.gui;
 
+import java.awt.Component;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.swing.JTree;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
@@ -19,7 +21,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
-public class ProofComponent extends JTree {
+public class ProofComponent extends JTree implements ProofNodeSelectionListener {
 
     private Proof proof;
 
@@ -66,7 +68,7 @@ public class ProofComponent extends JTree {
         public boolean isLeaf(Object parent) {
             ProofNode node = (ProofNode) parent;
             List<ProofNode> children = node.getChildren();
-            return children == null;
+            return children == null || children.size() == 0;
         }
 
         public void valueForPathChanged(TreePath path, Object newValue) {
@@ -89,12 +91,36 @@ public class ProofComponent extends JTree {
         }
 
     }
+    
+    private class Renderer extends DefaultTreeCellRenderer {
+        @Override public Component getTreeCellRendererComponent(JTree tree,
+                Object value, boolean sel, boolean expanded, boolean leaf,
+                int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            if (value instanceof ProofNode) {
+                ProofNode proofNode = (ProofNode) value;
+                RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
+                if(appliedRuleApp != null) {
+                    setText(appliedRuleApp.getRule().getName());
+                } else {
+                    setText("OPEN");
+                }
+                if(proofNode.isClosed()) {
+                    setIcon(mkIcon("img/green.png"));
+                } else {
+                    setIcon(mkIcon("img/grey.png"));
+                }
+            }
+            return this;
+        }
+    }
 
     public ProofComponent(Proof proof) {
         this.proof = proof;
         Model model = new Model();
         proof.addChangeObserver(model);
         setModel(model);
+        setCellRenderer(new Renderer());
         // DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
         // Icon innerIcon = mkIcon("img/inner.png");
         // renderer.setIcon(innerIcon);
@@ -126,6 +152,22 @@ public class ProofComponent extends JTree {
             return "???";
         }
         
+    }
+
+    public void proofNodeSelected(ProofNode node) {
+        LinkedList<Object> path = new LinkedList<Object>();
+        while(node != null) {
+            path.addFirst(node);
+            node = node.getParent();
+        }
+        setSelectionPath(new TreePath(path.toArray()));
+        repaint();
+    }
+
+    public ProofNode getSelectedProofNode() {
+        Object selectedValue = getSelectionPath().getLastPathComponent();
+        assert selectedValue instanceof ProofNode;
+        return (ProofNode) selectedValue;
     }
 
 }

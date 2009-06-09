@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -21,6 +22,10 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.View;
+import javax.swing.text.WrappedPlainView;
+
+import nonnull.NonNull;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.TermSelector;
@@ -33,13 +38,14 @@ import de.uka.iti.pseudo.util.AnnotatedString;
 public class TermComponent extends JTextArea {
 
     private static final long serialVersionUID = -4415736579829917335L;
-    
-    
+
     /**
      * some UI constants
      */
-    private static final String FONT_NAME = System.getProperty("pseudo.termfont.name", "Monospaced");
-    private static final Integer FONT_SIZE = Integer.getInteger("pseudo.termfont.size", 14);
+    private static final String FONT_NAME = System.getProperty(
+            "pseudo.termfont.name", "Monospaced");
+    private static final Integer FONT_SIZE = Integer.getInteger(
+            "pseudo.termfont.size", 14);
     private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
     private static final Color HIGHLIGHT_COLOR = Color.CYAN;
     private static final Border BORDER = BorderFactory.createCompoundBorder(
@@ -49,22 +55,22 @@ public class TermComponent extends JTextArea {
      * The term displayed
      */
     private Term term;
-    
+
     /**
      * the position of term within its sequent
      */
     private TermSelector termSelector;
-    
+
     /**
      * The environment in which term lives
      */
     private Environment env;
-    
+
     /**
      * The annotated string containing the pretty printed term
      */
     private AnnotatedString<Term> annotatedString;
-    
+
     /**
      * The highlight object as returned by the highlighter
      */
@@ -77,14 +83,17 @@ public class TermComponent extends JTextArea {
      *            the term to display
      * @param env
      *            the environment to use for pretty printing
-     * @param termSelector selector object describing the position of the displayed term in its sequent
+     * @param termSelector
+     *            selector object describing the position of the displayed term
+     *            in its sequent
      */
-    public TermComponent(Term t, Environment env, TermSelector termSelector) {
+    public TermComponent(@NonNull Term t, @NonNull Environment env,
+            @NonNull TermSelector termSelector) {
         this.env = env;
         this.term = t;
         this.termSelector = termSelector;
         this.annotatedString = PrettyPrint.print(env, t);
-        
+
         //
         // Set display properties
         setEditable(false);
@@ -95,16 +104,16 @@ public class TermComponent extends JTextArea {
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
-           public void mouseExited(MouseEvent e) {
-               TermComponent.this.mouseExited(e);
-           }
+            public void mouseExited(MouseEvent e) {
+                TermComponent.this.mouseExited(e);
+            }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
                 TermComponent.this.mouseMoved(e);
-           }
+            }
         });
-        
+
         try {
             theHighlight = highlight.addHighlight(0, 0,
                     new DefaultHighlighter.DefaultHighlightPainter(
@@ -134,7 +143,7 @@ public class TermComponent extends JTextArea {
         Point p = e.getPoint();
         int index = viewToModel(p);
         try {
-            if(index >= 0 && index < annotatedString.length()) {
+            if (index >= 0 && index < annotatedString.length()) {
                 int begin = annotatedString.getBegin(index);
                 int end = annotatedString.getEnd(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
@@ -146,7 +155,7 @@ public class TermComponent extends JTextArea {
             ex.printStackTrace();
         }
     }
-    
+
     /**
      * Gets the termselector for a subterm at a certain point in the component
      * 
@@ -160,7 +169,7 @@ public class TermComponent extends JTextArea {
         int termIndex = annotatedString.getAttributeIndexAt(charIndex);
         return termSelector.selectSubterm(termIndex);
     }
-    
+
     // stolen from KeY
     public int viewToModel(Point p) {
         String seqText = getText();
@@ -179,6 +188,17 @@ public class TermComponent extends JTextArea {
                 - (previousCharacterWidth / 2), (int) p.getY()));
 
         return characterIndex;
+    }
+    
+    
+    // it is some hack ... how do you do it correctly?
+    @Override 
+    public Dimension getMinimumSize() {
+        Dimension dim = super.getMinimumSize();
+        if(dim.width > 200) {
+            dim.width = 200;
+        }
+        return dim;
     }
 
 }

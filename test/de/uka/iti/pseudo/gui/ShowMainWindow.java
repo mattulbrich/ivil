@@ -14,7 +14,8 @@ public class ShowMainWindow {
         Environment env = TestTermParser.loadEnv();
         Proof proof = new MockingProof();
         
-        MainWindow main = new MainWindow(proof, env);
+        ProofCenter proofCenter = new ProofCenter(proof, env);
+        MainWindow main = proofCenter.getMainWindow();
         main.setSize(600, 600);
         main.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         main.setVisible(true);

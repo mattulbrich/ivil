@@ -12,7 +12,7 @@ import java.util.AbstractList;
 import java.util.List;
 
 // is this efficient?
-//make a copy in the beginning?
+// XXX make a copy in the beginning?
 
 //TODO DOC
 public class SelectList<E> extends AbstractList<E> {

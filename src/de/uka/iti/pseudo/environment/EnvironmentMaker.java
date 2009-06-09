@@ -499,16 +499,20 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
                 }
             }
             
-            String description = arg.getDescription().image;
+            
             
             Map<String, String> properties = new HashMap<String, String>();
             {
                 for (Pair<Token, Token> prop : arg.getProperties()) {
                     properties.put(prop.fst().image, stripQuotes(prop.snd().image));
                 }
+                Token description = arg.getDescription();
+                if(description != null)
+                    properties.put("description", stripQuotes(description.image));
+                
             }
 
-            Rule rule = new Rule(name, assumes, find, wheres, actions, description, properties);
+            Rule rule = new Rule(name, assumes, find, wheres, actions, properties);
             try {
                 env.addRule(rule);
             } catch (EnvironmentException e) {

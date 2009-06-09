@@ -1,10 +1,10 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
@@ -13,7 +13,6 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.util.Util;
 
@@ -167,7 +166,7 @@ public class ProofNode {
             return null;
     }
 
-    public RuleApplication getAppliedRuleApp() {
+    public @Nullable RuleApplication getAppliedRuleApp() {
         return appliedRuleApp;
     }
 
@@ -199,8 +198,20 @@ public class ProofNode {
         else {
             int index = parent.getChildren().indexOf(this);
             assert index != -1;
-            return parent.getPath() + index + ".";
+            return parent.getPath() + (index+1) + ".";
         }
+    }
+    
+    public boolean isClosed() {
+        if(children == null)
+            return false;
+        
+        for (ProofNode child : children) {
+            if(!child.isClosed())
+                return false;
+        }
+        
+        return true;
     }
 
 }

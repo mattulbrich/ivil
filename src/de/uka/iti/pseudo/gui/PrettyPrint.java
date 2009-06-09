@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.gui;
 
 import java.util.List;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
@@ -27,11 +28,12 @@ import de.uka.iti.pseudo.util.AnnotatedString;
 public class PrettyPrint implements TermVisitor, ModalityVisitor {
     
     
-    public static AnnotatedString<Term> print(Environment env, Term term) {
+    public static @NonNull AnnotatedString<Term> print(@NonNull Environment env, @NonNull Term term) {
         return print(env, term, false, true);
     }
 
-    public static AnnotatedString<Term> print(Environment env, Term term, boolean typed, boolean printFix) {
+    public static @NonNull AnnotatedString<Term> print(@NonNull Environment env, @NonNull Term term, 
+            boolean typed, boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
         
         try {
@@ -52,7 +54,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     private boolean typed;
     private boolean printFix;
         
-    private PrettyPrint(Environment env, boolean typed, boolean printFix) {
+    private PrettyPrint(@NonNull Environment env, boolean typed, boolean printFix) {
         this.env = env;
         this.typed = typed;
         this.printFix = printFix;
@@ -60,9 +62,9 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         printer = new AnnotatedString<Term>();
     }
 
-    public Environment getEnv() {
-        return env;
-    }
+//    public Environment getEnv() {
+//        return env;
+//    }
 
     public boolean isTyped() {
         return typed;

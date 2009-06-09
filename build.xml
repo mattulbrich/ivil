@@ -8,12 +8,17 @@
  
   <target name="init">
     <mkdir dir="classes"/>
+    <mkdir dir="classes-test"/>
     <mkdir dir="genSrc"/>
   </target>
 
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
     <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>
     <javac srcdir="src" destdir="classes" debug="${compile.debug}">
+       <classpath>
+        <pathelement location="lib/javadocking.jar" />
+      	<pathelement path="classes" />
+      </classpath>
       <compilerarg value="-Xlint"/>
     </javac>
   </target>
@@ -22,7 +27,7 @@
     <java classname="nonnull.NonNullPatch">
       <arg value="classes"/>
       <classpath>
-        <pathelement location="nonnull.jar"/>
+        <pathelement location="lib/nonnull.jar"/>
       </classpath>
     </java> 
   </target>
@@ -46,19 +51,31 @@
     <jar jarfile="pseudo.jar" basedir="classes"/>
   </target>
 
-  <target name="build-test" depends="build, nonnull" description="build test cases">
-    <javac srcdir="test" destdir="classes" debug="${compile.debug}" sourcepath="test">
+  <target name="build-test" depends="build" description="build test cases">
+    <javac srcdir="test" destdir="classes-test" debug="${compile.debug}" sourcepath="test">
       <classpath>
-        <pathelement location="junit.jar" />
+        <pathelement location="lib/junit.jar" />
       	<pathelement path="classes" />
       </classpath>
     </javac>
   </target>
+
+  <target name="nonnull-test" depends="build-test" description="patches the class files with r/t checks" if="compile.nonnullchecks">
+    <java classname="nonnull.NonNullPatch">
+      <arg value="classes-test"/>
+      <classpath>
+        <pathelement location="lib/nonnull.jar"/>
+      </classpath>
+    </java> 
+  </target>
+
 	
   <target name="test" depends="build-test" description="run junit tests">
     <junit>
       <classpath>
         <pathelement location="classes"/>
+        <pathelement location="classes-test"/>
+        <pathelement path="lib/javadocking.jar"/>
         <pathelement path="junit.jar"/>
       </classpath>
       <test name="de.uka.iti.pseudo.AllTests"/>
@@ -67,6 +84,7 @@
 
   <target name="clean">
     <delete dir="classes" />
+    <delete dir="classes-test" />
     <delete dir="genSrc" />
   </target>
 

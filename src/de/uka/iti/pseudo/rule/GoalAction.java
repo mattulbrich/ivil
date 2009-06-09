@@ -61,7 +61,7 @@ public class GoalAction {
             this.kind = Kind.CLOSE;
         } else if (kindString.equals("newgoal")) {
             this.kind = Kind.NEW;
-        } else if (kindString.equals("copygoal")) {
+        } else if (kindString.equals("samegoal")) {
             this.kind = Kind.COPY;
         } else
             throw new IllegalArgumentException();

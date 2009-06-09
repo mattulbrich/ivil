@@ -29,4 +29,16 @@ public class Sequent {
         return Util.readOnlyArrayList(succedent);
     }
     
+    @Override public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Term t : antecedent) {
+            sb.append(t).append(" ");
+        }
+        sb.append("|-");
+        for (Term t : succedent) {
+            sb.append(" ").append(t);
+        }
+        return sb.toString();
+    }
+    
 }

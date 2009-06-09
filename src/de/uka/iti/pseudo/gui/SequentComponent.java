@@ -5,32 +5,26 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.proof.ProofException;
-import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.DeferredObservable;
 
-public class SequentComponent extends JPanel {
+public class SequentComponent extends JPanel implements ProofNodeSelectionListener {
     
     private static final long serialVersionUID = -3882151273674917147L;
     
@@ -62,24 +56,33 @@ public class SequentComponent extends JPanel {
         public void layoutContainer(Container parent) {
             
             int width = parent.getWidth();
+            Insets insets = parent.getInsets();
+            int leftMargin = SEP_LENGTH/2 + insets.left;
             
-            int h = 0;
+            int h = insets.top;
             for(int i = 0; i < parent.getComponentCount(); i++) {
                 Component comp = parent.getComponent(i);
                 Dimension prefd = comp.getPreferredSize();
                 if(comp instanceof Separator) {
-                    comp.setLocation(0, h);
-                    comp.setSize(prefd);
+                    comp.setLocation(insets.left, h);
                 } else {
-                    comp.setLocation(SEP_LENGTH / 2, h);
-                    comp.setSize(width-SEP_LENGTH/2, prefd.height);
+                    comp.setBounds(leftMargin, h, width-leftMargin - insets.right, prefd.height);
                 }
                 h += prefd.height + GAP;
             }
         }
 
         public Dimension minimumLayoutSize(Container parent) {
-            return preferredLayoutSize(parent);
+            int w = 0;
+            int h = 0;
+            for(int i = 0; i < parent.getComponentCount(); i++) {
+                Dimension prefd = parent.getComponent(i).getMinimumSize();
+                w = Math.max(w, prefd.width);
+                h += prefd.height + GAP;
+            }
+            Insets insets = parent.getInsets();
+            return new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
+                    h-GAP + insets.top + insets.bottom);
         }
 
         public Dimension preferredLayoutSize(Container parent) {
@@ -90,7 +93,9 @@ public class SequentComponent extends JPanel {
                 w = Math.max(w, prefd.width);
                 h += prefd.height + GAP;
             }
-            return new Dimension(w + SEP_LENGTH / 2, h-GAP);
+            Insets insets = parent.getInsets();
+            return new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
+                    h-GAP + insets.top + insets.bottom);
         }
 
     };
@@ -111,18 +116,18 @@ public class SequentComponent extends JPanel {
     };
 
     private Separator separator = new Separator();
-    private Sequent sequent;
+    // private Sequent sequent;
     private Environment env;
     private Observable ruleApplicationObservable = new DeferredObservable();
 
-    public SequentComponent(Environment env) {
+    public SequentComponent(@NonNull Environment env) {
         this.env = env;
         this.setLayout(new Layout());
         this.setBackground(BACKGROUND);
     }
     
     public void setSequent(Sequent sequent) {
-        this.sequent = sequent;
+        //this.sequent = sequent;
         
         this.removeAll();
         
@@ -143,6 +148,8 @@ public class SequentComponent extends JPanel {
             add(termComp);
             i++;
         }
+        
+        doLayout();
     }
     
     private void fireRuleApp(TermSelector termSelector) {
@@ -155,5 +162,9 @@ public class SequentComponent extends JPanel {
 
     public void removeRuleApplicationObserver(Observer obs) {
         ruleApplicationObservable.deleteObserver(obs);
+    }
+
+    public void proofNodeSelected(ProofNode node) {
+        setSequent(node.getSequent());
     }
 }
