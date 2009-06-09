@@ -8,7 +8,9 @@
  */
 package de.uka.iti.pseudo.environment;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,6 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
-
-// TODO: Auto-generated Javadoc
 
 /**
  * The Class Environment captures definitions and provides lookup facilities for
@@ -63,6 +63,8 @@ public class Environment {
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
+    // literal map is created lazily.
+    private Map<BigInteger, NumberLiteral> numberMap = null;
 
     /**
      * The rules are kept as a list
@@ -250,37 +252,57 @@ public class Environment {
     }
 
     /**
-     * Gets the number literal. It is dynamically added to the environment if
-     * not already present.
+     * Gets a number literal. It is dynamically added to the top level
+     * environment if not already present.
      * 
      * @param numberliteral
-     *            the numberliteral, must be a natural (>=0) number in decimal
+     *            the literal as string, must be a natural (>=0) number in
+     *            decimal radix
      * 
      * @return the number literal as a function
      */
-    public @NonNull Function getNumberLiteral(String numberliteral) {
+    public @NonNull NumberLiteral getNumberLiteral(String numberliteral) {
+        return getNumberLiteral(new BigInteger(numberliteral));
+    }
+    
+    /**
+     * Gets a number literal. It is dynamically added to the top level
+     * environment if not already present.
+     * 
+     * @param numberliteral
+     *            the literal, must be a positive number
+     * 
+     * @return the number literal as a function
+     */
+    public @NonNull NumberLiteral getNumberLiteral(BigInteger value) {
         
-        assert Integer.parseInt(numberliteral) >= 0;
-        
-        Function retval = getFunction(numberliteral);
-        if (retval == null) {
-            try {
-                retval = new Function(numberliteral, mkType("int"),
-                        new Type[0], true, false, ASTLocatedElement.BUILTIN);
-                addFunction(retval);
-            } catch (Exception e) {
-                throw new Error("Fatal while creating number constant for "
-                        + numberliteral, e);
-            }
+        // propagate up to toplevel
+        if(parentEnvironment != null)
+            return parentEnvironment.getNumberLiteral(value);
+
+        if(numberMap == null) {
+            numberMap = new HashMap<BigInteger, NumberLiteral>();
         }
-        return retval;
+        
+        NumberLiteral nl = numberMap.get(value);
+        if(nl == null) {
+            try {
+                nl = new NumberLiteral(value, this);
+            } catch (Exception e) {
+                throw new Error("Fatal error during creation of integer literal: " + value, e);
+            }
+            numberMap.put(value, nl);
+        }
+        
+        return nl;
     }
 
+
     /**
-     * Adds an infix operator to the environment.
+     * Adds an infix operator to the environment. The argument must be a binary operator.
      * 
      * @param infixOperator
-     *            the infix operator
+     *            the infix operator to add
      * 
      * @throws EnvironmentException
      *             if an infix operator for this operation has already been defined
@@ -302,15 +324,16 @@ public class Environment {
         reverseFixityMap.put(infixOperator.getName(), infixOperator);
     }
     
-    // TODO: Auto-generated Javadoc from here on downwards.
-    
     /**
-     * Gets the infix operator.
+     * Gets an infix operator. Delegates the lookup to the parent environment
+     * (if present). Returns null if in no environment in the parent chain a
+     * definition can be found.
      * 
      * @param opSymb
-     *            the op symb
+     *            the operator symbolic name to retrieve a fix operator for
      * 
-     * @return the infix operator
+     * @return the infix operator if found, null if not present in the
+     *         repository.
      */
     public FixOperator getInfixOperator(String opSymb) {
         FixOperator fixOperator = infixMap.get(opSymb);
@@ -320,15 +343,16 @@ public class Environment {
     }
 
     /**
-     * Adds the prefix operator.
+     * Adds the prefix operator to the environment. The argument must be unary.
      * 
      * @param prefixOperator
-     *            the prefix operator
+     *            the fix operator to add as prefix operator.
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             iff the operator symbol has already been defined as a prefix
+     *             operator.
      */
-    public void addPrefixOperator(FixOperator prefixOperator)
+    public void addPrefixOperator(@NonNull FixOperator prefixOperator)
             throws EnvironmentException {
         FixOperator existing = getPrefixOperator(prefixOperator
                 .getOpIdentifier());
@@ -347,12 +371,15 @@ public class Environment {
     }
 
     /**
-     * Gets the prefix operator.
+     * Gets a prefix operator. Delegates the lookup to the parent environment
+     * (if present). Returns null if in no environment in the parent chain a
+     * definition can be found.
      * 
      * @param opSymb
-     *            the op symb
+     *            the operator symbolic name to retrieve a fix operator for
      * 
-     * @return the prefix operator
+     * @return the prefix operator if found, null if not present in the
+     *         repository.
      */
     public FixOperator getPrefixOperator(String opSymb) {
         FixOperator fixOperator = prefixMap.get(opSymb);
@@ -381,13 +408,13 @@ public class Environment {
     // 
 
     /**
-     * Adds the binder.
+     * Adds a binder to the environment
      * 
      * @param binder
-     *            the binder
+     *            the binder to add
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             iff a binder has already been defined for that name.
      */
     public void addBinder(Binder binder) throws EnvironmentException {
         String name = binder.getName();
@@ -432,23 +459,22 @@ public class Environment {
     }
 
     /**
-     * Mk type.
+     * Convenience mathod to produce Type expressions.
      * 
      * @param name
-     *            the name
+     *            name of the toplevel sort
      * @param domTy
-     *            the dom ty
+     *            the arguments to the top level sort
      * 
-     * @return the type
+     * @return the generated type
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             if no sort has been defined for the name.
      * @throws TermException
-     *             the term exception
+     *             if the arity does not match the definition of the sort.
      */
     public Type mkType(String name, Type... domTy) throws EnvironmentException,
             TermException {
-        // DOC
 
         Sort sort = getSort(name);
 
@@ -464,12 +490,15 @@ public class Environment {
     // 
 
     /**
-     * Adds the rule.
+     * Adds a rule to the envoriment.
+     * 
+     * There must not be a rule present under the same name.
      * 
      * @param rule
-     *            the rule
+     *            the rule to add
+     * 
      */
-    public void addRule(Rule rule) {
+    public void addRule(@NonNull Rule rule) {
         rules.add(rule);
     }
 
@@ -516,5 +545,6 @@ public class Environment {
         }
 
     }
+
 
 }
