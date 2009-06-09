@@ -179,7 +179,7 @@ public class ProofNode {
         }
         
         if(!findSubTerm.equals(instantiated))
-            throw new ProofException("find clause does not match");
+            throw new ProofException("find clause does not match: " + findSubTerm + " vs. " + instantiated);
     }
 
     private void matchAssumeClauses(RuleApplication ruleApp,

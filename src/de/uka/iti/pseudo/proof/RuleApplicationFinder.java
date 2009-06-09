@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
@@ -13,39 +21,105 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
+
 // TODO DOC
 // Introduce an extra class to match a single rule
 
-public class InteractiveRuleApplicationFinder {
+
+/**
+ * Objects of this class are used to find applicable rules for 
+ * a given term within a sequent.
+ */
+public class RuleApplicationFinder {
     
-    private static final int MAX_NUMBER_APPLICATIONS = 20;
+    /**
+     * Exception used to indicate that enough rule applications have been gathered.
+     * It is thrown from within the matching code and caught to stop further matching
+     * search.
+     */
+    private static class EnoughException extends Exception {};
+    
+    /**
+     * The default limit of the number of applicable rules to return.
+     */
+    private static final int DEFAULT_NUMBER_APPLICATIONS = 20;
+    
+    /**
+     * The sequent under inspection (needed to find assumptions)
+     */
     private Sequent sequent;
+    
+    /**
+     * The environment
+     */
     private Environment env;
+    
+    /**
+     * Collect applications here.
+     */
     private ArrayList<RuleApplication> applications;
+    
+    /**
+     * The currently built rule application.
+     */
     private RuleApplicationMaker ruleAppMaker = new RuleApplicationMaker();
+    
+    /**
+     * The goal that we work on.
+     */
     private ProofNode goal;
 
-    public InteractiveRuleApplicationFinder(Proof proof, int goalNo, Environment env) {
-        goal = proof.getGoal(goalNo);
+    /**
+     * the number of hits after which the search should stop.
+     */
+    private int stopAtSize;
+
+    /**
+     * Instantiates a new interactive rule application finder.
+     * 
+     * @param proof the proof to inspect
+     * @param goalNo the goal no of the inspected node in the proof
+     * @param env the environment in the background
+     */
+    public RuleApplicationFinder(Proof proof, int goalNo, Environment env) {
+        this(proof, goalNo, env, DEFAULT_NUMBER_APPLICATIONS);
+    }
+        
+    /**
+     * Instantiates a new interactive rule application finder.
+     * 
+     * @param proof the proof to inspect
+     * @param goalNo the goal no of the inspected node in the proof
+     * @param env the environment in the background
+     * @param stopAtSize the number of hits after which the search should stop
+     */
+    public RuleApplicationFinder(Proof proof, int goalNo, Environment env, int stopAtSize) {
+        this.goal = proof.getGoal(goalNo);
         this.sequent = goal.getSequent();
         this.env = env;
-        ruleAppMaker.setGoalNumber(goalNo);
+        this.stopAtSize = stopAtSize;
+        this.ruleAppMaker.setGoalNumber(goalNo);
     }
     
-    public InteractiveRuleApplicationFinder(Sequent sequent, Environment env) {
-        this.env = env;
-        this.sequent = sequent;
-    }
-
+ //     TODO: Auto-generated Javadoc
+    
+    /**
+     * Find all.
+     * 
+     * @param termSelector the term selector
+     * @param sortedAllRules the sorted all rules
+     * 
+     * @return the list< rule application>
+     * 
+     * @throws ProofException the proof exception
+     */
     public List<RuleApplication> findAll(TermSelector termSelector,  
             List<Rule> sortedAllRules) throws ProofException {
-        
+
         applications = new ArrayList<RuleApplication>();
         
         try {
             for (Rule rule : sortedAllRules) {
-                if (applications.size() > MAX_NUMBER_APPLICATIONS)
-                    break;
 
                 ruleAppMaker.setRule(rule);
                 ruleAppMaker.clearProperties();
@@ -73,17 +147,32 @@ public class InteractiveRuleApplicationFinder {
             }
         } catch (RuleException e) {
             throw new ProofException("Error during finding of applicable rules", e);
+        } catch (EnoughException e) {
+            // thrown to indicate that no more hits are to be recorded. Return the hits
+            // which have been collected so far.
+            return applications;
         }
-        
         
         return applications;
     }
 
-    private void matchAssumptions(List<LocatedTerm> assumptions, TermUnification mc, int assIdx) throws RuleException {
+    /**
+     * Match assumptions.
+     * 
+     * @param assumptions the assumptions
+     * @param mc the mc
+     * @param assIdx the ass idx
+     * 
+     * @throws RuleException the rule exception
+     * @throws EnoughException 
+     */
+    private void matchAssumptions(List<LocatedTerm> assumptions, TermUnification mc, int assIdx) throws RuleException, EnoughException {
         
         if(assIdx >= assumptions.size()) {
             if(matchWhereClauses(mc)) {
                 applications.add(ruleAppMaker.make());
+                if (applications.size() > stopAtSize)
+                    throw new EnoughException();
             }
             return;
         }
@@ -111,6 +200,15 @@ public class InteractiveRuleApplicationFinder {
         }
     }
 
+    /**
+     * Match where clauses.
+     * 
+     * @param mc the mc
+     * 
+     * @return true, if successful
+     * 
+     * @throws RuleException the rule exception
+     */
     private boolean matchWhereClauses(TermUnification mc) throws RuleException {
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for ( WhereClause wc : whereClauses ) {
