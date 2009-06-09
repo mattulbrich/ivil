@@ -92,7 +92,7 @@ public class Proof extends Observable {
         return changedSinceSave;
     }
     
-    public void resetChangesSaved() {
+    public void changesSaved() {
         changedSinceSave = false;
     }
 

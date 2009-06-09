@@ -93,4 +93,8 @@ public class RuleApplicationMaker implements RuleApplication {
     public void clearProperties() {
         getProperties().clear();
     }
+
+    public TermUnification getTermUnification() {
+        return termUnification;
+    }
 }

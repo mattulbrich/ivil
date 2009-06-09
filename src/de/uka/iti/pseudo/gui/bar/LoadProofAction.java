@@ -3,11 +3,9 @@ package de.uka.iti.pseudo.gui.bar;
 import java.awt.event.ActionEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.StateConstants;
@@ -17,6 +15,12 @@ import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 
 // TODO Documentation needed
+
+/*
+ * have a look at SaveProofAction for generalisation with different file formats.
+ */
+
+@SuppressWarnings("serial") 
 public class LoadProofAction extends AbstractStateListeningAction {
 
     private JFileChooser fileChooser;
@@ -53,11 +57,13 @@ public class LoadProofAction extends AbstractStateListeningAction {
                     throw new IOException("The input file " + fileChooser.getSelectedFile() + " is not accepted");
                 
                 is = new FileInputStream(fileChooser.getSelectedFile());
-                Proof proof = proofImport.importProof(is, origProof, env);
-                getProofCenter().replaceProof(proof);
+                proofImport.importProof(is, origProof, env);
+                
+                // no unsaved changes now.
+                origProof.changesSaved();
                 
             } catch (Exception ex) {
-                getProofCenter().prune(origProof.getRoot());
+                origProof.prune(origProof.getRoot());
                 // TODO gescheiter Fehlerdialog
                 ex.printStackTrace();
             }

@@ -346,19 +346,19 @@ public class ProofCenter implements TermSelectionListener {
         return getMainWindow().getBarManager();
     }
 
-    /**
-     * Replace the current proof by a new one (e.g. load from a file)
-     * 
-     * The proof must not have children yet.
-     * 
-     * @param proof the new proof
-     */
-    public void replaceProof(@NonNull Proof proof) {
-        assert this.proof.getRoot().getChildren().size() == 0 : 
-            "can only replace childless proof";
-        
-        this.proof = proof;
-        fireSelectedProofNode(proof.getRoot());
-    }
+//    /**
+//     * Replace the current proof by a new one (e.g. load from a file)
+//     * 
+//     * The proof must not have children yet.
+//     * 
+//     * @param proof the new proof
+//     */
+//    public void replaceProof(@NonNull Proof proof) {
+//        assert this.proof.getRoot().getChildren().size() == 0 : 
+//            "can only replace childless proof";
+//        
+//        this.proof = proof;
+//        fireSelectedProofNode(proof.getRoot());
+//    }
 
 }
