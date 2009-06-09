@@ -1,173 +1,127 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
-import javax.swing.event.EventListenerList;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
 
+import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.util.Util;
 
 public class ProofComponent extends JTree implements ProofNodeSelectionListener {
 
-    private Proof proof;
-
-    private class Model implements TreeModel, Observer {
-
-        /** Listeners. */
-        protected EventListenerList listenerList = new EventListenerList();
-
-        public void addTreeModelListener(TreeModelListener l) {
-            listenerList.add(TreeModelListener.class, l);
-        }
-
-        public void removeTreeModelListener(TreeModelListener l) {
-            listenerList.remove(TreeModelListener.class, l);
-        }
-
-        public Object getChild(Object parent, int index) {
-            ProofNode node = (ProofNode) parent;
-            return node.getChildren().get(index);
-        }
-
-        public int getChildCount(Object parent) {
-            ProofNode node = (ProofNode) parent;
-            List<ProofNode> children = node.getChildren();
-            if (children != null)
-                return children.size();
-            else
-                return 0;
-        }
-
-        public int getIndexOfChild(Object parent, Object child) {
-            ProofNode node = (ProofNode) parent;
-            List<ProofNode> children = node.getChildren();
-            if (children != null)
-                return children.indexOf(child);
-            else
-                return -1;
-        }
-
-        public Object getRoot() {
-            return proof.getRoot();
-        }
-
-        public boolean isLeaf(Object parent) {
-            ProofNode node = (ProofNode) parent;
-            List<ProofNode> children = node.getChildren();
-            return children == null || children.size() == 0;
-        }
-
-        public void valueForPathChanged(TreePath path, Object newValue) {
-            throw new UnsupportedOperationException(
-                    "The tree nodes must not be altered");
-        }
-
-        public void update(Observable proof, Object proofNode) {
-            LinkedList<Object> path = new LinkedList<Object>();
-            ProofNode node = (ProofNode) proofNode;
-            while(node != null) {
-                path.addFirst(node);
-                node = node.getParent();
-            }
-            
-            TreeModelEvent event = new TreeModelEvent(proof, path.toArray());
-            for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-                listener.treeNodesChanged(event);
-            }
-        }
-
-    }
+    private static final long serialVersionUID = 6352175425195393727L;
     
+    // private Proof proof;
+    private ProofComponentModel proofModel;
+    private static final Icon GREEN_ICON = mkIcon("img/green.png");
+    private static final Icon GREY_ICON = mkIcon("img/grey.png");
+    private final Font italicFont = getFont().deriveFont(Font.ITALIC);
+    
+    @SuppressWarnings("serial") 
     private class Renderer extends DefaultTreeCellRenderer {
-        @Override public Component getTreeCellRendererComponent(JTree tree,
+        public Component getTreeCellRendererComponent(JTree tree,
                 Object value, boolean sel, boolean expanded, boolean leaf,
                 int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-            if (value instanceof ProofNode) {
-                ProofNode proofNode = (ProofNode) value;
+            if (value instanceof ProofTreeNode) {
+                ProofTreeNode treenode = (ProofTreeNode) value;
+                ProofNode proofNode = treenode.getProofNode();
                 RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
-                if(appliedRuleApp != null) {
+                
+                if(!treenode.isLeaf()) {
+                    setText(getBranchName(proofNode));
+                    setFont(italicFont);
+                } else if(appliedRuleApp != null) {
                     setText(appliedRuleApp.getRule().getName());
+                    setFont(null);
                 } else {
                     setText("OPEN");
+                    setFont(null);
                 }
-                if(proofNode.isClosed()) {
-                    setIcon(mkIcon("img/green.png"));
+                
+                if(treenode.getParent() == null) {
+                    setIcon(null);
+                } else if(proofNode.isClosed()) {
+                    setIcon(GREEN_ICON);
                 } else {
-                    setIcon(mkIcon("img/grey.png"));
+                    setIcon(GREY_ICON);
                 }
             }
             return this;
         }
-    }
 
-    public ProofComponent(Proof proof) {
-        this.proof = proof;
-        Model model = new Model();
-        proof.addChangeObserver(model);
-        setModel(model);
-        setCellRenderer(new Renderer());
-        // DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-        // Icon innerIcon = mkIcon("img/inner.png");
-        // renderer.setIcon(innerIcon);
-        // Icon outerIcon = mkIcon("img/outer.png");
-        // renderer.setLeafIcon(outerIcon);
-        // setCellRenderer(renderer);
-    }
-
-    private Icon mkIcon(String string) {
-        URL resource = getClass().getResource(string);
-        if (resource != null)
-            return new ImageIcon(resource);
-        else
-            return null;
-    }
-    
-    public String convertValueToText(Object value, boolean selected,
-            boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        if (value instanceof ProofNode) {
-            ProofNode node = (ProofNode) value;
-            RuleApplication appliedRuleApp = node.getAppliedRuleApp();
-            if(appliedRuleApp != null) {
-                return appliedRuleApp.getRule().getName();
-            } else {
-                return "OPEN";
-            }
-        } else {
-            // unknown state ... can happen before new Model has been set.
-            return "???";
+        private String getBranchName(ProofNode proofNode) {
+            ProofNode parent = proofNode.getParent();
+            
+            if(parent == null)
+                return "";
+            
+            int index = parent.getChildren().indexOf(proofNode);
+            assert index != -1;
+            
+            RuleApplication appliedRuleApp = parent.getAppliedRuleApp();
+            if(appliedRuleApp == null)
+                return "branch " + (index+1);
+            
+            Rule rule = appliedRuleApp.getRule();
+            GoalAction ga = rule.getGoalActions()[index];
+            String actionName = ga.getName();
+            
+            return actionName == null ? "branch " + (index+1) : actionName;
         }
         
     }
 
-    public void proofNodeSelected(ProofNode node) {
-        LinkedList<Object> path = new LinkedList<Object>();
-        while(node != null) {
-            path.addFirst(node);
-            node = node.getParent();
+    public ProofComponent(Proof proof) {
+        // this.proof = proof;
+        proofModel = new ProofComponentModel(proof.getRoot());
+        proof.addChangeObserver(proofModel);
+        setModel(proofModel);
+        setCellRenderer(new Renderer());
+    }
+
+    private static Icon mkIcon(String string) {
+        URL resource = ProofComponent.class.getResource(string);
+        if (resource != null)
+            return new ImageIcon(resource);
+        else
+            return Util.UNKNOWN_ICON;
         }
-        setSelectionPath(new TreePath(path.toArray()));
+    
+//    public String convertValueToText(Object value, boolean selected,
+//            boolean expanded, boolean leaf, int row, boolean hasFocus) {
+//        if (value instanceof ProofNode) {
+//            ProofNode node = (ProofNode) value;
+//            RuleApplication appliedRuleApp = node.getAppliedRuleApp();
+//            if(appliedRuleApp != null) {
+//                return appliedRuleApp.getRule().getName();
+//            } else {
+//                return "OPEN";
+//            }
+//        } else {
+//            // unknown state ... can happen before new Model has been set.
+//            return "???";
+//        }
+//        
+//    }
+
+    public void proofNodeSelected(ProofNode node) {
+        setSelectionPath(proofModel.getPath(node));
         repaint();
     }
 
     public ProofNode getSelectedProofNode() {
-        Object selectedValue = getSelectionPath().getLastPathComponent();
-        assert selectedValue instanceof ProofNode;
-        return (ProofNode) selectedValue;
+        return proofModel.getProofNode(getSelectionPath());
     }
 
 }

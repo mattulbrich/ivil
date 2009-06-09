@@ -560,6 +560,9 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         super.visit(arg);
 
         String kind = arg.getGoalKind().image;
+        Token nameToken = arg.getName();
+        String name = nameToken == null ? null : nameToken.image;
+        
         List<Term> addAntecendent = new ArrayList<Term>();
         List<Term> addSuccendent = new ArrayList<Term>();
         Term replaceWith = null;
@@ -579,7 +582,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         }
 
         try {
-            resultingGoalAction = new GoalAction(kind, replaceWith, addAntecendent, addSuccendent);
+            resultingGoalAction = new GoalAction(kind, name, replaceWith, addAntecendent, addSuccendent);
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }

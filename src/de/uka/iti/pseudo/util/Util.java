@@ -8,9 +8,14 @@
  */
 package de.uka.iti.pseudo.util;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.RandomAccess;
+
+import javax.swing.Icon;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Term;
@@ -18,7 +23,24 @@ import de.uka.iti.pseudo.term.Term;
 
 public class Util {
 	
-	public String join(String[] strings, String sep) {
+	public static final Icon UNKNOWN_ICON = new Icon() {
+
+        @Override public int getIconHeight() {
+            return 16;
+        }
+
+        @Override public int getIconWidth() {
+            return 16;
+        }
+
+        @Override public void paintIcon(Component c, Graphics g, int x, int y) {
+            g.setColor(Color.red);
+            g.drawString("??", x, y+16);
+        }
+	
+	};
+
+    public String join(String[] strings, String sep) {
 		StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < strings.length; i++) {
 			sb.append(strings[i]);

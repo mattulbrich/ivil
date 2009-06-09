@@ -10,10 +10,10 @@ package de.uka.iti.pseudo.rule;
 
 import java.util.List;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
-
-import nonnull.NonNull;
 
 
 // TODO DOC
@@ -31,6 +31,8 @@ public class GoalAction {
     }
 
     private @NonNull Kind kind;
+    
+    private @Nullable String name;
     
     private Term replaceWith;
 
@@ -54,7 +56,7 @@ public class GoalAction {
         return Util.readOnlyArrayList(addSuccedent);
     }
 
-    public GoalAction(String kindString, Term replaceWith,
+    public GoalAction(String kindString, String name, Term replaceWith,
             List<Term> addAntecendent, List<Term> addSuccendent) throws RuleException {
         
         if (kindString.equals("closegoal")) {
@@ -74,13 +76,14 @@ public class GoalAction {
         if(this.kind != Kind.NEW || replaceWith == null)
             throw new RuleException("newgoal actions may not contain replace elements");
         
+        this.name = name;
         this.replaceWith = replaceWith;
         this.addAntecedent = Util.listToArray(addAntecendent, Term.class);
         this.addSuccedent = Util.listToArray(addSuccendent, Term.class);
     }
 
     public void dump() {
-        System.out.println("      action " + kind);
+        System.out.println("      action " + kind + (name == null ? "" : "\""+name+"\""));
         
         if(replaceWith != null)
             System.out.println("        replace " + replaceWith);
@@ -92,6 +95,10 @@ public class GoalAction {
         for (Term t : addSuccedent) {
             System.out.println("        add |- " +t);
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

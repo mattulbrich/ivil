@@ -292,8 +292,8 @@ ASTRule RuleDeclaration():
   
   (
     t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (t="samegoal" | t="newgoal") aclist=AddReplaces() 
-         { actions.add(new ASTGoalAction(t, aclist)); }
+  | (t="samegoal" | t="newgoal") ( name=<IDENTIFIER> )? aclist=AddReplaces() 
+         { actions.add(new ASTGoalAction(t, name, aclist)); }
   )+
   
   (

@@ -7,14 +7,15 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 public class ASTGoalAction extends ASTFileElement {
     
     Token goalKind;
+    Token name;
 
     public ASTGoalAction(Token t) {
         goalKind = t;
     }
 
-    public ASTGoalAction(de.uka.iti.pseudo.parser.file.Token t,
-            List<ASTRuleElement> list) {
+    public ASTGoalAction(Token t, Token name, List<ASTRuleElement> list) {
         goalKind = t;
+        this.name = name;
         addChildren(list);
     }
 
@@ -28,6 +29,10 @@ public class ASTGoalAction extends ASTFileElement {
 
     public Token getGoalKind() {
         return goalKind;
+    }
+
+    public Token getName() {
+        return name;
     }
 
 }
