@@ -4,6 +4,7 @@ include
 rule skip
   find { [skip]%t }
   samegoal replace { %t }
+  tags rewrite "symbex"
 
 rule split_program
   find { [&a ; &b]%t }
@@ -14,6 +15,7 @@ rule assignment
   where
     programFree {%t}
   samegoal replace { $$subst(%x, %v, %t) }
+  tags rewrite "symbex"
 
 rule if_then_else
   find { [ if %c then &a else &b end]%t }
@@ -74,4 +76,4 @@ rule while_given_inv
     add { !%c }  |-
     add { %inv } |-
     add          |- { %t }
-
+  tags rewrite "symbex"
