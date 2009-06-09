@@ -8,6 +8,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
@@ -105,7 +106,11 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     }
 
     public ProofNode getSelectedProofNode() {
-        return proofModel.getProofNode(getSelectionPath());
+        TreePath selectionPath = getSelectionPath();
+        if(selectionPath != null)
+            return proofModel.getProofNode(selectionPath);
+        else
+            return null;
     }
 
 }

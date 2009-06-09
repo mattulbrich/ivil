@@ -1,8 +1,5 @@
 package de.uka.iti.pseudo.gui;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +18,8 @@ import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
+
+import de.uka.iti.pseudo.proof.ProofNode;
 
 
 // the center of this all
@@ -95,7 +94,9 @@ public class MainWindow extends JFrame {
             proofCenter.addProofNodeSelectionListener(proofComponent);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
-                    proofCenter.fireSelectedProofNode(proofComponent.getSelectedProofNode());
+                    ProofNode selectedProofNode = proofComponent.getSelectedProofNode();
+                    if(selectedProofNode != null)
+                        proofCenter.fireSelectedProofNode(selectedProofNode);
                 }
             });
             JScrollPane scroll = new JScrollPane(proofComponent);
@@ -103,7 +104,7 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(1));
         }
         {
-            ruleApplicationComponent = new RuleApplicationComponent(proofCenter.getEnvironment());
+            ruleApplicationComponent = new RuleApplicationComponent(proofCenter);
             proofCenter.addProofNodeSelectionListener(ruleApplicationComponent);
             JScrollPane scroll = new JScrollPane(ruleApplicationComponent);
             Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");

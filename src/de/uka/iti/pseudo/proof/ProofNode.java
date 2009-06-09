@@ -38,13 +38,12 @@ public class ProofNode {
         this.sequent = sequent;
     }
     public ProofNode(Proof proof, ProofNode parent, List<Term> antecedent,
-            List<Term> succedent) {
+            List<Term> succedent) throws TermException {
         this(proof, parent, new Sequent(antecedent, succedent));
     }
 
     protected void setChildren(ProofNode[] children) {
         this.children = children;
-        proof.fireNodeChanged(this);
     }
     
     public void prune() {
@@ -53,6 +52,10 @@ public class ProofNode {
 
     public void apply(RuleApplication ruleApp, TermUnification mc)
             throws ProofException {
+        
+        if(appliedRuleApp != null)
+            throw new ProofException("Trying to apply proof to a non-leaf proof node");
+        
         Rule rule = ruleApp.getRule();
 
         matchFindClause(ruleApp, mc, rule);
@@ -71,32 +74,44 @@ public class ProofNode {
         List<Term> antecedent = new ArrayList<Term>();
         List<Term> succedent = new ArrayList<Term>();
         
-        for (GoalAction action : rule.getGoalActions()) {
-            antecedent.clear();
-            succedent.clear();
-            switch (action.getKind()) {
-            case CLOSE:
-                return new ProofNode[0];
-            case COPY:
-                antecedent.addAll(sequent.getAntecedent());
-                succedent.addAll(sequent.getSuccedent());
-                break;
-            }
+        try {
             
-            Term replaceWith = action.getReplaceWith();
-            if(replaceWith != null) {
-                TermSelector sel = ruleApp.getFindSelector();
-                try {
-                    replaceTerm(sel, mc.instantiate(replaceWith), antecedent, succedent);
-                } catch (TermException e) {
-                    throw new ProofException("Cannot replace term with " + replaceWith);
+            for (GoalAction action : rule.getGoalActions()) {
+                antecedent.clear();
+                succedent.clear();
+                switch (action.getKind()) {
+                case CLOSE:
+                    return new ProofNode[0];
+                case COPY:
+                    antecedent.addAll(sequent.getAntecedent());
+                    succedent.addAll(sequent.getSuccedent());
+                    break;
                 }
+                
+                Term replaceWith = action.getReplaceWith();
+                if(replaceWith != null) {
+                    TermSelector sel = ruleApp.getFindSelector();
+                    Term instantiated = mc.instantiate(replaceWith);
+                    assert !mc.containsSchemaIdentifier(instantiated);
+                    replaceTerm(sel, instantiated, antecedent, succedent);
+                }
+                
+                for (Term add : action.getAddAntecedent()) {
+                    antecedent.add(mc.instantiate(add));
+                }
+                
+                for (Term add : action.getAddSuccedent()) {
+                    succedent.add(mc.instantiate(add));
+                }
+                
+                newNodes.add(new ProofNode(proof, this, antecedent, succedent));
             }
-            
-            newNodes.add(new ProofNode(proof, this, antecedent, succedent));
-        }
 
-        return Util.listToArray(newNodes, ProofNode.class);
+            return Util.listToArray(newNodes, ProofNode.class);
+            
+        } catch (TermException e) {
+            throw new ProofException("Exception during application of rule", e);
+        }
     }
 
     private void replaceTerm(TermSelector sel, Term replaceWith, List<Term> antecedent, List<Term> succedent) throws ProofException, TermException {

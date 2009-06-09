@@ -27,7 +27,9 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
     public GoalList(Proof proof, Environment env) {
         this.proof = proof;
         this.env = env;
-        setModel(new Model());
+        Model model = new Model();
+        setModel(model);
+        proof.addObserver(model);
         setCellRenderer(new Renderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
@@ -69,6 +71,7 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         }
 
         public void update(Observable o, Object arg) {
+            assert o == proof;
             ListDataEvent event = new ListDataEvent(GoalList.this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
             for (ListDataListener listener : listenerList.getListeners(ListDataListener.class)) {
                 listener.contentsChanged(event);
@@ -78,14 +81,14 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
     }
 
     public void proofNodeSelected(ProofNode node) {
+        clearSelection();
         setSelectedValue(node, true);
     }
 
     /* we are sure we only have proofnodes */
     public ProofNode getSelectedProofNode() {
         ProofNode selectedValue = (ProofNode) getSelectedValue();
-        assert selectedValue instanceof ProofNode;
         return selectedValue;
-    };
-    
+    }
+
 }

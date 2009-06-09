@@ -20,11 +20,12 @@ import de.uka.iti.pseudo.util.Util;
 public abstract class Term {
 	
 	private static final Term[] NO_ARGUMENTS = new Term[0];
-	private static final boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
+	public static final boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
 	
 	private Term[] subterms;
 	
 	private Type type;
+    private int storedHashCode;
 
 	protected Term(Term[] subterms, Type type) {
 		
@@ -60,6 +61,14 @@ public abstract class Term {
 	}
 	
 	public abstract String toString(boolean typed);
+	
+	@Override 
+	public int hashCode() {
+	    if(storedHashCode == 0) {
+	        storedHashCode = toString(true).hashCode();
+	    }
+	    return storedHashCode;
+	}
 	
 	/**
      * The equality on terms is the syntactical identity.

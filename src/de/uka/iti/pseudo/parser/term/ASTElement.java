@@ -13,20 +13,49 @@ import java.util.Collections;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
+/**
+ * The Class ASTElement.
+ */
 @NonNull
-//TODO DOC
 public abstract class ASTElement implements ASTLocatedElement {
 
+    /**
+     * The name of the file in which this element is defined.
+     * If not read from a file, this can be the resource
+     */
     private String fileName;
 
+    /**
+     * The children in the syntax tree
+     */
     private List<ASTElement> children;
+    
+    /**
+     * The parent element (counterpart to children), is null for a root element
+     */
     private ASTElement parent = null;
 
+    /**
+     * The "accept" method of the visitor pattern. Any extending class wil call
+     * the appropriate visit method of the ASTVisitor
+     * 
+     * @param v
+     *            the visitor to visit
+     * 
+     * @throws ASTVisitException
+     *             may be thrown by the ASTVisitor.visit mthod
+     */
     public abstract void visit(ASTVisitor v) throws ASTVisitException;
 
+    /**
+     * Sets the filename for this element.
+     * 
+     * @param fileName the filename or resource name
+     */
     public void setFilename(String fileName) {
         this.fileName = fileName;
         for (ASTElement element : getChildren()) {
@@ -34,6 +63,11 @@ public abstract class ASTElement implements ASTLocatedElement {
         }
     }
 
+    /**
+     * Gets the list of children.
+     * 
+     * @return the children
+     */
     public List<ASTElement> getChildren() {
         if(children == null)
             return Collections.emptyList();
@@ -41,12 +75,22 @@ public abstract class ASTElement implements ASTLocatedElement {
             return children;
     }
 
+    /**
+     * Adds a list of elements to the list of children
+     * 
+     * @param elements the elements to add
+     */
     protected void addChildren(List<? extends ASTElement> elements) {
         for (ASTElement fileElement : elements) {
             addChild(fileElement);
         }
     }
 
+    /**
+     * Adds one element to the list of children
+     * 
+     * @param element the element
+     */
     protected void addChild(@NonNull ASTElement element) {
         if (this.children == null)
             this.children = new ArrayList<ASTElement>(2);
@@ -55,14 +99,25 @@ public abstract class ASTElement implements ASTLocatedElement {
         element.parent = this;
     }
 
+    /**
+     * AST elements are converted to String by their short class name
+     * 
+     * @return a short describing string
+     */
     public String toString() {
         return getClass().getSimpleName();
     }
 
+    /**
+     * Dump tree to stdout
+     */
     public void dumpTree() {
         dumpTree(0);
     }
 
+    /*
+     * Dump tree with indention level
+     */
     private void dumpTree(int level) {
         for (int i = 0; i < level; i++) {
             System.out.print("  ");
@@ -74,10 +129,23 @@ public abstract class ASTElement implements ASTLocatedElement {
         }
     }
 
-    public String getFileName() {
+    /**
+     * Gets the file name or resoure name
+     * 
+     * @return the file name to set
+     */
+    public @Nullable String getFileName() {
         return fileName;
     }
     
+    /**
+     * Gets a string that describes the location at which this element
+     * stood in the sources.
+     * 
+     * The format is [filename]:[line number]:[column number]
+     * 
+     * @return a location describing string
+     */
     public String getLocation() {
     	String retval;
     	if(fileName != null)
@@ -92,12 +160,33 @@ public abstract class ASTElement implements ASTLocatedElement {
     	return retval;
     }
 
+	/**
+	 * Every extending class needs to provide a token from which the 
+	 * location is extracted
+	 * 
+	 * @return the location token
+	 */
 	protected abstract Token getLocationToken();
 
-    public ASTElement getParent() {
+    /**
+     * Gets the parent element, null if there is no such element
+     * 
+     * @return the parent
+     */
+    public @Nullable ASTElement getParent() {
         return parent;
     }
 
+    /**
+     * Replace one of the children.
+     * 
+     * The child is searched for by identity not by equality.
+     * 
+     * @param org
+     *            the original ast element to be replaced
+     * @param replacement
+     *            the replacement element to put in its place
+     */
     public void replaceChild(ASTElement org, ASTElement replacement) {
         int index = children.indexOf(org);
         if(index != -1) {
@@ -106,6 +195,5 @@ public abstract class ASTElement implements ASTLocatedElement {
             org.parent = null;
         }
     }
-
 
 }

@@ -8,13 +8,28 @@
  */
 package de.uka.iti.pseudo.parser;
 
-//TODO DOC
+/**
+ * This interfaces provides the posibilty to obtain a location description for an object of an implmenting clas.
+ * 
+ * A location is a description of the location of the element within the resources, usually this is a descriptor
+ * containing filename, line and/or column number.
+ */
 public interface ASTLocatedElement {
     
+    /**
+     * The BUILTIN Location is used when no resource information is available (for instance for generated 
+     * elements), its location description is "#builtin".
+     */
     ASTLocatedElement BUILTIN = new ASTLocatedElement() {
 		public String getLocation() { return "#builtin"; }   	
     };
 
+    /**
+     * Gets a string that describes the location at which this element
+     * stood in the sources.
+	 * 
+	 * @return the location description
+	 */
 	public String getLocation();
     
 }

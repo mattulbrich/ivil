@@ -1,4 +1,4 @@
-include "$base.p"
+include "$proposition.p"
 
 function
   bool b1
@@ -26,5 +26,23 @@ rule close_same
   find {%a} |-
   closegoal
 
+rule cut
+  find |- {%something}
+  samegoal
+    add {%c} |-
+  samegoal
+    add |- {%c}
+
+rule mod_sep
+  find { [&prog;&prog2]%t }
+  samegoal
+    replace {[&prog2]([&prog2]%t) }
+
+rule mod_skip
+  find { [skip]%t }
+  samegoal
+    replace { %t }
+
+
 problem
-  { b1 & b2 -> b2 }
+  { [skip ; skip]b1 & b2 -> b2 }

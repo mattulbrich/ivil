@@ -251,7 +251,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
      * visit children
      */
     protected void visitDefault(ASTFileElement arg) throws ASTVisitException {
-        for (ASTFileElement child : arg) {
+        for (ASTFileElement child : arg.getChildren()) {
             child.visit(this);
         }
     }

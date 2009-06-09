@@ -64,9 +64,10 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         defaultVisitTerm(modalityTerm);
         if(resultingTerm == null) {
             modalityTerm.getModality().visit(this);
+            Modality m = resultingModality;
             modalityTerm.getSubterm().visit(this);
-            if(resultingModality != null || resultingTerm != null) {
-                Modality m = resultingModality == null ? modalityTerm.getModality() : resultingModality;
+            if(m != null || resultingTerm != null) {
+                m = m == null ? modalityTerm.getModality() : m;
                 Term t = resultingTerm == null ? modalityTerm.getSubterm() : resultingTerm;
                 resultingTerm = new ModalityTerm(m,t);
                 resultingModality = null;

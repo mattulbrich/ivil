@@ -14,6 +14,8 @@ import nonnull.NonNull;
 
 public abstract class Type {
 
+    private int storedHashCode;
+
     public abstract Type visit(TypeVisitor visitor) throws TermException;
     
     @Override
@@ -21,5 +23,13 @@ public abstract class Type {
     
     @Override
     public abstract boolean equals(@NonNull Object object);
+    
+    @Override 
+    public int hashCode() {
+        if(storedHashCode == 0) {
+            storedHashCode = toString().hashCode();
+        }
+        return storedHashCode;
+    }
 
 }

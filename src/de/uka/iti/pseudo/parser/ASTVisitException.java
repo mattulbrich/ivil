@@ -8,10 +8,22 @@
  */
 package de.uka.iti.pseudo.parser;
 
-//TODO DOC
+import de.uka.iti.pseudo.parser.file.ASTFileVisitor;
+import de.uka.iti.pseudo.parser.term.ASTVisitor;
+
+/**
+ * This class of exceptions may be thrown during visiting using a
+ * {@link ASTFileVisitor} or a {@link ASTVisitor}.
+ * 
+ * They have special constructors that allow to specify a location
+ * which is then added to error message. The location could also be 
+ * used separately.
+ */
 public class ASTVisitException extends Exception {
 
-	private ASTLocatedElement location;
+    private static final long serialVersionUID = 6326168209506163512L;
+    
+    private ASTLocatedElement location;
 
 	public ASTVisitException(String message, ASTLocatedElement location) {
 		super(message);

@@ -3,10 +3,16 @@ package de.uka.iti.pseudo.rule;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 public class Rule {
+    
+    private static final String NEWLINE = "\n";
     
     private String name;
     private LocatedTerm assumptions[];
@@ -80,6 +86,37 @@ public class Rule {
         for (GoalAction ga : goalActions) {
             ga.dump();
         }
+    }
+    
+    public String prettyPrint(@NonNull Environment env) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("rule ").append(getName()).append(NEWLINE);
+        sb.append("  find ").append(PrettyPrint.print(env, getFindClause())).append(NEWLINE);
+        for (LocatedTerm ass : getAssumptions()) {
+            sb.append("  assume ").append(PrettyPrint.print(env, ass)).append(NEWLINE);
+        }
+        // TODO implement preint for where clauses
+//        for (WhereClause where : getWhereClauses()) {
+//            sb.append("  where ").append(where.prettyPrint(env)).append(NEWLINE);
+//        }
+        for (GoalAction action : getGoalActions()) {
+            switch(action.getKind()) {
+            case CLOSE: sb.append("  closegoal"); break;
+            case COPY: sb.append("  samegoal"); break;
+            case NEW: sb.append("  newgoal"); break;
+            }
+            sb.append(NEWLINE);
+            Term rep = action.getReplaceWith();
+            if(rep != null)
+                sb.append("    replace ").append(PrettyPrint.print(env, rep)).append(NEWLINE);
+            for (Term t : action.getAddAntecedent()) {
+                sb.append("    add ").append(PrettyPrint.print(env, t)).append(" |-").append(NEWLINE);
+            }
+            for (Term t : action.getAddSuccedent()) {
+                sb.append("    add |-").append(PrettyPrint.print(env, t)).append(NEWLINE);
+            }
+        }
+        return sb.toString();
     }
     
     @Override public String toString() {

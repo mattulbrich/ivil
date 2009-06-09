@@ -1,10 +1,13 @@
 package de.uka.iti.pseudo.rule;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC l8er
 
@@ -32,6 +35,10 @@ public class WhereClause {
     public boolean applyTo(TermUnification mc, RuleApplication ruleApp,
             ProofNode goal) throws RuleException {
         return whereCondition.applyTo(arguments, mc, ruleApp, goal);
+    }
+    
+    public List<Term> getArguments() {
+        return Util.readOnlyArrayList(arguments);
     }
     
 }

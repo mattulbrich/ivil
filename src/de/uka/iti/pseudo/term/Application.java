@@ -125,8 +125,9 @@ public class Application extends Term {
             retval += " as " + getType();
         return retval;
     }
-
-    @Override public void visit(TermVisitor visitor) throws TermException {
+    
+    @Override
+    public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
     

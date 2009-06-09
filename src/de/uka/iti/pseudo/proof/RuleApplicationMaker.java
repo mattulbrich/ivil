@@ -1,11 +1,12 @@
 package de.uka.iti.pseudo.proof;
 
+import java.util.Map;
 import java.util.Stack;
 
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.SchemaVariable;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
@@ -17,7 +18,8 @@ public class RuleApplicationMaker {
     private int goalNumber;
     private TermSelector findSelector;
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
-    private Pair<SchemaVariable, Term> interactiveInstantiations[];
+    private Map<String, Term> schemaVariableInstantiations;
+    private Map<String, Modality> schemaModalityInstantiations;
     
     public void setGoalNumber(int goalNumber) {
         this.goalNumber = goalNumber;
@@ -36,11 +38,28 @@ public class RuleApplicationMaker {
     }
 
     public RuleApplication make() {
-        return new RuleApplication(rule, goalNumber, findSelector, Util.listToArray(assumeSelectors, TermSelector.class), null);
+        return new RuleApplication(rule, goalNumber, findSelector, 
+                Util.listToArray(assumeSelectors, TermSelector.class), 
+                schemaVariableInstantiations, schemaModalityInstantiations);
     }
 
     public void popAssumptionSelector() {
         assumeSelectors.pop();
+    }
+
+    public void setSchemaVariableInstantiations(
+            Map<String, Term> schemaVariableInstantiations) {
+        this.schemaVariableInstantiations = schemaVariableInstantiations;
+    }
+
+    public void setSchemaModalityInstantiations(
+            Map<String, Modality> schemaModalityInstantiations) {
+        this.schemaModalityInstantiations = schemaModalityInstantiations;
+    }
+
+    public void getInstantiationsFrom(TermUnification mc) {
+        setSchemaVariableInstantiations(mc.getTermInstantiation());
+        setSchemaModalityInstantiations(mc.getModalityInstantiation());
     }
 
 }

@@ -85,6 +85,9 @@ public class TermUnification {
         return typeUnification;
     }
     
+    /**
+     * @see SchemaCollectorVisitor
+     */
     private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() { 
         public void visit(SchemaModality schemaModality) throws TermException {
             throw new TermException("Unexpected schema modality found: " + schemaModality);
@@ -111,6 +114,14 @@ public class TermUnification {
         } catch (TermException e) {
             return true;
         }
+    }
+
+    public Map<String, Term> getTermInstantiation() {
+        return new HashMap<String, Term>(instantiation);
+    }
+
+    public Map<String, Modality> getModalityInstantiation() {
+        return new HashMap<String, Modality>(modalityInstantiation);
     }
 
 

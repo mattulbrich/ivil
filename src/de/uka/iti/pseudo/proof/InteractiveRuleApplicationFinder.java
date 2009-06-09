@@ -64,6 +64,7 @@ public class InteractiveRuleApplicationFinder {
     private void matchAssumptions(LocatedTerm[] assumptions, TermUnification mc, int assIdx) {
         
         if(assIdx >= assumptions.length) {
+            ruleAppMaker.getInstantiationsFrom(mc);
             applications.add(ruleAppMaker.make());
             return;
         }

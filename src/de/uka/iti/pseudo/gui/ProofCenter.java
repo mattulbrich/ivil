@@ -99,4 +99,19 @@ public class ProofCenter implements TermSelectionListener {
         }
         
     }
+
+    public void apply(RuleApplication ruleApp) throws ProofException {
+        ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
+        proof.apply(ruleApp);
+        
+        // next to select is first child (or self if no children)
+        List<ProofNode> children = parent.getChildren();
+        ProofNode next;
+        if(children != null && !children.isEmpty()) {
+            next = children.get(0);
+        } else {
+            next = parent;
+        }
+        fireSelectedProofNode(next);
+    }
 }

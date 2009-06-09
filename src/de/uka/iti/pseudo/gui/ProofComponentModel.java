@@ -94,6 +94,10 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         public ProofNode getProofNode() {
             return proofNode;
         }
+
+        public void invalidate() {
+            children = null;
+        }
         
     }
 
@@ -101,19 +105,16 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         super(new ProofTreeNode(null, root, false));
     }
 
-    public void update(Observable proof, Object proofNode) {
+    public void update(Observable proof, Object arg) {
         
-        // TODO make some replacement code
-        LinkedList<Object> path = new LinkedList<Object>();
-        ProofNode node = (ProofNode) proofNode;
-        while(node != null) {
-            path.addFirst(node);
-            node = node.getParent();
-        }
+        ProofNode proofNode = (ProofNode) arg;
+        TreePath path = getPath(proofNode).getParentPath();
+        ProofTreeNode ptn =  (ProofTreeNode) path.getLastPathComponent();
+        ptn.invalidate();
         
-        TreeModelEvent event = new TreeModelEvent(proof, path.toArray());
+        TreeModelEvent event = new TreeModelEvent(proof, path);
         for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-            listener.treeNodesChanged(event);
+            listener.treeStructureChanged(event);
         }
     }
     

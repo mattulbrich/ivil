@@ -1,7 +1,9 @@
 package de.uka.iti.pseudo.term;
 
+import java.util.Arrays;
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
@@ -11,14 +13,22 @@ public class Sequent {
     
     private Term[] succedent;
     
-    public Sequent(Term[] antecedent, Term[] succedent) {
-        this.antecedent = antecedent;
-        this.succedent = succedent;
+    public Sequent(Term[] antecedent, Term[] succedent) throws TermException {
+        this(Arrays.asList(antecedent), Arrays.asList(succedent));
     }
 
-    public Sequent(List<Term> antecedent, List<Term> succedent) {
+    public Sequent(List<Term> antecedent, List<Term> succedent) throws TermException {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
+        typeCheck();
+    }
+
+    private void typeCheck() throws TermException {
+        for (Term t : antecedent) {
+            if(!t.getType().equals(Environment.getBoolType())) {
+                throw new TermException("Expecting boolean terms in sequents");
+            }
+        }
     }
 
     public List<Term> getAntecedent() {
