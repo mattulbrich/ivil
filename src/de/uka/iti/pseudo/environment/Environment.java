@@ -604,9 +604,9 @@ public class Environment {
         String name = rule.getName();
         Rule existing = getRule(name);
         if(existing != null) {
-            new EnvironmentException("Rule " + name
+            throw new EnvironmentException("Rule " + name
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
         
         rules.add(rule);

@@ -110,7 +110,7 @@ rule and_true_r
   replace { %a }
   tags rewrite "concrete"
 
-rule and_true_r
+rule and_false_r
   find { %a & false }
   replace { false }
   tags rewrite "concrete"
@@ -150,7 +150,7 @@ rule or_true_r
   replace { true }
   tags rewrite "concrete"
 
-rule or_true_r
+rule or_false_r
   find { %a | false }
   replace { %a }
   tags rewrite "concrete"

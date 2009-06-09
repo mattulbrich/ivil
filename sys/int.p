@@ -65,6 +65,14 @@ rule gte_to_gt
   find { %a >= %b }
   replace { %a > %b | %a = %b }
 
+rule lte_to_gt
+  find { %a <= %b }
+  replace { %a < %b | %a = %b }
+
+rule gt_to_lt
+  find { %a > %b }
+  replace { %b < %a }
+
 rule gt_minus_one
   find { %a + (-1) >= %b }
   replace { %a > %b }
