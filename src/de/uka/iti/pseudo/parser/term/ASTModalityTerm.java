@@ -22,5 +22,10 @@ public class ASTModalityTerm extends ASTTerm {
     public final ASTModality getModality() {
         return modality;
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return modality.getLocationToken();
+	}
 
 }

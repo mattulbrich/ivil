@@ -1,19 +1,20 @@
 package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
+import de.uka.iti.pseudo.term.Type;
 
 public class Function {
 
     private String name;
 
-    private TypeReference resultType;
+    private Type resultType;
 
-    private TypeReference argumentTypes[];
+    private Type argumentTypes[];
     
     private ASTFunctionDeclaration declaration;
 
-    public Function(String name, TypeReference resultType,
-            TypeReference[] argumentTypes, ASTFunctionDeclaration declaration) {
+    public Function(String name, Type resultType,
+            Type[] argumentTypes, ASTFunctionDeclaration declaration) {
         super();
         this.name = name;
         this.resultType = resultType;
@@ -25,11 +26,11 @@ public class Function {
         return name;
     }
 
-    public TypeReference getResultType() {
+    public Type getResultType() {
         return resultType;
     }
 
-    public TypeReference[] getArgumentTypes() {
+    public Type[] getArgumentTypes() {
         return argumentTypes;
     }
 
@@ -39,7 +40,7 @@ public class Function {
     
     public String toString() {
         String ret = "Function[" + name + ";ret: " + resultType +";args:";
-        for (TypeReference tr : argumentTypes) {
+        for (Type tr : argumentTypes) {
             ret += " " + tr;
         }
         return ret + "]";

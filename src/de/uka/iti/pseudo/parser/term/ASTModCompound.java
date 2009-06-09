@@ -19,5 +19,10 @@ public class ASTModCompound extends ASTModality {
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return modality1.getLocationToken();
+	}
 
 }

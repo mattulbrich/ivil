@@ -19,4 +19,9 @@ public class ASTRuleAdd extends ASTRuleElement {
 		v.visit(this);
 	}
 
+	@Override
+	protected Token getLocationToken() {
+		return rawTerm.getLocationToken();
+	}
+
 }

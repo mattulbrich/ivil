@@ -8,5 +8,10 @@ public abstract class ASTDeclarationBlock extends ASTFileElement {
 		super();
 		this.firstToken = firstToken;
 	}
+	
+	@Override
+	protected Token getLocationToken() {
+		return firstToken;
+	}
 
 }

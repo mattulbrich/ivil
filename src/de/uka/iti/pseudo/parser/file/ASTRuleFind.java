@@ -18,5 +18,10 @@ public class ASTRuleFind extends ASTRuleElement {
 	public void visit(ASTFileVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
+	
+	@Override
+	protected Token getLocationToken() {
+		return rawTerm.getLocationToken();
+	}
 
 }

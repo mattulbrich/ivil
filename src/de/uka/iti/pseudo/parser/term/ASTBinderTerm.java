@@ -36,4 +36,9 @@ public class ASTBinderTerm extends ASTTerm {
     public final Token getVariableToken() {
         return variableToken;
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return binderToken;
+	}
 }

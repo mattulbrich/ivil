@@ -16,4 +16,12 @@ public class ASTRawTerm extends ASTFileElement {
 		v.visit(this);
 	}
 
+	public Token getTermToken() {
+		return termToken;
+	}
+
+	protected Token getLocationToken() {
+		return termToken;
+	}
+	
 }

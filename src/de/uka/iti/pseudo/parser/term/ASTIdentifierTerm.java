@@ -21,5 +21,10 @@ public class ASTIdentifierTerm extends ASTTerm {
     public final Token getSymbol() {
         return symbol;
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return symbol;
+	}
 
 }

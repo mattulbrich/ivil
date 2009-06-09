@@ -21,5 +21,10 @@ public class ASTTypeVar extends ASTType {
     public String getLocation() {
         return getFileName() + ":" + typeVarToken.beginLine;
     }
+    
+    @Override
+	protected Token getLocationToken() {
+		return typeVarToken;
+	}
 
 }

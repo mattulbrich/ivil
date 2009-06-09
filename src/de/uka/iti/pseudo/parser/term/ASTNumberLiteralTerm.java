@@ -18,4 +18,9 @@ public class ASTNumberLiteralTerm extends ASTTerm {
         v.visit(this);
     }
     
+    @Override
+	protected Token getLocationToken() {
+    	return numberToken;
+	}
+    
 }

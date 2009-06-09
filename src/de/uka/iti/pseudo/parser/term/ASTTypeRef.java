@@ -20,5 +20,10 @@ public class ASTTypeRef extends ASTElement {
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return token;
+	}
 
 }

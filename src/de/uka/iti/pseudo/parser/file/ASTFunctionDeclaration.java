@@ -3,10 +3,10 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public class ASTFunctionDeclaration extends ASTFileElement implements
-        ASTLocatedElement {
+public class ASTFunctionDeclaration extends ASTFileElement {
 
     private ASTType rangeType;
 
@@ -62,8 +62,8 @@ public class ASTFunctionDeclaration extends ASTFileElement implements
         return infixOperator != null;
     }
 
-    public String getLocation() {
-        return getFileName() + ":" + name.beginLine;
+    public Token getLocationToken() {
+        return name;
     }
 
 }

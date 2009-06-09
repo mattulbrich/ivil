@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTBinderDeclaration extends ASTFileElement implements
@@ -51,5 +52,10 @@ public class ASTBinderDeclaration extends ASTFileElement implements
     public String getLocation() {
         return getFileName() + ":" + name.beginLine;
     }
+
+	@Override
+	protected Token getLocationToken() {
+		return name;
+	}
 
 }

@@ -14,5 +14,10 @@ public class ASTModSkip extends ASTModality {
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return headToken;
+	}
 
 }

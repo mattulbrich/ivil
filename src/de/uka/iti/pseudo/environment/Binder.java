@@ -1,21 +1,22 @@
 package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
+import de.uka.iti.pseudo.term.Type;
 
 public class Binder {
     
     private String name;
 
-    private TypeReference resultType;
+    private Type resultType;
 
-    private TypeReference argumentTypes[];
+    private Type argumentTypes[];
 
     private ASTBinderDeclaration declaration;
 
-    private TypeReference varType;
+    private Type varType;
 
-    public Binder(String name, TypeReference resultType, TypeReference varTy,
-            TypeReference[] argumentTypes, ASTBinderDeclaration declaration) {
+    public Binder(String name, Type resultType, Type varTy,
+            Type[] argumentTypes, ASTBinderDeclaration declaration) {
         this.name = name;
         this.resultType = resultType;
         this.argumentTypes = argumentTypes;
@@ -26,7 +27,7 @@ public class Binder {
     public String toString() {
         String ret = "Binder[" + name + ";ret: " + resultType + 
             ";var: " + varType + ":args:";
-        for (TypeReference tr : argumentTypes) {
+        for (Type tr : argumentTypes) {
             ret += " " + tr;
         }
         return ret + "]";
@@ -36,11 +37,11 @@ public class Binder {
         return name;
     }
 
-    public TypeReference getResultType() {
+    public Type getResultType() {
         return resultType;
     }
 
-    public TypeReference[] getArgumentTypes() {
+    public Type[] getArgumentTypes() {
         return argumentTypes;
     }
 
@@ -48,7 +49,7 @@ public class Binder {
         return declaration;
     }
 
-    public TypeReference getVarType() {
+    public Type getVarType() {
         return varType;
     }
     

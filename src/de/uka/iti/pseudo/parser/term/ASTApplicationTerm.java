@@ -21,4 +21,9 @@ public class ASTApplicationTerm extends ASTTerm {
         return functionSymbol;
     }
     
+    @Override
+	protected Token getLocationToken() {
+    	return functionSymbol;
+	}
+    
 }

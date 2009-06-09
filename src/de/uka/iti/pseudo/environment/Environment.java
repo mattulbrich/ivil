@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
+
 public class Environment {
     
     private Map<String, Sort> sortMap = new HashMap<String, Sort>();
@@ -25,7 +28,7 @@ public class Environment {
         sortMap.put(name, sort);
     }
     
-    private Sort getSort(String name) {
+    public Sort getSort(String name) {
         return sortMap.get(name);
     }
 
@@ -40,13 +43,13 @@ public class Environment {
         }
         
         if(!checkNoFreeReturnTypeVariables(function.getResultType(), function.getArgumentTypes(), null))
-            throw new EnvironmentException("Function " + name + " has a free return typevariable. " +
-                    function.getDeclaration().getLocation());
+            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
+                    function.getDeclaration());
         
         functionMap.put(name, function);
     }
     
-    private Function getFunction(String name) {
+    public Function getFunction(String name) {
         return functionMap.get(name);
     }
 
@@ -67,12 +70,12 @@ public class Environment {
      *            (variable type for binders) may be null
      * @return true iff no free typevars in result type
      */
-    private boolean checkNoFreeReturnTypeVariables(TypeReference resultType,
-            TypeReference[] argumentTypes, TypeReference additionalType) {
+    private boolean checkNoFreeReturnTypeVariables(Type resultType,
+            Type[] argumentTypes, Type additionalType) {
         
         Set<String> typevars = new HashSet<String>();
         
-        for (TypeReference typeReference : argumentTypes) {
+        for (Type typeReference : argumentTypes) {
             typeReference.collectTypeVariables(typevars);
         }
         
@@ -108,17 +111,17 @@ public class Environment {
         
         if(!checkNoFreeReturnTypeVariables(binder.getResultType(), 
                 binder.getArgumentTypes(), binder.getVarType()))
-            throw new EnvironmentException("Function " + name + " has a free return typevariable. " +
-                    binder.getDeclaration().getLocation());
+            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
+                    binder.getDeclaration());
         
         binderMap.put(name, binder);
     }
 
-    private Binder getBinder(String name) {
+    public Binder getBinder(String name) {
         return binderMap.get(name);
     }
 
-    public TypeReference mkTypeRef(String name, TypeReference[] domTy) throws EnvironmentException {
+    public Type mkType(String name, Type[] domTy) throws EnvironmentException {
         // DOC
         
         Sort sort = getSort(name);

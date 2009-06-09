@@ -37,5 +37,10 @@ public class ASTFile extends ASTFileElement {
 	public ASTRawTerm getProblemTerm() {
 		return problemTerm;
 	}
+	
+	@Override
+	protected Token getLocationToken() {
+		return null;
+	}
 
 }

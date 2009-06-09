@@ -13,25 +13,23 @@ import de.uka.iti.pseudo.util.Pair;
 
 public class TermParser {
 
-    private HashMap<String, InfixOperator> infixTable = new HashMap<String, InfixOperator>();
-  
-    TermParser() {
-        this(new StringReader(""));
+    private String fileName;
+
+    public TermParser(String string, String fileName, int line, int col) {
+        this(new StringReader(string));
+        this.fileName = fileName;
+        jj_input_stream.line = line;
+        jj_input_stream.column = col - 1;
     }
     
-    ASTTerm parseTerm(String string, String fileName, int line, int col)
-        throws ParseException 
+    public ASTTerm parseTerm() throws ParseException 
     {
-    	ReInit(new StringReader(string));
-		jj_input_stream.line = line;
-        jj_input_stream.column = col - 1;
     	ASTTerm term = Term();
     	term.setFilename(fileName);
-    	
     	return term;
     }
   
-    // to be used elsewhere!
+    /* to be used elsewhere!
     ASTTerm shuntingYard(int prec) throws ParseException {
         Stack<Pair<Token, InfixOperator>> opStack =
             new Stack<Pair<Token, InfixOperator>>();
@@ -102,7 +100,7 @@ public class TermParser {
         }
 
         return termStack.pop();
-    }
+    }*/
 }
 
 PARSER_END(TermParser)

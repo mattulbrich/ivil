@@ -22,4 +22,9 @@ public class ASTModWhile extends ASTModality {
         v.visit(this);
     }
 
+    @Override
+	protected Token getLocationToken() {
+    	return headToken;
+	}
+    
 }

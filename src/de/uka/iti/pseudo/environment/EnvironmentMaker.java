@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.parser.file.ASTFileElement;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTRawTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
@@ -23,8 +24,11 @@ import de.uka.iti.pseudo.parser.file.ASTTypeVar;
 import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.file.Token;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermMaker;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.util.SelectList;
-import de.uka.iti.pseudo.util.TranslationStack;
 
 public class EnvironmentMaker extends ASTFileDefaultVisitor {
 
@@ -33,11 +37,13 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
 
     private Environment env;
 
-    private TranslationStack stack;
+//    private TranslationStack stack;
 
-    private TypeReference resultingTypeRef;
+    private Type resultingTypeRef;
     
     private FileParser parser;
+
+	private Term resultingTerm;
 
     public EnvironmentMaker(FileParser parser, File file)
             throws FileNotFoundException, ParseException, ASTVisitException {
@@ -45,6 +51,10 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         env = new Environment();
         ASTFile f = parser.parseFile(file);
         visit(f);
+    }
+    
+    public Environment getEnvironment() {
+        return env;
     }
 
     private String stripQuotes(String s) {
@@ -106,8 +116,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
                 visit(parser.parseFile(file));
             } catch (FileNotFoundException e) {
                 throw new ASTVisitException("Cannot include " + file
-                        + " (not found):" + arg.getFileName() + ":"
-                        + token.beginLine);
+                        + " (not found):", arg);
             } catch (ParseException e) {
                 throw new ASTVisitException("Error while including file "
                         + file, e);
@@ -129,9 +138,9 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         String name = arg.getName().image;
 
         arg.getRangeType().visit(this);
-        TypeReference rangeTy = resultingTypeRef;
+        Type rangeTy = resultingTypeRef;
         List<ASTType> argumentTypes = arg.getArgumentTypes();
-        TypeReference domTy[] = new TypeReference[argumentTypes.size()];
+        Type domTy[] = new Type[argumentTypes.size()];
 
         for (int i = 0; i < domTy.length; i++) {
             argumentTypes.get(i).visit(this);
@@ -154,13 +163,13 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         String name = arg.getName().image;
 
         arg.getRangeType().visit(this);
-        TypeReference rangeTy = resultingTypeRef;
+        Type rangeTy = resultingTypeRef;
 
         arg.getVariableType().visit(this);
-        TypeReference varTy = resultingTypeRef;
+        Type varTy = resultingTypeRef;
 
         List<ASTType> argumentTypes = arg.getTypeReferenceList();
-        TypeReference domTy[] = new TypeReference[argumentTypes.size()];
+        Type domTy[] = new Type[argumentTypes.size()];
 
         for (int i = 0; i < domTy.length; i++) {
             argumentTypes.get(i).visit(this);
@@ -175,7 +184,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         String name = arg.getTypeToken().image;
         
         List<ASTType> argumentTypes = arg.getArgTypes();
-        TypeReference domTy[] = new TypeReference[argumentTypes.size()];
+        Type domTy[] = new Type[argumentTypes.size()];
 
         for (int i = 0; i < domTy.length; i++) {
             argumentTypes.get(i).visit(this);
@@ -183,18 +192,21 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
         }
         
         try {
-            resultingTypeRef = env.mkTypeRef(name, domTy);
+            resultingTypeRef = env.mkType(name, domTy);
         } catch (EnvironmentException e) {
             throw new ASTVisitException("Unknown sort near" + arg.getLocation());
         }
     }
     
     public void visit(ASTTypeVar arg) throws ASTVisitException {
-        resultingTypeRef = new TypeVarTypeReference(arg.getTypeVarToken().image);
+        resultingTypeRef = new TypeVariable(arg.getTypeVarToken().image);
     }
 
-    public Environment getEnvironment() {
-        return env;
+    public void visit(ASTRawTerm arg) throws ASTVisitException {
+    	Token token = arg.getTermToken();
+    	String content = stripQuotes(token.image);
+    	TermMaker termMaker = new TermMaker(content, env, arg.getFileName(), token.beginLine, token.beginColumn);
+    	resultingTerm = termMaker.getTerm();
     }
 
 }

@@ -25,5 +25,10 @@ public class ASTModAssignment extends ASTModality {
     public final ASTTerm getAssignedTerm() {
         return assignedTerm;
     }
+    
+    @Override
+	protected Token getLocationToken() {
+    	return assignedIdentifier;
+	}
 
 }

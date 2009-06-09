@@ -5,9 +5,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
-public abstract class ASTElement implements Iterable<ASTElement> {
+public abstract class ASTElement implements Iterable<ASTElement>, ASTLocatedElement {
 
     private String fileName;
 
@@ -66,6 +67,22 @@ public abstract class ASTElement implements Iterable<ASTElement> {
     public String getFileName() {
         return fileName;
     }
+    
+    public String getLocation() {
+    	String retval;
+    	if(fileName != null)
+    		retval = fileName;
+    	else
+    		retval = "";
+    	
+    	Token token = getLocationToken();
+    	if(token != null)
+    		retval += ":" + token.beginLine + ":" + token.beginColumn;
+    	
+    	return retval;
+    }
+
+	protected abstract Token getLocationToken();
 
 
 }
