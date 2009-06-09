@@ -37,9 +37,6 @@ public class TestFileParser extends TestCase {
         }
     }
 
-    public TestFileParser() throws FileNotFoundException, ParseException, ASTVisitException  {
-    }
-
     public void testPolymorphSorts() throws Exception {
         Environment env = testEnv("sort poly('a, 'b)");
         assertEquals("Sort[poly;2]", env.getSort("poly").toString());

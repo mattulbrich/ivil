@@ -8,14 +8,15 @@
  */
 package de.uka.iti.pseudo.environment;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
@@ -32,6 +33,8 @@ public class Environment {
     private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
+
+    private List<Rule> rules = new ArrayList<Rule>();
     
     private Environment() {
         this.resourceName = "built-in";
@@ -259,6 +262,10 @@ public class Environment {
              
         return new TypeApplication(sort, domTy);
     }
+    
+    public void addRule(Rule rule) {
+        rules.add(rule);
+    }
 
     
     public void dump() {
@@ -288,6 +295,11 @@ public class Environment {
         System.out.println("Binders:");
         for (String name : binderMap.keySet()) {
             System.out.println("  " + binderMap.get(name));
+        }
+        
+        System.out.println("Rules:");
+        for (Rule rule : rules) {
+            rule.dump();
         }
         
         if(parentEnvironment != null) {

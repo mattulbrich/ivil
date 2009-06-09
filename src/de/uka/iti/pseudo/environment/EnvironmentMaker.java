@@ -23,22 +23,33 @@ import de.uka.iti.pseudo.parser.file.ASTFileDefaultVisitor;
 import de.uka.iti.pseudo.parser.file.ASTFileElement;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTRawTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
+import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
+import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTType;
 import de.uka.iti.pseudo.parser.file.ASTTypeRef;
 import de.uka.iti.pseudo.parser.file.ASTTypeVar;
+import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.file.FileParser;
+import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.file.Token;
-import de.uka.iti.pseudo.rule.Assume;
-import de.uka.iti.pseudo.rule.Find;
+import de.uka.iti.pseudo.rule.AddModification;
+import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.GoalModification;
+import de.uka.iti.pseudo.rule.LocatedTerm;
+import de.uka.iti.pseudo.rule.ReplaceModification;
+import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
@@ -53,8 +64,10 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
     private Environment env;
 
     private Type resultingTypeRef;
-    
 	private Term resultingTerm;
+	private MatchingLocation resultingMatchingLocation;
+    private WhereClause resultingWhereclause;
+    private GoalAction resultingGoalAction;
 
 	private Term problemTerm;
 
@@ -65,6 +78,8 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
     private FileParser parser;
     
     private Environment parent = Environment.BUILT_IN_ENV;
+
+    private GoalModification resultingGoalModification;
 
     public EnvironmentMaker(FileParser parser, File file) throws FileNotFoundException, ParseException {
         this.parser = parser;
@@ -243,27 +258,106 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             
             String name = arg.getName().image;
             List<ASTFileElement> children = arg.getChildren();
-            
-            List<Assume> assumes = new ArrayList<Assume>();
-            List<ASTRuleAssume> assumeASTs = SelectList.select(ASTRuleAssume.class, children);
-            for (ASTRuleAssume assume : assumeASTs) {
-                assume.visit(this);
-                assumes.add(new Assume(resultingTerm, assume.getMatchingLocation()));
+
+            List<LocatedTerm> assumes = new ArrayList<LocatedTerm>();
+            {
+                List<ASTRuleAssume> assumeASTs = SelectList.select(
+                        ASTRuleAssume.class, children);
+                for (ASTRuleAssume assume : assumeASTs) {
+                    assume.visit(this);
+                    assumes.add(new LocatedTerm(resultingTerm,
+                            resultingMatchingLocation));
+                }
             }
             
-            List<ASTRuleFind> findASTs = SelectList.select(ASTRuleFind.class, children);
-            if(findASTs.size() != 1) {
-                throw new ASTVisitException("There is not exactly one find clause.", arg);
+            LocatedTerm find;
+            {
+                List<ASTRuleFind> findASTs = SelectList.select(ASTRuleFind.class, children);
+                if(findASTs.size() != 1) {
+                    throw new ASTVisitException("There is not exactly one find clause.", arg);
+                }
+                ASTRuleFind astFind = findASTs.get(0);
+                astFind.visit(this);
+                find = new LocatedTerm(resultingTerm, resultingMatchingLocation);
             }
-            ASTRuleFind astFind = findASTs.get(0);
-            astFind.visit(this);
-            Find find = new Find(resultingTerm, astFind.getMatchingLocation());
             
+            List<WhereClause> wheres =  new ArrayList<WhereClause>();
+            {
+                List<ASTWhereClause> whereASTs = SelectList.select(ASTWhereClause.class, children);
+                for (ASTWhereClause where : whereASTs) {
+                    where.visit(this);
+                    wheres.add(resultingWhereclause);
+                }
+            }
             
+            List<GoalAction> actions = new ArrayList<GoalAction>();
+            {
+                List<ASTGoalAction> actionASTs = SelectList.select(ASTGoalAction.class, children);
+                for (ASTGoalAction action : actionASTs) {
+                    action.visit(this);
+                    actions.add(resultingGoalAction);
+                }
+            }
+
+            Rule rule = new Rule(name, assumes, find, wheres, actions);
             
         } catch (RuleException e) {
             throw new ASTVisitException(e, arg);
         }
+    } 
+    
+    @Override public void visit(ASTWhereClause arg) throws ASTVisitException {
+        
+        String identifier = arg.getIdentifier().image;
+        
+        WhereCondition where = WhereCondition.getWhereCondition(identifier);
+        if(where == null)
+            throw new ASTVisitException("Unknown where condition: " + identifier, arg);
+        
+        List<ASTRawTerm> raws = SelectList.select(ASTRawTerm.class, arg.getChildren());
+        Term[] terms = new Term[raws.size()];
+        for (int i = 0; i < terms.length; i++) {
+            raws.get(i).visit(this);
+            terms[i] = resultingTerm;
+        }
+        
+        try {
+            resultingWhereclause = new WhereClause(where, terms);
+        } catch (RuleException e) {
+            throw new ASTVisitException(e, arg);
+        }
+        
+    }
+    
+    @Override public void visit(ASTGoalAction arg) throws ASTVisitException {
+        // TODO Auto-generated method stub
+        super.visit(arg);
+        
+        String kind = arg.getGoalKind().image;
+        List<GoalModification> mods = new ArrayList<GoalModification>();
+        
+        for (ASTFileElement elem : arg.getChildren()) {
+            elem.visit(this);
+            mods.add(resultingGoalModification);
+        }
+        
+        try {
+            resultingGoalAction = new GoalAction(kind, mods);
+        } catch (RuleException e) {
+            throw new ASTVisitException(e, arg);
+        }
+    }
+    
+    @Override public void visit(ASTRuleAdd arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        resultingGoalModification = new AddModification(resultingTerm, resultingMatchingLocation);
+    }
+    
+    @Override public void visit(ASTRuleReplace arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        resultingGoalModification = new ReplaceModification(resultingTerm);
     }
     
     public void visit(ASTTypeRef arg) throws ASTVisitException {
@@ -297,6 +391,11 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
 		} catch (de.uka.iti.pseudo.parser.term.ParseException e) {
 			throw new ASTVisitException(e, arg);
 		}
+    }
+    
+    public void visit(ASTLocatedTerm arg) throws ASTVisitException {
+        super.visit(arg);
+        resultingMatchingLocation = arg.getMatchingLocation();
     }
 
 	public Term getProblemTerm() {
