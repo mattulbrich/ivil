@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.parser.term;
 
-public class ASTModality {
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
+public abstract class ASTModality extends ASTElement {
 
 }

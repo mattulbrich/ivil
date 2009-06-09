@@ -2,11 +2,23 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
-public class ASTTypeRef {
+import de.uka.iti.pseudo.parser.ASTVisitException;
 
-    public ASTTypeRef(Token token, List<ASTTypeRef> args) {
-        //DOC
-        // TODO Auto-generated constructor stub
+public class ASTTypeRef extends ASTElement {
+    
+    private Token token;
+    private List<ASTTypeRef> argumentTypeRefs;
+
+    public ASTTypeRef(Token token, List<ASTTypeRef> argumentTypeRefs) {
+        this.token = token;
+        this.argumentTypeRefs = argumentTypeRefs;
+        
+        addChildren(argumentTypeRefs);
+    }
+    
+    @Override
+    public void visit(ASTVisitor v) throws ASTVisitException {
+        v.visit(this);
     }
 
 }

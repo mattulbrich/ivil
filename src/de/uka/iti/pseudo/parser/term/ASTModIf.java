@@ -1,10 +1,28 @@
 package de.uka.iti.pseudo.parser.term;
 
-public class ASTModIf extends ASTModality {
+import de.uka.iti.pseudo.parser.ASTVisitException;
 
-    public ASTModIf(ASTTerm term, ASTTerm term2, ASTTerm term3) {
-        //DOC
-        // TODO Auto-generated constructor stub
+public class ASTModIf extends ASTModality {
+    
+    private Token headToken;
+    private ASTTerm conditionTerm;
+    private ASTModality thenModality;
+    private ASTModality elseModality;
+
+    public ASTModIf(Token t, ASTTerm condTerm, ASTModality thenMod, ASTModality elseMod) {
+        this.headToken = t;
+        this.conditionTerm = condTerm;
+        this.thenModality = thenMod;
+        this.elseModality = elseMod;
+        
+        addChild(condTerm);
+        addChild(thenMod);
+        addChild(elseMod);
+    }
+    
+    @Override
+    public void visit(ASTVisitor v) throws ASTVisitException {
+        v.visit(this);
     }
 
 }

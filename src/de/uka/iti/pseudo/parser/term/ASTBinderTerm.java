@@ -2,12 +2,38 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+
 public class ASTBinderTerm extends ASTTerm {
 
-    public ASTBinderTerm(Token binderToken, ASTTypeRef type, Token varToken,
-            List<ASTTerm> subterms) {
-        //DOC
-        // TODO Auto-generated constructor stub
+    private Token binderToken;
+    private ASTTypeRef variableType;
+    private Token variableToken;
+
+    public ASTBinderTerm(Token binderToken, ASTTypeRef variableType,
+            Token variableToken, List<ASTTerm> subterms) {
+        super(subterms);
+        this.binderToken = binderToken;
+        this.variableType = variableType;
+        this.variableToken = variableToken;
+        
+        addChild(variableType);
+    }
+    
+    @Override
+    public void visit(ASTVisitor v) throws ASTVisitException {
+        v.visit(this);
     }
 
+    public final Token getBinderToken() {
+        return binderToken;
+    }
+
+    public final ASTTypeRef getVariableType() {
+        return variableType;
+    }
+
+    public final Token getVariableToken() {
+        return variableToken;
+    }
 }

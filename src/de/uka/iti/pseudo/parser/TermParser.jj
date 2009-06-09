@@ -18,7 +18,20 @@ public class TermParser {
     TermParser() {
         this(new StringReader(""));
     }
+    
+    ASTTerm parseTerm(String string, String fileName, int line, int col)
+        throws ParseException 
+    {
+    	ReInit(new StringReader(string));
+		jj_input_stream.line = line;
+        jj_input_stream.column = col - 1;
+    	ASTTerm term = Term();
+    	term.setFilename(fileName);
+    	
+    	return term;
+    }
   
+    // to be used elsewhere!
     ASTTerm shuntingYard(int prec) throws ParseException {
         Stack<Pair<Token, InfixOperator>> opStack =
             new Stack<Pair<Token, InfixOperator>>();
@@ -67,7 +80,7 @@ public class TermParser {
                 }
                 ASTTerm t2 = termStack.pop();
                 ASTTerm t1 = termStack.pop();
-                ASTTerm result = new ASTInfixTerm(token, infixOp, t1, t2);
+                ASTTerm result = null; // new ASTInfixTerm(token, infixOp, t1, t2);
                 termStack.push(result);
             }
 
@@ -80,7 +93,7 @@ public class TermParser {
             Pair<Token, InfixOperator> tokenAndOp = opStack.pop();
             ASTTerm t2 = termStack.pop();
             ASTTerm t1 = termStack.pop();
-            ASTTerm result = new ASTInfixTerm(tokenAndOp, t1, t2);
+            ASTTerm result = null; // new ASTInfixTerm(tokenAndOp, t1, t2);
             termStack.push(result);
         }
 
@@ -120,6 +133,10 @@ TOKEN :
 | < EQUALS: "=" >  
 
 // Programs
+| < _SKIP: "skip" >
+| < IF: "if" >
+| < THEN: "then" >
+| < ELSE: "else" >
 | < WHILE: "while" >
 | < DO: "do" >
 | < END: "end" >
@@ -133,26 +150,35 @@ TOKEN :
 
 // Literals
 | < NUMBERLITERAL: ( ["0" - "9"] )+ >
-| < OTHER: ["\u0000"-"\uFFFF"] >
 
 }
 
 ASTTerm Term():
-{ ASTTerm term; }
+{ 
+  ASTTerm term;
+  List<ASTTerm> list = new ArrayList<ASTTerm>(); 
+}
 {
+        term=BaseTerm() { list.add(term); }
         (
-          LOOKAHEAD( GeneralIdentifier() ) term=PrecedenceTerm()
-        | term=AtomicTerm() 
-        )
-   { return term; }
+          term=GeneralIdentifier() { list.add(term); }
+          term=BaseTerm() { list.add(term); }
+        )*
+   { 
+     if(list.size() > 1)
+        return new ASTListTerm(list);
+     else
+        return list.get(0);
+   }
 }
 
-ASTTerm AtomicTerm():
+ASTTerm BaseTerm():
 { ASTTerm term; }
 {
         ( LOOKAHEAD(2) "(" term=BinderTerm() ")"
-        | LOOKAHEAD(2) "(" term=Term() ")"
+        | "(" term=Term() ")"
         | term=ApplicationTerm()
+        | term=NumberLiteral()
         | term=ModalityTerm()
         ) { return term; }
 }
@@ -206,32 +232,36 @@ ASTIfThenElseTerm IfThenElseTerm():
 }
 */ 
         
-ASTApplicationTerm ApplicationTerm():
+ASTTerm ApplicationTerm():
 {
   Token symbol;
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
 }
 {
-        symbol = <IDENTIFIER>
+        symbol=<IDENTIFIER>
         
         ( /* parentheses are not empty, constants dont have them */ 
           "("
-          t = Term() { subterms.add(t); }
-          ( "," t = Term() { subterms.add(t); } )*
+          t=Term() { subterms.add(t); }
+          ( "," t=Term() { subterms.add(t); } )*
           ")"
         )?
         
-    { return new ASTApplicationTerm(symbol, subterms); }
+    { if(subterms.size() > 0) 
+        return new ASTApplicationTerm(symbol, subterms); 
+      else
+        return new ASTIdentifierTerm(symbol);
+    }
 }
 
-Token GeneralIdentifier():
+ASTTerm GeneralIdentifier():
 { 
   Token t;
 }
 {
         (t=<IDENTIFIER> | t=<OPIDENTIFIER>) 
-  { return t; }
+  { return new ASTIdentifierTerm(t); }
 }
 
 ASTNumberLiteralTerm NumberLiteral():
@@ -249,30 +279,40 @@ ASTModalityTerm ModalityTerm():
   ASTTerm term;
 }
 {
-        "[" modality=Modality() "]"
-        term=Term()
+        "[" modality=ModalityList() "]"
+        term=BaseTerm() 
   { return new ASTModalityTerm(modality, term); }
+}
+
+ASTModality ModalityList():
+{
+  ASTModality mod, mod2;
+}
+{
+  mod=Modality()
+  (
+    ";"
+    mod2=ModalityList()
+      { mod = new ASTModCompound(mod, mod2); }
+  )?
+  { return mod; }
 }
 
 ASTModality Modality():
 {
   ASTTerm term, term2, term3;
-  ASTModality mod;
+  ASTModality mod, mod2 = null;
   Token id;
+  Token t;
 }
 {
           id=<IDENTIFIER> ":=" term=Term()
             { return new ASTModAssignment(id, term); }
-        | "while" term=Term() "do" mod=Modality() "end"
-            { return new ASTModWhile(term, mod); }
-        | "if" term=Term() "then" term2=Term() "else" term3=Term()
-            { return new ASTModIf(term, term2, term3); }
+        | t="while" term=Term() "do" mod=ModalityList() "end"
+            { return new ASTModWhile(t,term, mod); }
+        | t="if" term=Term() "then" mod=ModalityList() 
+            ( "else" mod2=ModalityList() )? "end"
+            { return new ASTModIf(t, term, mod, mod2); }
+        | t="skip"
+            { return new ASTModSkip(t); }
 }
-
-JAVACODE ASTTerm PrecedenceTerm() {
-    return shuntingYard(0);
-}
-
-
-
-
