@@ -6,7 +6,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT for details.
  */
-package de.uka.iti.pseudo.term;
+package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
@@ -32,6 +32,15 @@ import de.uka.iti.pseudo.parser.term.ASTTypeRef;
 import de.uka.iti.pseudo.parser.term.ASTVisitor;
 import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.parser.term.TermParser;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.Modality;
+import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.ShuntingYard;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Variable;
 
 public class TermMaker implements ASTVisitor {
 

@@ -33,9 +33,9 @@ import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
 import de.uka.iti.pseudo.parser.file.Token;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermMaker;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.SelectList;
 
 public class EnvironmentMaker extends ASTFileDefaultVisitor {

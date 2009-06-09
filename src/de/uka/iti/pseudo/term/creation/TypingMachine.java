@@ -1,7 +1,14 @@
-package de.uka.iti.pseudo.term;
+package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
 
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.util.Pair;
 
 import nonnull.NonNull;
