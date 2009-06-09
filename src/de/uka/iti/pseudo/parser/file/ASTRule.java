@@ -15,14 +15,13 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 public class ASTRule extends ASTDeclarationBlock {
 
 	private Token name;
-	private List<ASTRuleElement> ruleElements;
 
 	public ASTRule(Token first, Token name, List<ASTRuleElement> list, List<ASTGoalAction> actions) {
 		super(first);
 		this.name = name;
-		this.ruleElements = list;
 		
-		addChildren(ruleElements);
+		addChildren(list);
+		addChildren(actions);
 	}
 
 	public void visit(ASTFileVisitor v) throws ASTVisitException {

@@ -10,7 +10,8 @@ public class ASTWhereClause extends ASTRuleElement {
 
     public ASTWhereClause(Token headToken, Token t, List<ASTRawTerm> args) {
         super(headToken);
-        identifier = t;
+        this.identifier = t;
+        addChildren(args);
     }
 
     @Override 

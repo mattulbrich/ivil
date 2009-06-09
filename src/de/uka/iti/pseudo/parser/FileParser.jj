@@ -274,6 +274,7 @@ ASTRule RuleDeclaration():
 {
   List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
   List<ASTGoalAction> actions = new ArrayList<ASTGoalAction>();
+  List<ASTRuleElement> aclist;
   ASTGoalAction action;
   ASTRuleElement elem;
   ASTLocatedTerm lt;
@@ -289,8 +290,8 @@ ASTRule RuleDeclaration():
   
   (
     t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (t="copygoal" | t="newgoal") list=AddReplaces() 
-         { actions.add(new ASTGoalAction(t, list)); }
+  | (t="copygoal" | t="newgoal") aclist=AddReplaces() 
+         { actions.add(new ASTGoalAction(t, aclist)); }
   )+
   
   (
@@ -311,10 +312,10 @@ ASTLocatedTerm LocatedTerm(boolean bothAllowed):
 {
       LOOKAHEAD(2) rt=RawTerm() "|-"
         { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); }
-    | LOOKAHEAD({bothAllowed}) rt=RawTerm()
-        { return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
     | "|-" rt=RawTerm()
         { return new ASTLocatedTerm(rt, MatchingLocation.SUCCEDENT); }
+    | LOOKAHEAD({bothAllowed}) rt=RawTerm()
+        { return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
 }
 
 List<ASTRuleElement> AddReplaces():

@@ -25,10 +25,10 @@ public class GoalAction {
     }
 
     public void dump() {
-        System.out.println("  action " + kind);
+        System.out.println("      action " + kind);
         
         for (GoalModification mod : modifications) {
-            System.out.println("    " + mod);
+            System.out.println("        " + mod);
         }
     }
 

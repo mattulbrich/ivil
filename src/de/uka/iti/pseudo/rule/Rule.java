@@ -16,7 +16,7 @@ public class Rule {
         this.assumptions = assumes.toArray(new LocatedTerm[assumes.size()]);
         this.findClause = find;
         this.whereClauses = wheres.toArray(new WhereClause[wheres.size()]);
-        this.goalActions = wheres.toArray(new GoalAction[actions.size()]);
+        this.goalActions = actions.toArray(new GoalAction[actions.size()]);
         
         checkRule();
     }
@@ -26,22 +26,22 @@ public class Rule {
     
     public void dump() {
 
-        System.out.println("Rule " + name);
+        System.out.println("  Rule " + name);
         
-        System.out.println("Find:");
+        System.out.print("    Find: ");
         System.out.println(findClause);
         
-        System.out.println("Assumptions:");
+        System.out.println("    Assumptions:");
         for (LocatedTerm lt : assumptions) {
-            System.out.println("  " + lt);
+            System.out.println("      " + lt);
         }
         
-        System.out.println("Where clauses:");
+        System.out.println("    Where clauses:");
         for (WhereClause wc : whereClauses) {
-            System.out.println("  " + wc);
+            System.out.println("      " + wc);
         }
         
-        System.out.println("Actions:");
+        System.out.println("    Actions:");
         for (GoalAction ga : goalActions) {
             ga.dump();
         }
