@@ -30,4 +30,9 @@ public class Pair<E,F> {
 		this.fstComponent = fst;
 		this.sndComponent = snd;
 	}
+	
+	@Override
+	public String toString() {
+	    return "Pair[" + fst() + "," + snd() + "]";
+	}
 }

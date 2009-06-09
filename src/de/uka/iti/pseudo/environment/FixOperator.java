@@ -12,12 +12,15 @@ public class FixOperator {
 
     private ASTFunctionDeclaration declaration;
 
+    private int arity;
+
     public FixOperator(String name, String opIdentifier, int precedence,
-            ASTFunctionDeclaration declaration) {
+            int arity, ASTFunctionDeclaration declaration) {
         super();
         this.name = name;
         this.opIdentifier = opIdentifier;
         this.precedence = precedence;
+        this.arity = arity;
         this.declaration = declaration;
     }
 
@@ -40,6 +43,16 @@ public class FixOperator {
     @Override
     public String toString() {
         return "FixOperator[op: " +opIdentifier + "; function: " + name + "; precedence: " +precedence +"]"; 
+    }
+
+    public boolean isUnary() {
+        return arity == 1;
+    }
+
+    public int getArity() {
+        // DOC
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

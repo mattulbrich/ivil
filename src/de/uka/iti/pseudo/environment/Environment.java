@@ -149,6 +149,8 @@ public class Environment {
                     infixOperator.getDeclaration());
         }
     	
+    	assert infixOperator.getArity() == 2;
+    	
     	infixMap.put(infixOperator.getOpIdentifier(), infixOperator);
     }
     
@@ -164,6 +166,8 @@ public class Environment {
                     existing.getDeclaration(),
                     prefixOperator.getDeclaration());
         }
+    	
+    	assert prefixOperator.getArity() == 1;
     	
     	prefixMap.put(prefixOperator.getOpIdentifier(), prefixOperator);
     }

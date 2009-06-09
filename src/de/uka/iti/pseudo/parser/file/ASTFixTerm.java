@@ -1,11 +1,10 @@
-package de.uka.iti.pseudo.term;
+package de.uka.iti.pseudo.parser.file;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTVisitor;
 import de.uka.iti.pseudo.parser.term.Token;
@@ -13,20 +12,18 @@ import de.uka.iti.pseudo.parser.term.Token;
 public class ASTFixTerm extends ASTTerm {
 
 	private FixOperator fixOperator;
-	private ASTOperatorIdentifierTerm operator;
+	private Token operator;
 
-	public ASTFixTerm(ASTOperatorIdentifierTerm op, FixOperator infixOp,
+	public ASTFixTerm(Token op, FixOperator infixOp,
 			ASTTerm t1, ASTTerm t2) {
 		
 		super(Arrays.asList(new ASTTerm[] { t1, t2 }));
 		this.operator = op;
 		this.fixOperator = infixOp;
 		
-		// we are created later as a replacement, so better copy the filename from the original
-		setFilename(op.getFileName());
 	}
 
-	public ASTFixTerm(ASTOperatorIdentifierTerm op, FixOperator prefixOp,
+	public ASTFixTerm(Token op, FixOperator prefixOp,
 			ASTTerm t1) {
 		
 		super(Collections.singletonList(t1));
@@ -36,7 +33,7 @@ public class ASTFixTerm extends ASTTerm {
 
 	@Override
 	protected Token getLocationToken() {
-		return operator.getSymbol();
+		return operator;
 	}
 
 	@Override
@@ -46,6 +43,10 @@ public class ASTFixTerm extends ASTTerm {
 
 	public FixOperator getFixOperator() {
 		return fixOperator;
+	}
+	
+	public String toString() {
+	    return super.toString() + "[" + operator + "]";
 	}
 
 }

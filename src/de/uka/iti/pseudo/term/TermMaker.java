@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
@@ -75,82 +76,7 @@ public class TermMaker implements ASTVisitor {
 		return retval;
 	}
 	
-    private ASTTerm shuntingYard(List<ASTTerm> list) throws ASTVisitException {
-        Stack<ASTOperatorIdentifierTerm> infixOpStack =
-            new Stack<ASTOperatorIdentifierTerm>();
-        Stack<ASTOperatorIdentifierTerm> prefixOpStack =
-            new Stack<ASTOperatorIdentifierTerm>();
-        Stack<ASTTerm> termStack =
-            new Stack<ASTTerm>();
-        
-        boolean expectOperator = false;
 
-        for (ASTTerm element : list) {
-
-			if(expectOperator) {
-        		if(element instanceof ASTOperatorIdentifierTerm) {
-            		ASTOperatorIdentifierTerm op = (ASTOperatorIdentifierTerm)element;
-    				String opSymb = op.getSymbol().image;
-    				FixOperator infixOp = env.getInfixOperator(opSymb);
-            		
-            		if(infixOp == null)
-            			throw new ASTVisitException("Unknown infix operator " + opSymb, element);
-            		
-            		if (!infixOpStack.empty()) {
-            			String topSymbol = infixOpStack.peek().getSymbol().image;
-            			if(env.getInfixOperator(topSymbol).getPrecedence() >= infixOp.getPrecedence()) {
-            				assert termStack.size() >= 2;
-            				
-            				while(termStack.size() >= 2) {
-            					ASTTerm t2 = termStack.pop();
-            					ASTTerm t1 = termStack.pop();
-            					ASTOperatorIdentifierTerm nop = infixOpStack.pop();
-            					FixOperator nopFix = env.getInfixOperator(nop.getSymbol().image);
-            					ASTTerm result = new ASTFixTerm(nop, nopFix, t1, t2);
-            					termStack.push(result);
-            				}
-            			}
-                    }
-            		
-            		infixOpStack.push(op);
-            		expectOperator = false;
-            	} else {
-                    throw new ASTVisitException("We expected an operator but received " + element, element);
-            	}
-        	  
-        	} else {
-        		if(element instanceof ASTOperatorIdentifierTerm) {
-        			prefixOpStack.push((ASTOperatorIdentifierTerm) element);
-        		} else {
-        			while(!prefixOpStack.empty()) {
-        				ASTOperatorIdentifierTerm op = (ASTOperatorIdentifierTerm)prefixOpStack.pop();
-        				String opSymb = op.getSymbol().image;
-        				FixOperator prefixOp = env.getPrefixOperator(opSymb);
-        				if(prefixOp == null)
-        					throw new ASTVisitException("Unknown prefix operator " + opSymb, op);
-        				element = new ASTFixTerm(op, prefixOp, element);
-        			}
-        			termStack.push(element);
-        			expectOperator = true;
-        		}
-        	}
-        }
-
-        while (termStack.size() >= 2) {
-            assert !infixOpStack.empty();
-            ASTOperatorIdentifierTerm op = infixOpStack.pop();
-            FixOperator infixOperator = env.getInfixOperator(op.getSymbol().image);
-            ASTTerm t2 = termStack.pop();
-            ASTTerm t1 = termStack.pop();
-            ASTTerm result = new ASTFixTerm(op, infixOperator, t1, t2);
-            termStack.push(result);
-        }
-        
-        assert termStack.size() == 1;
-        assert infixOpStack.empty();
-
-        return termStack.pop();
-    }
 	
 	//
 	// Visit methods
@@ -235,7 +161,7 @@ public class TermMaker implements ASTVisitor {
 	
 	public void visit(ASTListTerm listTerm) throws ASTVisitException {
 		
-		ASTTerm replacement = shuntingYard(listTerm.getSubterms());
+		ASTTerm replacement = ShuntingYard.shuntingYard(env, listTerm);
 		replacement.visit(this);
 		
 	}
