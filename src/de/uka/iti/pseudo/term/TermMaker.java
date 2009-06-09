@@ -58,6 +58,7 @@ public class TermMaker implements ASTVisitor {
 		if(endResultTerm == null) {
 			TermParser parser = new TermParser(content, fileName, beginLine, beginColumn);
 			ASTTerm ast = parser.parseTerm();
+			ast.dumpTree();
 			ast.visit(this);
 			endResultTerm = resultTerm;
 		}
@@ -95,27 +96,28 @@ public class TermMaker implements ASTVisitor {
             		if(infixOp == null)
             			throw new ASTVisitException("Unknown infix operator " + opSymb, element);
             		
-            		if (infixOpStack.empty()) {
-            			infixOpStack.push(op);
-            		} else {
+            		if (!infixOpStack.empty()) {
             			String topSymbol = infixOpStack.peek().getSymbol().image;
-            			if(env.getInfixOperator(topSymbol).getPrecedence() > infixOp.getPrecedence()) {
-            				infixOpStack.push(op);
-            			} else {
-            				if (termStack.size() < 2) {
-            					throw new ASTVisitException("Malformed infix expression", element);
+            			if(env.getInfixOperator(topSymbol).getPrecedence() >= infixOp.getPrecedence()) {
+            				assert termStack.size() >= 2;
+            				
+            				while(termStack.size() >= 2) {
+            					ASTTerm t2 = termStack.pop();
+            					ASTTerm t1 = termStack.pop();
+            					ASTOperatorIdentifierTerm nop = infixOpStack.pop();
+            					FixOperator nopFix = env.getInfixOperator(nop.getSymbol().image);
+            					ASTTerm result = new ASTFixTerm(nop, nopFix, t1, t2);
+            					termStack.push(result);
             				}
-            				ASTTerm t2 = termStack.pop();
-            				ASTTerm t1 = termStack.pop();
-            				ASTTerm result = new ASTFixTerm(op, infixOp, t1, t2);
-            				termStack.push(result);
             			}
                     }
+            		
+            		infixOpStack.push(op);
+            		expectOperator = false;
             	} else {
                     throw new ASTVisitException("We expected an operator but received " + element, element);
             	}
-
-        	  expectOperator = false;
+        	  
         	} else {
         		if(element instanceof ASTOperatorIdentifierTerm) {
         			prefixOpStack.push((ASTOperatorIdentifierTerm) element);
@@ -129,9 +131,8 @@ public class TermMaker implements ASTVisitor {
         				element = new ASTFixTerm(op, prefixOp, element);
         			}
         			termStack.push(element);
+        			expectOperator = true;
         		}
-        		
-        		expectOperator = true;
         	}
         }
 

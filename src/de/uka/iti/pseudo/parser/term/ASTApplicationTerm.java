@@ -10,6 +10,8 @@ public class ASTApplicationTerm extends ASTTerm {
 
     public ASTApplicationTerm(Token functionSymbol, List<ASTTerm> subterms) {
         super(subterms);
+    	assert functionSymbol != null;
+    	this.functionSymbol = functionSymbol;
     }
 
     @Override

@@ -72,7 +72,7 @@ TOKEN :
 | < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!"] )+ >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
 //| < OTHER: ["\u0000"-"\uFFFF"] >

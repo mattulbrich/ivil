@@ -27,4 +27,7 @@ public class ASTNumberLiteralTerm extends ASTTerm {
 		return numberToken;
 	}
     
+	public String toString() {
+		return super.toString() + "[" + numberToken + "]";
+	}
 }

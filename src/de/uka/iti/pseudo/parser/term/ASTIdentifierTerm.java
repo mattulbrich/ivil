@@ -26,5 +26,10 @@ public class ASTIdentifierTerm extends ASTTerm {
 	protected Token getLocationToken() {
     	return symbol;
 	}
+    
+    @Override
+    public String toString() {
+    	return super.toString() + "[" + symbol + "]";
+    }
 
 }

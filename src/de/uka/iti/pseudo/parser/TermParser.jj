@@ -8,8 +8,6 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.*;
 import java.io.*;
-import de.uka.iti.pseudo.environment.InfixOperator;
-import de.uka.iti.pseudo.util.Pair;
 
 public class TermParser {
 
@@ -66,7 +64,7 @@ TOKEN :
 | < BINDERIDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVARIDENTIFIER: "'" <IDENTIFIER> >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
-| < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!"] )+ >
+| < OPIDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 
 // Literals
 | < NUMBERLITERAL: ( ["0" - "9"] )+ >
@@ -79,6 +77,8 @@ ASTTerm Term():
   List<ASTTerm> list = new ArrayList<ASTTerm>(); 
 }
 {
+
+        ( term=OpIdentifier() { list.add(term); } )*
         term=BaseTerm() { list.add(term); }
         (
           ( term=OpIdentifier() { list.add(term); } )+

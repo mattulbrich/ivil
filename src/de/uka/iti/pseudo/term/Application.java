@@ -35,6 +35,8 @@ public class Application extends Term {
 			retval += "(";
 			for (int i = 0; i < countSubterms(); i++) {
 				retval += getSubterm(i);
+				if (i != countSubterms() - 1)
+					retval += ",";
 			}
 			retval += ")";
 		}

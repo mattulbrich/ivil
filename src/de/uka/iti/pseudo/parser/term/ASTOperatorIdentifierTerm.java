@@ -27,5 +27,9 @@ public class ASTOperatorIdentifierTerm extends ASTTerm {
     	return symbol;
 	}
 
+    @Override
+    public String toString() {
+    	return super.toString() + "[" + symbol + "]";
+    }
 
 }
