@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -34,11 +33,10 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.term.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
+import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.RuleApplicationMaker;
-import de.uka.iti.pseudo.proof.RuleApplicationWrapper;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -238,7 +236,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                 // collect the user instantiations
                 for (Pair<SchemaVariable, ? extends JTextComponent> pair : interactionList) {
                     SchemaVariable schemaVar = pair.fst();
-                    Term term = TermMaker.makeAndTypeTerm(pair.snd().getText(), env, "User input for " + schemaVar, schemaVar.getType());
+                    Term term = TermMaker.makeAndTypeTerm(pair.snd().getText(), env, 
+                            "User input for " + schemaVar, schemaVar.getType());
                     
                     assert schemaVar.getType().equals(term.getType());
                     

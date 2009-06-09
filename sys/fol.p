@@ -3,32 +3,23 @@ include
 
 rule forall_right
   find  |- { (\forall %x as 'a; %b) }
-  where
-    newSkolem { %sk as 'a}
-    subst {%subst} (*:= subst*) {%x} (* <- *) {%sk} (* in *) {%b}
-  samegoal replace { %subst }
+  samegoal replace { $$subst(%x, $$skolem(%x), %b) }
 
 rule exists_right
   find  |- { (\exists %x as 'a; %b) }
   where
-    interact {%inst}
-    subst {%subst} (*:= subst*) {%x} (* <- *) {%inst as 'a} (* in *) {%b}
-  samegoal replace { %subst }
+    interact {%inst as 'a}
+  samegoal replace { $$subst(%x, %inst, %b) }
 
 rule forall_left
-  find { (\forall %x as 'aa; %b) } |-
+  find { (\forall %x as 'a; %b) } |-
   where
-    subst {%subst as bool} {%x} {%inst as 'aa} {%b}
-    interact {%inst as 'aa}
-  samegoal replace { %subst }
+    interact {%inst as 'a}
+  samegoal replace { $$subst(%x, %inst, %b) }
 
 rule exists_left
   find  { (\exists %x as 'a; %b) } |-
-  where
-    newSkolem { %sk as 'a}
-    subst {%subst} (*:= subst*) {%x} (* <- *) {%sk} (* in *) {%b}
-  samegoal replace { %subst }
-
+  samegoal replace { $$subst(%x, $$skolem(%x), %b) }
 
 rule equality
   find { %t = %t }

@@ -12,12 +12,12 @@ import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
@@ -64,7 +64,7 @@ public class ProofNode {
         matchAssumeClauses(ruleApp, inst, rule);
         verifyWhereClauses(ruleApp, inst, rule, env, whereClauseProperties);
 
-        setChildren(doActions(ruleApp, inst, rule));
+        setChildren(doActions(ruleApp, inst, env, rule));
 
         if(!(ruleApp instanceof ImmutableRuleApplication))
             this.appliedRuleApp = new ImmutableRuleApplication(ruleApp);
@@ -74,12 +74,12 @@ public class ProofNode {
 
     }
 
-    private ProofNode[] doActions(RuleApplication ruleApp, TermInstantiator inst, Rule rule)
+    private ProofNode[] doActions(RuleApplication ruleApp, TermInstantiator inst, Environment env, Rule rule)
         throws ProofException {
         List<ProofNode> newNodes = new LinkedList<ProofNode>();
         List<Term> antecedent = new ArrayList<Term>();
         List<Term> succedent = new ArrayList<Term>();
-        MetaEvaluator metaEval = new MetaEvaluator(ruleApp);
+        MetaEvaluator metaEval = new MetaEvaluator(ruleApp, env);
         
         try {
             

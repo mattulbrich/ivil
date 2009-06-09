@@ -27,7 +27,7 @@ public class SkolemMetaFunction extends MetaFunction {
 
     @Override
     public Term evaluate(Application application, Environment env,
-            RuleApplication ruleApp) throws TermException, ProofException {
+            RuleApplication ruleApp) throws TermException {
         
         String property = SKOLEM_NAME_PROPERTY + "(" + application.getSubterm(0).toString(true) + ")";
         String name = ruleApp.getProperties().get(property);
@@ -36,7 +36,7 @@ public class SkolemMetaFunction extends MetaFunction {
                 name = env.createNewFunctionName("sk");
                 ruleApp.getProperties().put(property, name);
             } else {
-                throw new ProofException("There is no skolemisation stored for " + application);
+                throw new TermException("There is no skolemisation stored for " + application);
             }
         }
         

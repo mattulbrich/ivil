@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.proof;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +24,15 @@ public class MutableRuleApplication implements RuleApplication {
     private Map<String, Term> schemaVariableMapping;
     private Map<String, Type> typeVariableMapping;
     
-    public MutableRuleApplication(RuleApplication selected) {
-        // TODO!
+    public MutableRuleApplication(RuleApplication ruleApp) {
+        this.rule = ruleApp.getRule();
+        this.assumeSelectors = new ArrayList<TermSelector>(ruleApp.getAssumeSelectors());
+        this.findSelector = ruleApp.getFindSelector();
+        this.goalNumber = ruleApp.getGoalNumber();
+        this.properties = new HashMap<String, String>(ruleApp.getProperties());
+        this.schemaModalityMapping = new HashMap<String, Modality>(ruleApp.getSchemaModalityMapping());
+        this.schemaVariableMapping = new HashMap<String, Term>(ruleApp.getSchemaVariableMapping());
+        this.typeVariableMapping = new HashMap<String, Type>(ruleApp.getTypeVariableMapping());
     }
 
     public void setFindSelector(TermSelector findSelector) {

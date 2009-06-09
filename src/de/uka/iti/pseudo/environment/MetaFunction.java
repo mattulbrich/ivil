@@ -27,6 +27,6 @@ public abstract class MetaFunction extends Function {
     
     
     public abstract Term evaluate(Application application, Environment env, RuleApplication ruleApp)
-       throws TermException, ProofException;
+       throws TermException;
 
 }
