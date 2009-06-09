@@ -1,10 +1,13 @@
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.StateConstants;
@@ -17,6 +20,8 @@ public class CloseAction extends AbstractStateListeningAction implements WindowL
         super("Close", BarManager.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
         putValue(ACTION_COMMAND_KEY, "close");
         putValue(SHORT_DESCRIPTION, "closes the current proof window");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_C);
     }
     
     public void stateChanged(StateChangeEvent e) {
@@ -31,7 +36,8 @@ public class CloseAction extends AbstractStateListeningAction implements WindowL
     }
 
     public void windowClosing(WindowEvent e) {
-        tryClose();
+        if(isEnabled())
+            tryClose();
     }
 
     private void tryClose() {

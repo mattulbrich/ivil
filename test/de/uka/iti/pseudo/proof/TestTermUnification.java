@@ -5,7 +5,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 public class TestTermUnification extends TestCaseWithEnv {

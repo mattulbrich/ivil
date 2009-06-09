@@ -34,5 +34,9 @@ public abstract class AbstractStateListeningAction extends AbstractAction implem
     protected void setSelected(boolean selected) {
         putValue(Action.SELECTED_KEY, selected);
     }
+
+    protected void setIcon(Icon icon) {
+        putValue(SMALL_ICON, icon);
+    }
     
 }

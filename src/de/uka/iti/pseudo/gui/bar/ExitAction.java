@@ -1,8 +1,11 @@
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.StateConstants;
@@ -14,7 +17,9 @@ public class ExitAction extends AbstractStateListeningAction {
     public ExitAction() {
         super("Exit", BarManager.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
         putValue(ACTION_COMMAND_KEY, "exit");
-        putValue(SHORT_DESCRIPTION, "closes all open windows of the program");
+        putValue(SHORT_DESCRIPTION, "closes all open windows of the program and exits");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_X);
     }
     
     public void stateChanged(StateChangeEvent e) {

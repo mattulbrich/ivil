@@ -3,11 +3,12 @@ package de.uka.iti.pseudo.gui.bar;
 import java.util.EventObject;
 
 import javax.swing.Action;
+import javax.swing.Icon;
 
 // TODO Documentation needed
 public interface StateListener {
     
-    public interface StateListeningAction extends Action, StateListener { }
+    public interface StateListeningAction extends Action, StateListener {}
 
     public static class StateChangeEvent extends EventObject {
         

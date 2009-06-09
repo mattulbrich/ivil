@@ -30,7 +30,7 @@ public class LoadProblemAction extends AbstractStateListeningAction {
         putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
     }
     
-    @Override public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
         
         if(fileChooser == null)
             fileChooser = new JFileChooser(".");
@@ -53,7 +53,7 @@ public class LoadProblemAction extends AbstractStateListeningAction {
         }
     }
 
-    @Override public void stateChanged(StateChangeEvent e) {
+    public void stateChanged(StateChangeEvent e) {
         if(e.getState().equals(StateConstants.IN_PROOF)) {
             // switch off if within proof action
             setEnabled(!e.isActive());

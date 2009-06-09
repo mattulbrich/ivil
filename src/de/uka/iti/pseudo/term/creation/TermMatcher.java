@@ -1,3 +1,12 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
+
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
@@ -18,18 +27,61 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
-// TODO DOC
-// for left unification only
-public class TermMatcher extends DefaultTermVisitor {
 
+/**
+ * The Class TermMatcher implements the term visitor which is used to unify
+ * terms.
+ * 
+ * Only left unification is supported, i.e. schema entities may appear only on
+ * the left hand side and will be matched accordingly.
+ */
+class TermMatcher extends DefaultTermVisitor {
+
+    /**
+     * The unification objects records the instantiations
+     */
     private TermUnification termUnification;
-    private Term compareTerm;
-    private Modality compareModality;
     
+    /**
+     * The subterm to compare with
+     */
+    private Term compareTerm;
+    
+    /**
+     * The modality to compare with
+     */
+    private Modality compareModality;
+
+    /**
+     * Instantiates a new term matcher with a given instantiation objet
+     * 
+     * @param termUnification
+     *            the object to record instantiations to.
+     */
     public TermMatcher(TermUnification termUnification) {
         this.termUnification = termUnification;
     }
-    
+
+    /**
+     * Compare two terms.
+     * 
+     * First, type unification is performed. Then if t1 is a schema variable,
+     * the variable is expanded. If there is no term for it, yet, the schema
+     * variable is correspondingly instantiated.
+     * 
+     * All other cases are subject to a visit.
+     * 
+     * However, only if the types (=class) of the terms coincide, comparison
+     * is performed, otherwise a fail message is thrown
+     * 
+     * @param t1
+     *            the left hand term
+     * @param t2
+     *            the right hand term
+     * 
+     * @throws TermException
+     *             if unification fails
+     */
     public void compare(Term t1, Term t2) throws TermException {
         termUnification.getTypeUnification().leftUnify(t1.getType(), t2.getType());
         if (t1 instanceof SchemaVariable) {
@@ -48,6 +100,21 @@ public class TermMatcher extends DefaultTermVisitor {
             throw new UnificationException("Incomparable types of terms", t1, t2);
     }
     
+    /**
+     * Compare two modalities.
+     * 
+     * If the left hand modality is a schema modality and not yet instantiated,
+     * it is instantiated with the right hand modality.
+     * 
+     * In all other cases the modalities are compared via the visit methods.
+     * Only, if the classes of the modalities coincide however. In other cases,
+     * a unification exception is thrown.
+     * 
+     * @param m1 the left hand modality
+     * @param m2 the right hand modality
+     * 
+     * @throws TermException if unification fails
+     */
     private void compare(Modality m1, Modality m2) throws TermException {
         if (m1 instanceof SchemaModality) {
             SchemaModality sm = (SchemaModality) m1;
@@ -64,7 +131,10 @@ public class TermMatcher extends DefaultTermVisitor {
             throw new UnificationException("Incomparable types of modalities", m1, m2);
     }
 
-    
+
+    /*
+     * the default behaviour is to compare all submodalities of a modality.
+     */
     @Override 
     protected void defaultVisitModality(Modality modality)    throws TermException {
         List<Modality> sub1 = modality.getSubModalities();
@@ -75,6 +145,9 @@ public class TermMatcher extends DefaultTermVisitor {
         }
     }
 
+    /* 
+     * the default behaviour is to compare all subterms pairwise
+     */
     @Override
     protected void defaultVisitTerm(Term term) throws TermException {
         List<Term> sub1 = term.getSubterms();
@@ -85,6 +158,7 @@ public class TermMatcher extends DefaultTermVisitor {
         }
     }
     
+    @Override
     public void visit(Variable v1) throws TermException {
         Variable v2 = (Variable) compareTerm;
         
@@ -93,7 +167,6 @@ public class TermMatcher extends DefaultTermVisitor {
         
         termUnification.getTypeUnification().leftUnify(v1.getType(), v2.getType());
     }
-
 
     @Override 
     public void visit(Binding b1) throws TermException {
@@ -142,7 +215,6 @@ public class TermMatcher extends DefaultTermVisitor {
         compare(m1.getModality(), m2.getModality());
         compare(m1.getSubterm(), m2.getSubterm());
     }
-
 
     @Override
     public void visit(AssignModality am1) throws TermException {

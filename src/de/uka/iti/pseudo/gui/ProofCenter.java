@@ -7,6 +7,7 @@ import java.util.List;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.StateListener.StateChangeEvent;
 import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
 import de.uka.iti.pseudo.proof.Proof;
@@ -150,6 +151,10 @@ public class ProofCenter implements TermSelectionListener {
 
     public void replaceProof(Proof newProof) {
         this.proof = newProof;
+    }
+
+    public BarManager getBarManager() {
+        return getMainWindow().getBarManager();
     }
 
 }

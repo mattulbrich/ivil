@@ -150,8 +150,12 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             i++;
         }
         
-        doLayout();
-        repaint();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                doLayout();
+                // needed? yes!
+                repaint();
+            }});
     }
     
     private void fireRuleApp(TermSelector termSelector) {
@@ -220,7 +224,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         return prettyPrinter;
     }
 
-    @Override 
     public void propertyChange(PropertyChangeEvent evt) {
         // property on the pretty printer has changed --> remake the term components
         if(sequent != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))

@@ -1,6 +1,5 @@
 package de.uka.iti.pseudo.gui;
 
-import java.awt.Window;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

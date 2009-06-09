@@ -15,13 +15,11 @@ public class PrettyPrintTypedRadioAction extends AbstractStateListeningAction im
         // TODO tooltip
     }
     
-    @Override 
     public void actionPerformed(ActionEvent e) {
         PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
         pp.setTyped(isSelected());
     }
 
-    @Override 
     public void stateChanged(StateChangeEvent e) {
         if(e.getState().equals(StateChangeEvent.INITIALISED)) {
             PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
@@ -30,7 +28,6 @@ public class PrettyPrintTypedRadioAction extends AbstractStateListeningAction im
         }
     }
 
-    @Override 
     public void propertyChange(PropertyChangeEvent evt) {
         PrettyPrint pp = (PrettyPrint) evt.getSource();
         setSelected(pp.isTyped());
