@@ -113,5 +113,19 @@ public class TestTermUnification extends TestCaseWithEnv {
         }
     }
     
+    public void testWhileInv() throws Exception {
+        TermUnification mc = new TermUnification();
+        
+        assertTrue(mc.leftUnify(makeTerm("[while %c inv %inv1 do &a end]true"), makeTerm("[while b1 inv b2 do skip end]true")));
+        assertEquals(mt("b2 as bool"), mc.instantiate(mt("%inv1 as bool")));
+        
+        assertTrue(mc.leftUnify(makeTerm("[while %c inv %inv2 do &a end]true"), makeTerm("[while b1 do skip end]true")));
+        assertEquals(mt("true"), mc.instantiate(mt("%inv2 as bool")));
+        
+        assertTrue(mc.leftUnify(makeTerm("[while %c do &a end]true"), makeTerm("[while b1 inv b2 do skip end]true")));
+        assertTrue(mc.leftUnify(makeTerm("[while %c do &a end]true"), makeTerm("[while b1 do skip end]true")));
+        
+    }
+    
     // TODO Test binders!
 }

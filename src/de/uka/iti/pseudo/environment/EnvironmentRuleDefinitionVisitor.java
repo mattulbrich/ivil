@@ -125,7 +125,14 @@ public class EnvironmentRuleDefinitionVisitor extends ASTFileDefaultVisitor {
             Map<String, String> properties = new HashMap<String, String>();
             {
                 for (Pair<Token, Token> prop : arg.getProperties()) {
-                    properties.put(prop.fst().image, Util.stripQuotes(prop.snd().image));
+                    Token token = prop.snd();
+                    String value;
+                    if(token != null)
+                        value = token.image;
+                    else
+                        value = "";
+                    
+                    properties.put(prop.fst().image, Util.stripQuotes(value));
                 }
                 Token description = arg.getDescription();
                 if(description != null)

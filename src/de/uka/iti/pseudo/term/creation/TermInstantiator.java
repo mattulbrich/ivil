@@ -85,10 +85,16 @@ public class TermInstantiator extends RebuildingTermVisitor {
     /**
      * Replace schema variables and modalities in a string.
      * 
+     * They are printed using the pretty printer
+     * 
      * For instance <code>Assume %c in &a</code> might become
      * <code>Assume x=3 in y:=2</code>
      * 
+     * TODO use pretty printer
+     * 
      * @param string the string to instantiate
+     * 
+     * @param env Environment to use for pretty printing
      * 
      * @return the string with subterms replaced
      */

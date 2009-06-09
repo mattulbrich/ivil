@@ -8,7 +8,9 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * The Class WhileModality encapsulates a while loop as an object.
@@ -24,6 +26,11 @@ public class WhileModality extends Modality {
      * The condition term.
      */
     private Term conditionTerm;
+    
+    /**
+     * If an invariant has been specified for the loop
+     */
+    private @Nullable Term invariantTerm;
 
     /**
      * Instantiates a new while modality.
@@ -32,13 +39,15 @@ public class WhileModality extends Modality {
      *            the condition term
      * @param body
      *            the body modaliy
+     * @param invariantTerm 
      * 
      * @throws TermException
      *             if conditionTerm is not typed bool
      */
-    public WhileModality(Term conditionTerm, Modality body) throws TermException {
+    public WhileModality(Term conditionTerm, Modality body, Term invariantTerm) throws TermException {
         super(body);
         this.conditionTerm = conditionTerm;
+        this.invariantTerm = invariantTerm;
         typeCheck();
     }
 
@@ -51,6 +60,9 @@ public class WhileModality extends Modality {
     private void typeCheck() throws TermException {
         if(!conditionTerm.getType().equals(Environment.getBoolType()))
             throw new TermException("Condition term of a WhileModality must be boolean");
+        
+        if(invariantTerm != null && !invariantTerm.getType().equals(Environment.getBoolType()))
+            throw new TermException("Invariant term of a WhileModality must be boolean");
     }
 
     /* (non-Javadoc)
@@ -58,8 +70,12 @@ public class WhileModality extends Modality {
      */
     @Override
     public String toString(boolean typed) {
-        return "while " + conditionTerm.toString(typed) + " do "
-                + getSubModality(0).toString(typed) + " end";
+        StringBuilder sb = new StringBuilder();
+        sb.append("while ").append(conditionTerm.toString(typed));
+        if(invariantTerm != null)
+            sb.append(" inv ").append(invariantTerm.toString(typed));
+        sb.append(" do ").append(getSubModality(0).toString(typed)).append(" end");
+        return sb.toString();
     }
 
     /* (non-Javadoc)
@@ -80,6 +96,24 @@ public class WhileModality extends Modality {
     }
     
     /**
+     * Gets the stored invariant as term.
+     * 
+     * @return the invariant, null if non specified
+     */
+    public @Nullable Term getInvariantTerm() {
+        return invariantTerm;
+    }
+    
+    /**
+     * returns true if an invariant has been specified
+     * 
+     * @return true if an invariant has been specified
+     */
+    public boolean hasInvariantTerm() {
+        return invariantTerm != null;
+    }
+    
+    /**
      * Gets the while body.
      * 
      * @return the body modality-
@@ -88,8 +122,8 @@ public class WhileModality extends Modality {
         return getSubModality(0);
     }
 
-    /* (non-Javadoc)
-     * @see de.uka.iti.pseudo.term.Modality#equals(java.lang.Object)
+    /* an object is equal if it is a while modality and condition, body and invariant
+     * coincide.
      */
     @Override
     public boolean equals(Object object) {
@@ -102,8 +136,13 @@ public class WhileModality extends Modality {
             if(!getBody().equals(wmod.getBody()))
                 return false;
             
+            if(!Util.equalOrNull(getInvariantTerm(), wmod.getInvariantTerm()))
+                return false;
+            
             return true;
         }
         return false;
     }
+
+   
 }

@@ -65,8 +65,8 @@ rule gte_to_gt
   replace { %a > %b | %a = %b }
 
 rule gt_minus_one
-  find { %a + (-1) > %b }
-  replace { %a >= %b }
+  find { %a + (-1) >= %b }
+  replace { %a > %b }
 
 (*
  * Handling expressions with only literals

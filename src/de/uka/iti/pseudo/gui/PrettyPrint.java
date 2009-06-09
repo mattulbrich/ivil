@@ -34,13 +34,17 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.WhileModality;
-import de.uka.iti.pseudo.util.AnnotatedString;
+import de.uka.iti.pseudo.term.creation.SubtermCollector;
+import de.uka.iti.pseudo.util.AnnotatedStringsWithStyles;
 
 /**
  * The Class PrettyPrint provides mean to prettyprint terms while keeping the
  * information about subterms in the resulting string.
  * 
- * Parentheses are introduced only where necessary. This is done using 
+ * Parentheses are introduced only where necessary. This is done using
+ * 
+ * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
+ * visitors {@link SubtermCollector}
  */
 
 public class PrettyPrint implements TermVisitor, ModalityVisitor {
@@ -59,7 +63,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedString<Term> print(
+    public static @NonNull AnnotatedStringsWithStyles<Term> print(
             @NonNull Environment env, @NonNull Term term) {
         return print(env, term, false, true);
     }
@@ -83,13 +87,15 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedString<Term> print(
+    public static @NonNull AnnotatedStringsWithStyles<Term> print(
             @NonNull Environment env, @NonNull Term term, boolean typed,
             boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
 
         try {
+            pp.printer.setStyle("normal");
             term.visit(pp);
+            pp.printer.resetPreviousStyle();
         } catch (TermException e) {
             // not thrown in this code
             throw new Error(e);
@@ -118,7 +124,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedString<Term> print(
+    public static @NonNull AnnotatedStringsWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false, true);
     }
@@ -145,7 +151,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedString<Term> print(
+    public static @NonNull AnnotatedStringsWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
             boolean typed, boolean printFix) {
         PrettyPrint pp = new PrettyPrint(env, typed, printFix);
@@ -201,7 +207,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         this.typed = typed;
         this.printFix = printFix;
 
-        printer = new AnnotatedString<Term>();
+        printer = new AnnotatedStringsWithStyles<Term>();
     }
 
     private boolean isTyped() {
@@ -215,7 +221,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     /**
      * The underlying annotating string
      */
-    private AnnotatedString<Term> printer;
+    private AnnotatedStringsWithStyles<Term> printer;
 
     /**
      * Indicator that the current subterm is to put in parentheses
@@ -341,14 +347,18 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     //
     
     public void visit(Variable variable) throws TermException {
+        printer.setStyle("variable");
         printer.begin(variable).append(variable.toString(isTyped())).end();
+        printer.resetPreviousStyle();
     }
 
     public void visit(ModalityTerm modalityTerm) throws TermException {
         printer.begin(modalityTerm);
+        printer.setStyle("modality");
         printer.append("[ ");
         modalityTerm.getModality().visit(this);
         printer.append(" ]");
+        printer.resetPreviousStyle();
         visitMaybeParen(modalityTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
     }
@@ -358,9 +368,11 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         Binder binder = binding.getBinder();
         String bindname = binder.getName();
         printer.append("(").append(bindname).append(" ");
+        printer.setStyle("variable");
         printer.append(binding.getVariableName());
         if (isTyped())
             printer.append(" as ").append(binding.getType().toString());
+        printer.resetPreviousStyle();
         for (Term t : binding.getSubterms()) {
             printer.append("; ");
             t.visit(this);
@@ -425,16 +437,29 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
     public void visit(IfModality ifModality) throws TermException {
+        printer.setStyle("keyword");
         printer.append("if ");
+        printer.resetPreviousStyle();
+        
         ifModality.getConditionTerm().visit(this);
+        
+        printer.setStyle("keyword");
         printer.append(" then ");
+        printer.resetPreviousStyle();
+        
         ifModality.getThenModality().visit(this);
         Modality elseModality = ifModality.getElseModality();
         if (elseModality != null) {
+            printer.setStyle("keyword");
             printer.append(" else ");
+            printer.resetPreviousStyle();
+            
             elseModality.visit(this);
         }
+        
+        printer.setStyle("keyword");
         printer.append(" end");
+        printer.resetPreviousStyle();
 
     }
 
@@ -447,11 +472,27 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
     }
 
     public void visit(WhileModality whileModality) throws TermException {
+        printer.setStyle("keyword");
         printer.append("while ");
+        printer.resetPreviousStyle();
+        
         whileModality.getConditionTerm().visit(this);
+        if(whileModality.hasInvariantTerm()) {
+            printer.setStyle("keyword");
+            printer.append(" inv ");
+            printer.resetPreviousStyle();
+            
+            whileModality.getInvariantTerm().visit(this);
+        }
+        printer.setStyle("keyword");
         printer.append(" do ");
+        printer.resetPreviousStyle();
+        
         whileModality.getBody().visit(this);
+        
+        printer.setStyle("keyword");
         printer.append(" end");
+        printer.resetPreviousStyle();
     }
 
 }

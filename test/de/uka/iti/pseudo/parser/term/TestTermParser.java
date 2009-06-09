@@ -78,6 +78,7 @@ public class TestTermParser extends TestCaseWithEnv {
     public void testModality() throws Exception {
         testTerm("[i1:=1]i1", "[i1:=1]i1", false);
         testTerm("[while b1 do i1:=0 end]true", false);
+        testTerm("[while b1 inv b1 & b2 do skip end]true", "[while b1 inv $and(b1,b2) do skip end]true", false);
         testTerm("[if b1 then skip else i1:=0 end]false", false);
         testTerm("[if b1 then skip end]b2", false);
         testTerm("[skip; skip; skip]b2", false); 

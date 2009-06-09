@@ -13,6 +13,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
@@ -102,6 +103,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
 
         public void invalidate() {
             children = null;
+            label = null;
         }
 
         public String getLabel() {

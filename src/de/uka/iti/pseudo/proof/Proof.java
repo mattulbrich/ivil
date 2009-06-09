@@ -11,20 +11,17 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 // TODO DOC
 
 public class Proof extends Observable {
     
-    public static class Instantiater extends RebuildingTermVisitor {
-        
-    }
-
     protected ProofNode root;
     
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
+
+    private boolean changedSinceSave;
     
     public void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
         apply(ruleApp, env, null);
@@ -41,7 +38,20 @@ public class Proof extends Observable {
         
         openGoals.remove(goalno);
         openGoals.addAll(goalno, goal.getChildren());
-        fireNodeChanged(goal);        
+
+        fireNodeChanged(goal);  
+    }
+    
+    public synchronized void prune(ProofNode proofNode) {
+        if(proofNode.getProof() != this)
+            throw new IllegalArgumentException("The proof node does not belong to me");
+        
+        proofNode.prune();
+        
+        openGoals.clear();
+        root.collectOpenGoals(openGoals);
+        
+        fireNodeChanged(proofNode);
     }
     
     public Proof(Term initialProblem) throws TermException {
@@ -53,21 +63,19 @@ public class Proof extends Observable {
         openGoals.add(root);
     }
 
-    // needed for mock objects
-    protected Proof() { }
-
     private int extractGoalNo(RuleApplication ruleApp) throws ProofException {
         int goalno = ruleApp.getGoalNumber();
         if(goalno < 0 || goalno >= openGoals.size())
             throw new ProofException("Cannot apply ruleApplication. Illegal goal number in\n" + ruleApp);
         return goalno;
     }
-
+    
     public ProofNode getRoot() {
         return root;
     }
 
     private void fireNodeChanged(ProofNode proofNode) {
+        changedSinceSave = true;
         setChanged();
         notifyObservers(proofNode);
     }
@@ -79,5 +87,14 @@ public class Proof extends Observable {
     public ProofNode getGoal(int goalNo) {
         return openGoals.get(goalNo);
     }
+
+    public boolean hasUnsafedChanges() {
+        return changedSinceSave;
+    }
+    
+    public void resetChangesSaved() {
+        changedSinceSave = false;
+    }
+
     
 }

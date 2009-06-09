@@ -57,6 +57,7 @@ TOKEN :
 | < THEN: "then" >
 | < ELSE: "else" >
 | < WHILE: "while" >
+| < INV: "inv" >
 | < DO: "do" >
 | < END: "end" >
 | < ASSIGN: ":=" >
@@ -242,7 +243,7 @@ ASTModality ModalityList():
 
 ASTModality Modality():
 {
-  ASTTerm term, term2, term3;
+  ASTTerm term, term2 = null, term3;
   ASTModality mod, mod2 = null;
   Token id;
   Token t;
@@ -250,8 +251,8 @@ ASTModality Modality():
 {
         ( id=<IDENTIFIER> | id=<SCHEMA_IDENTIFIER> ) ":=" term=Term()
             { return new ASTModAssignment(id, term); }
-        | t="while" term=Term() "do" mod=ModalityList() "end"
-            { return new ASTModWhile(t,term, mod); }
+        | t="while" term=Term() ( "inv" term2=Term() )? "do" mod=ModalityList() "end"
+            { return new ASTModWhile(t, term, term2, mod); }
         | t="if" term=Term() "then" mod=ModalityList() 
             ( "else" mod2=ModalityList() )? "end"
             { return new ASTModIf(t, term, mod, mod2); }

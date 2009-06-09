@@ -1,5 +1,9 @@
 package de.uka.iti.pseudo.gui;
 
+import java.awt.BorderLayout;
+import java.io.IOException;
+import java.net.URL;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +23,7 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
+import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -36,19 +41,22 @@ public class MainWindow extends JFrame {
     private ProofComponent proofComponent;
 
     private RuleApplicationComponent ruleApplicationComponent;
+
+    private BarManager barManager;
     
     
-    public MainWindow(ProofCenter proofCenter) {
+    public MainWindow(ProofCenter proofCenter) throws IOException {
         super("Pseudo");
         this.proofCenter = proofCenter;
         makeGUI();
     }
 
 
-    private void makeGUI() {
+    private void makeGUI() throws IOException {
         
         final JSplitPane content = new JSplitPane();
-        getContentPane().add(content);
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(content, BorderLayout.CENTER);
         
         // Create the dockings
         TabDock tabDock = new TabDock();
@@ -116,15 +124,16 @@ public class MainWindow extends JFrame {
             Dockable dock = new DefaultDockable("settings", settings, "Settings");
             tabDock.addDockable(dock, new Position(3));
         }
-        
-//        new Timer().schedule(new TimerTask() {
-//
-//            @Override public void run() {
-//                System.out.println(content.getMaximumDividerLocation());
-//                System.out.println(content.getMinimumDividerLocation());
-//            } }, 0, 1000);
-    }
+        {
+            barManager = new BarManager(proofCenter, null);
+            URL resource = getClass().getResource("bar/menu.properties");
+            if(resource == null)
+                throw new IOException("resource bar/menu.properties not found");
+            setJMenuBar(barManager.makeMenubar(resource));
+            getContentPane().add(barManager.makeToolbar(resource), BorderLayout.NORTH);
+        }
 
+    }
 
     public SequentComponent getSequentComponent() {
         return sequentComponent;

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
@@ -25,6 +26,9 @@ import de.uka.iti.pseudo.term.WhileModality;
  * The Class SubtermCollector provides a static method {@link #collect(Term)}
  * which allows to get a list of all subterms of a term. The result is
  * deterministic, it is the same for a term every time the method is called.
+ * 
+ * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
+ * visitors {@link PrettyPrint}
  */
 public class SubtermCollector extends DefaultTermVisitor {
     
@@ -94,6 +98,8 @@ public class SubtermCollector extends DefaultTermVisitor {
     public void visit(WhileModality whileModality)
             throws TermException {
         defaultVisitTerm(whileModality.getConditionTerm());
+        if(whileModality.hasInvariantTerm())
+            defaultVisitTerm(whileModality.getInvariantTerm());
         defaultVisitModality(whileModality);
     }
 

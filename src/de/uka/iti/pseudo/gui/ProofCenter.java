@@ -1,25 +1,21 @@
 package de.uka.iti.pseudo.gui;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.InteractiveRuleApplicationFinder;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 
 // the center of this all
@@ -36,7 +32,7 @@ public class ProofCenter implements TermSelectionListener {
     private boolean isFiring = false;
     private ProofNode currentProofNode;
     
-    public ProofCenter(@NonNull Proof proof, @NonNull Environment env) {
+    public ProofCenter(@NonNull Proof proof, @NonNull Environment env) throws IOException {
         this.proof = proof;
         this.env = env;
         mainWindow = new MainWindow(this);
@@ -110,12 +106,26 @@ public class ProofCenter implements TermSelectionListener {
         // next to select is first child (or self if no children)
         List<ProofNode> children = parent.getChildren();
         ProofNode next;
-        if(children != null && !children.isEmpty()) {
-            next = children.get(0);
-        } else {
+        if(children == null) {
+            // still a goal
             next = parent;
+        } else if(children.isEmpty()) {
+            // select first open remaining goal
+            next = proof.getGoal(0);
+        } else {
+            // select first child goal
+            next = children.get(0);
         }
         fireSelectedProofNode(next);
+    }
+    
+    public void prune(ProofNode proofNode) {
+        proof.prune(proofNode);
+        fireSelectedProofNode(proofNode);
+    }
+
+    public ProofNode getCurrentProofNode() {
+        return currentProofNode;
     }
 
 }

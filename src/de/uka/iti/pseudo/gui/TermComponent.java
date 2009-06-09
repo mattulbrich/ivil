@@ -18,24 +18,25 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.BorderFactory;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.border.Border;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.View;
-import javax.swing.text.WrappedPlainView;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.AnnotatedString;
+import de.uka.iti.pseudo.util.AnnotatedStringsWithStyles;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
  */
-public class TermComponent extends JTextArea {
+public class TermComponent extends JTextPane {
 
     private static final long serialVersionUID = -4415736579829917335L;
 
@@ -48,9 +49,11 @@ public class TermComponent extends JTextArea {
             "pseudo.termfont.size", 14);
     private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
     private static final Color HIGHLIGHT_COLOR = Color.CYAN;
+    private static final Color MODALITY_BACKGROUND = new Color(240, 240, 255);
     private static final Border BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.LIGHT_GRAY), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
+    
     /**
      * The term displayed
      */
@@ -69,7 +72,7 @@ public class TermComponent extends JTextArea {
     /**
      * The annotated string containing the pretty printed term
      */
-    private AnnotatedString<Term> annotatedString;
+    private AnnotatedStringsWithStyles<Term> annotatedString;
 
     /**
      * The highlight object as returned by the highlighter
@@ -99,8 +102,10 @@ public class TermComponent extends JTextArea {
         setEditable(false);
         setFont(FONT);
         setBorder(BORDER);
-        setLineWrap(true);
-        setText(annotatedString.toString());
+        // setLineWrap(true);
+        StyledDocument styledDoc = prepareDoc();
+        annotatedString.appendToDocument(styledDoc);
+        // setText(annotatedString.toString());
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
@@ -122,6 +127,30 @@ public class TermComponent extends JTextArea {
             // may not happen even if document is empty
             throw new Error(e);
         }
+    }
+
+    private StyledDocument prepareDoc() {
+        StyledDocument doc = getStyledDocument();
+        Style def = StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+
+        Style regular = doc.addStyle("normal", def);
+        StyleConstants.setFontFamily(def, FONT_NAME);
+        StyleConstants.setFontSize(def, FONT_SIZE);
+        
+        Style modality = doc.addStyle("normal modality", regular);
+        StyleConstants.setBackground(modality, MODALITY_BACKGROUND);
+
+        Style s = doc.addStyle("normal variable", regular);
+        StyleConstants.setItalic(s, true);
+
+        s = doc.addStyle("normal modality keyword", modality);
+        StyleConstants.setBold(s, true);
+        StyleConstants.setBackground(s, MODALITY_BACKGROUND);
+        
+        s = doc.addStyle("normal modality variable", modality);
+        StyleConstants.setItalic(s, true);
+        
+        return doc;
     }
 
     /*

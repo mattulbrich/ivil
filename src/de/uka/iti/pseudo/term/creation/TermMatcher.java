@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.AssignModality;
@@ -183,6 +184,11 @@ public class TermMatcher extends DefaultTermVisitor {
     // Nothing to be done for skip
     // Nothing to be done for Compound
 
+    /*
+     * in while loops invariants are optional. 
+     * Therefore match if left hand side has no invariant
+     * Assume rhs invariant to be true if lhs has invariant.
+     */
     @Override public void visit(WhileModality whileModality)
             throws TermException {
         
@@ -192,6 +198,17 @@ public class TermMatcher extends DefaultTermVisitor {
         
         compare(whileModality.getConditionTerm(), 
                 whileModality2.getConditionTerm());
+        
+        if(whileModality.hasInvariantTerm()) {
+            if(whileModality2.hasInvariantTerm()) {
+                compare(whileModality.getInvariantTerm(),
+                        whileModality2.getInvariantTerm());
+            } else {
+                compare(whileModality.getInvariantTerm(),
+                        Environment.getTrue());
+            }
+        }
+        
     }
 
     @Override public void visit(SchemaModality schemaModality)

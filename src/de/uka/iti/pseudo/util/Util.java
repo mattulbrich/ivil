@@ -14,7 +14,6 @@ import java.awt.Graphics;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -236,6 +235,31 @@ public class Util {
     public static <E> E[] listToArray(@NonNull Collection<? extends E> collection, @NonNull Class<E> clss) {
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
+    }
+    
+    /**
+     * compares two references that may be null.
+     * 
+     * If both are null, true is returned. If only one is null, false is
+     * returned. In any other case, o1.equals(o2) is called and its value
+     * returned
+     * 
+     * @param o1
+     *            object to compare
+     * @param o2
+     *            object to compare
+     * 
+     * @return true if both are null references or o1.equals(o2) holds on
+     *         non-null references
+     */
+    public static boolean equalOrNull(Object o1, Object o2) {
+        if(o1 == null)
+            return o2 == null;
+        else if(o2 == null)
+            return false;
+        else
+            return o1.equals(o2);
+            
     }
     
     /**

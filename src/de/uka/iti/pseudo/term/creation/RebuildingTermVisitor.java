@@ -198,14 +198,22 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingModality == null) {
             whileModality.getConditionTerm().visit(this);
             Term c = resultingTerm;
+
             whileModality.getBody().visit(this);
             Modality b = resultingModality;
+            
+            Term inv = null;
+            if(whileModality.hasInvariantTerm()) {
+                whileModality.getInvariantTerm().visit(this);
+                inv = resultingTerm;
+            }
 
-            if(c != null || b != null) {
+            if(c != null || b != null || inv != null) {
                 c = c == null ? whileModality.getConditionTerm() : c;
                 b = b == null ? whileModality.getBody() : b;
+                inv = inv == null ? whileModality.getInvariantTerm() : inv;
 
-                resultingModality = new WhileModality(c, b);
+                resultingModality = new WhileModality(c, b, inv);
             } 
 
             resultingTerm = null;

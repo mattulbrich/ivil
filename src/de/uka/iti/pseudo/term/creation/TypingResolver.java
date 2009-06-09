@@ -361,8 +361,14 @@ public class TypingResolver extends ASTDefaultVisitor {
         super.visit(modWhile);
 
         try {
-            typingContext.solveConstraint(env.getBoolType(),
+            typingContext.solveConstraint(Environment.getBoolType(),
                     modWhile.getConditionTerm().getTyping().getRawType());
+            
+            ASTTerm inv = modWhile.getInvariantTerm();
+            if(inv != null) {
+                typingContext.solveConstraint(Environment.getBoolType(), 
+                        inv.getTyping().getRawType());
+            }
         } catch (UnificationException e) {
             throw new ASTVisitException("Condition in if-modality not boolean." +
                     "\ncondition term type: " +  modWhile.getConditionTerm().getTyping().getRawType() +

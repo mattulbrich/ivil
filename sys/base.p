@@ -16,8 +16,6 @@ function  # prefixes
         bool $not(bool)         prefix ! 45      
 
 function  # consts
-        bool true
-        bool false
         'a arb
 
 binder

@@ -488,12 +488,19 @@ public class TermMaker implements ASTVisitor {
     public void visit(ASTModWhile modWhile) throws ASTVisitException {
         modWhile.getConditionTerm().visit(this);
         Term condTerm = resultTerm;
+        Term invariant = null;
+        
+        ASTTerm astInv = modWhile.getInvariantTerm();
+        if(astInv != null) {
+            astInv.visit(this);
+            invariant = resultTerm;
+        }
         
         modWhile.getBodyModality().visit(this);
         Modality body = resultModality;
         
         try {
-            resultModality = new WhileModality(condTerm, body);
+            resultModality = new WhileModality(condTerm, body, invariant);
         } catch (TermException e) {
             throw new ASTVisitException(e);
         }

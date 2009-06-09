@@ -311,14 +311,18 @@ ASTRule RuleDeclaration():
     t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
   | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
   | t="where" ( elem=WhereClause(t) { list.add(elem); } )+
- /* | t="with" ( elem=WithClause(t) { list.add(elem); } ) +*/ 
   )+
   
   (
-    t="closegoal" { actions.add(new ASTGoalAction(t)); }
-  | (target="samegoal" | target="newgoal")? ( v=<STRING> )? aclist=AddReplaces() 
-         { actions.add(new ASTGoalAction(target, v, aclist)); target = null; }
-  )+
+    (
+      t="closegoal" { actions.add(new ASTGoalAction(t)); }
+    | (target="samegoal" | target="newgoal") ( v=<STRING> )? aclist=AddReplaces() 
+           { actions.add(new ASTGoalAction(target, v, aclist)); }
+    )+
+  | 
+    aclist = AddReplaces()  // implicit samegoal
+      { actions.add(new ASTGoalAction(null, null, aclist)); }
+  )
   
   (
     "description" descr=<STRING>
@@ -327,8 +331,9 @@ ASTRule RuleDeclaration():
   (
     "tags" 
     ( 
-      t=<IDENTIFIER> v=<STRING>
-        { properties.add(new Pair<Token, Token>(t, v)); } 
+      t=<IDENTIFIER> ( v=<STRING> )?
+        { properties.add(new Pair<Token, Token>(t, v));
+          v = null; } 
     )+
   )?
   
@@ -356,7 +361,7 @@ List<ASTRuleElement> AddReplaces():
 	List<ASTRuleElement> list = new ArrayList<ASTRuleElement>();
 }
 {
-  (
+  ( 
     t="add" lt=LocatedTerm(false) { list.add(new ASTRuleAdd(t, lt)); }
   | t="replace" rt=RawTerm() { list.add(new ASTRuleReplace(t, rt)); }
   | t="remove" { list.add(new ASTRuleRemove(t)); }
@@ -375,15 +380,3 @@ ASTWhereClause WhereClause(Token headToken):
 	   ( rt=RawTerm() { args.add(rt); } )*
        { return new ASTWhereClause(headToken, t, args); }	   
 }
-/*
-ASTWithClause WithClause(Token headToken):
-{
-	ASTType type;
-    Token schemaIdentifier;
-}
-{
-       type=TypeReference()
-       schemaIdentifier=<SCHEMA_IDENTIFIER>
-       { return new ASTWithClause(headToken, type, schemaIdentifier); }      
-}
-*/

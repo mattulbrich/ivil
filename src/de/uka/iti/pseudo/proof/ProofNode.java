@@ -44,12 +44,13 @@ public class ProofNode {
         this(proof, parent, new Sequent(antecedent, succedent));
     }
 
-    protected void setChildren(ProofNode[] children) {
+    private void setChildren(ProofNode[] children) {
         this.children = children;
     }
     
     public void prune() {
         setChildren(null);
+        appliedRuleApp = null;
     }
 
     public void apply(RuleApplication ruleApp, TermInstantiator inst, Environment env, Properties whereClauseProperties)
@@ -260,6 +261,21 @@ public class ProofNode {
         }
         
         return true;
+    }
+    
+    public Proof getProof() {
+        return proof;
+    }
+    
+    public void collectOpenGoals(List<ProofNode> openGoals) {
+        if(children == null) {
+            openGoals.add(this);
+        } else {
+            for (ProofNode child : children) {
+                child.collectOpenGoals(openGoals);
+            }
+        }
+            
     }
 
 }

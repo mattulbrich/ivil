@@ -19,6 +19,8 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
@@ -118,6 +120,8 @@ public class Environment {
             addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
             addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
             addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
+            addFunction(new Function("true", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
+            addFunction(new Function("false", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             for (MetaFunction metaFunction : MetaFunction.SERVICES) {
                 addFunction(metaFunction);
             }
@@ -356,6 +360,19 @@ public class Environment {
 //    public static @NonNull Function getInteractionSymbol() {
 //        return BUILT_IN_ENV.getFunction("$interaction");
 //    }
+
+    /**
+     * The constant true as a freshly created term
+     * 
+     * @return a fresh application of the constant true
+     */
+    public static Term getTrue() {
+        try {
+            return new Application(BUILT_IN_ENV.getFunction("true"), getBoolType());
+        } catch (TermException e) {
+            throw new Error(e);
+        }
+    }
 
 
     /**
@@ -742,5 +759,6 @@ public class Environment {
         return false;
     }
 
+    
 
 }

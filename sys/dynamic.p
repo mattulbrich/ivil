@@ -53,3 +53,16 @@ rule while_inv
     add { %inv } |-
     add          |- { %t }
 
+rule while_given_inv
+  find |- { [&before][while %c inv %inv do &a end]%t }
+  samegoal "{%inv} initially"
+    replace { [&before]%inv }
+  newgoal "body preserves {%inv}"
+    add          |- { [&a]%inv }
+    add { %inv } |-
+    add { %c}    |-
+  newgoal "use case"
+    add { !%c }  |-
+    add { %inv } |-
+    add          |- { %t }
+
