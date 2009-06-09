@@ -41,11 +41,16 @@ public class DeferredObservable extends Observable {
         public void run() {
             while (true) {
                 Pair<DeferredObservable, Object> event;
-                event = events.poll();
-                assert event != null;
-                DeferredObservable obs = event.fst();
-                Object arg = event.snd();
-                obs.superNotifyObservers(arg);
+                try {
+                    event = events.take();
+                    assert event != null;
+                    DeferredObservable obs = event.fst();
+                    Object arg = event.snd();
+                    obs.superNotifyObservers(arg);
+                } catch (InterruptedException e) {
+                    System.err.println("Waiting for event has been interrupted, but I will stay tuned");
+                    e.printStackTrace();
+                }
             }
         }
 

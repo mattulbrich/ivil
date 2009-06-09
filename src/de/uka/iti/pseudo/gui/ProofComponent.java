@@ -113,13 +113,19 @@ public class ProofComponent extends JTree {
     
     public String convertValueToText(Object value, boolean selected,
             boolean expanded, boolean leaf, int row, boolean hasFocus) {
-        ProofNode node = (ProofNode) value;
-        RuleApplication appliedRuleApp = node.getAppliedRuleApp();
-        if(appliedRuleApp != null) {
-            return appliedRuleApp.getRule().getName();
+        if (value instanceof ProofNode) {
+            ProofNode node = (ProofNode) value;
+            RuleApplication appliedRuleApp = node.getAppliedRuleApp();
+            if(appliedRuleApp != null) {
+                return appliedRuleApp.getRule().getName();
+            } else {
+                return "OPEN";
+            }
         } else {
-            return "OPEN";
+            // unknown state ... can happen before new Model has been set.
+            return "???";
         }
+        
     }
 
 }

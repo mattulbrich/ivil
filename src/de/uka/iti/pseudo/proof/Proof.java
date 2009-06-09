@@ -9,11 +9,11 @@ import de.uka.iti.pseudo.util.DeferredObservable;
 
 public class Proof {
 
-    private ProofNode root;
+    protected ProofNode root;
     
     private Observable changeObservable = new DeferredObservable();
     
-    private List<ProofNode> openGoals = new LinkedList<ProofNode>();
+    protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
     
     public void apply(RuleApplication ruleApp) throws ProofException {
         
@@ -22,6 +22,8 @@ public class Proof {
         ProofNode goal = extractGoal(ruleApp);
         
         goal.apply(ruleApp, mc);
+        
+        // TODO: remove goal from list and add children
     }
     
     private ProofNode extractGoal(RuleApplication ruleApp) throws ProofException {
@@ -45,6 +47,10 @@ public class Proof {
 
     public ProofNode getGoal(int goalNo) {
         return openGoals.get(goalNo);
+    }
+    
+    public int countOpenGoals() {
+        return openGoals.size();
     }
     
 }

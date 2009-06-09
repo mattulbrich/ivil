@@ -28,15 +28,18 @@ public class ProofNode {
     private ProofNode parent;
 
     private RuleApplication appliedRuleApp;
-
-    public ProofNode(Proof proof, ProofNode parent, List<Term> antecedent,
-            List<Term> succedent) {
+    
+    public ProofNode(Proof proof, ProofNode parent, Sequent sequent) {
         this.proof = proof;
         this.parent = parent;
-        this.sequent = new Sequent(antecedent, succedent);
+        this.sequent = sequent;
+    }
+    public ProofNode(Proof proof, ProofNode parent, List<Term> antecedent,
+            List<Term> succedent) {
+        this(proof, parent, new Sequent(antecedent, succedent));
     }
 
-    private void setChildren(ProofNode[] children) {
+    protected void setChildren(ProofNode[] children) {
         this.children = children;
         proof.fireNodeChanged(this);
     }
@@ -156,7 +159,6 @@ public class ProofNode {
             mc.leftMatch(assumption.getTerm(), assumeTerm);
         }
     }
-
  
     public List<ProofNode> getChildren() {
         if(children != null)
@@ -175,6 +177,30 @@ public class ProofNode {
 
     public Sequent getSequent() {
         return sequent;
+    }
+    public String getSummaryString() {
+        StringBuilder sb = new StringBuilder();
+        if(appliedRuleApp != null)
+            sb.append("closed ");
+        else
+            sb.append("open ");
+        
+        sb.append("node, ")
+            .append(sequent.getAntecedent().size())
+            .append(" |- ").append(sequent.getSuccedent().size())
+            .append(", ").append(getPath());
+        
+        return sb.toString();
+    }
+    
+    public String getPath() {
+        if(parent == null)
+            return "";
+        else {
+            int index = parent.getChildren().indexOf(this);
+            assert index != -1;
+            return parent.getPath() + index + ".";
+        }
     }
 
 }
