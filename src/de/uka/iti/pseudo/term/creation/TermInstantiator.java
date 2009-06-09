@@ -146,14 +146,18 @@ public class TermInstantiator extends RebuildingTermVisitor {
     
     @Override
     public void visit(SchemaVariable schemaVariable) throws TermException {
+        // the schema variable might have to be retyped
+        super.visit(schemaVariable);
+        
         if(termMap != null) {
-            resultingTerm = termMap.get(schemaVariable.getName());
+            Term t  = termMap.get(schemaVariable.getName());
             
-            if(resultingTerm != null) {
-                Type t1 = modifyType(resultingTerm.getType());
+            if(t != null) {
+                Type t1 = modifyType(t.getType());
                 Type t2 = modifyType(schemaVariable.getType());
                 if(!t1.equals(t2))
                     throw new UnificationException("Instantiation failed! Incompatible types", schemaVariable, resultingTerm);
+                resultingTerm = t;
             }
             
         } else {

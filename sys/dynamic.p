@@ -19,6 +19,15 @@ rule if_then_else
   find { [ if %c then &a else &b end]%t }
   samegoal replace { cond(%c, [&a]%t, [&b]%t) }
 
+rule if_then_else_split
+  find |- { [ if %c then &a else &b end]%t }
+  samegoal "then branch"
+    replace { [&a]%t }
+    add { %c } |-
+  samegoal "else branch"
+    replace { [&b]%t }
+    add { !%c } |-
+
 rule if_then
   find { [ if %c then &a end]%t }
   samegoal replace { cond(%c, [&a]%t, %t) }

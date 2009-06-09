@@ -11,10 +11,10 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
+// Introduce an extra class to match a single rule
 
 public class InteractiveRuleApplicationFinder {
     
