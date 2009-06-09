@@ -39,6 +39,12 @@ public class TestTermUnification extends TestCase {
         assertEquals(mt("3"), mc.instantiate(mt("%b")));
     }
     
+    // from an early bug
+    public void testInstantiateConst() throws Exception {
+        TermUnification mc = new TermUnification();
+        assertEquals(mt("true"), mc.instantiate(mt("true")));
+    }
+    
     public void testDiffInst() throws Exception {
         TermUnification mc = new TermUnification();
         

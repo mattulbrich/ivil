@@ -16,7 +16,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
 
     public Term instantiate(Term toInst) throws TermException {
         toInst.visit(this);
-        return resultingTerm;
+        if(resultingTerm != null)
+            return resultingTerm;
+        else
+            return toInst;
     }
     
     @Override

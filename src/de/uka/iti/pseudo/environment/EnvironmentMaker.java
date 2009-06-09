@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
+import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
@@ -72,7 +73,7 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             "pseudo.systemdir", "sys"));
 
     /**
-     * The enviroment that is being built.
+     * The environment that is being built.
      */
     private Environment env;
 
@@ -580,9 +581,13 @@ public class EnvironmentMaker extends ASTFileDefaultVisitor {
             replace.visit(this);
             replaceWith = resultingTerm;
         }
+        
+        boolean hasRemove = !SelectList.select(ASTRuleRemove.class, 
+                arg.getChildren()).isEmpty();
 
+        
         try {
-            resultingGoalAction = new GoalAction(kind, name, replaceWith, addAntecendent, addSuccendent);
+            resultingGoalAction = new GoalAction(kind, name, hasRemove, replaceWith, addAntecendent, addSuccendent);
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }

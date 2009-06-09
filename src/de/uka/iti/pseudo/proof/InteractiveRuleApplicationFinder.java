@@ -27,6 +27,11 @@ public class InteractiveRuleApplicationFinder {
         this.env = env;
         ruleAppMaker.setGoalNumber(goalNo);
     }
+    
+    public InteractiveRuleApplicationFinder(Sequent sequent, Environment env) {
+        this.env = env;
+        this.sequent = sequent;
+    }
 
     public List<RuleApplication> findAll(TermSelector termSelector,  
             List<Rule> sortedAllRules) throws ProofException {
@@ -88,6 +93,7 @@ public class InteractiveRuleApplicationFinder {
                 mc = mcCopy;
                 mcCopy = mc.clone();
             }
+            termNo++;
         }
     }
 }

@@ -67,6 +67,10 @@ public abstract class ASTFileDefaultVisitor implements ASTFileVisitor {
 	public void visit(ASTRuleReplace arg) throws ASTVisitException {
 		visitDefault(arg);
 	}
+	
+	public void visit(ASTRuleRemove ruleRemove) throws ASTVisitException {
+	    visitDefault(ruleRemove);
+	}
 
 	public void visit(ASTRuleAdd arg) throws ASTVisitException {
 		visitDefault(arg);

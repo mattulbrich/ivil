@@ -89,11 +89,17 @@ public class ProofNode {
                 }
                 
                 Term replaceWith = action.getReplaceWith();
+                TermSelector findSelector = ruleApp.getFindSelector();
                 if(replaceWith != null) {
-                    TermSelector sel = ruleApp.getFindSelector();
                     Term instantiated = mc.instantiate(replaceWith);
                     assert !mc.containsSchemaIdentifier(instantiated);
-                    replaceTerm(sel, instantiated, antecedent, succedent);
+                    replaceTerm(findSelector, instantiated, antecedent, succedent);
+                } else if(action.isRemoveOriginalTerm()) {
+                    assert findSelector.isToplevel();
+                    if(findSelector.isAntecedent())
+                        antecedent.remove(findSelector.getTermNo());
+                    else
+                        succedent.remove(findSelector.getTermNo());
                 }
                 
                 for (Term add : action.getAddAntecedent()) {
@@ -176,7 +182,7 @@ public class ProofNode {
                         + ")");
             }
             if(!mc.leftUnify(assumption.getTerm(), assumeTerm))
-                throw new ProofException("find clause does not match");
+                throw new ProofException("assumption clause does not match");
         }
     }
  

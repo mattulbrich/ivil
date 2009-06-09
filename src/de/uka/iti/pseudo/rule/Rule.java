@@ -60,9 +60,11 @@ public class Rule {
 
     private void checkRule() throws RuleException {
         // TODO Auto-generated method stub
+        // ???
         // e.g.: locations in assumes and finds
         // closegoal is empty
         // newgoal has no replace
+        // remove only if find is located 
     }
     
     public void dump() {

@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
-// TODO DOC
+// TODO DOC DOC
 /**
  * The Class GoalAction encapsulates a list of action to take on a goal. Such an
  * action can start a new goal, copy the current goal or close the current goal.
@@ -40,6 +40,8 @@ public class GoalAction {
 
     private Term[] addSuccedent;
 
+    private boolean removeOriginalTerm;
+
     public Kind getKind() {
         return kind;
     }
@@ -56,7 +58,7 @@ public class GoalAction {
         return Util.readOnlyArrayList(addSuccedent);
     }
 
-    public GoalAction(String kindString, String name, Term replaceWith,
+    public GoalAction(String kindString, String name, boolean remove, Term replaceWith,
             List<Term> addAntecendent, List<Term> addSuccendent) throws RuleException {
         
         if (kindString.equals("closegoal")) {
@@ -76,8 +78,16 @@ public class GoalAction {
         if(this.kind == Kind.NEW && replaceWith != null)
             throw new RuleException("newgoal actions may not contain replace elements");
         
+        // remove only in COPY and not with BOTH
+        if(this.kind != Kind.COPY && remove)
+            throw new RuleException("remove may only used in samegoal actions");
+        
+        if(remove && replaceWith != null)
+            throw new RuleException("a goal may not have both remove and replace");
+        
         this.name = name;
         this.replaceWith = replaceWith;
+        this.removeOriginalTerm = remove;
         this.addAntecedent = Util.listToArray(addAntecendent, Term.class);
         this.addSuccedent = Util.listToArray(addSuccendent, Term.class);
     }
@@ -99,6 +109,10 @@ public class GoalAction {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isRemoveOriginalTerm() {
+        return removeOriginalTerm;
     }
 
 }

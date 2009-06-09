@@ -21,10 +21,28 @@ rule or_left
   samegoal replace { %a }
   samegoal replace { %b }
 
+rule impl_right
+  find |- { %a -> %b }
+  samegoal replace { %b }
+           add { %a } |-
+
+rule impl_left
+  find { %a -> %b } |-
+  samegoal "show %a"
+    remove
+    add |- { %a }
+  samegoal "use %b"
+    replace { %b }
+
 rule not_right
   find |- { !%b }
-  samegoal replace {false}
+  samegoal remove
            add { %b } |-
+
+rule not_left
+  find { !%b } |-
+  samegoal remove
+           add |- { %b }
 
 rule and_true_l
   find { true & %a }
@@ -42,6 +60,28 @@ rule and_true_r
   find { %a & false }
   samegoal replace { false }
 
+rule close_same
+  find |- { %b }
+  assume { %b } |-
+  closegoal
+
+rule close_true_right
+  find |- { true }
+  closegoal
+
+rule close_false_left
+  find { false } |-
+  closegoal
+
+rule replace_known_left
+  find { %b }
+  assume { %b } |-
+  samegoal replace { true }
+
+rule replace_known_right
+  find { %b }
+  assume |- { %b }
+  samegoal replace { false }
 
 #rule forAllRight
 #        find  |- { (\forall %x; %b) }
