@@ -24,6 +24,7 @@ function  # prefixes
 function  # consts
         bool true
         bool false
+        'a arb
 
 binder
         bool (\forall 'a; bool)

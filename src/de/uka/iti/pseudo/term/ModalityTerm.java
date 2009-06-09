@@ -22,8 +22,11 @@ public class ModalityTerm extends Term {
 	}
 
 	@Override
-	public String toString() {
-		return "[MOD]" + getSubterm(0);
+	public String toString(boolean typed) {
+	    if(typed)
+	        return "[MOD](" + getSubterm(0).toString(typed) + ")";
+	    else
+	        return "[MOD]" + getSubterm(0).toString(typed);
 	}
 
 }

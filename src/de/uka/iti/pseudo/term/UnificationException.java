@@ -1,6 +1,11 @@
 package de.uka.iti.pseudo.term;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class UnificationException extends TermException {
+    
+    private List<String> details = new LinkedList<String>();
 
 	public UnificationException() {
 		super();
@@ -22,18 +27,23 @@ public class UnificationException extends TermException {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UnificationException(String string, Type adaptingType, Type fixType) {
-		// TODO Auto-generated constructor stub
+	public UnificationException(String message, Type t1, Type t2) {
+	    this(message);
+	    addDetail("Type 1: " + t1);
+	    addDetail("Type 2: " + t2);
 	}
 
-	public void setDetailLocation(String string) {
-		// TODO Auto-generated method stub
-		
+	public void addDetail(String detail) {
+	    details.add(detail);
 	}
 
 	public String getDetailedMessage() {
-		// TODO Auto-generated method stub
-		return null;
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(getMessage());
+	    for (String detail : details) {
+            sb.append("\n").append(detail);
+        }
+		return sb.toString();
 	}
 
 }

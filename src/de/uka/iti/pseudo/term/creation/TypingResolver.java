@@ -18,10 +18,12 @@ import de.uka.iti.pseudo.parser.term.ASTElement;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTTypeRef;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
@@ -69,7 +71,7 @@ public class TypingResolver extends ASTDefaultVisitor {
 		} catch (UnificationException e) {
 			throw new ASTVisitException("Type inference failed for function " + functSymb +
 					"\nFunction: " + funct+
-					"\n" + e.getDetailedMessage(), applicationTerm);
+					"\n" + e.getDetailedMessage(), applicationTerm, e);
 		}
     }
     
@@ -144,7 +146,7 @@ public class TypingResolver extends ASTDefaultVisitor {
             try {
 				typingContext.solveConstraint(sig[i], subterms.get(i-1).getTyping().getRawtType());
 			} catch (UnificationException e) {
-				e.setDetailLocation("subterm " + (i-1));
+				e.addDetail("in subterm " + (i-1));
 				throw e;
 			}
         }
@@ -191,11 +193,19 @@ public class TypingResolver extends ASTDefaultVisitor {
             TypeVariable tv = boundVariables.get(name);
 
             if(tv == null)
-                throw new ASTVisitException("Illegal free variable: " + name, identifierTerm);
+                throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
 
             identifierTerm.setTyping(new Typing(tv, typingContext));
         }
 
+    }
+    
+    @Override
+    public void visit(ASTNumberLiteralTerm numberLiteralTerm)
+            throws ASTVisitException {
+        
+        numberLiteralTerm.setTyping(new Typing(env.getIntType(), typingContext));
+        
     }
     
     @Override 

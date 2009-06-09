@@ -8,11 +8,13 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.util.Collections;
 import java.util.List;
+
+import nonnull.NonNull;
 
 import de.uka.iti.pseudo.util.Util;
 
+@NonNull
 public abstract class Term {
 	
 	private static final Term[] NO_ARGUMENTS = new Term[0];
@@ -50,8 +52,11 @@ public abstract class Term {
 		return Util.readOnlyArrayList(subterms);
 	}
 	
-	// to enforce overriding
-	public abstract String toString();
+	public String toString() {
+	    return toString(false);
+	}
+	
+	public abstract String toString(boolean typed);
 	
 	protected abstract void visit(TermVisitor visitor);
 

@@ -21,6 +21,7 @@ public class TestFileParser {
         FileParser fp = new FileParser();
         EnvironmentMaker em = new EnvironmentMaker(fp, new File(args[0]));
         em.getEnvironment().dump();
-        System.out.println(em.getProblemTerm().toString());
+        System.out.println(em.getProblemTerm().toString(false));
+        System.out.println(em.getProblemTerm().toString(true));
     }
 }

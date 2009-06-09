@@ -8,8 +8,6 @@
  */
 package de.uka.iti.pseudo.parser;
 
-import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
-import de.uka.iti.pseudo.term.TermException;
 
 public class ASTVisitException extends Exception {
 

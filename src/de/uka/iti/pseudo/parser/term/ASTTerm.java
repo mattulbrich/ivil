@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.term.creation.Typing;
 import de.uka.iti.pseudo.util.SelectList;
@@ -28,7 +29,7 @@ public abstract class ASTTerm extends ASTElement {
         return SelectList.select(ASTTerm.class, getChildren());
     }
 
-    public Typing getTyping() {
+    public @Nullable Typing getTyping() {
         return typing;
     }
 

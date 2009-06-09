@@ -55,15 +55,23 @@ public class Binding extends Term {
 	}
 
 	@Override
-	public @NonNull String toString() {
-		String retval = "(" + binder.getName() + ";" + variableType + " " + variableName + ";";
+	public @NonNull String toString(boolean typed) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("(").append(binder.getName()).append(";");
+	    if(typed) {
+	        sb.append(variableType).append(" ");
+	    }
+	    sb.append(variableName).append(";");
 		for (int i = 0; i < countSubterms(); i++) {
-			retval += getSubterm(i);
+			sb.append(getSubterm(i).toString(typed));
 			if(i != countSubterms() - 1)
-				retval += ";";
+				sb.append(";");
 		}
-		retval += ")";
-		return retval;
+		sb.append(")");
+		if(typed) {
+		    sb.append(" as ").append(getType());
+		}
+		return sb.toString();
 	}
 	
 	@Override

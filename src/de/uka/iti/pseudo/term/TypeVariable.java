@@ -29,11 +29,6 @@ public class TypeVariable extends Type {
     }
     
 	@Override
-    public void collectTypeVariables(Collection<String> coll) {
-        coll.add(typeVar);
-    }
-
-	@Override
 	public String toString() {
 		return "'" + getVariableName();
 	}

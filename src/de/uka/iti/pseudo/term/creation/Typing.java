@@ -23,4 +23,9 @@ public class Typing {
     public Type getType() {
         return typingContext.instantiate(rawType);
     }
+    
+    @Override
+    public String toString() {
+        return rawType.toString();
+    }
 }

@@ -52,17 +52,19 @@ public class Application extends Term {
 	}
 
 	@Override
-	public String toString() {
+	public String toString(boolean typed) {
 		String retval = function.getName();
 		if (countSubterms() > 0) {
 			retval += "(";
 			for (int i = 0; i < countSubterms(); i++) {
-				retval += getSubterm(i);
+				retval += getSubterm(i).toString(typed);
 				if (i != countSubterms() - 1)
 					retval += ",";
 			}
 			retval += ")";
 		}
+		if(typed)
+		    retval += " as " + getType();
 		return retval;
 	}
 	

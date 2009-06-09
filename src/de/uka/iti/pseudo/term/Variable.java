@@ -18,8 +18,11 @@ public class Variable extends Term {
 	}
 	
 	@Override
-	public String toString() {
-		return name;
+	public String toString(boolean typed) {
+		String retval = name;
+		if(typed)
+		    retval += " as " + getType();
+		return retval;
 	}
 
 	@Override

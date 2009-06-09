@@ -4,10 +4,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public class ASTHeadElement extends ASTElement {
     
-    private ASTElement wrappedElement;
-
     public ASTHeadElement(ASTElement element) {
-        this.wrappedElement = element;
         addChild(element);
     }
 
@@ -20,7 +17,7 @@ public class ASTHeadElement extends ASTElement {
     }
 
     public ASTElement getWrappedElement() {
-        return wrappedElement;
+        return getChildren().get(0);
     }
 
 }

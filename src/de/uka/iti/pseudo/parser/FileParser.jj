@@ -10,6 +10,7 @@ import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Reader;
 import java.io.StringReader;
 
 public class FileParser {
@@ -19,10 +20,14 @@ public class FileParser {
     }
 
     public ASTFile parseFile(File file) throws FileNotFoundException, ParseException {
-       ReInit(new FileReader(file));
-       ASTFile result = File();
-       result.setFilename(file.toString());
-       return result;
+       return parseFile(new FileReader(file), file.getPath());
+    }
+    
+    public ASTFile parseFile(Reader reader, String filename) throws ParseException {
+        ReInit(reader);
+        ASTFile result = File();
+        result.setFilename(filename);
+        return result;
     }
 }
 

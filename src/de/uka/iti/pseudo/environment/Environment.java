@@ -8,14 +8,11 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -23,11 +20,11 @@ import de.uka.iti.pseudo.term.TypeApplication;
 
 public class Environment {
     
-    private Map<String, Sort> sortMap = new HashMap<String, Sort>();
-    private Map<String, Function> functionMap = new HashMap<String, Function>();
-    private Map<String, Binder> binderMap = new HashMap<String, Binder>();
-    private Map<String, FixOperator> infixMap = new HashMap<String, FixOperator>();
-    private Map<String, FixOperator> prefixMap = new HashMap<String, FixOperator>();
+    private Map<String, Sort> sortMap = new LinkedHashMap<String, Sort>();
+    private Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
+    private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
+    private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
+    private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     
     
     public Environment() {
@@ -64,12 +61,22 @@ public class Environment {
         return sortMap.get(name);
     }
     
-    public @NonNull Sort getSortInt() {
-    	return getSort("int");
+    public @NonNull Type getIntType() {
+    	try {
+            return new TypeApplication(getSort("int"));
+        } catch (TermException e) {
+            // "int" is presend since builtin
+            throw new Error(e);
+        }
     }
     
-    public Sort getSortBool() {
-    	return getSort("bool");
+    public @NonNull Type getBoolType() {
+        try {
+            return new TypeApplication(getSort("bool"));
+        } catch (TermException e) {
+            // "int" is presend since builtin
+            throw new Error(e);
+        }
     }
     
     //
@@ -86,9 +93,9 @@ public class Environment {
                     function.getDeclaration());
         }
         
-        if(!checkNoFreeReturnTypeVariables(function.getResultType(), function.getArgumentTypes(), null))
-            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
-                    function.getDeclaration());
+//        if(!checkNoFreeReturnTypeVariables(function.getResultType(), function.getArgumentTypes(), null))
+//            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
+//                    function.getDeclaration());
         
         functionMap.put(name, function);
     }
@@ -128,6 +135,8 @@ public class Environment {
      *            (variable type for binders) may be null
      * @return true iff no free typevars in result type
      */
+    
+    /*    Set('a) emptySet is a good example that this is not needed
     private boolean checkNoFreeReturnTypeVariables(Type resultType,
             Type[] argumentTypes, Type additionalType) {
         
@@ -147,7 +156,7 @@ public class Environment {
         int sizeAfter = typevars.size();
         
         return sizeBefore == sizeAfter;
-    }
+    }*/
 
 
 
@@ -200,10 +209,10 @@ public class Environment {
                     binder.getDeclaration());
         }
         
-        if(!checkNoFreeReturnTypeVariables(binder.getResultType(), 
-                binder.getArgumentTypes(), binder.getVarType()))
-            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
-                    binder.getDeclaration());
+//        if(!checkNoFreeReturnTypeVariables(binder.getResultType(), 
+//                binder.getArgumentTypes(), binder.getVarType()))
+//            throw new EnvironmentException("Function " + name + " has a free return typevariable. ",
+//                    binder.getDeclaration());
         
         binderMap.put(name, binder);
     }

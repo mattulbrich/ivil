@@ -35,15 +35,6 @@ public class TypeApplication extends Type {
         this(sort, NO_ARGS);
     }
 
-
-
-    @Override
-    public void collectTypeVariables(Collection<String> coll) {
-        for (Type tr : typeParamters) {
-            tr.collectTypeVariables(coll);
-        }
-    }
-    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

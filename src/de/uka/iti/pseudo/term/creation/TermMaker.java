@@ -204,7 +204,7 @@ public class TermMaker implements ASTVisitor {
 			throws ASTVisitException {
 		Function funct = env.getNumberLiteral(numberLiteralTerm.getNumberToken().image);
 		try {
-            resultTerm = new Application(funct, new TypeApplication(env.getSortInt()));
+            resultTerm = new Application(funct, env.getIntType());
 		} catch (TermException e) {
 		    throw new ASTVisitException(e, numberLiteralTerm);
         }

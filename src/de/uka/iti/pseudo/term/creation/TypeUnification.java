@@ -3,8 +3,6 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.istack.internal.Nullable;
-
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -52,7 +50,7 @@ public class TypeUnification {
 			return fixType;
 		} catch (UnificationException e) {
 			// restore old mapping
-			e.setDetailLocation("Cannot left-unify '" + adaptingType + "' and '" + fixType +"'");
+			e.addDetail("Cannot left-unify '" + adaptingType + "' and '" + fixType +"'");
 			instantiation = copy;
 			throw e;
 		}
@@ -94,7 +92,7 @@ public class TypeUnification {
 		}
 		
 		Type[] adaptArguments = adaptApp.getArguments();
-		Type[] fixArguments = adaptApp.getArguments();
+		Type[] fixArguments = fixApp.getArguments();
 		
 		for (int i = 0; i < fixArguments.length; i++) {
 			// possibly wrap in try/catch to add detail information
@@ -103,21 +101,19 @@ public class TypeUnification {
 	}
 	
 	public Type unify(Type type1, Type type2) throws UnificationException {
-Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(instantiation);
-		
+	    Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(instantiation);
+
 		try {
 			unify0(type1, type2);
 			assert instantiate(type1).equals(instantiate(type2));
 			return instantiate(type1);
 		} catch (UnificationException e) {
 			// restore old mapping
-			e.setDetailLocation("Cannot left-unify '" + type1 + "' and '" + type2 +"'");
+			e.addDetail("Cannot left-unify '" + type1 + "' and '" + type2 +"'");
 			instantiation = copy;
 			throw e;
 		}
 	}
-
-	
 	
 
 	private void unify0(Type type1, Type type2) throws UnificationException {
@@ -180,10 +176,10 @@ Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(instantiation);
 		
 		instantiation.put(tv, type);
 
-// check whether this is needed or not		
-//		for (TypeVariable t : instantiation.keySet()) {
-//			instantiation.put(t, instantiate(instantiation.get(t)));
-//		}
+        // check whether this is needed or not: it is :)		
+		for (TypeVariable t : instantiation.keySet()) {
+			instantiation.put(t, instantiate(instantiation.get(t)));
+		}
 		
 	}
 
@@ -198,7 +194,7 @@ Map<TypeVariable, Type> copy = new HashMap<TypeVariable, Type>(instantiation);
 		};
 		
 		try {
-			tv.visit(vis);
+			type.visit(vis);
 			// no exception: not found
 			return false;
 		} catch (TermException e) {
