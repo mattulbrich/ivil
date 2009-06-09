@@ -62,4 +62,69 @@ public class TestAnnotatedString extends TestCaseWithEnv {
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
         assertEquals(0, as.getAttributeIndexAt(8));
     }
+    
+    // example from the javadoc
+    public void testStyled() throws Exception {
+        AnnotatedStringWithStyles<String> as = 
+            new AnnotatedStringWithStyles<String>();
+        
+        as.append("Hello ");
+        as.setStyle("A");
+        as.append("world ");
+        as.setStyle("B");
+        as.append("again ");
+        as.resetPreviousStyle();
+        as.append("and again");
+        as.resetPreviousStyle();
+        
+        for (int i = 0; i < as.length(); i++) {
+            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
+        }
+        
+        assertEquals("", as.getStyleAt(0));
+        assertEquals("", as.getStyleAt(5));
+        assertEquals("A", as.getStyleAt(6));
+        assertEquals("A B", as.getStyleAt(12));
+        assertEquals("A", as.getStyleAt(18));
+        assertEquals("", as.getStyleAt(27));
+    }
+    
+    // from a bug
+    public void testVariableTerm() throws Exception {
+        Term t = makeTerm("(\\exists x; x>0)");
+        PrettyPrint pp = new PrettyPrint(env, false, true);
+        AnnotatedStringWithStyles<Term> as = pp.print(t);
+        
+        for (int i = 0; i < as.length(); i++) {
+            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
+        }
+        
+        assertEquals("", as.getStyleAt(0));
+        assertEquals("variable", as.getStyleAt(9));
+        assertEquals("", as.getStyleAt(10));
+        assertEquals("variable", as.getStyleAt(12));
+        assertEquals("", as.getStyleAt(13));
+        
+    }
+    
+    // miraculously the second "A" becomes " A"
+    public void testStyles2() throws Exception {
+        AnnotatedStringWithStyles<String> as = 
+            new AnnotatedStringWithStyles<String>();
+        
+        as.append("1");
+        as.setStyle("A");
+        as.append("2");
+        as.resetPreviousStyle();
+        as.append("3");
+        as.setStyle("A");
+        as.append("4");
+        as.resetPreviousStyle();
+
+        assertEquals("", as.getStyleAt(0));
+        assertEquals("A", as.getStyleAt(1));
+        assertEquals("", as.getStyleAt(2));
+        assertEquals("A", as.getStyleAt(3));
+
+    }
 }

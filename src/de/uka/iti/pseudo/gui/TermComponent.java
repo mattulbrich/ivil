@@ -174,7 +174,8 @@ public class TermComponent extends JTextPane {
                     StyleConstants.setBold(retval, true);
                 
                 if(descr.contains("variable"))
-                    StyleConstants.setItalic(retval, true);
+                    StyleConstants.setForeground(retval, Color.magenta);
+                    //                    StyleConstants.setItalic(retval, true);
                 
                 attributeCache.put(descr, retval);
                 
