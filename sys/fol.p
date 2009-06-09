@@ -25,6 +25,14 @@ rule equality
   find { %t = %t }
   samegoal replace { true }
 
+rule cond_true
+  find { cond(true, %a, %b) }
+  samegoal replace { %a }
+
+rule cond_false
+  find { cond(false, %a, %b) }
+  samegoal replace { %b }
+
 #rule andRight
 #        find  |- {%b & %c}
 #        replace {%b}

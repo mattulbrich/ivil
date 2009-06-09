@@ -83,6 +83,23 @@ rule replace_known_right
   assume |- { %b }
   samegoal replace { false }
 
+rule cut
+  find { %c }
+  where
+    interact { %inst as bool }
+  samegoal add |- { %inst }
+  samegoal add    { %inst } |-
+
+rule cutOnThat
+  find { %c }
+  samegoal
+    replace { true }
+    add { %c } |-
+  samegoal
+    replace { false }
+    add |- { %c }
+
+
 #rule forAllRight
 #        find  |- { (\forall %x; %b) }
 #        replace { (\subst %x; c; %b) }

@@ -44,6 +44,7 @@ public class MetaEvaluator extends RebuildingTermVisitor {
      */
     public MetaEvaluator(RuleApplication ruleApp, Environment env) {
         this.ruleApplication = ruleApp;
+        this.env = env;
     }
 
     /**

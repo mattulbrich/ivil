@@ -136,7 +136,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     public void visit(AssignModality assignModality) throws TermException {
         defaultVisitModality(assignModality);
         if(resultingModality == null) {
-            defaultVisitTerm(assignModality.getAssignedTerm());
+            assignModality.getAssignedTerm().visit(this);
             if(resultingTerm != null) {
                 resultingModality = new AssignModality(assignModality.getAssignedConstant(), resultingTerm);
                 resultingTerm = null;
@@ -168,7 +168,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     public void visit(IfModality ifModality) throws TermException {
         defaultVisitModality(ifModality);
         if(resultingModality == null) {
-            defaultVisitTerm(ifModality.getConditionTerm());
+            ifModality.getConditionTerm().visit(this);
             Term c = resultingTerm;
             ifModality.getThenModality().visit(this);
             Modality m1 = resultingModality;
@@ -196,7 +196,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     public void visit(WhileModality whileModality) throws TermException {
         defaultVisitModality(whileModality);
         if(resultingModality == null) {
-            defaultVisitTerm(whileModality.getConditionTerm());
+            whileModality.getConditionTerm().visit(this);
             Term c = resultingTerm;
             whileModality.getBody().visit(this);
             Modality b = resultingModality;

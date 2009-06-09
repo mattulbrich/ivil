@@ -151,9 +151,9 @@ public class TermMatcher extends DefaultTermVisitor {
     }
 
     @Override public void visit(IfModality ifModality) throws TermException {
-        defaultVisitModality(ifModality);
-
         IfModality ifModality2 = (IfModality)compareModality;
+        
+        defaultVisitModality(ifModality);
         
         compare(ifModality.getConditionTerm(), 
                 ifModality2.getConditionTerm());
@@ -164,9 +164,10 @@ public class TermMatcher extends DefaultTermVisitor {
 
     @Override public void visit(WhileModality whileModality)
             throws TermException {
-        defaultVisitModality(whileModality);
         
         WhileModality whileModality2 = (WhileModality)compareModality;
+        
+        defaultVisitModality(whileModality);
         
         compare(whileModality.getConditionTerm(), 
                 whileModality2.getConditionTerm());
@@ -178,6 +179,5 @@ public class TermMatcher extends DefaultTermVisitor {
             throw new Error("cannot be called");
 
     }
-
 
 }

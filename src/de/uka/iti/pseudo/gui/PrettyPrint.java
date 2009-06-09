@@ -432,6 +432,7 @@ public class PrettyPrint implements TermVisitor, ModalityVisitor {
         ifModality.getThenModality().visit(this);
         Modality elseModality = ifModality.getElseModality();
         if (elseModality != null) {
+            printer.append(" else ");
             elseModality.visit(this);
         }
         printer.append(" end");
