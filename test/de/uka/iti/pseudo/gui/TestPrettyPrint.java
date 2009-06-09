@@ -1,33 +1,22 @@
 package de.uka.iti.pseudo.gui;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.FileParser;
 import de.uka.iti.pseudo.parser.file.ParseException;
+import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
 public class TestPrettyPrint extends TestCase {
 
-    private static final String ENV_FILE = "test/de/uka/iti/pseudo/parser/term/parsertest.p";
-
     private Environment env;
 
-    private static Environment loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
-        ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
-        FileParser fp = new FileParser();
-        EnvironmentMaker em = new EnvironmentMaker(fp, new File(ENV_FILE));
-        return em.getEnvironment();
-    }
-
     public TestPrettyPrint() throws FileNotFoundException, ParseException, ASTVisitException  {
-        env = loadEnv();
+        env = TestTermParser.loadEnv();
     }
     
     private void testTerm(String term, String expected, boolean typed) throws Exception {

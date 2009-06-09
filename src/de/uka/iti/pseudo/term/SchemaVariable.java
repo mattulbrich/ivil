@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
+
 public class SchemaVariable extends Term {
 
     private String name;
@@ -17,12 +19,22 @@ public class SchemaVariable extends Term {
         return retval;
     }
 
-    @Override public void visit(TermVisitor visitor) throws TermException {
+    @Override 
+    public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
     
     public String getName() {
         return name;
+    }
+
+    @Override 
+    public boolean equals(@NonNull Object object) {
+        if (object instanceof SchemaVariable) {
+            SchemaVariable sv = (SchemaVariable) object;
+            return sv.getName().equals(getName()) && getType().equals(sv.getType());
+        }
+        return false;
     }
 
 }

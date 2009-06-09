@@ -11,4 +11,9 @@ public class SkipModality extends Modality {
         visitor.visit(this);
     }
 
+    @Override 
+    public boolean equals(Object object) {
+        return object instanceof SkipModality;
+    }
+
 }

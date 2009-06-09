@@ -28,4 +28,19 @@ public class WhileModality extends Modality {
         return getSubModality(0);
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof WhileModality) {
+            WhileModality wmod = (WhileModality) object;
+            
+            if(!getConditionTerm().equals(wmod.getConditionTerm()))
+                return false;
+            
+            if(!getBody().equals(wmod.getBody()))
+                return false;
+            
+            return true;
+        }
+        return false;
+    }
 }

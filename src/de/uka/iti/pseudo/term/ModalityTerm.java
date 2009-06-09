@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
+
 public class ModalityTerm extends Term {
 
 	private Modality modality; 
@@ -34,6 +36,16 @@ public class ModalityTerm extends Term {
 
     public Modality getModality() {
         return modality;
+    }
+
+    @Override 
+    public boolean equals(@NonNull Object object) {
+        if (object instanceof ModalityTerm) {
+            ModalityTerm modTerm = (ModalityTerm) object;
+            return modTerm.getModality().equals(getModality())
+                    && modTerm.getSubterm(0).equals(getSubterm(0));
+        }
+        return false;
     }
 
 }

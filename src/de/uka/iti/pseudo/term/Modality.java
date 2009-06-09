@@ -8,6 +8,12 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.util.List;
+
+import nonnull.NonNull;
+
+import de.uka.iti.pseudo.util.Util;
+
 public abstract class Modality {
     
     private Modality subModality[];
@@ -28,8 +34,15 @@ public abstract class Modality {
         return subModality.length;
     }
     
+    public List<Modality> getSubModalities() {
+        return Util.readOnlyArrayList(subModality);
+    }
+    
     public abstract void visit(ModalityVisitor visitor) throws TermException;
     
     public abstract String toString(boolean typed);
 
+    @Override
+    public abstract boolean equals(@NonNull Object object);
+    
 }

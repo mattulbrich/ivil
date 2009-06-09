@@ -19,14 +19,16 @@ public class IfModality extends Modality {
         this.hasElseModality = true;
     }
 
-    @Override public String toString(boolean typed) {
+    @Override 
+    public String toString(boolean typed) {
         return "if " + conditionTerm.toString(typed) + " then "
                 + getSubModality(0).toString(typed) + 
                 (hasElseModality ? " else " + getSubModality(1).toString(typed) : "")
                 + " end";
     }
 
-    @Override public void visit(ModalityVisitor visitor) throws TermException {
+    @Override 
+    public void visit(ModalityVisitor visitor) throws TermException {
         visitor.visit(this);
     }
 
@@ -43,6 +45,28 @@ public class IfModality extends Modality {
             return getSubModality(1);
         else
             return null;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof IfModality) {
+            IfModality ifmod = (IfModality) object;
+            
+            if(hasElseModality != ifmod.hasElseModality)
+                return false;
+            
+            if(!getConditionTerm().equals(ifmod.getConditionTerm()))
+                return false;
+            
+            if(!getThenModality().equals(ifmod.getThenModality()))
+                return false;
+            
+            if(hasElseModality && !getElseModality().equals(ifmod.getElseModality()))
+                return false;
+            
+            return true;
+        }
+        return false;
     }
 
 }

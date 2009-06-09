@@ -8,8 +8,6 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.util.Collection;
-
 import de.uka.iti.pseudo.environment.Sort;
 
 public class TypeApplication extends Type {

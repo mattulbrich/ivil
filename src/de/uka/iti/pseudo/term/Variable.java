@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
+
 public class Variable extends Term {
 	
 	private String name;
@@ -32,5 +34,15 @@ public class Variable extends Term {
 	public String getName() {
 		return name;
 	}
+
+    @Override
+    public boolean equals(@NonNull Object object) {
+        if (object instanceof Variable) {
+            Variable v = (Variable) object;
+            return v.getName().equals(getName())
+                    && getType().equals(v.getType());
+        }
+        return false;
+    }
 
 }

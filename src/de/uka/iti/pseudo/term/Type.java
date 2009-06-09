@@ -8,13 +8,16 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.util.Collection;
+import nonnull.NonNull;
 
 public abstract class Type {
 
     public abstract Type visit(TypeVisitor visitor) throws TermException;
     
     @Override
-    public abstract String toString();
+    public abstract @NonNull String toString();
+    
+    @Override
+    public abstract boolean equals(@NonNull Object object);
 
 }

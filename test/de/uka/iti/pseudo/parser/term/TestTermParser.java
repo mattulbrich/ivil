@@ -23,11 +23,11 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 
 public class TestTermParser extends TestCase {
 
-    private static final String ENV_FILE = "test/de/uka/iti/pseudo/parser/term/parsertest.p";
+    private static final String ENV_FILE = "test/de/uka/iti/pseudo/testenv.p";
 
     private Environment env;
 
-    private static Environment loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
+    public static Environment loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
         FileParser fp = new FileParser();
         EnvironmentMaker em = new EnvironmentMaker(fp, new File(ENV_FILE));

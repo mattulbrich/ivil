@@ -8,7 +8,6 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.util.Collection;
 
 /*
  * Special type variables

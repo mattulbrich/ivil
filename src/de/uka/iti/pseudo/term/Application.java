@@ -63,6 +63,14 @@ public class Application extends Term {
         this.function = funct;
         typeCheck();
     }
+    
+    /**
+     * retrieve the top level symbol of this application
+     * @return the top level function symbol
+     */
+    public @NonNull Function getFunction() {
+        return function;
+    }
 
     /**
      * Type check this application term. This includes:
@@ -121,13 +129,30 @@ public class Application extends Term {
     @Override public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
-
-    /**
-     * retrieve the top level symbol of this application
-     * @return the top level function symbol
+    
+    /*
+     * This term is equal to another term if it is a Application
+     * and has the same function symbol and same arguments.
      */
-    public @NonNull Function getFunction() {
-        return function;
+    @Override 
+    public boolean equals(@NonNull Object object) {
+        if (object instanceof Application) {
+            Application app = (Application) object;
+            if(app.getFunction() != getFunction())
+                return false;
+            
+            if(!app.getType().equals(getType()))
+                return false;
+            
+            assert app.countSubterms() == countSubterms();
+            
+            for (int i = 0; i < countSubterms(); i++) {
+                if(!app.getSubterm(i).equals(getSubterm(i)))
+                    return false;
+            }
+            
+            return true;
+        }
+        return false;
     }
-
 }

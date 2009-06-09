@@ -16,4 +16,14 @@ public class CompoundModality extends Modality {
         visitor.visit(this);
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof CompoundModality) {
+            CompoundModality com = (CompoundModality) object;
+            return com.getSubModality(0).equals(getSubModality(0))
+                    && com.getSubModality(1).equals(getSubModality(1));
+        }
+        return false;
+    }
+
 }

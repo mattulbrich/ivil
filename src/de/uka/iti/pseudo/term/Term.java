@@ -58,6 +58,22 @@ public abstract class Term {
 	
 	public abstract String toString(boolean typed);
 	
+	/**
+     * The equality on terms is the syntactical identity.
+     * 
+     * Two terms are equal if and only if they are structually the same
+     * including their types, that is:<br>
+     * 
+     * <code>nil as List(int)</code> is not equal to
+     * <code>nil as List('a)</code> even if 'a might be instantiated to int.
+     * 
+     * @param object
+     *            an arbitrary object
+     * 
+     * @return true iff object is a term and structually equal to this term.
+     */
+	public abstract boolean equals(@NonNull Object object);
+	
 	public abstract void visit(TermVisitor visitor) throws TermException;
 
 	

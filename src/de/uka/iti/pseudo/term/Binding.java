@@ -30,6 +30,19 @@ public class Binding extends Term {
 		typeCheck();
 	}
 	
+	public String getVariableName() {
+        return variableName;
+    }
+
+    public Type getVariableType() {
+        return variableType;
+    }
+
+    public Binder getBinder() {
+        return binder;
+    }
+    
+	
 	private void typeCheck() throws TermException {
 
 		if(countSubterms() != binder.getArity()) {
@@ -78,18 +91,41 @@ public class Binding extends Term {
 		visitor.visit(this);
 	}
 
-	public String getVariableName() {
-		return variableName;
-	}
-
-	public Type getVariableType() {
-		return variableType;
-	}
-
-    public Binder getBinder() {
-        return binder;
+    /*
+     * This term is equal to another term if it is a Binding
+     * and has the same binder symbol and same arguments.
+     * 
+     * This method is not invariant to alpha renaming.
+     * 
+     * TODO implement alpha-invariance?
+     */
+    @Override 
+    public boolean equals(@NonNull Object object) {
+        if (object instanceof Binding) {
+            Binding bind = (Binding) object;
+            if(bind.getBinder() != getBinder())
+                return false;
+            
+            if(!bind.getType().equals(getType()))
+                return false;
+            
+            if(!bind.getVariableName().equals(getVariableName()))
+                return false;
+            
+            if(!bind.getVariableType().equals(getVariableType()))
+                return false;
+            
+            assert bind.countSubterms() == countSubterms();
+            
+            for (int i = 0; i < countSubterms(); i++) {
+                if(!bind.getSubterm(i).equals(getSubterm(i)))
+                    return false;
+            }
+            
+            return true;
+        }
+        return false;
     }
-	
 	
 
 

@@ -46,6 +46,14 @@ public class AssignModality extends Modality {
 
         check();
     }
+    
+    public Function getAssignedConstant() {
+        return assignedConstant;
+    }
+
+    public Term getAssignedTerm() {
+        return assignedTerm;
+    }
 
     /*
      * Check. correct term construction
@@ -74,12 +82,18 @@ public class AssignModality extends Modality {
         visitor.visit(this);
     }
 
-    public Function getAssignedConstant() {
-        return assignedConstant;
-    }
-
-    public Term getAssignedTerm() {
-        return assignedTerm;
+    /*
+     * This object is equal to another object if it is an assignment and assigned symbol
+     * and term are identical.
+     */
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof AssignModality) {
+            AssignModality mod = (AssignModality) object;
+            return mod.getAssignedConstant() == getAssignedConstant()
+                    && mod.getAssignedTerm().equals(getAssignedTerm());
+        }
+        return false;
     }
 
 }
