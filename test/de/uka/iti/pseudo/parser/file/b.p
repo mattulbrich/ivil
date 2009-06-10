@@ -7,4 +7,4 @@ function
         int c
 
 problem
-       { X(-a/b/c,a) }
+        X(-a/b/c,a)

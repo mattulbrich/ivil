@@ -20,7 +20,6 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -39,24 +38,16 @@ import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.CompoundModality;
-import de.uka.iti.pseudo.term.IfModality;
 import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.ModalityTerm;
-import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
-import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.WhileModality;
-import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 
 /**
  * This class has two purposes:
@@ -243,7 +234,6 @@ public class TermMaker extends ASTDefaultVisitor {
      */
     private Term resultTerm;
     private Type resultType;
-    private Modality resultModality;
 
     /**
      * The environment to use.

@@ -7,21 +7,66 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO DOC
+
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Rule encapsulates a logical rule with several elements:
+ * <ol>
+ * <li>Every rule has got a name.
+ * <li>a find clause (located term)
+ * <li>zero or more assumption clauses (located terms)
+ * <li>zero or more where clauses (side conditions)
+ * <li>one or more goal actions
+ * <li>zero or more named properties (in a string to string map)
+ * </li>
+ * 
+ * Rules are immutable objects.
+ * 
+ */
 public class Rule {
     
+    /**
+     * new line character for pretty printing
+     */
     private static final String NEWLINE = "\n";
     
+    /**
+     * The name of this rule
+     */
     private String name;
+    
+    /**
+     * The set of assumptions. no null in here.
+     */
     private LocatedTerm assumptions[];
+    
+    /**
+     * The find clause.
+     */
     private LocatedTerm findClause;
+    
+    /**
+     * The where clauses.
+     */
     private WhereClause whereClauses[];
+    
+    /**
+     * The goal actions. a non-empty array.
+     */
     private GoalAction goalActions[];
+    
+    /**
+     * The properties.
+     */
     private Map<String, String> properties;
 
+    /**
+     * The location.
+     */
     private ASTLocatedElement location;
     
     /**
@@ -37,33 +82,86 @@ public class Rule {
         return properties.get(string);
     }
 
+    /**
+     * Gets the name of this rule.
+     * 
+     * @return the name
+     */
     public String getName() {
         return name;
     }
     
+    /**
+     * Gets the location of the declaration of this rule.
+     * 
+     * @return the source location of this declaration.
+     */
     public ASTLocatedElement getDeclaration() {
         return location;
     }
 
+    /**
+     * Gets an immutable list of all assumptions.
+     * 
+     * @return the assumptions as list
+     */
     public List<LocatedTerm> getAssumptions() {
         return Util.readOnlyArrayList(assumptions);
     }
 
+    /**
+     * Gets the find clause.
+     * 
+     * @return the find clause
+     */
     public LocatedTerm getFindClause() {
         return findClause;
     }
 
+    /**
+     * Gets an immutable list of all where clauses.
+     * 
+     * @return the where clauses as list
+     */
     public List<WhereClause> getWhereClauses() {
         return Util.readOnlyArrayList(whereClauses);
     }
 
-    public GoalAction[] getGoalActions() {
-        return goalActions;
+    /**
+     * Gets an immutable list of all goal actions.
+     * 
+     * @return the goal actions as list
+     */
+    public List<GoalAction> getGoalActions() {
+        return Util.readOnlyArrayList(goalActions);
     }
 
-    public Rule(String name, List<LocatedTerm> assumes, LocatedTerm find,
-            List<WhereClause> wheres, List<GoalAction> actions,
-            Map<String, String> properties, ASTLocatedElement location)
+    /**
+     * Instantiates a new rule.
+     * 
+     * @param name
+     *            rule's name
+     * @param assumes
+     *            the assumptions
+     * @param find
+     *            the find clause
+     * @param wheres
+     *            the where clauses
+     * @param actions
+     *            the goal action, must not be the empty list
+     * @param properties
+     *            the properties
+     * @param location
+     *            the location of the declaration in the sources
+     * 
+     * @throws RuleException
+     *             if the elements do not compose a valid rule.
+     */
+    public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes, 
+            @NonNull LocatedTerm find, @NonNull List<WhereClause> wheres,
+            @NonNull List<GoalAction> actions, 
+            @NonNull Map<String, String> properties, 
+            @NonNull ASTLocatedElement location)
             throws RuleException {
         this.name = name;
         this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
@@ -76,17 +174,30 @@ public class Rule {
         checkRule();
     }
 
+    /*
+     * Check rule. raise an exception if the elements are not valid for a rule.
+     */
     private void checkRule() throws RuleException {
         // XXX rule checking!!
-        // ???
-        // e.g.: locations in assumes and finds
-        // closegoal is empty
-        // newgoal has no replace
-        // remove only if find is located 
-        // schema variables to always have same type
+        // closegoal is empty, newgoal has no replace : checked in GoalAction
+        // remove only if find is top level
+        for (GoalAction goalAction : getGoalActions()) {
+            if(goalAction.isRemoveOriginalTerm() && 
+               getFindClause().getMatchingLocation() == MatchingLocation.BOTH) {
+                throw new RuleException("Goal action contains remove element where find is not top level");
+            }
+        }
+        
+        if(getGoalActions().size() == 0)
+            throw new RuleException("Rule has no goal action");
+        
+        // schema variables to always have same type:
         RuleSchemaConsistencyChecker.check(this);
     }
     
+    /**
+     * Dump the rule to Stdout.
+     */
     public void dump() {
 
         System.out.println("  Rule " + name);
@@ -110,6 +221,14 @@ public class Rule {
         }
     }
     
+    /**
+     * Pretty print the rule using the term pretty printer into a string
+     * 
+     * @param env
+     *            the environment to lookup infix etc.
+     * 
+     * @return the rule as pretty printed string.
+     */
     public String prettyPrint(@NonNull Environment env) {
         StringBuilder sb = new StringBuilder();
         sb.append("rule ").append(getName()).append(NEWLINE);
@@ -145,7 +264,7 @@ public class Rule {
         return sb.toString();
     }
     
-    @Override public String toString() {
+    public String toString() {
         return "Rule[" + name + "]";
     }
 

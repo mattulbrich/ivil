@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTFile extends ASTElement {
@@ -25,11 +26,16 @@ public class ASTFile extends ASTElement {
 	
 	private ASTTerm problemTerm;
 
-	public ASTFile(List<ASTDeclarationBlock> blocks, ASTTerm problem) {
+    private ASTStatementList program;
+
+	public ASTFile(List<ASTDeclarationBlock> blocks, ASTStatementList program, ASTTerm problem) {
 		this.declarationBlocks = blocks;
 		this.problemTerm = problem;
+		this.program = program;
 		
 		addChildren(blocks);
+		if(program != null)
+		    addChild(program);
 		if(problem != null)
 			addChild(problem);
 	}
@@ -54,5 +60,9 @@ public class ASTFile extends ASTElement {
 	public Token getLocationToken() {
 		return null;
 	}
+
+    public ASTStatementList getProgram() {
+        return program;
+    }
 
 }

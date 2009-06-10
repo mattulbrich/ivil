@@ -20,16 +20,12 @@ import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
-import de.uka.iti.pseudo.parser.term.ASTType;
-import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
@@ -42,7 +38,6 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
      * Results of various types are transferred during traversal using the
      * following fields:
      */
-    private Type resultingTypeRef;
     private Term resultingTerm;
     private MatchingLocation resultingMatchingLocation;
     private WhereClause resultingWhereclause;
@@ -63,6 +58,14 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
             child.visit(this);
         }
     }
+    
+    /*
+     * Terms
+     */
+    protected void visitDefaultTerm(ASTTerm arg) throws ASTVisitException {
+        resultingTerm = TermMaker.makeTerm(arg, env);
+    }
+
     
     /*
      * collect all information for a rule definition and define it in env.
@@ -228,9 +231,9 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * Type application
      */
-    public void visit(ASTType arg) throws ASTVisitException {
+    /*public void visit(ASTType arg) throws ASTVisitException {
         resultingTypeRef = TermMaker.makeType(arg, env);
-    }
+    }*/
 
     /*
      * transform a ASTTerm to a Term.

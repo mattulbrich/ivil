@@ -55,19 +55,19 @@ public class TestFileParser extends TestCase {
     
     public void testRules() throws Exception {
         // no replace in newgoals (was a bug) 
-        assertEnvFail("rule something find {%a} newgoal replace {%b}");
-        assertEnvFail("rule something find {1} assume {%b} |- samegoal replace {%b+1}");
+        assertEnvFail("rule something find %a newgoal replace %b");
+        assertEnvFail("rule something find 1 assume %b |- samegoal replace %b+1");
     }
     
     public void testFindReplaceSameType() throws Exception {
-        assertEnvFail("rule something find {1} newgoal replace {true}");
+        assertEnvFail("rule something find 1 newgoal replace true");
         
-        Environment e = testEnv("rule something find {1} samegoal replace {%a}");
+        Environment e = testEnv("rule something find 1 samegoal replace %a");
     }
     
     // due to problems with cuts
     public void testGoalActionNaming() throws Exception {
-        Environment e = testEnv("rule something find {1} samegoal \"actionname\" replace {2}");
+        Environment e = testEnv("rule something find 1 samegoal \"actionname\" replace 2");
         assertEquals("actionname", e.getRule("something").getGoalActions()[0].getName());
         
     }

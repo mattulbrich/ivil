@@ -11,7 +11,9 @@ import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFileDefaultVisitor;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
+import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
@@ -160,10 +162,10 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
     }
     
     /*
-     * Type application
+     * Types
      */
-    public void visit(ASTType arg) throws ASTVisitException {
+    public void visitDefaultType(ASTType arg) throws ASTVisitException {
         resultingTypeRef = TermMaker.makeType(arg, env);
     }
-
+    
 }

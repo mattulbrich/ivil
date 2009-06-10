@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.rule;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
@@ -27,7 +28,7 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
      * @param term the term
      * @param matchingLocation the matching location
      */
-    public LocatedTerm(Term term, MatchingLocation matchingLocation) {
+    public LocatedTerm(@NonNull Term term, @NonNull MatchingLocation matchingLocation) {
         super(term, matchingLocation);
     }
 

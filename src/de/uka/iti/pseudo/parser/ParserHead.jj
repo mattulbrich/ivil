@@ -16,7 +16,7 @@ package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
-// import de.uka.iti.pseudo.parser.program.*;
+import de.uka.iti.pseudo.parser.program.*;
 
 import java.util.*;
 import java.io.File;
@@ -53,14 +53,13 @@ public class Parser {
     }
     
     
-    /*
-    public ASTTerm parseProgram() throws ParseException 
-    {
-        ASTProgram term = Program();
-        term.setFilename(fileName);
-        return term;
+    public ASTStatementList parseProgram(Reader reader, String filename) throws ParseException
+    {  
+        ReInit(reader);
+        ASTStatementList statementList = StatementList();
+        statementList.setFilename(filename);
+        return statementList;
     }
-    */
     
 }
 
@@ -85,8 +84,10 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 // Finally a rule is needed to mop up all the other characters in the comment.
 < COMMENT >  SKIP : {  < ~[] > }
 
+< DEFAULT > SKIP : {  "`" : PROTECTED }
+< PROTECTED > SKIP : { "`" : DEFAULT } 
 
-SKIP :
+< DEFAULT, PROTECTED > SKIP :
 {
   " "
 | "\t"
@@ -95,13 +96,12 @@ SKIP :
 | <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 }
 
-TOKEN :
+< DEFAULT > TOKEN :
 {
-
-// file parser
+// file parser, only in DEFAULT mode
   < ADD: "add" >
 | < ASSIGNABLE: "assignable" >
-| < ASSUME: "assume" >
+// assume is listed below
 | < BINDER: "binder" >
 | < CLOSE: "closegoal" >
 | < DESCRIPTION: "description" >
@@ -112,6 +112,7 @@ TOKEN :
 | < NEWGOAL: "newgoal" >
 | < PREFIX: "prefix" >
 | < PROBLEM: "problem" >
+| < PROGRAM: "program" >
 | < REMOVE: "remove" >
 | < REPLACE: "replace" >
 | < RULE: "rule" >
@@ -120,9 +121,12 @@ TOKEN :
 | < TAGS: "tags" >
 | < UNIQUE: "unique" >
 | < WHERE: "where" >
+}
 
-// Logics
-| < LEFTPAREN: "(" >
+< DEFAULT, PROTECTED > TOKEN :
+{
+// Logics tokens are visible also in protected mode
+  < LEFTPAREN: "(" >
 | < RIGHTPAREN: ")" >
 | < LEFTSQUARE: "[" >
 | < LEFTDSQUARE: "[[" >
@@ -135,7 +139,7 @@ TOKEN :
 | < SEP: "|-" >
 
 // Programs
-// "assume" see above
+| < ASSUME: "assume" >
 | < ASSERT: "assert" >
 | < GOTO: "goto" >
 | < HAVOC: "havoc" >
@@ -156,7 +160,7 @@ TOKEN :
 | < SCHEMAMOD_IDENTIFIER: "&" <IDENTIFIER> >
 | < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
 | < META_IDENTIFIER: "$$" <IDENTIFIER> >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^","}","{"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
 }

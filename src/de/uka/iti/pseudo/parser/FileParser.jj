@@ -11,6 +11,7 @@ ASTFile File():
   ASTDeclarationBlock block;
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
   ASTTerm problem = null;
+  ASTStatementList program = null;
 }
 {      (
         ( block=IncludeDeclarationBlock()
@@ -21,11 +22,13 @@ ASTFile File():
         )   { blocks.add(block); }
        )*
        
+       ( "program" program=StatementList() )?
+       
        ( "problem" problem=Term() )?
        
        <EOF>
        
-   { return new ASTFile(blocks, problem); }
+   { return new ASTFile(blocks, program, problem); }
 }
 
 ASTIncludeDeclarationBlock IncludeDeclarationBlock():
@@ -223,8 +226,9 @@ ASTWhereClause WhereClause(Token headToken):
 }
 {
        t=<IDENTIFIER>
-       ( term=Term() { args.add(term); } 
-         ( "," term=Term() { args.add(term); } )*
-       )?
+       ( "(" 
+             term=Term() { args.add(term); } 
+             ( "," term=Term() { args.add(term); } )*
+         ")" )?
        { return new ASTWhereClause(headToken, t, args); }   
 }

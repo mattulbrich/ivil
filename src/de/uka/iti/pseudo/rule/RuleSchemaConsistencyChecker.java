@@ -1,14 +1,20 @@
 package de.uka.iti.pseudo.rule;
 
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.environment.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SchemaCollectorVisitor;
 
-// TODO Documentation needed
-@Deprecated
-public class RuleSchemaConsistencyChecker extends SchemaCollectorVisitor {
+/**
+ * Check whether all appearences of schema variables have the same type in a rule.
+ * 
+ * This should not fail if the rule is parsed and not created manually.
+ *  
+ * @see EnvironmentTypingResolver
+ * @see Rule
+ */
+class RuleSchemaConsistencyChecker extends SchemaCollectorVisitor {
 
     public static void check(Rule rule) throws RuleException {
         try {
@@ -37,11 +43,7 @@ public class RuleSchemaConsistencyChecker extends SchemaCollectorVisitor {
             throw new RuleException("Inconsitency in typing of schema variables", e);
         }
     }
-    
-    public void visit(SchemaModality schemaModality) throws TermException {
-        super.visit(schemaModality);
-    }
-    
+      
     public void visit(SchemaVariable schemaVariable) throws TermException {
         for (SchemaVariable sv : getSchemaVariables()) {
             if(sv.getName().equals(schemaVariable.getName()) && !sv.getType().equals(schemaVariable.getType()))

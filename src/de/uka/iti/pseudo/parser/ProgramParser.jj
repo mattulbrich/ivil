@@ -17,7 +17,7 @@ ASTStatementList StatementList():
 ASTStatement LabeledStatement():
 {
 	Token label;
-	Statement st;
+	ASTStatement st;
 }
 {
 	LOOKAHEAD(2)
@@ -31,23 +31,24 @@ ASTStatement LabeledStatement():
 ASTStatement Statement():
 {
 	ASTTerm term;
-	Token t;
+	Token kw, t;
 	List<Token> targets = new LinkedList<Token>();
 }
 {
-	  "assert" term=Term() { return new ASTAssertStatement(term); }
-	| "assume" term=Term() { return new ASTAssumeStatement(term); }
-	| "end" term=Term() { return new ASTEndStatement(term); }
-	| "skip_loopinv" term=Term() { return new ASTSkipStatement(term); }
-	| "skip" { return new ASTSkipStatement(); }
+	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
+	| kw="assume" term=Term() { return new ASTAssumeStatement(kw, term); }
+	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
+	| kw="skip_loopinv" term=Term() { return new ASTSkipStatement(kw, term); }
+	| kw="skip" { return new ASTSkipStatement(kw); }
 	| t=<IDENTIFIER> ":=" term=Term() { return new ASTAssignmentStatement(t, term); }
-	| "goto" targets=Goto_Targets()
-	     { return new ASTGotoStatement(targets); }
+	| kw="goto" targets=Goto_Targets()
+	     { return new ASTGotoStatement(kw, targets); }
 }
 
 List<Token> Goto_Targets():
 {
     List<Token> targets = new LinkedList<Token>();
+    Token t;
 }
 {
     (t=<IDENTIFIER>|t=<NATURAL>)

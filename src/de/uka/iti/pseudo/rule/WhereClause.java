@@ -1,8 +1,6 @@
 package de.uka.iti.pseudo.rule;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -11,10 +9,10 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC l8er
+// TODO is this fix now?
 
 public class WhereClause {
     

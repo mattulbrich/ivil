@@ -12,10 +12,10 @@ ASTTerm Term():
 {
 
         ( term=OpIdentifier() { list.add(term); } )*
-        term=ModalityTerm() { list.add(term); }
+        term=AsTerm() { list.add(term); }
         (
           ( term=OpIdentifier() { list.add(term); } )+
-          term=ModalityTerm() { list.add(term); }
+          term=AsTerm() { list.add(term); }
         )*
    { 
      if(list.size() > 1)
@@ -23,19 +23,6 @@ ASTTerm Term():
      else
         return list.get(0);
    }
-}
-
-ASTTerm ModalityTerm():
-{
-  ASTNumberLiteralTerm position;
-  ASTStatement statement = null;
-}
-{
-       ( "[" position=NumberLiteral() ( ":" statement=Statement() )? "]" 
-           { return new ASTProgramTerm(false, position, statement); } )
-           
-    |  ( "[[" position=NumberLiteral() ( ":" statement=Statement() )? "]]"
-           { return new ASTProgramTerm(true, position, statement); } )
 }
 
 ASTTerm AsTerm():
@@ -63,8 +50,22 @@ ASTTerm BaseTerm():
         | term=ApplicationTerm()
         | term=SchemaVariable()
         | term=NumberLiteral()
+        | term=ModalityTerm()
         )
         { return term; }
+}
+
+ASTTerm ModalityTerm():
+{
+  ASTNumberLiteralTerm position;
+  ASTStatement statement = null;
+}
+{
+       ( "[" position=NumberLiteral() ( ":" statement=Statement() )? "]" 
+           { return new ASTProgramTerm(false, position, statement); } )
+           
+    |  ( "[[" position=NumberLiteral() ( ":" statement=Statement() )? "]]"
+           { return new ASTProgramTerm(true, position, statement); } )
 }
 
 ASTBinderTerm BinderTerm():

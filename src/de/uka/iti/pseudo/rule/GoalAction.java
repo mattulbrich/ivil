@@ -20,6 +20,8 @@ import de.uka.iti.pseudo.util.Util;
  * The Class GoalAction encapsulates a list of action to take on a goal. Such an
  * action can start a new goal, copy the current goal or close the current goal.
  * 
+ * Goal actions are immutable.
+ * 
  * An action may contain a replace item and several add items for the antecedent
  * and for the succedent.
  * 

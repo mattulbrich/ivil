@@ -3,15 +3,18 @@ package de.uka.iti.pseudo.environment;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TypingContext;
+import de.uka.iti.pseudo.term.creation.TypingResolver;
 
 /**
  * Resolve types in terms that appear in rules.
@@ -23,28 +26,57 @@ import de.uka.iti.pseudo.term.creation.TypingContext;
 public class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
     private Environment env;
-    private TypingContext typingContext = new TypingContext();
+    private TypingResolver typingResolver;
     private Type currentFindRawType;
 
     public EnvironmentTypingResolver(Environment env) {
         this.env = env;
+        typingResolver = new TypingResolver(env, new TypingContext());
     }
 
+    /*
+     * this is depth visiting
+     */
     protected void visitDefault(ASTElement arg)
             throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
         }
     }
+    
+    protected void visitDefaultTerm(ASTTerm arg) throws ASTVisitException {
+        arg.visit(typingResolver);
+    }
+    
+    public void visit(ASTFile arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        // if there is a problem in the file, the current typing context is the one
+        // of the problem term (because problems are last in a file)
+        ASTTerm problemTerm = arg.getProblemTerm();
+        if(problemTerm != null) {
+            try {
+                TypingContext typingContext = typingResolver.getTypingContext();
+                typingContext.solveConstraint(problemTerm.getTyping().getRawType(), Environment.getBoolType());
+            } catch (UnificationException e) {
+                throw new ASTVisitException("Problem terms must habe type boolean.", arg, e);
+            }
+        }
+    }
 
     public void visit(ASTRule arg) throws ASTVisitException {
         super.visit(arg);
         
-        // XXX make find and replace have same type
-        
-        // reset context for next rule / problem
-        typingContext = new TypingContext(); 
+        // reset context for next rule / program / problem
+        typingResolver = new TypingResolver(env, new TypingContext()); 
         currentFindRawType = null;
+    }
+    
+    public void visit(ASTStatementList arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        // reset context for the problem
+        typingResolver = new TypingResolver(env, new TypingContext()); 
     }
     
     public void visit(ASTRuleFind arg) throws ASTVisitException {
@@ -59,6 +91,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         assert currentFindRawType != null;
         Type rawType = arg.getTerm().getTyping().getRawType();
         try {
+            TypingContext typingContext = typingResolver.getTypingContext();
             typingContext.solveConstraint(currentFindRawType, rawType);
         } catch (UnificationException e) {
             throw new ASTVisitException("Replace terms must have same type as find term", arg, e);
@@ -71,8 +104,10 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
         ASTTerm term = arg.getTerm();
         term.visit(this);
+        
         if(arg.getMatchingLocation() != MatchingLocation.BOTH) {
             try {
+                TypingContext typingContext = typingResolver.getTypingContext();
                 typingContext.solveConstraint(Environment.getBoolType(), 
                         term.getTyping().getRawType());
             } catch (UnificationException e) {

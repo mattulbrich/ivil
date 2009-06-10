@@ -148,7 +148,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 return "branch " + (index+1);
             
             Rule rule = appliedRuleApp.getRule();
-            GoalAction ga = rule.getGoalActions()[index];
+            GoalAction ga = rule.getGoalActions().get(index);
             String actionName = ga.getName();
             
             TermInstantiator termInst = new TermInstantiator(appliedRuleApp);
