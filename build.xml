@@ -37,7 +37,7 @@
       <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
-<!--      <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> -->
+      <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
     </concat>
     <exec executable="javacc">
       <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>

@@ -222,7 +222,9 @@ ASTWhereClause WhereClause(Token headToken):
 	List<ASTTerm> args = new ArrayList<ASTTerm>();
 }
 {
-	   t=<IDENTIFIER>
-	   ( term=Term() { args.add(term); } )*
-       { return new ASTWhereClause(headToken, t, args); }	   
+       t=<IDENTIFIER>
+       ( term=Term() { args.add(term); } 
+         ( "," term=Term() { args.add(term); } )*
+       )?
+       { return new ASTWhereClause(headToken, t, args); }   
 }

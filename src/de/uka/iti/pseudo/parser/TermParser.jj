@@ -28,14 +28,14 @@ ASTTerm Term():
 ASTTerm ModalityTerm():
 {
   ASTNumberLiteralTerm position;
-  // ASTStatement statement = null;
+  ASTStatement statement = null;
 }
 {
-       ( "[" position=NumberLiteral() // ( ":" statement=Statement() )? "]" 
-           { return new ASTProgramTerm(false, position/*, statement*/); } )
+       ( "[" position=NumberLiteral() ( ":" statement=Statement() )? "]" 
+           { return new ASTProgramTerm(false, position, statement); } )
            
-    |  ( "[[" position=NumberLiteral() // ( ":" statement=Statement() )? "]]"
-           { return new ASTProgramTerm(true, position/*, statement*/); } )
+    |  ( "[[" position=NumberLiteral() ( ":" statement=Statement() )? "]]"
+           { return new ASTProgramTerm(true, position, statement); } )
 }
 
 ASTTerm AsTerm():
@@ -92,7 +92,7 @@ ASTType TypeRef():
 }
 {
 		token = <IDENTIFIER>
-		(
+		( LOOKAHEAD(2) // a binder declaration may follow, but has a binder-identifier next
 		  "(" ty=TypeRef() { args.add(ty); }
 		  		( "," ty=TypeRef() { args.add(ty); } )*
 		  ")"

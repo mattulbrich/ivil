@@ -1,0 +1,61 @@
+
+//
+// This file contains partial parser defition for programs only
+//
+
+
+ASTStatementList StatementList():
+{
+	List<ASTStatement> list = new ArrayList<ASTStatement>();
+	ASTStatement st;
+}
+{
+	( st=LabeledStatement() { list.add(st); } )+
+	{ return new ASTStatementList(list); }
+}
+
+ASTStatement LabeledStatement():
+{
+	Token label;
+	Statement st;
+}
+{
+	LOOKAHEAD(2)
+	  ( label = <IDENTIFIER> ":" st=Statement() 
+	     { return new ASTLabeledStatement(label, st); }
+	  )
+	|
+	  ( st=Statement() { return st; } )
+}
+
+ASTStatement Statement():
+{
+	ASTTerm term;
+	Token t;
+	List<Token> targets = new LinkedList<Token>();
+}
+{
+	  "assert" term=Term() { return new ASTAssertStatement(term); }
+	| "assume" term=Term() { return new ASTAssumeStatement(term); }
+	| "end" term=Term() { return new ASTEndStatement(term); }
+	| "skip_loopinv" term=Term() { return new ASTSkipStatement(term); }
+	| "skip" { return new ASTSkipStatement(); }
+	| t=<IDENTIFIER> ":=" term=Term() { return new ASTAssignmentStatement(t, term); }
+	| "goto" targets=Goto_Targets()
+	     { return new ASTGotoStatement(targets); }
+}
+
+List<Token> Goto_Targets():
+{
+    List<Token> targets = new LinkedList<Token>();
+}
+{
+    (t=<IDENTIFIER>|t=<NATURAL>)
+    { targets.add(t); }
+    
+    ( "," 
+      (t=<IDENTIFIER>|t=<NATURAL>)
+        { targets.add(t); }
+    )*
+    { return targets; }
+}

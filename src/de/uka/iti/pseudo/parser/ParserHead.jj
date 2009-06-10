@@ -140,6 +140,8 @@ TOKEN :
 | < GOTO: "goto" >
 | < HAVOC: "havoc" >
 | < END: "end" >
+| < _SKIP: "skip" >
+| < SKIP_LOOP_INV: "skip_loopinv" >
 | < ASSIGN: ":=" >
 
 // Literals
