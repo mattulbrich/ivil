@@ -98,13 +98,13 @@ ASTTerm ProgramTerm():
 
 ASTProgramTerm ProgramTerm_Content(boolean termination):
 {
-  ASTNumberLiteralTerm position;
+  Token position;
   ASTStatement statement = null;
   ASTProgramUpdate up;
   List<ASTProgramUpdate> list = new LinkedList<ASTProgramUpdate>();
 }
 {
-       ( position=NumberLiteral()
+       ( t = <NATURAL> | t = <SCHEMA_IDENTIFIER> )
        | 
        
        ( ":" statement=Statement() )? "]" 

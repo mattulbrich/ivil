@@ -22,13 +22,14 @@ import de.uka.iti.pseudo.parser.program.ASTStatement;
 public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
+    private Token positionToken;
     
-    public ASTProgramTerm(boolean terminating, ASTNumberLiteralTerm position,
+    public ASTProgramTerm(boolean terminating, Token position,
             ASTStatement statement) {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
+        this.positionToken = position;
         
-        super.addChild(position);
         if(statement != null)
             super.addChild(statement);
     }
@@ -40,7 +41,7 @@ public class ASTProgramTerm extends ASTTerm {
 
     @Override
 	public Token getLocationToken() {
-    	return getChildren().get(0).getLocationToken();
+    	return positionToken;
 	}
     
     public boolean isTerminating() {
@@ -48,12 +49,12 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     /*
-     * statement is optionally there as second child element 
+     * statement is optionally there as first child element 
      */
     public @Nullable ASTStatement getStatement() {
         List<ASTElement> children = getChildren();
         if(children.size() > 0)
-            return (ASTStatement) children.get(1);
+            return (ASTStatement) children.get(0);
         else
             return null;
     }
