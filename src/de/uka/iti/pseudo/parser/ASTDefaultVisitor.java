@@ -26,21 +26,26 @@ import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatementList;
-import de.uka.iti.pseudo.parser.program.ASTUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTLiteralLabel;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramMatchTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramNormalTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
+import de.uka.iti.pseudo.parser.term.ASTSchemaLabel;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 
 /**
  * Default implementation of the {@link ASTVisitor} interface which delegates
@@ -130,6 +135,15 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         visitDefaultTerm(arg);
     }
     
+
+    public void visit(ASTProgramMatchTerm arg) throws ASTVisitException {
+        visitDefaultTerm(arg);
+    }
+
+    public void visit(ASTProgramNormalTerm arg) throws ASTVisitException {
+        visitDefaultTerm(arg);
+    }
+
     //
     // types call visitDefaultType
     //
@@ -249,5 +263,18 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTStatementList arg) throws ASTVisitException {
         visitDefault(arg);
     }
+    
+    public void visit(ASTLiteralLabel arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
 
+    public void visit(ASTProgramUpdate arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    public void visit(ASTSchemaLabel arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    
 }

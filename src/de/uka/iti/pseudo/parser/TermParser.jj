@@ -27,19 +27,17 @@ ASTTerm Term():
 
 ASTTerm UpdateTerm():
 {
-  ASTAssignmentStatement assignment;
-  Token t;
   ASTTerm term;
-  List<ASTAssignmentStatement> assignments = new ArrayList<ASTAssignmentStatement>();
+  List<ASTAssignmentStatement> assignments;
 }
 {
-         "{" assignments=UpdateList() "}" term=UpdateTerm() 
+         "{" assignments=UpdateTerm_List() "}" term=UpdateTerm() 
             { return new ASTUpdateTerm(assignments, term); }
        | term=AsTerm()
             { return term; }
 }
 
-List<ASTAssignmentStatement> UpdateList():	 
+List<ASTAssignmentStatement> UpdateTerm_List():	 
 {
   Token t;
   ASTTerm term;
@@ -98,17 +96,31 @@ ASTTerm ProgramTerm():
 
 ASTProgramTerm ProgramTerm_Content(boolean termination):
 {
-  Token position;
-  ASTStatement statement = null;
+  ASTProgramLabel position;
+  Token t;
+  boolean incremented = false;
+  ASTStatement matchStatement = null, st;
   ASTProgramUpdate up;
   List<ASTProgramUpdate> list = new LinkedList<ASTProgramUpdate>();
 }
 {
-       ( t = <NATURAL> | t = <SCHEMA_IDENTIFIER> )
-       | 
+       ( t=<NATURAL> 
+           { position=new ASTLiteralLabel(t); } 
+       | t=<SCHEMALABEL_IDENTIFIER>
+          ( "++" { incremented = true; } )?
+           { position=new ASTSchemaLabel(t, incremented); }
+       )
        
-       ( ":" statement=Statement() )? "]" 
-           { return new ASTProgramTerm(termination, position, statement); } )
+       // never have both!
+       ( 
+         ":" matchStatement=Statement()
+           { return new ASTProgramMatchTerm(position, termination, matchStatement); } 
+       |      
+         ( "||" t=<NATURAL> ":=" st=Statement() 
+           { list.add(new ASTProgramUpdate(new ASTLiteralLabel(t), st)); } )+
+       )?
+       
+       { return new ASTProgramNormalTerm(position, termination, list); }
 }
 
 ASTBinderTerm BinderTerm():

@@ -155,6 +155,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < _SKIP: "skip" >
 | < SKIP_LOOP_INV: "skip_loopinv" >
 | < ASSIGN: ":=" >
+| < INCREMENT: "++" >
 
 // Literals
 | < STRING: "\"" ( ~["\""] )* "\"" >
@@ -165,7 +166,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
 | < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
-| < SCHEMAMOD_IDENTIFIER: "&" <IDENTIFIER> >
+| < SCHEMALABEL_IDENTIFIER: "&" <IDENTIFIER> >
 | < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
 | < META_IDENTIFIER: "$$" <IDENTIFIER> >
 | < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^","}","{"] )+ >
