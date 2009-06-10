@@ -388,9 +388,11 @@ public class TermMaker extends ASTDefaultVisitor {
 
     }
 
-    public void visit(ASTProgramTerm modalityTerm) throws ASTVisitException {
+    public void visit(ASTProgramTerm programTerm) throws ASTVisitException {
 
-        // FIXME
+        
+        
+        // FIXME FIXME
         throw new Error("FIXME");
         
     }

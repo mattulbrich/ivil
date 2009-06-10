@@ -50,23 +50,32 @@ ASTTerm BaseTerm():
         | term=ApplicationTerm()
         | term=SchemaVariable()
         | term=NumberLiteral()
-        | term=ModalityTerm()
+        | term=ProgramTerm()
         )
         { return term; }
 }
 
-ASTTerm ModalityTerm():
+ASTTerm ProgramTerm():
 {
-  ASTNumberLiteralTerm position;
+  Token position;
   ASTStatement statement = null;
 }
 {
-       ( "[" position=NumberLiteral() ( ":" statement=Statement() )? "]" 
+       ( "[" position=ProgramTerm_Position() ( ":" statement=Statement() )? "]" 
            { return new ASTProgramTerm(false, position, statement); } )
            
-    |  ( "[[" position=NumberLiteral() ( ":" statement=Statement() )? "]]"
+    |  ( "[[" position=ProgramTerm_Position() ( ":" statement=Statement() )? "]]"
            { return new ASTProgramTerm(true, position, statement); } )
 }
+
+Token ProgramTerm_Position():
+{
+	Token t; 
+}
+{
+	( t = <NATURAL> | t = <SCHEMA_IDENTIFIER> )
+	{ return t; }
+} 
 
 ASTBinderTerm BinderTerm():
 {

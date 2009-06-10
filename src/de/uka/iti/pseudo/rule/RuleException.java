@@ -9,7 +9,6 @@
 
 package de.uka.iti.pseudo.rule;
 
-
 /**
  * RuleExceptions are thrown when something goes wrong in the construction or
  * application of rules.
