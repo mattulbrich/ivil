@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatementList;
+import de.uka.iti.pseudo.parser.program.ASTUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -122,6 +123,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     public void visit(ASTProgramTerm arg) throws ASTVisitException {
+        visitDefaultTerm(arg);
+    }
+    
+    public void visit(ASTUpdateTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
     

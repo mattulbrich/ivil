@@ -26,35 +26,35 @@ binder
  *)
   
 rule plus_zero
-  find { %a + 0 }
-  replace { %a } 
+  find %a + 0
+  replace %a 
 
 rule zero_plus
-  find { 0 + %a }
-  replace { %a } 
+  find 0 + %a
+  replace %a 
 
 rule plus_assoc1
-  find { %a + (%b + %c) }
-  replace { %a + %b + %c }
+  find %a + (%b + %c)
+  replace %a + %b + %c
 
 rule plus_assoc2
-  find { %a + %b + %c }
-  replace { %a + (%b + %c) }
+  find %a + %b + %c
+  replace %a + (%b + %c)
 
 rule plus_comm
-  find { %a + %b }
-  replace { %b + %a }
+  find %a + %b
+  replace %b + %a
 
 rule minus_is_plus
-  find { %a - %b }
-  replace { %a + (-%b) }
+  find %a - %b
+  replace %a + (-%b)
 
 (*
  * Rules concerning * and /
  *)
 rule times_one
-  find { 1 * %a }
-  replace { %a }
+  find 1 * %a
+  replace %a
 
 
 (*
@@ -62,28 +62,28 @@ rule times_one
  *)
 
 rule gte_to_gt
-  find { %a >= %b }
-  replace { %a > %b | %a = %b }
+  find %a >= %b
+  replace %a > %b | %a = %b
 
 rule lte_to_gt
-  find { %a <= %b }
-  replace { %a < %b | %a = %b }
+  find %a <= %b
+  replace %a < %b | %a = %b
 
 rule gt_to_lt
-  find { %a > %b }
-  replace { %b < %a }
+  find %a > %b
+  replace %b < %a
 
 rule gt_minus_one
-  find { %a + (-1) >= %b }
-  replace { %a > %b }
+  find %a + (-1) >= %b
+  replace %a > %b
 
 (*
  * Handling expressions with only literals
  *)
 
 rule resolve_int_literals
-  find { %t }
+  find %t
   where
-    canEval { $$intEval(%t) }
+    canEval($$intEval(%t))
   samegoal
-    replace { $$intEval(%t) }
+    replace $$intEval(%t)

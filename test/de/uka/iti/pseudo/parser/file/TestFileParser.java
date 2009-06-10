@@ -36,6 +36,10 @@ public class TestFileParser extends TestCase {
             System.out.println(e.getMessage());
         }
     }
+    
+    public void testIntLoadable() throws Exception {
+        testEnv("include \"$int.p\"");
+    }
 
     public void testPolymorphSorts() throws Exception {
         Environment env = testEnv("sort poly('a, 'b)");
@@ -53,6 +57,12 @@ public class TestFileParser extends TestCase {
         assertEnvFail("sort S('a) function S('a) f assignable");
     }
     
+    // from syntax errors
+    public void testRules2() throws Exception {
+        testEnv("function int f(int) rule r find f(0)=0 |- samegoal replace 1=f(1) as int");
+        testEnv("problem arb=1");
+    }
+    
     public void testRules() throws Exception {
         // no replace in newgoals (was a bug) 
         assertEnvFail("rule something find %a newgoal replace %b");
@@ -68,8 +78,12 @@ public class TestFileParser extends TestCase {
     // due to problems with cuts
     public void testGoalActionNaming() throws Exception {
         Environment e = testEnv("rule something find 1 samegoal \"actionname\" replace 2");
-        assertEquals("actionname", e.getRule("something").getGoalActions()[0].getName());
-        
+        assertEquals("actionname", e.getRule("something").getGoalActions().get(0).getName());
+    }
+    
+    public void testProtectedProduction() throws Exception {
+        testEnv("function `int function(int)` rule `find` find `function(0)` samegoal replace `function(1) as int`");
+        testEnv("problem `1` `` ` =1`");
     }
 
     

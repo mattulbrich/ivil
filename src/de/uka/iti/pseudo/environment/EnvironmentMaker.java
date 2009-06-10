@@ -138,7 +138,7 @@ public class EnvironmentMaker {
 
 
     /*
-     * convert the AST term problem description to a real term obejct.
+     * convert the AST term problem description to a real term object.
      */
     private void doProblem(ASTFile astFile) throws ASTVisitException {
         ASTTerm term = astFile.getProblemTerm();

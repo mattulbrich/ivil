@@ -23,21 +23,27 @@ public class ASTFile extends ASTElement {
 	protected final static boolean DEBUG = false;
 
 	private List<ASTDeclarationBlock> declarationBlocks;
-	
-	private ASTTerm problemTerm;
 
-    private ASTStatementList program;
+	// do not store program and problem here in persona
+	// problem may be replaced if it is a fix expression.
+	// -1 indicates not present
+	private int programIndex = -1;
+	private int problemIndex = -1;
 
 	public ASTFile(List<ASTDeclarationBlock> blocks, ASTStatementList program, ASTTerm problem) {
 		this.declarationBlocks = blocks;
-		this.problemTerm = problem;
-		this.program = program;
 		
 		addChildren(blocks);
-		if(program != null)
+		
+		if(program != null) {
+		    programIndex = getChildren().size();
 		    addChild(program);
-		if(problem != null)
+		}
+		
+		if(problem != null) {
+		    problemIndex = getChildren().size();
 			addChild(problem);
+		}
 	}
 
 	public void visit(ASTVisitor v) throws ASTVisitException{
@@ -53,7 +59,7 @@ public class ASTFile extends ASTElement {
 	}
 
 	public ASTTerm getProblemTerm() {
-		return problemTerm;
+	    return (ASTTerm) (problemIndex > 0 ? getChildren().get(problemIndex) : null);
 	}
 	
 	@Override
@@ -62,7 +68,7 @@ public class ASTFile extends ASTElement {
 	}
 
     public ASTStatementList getProgram() {
-        return program;
+        return (ASTStatementList) (programIndex > 0 ? getChildren().get(programIndex) : null);
     }
 
 }

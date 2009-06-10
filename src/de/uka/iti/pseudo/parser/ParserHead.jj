@@ -61,6 +61,12 @@ public class Parser {
         return statementList;
     }
     
+    private void generateParserException(int[] expectedSequence) throws ParseException
+    {
+        int expected[][] = { expectedSequence };
+        throw new ParseException(token, expected, tokenImage);
+    }
+    
 }
 
 PARSER_END(Parser)
@@ -129,11 +135,13 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
   < LEFTPAREN: "(" >
 | < RIGHTPAREN: ")" >
 | < LEFTSQUARE: "[" >
-| < LEFTDSQUARE: "[[" >
 | < RIGHTSQUARE: "]" >
+| < LEFTCURLY: "{" >
+| < RIGHTCURLY: "}" >
+| < LEFTDSQUARE: "[[" >
 | < RIGHTDSQUARE: "]]" >
 | < COMMA: "," >
-| < SEMICOLON: ";" >
+| < PARALLEL: "||" >
 | < COLON: ":" >
 | < AS: "as" >
 | < SEP: "|-" >

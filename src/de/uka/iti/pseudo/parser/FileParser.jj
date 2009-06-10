@@ -148,7 +148,6 @@ ASTRule RuleDeclaration():
   List<ASTGoalAction> actions = new ArrayList<ASTGoalAction>();
   List<ASTRuleElement> aclist;
   List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
-  ASTGoalAction action;
   ASTRuleElement elem;
   ASTLocatedTerm lt;
   Token t, v = null, first, name, descr = null, target = null;
@@ -194,12 +193,16 @@ ASTLocatedTerm LocatedTerm(boolean bothAllowed):
 	ASTTerm rt;
 }
 {
-      LOOKAHEAD(2) rt=Term() "|-"
-        { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); }
-    | "|-" rt=Term()
+      "|-" rt=Term()
         { return new ASTLocatedTerm(rt, MatchingLocation.SUCCEDENT); }
-    | LOOKAHEAD({bothAllowed}) rt=Term()
-        { return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
+    |
+      rt=Term() 
+        ( "|-" 
+           { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); } )?
+      { if(!bothAllowed) {
+          generateParserException(new int[] { SEP });
+        }
+        return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
 }
 
 List<ASTRuleElement> AddReplaces():

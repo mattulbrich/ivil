@@ -9,14 +9,7 @@
 package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.parser.file.ASTFileVisitor;
-import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
-import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
-import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
-import de.uka.iti.pseudo.parser.program.ASTEndStatement;
-import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
-import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
 import de.uka.iti.pseudo.parser.program.ASTProgramVisitor;
-import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.term.ASTTermVisitor;
 
 /**

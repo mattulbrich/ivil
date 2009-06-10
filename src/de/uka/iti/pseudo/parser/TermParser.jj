@@ -25,6 +25,35 @@ ASTTerm Term():
    }
 }
 
+ASTTerm UpdateTerm():
+{
+  ASTAssignmentStatement assignment;
+  Token t;
+  ASTTerm term;
+  List<ASTAssignmentStatement> assignments = new ArrayList<ASTAssignmentStatement>();
+}
+{
+         "{" assignments=UpdateList() "}" term=UpdateTerm() 
+            { return new ASTUpdateTerm(assignments, term); }
+       | term=AsTerm()
+            { return term; }
+}
+
+List<ASTAssignmentStatement> UpdateList():	 
+{
+  Token t;
+  ASTTerm term;
+  List<ASTAssignmentStatement> assignments = new ArrayList<ASTAssignmentStatement>();
+}
+{
+          t=<IDENTIFIER> ":=" term=Term() 
+          	{ assignments.add(new ASTAssignmentStatement(t, term)); }
+          ( "||"  t=<IDENTIFIER> ":=" term=Term()
+          	{ assignments.add(new ASTAssignmentStatement(t, term)); } )*
+          	
+          { return assignments; }
+}         
+
 ASTTerm AsTerm():
 { 
   ASTTerm term;
@@ -50,22 +79,36 @@ ASTTerm BaseTerm():
         | term=ApplicationTerm()
         | term=SchemaVariable()
         | term=NumberLiteral()
-        | term=ModalityTerm()
+        | term=ProgramTerm()
         )
         { return term; }
 }
 
-ASTTerm ModalityTerm():
+ASTTerm ProgramTerm():
+{
+  ASTProgramTerm pt;
+}
+{
+       "[" pt=ProgramTerm_Content(false) "]" 
+           { return pt; } 
+           
+    |  "[[" pt=ProgramTerm_Content(true) "]" 
+           { return pt; }
+}
+
+ASTProgramTerm ProgramTerm_Content(boolean termination):
 {
   ASTNumberLiteralTerm position;
   ASTStatement statement = null;
+  ASTProgramUpdate up;
+  List<ASTProgramUpdate> list = new LinkedList<ASTProgramUpdate>();
 }
 {
-       ( "[" position=NumberLiteral() ( ":" statement=Statement() )? "]" 
-           { return new ASTProgramTerm(false, position, statement); } )
-           
-    |  ( "[[" position=NumberLiteral() ( ":" statement=Statement() )? "]]"
-           { return new ASTProgramTerm(true, position, statement); } )
+       ( position=NumberLiteral()
+       | 
+       
+       ( ":" statement=Statement() )? "]" 
+           { return new ASTProgramTerm(termination, position, statement); } )
 }
 
 ASTBinderTerm BinderTerm():

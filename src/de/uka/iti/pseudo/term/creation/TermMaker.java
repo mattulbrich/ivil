@@ -40,7 +40,6 @@ import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -66,8 +65,9 @@ public class TermMaker extends ASTDefaultVisitor {
     /**
      * Make a term from a ast term object.
      * 
-     * This is the same thing except that the parser step is omitted
-     * 
+     * The AST must already have been visited by a {@link TypingResolver} and
+     * the typings must have been set.
+     *  
      * @param astTerm
      *            the term represented in an ast.
      * @param env
@@ -79,6 +79,46 @@ public class TermMaker extends ASTDefaultVisitor {
      */
     public static @NonNull Term makeTerm(ASTTerm astTerm,
             @NonNull Environment env) throws ASTVisitException {
+
+        TermMaker termMaker = new TermMaker(env);
+        astTerm.visit(termMaker);
+
+        return termMaker.resultTerm;
+        
+    }
+    
+    /**
+     * Make a term from a ast term object.
+     * 
+     * The AST must NOT have been visited by a {@link TypingResolver}.
+     *  
+     * @param astTerm
+     *            the term represented in an ast.
+     * @param env
+     *            the environment to use
+     * @return a term representing the ast
+     * 
+     * @throws ASTVisitException
+     *             thrown on error during AST traversal.
+     */
+    public static @NonNull Term makeAndTypeTerm(ASTTerm astTerm,
+            @NonNull Environment env, Type targetType) throws ASTVisitException {
+
+        // We have to embed the AST into a container because the structure may
+        // change if it is a ASTListTerm.
+        ASTHeadElement head = new ASTHeadElement(astTerm);
+        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
+        astTerm.visit(typingResolver);
+        astTerm = (ASTTerm) head.getWrappedElement();
+        
+        try {
+            if(targetType != null)
+                typingResolver.getTypingContext().solveConstraint(astTerm.getTyping().getRawType(), targetType);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
+        }
+        
+        // ast.dumpTree();
 
         TermMaker termMaker = new TermMaker(env);
         astTerm.visit(termMaker);
@@ -177,26 +217,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         // ast.dumpTree();
 
-        // We have to embed the AST into a container because the structure may
-        // change if it is a ASTListTerm.
-        ASTHeadElement head = new ASTHeadElement(ast);
-        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
-        ast.visit(typingResolver);
-        ast = (ASTTerm) head.getWrappedElement();
-        
-        try {
-            if(targetType != null)
-                typingResolver.getTypingContext().solveConstraint(ast.getTyping().getRawType(), targetType);
-        } catch (UnificationException e) {
-            throw new ASTVisitException("cannot type term as " + targetType, ast, e);
-        }
-        
-        // ast.dumpTree();
-
-        TermMaker termMaker = new TermMaker(env);
-        ast.visit(termMaker);
-
-        return termMaker.resultTerm;
+        return makeAndTypeTerm(ast, env, targetType);
     }
     
     public static Type makeType(String typeString, Environment env) throws ASTVisitException, ParseException {

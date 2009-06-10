@@ -10,7 +10,6 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
 
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
@@ -22,16 +21,20 @@ import de.uka.iti.pseudo.term.Variable;
 
 /**
  * The Class ToplevelCheckVisitor allows to check whether 
- * a term is suitable for top level use in a sequent.
+ * a term is suitable for use in a sequent or a program.
+ * 
+ * No entities on available in schematic terms are allowed.
  * 
  * If the term does not have the following properties, a 
  * {@link TermException} is thrown:
  * <ul>
  * <li>it is of boolean type
- * <li>no schema modality is present
  * <li>no schema variable is present as subterm
  * <li>no schema variable is bound in a binding
  * <li>no meta function appears
+ * <li>no free variable occur
+ * <li>program terms have no matching statement
+ * (like in <code>[number : statement]</code>)
  * </ul>
  * 
  * There may be free type variables (as in for instance)
@@ -44,12 +47,7 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
     private Stack<Variable> allowedVariables = new Stack<Variable>();
 
     public void check(Term term) throws TermException {
-        
         term.visit(this);
-
-        if (term.getType().equals(Environment.getBoolType()))
-            throw new TermException(
-                    "Top level formula term which is not boolean");
     }
 
     public void visit(SchemaModality schemaModality) throws TermException {

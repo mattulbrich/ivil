@@ -100,16 +100,17 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
     
     /*
      * ensure that located term which are not "both" are of boolean type
+     * arg.getTerm() may change since the typingResolver may (due to 
+     * shunting yard) replace the term
      */
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
-        ASTTerm term = arg.getTerm();
-        term.visit(this);
+        arg.getTerm().visit(this);
         
         if(arg.getMatchingLocation() != MatchingLocation.BOTH) {
             try {
                 TypingContext typingContext = typingResolver.getTypingContext();
                 typingContext.solveConstraint(Environment.getBoolType(), 
-                        term.getTyping().getRawType());
+                        arg.getTerm().getTyping().getRawType());
             } catch (UnificationException e) {
                 throw new ASTVisitException("Located term must have boolean type", arg, e);
             }
