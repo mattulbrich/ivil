@@ -33,15 +33,16 @@
   </target>
 	
   <target name="javacc" depends="init">
+    <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
+      <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
+<!--      <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> -->
+    </concat>
     <exec executable="javacc">
-      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/file"/>
-      <arg value="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
+      <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
     </exec>
-    <exec executable="javacc">
-      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser/term"/>
-      <arg value="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
-    </exec>
-
   </target>
 	
   <target name="copy" depends="init">
