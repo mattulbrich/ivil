@@ -114,13 +114,13 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
        // never have both!
        ( 
          ":" matchStatement=Statement()
-           { return new ASTProgramMatchTerm(position, termination, matchStatement); } 
+           { return new ASTProgramTerm(position, termination, matchStatement); } 
        |      
          ( "||" t=<NATURAL> ":=" st=Statement() 
            { list.add(new ASTProgramUpdate(new ASTLiteralLabel(t), st)); } )+
        )?
        
-       { return new ASTProgramNormalTerm(position, termination, list); }
+       { return new ASTProgramTerm(position, termination, list); }
 }
 
 ASTBinderTerm BinderTerm():

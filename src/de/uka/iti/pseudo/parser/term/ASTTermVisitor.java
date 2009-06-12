@@ -48,9 +48,6 @@ public interface ASTTermVisitor {
 
     void visit(ASTProgramUpdate programUpdate) throws ASTVisitException;
 
-    void visit(ASTProgramMatchTerm programMatchTerm) throws ASTVisitException;
-
-    void visit(ASTProgramNormalTerm programNormalTerm) throws ASTVisitException;
-
+    void visit(ASTProgramTerm programTerm) throws ASTVisitException;
 
 }
