@@ -19,33 +19,37 @@ import de.uka.iti.pseudo.parser.program.ASTStatement;
 public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
-    private ASTProgramLabel position;
-    private boolean withMatchingStatement;
+    private boolean schema;
+    private Token position;
     
-    private ASTProgramTerm(ASTProgramLabel position, boolean terminating) {
+    private ASTProgramTerm(Token position, boolean terminating, boolean schema) {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
+        this.schema = schema;
         this.position = position;
     }
 
-    public ASTProgramTerm(ASTProgramLabel position, boolean termination,
+    public ASTProgramTerm(Token label, boolean termination,
             ASTStatement matchStatement) {
-        this(position, termination);
-        this.withMatchingStatement = true;
-        addChild(matchStatement);
+        this(label, termination, true);
+        if(matchStatement != null)
+            addChild(matchStatement);
     }
 
-    public ASTProgramTerm(ASTProgramLabel position, boolean termination,
+    public ASTProgramTerm(Token label, boolean termination,
             List<ASTProgramUpdate> list) {
-        this(position, termination);
-        this.withMatchingStatement = false;
+        this(label, termination, false);
         addChildren(list);
     }
 
     @Override
 	public Token getLocationToken() {
-    	return position.getLocationToken();
+    	return position;
 	}
+    
+    public Token getPosition() {
+        return position;
+    }
     
     public boolean isTerminating() {
         return terminating;
@@ -57,12 +61,16 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public boolean hasMatchingStatement() {
-        return withMatchingStatement;
+        return schema && getChildren().size() > 0;
     }
 
     public ASTStatement getMatchingStatement() {
         assert hasMatchingStatement();
         return (ASTStatement) getChildren().get(0);
+    }
+
+    public boolean isSchema() {
+        return schema;
     }
 
 }

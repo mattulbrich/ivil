@@ -10,8 +10,19 @@ ASTStatementList StatementList():
 	ASTStatement st;
 }
 {
-	( st=LabeledStatement() { list.add(st); } )+
+	( st=LabeledStatement() { list.add(st); }
+	| st=SourceStatement() { list.add(st); } 
+	)+
 	{ return new ASTStatementList(list); }
+}
+
+ASTSourceStatement SourceStatement():
+{
+	Token kw, argument;
+}
+{
+	kw="source" argument=<STRING>
+	{ return new ASTSourceStatement(kw,argument); }
 }
 
 ASTStatement LabeledStatement():
@@ -31,8 +42,9 @@ ASTStatement LabeledStatement():
 ASTStatement Statement():
 {
 	ASTTerm term;
-	Token kw, t;
-	List<Token> targets = new LinkedList<Token>();
+	Token kw;
+	ASTAssignmentStatement assignment;
+	List<ASTTerm> targets;
 }
 {
 	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
@@ -40,22 +52,36 @@ ASTStatement Statement():
 	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
 	| kw="skip_loopinv" term=Term() { return new ASTSkipStatement(kw, term); }
 	| kw="skip" { return new ASTSkipStatement(kw); }
-	| t=<IDENTIFIER> ":=" term=Term() { return new ASTAssignmentStatement(t, term); }
+	| assignment=Assignment() { return assignment; }
 	| kw="goto" targets=Goto_Targets()
 	     { return new ASTGotoStatement(kw, targets); }
 }
 
-List<Token> Goto_Targets():
+ASTAssignmentStatement Assignment():
 {
-    List<Token> targets = new LinkedList<Token>();
-    Token t;
+	ASTTerm target;
+	ASTTerm term;
+	Token t;
 }
 {
-    (t=<IDENTIFIER>|t=<NATURAL>)
+	( target=SchemaVariable()
+	| t=<IDENTIFIER>  { target = new ASTIdentifierTerm(t); }
+	)
+	":=" term=Term()
+	{ return new ASTAssignmentStatement(target, term); }
+}
+	
+List<ASTTerm> Goto_Targets():
+{
+    List<ASTTerm> targets = new LinkedList<ASTTerm>();
+    ASTTerm t;
+}
+{
+    (t=Term())
     { targets.add(t); }
     
     ( "," 
-      (t=<IDENTIFIER>|t=<NATURAL>)
+      (t=Term())
         { targets.add(t); }
     )*
     { return targets; }

@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
+import de.uka.iti.pseudo.parser.program.ASTSourceStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -32,12 +33,10 @@ import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
-import de.uka.iti.pseudo.parser.term.ASTLiteralLabel;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
-import de.uka.iti.pseudo.parser.term.ASTSchemaLabel;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -176,6 +175,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTSkipStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
+    
+    public void visit(ASTSourceStatement arg)  throws ASTVisitException {
+        visitDefaultStatement(arg);
+    }
 
     //
     // other elements call visitDefualt directly
@@ -253,17 +256,8 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         visitDefault(arg);
     }
     
-    public void visit(ASTLiteralLabel arg) throws ASTVisitException {
-        visitDefault(arg);
-    }
-
     public void visit(ASTProgramUpdate arg) throws ASTVisitException {
         visitDefault(arg);
     }
 
-    public void visit(ASTSchemaLabel arg) throws ASTVisitException {
-        visitDefault(arg);
-    }
-
-    
 }

@@ -14,4 +14,10 @@ public interface TermVisitor {
 
     void visit(SchemaVariable schemaVariable) throws TermException;
 
+    void visit(SchemaProgramTerm schemaProgramTerm);
+
+    void visit(LiteralProgramTerm literalProgramTerm);
+
+    void visit(UpdateTerm updateTerm);
+
 }

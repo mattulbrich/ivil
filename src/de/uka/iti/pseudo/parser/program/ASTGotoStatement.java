@@ -5,20 +5,15 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTGotoStatement extends ASTStatement {
 
-    private List<Token> targets;
-
-    public ASTGotoStatement(Token kw, List<Token> targets) {
+    public ASTGotoStatement(Token kw, List<ASTTerm> targets) {
         super(kw);
-        this.targets = targets;
+        addChildren(targets);
     }
     
-    public List<Token> getTargets() {
-        return targets;
-    }
-
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
