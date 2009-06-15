@@ -136,7 +136,7 @@ public class RuleApplicationFinder {
             List<Rule> sortedAllRules) throws ProofException, EnoughException {
 
         applications = new ArrayList<RuleApplication>();
-        ruleAppMaker = new RuleApplicationMaker();
+        ruleAppMaker = new RuleApplicationMaker(env);
         ruleAppMaker.setGoalNumber(goalNo);
         
         try {
@@ -158,7 +158,7 @@ public class RuleApplicationFinder {
                                 .isToplevel()))
                     continue;
 
-                TermUnification mc = new TermUnification();
+                TermUnification mc = new TermUnification(env);
                 ruleAppMaker.setTermUnification(mc);
 
                 if (mc.leftUnify(findClause.getTerm(), termSelector

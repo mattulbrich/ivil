@@ -4,8 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -17,19 +16,20 @@ public class TermUnification {
     
     private TypeUnification typeUnification = new TypeUnification();
     private Map<String, Term> instantiation = new HashMap<String, Term>();
-    private Map<String, Modality> modalityInstantiation = new HashMap<String, Modality>();
     private TermInstantiator termInstantiator = new TermInstantiator(this);
-    private TermMatcher termMatcher = new TermMatcher(this);
+    private TermMatcher termMatcher;
+    private Environment env;
     
     private boolean containsSchema = false;
     
-    public TermUnification() {
+    public TermUnification(Environment env) {
+        termMatcher = new TermMatcher(this, env);
+        this.env = env;
     }
     
     public boolean leftUnify(Term adaptingTerm, Term fixTerm) {
         
         HashMap<String, Term> copyTermInst = new HashMap<String, Term>(instantiation);
-        HashMap<String, Modality> copyModInst = new HashMap<String, Modality>(modalityInstantiation);
 
         try {
             
@@ -38,7 +38,6 @@ public class TermUnification {
             
         } catch (TermException e) {
             instantiation = copyTermInst;
-            modalityInstantiation = copyModInst;
             return false;
         }
         
@@ -61,34 +60,6 @@ public class TermUnification {
             for (String s : instantiation.keySet()) {
                 instantiation.put(s, instantiate(instantiation.get(s)));
             }
-            for (String s : modalityInstantiation.keySet()) {
-                modalityInstantiation.put(s, instantiate(modalityInstantiation.get(s)));
-            }
-        }
-        
-        containsSchema |= !scv.isEmpty();
-    }
-    
-    public void addInstantiation(SchemaModality sm, Modality mod) throws TermException {
-
-        SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
-        scv.collect(mod);
-        
-        if(scv.getSchemaModalities().contains(sm)) {
-            throw new UnificationException("The schema modalitycannot be instantiated, occur check failed", sm, mod);
-        }
-        
-        assert modalityInstantiation.get(sm) == null;
-        
-        modalityInstantiation.put(sm.getName(), mod);
-        
-        if(containsSchema) {
-            for (String s : instantiation.keySet()) {
-                instantiation.put(s, instantiate(instantiation.get(s)));
-            }
-            for (String s : modalityInstantiation.keySet()) {
-                modalityInstantiation.put(s, instantiate(modalityInstantiation.get(s)));
-            }
         }
         
         containsSchema |= !scv.isEmpty();
@@ -98,22 +69,13 @@ public class TermUnification {
         return instantiation.get(sv.getName());
     }
     
-    public Modality getModalityFor(SchemaModality sm) {
-        return modalityInstantiation.get(sm.getName());
-    }
-
     public Term instantiate(Term toInst) throws TermException {
         return termInstantiator.instantiate(toInst);
     }
     
-    private Modality instantiate(Modality toInst) throws TermException {
-        return termInstantiator.instantiate(toInst);
-    }
-    
     public TermUnification clone() {
-        TermUnification retval = new TermUnification();
+        TermUnification retval = new TermUnification(env);
         retval.instantiation.putAll(instantiation);
-        retval.modalityInstantiation.putAll(modalityInstantiation);
         retval.typeUnification = typeUnification.clone();
         return retval;
     }
@@ -130,10 +92,6 @@ public class TermUnification {
      * @see SchemaCollectorVisitor
      */
     private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() { 
-        public void visit(SchemaModality schemaModality) throws TermException {
-            throw new TermException("Unexpected schema modality found: " + schemaModality);
-        }
-        
         public void visit(SchemaVariable schemaVariable) throws TermException {
             throw new TermException("Unexpected schema variable found: " + schemaVariable);
         }
@@ -148,27 +106,12 @@ public class TermUnification {
         }
     }
     
-    public static boolean containsSchemaIdentifier(Modality m) {
-        try {
-            m.visit(schemaFinder);
-            return false;
-        } catch (TermException e) {
-            return true;
-        }
-    }
-
     public Map<String, Term> getTermInstantiation() {
         return Collections.unmodifiableMap(instantiation);
-    }
-
-    public Map<String, Modality> getModalityInstantiation() {
-        return Collections.unmodifiableMap(modalityInstantiation);
     }
 
     public TermInstantiator getTermInstantiator() {
         return termInstantiator;
     }
-
-
 
 }

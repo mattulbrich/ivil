@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.term;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.uka.iti.pseudo.term.statement.Statement;
+
 // TODO DOC
 
 public class UnificationException extends TermException {
@@ -47,10 +49,10 @@ public class UnificationException extends TermException {
         addDetail("Term 2: " + t2);
     }
 
-    public UnificationException(String string, Modality m1, Modality m2) {
+    public UnificationException(String string, Statement s1, Statement s2) {
         this(string);
-        addDetail("Modality 1: " + m1);
-        addDetail("Modality 2: " + m2);
+        addDetail("Statement 1: " + s1);
+        addDetail("Statement 2: " + s2);
     }
 
     public void addDetail(String detail) {

@@ -2,16 +2,21 @@ package de.uka.iti.pseudo.term.statement;
 
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.util.Util;
 
 public class GotoStatement extends Statement {
 
     public GotoStatement(Term[] targets) throws TermException {
-        super();
+        super(targets);
     }
 
     @Override public String toString(boolean typed) {
-        // TODO Implement GotoStatement.toString
-        return null;
+        return "goto " + Util.commatize(getSubterms());
     }
+    
+    public void visit(StatementVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
 
 }

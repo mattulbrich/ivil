@@ -52,7 +52,7 @@ import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.ProgramUpdate;
-import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -503,10 +503,11 @@ public class TermMaker extends ASTDefaultVisitor {
         }
         
         try {
-            Token position = programTerm.getPosition();
+            Token position = programTerm.getLabel();
             boolean terminating = programTerm.isTerminating();
             if (programTerm.isSchema()) {
-                resultTerm = new SchemaProgramTerm(position.image, terminating, matchingStatement);
+                SchemaVariable sv = new SchemaVariable(position.image, Environment.getBoolType());
+                resultTerm = new SchemaProgram(sv, terminating, matchingStatement);
             } else {
                 resultTerm = new LiteralProgramTerm(position.image, terminating, updates);
             }
@@ -514,6 +515,10 @@ public class TermMaker extends ASTDefaultVisitor {
             throw new ASTVisitException(programTerm, e);
         }
         
+    }
+    
+    public void visit(ASTProgramUpdate arg) throws ASTVisitException {
+        super.visit(arg);
     }
 
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {

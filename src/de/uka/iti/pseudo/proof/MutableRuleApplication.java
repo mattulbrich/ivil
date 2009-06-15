@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 
@@ -20,7 +17,6 @@ public class MutableRuleApplication implements RuleApplication {
     private TermSelector findSelector;
     private int goalNumber;
     private Map<String, String> properties;
-    private Map<String, Modality> schemaModalityMapping;
     private Map<String, Term> schemaVariableMapping;
     private Map<String, Type> typeVariableMapping;
     
@@ -30,14 +26,12 @@ public class MutableRuleApplication implements RuleApplication {
         this.findSelector = ruleApp.getFindSelector();
         this.goalNumber = ruleApp.getGoalNumber();
         this.properties = new HashMap<String, String>(ruleApp.getProperties());
-        this.schemaModalityMapping = new HashMap<String, Modality>(ruleApp.getSchemaModalityMapping());
         this.schemaVariableMapping = new HashMap<String, Term>(ruleApp.getSchemaVariableMapping());
         this.typeVariableMapping = new HashMap<String, Type>(ruleApp.getTypeVariableMapping());
     }
 
     public MutableRuleApplication() {
         this.properties = new HashMap<String, String>();
-        this.schemaModalityMapping = new HashMap<String, Modality>();
         this.schemaVariableMapping = new HashMap<String, Term>();
         this.typeVariableMapping = new HashMap<String, Type>();
     }
@@ -64,10 +58,6 @@ public class MutableRuleApplication implements RuleApplication {
 
     public Map<String, String> getProperties() {
         return properties;
-    }
-
-    public Map<String, Modality> getSchemaModalityMapping() {
-        return schemaModalityMapping;
     }
 
     public Map<String, Term> getSchemaVariableMapping() {

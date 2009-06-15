@@ -103,7 +103,7 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
 }
 {
        ( label=<NATURAL> 
-       | label=<SCHEMALABEL_IDENTIFIER>
+       | label=<SCHEMA_IDENTIFIER>
        )
        
        // never have both!

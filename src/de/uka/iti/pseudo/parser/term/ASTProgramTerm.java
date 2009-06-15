@@ -47,7 +47,7 @@ public class ASTProgramTerm extends ASTTerm {
     	return position;
 	}
     
-    public Token getPosition() {
+    public Token getLabel() {
         return position;
     }
     

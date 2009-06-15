@@ -12,21 +12,17 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.IfModality;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.ModalityTerm;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.WhileModality;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
  * The Class TermMatcher implements the term visitor which is used to unify
@@ -48,18 +44,22 @@ class TermMatcher extends DefaultTermVisitor {
     private Term compareTerm;
     
     /**
-     * The modality to compare with
+     * use this environment to resolve program statements.
      */
-    private Modality compareModality;
-
+    private Environment env;
+    
     /**
-     * Instantiates a new term matcher with a given instantiation objet
+     * Instantiates a new term matcher with a given instantiation object
      * 
      * @param termUnification
      *            the object to record instantiations to.
+     * @param env
+     *            the environment, needed to extract information about
+     *            statements of progs.
      */
-    public TermMatcher(TermUnification termUnification) {
+    public TermMatcher(TermUnification termUnification, Environment env) {
         this.termUnification = termUnification;
+        this.env = env;
     }
 
     /**
@@ -93,6 +93,10 @@ class TermMatcher extends DefaultTermVisitor {
                 termUnification.addInstantiation(sv, t2);
                 termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), t2.getType());
             }
+        } else if(t1 instanceof SchemaProgram && t2 instanceof LiteralProgramTerm) {
+            SchemaProgram sp = (SchemaProgram) t1;
+            LiteralProgramTerm litPrg = (LiteralProgramTerm) t2;
+            matchSchemaProgram(sp, litPrg);
         } else if(t1.getClass() == t2.getClass()) {
             compareTerm = t2;
             t1.visit(this);
@@ -100,48 +104,31 @@ class TermMatcher extends DefaultTermVisitor {
             throw new UnificationException("Incomparable types of terms", t1, t2);
     }
     
-    /**
-     * Compare two modalities.
-     * 
-     * If the left hand modality is a schema modality and not yet instantiated,
-     * it is instantiated with the right hand modality.
-     * 
-     * In all other cases the modalities are compared via the visit methods.
-     * Only, if the classes of the modalities coincide however. In other cases,
-     * a unification exception is thrown.
-     * 
-     * @param m1 the left hand modality
-     * @param m2 the right hand modality
-     * 
-     * @throws TermException if unification fails
-     */
-    private void compare(Modality m1, Modality m2) throws TermException {
-        if (m1 instanceof SchemaModality) {
-            SchemaModality sm = (SchemaModality) m1;
-            Modality inst = termUnification.getModalityFor(sm);
-            if(inst != null) {
-                compare(inst, m2);
-            } else {
-                termUnification.addInstantiation(sm, m2);
-            }
-        } else if(m1.getClass() == m2.getClass()) {
-            compareModality = m2;
-            m1.visit(this);
-        } else 
-            throw new UnificationException("Incomparable types of modalities", m1, m2);
-    }
-
-
-    /*
-     * the default behaviour is to compare all submodalities of a modality.
-     */
-    @Override 
-    protected void defaultVisitModality(Modality modality)    throws TermException {
-        List<Modality> sub1 = modality.getSubModalities();
-        List<Modality> sub2 = compareModality.getSubModalities();
+    private void matchSchemaProgram(SchemaProgram sp, LiteralProgramTerm litPrg) throws TermException {
+        SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
+        Term inst = termUnification.getTermFor(sv);
         
-        for (int i = 0; i < sub1.size(); i++) {
-            compare(sub1.get(i), sub2.get(i));
+        if(inst != null) {
+            compare(inst, litPrg);
+        } else {
+            termUnification.addInstantiation(sv, litPrg);
+            termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), Environment.getBoolType());
+            if(sp.hasMatchingStatement()) {
+                Statement matchingSt = sp.getMatchingStatement();
+                Statement statement = litPrg.getStatement(env);
+                
+                if(matchingSt.getClass() != statement.getClass())
+                    throw new UnificationException("Incomparable types of statements", matchingSt, statement);
+                
+                if(matchingSt.countSubterms() != statement.countSubterms())
+                    throw new UnificationException("Incomparable count of subterms in statements", matchingSt, statement);
+                
+                List<Term> matchingSubterms = matchingSt.getSubterms();
+                List<Term> subterms = statement.getSubterms();
+                for (int i = 0; i < matchingSubterms.size(); i++) {
+                    compare(matchingSubterms.get(i), subterms.get(i));
+                }
+            }
         }
     }
 
@@ -209,85 +196,16 @@ class TermMatcher extends DefaultTermVisitor {
         throw new Error("cannot be called");
     }
     
-    @Override
-    public void visit(ModalityTerm m1) throws TermException {
-        ModalityTerm m2 = (ModalityTerm) compareTerm;
-        compare(m1.getModality(), m2.getModality());
-        compare(m1.getSubterm(), m2.getSubterm());
+    @Override 
+    public void visit(SchemaProgram schemaProgramTerm) throws TermException {
+        throw new Error("unification of schema program terms is not implemented / intended");
     }
-
-    @Override
-    public void visit(AssignModality am1) throws TermException {
-        AssignModality am2 = (AssignModality) compareModality;
+    
+    @Override 
+    public void visit(LiteralProgramTerm p) throws TermException {
+        LiteralProgramTerm p2 = (LiteralProgramTerm) compareTerm;
         
-        if(am1.isSchemaAssignment()) {
-            // this is left unification: there are no schemas on rhs.
-            assert !am2.isSchemaAssignment();
-            
-            SchemaVariable schemaVar = (SchemaVariable) am1.getAssignTarget();
-            Function function = (Function) am2.getAssignTarget();
-            assert function.isAssignable();
-            
-            // there are no free type vars, so this is ok
-            Application replaceBy = new Application(function, function.getResultType());
-            
-            termUnification.getTypeUnification().leftUnify(schemaVar.getType(), function.getResultType());
-            termUnification.addInstantiation(schemaVar, replaceBy);
-        } else {
-            if(!am1.getAssignTarget().equals(am2.getAssignTarget()))
-                throw new UnificationException("different assigned consts", am1, am2);
-        }
-        
-        compare(am1.getAssignedTerm(), am2.getAssignedTerm());
+        if(p.getProgramIndex() != p2.getProgramIndex())
+            throw new UnificationException(p, p2);
     }
-
-    @Override public void visit(IfModality ifModality) throws TermException {
-        IfModality ifModality2 = (IfModality)compareModality;
-        
-        if(ifModality.countModalities() != ifModality2.countModalities())
-            throw new UnificationException("One if has else, one has not", ifModality, ifModality2);
-        
-        defaultVisitModality(ifModality);
-        
-        compare(ifModality.getConditionTerm(), 
-                ifModality2.getConditionTerm());
-    }
-
-    // Nothing to be done for skip
-    // Nothing to be done for Compound
-
-    /*
-     * in while loops invariants are optional. 
-     * Therefore match if left hand side has no invariant
-     * Assume rhs invariant to be true if lhs has invariant.
-     */
-    @Override public void visit(WhileModality whileModality)
-            throws TermException {
-        
-        WhileModality whileModality2 = (WhileModality)compareModality;
-        
-        defaultVisitModality(whileModality);
-        
-        compare(whileModality.getConditionTerm(), 
-                whileModality2.getConditionTerm());
-        
-        if(whileModality.hasInvariantTerm()) {
-            if(whileModality2.hasInvariantTerm()) {
-                compare(whileModality.getInvariantTerm(),
-                        whileModality2.getInvariantTerm());
-            } else {
-                compare(whileModality.getInvariantTerm(),
-                        Environment.getTrue());
-            }
-        }
-        
-    }
-
-    @Override public void visit(SchemaModality schemaModality)
-            throws TermException {
-
-            throw new Error("cannot be called");
-
-    }
-
 }

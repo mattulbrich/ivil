@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 
@@ -23,8 +22,6 @@ public interface RuleApplication {
 
     public Map<String, Term> getSchemaVariableMapping();
 
-    public Map<String, Modality> getSchemaModalityMapping();
-    
     public Map<String, Type> getTypeVariableMapping();
 
     public Map<String, String> getProperties();

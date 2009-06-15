@@ -14,13 +14,8 @@ import java.util.List;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.PrettyPrint;
-import de.uka.iti.pseudo.term.AssignModality;
-import de.uka.iti.pseudo.term.IfModality;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.ModalityTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.WhileModality;
 
 /**
  * The Class SubtermCollector provides a static method {@link #collect(Term)}
@@ -30,7 +25,7 @@ import de.uka.iti.pseudo.term.WhileModality;
  * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
  * visitors {@link PrettyPrint}
  */
-public class SubtermCollector extends DefaultTermVisitor {
+public class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
     
     /*
      * The list of so far collected subterms
@@ -45,7 +40,7 @@ public class SubtermCollector extends DefaultTermVisitor {
     /**
      * Collect all subterms of a term.
      * 
-     * This includes all terms in modalities and the term itself.
+     * This includes all subterms in updates and the term itself.
      * 
      * @param term
      *            the term for which a list of subterms is to be retrieved.
@@ -63,44 +58,11 @@ public class SubtermCollector extends DefaultTermVisitor {
         return sc.subtermsInOrder;
     }
     
-    protected void defaultVisitModality(Modality modality)
-            throws TermException {
-        for (Modality m : modality.getSubModalities()) {
-            m.visit(this);
-        }
-    }
-
     protected void defaultVisitTerm(Term term) throws TermException {
         subtermsInOrder.add(term);
         for (Term t : term.getSubterms()) {
             t.visit(this);
         }
-    }
-
-    public void visit(ModalityTerm modalityTerm) throws TermException {
-        subtermsInOrder.add(modalityTerm);
-        modalityTerm.getModality().visit(this);
-        for (Term t : modalityTerm.getSubterms()) {
-            t.visit(this);
-        }
-    }
-
-    public void visit(AssignModality assignModality)
-            throws TermException {
-        defaultVisitTerm(assignModality.getAssignedTerm());
-    }
-
-    public void visit(IfModality ifModality) throws TermException {
-        defaultVisitTerm(ifModality.getConditionTerm());
-        defaultVisitModality(ifModality);
-    }
-
-    public void visit(WhileModality whileModality)
-            throws TermException {
-        defaultVisitTerm(whileModality.getConditionTerm());
-        if(whileModality.hasInvariantTerm())
-            defaultVisitTerm(whileModality.getInvariantTerm());
-        defaultVisitModality(whileModality);
     }
 
 }

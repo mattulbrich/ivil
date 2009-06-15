@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.term;
 import java.util.Arrays;
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
 public class LiteralProgramTerm extends ProgramTerm {
@@ -40,6 +42,18 @@ public class LiteralProgramTerm extends ProgramTerm {
 
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
+    }
+
+    public int getProgramIndex() {
+        return programIndex;
+    }
+
+    public Statement getStatement(Environment env) throws TermException {
+        return null;
+    }
+    
+    public List<ProgramUpdate> getUpdates() {
+        return Util.readOnlyArrayList(updates);
     }
 
 }

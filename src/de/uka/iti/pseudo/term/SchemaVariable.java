@@ -1,11 +1,10 @@
 package de.uka.iti.pseudo.term;
 
-import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 import nonnull.NonNull;
 
 // TODO DOC
 
-public class SchemaVariable extends BindableIdentifier implements AssignTarget {
+public class SchemaVariable extends BindableIdentifier {
 
     public static final String SCHEMA_PREFIX = "%";
     

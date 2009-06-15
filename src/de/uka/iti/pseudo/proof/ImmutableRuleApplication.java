@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.util.LinearLookupMap;
@@ -19,7 +18,6 @@ public class ImmutableRuleApplication implements RuleApplication {
     private TermSelector findSelector;
     private TermSelector[] assumeSelectors;
     private Map<String,Term> schemaVariableMap;
-    private Map<String,Modality> schemaModalityMap;
     private Map<String, String> properties;
     private Map<String,Type> typeVariableMap;
     
@@ -30,7 +28,6 @@ public class ImmutableRuleApplication implements RuleApplication {
         assumeSelectors = Util.listToArray(ruleApp.getAssumeSelectors(), TermSelector.class);
         
         schemaVariableMap = new LinearLookupMap<String, Term>(ruleApp.getSchemaVariableMapping());
-        schemaModalityMap = new LinearLookupMap<String, Modality>(ruleApp.getSchemaModalityMapping());
         typeVariableMap = new LinearLookupMap<String, Type>(ruleApp.getTypeVariableMapping());
         properties = new LinearLookupMap<String, String>(ruleApp.getProperties());
     }
@@ -58,10 +55,6 @@ public class ImmutableRuleApplication implements RuleApplication {
 
     public Map<String, Term> getSchemaVariableMapping() {
         return schemaVariableMap;
-    }
-
-    public Map<String, Modality> getSchemaModalityMapping() {
-        return schemaModalityMap;
     }
 
     public Map<String, String> getProperties() {

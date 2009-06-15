@@ -9,7 +9,6 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 // TODO Documentation needed

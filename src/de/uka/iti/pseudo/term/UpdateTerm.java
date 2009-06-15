@@ -1,6 +1,9 @@
 package de.uka.iti.pseudo.term;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.util.Util;
 
 public class UpdateTerm extends Term {
 
@@ -35,6 +38,10 @@ public class UpdateTerm extends Term {
 
     @Override public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
+    }
+
+    public List<AssignmentStatement> getAssignments() {
+        return Util.readOnlyArrayList(assignments);
     }
 
 }

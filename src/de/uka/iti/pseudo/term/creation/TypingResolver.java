@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -306,6 +307,14 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
+        if(programTerm.isSchema()) {
+            TypeVariable tv = new TypeVariable(programTerm.getLabel().image);
+            try {
+                typingContext.solveConstraint(Environment.getBoolType(), tv);
+            } catch (UnificationException e) {
+                throw new ASTVisitException("The schema variable inside schematic program term must be to boolean", programTerm, e);
+            } 
+        }
     }
     
     @Override

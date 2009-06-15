@@ -10,6 +10,11 @@ public abstract class ProgramTerm extends Term {
         super(Environment.getBoolType());
         this.terminating = terminating;
     }
+    
+    public ProgramTerm(Term[] substring, boolean terminating) {
+        super(substring, Environment.getBoolType());
+        this.terminating = terminating;
+    }
 
     public boolean isTerminating() {
         return terminating;

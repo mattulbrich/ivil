@@ -28,5 +28,18 @@ public class AssignmentStatement extends Statement {
     public String toString(boolean typed) {
         return target.toString(typed) + " := " + value.toString(typed);
     }
+    
+    public void visit(StatementVisitor visitor) throws TermException {
+        visitor.visit(this);
+    }
+
+    public Term getTarget() {
+        return target;
+    }
+
+    public Term getValue() {
+        return value;
+    }
+
 
 }

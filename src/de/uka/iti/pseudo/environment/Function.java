@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.environment;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
 
 /**
  * A function is a syntactical element to which argument terms can be applied.
@@ -35,7 +34,7 @@ import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
  *   Set('a) $Nil
  * </pre>
  */
-public class Function implements AssignTarget {
+public class Function {
 
     /**
      * The name of the function.
