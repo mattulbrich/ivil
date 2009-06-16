@@ -9,28 +9,67 @@
 package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
+import java.util.List;
 
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.program.ASTStatement;
 
-public abstract class ASTProgramTerm extends ASTTerm {
+public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
-    private ASTProgramLabel position;
+    private Token position;
     
-    public ASTProgramTerm(ASTProgramLabel position, boolean terminating) {
+    private ASTProgramTerm(Token position, boolean terminating) {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
         this.position = position;
     }
 
+    public ASTProgramTerm(Token label, boolean termination,
+            ASTStatement matchStatement) {
+        this(label, termination);
+        if(matchStatement != null)
+            addChild(matchStatement);
+    }
+
+    public ASTProgramTerm(Token label, boolean termination,
+            List<ASTProgramUpdate> list) {
+        this(label, termination);
+        addChildren(list);
+    }
+
     @Override
 	public Token getLocationToken() {
-    	return position.getLocationToken();
+    	return position;
 	}
+    
+    public Token getLabel() {
+        return position;
+    }
     
     public boolean isTerminating() {
         return terminating;
     }
 
+    @Override 
+    public void visit(ASTVisitor v) throws ASTVisitException {
+        v.visit(this);
+    }
+
+    public boolean hasMatchingStatement() {
+        return isSchema() && getChildren().size() > 0;
+    }
+
+    public ASTStatement getMatchingStatement() {
+        assert hasMatchingStatement();
+        return (ASTStatement) getChildren().get(0);
+    }
+
+    public boolean isSchema() {
+        return position.kind == ParserConstants.SCHEMA_IDENTIFIER;
+    }
 
 }

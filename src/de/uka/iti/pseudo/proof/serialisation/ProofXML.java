@@ -35,7 +35,6 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -162,14 +161,6 @@ public class ProofXML implements ProofImport, ProofExport {
             }
         }
         
-        // schema modalities
-        for(Entry<String, Modality> entry : ruleApp.getSchemaModalityMapping().entrySet()) {
-            if(isInteractive(entry.getKey(), ruleApp)) {
-                w.start("schemamodality", "name", entry.getKey());
-                w.append(entry.getValue().toString(true)).end().newline();
-            }
-        }
-
         w.end().newline();
     }
 
@@ -207,7 +198,7 @@ class SAXHandler extends DefaultHandler {
             String name, Attributes attributes) throws SAXException {
         this.attributes = attributes;
         if(name.equals("ruleApplication")) {
-            ram = new RuleApplicationMaker();
+            ram = new RuleApplicationMaker(env);
             
             // rule
             String ruleName = attributes.getValue("rule");

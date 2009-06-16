@@ -155,8 +155,8 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < END: "end" >
 | < _SKIP: "skip" >
 | < SKIP_LOOP_INV: "skip_loopinv" >
+| < SOURCE: "source" >
 | < ASSIGN: ":=" >
-| < INCREMENT: "++" >
 
 // Literals
 | < STRING: "\"" ( ~["\""] )* "\"" >

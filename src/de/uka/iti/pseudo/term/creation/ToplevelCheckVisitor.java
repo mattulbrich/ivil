@@ -10,10 +10,11 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -48,11 +49,13 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
 
     public void check(Term term) throws TermException {
         term.visit(this);
+        if(!term.getType().equals(Environment.getBoolType()))
+            throw new TermException("Top level term does not have boolean type");
     }
 
-    public void visit(SchemaModality schemaModality) throws TermException {
+    public void visit(SchemaProgram schemaProgram) throws TermException {
         throw new TermException("Top level term contains schema modality"
-                + schemaModality);
+                + schemaProgram);
     }
 
     public void visit(SchemaVariable schemaVariable) throws TermException {
@@ -69,6 +72,12 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         allowedVariables.push((Variable) binding.getVariable());
         super.visit(binding);
         allowedVariables.pop();
+    }
+    
+    public void visit(Variable variable) throws TermException {
+        if(!allowedVariables.contains(variable)) {
+            throw new TermException("Top level term contains free variable " + variable);
+        }
     }
     
     public void visit(Application application) throws TermException {

@@ -7,22 +7,18 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.CompoundModality;
-import de.uka.iti.pseudo.term.IfModality;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.ModalityTerm;
-import de.uka.iti.pseudo.term.ModalityVisitor;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.ProgramUpdate;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
-import de.uka.iti.pseudo.term.SkipModality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.WhileModality;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 // TODO Documentation needed
@@ -36,12 +32,11 @@ import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
 * visitors {@link SubtermCollector}
 */
-class PrettyPrintVisitor implements TermVisitor, ModalityVisitor {
+class PrettyPrintVisitor implements TermVisitor {
     
     private PrettyPrint pp;
     private Environment env;
     private AnnotatedStringWithStyles<Term> printer;
-    private int indentionLevel = 0;
     
     /**
      * Indicator that the current subterm is to be put in parentheses
@@ -170,23 +165,6 @@ class PrettyPrintVisitor implements TermVisitor, ModalityVisitor {
             printer.append(" as " + application.getType());
     }
     
-    private void indent() {
-        assert pp.isBreakModalities();
-        for (int i = 0; i < indentionLevel; i++) {
-            printer.append("  ");
-        }
-    }
-    
-    private void newLineOrSpace(String string) {
-        if(pp.isBreakModalities()) {
-            printer.append("\n");
-            indent();
-            printer.append(string);
-        } else {
-            printer.append(" ").append(string);
-        }
-    }
-    
     //
     // Visitors
     //
@@ -195,18 +173,6 @@ class PrettyPrintVisitor implements TermVisitor, ModalityVisitor {
         printer.setStyle("variable");
         printer.begin(variable).append(variable.toString(pp.isTyped())).end();
         printer.resetPreviousStyle();
-    }
-
-    public void visit(ModalityTerm modalityTerm) throws TermException {
-        printer.begin(modalityTerm);
-        printer.setStyle("modality");
-        printer.append("[ ");
-        indentionLevel = 0;
-        modalityTerm.getModality().visit(this);
-        printer.append(" ]");
-        printer.resetPreviousStyle();
-        visitMaybeParen(modalityTerm.getSubterm(0), Integer.MAX_VALUE);
-        printer.end();
     }
 
     public void visit(Binding binding) throws TermException {
@@ -270,87 +236,55 @@ class PrettyPrintVisitor implements TermVisitor, ModalityVisitor {
         printer.begin(schemaVariable)
                 .append(schemaVariable.toString(pp.isTyped())).end();
     }
-
-    public void visit(AssignModality assignModality) throws TermException {
-        printer.append(assignModality.getAssignTarget().getName()).append(" := ");
-        assignModality.getAssignedTerm().visit(this);
-    }
-
-    public void visit(CompoundModality compoundModality) throws TermException {
-        compoundModality.getSubModality(0).visit(this);
-        printer.append(";");
-        newLineOrSpace("");
-        compoundModality.getSubModality(1).visit(this);
-    }
-
-    public void visit(IfModality ifModality) throws TermException {
-        printer.setStyle("keyword");
-        printer.append("if ");
-        printer.resetPreviousStyle();
-        
-        ifModality.getConditionTerm().visit(this);
-        
-        printer.setStyle("keyword");
-        newLineOrSpace("then");
-        printer.resetPreviousStyle();
-        indentionLevel ++;
-        newLineOrSpace("");
-        
-        ifModality.getThenModality().visit(this);
-        indentionLevel--;
-        
-        Modality elseModality = ifModality.getElseModality();
-        if (elseModality != null) {
-            printer.setStyle("keyword");
-            newLineOrSpace("else");
-            printer.resetPreviousStyle();
-            indentionLevel++;
-            newLineOrSpace("");
-            
-            elseModality.visit(this);
-            indentionLevel--;
+    
+    public void visit(LiteralProgramTerm litProgTerm) throws TermException {
+        printer.begin(litProgTerm);
+        printer.setStyle("program");
+        printer.append(litProgTerm.isTerminating() ? "[[ " : "[ ");
+        printer.append(Integer.toString(litProgTerm.getProgramIndex()));
+        List<ProgramUpdate> updates = litProgTerm.getUpdates();
+        for (int i = 0; i < updates.size(); i++) {
+            if(i >= 0)
+                printer.append(" || ");
+            printer.append(Integer.toString(updates.get(i).getPosition()));
+            if(pp.isPrintingProgramModifications()) {
+                printer.append(" := " + updates.get(i).getStatement().toString(pp.isTyped()));
+            }
         }
-        
-        printer.setStyle("keyword");
-        newLineOrSpace("end");
+        printer.append(litProgTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
+        printer.end();
     }
-
-    public void visit(SkipModality skipModality) throws TermException {
-        printer.append("skip");
-    }
-
-    public void visit(SchemaModality schemaModality) throws TermException {
-        printer.append(schemaModality.getName());
-    }
-
-    public void visit(WhileModality whileModality) throws TermException {
-        printer.setStyle("keyword");
-        printer.append("while ");
-        printer.resetPreviousStyle();
-        
-        whileModality.getConditionTerm().visit(this);
-        
-        if(whileModality.hasInvariantTerm()) {
-            printer.setStyle("keyword");
-            newLineOrSpace("inv ");
-            printer.resetPreviousStyle();
-            
-            whileModality.getInvariantTerm().visit(this);
+    
+    public void visit(SchemaProgram schemaProgramTerm)
+            throws TermException {
+        printer.begin(schemaProgramTerm);
+        printer.setStyle("program");
+        printer.append(schemaProgramTerm.isTerminating() ? "[[ " : "[ ");
+        schemaProgramTerm.getSchemaVariable().visit(this);
+        if(schemaProgramTerm.hasMatchingStatement()) {
+            printer.append(" : " + schemaProgramTerm.getMatchingStatement().toString(pp.isTyped()));
         }
-        
-        printer.setStyle("keyword");
-        newLineOrSpace("do");
+        printer.append(schemaProgramTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
-        indentionLevel++;
-        newLineOrSpace("");
-        
-        whileModality.getBody().visit(this);
-        indentionLevel--;
-        
-        printer.setStyle("keyword");
-        newLineOrSpace("end");
+    }
+    
+    public void visit(UpdateTerm updateTerm) throws TermException {
+        printer.begin(updateTerm);
+        printer.setStyle("update");
+        printer.append("{ ");
+        List<AssignmentStatement> assignments = updateTerm.getAssignments();
+        for (int i = 0; i < assignments.size(); i++) {
+            if(i > 0)
+                printer.append(" || ");
+            printer.append(assignments.get(i).getTarget().toString());
+            printer.append(":=");
+            assignments.get(i).getValue().visit(this);
+        }
+        printer.append(" }");
         printer.resetPreviousStyle();
+        visitMaybeParen(updateTerm.getSubterm(0), Integer.MAX_VALUE);
+        printer.end();
     }
 
     public AnnotatedStringWithStyles<Term> getPrinter() {

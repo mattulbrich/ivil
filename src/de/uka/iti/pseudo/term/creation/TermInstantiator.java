@@ -9,29 +9,29 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.AssignModality;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.term.ProgramTerm;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
-import de.uka.iti.pseudo.term.AssignModality.AssignTarget;
+import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
 // TODO DOC
 public class TermInstantiator extends RebuildingTermVisitor {
 
     private Map<String, Term> termMap;
-    private Map<String, Modality> modalityMap;
     private TypeUnification typeMapper;
     
 
@@ -40,29 +40,22 @@ public class TermInstantiator extends RebuildingTermVisitor {
         return termMap;
     }
 
-    public Map<String, Modality> getModalityMap() {
-        return modalityMap;
-    }
-
     public TypeUnification getTypeMapper() {
         return typeMapper;
     }
     
     public TermInstantiator() {
         this.termMap = new HashMap<String, Term>();
-        this.modalityMap = new HashMap<String, Modality>();
         this.typeMapper = new TypeUnification();
     }
 
     public TermInstantiator(TermUnification termUnification) {
         this.termMap = termUnification.getTermInstantiation();
-        this.modalityMap = termUnification.getModalityInstantiation();
         this.typeMapper = termUnification.getTypeUnification();
     }
 
     public TermInstantiator(RuleApplication ruleApp) {
         this.termMap = ruleApp.getSchemaVariableMapping();
-        this.modalityMap = ruleApp.getSchemaModalityMapping();
         this.typeMapper = new TypeUnification(ruleApp.getTypeVariableMapping());
     }
 
@@ -70,14 +63,6 @@ public class TermInstantiator extends RebuildingTermVisitor {
         toInst.visit(this);
         if(resultingTerm != null)
             return resultingTerm;
-        else
-            return toInst;
-    }
-    
-    public Modality instantiate(Modality toInst) throws TermException {
-        toInst.visit(this);
-        if(resultingModality != null)
-            return resultingModality;
         else
             return toInst;
     }
@@ -118,7 +103,6 @@ public class TermInstantiator extends RebuildingTermVisitor {
                 Object o = null;
                 switch(lookup.charAt(0)) {
                 case '%': o = termMap.get(lookup); break;
-                case '&': o = modalityMap.get(lookup); break;
                 }
                 retval.append(o == null ? "??" : o);
                 inCurley = false;
@@ -165,11 +149,6 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
-    @Override 
-    public void visit(SchemaModality schemaModality) throws TermException {
-        resultingModality = modalityMap.get(schemaModality.getName());
-    }
-    
     @Override
     public void visit(Binding binding) throws TermException {
         super.visit(binding);
@@ -194,50 +173,38 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
-    @Override 
-    public void visit(AssignModality assignModality) throws TermException {
+    public void visit(UpdateTerm updateTerm) throws TermException {
 
-        defaultVisitModality(assignModality);
-
-        if(resultingModality == null) {
-            assignModality.getAssignedTerm().visit(this);
-            boolean changed = false;
-
-            Term assignedTerm;
-            if(resultingTerm == null) {
-                assignedTerm = assignModality.getAssignedTerm();
-            } else {
-                assignedTerm = resultingTerm;
-                changed = true;
-            }
-
-            AssignTarget assignTarget;
-            if(assignModality.isSchemaAssignment()) {
-                SchemaVariable sv = (SchemaVariable) assignModality.getAssignTarget();
-                sv.visit(this);
-                if(resultingTerm != null) {
-
-                    if(!(resultingTerm instanceof Application)) {
-                        throw new UnificationException("Only an application can be bound into an assignment modality", sv, resultingTerm);
-                    }
-
-                    Function fct = ((Application)resultingTerm).getFunction();
-
-                    if(!fct.isAssignable()) {
-                        throw new UnificationException("Only assignables can be assigned a value", sv, resultingTerm);
-                    }
-
-                    assignTarget = fct;
-                    changed = true;
-                } else {
-                    assignTarget = assignModality.getAssignTarget();
+        updateTerm.getSubterm(0).visit(this);
+        Term innerResult = resultingTerm != null ? 
+                resultingTerm : updateTerm.getSubterm(0);
+        
+        AssignmentStatement newAssignments[] = null;
+        List<AssignmentStatement> assignments = updateTerm.getAssignments();
+        
+        for(int i = 0; i < assignments.size(); i++) {
+            
+            assignments.get(i).getTarget().visit(this);
+            Term tgt = resultingTerm;
+            
+            assignments.get(i).getValue().visit(this);
+            Term val = resultingTerm;
+            
+            if(tgt != null || val != null) {
+                if(newAssignments == null) {
+                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
                 }
-
-                if(changed) {
-                    resultingModality = new AssignModality(assignTarget, assignedTerm);
-                    resultingTerm = null;
-                }
+                newAssignments[i] = new AssignmentStatement(tgt, val);
             }
+        }
+        
+        if(newAssignments != null) {
+            resultingTerm = new UpdateTerm(newAssignments, updateTerm.getSubterm(0));
+        } else if(innerResult != updateTerm.getSubterm(0)) {
+            newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+            resultingTerm = new UpdateTerm(newAssignments, updateTerm.getSubterm(0));
+        } else {
+            resultingTerm = null;
         }
     }
 }

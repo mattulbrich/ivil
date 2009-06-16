@@ -13,6 +13,11 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
+import de.uka.iti.pseudo.parser.program.ASTEndStatement;
+import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -21,15 +26,20 @@ import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.SchemaVariable;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.util.SelectList;
 
 
 // TODO DOC
@@ -44,6 +54,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         super();
         this.env = env;
         this.typingContext = typingContext;
+    }
+    
+    public TypingContext getTypingContext() {
+        return typingContext;
     }
 
     @Override
@@ -288,16 +302,19 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     
     @Override 
-    public void visit(ASTProgramTerm modalityTerm)
-            throws ASTVisitException {
-        super.visit(modalityTerm);
+    public void visit(ASTProgramTerm programTerm) throws ASTVisitException {
+        super.visit(programTerm);
         
+        programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
-        // FIXME!
-        
-        ASTTerm subterm = modalityTerm.getSubterms().get(0);
-        modalityTerm.setTyping(subterm.getTyping());
-        
+        if(programTerm.isSchema()) {
+            TypeVariable tv = new TypeVariable(programTerm.getLabel().image);
+            try {
+                typingContext.solveConstraint(Environment.getBoolType(), tv);
+            } catch (UnificationException e) {
+                throw new ASTVisitException("The schema variable inside schematic program term must be to boolean", programTerm, e);
+            } 
+        }
     }
     
     @Override
@@ -324,9 +341,57 @@ public class TypingResolver extends ASTDefaultVisitor {
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
         resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
-
-    public TypingContext getTypingContext() {
-        return typingContext;
+    
+    @Override 
+    public void visit(ASTAssertStatement arg) throws ASTVisitException {
+        super.visit(arg);
+        try {
+            typingContext.solveConstraint(Environment.getBoolType(), arg.getTerm().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("An assert statement needs a boolean argument", arg, e);
+        }
+    }
+    
+    @Override 
+    public void visit(ASTAssumeStatement arg) throws ASTVisitException {
+        super.visit(arg);
+        try {
+            typingContext.solveConstraint(Environment.getBoolType(), arg.getTerm().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("An assume statement needs a boolean argument", arg, e);
+        }
+    }
+    
+    @Override 
+    public void visit(ASTEndStatement arg) throws ASTVisitException {
+        super.visit(arg);
+        try {
+            typingContext.solveConstraint(Environment.getBoolType(), arg.getTerm().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("An end statement needs a boolean argument", arg, e);
+        }
+    }
+    
+    @Override 
+    public void visit(ASTGotoStatement arg) throws ASTVisitException {
+        super.visit(arg);
+        try {
+            for (ASTTerm term : SelectList.select(ASTTerm.class, arg.getChildren())) {
+                typingContext.solveConstraint(Environment.getIntType(), term.getTyping().getRawType());
+            }
+        } catch (UnificationException e) {
+            throw new ASTVisitException("A goto statement needs integer arguments", arg, e);
+        }
+    }
+    
+    public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
+        super.visit(arg);
+        try {
+            typingContext.solveConstraint(arg.getTarget().getTyping().getRawType(), 
+                    arg.getTerm().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Cannot infer types in an assignment", arg, e);
+        }
     }
 
 }

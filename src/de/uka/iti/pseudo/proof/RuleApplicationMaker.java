@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermUnification;
@@ -20,10 +20,11 @@ public class RuleApplicationMaker implements RuleApplication {
     private int goalNumber;
     private TermSelector findSelector;
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
-    private TermUnification termUnification = new TermUnification();
+    private TermUnification termUnification;
     private Map<String, String> properties = new HashMap<String, String>();
     
-    public RuleApplicationMaker() {
+    public RuleApplicationMaker(Environment env) {
+        termUnification = new TermUnification(env);
     }
 
     public void setGoalNumber(int goalNumber) {
@@ -72,10 +73,6 @@ public class RuleApplicationMaker implements RuleApplication {
 
     public Map<String, String> getProperties() {
         return properties;
-    }
-
-    public Map<String, Modality> getSchemaModalityMapping() {
-        return termUnification.getModalityInstantiation();
     }
 
     public Map<String, Term> getSchemaVariableMapping() {

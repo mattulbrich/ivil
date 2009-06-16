@@ -48,6 +48,11 @@ public class PrettyPrint {
     private boolean printFix;
     
     /**
+     * whether or not program modifications are printed verbosely.
+     */
+    private boolean printProgramModifications;
+    
+    /**
      * whether or not to break lines in modalities and indent 
      */
     private boolean breakModalities = Boolean.getBoolean("pseudo.breakModalities");
@@ -354,6 +359,16 @@ public class PrettyPrint {
         this.breakModalities = breakModalities;
         firePropertyChanged(BREAK_MODALITIES_PROPERTY, old, breakModalities);
     }
+    
+    
+    // TODO DOC
+    public boolean isPrintingProgramModifications() {
+        return printProgramModifications;
+    }
+
+    public void setPrintingProgramModifications(boolean printProgramModifications) {
+        this.printProgramModifications = printProgramModifications;
+    }
 
 
     /**
@@ -397,5 +412,7 @@ public class PrettyPrint {
         if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal))
             propertiesSupport.firePropertyChange(property, oldVal, newVal);
     }
+
+   
     
 }

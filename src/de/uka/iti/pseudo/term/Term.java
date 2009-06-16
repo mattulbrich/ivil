@@ -52,7 +52,7 @@ public abstract class Term {
     private int storedHashCode;
 
 	/**
-	 * Instantiates a new term with subters
+	 * Instantiates a new term with subterms
 	 * 
 	 * @param subterms the subterms
 	 * @param type the type of the term

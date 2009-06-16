@@ -6,22 +6,19 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
-import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.ModalityTerm;
+import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
 
@@ -82,7 +79,7 @@ public class RewriteRuleCollection {
             return app.getFunction().getName();
         }
         
-        if (term instanceof ModalityTerm) {
+        if (term instanceof ProgramTerm) {
             // no further classification at the moment
             return "[modality]";
         }

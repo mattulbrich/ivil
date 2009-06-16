@@ -3,7 +3,6 @@ package de.uka.iti.pseudo.term;
 import java.util.Arrays;
 import java.util.List;
 
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 

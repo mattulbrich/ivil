@@ -11,7 +11,6 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
-import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -72,10 +71,6 @@ public class CanEvaluateMeta extends WhereCondition {
 
         public Rule getRule() {
             return wrappedApplication.getRule();
-        }
-
-        public Map<String, Modality> getSchemaModalityMapping() {
-            return wrappedApplication.getSchemaModalityMapping();
         }
 
         public Map<String, Term> getSchemaVariableMapping() {

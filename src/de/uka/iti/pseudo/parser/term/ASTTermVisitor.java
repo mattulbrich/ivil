@@ -42,15 +42,8 @@ public interface ASTTermVisitor {
 
 	void visit(ASTUpdateTerm updateTerm) throws ASTVisitException;
 
-    void visit(ASTLiteralLabel literalLabel) throws ASTVisitException;
-
-    void visit(ASTSchemaLabel schemaLabel) throws ASTVisitException;
-
     void visit(ASTProgramUpdate programUpdate) throws ASTVisitException;
 
-    void visit(ASTProgramMatchTerm programMatchTerm) throws ASTVisitException;
-
-    void visit(ASTProgramNormalTerm programNormalTerm) throws ASTVisitException;
-
+    void visit(ASTProgramTerm programTerm) throws ASTVisitException;
 
 }

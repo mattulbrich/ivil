@@ -5,7 +5,6 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;

@@ -7,9 +7,11 @@ import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 
 public class ASTProgramUpdate extends ASTElement {
+    
+    private Token position;
 
-    public ASTProgramUpdate(ASTLiteralLabel position, ASTStatement statement) {
-        addChild(position);
+    public ASTProgramUpdate(Token position, ASTStatement statement) {
+        this.position = position;
         addChild(statement);
     }
 
@@ -21,11 +23,11 @@ public class ASTProgramUpdate extends ASTElement {
         v.visit(this);
     }
     
-    public ASTLiteralLabel getPosition() {
-        return (ASTLiteralLabel) getChildren().get(0);
+    public Token getPosition() {
+        return position;
     }
     
     public ASTStatement getStatement() {
-        return (ASTStatement) getChildren().get(1);
+        return (ASTStatement) getChildren().get(0);
     }
 }

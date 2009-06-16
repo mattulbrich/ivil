@@ -9,8 +9,6 @@
 
 package de.uka.iti.pseudo.term;
 
-import java.util.List;
-
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.creation.TypeUnification;

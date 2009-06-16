@@ -15,33 +15,37 @@ import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.term.Modality;
-import de.uka.iti.pseudo.term.SchemaModality;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
- * The SchemaFinder visitor provides the possibilty to collect all schema variables
- * from a term/modality. Schema variables of same name but different type are 
- * considered different schema variables. Therefore schema variables are stored
- * by their name only.
+ * The SchemaFinder visitor provides the possibilty to collect all schema
+ * variables from a term. This includes schematic program references like [&a].
+ * Schema variables of same name but different type are considered different
+ * schema variables.
  */
 public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor {
-    
+
     /**
      * The set of collected schema variables, identified by their name
      */
     private Set<SchemaVariable> schemaVariables = new LinkedHashSet<SchemaVariable>();
-    
+
     /**
      * The set of collected schema modalities.
      */
-    private Set<SchemaModality> schemaModalities = new LinkedHashSet<SchemaModality>();
-    
+    private Set<SchemaProgram> schemaPrograms = new LinkedHashSet<SchemaProgram>();
+
     /**
      * perform collection of schema identifiers in a term
-     * @param t term to collect
+     * 
+     * @param t
+     *            term to collect
      */
     public void collect(Term t) {
         try {
@@ -53,20 +57,37 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     }
     
     /**
-     * perform collection of schema identifiers in a modality
-     * @param m modality to collect
+     * perform collection of schema identifiers on a statement
+     * 
+     * @param statement
+     *            statement to collect
      */
-    public void collect(Modality m) {
+    public void collect(Statement statement) {
         try {
-            m.visit(this);
+            for (Term subterm : statement.getSubterms()) {
+                subterm.visit(this);
+            }
         } catch (TermException e) {
             // not thrown in this code
             throw new Error();
         }
     }
-    
+
+
+    /**
+     * perform collection of schema identifiers on a rule.
+     * This includes:
+     * <ul>
+     * <li>Find clause
+     * <li>Assume clauses
+     * <li>Where clauses
+     * <li>Replacement clauses
+     * <li>Add clauses
+     * </ul>
+     * 
+     * @param rule the rule to inspect
+     */
     public void collect(Rule rule) {
-        // TODO method documentation
         collect(rule.getFindClause().getTerm());
         for (LocatedTerm lterm : rule.getAssumptions()) {
             collect(lterm.getTerm());
@@ -78,7 +99,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
         }
         for (GoalAction goalAction : rule.getGoalActions()) {
             Term replaceWith = goalAction.getReplaceWith();
-            if(replaceWith != null)
+            if (replaceWith != null)
                 collect(replaceWith);
             for (Term term : goalAction.getAddAntecedent()) {
                 collect(term);
@@ -89,14 +110,6 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
         }
     }
 
-    public void visit(SchemaModality schemaModality) throws TermException {
-        schemaModalities.add(schemaModality);
-    }
-    
-    public void visit(SchemaVariable schemaVariable) throws TermException {
-        schemaVariables.add(schemaVariable);
-    }
-    
     /**
      * Checks if is empty, i.e. neither schema variables nor modalities have
      * been found.
@@ -104,7 +117,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * @return true, if is empty
      */
     public boolean isEmpty() {
-        return schemaModalities.isEmpty() && schemaVariables.isEmpty();
+        return schemaPrograms.isEmpty() && schemaVariables.isEmpty();
     }
 
     /**
@@ -117,12 +130,33 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     }
 
     /**
-     * Gets the set of schema modalities.
+     * Gets the set of schema programs.
      * 
-     * @return the schema modalities
+     * @return the schema programs
      */
-    public Set<SchemaModality> getSchemaModalities() {
-        return schemaModalities;
+    public Set<SchemaProgram> getSchemaPrograms() {
+        return schemaPrograms;
+    }
+
+    public void visit(SchemaProgram schemaProgram) throws TermException {
+        schemaPrograms.add(schemaProgram);
+        Statement statement = schemaProgram.getMatchingStatement();
+        if (statement != null) {
+            for (Term term : statement.getSubterms()) {
+                term.visit(this);
+            }
+        }
+    }
+    
+    public void visit(UpdateTerm updateTerm) throws TermException {
+        super.visit(updateTerm);
+        for (AssignmentStatement ass : updateTerm.getAssignments()) {
+            ass.getTarget().visit(this);
+        }
+    }
+
+    public void visit(SchemaVariable schemaVariable) throws TermException {
+        schemaVariables.add(schemaVariable);
     }
 
 }
