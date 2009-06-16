@@ -9,36 +9,45 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
 public class TestPrettyPrint extends TestCaseWithEnv {
+    
+    PrettyPrint pp = new PrettyPrint(env);
 
-    private void testTerm(String term, String expected, boolean typed) throws Exception {
+    private void testTerm(String term, String expected) throws Exception {
         Term t = makeTerm(term);
-        assertEquals(expected, PrettyPrint.print(env, t, typed, true).toString());   
+        
+        assertEquals(expected, pp.print(t).toString());   
     }
     
     public void testPrettyPrint() throws Exception {
-        testTerm("i1+(i2+i3)", "i1 + (i2 + i3)", false);
-        testTerm("(i1+i2)+i3", "i1 + i2 + i3", false);
-        testTerm("i1+i2+i3", "i1 + i2 + i3", false);
-        testTerm("(i1+i2)*i3", "(i1 + i2) * i3", false);
-        testTerm("[skip](i1+i2)", "[ skip ](i1 + i2)", false);
-        testTerm("([skip]i1)+i2", "[ skip ]i1 + i2", false);
-        testTerm("[skip]i1+i2", "[ skip ]i1 + i2", false);
-        testTerm("[skip][skip]i1", "[ skip ][ skip ]i1", false);
-        testTerm("! !b1", "! !b1", false);
-        testTerm("! -5 = -3", "! -5 = -3", false);
-        testTerm("!((!b1) = true)", "!(!b1) = true", false);
-        testTerm("!(1=1)", "!1 = 1", false);
-        testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)", false);
-        testTerm("(\\forall x; x > 5)", "(\\forall x; x > 5)", false);
-        testTerm("f(1+2)", "f(1 + 2)", false);
+        pp.setTyped(false);
+        testTerm("i1+(i2+i3)", "i1 + (i2 + i3)");
+        testTerm("(i1+i2)+i3", "i1 + i2 + i3");
+        testTerm("i1+i2+i3", "i1 + i2 + i3");
+        testTerm("(i1+i2)*i3", "(i1 + i2) * i3");
+        pp.setPrintingProgramModifications(true);
+        testTerm("[ 6 || 0 := end true || 8 := goto 8, 0 ](1+2)", 
+                 "[ 6 || 0 := end true || 8 := goto 8, 0 ]");
+        pp.setPrintingProgramModifications(false);
+        testTerm("[ 6 || 0 := end true || 8 := goto 8, 0 ]", 
+                "[ 6 || 0 || 8 ]");
+        testTerm("{b1 := true}{i1:=0}i2", "{ b1 := true }{ i1 := 0 }i2");
+        testTerm("[[%a : assert %b]]", "[[ %a : assert %b ]]");
+        testTerm("! !b1", "! !b1");
+        testTerm("! -5 = -3", "! -5 = -3");
+        testTerm("!((!b1) = true)", "!(!b1) = true");
+        testTerm("!(1=1)", "!1 = 1");
+        testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)");
+        testTerm("(\\forall x; x > 5)", "(\\forall x; x > 5)");
+        testTerm("f(1+2)", "f(1 + 2)");
     }
     
     public void testTyped() throws Exception {
-        testTerm("1 + 2", "(1 as int + 2 as int) as int", true);
-        testTerm("1", "1 as int", true);
-        testTerm("-1", "(-1 as int) as int", true);
+        pp.setTyped(true);
+        testTerm("1 + 2", "(1 as int + 2 as int) as int");
+        testTerm("1", "1 as int");
+        testTerm("-1", "(-1 as int) as int");
         // is this correct: ?
-        testTerm("! !b1", "(!((!b1 as bool) as bool)) as bool", true);
+        testTerm("! !b1", "(!((!b1 as bool) as bool)) as bool");
     }
     
     public void testAnnotations1() throws Exception {
@@ -54,9 +63,9 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     }
 
     public void testAnnotations2() throws Exception {
-        Term t = TermMaker.makeAndTypeTerm("[ i1 := i2 + i3 ](i1 = i3)", env);
+        Term t = TermMaker.makeAndTypeTerm("{ i1 := i2 + i3 }(i1 = i3)", env);
         AnnotatedString<Term> as = PrettyPrint.print(env, t);
-        assertEquals("[ i1 := i2 + i3 ](i1 = i3)", as.toString());
+        assertEquals("{ i1 := i2 + i3 }(i1 = i3)", as.toString());
         assertEquals(8, as.getBeginAt(11));
         assertEquals(15, as.getEndAt(11));
         assertEquals(0, as.getBeginAt(2));
@@ -88,8 +97,9 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     public void testOrderConincidesWithSubtermCollector() throws Exception {
         testOrderEqual("1 + 2 +3");
         testOrderEqual("1 + (2+3)");
-        testOrderEqual("[ i1 := i2 + i3 ](i1 = i3)");
-        testOrderEqual("[i1:=1 ; while b1 do if b2 then skip else i1:=1+1 end end](i1 = 3+2*1)");
+        testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
+        testOrderEqual("[[ %a : goto %n, %k ]]");
+        testOrderEqual("[ 6 || 8 := end true ]");
     }
 
     private void testOrderEqual(String string) throws Exception {

@@ -2,7 +2,6 @@ package de.uka.iti.pseudo.parser.program;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
-import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 
@@ -22,6 +21,10 @@ public class ASTAssignmentStatement extends ASTStatement {
         return getTarget() instanceof ASTSchemaVariableTerm;
     }
     
+    /**
+     * get the value term which is assigned. This is the second child in the AST.
+     * @return the assigned term as AST.
+     */
     public ASTTerm getTerm() {
         return (ASTTerm) getChildren().get(1);
     }

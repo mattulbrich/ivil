@@ -46,11 +46,6 @@ public class EnvironmentMaker {
     private Environment env;
     
     /**
-     * the program description possibly found in the {@link ASTFile}
-     */
-    private Program program;
-
-    /**
      * The problem term possibly found in the {@link ASTFile}
      */
     private @Nullable Term problemTerm;
@@ -144,15 +139,18 @@ public class EnvironmentMaker {
     }
 
     /*
-     * conert the AST program description to an object.
+     * convert the AST program description to an object.
      */
     private void doProgram(ASTFile astFile) throws ASTVisitException {
         ASTStatementList astProgram = astFile.getProgram();
         if(astProgram != null) {
             try {
-                program = ProgramMaker.makeProgram(astProgram, env);
+                Program program = ProgramMaker.makeProgram(astProgram, env);
+                env.setProgram(program);
             } catch (ASTVisitException e) {
-                throw new ASTVisitException("Program contains schema identifier", astProgram);
+                throw new ASTVisitException(astProgram, e);
+            } catch (EnvironmentException e) {
+                throw new ASTVisitException(astProgram, e);
             }
         }
     }

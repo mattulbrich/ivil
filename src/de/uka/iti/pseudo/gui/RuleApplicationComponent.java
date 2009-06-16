@@ -40,7 +40,6 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Triple;
@@ -177,7 +176,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             instantiationsPanel.add(label);
             
             JTextField textField = new JTextField();
-            textField.setText(PrettyPrint.print(env, t, true, true).toString());
+            textField.setText(PrettyPrint.print(env, t, true).toString());
             textField.setEditable(false);
             instantiationsPanel.add(textField);
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));

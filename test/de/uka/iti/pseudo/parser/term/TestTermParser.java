@@ -91,6 +91,19 @@ public class TestTermParser extends TestCaseWithEnv {
         testTermFail("[%a || 1:=skip");
     }
     
+    public void testUpdate() throws Exception {
+        testTerm("{ i1 := 1 as int }(i1 as int)", true);
+        testTerm("{ i1 := 1 || i1 := %v }%b", false);
+        testTerm("{ %x := %v || %y := %t }true", false);
+        testTerm("{ i1 := 1 }{ i1 := 2 }false", false);
+        testTerm("{ i1 := { b1 := true }i1 }true", false);
+        
+        // must be assignable
+        testTermFail("{ i2 := 0 }true");
+        // wrong types
+        testTermFail("{ b1 := 0 }true");
+    }
+    
     public void testAssociativity() throws Exception {
         testTerm("b1 -> b2 -> b1", "$impl($impl(b1,b2),b1)", false);
     }

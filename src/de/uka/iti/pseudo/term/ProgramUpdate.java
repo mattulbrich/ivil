@@ -20,7 +20,7 @@ public class ProgramUpdate {
         return position + ":=" + statement.toString(typed);
     }
 
-    public int getPosition() {
+    public int getUpdatedIndex() {
         return position;
     }
 

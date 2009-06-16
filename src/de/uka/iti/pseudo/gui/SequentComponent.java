@@ -123,7 +123,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     public SequentComponent(@NonNull Environment env) {
         this.env = env;
         this.setLayout(new Layout());
-        prettyPrinter = new PrettyPrint(env, false, true);
+        prettyPrinter = new PrettyPrint(env);
         prettyPrinter.addPropertyChangeListener(this);
     }
     

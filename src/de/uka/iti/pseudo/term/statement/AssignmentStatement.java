@@ -7,18 +7,14 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class AssignmentStatement extends Statement {
 
-    private Term target;
-    private Term value;
-
     public AssignmentStatement(Term target, Term value) throws TermException {
-        this.target = target;
-        this.value = value;;
+        super(new Term[] { target, value });
         check();
     }
 
     private void check() throws TermException {
-        if (target instanceof Application) {
-            Application appl = (Application) target;
+        if (getTarget() instanceof Application) {
+            Application appl = (Application) getTarget();
             Function func = appl.getFunction();
             if(!func.isAssignable())
                 throw new TermException("Target in an assignment needs to be 'assignable'");
@@ -26,7 +22,7 @@ public class AssignmentStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return target.toString(typed) + " := " + value.toString(typed);
+        return getTarget().toString(false) + " := " + getValue().toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {
@@ -34,12 +30,19 @@ public class AssignmentStatement extends Statement {
     }
 
     public Term getTarget() {
-        return target;
+        return getSubterms().get(0);
     }
 
     public Term getValue() {
-        return value;
+        return getSubterms().get(1);
     }
 
+    public boolean equals(Object object) {
+        if (object instanceof AssignmentStatement) {
+            AssignmentStatement as = (AssignmentStatement) object;
+            return getTarget().equals(as.getTarget()) && getValue().equals(as.getValue());
+        }
+        return false;
+    }
 
 }

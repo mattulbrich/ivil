@@ -140,7 +140,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
                 Type t1 = modifyType(t.getType());
                 Type t2 = modifyType(schemaVariable.getType());
                 if(!t1.equals(t2))
-                    throw new UnificationException("Instantiation failed! Incompatible types", schemaVariable, resultingTerm);
+                    throw new UnificationException("Instantiation failed! Incompatible types", t1, t2);
                 resultingTerm = t;
             }
             
@@ -149,6 +149,9 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
+    /*
+     * we need to handle this separately since the bound variable may be instantiated. 
+     */
     @Override
     public void visit(Binding binding) throws TermException {
         super.visit(binding);
@@ -173,6 +176,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
+    /*
+     * we need to handle this separately since the element to which sth is assigned 
+     * may be instantiated too. 
+     */
     public void visit(UpdateTerm updateTerm) throws TermException {
 
         updateTerm.getSubterm(0).visit(this);

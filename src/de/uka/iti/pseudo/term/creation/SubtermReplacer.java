@@ -61,7 +61,8 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *            the term to replace the subterm with
      * 
      * @return the original term with the indicated subterm substututed by
-     *         replaceWith
+     *         replaceWith, null if the index is outside the number of subterms
+     *         in this term
      * 
      * @throws TermException
      *             for instance if the new term cannot be typed or construction

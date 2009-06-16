@@ -9,18 +9,22 @@ public class TestSubtermCollector extends TestCaseWithEnv {
 
     public void testCollect() throws Exception {
 
-        String string = "[i1:=1 ; while b1 do if b2 then skip else i1:=1+1 end end](i1 = 3+2*1)";
+        String string = "{ i1 := 1 }{ b1 := true || i1 := { i1 := 0 }22*99 }(i1 = 3+2*1)";
         Term term = makeTerm(string);
         List<Term> subterms = SubtermCollector.collect(term);
 
+        //System.out.println(Util.listTerms(subterms));
+        
         int i = 0;
         assertEquals(term, subterms.get(i++));
         assertEquals(makeTerm("1 as int"), subterms.get(i++));
-        assertEquals(makeTerm("b1 as bool"), subterms.get(i++));
-        assertEquals(makeTerm("b2 as bool"), subterms.get(i++));
-        assertEquals(makeTerm("1+1"), subterms.get(i++));
-        assertEquals(makeTerm("1"), subterms.get(i++));
-        assertEquals(makeTerm("1"), subterms.get(i++));
+        assertEquals(makeTerm("{ b1 := true || i1 := { i1 := 0 }22*99 }(i1 = 3+2*1)"), subterms.get(i++));
+        assertEquals(makeTerm("true"), subterms.get(i++));
+        assertEquals(makeTerm("{ i1 := 0 }22*99"), subterms.get(i++));
+        assertEquals(makeTerm("{ i1 := 0 }22"), subterms.get(i++));
+        assertEquals(makeTerm("0"), subterms.get(i++));
+        assertEquals(makeTerm("22"), subterms.get(i++));
+        assertEquals(makeTerm("99"), subterms.get(i++));
         assertEquals(makeTerm("i1=3+2*1"), subterms.get(i++));
         assertEquals(makeTerm("i1"), subterms.get(i++));
         assertEquals(makeTerm("3+2*1"), subterms.get(i++));
@@ -31,7 +35,7 @@ public class TestSubtermCollector extends TestCaseWithEnv {
     }
     
     public void testCollect2() throws Exception {
-        String string = "[ i1 := i2 + i3 ](i1 = i3)";
+        String string = "{ i1 := i2 + i3 }(i1 = i3)";
         Term term = makeTerm(string);
         List<Term> subterms = SubtermCollector.collect(term);
 

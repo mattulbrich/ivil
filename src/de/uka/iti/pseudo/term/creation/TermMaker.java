@@ -486,10 +486,11 @@ public class TermMaker extends ASTDefaultVisitor {
     // child 0 is childterm;
     // child 1 ... are assignments
     public void visit(ASTUpdateTerm arg) throws ASTVisitException {
-        super.visit(arg);
+        List<ASTElement> children = arg.getChildren();
+        
+        children.get(0).visit(this);
         Term term = resultTerm;
         
-        List<ASTElement> children = arg.getChildren();
         AssignmentStatement[] assignments = new AssignmentStatement[children.size()-1];
         for (int i = 1; i < children.size(); i++) {
             children.get(i).visit(this);

@@ -11,11 +11,12 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
+import de.uka.iti.pseudo.util.AppendMap;
 // TODO DOC DOC
 public class TermUnification {
     
     private TypeUnification typeUnification = new TypeUnification();
-    private Map<String, Term> instantiation = new HashMap<String, Term>();
+    private AppendMap<String, Term> instantiation = new AppendMap<String, Term>();
     private TermInstantiator termInstantiator = new TermInstantiator(this);
     private TermMatcher termMatcher;
     private Environment env;
@@ -29,7 +30,7 @@ public class TermUnification {
     
     public boolean leftUnify(Term adaptingTerm, Term fixTerm) {
         
-        HashMap<String, Term> copyTermInst = new HashMap<String, Term>(instantiation);
+        AppendMap<String, Term> copyTermInst = instantiation.clone();
 
         try {
             

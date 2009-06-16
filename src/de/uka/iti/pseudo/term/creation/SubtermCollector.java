@@ -16,6 +16,8 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
 /**
  * The Class SubtermCollector provides a static method {@link #collect(Term)}
@@ -63,6 +65,22 @@ public class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
         for (Term t : term.getSubterms()) {
             t.visit(this);
         }
+    }
+    
+    /*
+     * in updates the values are considered subterms on which rules can be applied.
+     */
+    public void visit(UpdateTerm updateTerm) throws TermException {
+        // first the term itself
+        subtermsInOrder.add(updateTerm);
+
+        // then the update values
+        for (AssignmentStatement ass : updateTerm.getAssignments()) {
+            ass.getValue().visit(this);
+        }
+        
+        // then the updated term
+        updateTerm.getSubterm(0).visit(this);
     }
 
 }

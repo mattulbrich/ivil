@@ -49,7 +49,12 @@ public class LiteralProgramTerm extends ProgramTerm {
     }
 
     public Statement getStatement(Environment env) throws TermException {
-        return null;
+        int programIndex = getProgramIndex();
+        for (ProgramUpdate upd : updates) {
+            if(programIndex == upd.getUpdatedIndex())
+                return upd.getStatement();
+        }
+        return env.getProgram().getStatement(programIndex);
     }
     
     public List<ProgramUpdate> getUpdates() {

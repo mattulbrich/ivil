@@ -4,7 +4,6 @@ import java.util.Set;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.term.SchemaModality;
 import de.uka.iti.pseudo.term.SchemaVariable;
 
 public class TestSchemaCollectorVisitor extends TestCaseWithEnv {
@@ -12,19 +11,21 @@ public class TestSchemaCollectorVisitor extends TestCaseWithEnv {
     public void testCollectInModality() throws Exception {
         SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
         
-        scv.collect(makeTerm("[ i1 := %i ; while %b do if %b1 then skip end end]true"));
+        scv.collect(makeTerm("{ i1 := %i }[ %a : goto %n, %k]"));
         Set<SchemaVariable> schemaVariables = scv.getSchemaVariables();
+        //System.out.println(schemaVariables);
         assertTrue(schemaVariables.contains(new SchemaVariable("%i", Environment.getIntType())));
-        assertTrue(schemaVariables.contains(new SchemaVariable("%b", Environment.getBoolType())));
-        assertTrue(schemaVariables.contains(new SchemaVariable("%b1", Environment.getBoolType())));
+        assertTrue(schemaVariables.contains(new SchemaVariable("%a", Environment.getBoolType())));
+        assertTrue(schemaVariables.contains(new SchemaVariable("%n", Environment.getIntType())));
+        assertTrue(schemaVariables.contains(new SchemaVariable("%k", Environment.getIntType())));
         
     }
     
-    public void testModalityInModality() throws Exception {
+    public void testProgramInUpdate() throws Exception {
         
         SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
         
-        scv.collect(makeTerm("[ i1 := [ &a ]i1 ]true"));
-        assertTrue(scv.getSchemaModalities().contains(new SchemaModality("&a")));
+        scv.collect(makeTerm("{ b1 := [%a]}true"));
+        assertTrue(scv.getSchemaVariables().contains(new SchemaVariable("%a", Environment.getBoolType())));
     }
 }

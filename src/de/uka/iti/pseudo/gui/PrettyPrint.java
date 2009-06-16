@@ -27,10 +27,10 @@ import de.uka.iti.pseudo.util.Util;
 
 public class PrettyPrint {
 
-    public static final String TYPED_PROPERTY = "PP.typed";
-    public static final String PRINT_FIX_PROPERTY = "PP.printFix";
-    public static final String INITIALSTYLE_PROPERTY = "PP.initialstyle";
-    public static final String BREAK_MODALITIES_PROPERTY = "PP.breakModalities";
+    public static final String TYPED_PROPERTY = "pseudo.pp.typed";
+    public static final String PRINT_FIX_PROPERTY = "pseudo.pp.printFix";
+    public static final String INITIALSTYLE_PROPERTY = "pseudo.pp.initialstyle";
+    public static final String BREAK_MODALITIES_PROPERTY = "pseudo.pp.breakModalities";
 
     /**
      * The environment to lookup infix and prefix operators
@@ -40,23 +40,18 @@ public class PrettyPrint {
     /**
      * whether or not types are to be printed.
      */
-    private boolean typed;
+    private boolean typed = false;
 
     /**
      * whether or not fix operators are printed as such.
      */
-    private boolean printFix;
+    private boolean printFix = true;
     
     /**
      * whether or not program modifications are printed verbosely.
      */
-    private boolean printProgramModifications;
+    private boolean printProgramModifications = false;
     
-    /**
-     * whether or not to break lines in modalities and indent 
-     */
-    private boolean breakModalities = Boolean.getBoolean("pseudo.breakModalities");
-
     /**
      * the style (attribute string) to be set in the beginning.
      * may be null if no special attributes are to be set.
@@ -64,21 +59,26 @@ public class PrettyPrint {
     private String initialStyle;
 
     /**
-     * create a new pretty printer with some properties preset.
+     * create a new pretty printer with the default properties preset.
      * 
      * @param env
      *            the environment to lookup infix and prefix operators
-     * @param typed
-     *            terms are printed with their types if set to true
-     * @param printFix
-     *            fix terms are printed as infix/prefix if true, otherwise as
-     *            functions.
      */
-    public PrettyPrint(@NonNull Environment env, boolean typed,
-            boolean printFix) {
+    public PrettyPrint(@NonNull Environment env) {
+        this.env = env;
+    }
+
+    /**
+     * create a new pretty printer with the typing property explicitly set.
+     * 
+     * @param typed
+     *            whether or not typing information is to be printed.
+     * @param env
+     *            the environment to lookup infix and prefix operators
+     */
+    public PrettyPrint(@NonNull Environment env, boolean typed) {
         this.env = env;
         this.typed = typed;
-        this.printFix = printFix;
     }
     
     /**
@@ -104,7 +104,7 @@ public class PrettyPrint {
      * @param term
      *            the term to pretty print
      * @param printer
-     *            the annotated string to appent the term to
+     *            the annotated string to append the term to
      * @return printer
      */
     public AnnotatedStringWithStyles<Term> print(Term term, AnnotatedStringWithStyles<Term> printer) {
@@ -147,11 +147,11 @@ public class PrettyPrint {
      */
     public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull Term term) {
-        return print(env, term, false, true);
+        return print(env, term, false);
     }
 
     /**
-     * Prints a term without explicit typing.
+     * Prints a term.
      * 
      * A temporary pretty printer object is created for printing.
      * 
@@ -165,16 +165,12 @@ public class PrettyPrint {
      * @param typed
      *            if true, all subterms are amended with an explicit typing via
      *            "as type"
-     * @param printFix
-     *            if true, all fix operators which have a prefix or infix
-     *            presentation are printed in such a manner
      * 
      * @return the annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<Term> print(
-            @NonNull Environment env, @NonNull Term term, boolean typed,
-            boolean printFix) {
-        PrettyPrint pp = new PrettyPrint(env, typed, printFix);
+            @NonNull Environment env, @NonNull Term term, boolean typed) {
+        PrettyPrint pp = new PrettyPrint(env, typed);
 
         return pp.print(term);        
     }
@@ -200,7 +196,7 @@ public class PrettyPrint {
      */
     public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
-        return print(env, lterm, false, true);
+        return print(env, lterm, false);
     }
     
     /**
@@ -221,16 +217,13 @@ public class PrettyPrint {
      *            the located term to print
      * @param typed
      *            if true, the string will be printed typed
-     * @param printFix
-     *            if true print operator in infix or prefix
-     *            notation
      * 
      * @return an annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<Term> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
-            boolean typed, boolean printFix) {
-        PrettyPrint pp = new PrettyPrint(env, typed, printFix);
+            boolean typed) {
+        PrettyPrint pp = new PrettyPrint(env, typed);
         AnnotatedStringWithStyles<Term> retval;
 
         switch (lterm.getMatchingLocation()) {
@@ -335,39 +328,15 @@ public class PrettyPrint {
         firePropertyChanged(INITIALSTYLE_PROPERTY, old, initialStyle);
     }
     
-    /**
-     * Checks if is this printer indents in modalities and breaks lines in modalities
-     * 
-     * @return true, if is this breaks lines and indents modalities
-     */
-    public boolean isBreakModalities() {
-        return breakModalities;
-    }
-
-    /**
-     * Sets if is this printer should indent in modalities and break lines in
-     * modalities.
-     * 
-     * All registered {@link PropertyChangeListener} are informed of this
-     * change if the current value differs from the set value.
-     * 
-     * @param breakModalities
-     *            if true, this breaks lines and indents modalities from now on.
-     */
-    public void setBreakModalities(boolean breakModalities) {
-        boolean old = this.breakModalities;
-        this.breakModalities = breakModalities;
-        firePropertyChanged(BREAK_MODALITIES_PROPERTY, old, breakModalities);
-    }
-    
-    
     // TODO DOC
     public boolean isPrintingProgramModifications() {
         return printProgramModifications;
     }
 
     public void setPrintingProgramModifications(boolean printProgramModifications) {
+        boolean old = this.printProgramModifications;
         this.printProgramModifications = printProgramModifications;
+        firePropertyChanged(PRINT_FIX_PROPERTY, old, printProgramModifications);
     }
 
 

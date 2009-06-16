@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.meta.SubstMetaFunction;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -63,6 +64,12 @@ public class Environment {
      * The parent environment. Null only for the built in environment
      */
     private @Nullable Environment parentEnvironment;
+    
+    /**
+     * The program defined for this environment. 
+     * Null if none has been specified.
+     */
+    private Program program;
     
     /**
      * Has this environment been fixed?
@@ -141,7 +148,7 @@ public class Environment {
     public Environment getParent() {
         return parentEnvironment;
     }
-
+    
     /**
      * Sets the parent environment. This must happen <b>before</b> any sort,
      * function, binder or rule has been added to the environment
@@ -182,6 +189,40 @@ public class Environment {
     public boolean isFixed() {
         return fixed;
     }
+
+    /**
+     * get the program defined for this environment
+     * 
+     * If no program is defined the call is delegated to the parent environment.
+     * Null is returned if no program has been defined within all reachable
+     * environments.
+     * 
+     * @return a program or null
+     */
+    public Program getProgram() {
+        if(program != null)
+            return program;
+        
+        if(parentEnvironment != null)
+            return parentEnvironment.getProgram();
+        
+        return null;
+    }
+    
+    /**
+     * set the program of the environment
+     * 
+     * overwrites a previously set program
+     * 
+     * @throws EnvironmentException if the environment has already been fixed. 
+     */
+    public void setProgram(Program program) throws EnvironmentException {
+        if(isFixed())
+            throw new EnvironmentException("This environment has already been fixed, program cannot be set");
+        
+        this.program = program;
+    }
+
 
     //
     // ---------- Handling sorts ----------
@@ -720,36 +761,36 @@ public class Environment {
         return newName;
     }
 
-    private int skolemCounter = 1;
+//    private int skolemCounter = 1;
     
-    @Deprecated
-    public Function createNewSkolemConst(Type type) {
-        // TODO method documentation
-        
-        assert !isFixed();
-        
-        String newName;
-        Function existing;
-        do {
-            newName = "sk" + skolemCounter;
-            skolemCounter ++;
-            existing = getFunction(newName);
-        } while(existing != null);
-        
-        Function newFunction = new Function(newName, type, new Type[0], 
-                false, false, ASTLocatedElement.BUILTIN);
-        
-        try {
-            addFunction(newFunction);
-        } catch (EnvironmentException e) {
-            throw new Error("Internal error: Skolem creation fails", e);
-        }
-        
-        return newFunction;
-    }
+//    @Deprecated
+//    public Function createNewSkolemConst(Type type) {
+//        // TODO method documentation
+//        
+//        assert !isFixed();
+//        
+//        String newName;
+//        Function existing;
+//        do {
+//            newName = "sk" + skolemCounter;
+//            skolemCounter ++;
+//            existing = getFunction(newName);
+//        } while(existing != null);
+//        
+//        Function newFunction = new Function(newName, type, new Type[0], 
+//                false, false, ASTLocatedElement.BUILTIN);
+//        
+//        try {
+//            addFunction(newFunction);
+//        } catch (EnvironmentException e) {
+//            throw new Error("Internal error: Skolem creation fails", e);
+//        }
+//        
+//        return newFunction;
+//    }
 
     /**
-     * is there a direct or inderect parent which as the given string as resource name
+     * is there a direct or indirect parent which as the given string as resource name
      * 
      * @param path resource to look up
      * 
@@ -774,7 +815,5 @@ public class Environment {
     public @NonNull String getResourceName() {
         return resourceName;
     }
-
-    
 
 }

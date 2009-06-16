@@ -104,6 +104,7 @@ class TermMatcher extends DefaultTermVisitor {
             throw new UnificationException("Incomparable types of terms", t1, t2);
     }
     
+    // TODO DOC
     private void matchSchemaProgram(SchemaProgram sp, LiteralProgramTerm litPrg) throws TermException {
         SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
@@ -198,7 +199,7 @@ class TermMatcher extends DefaultTermVisitor {
     
     @Override 
     public void visit(SchemaProgram schemaProgramTerm) throws TermException {
-        throw new Error("unification of schema program terms is not implemented / intended");
+        throw new Error("unification of 2 schema program terms is not implemented / intended");
     }
     
     @Override 

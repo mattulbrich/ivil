@@ -246,7 +246,7 @@ class PrettyPrintVisitor implements TermVisitor {
         for (int i = 0; i < updates.size(); i++) {
             if(i >= 0)
                 printer.append(" || ");
-            printer.append(Integer.toString(updates.get(i).getPosition()));
+            printer.append(Integer.toString(updates.get(i).getUpdatedIndex()));
             if(pp.isPrintingProgramModifications()) {
                 printer.append(" := " + updates.get(i).getStatement().toString(pp.isTyped()));
             }
@@ -267,6 +267,7 @@ class PrettyPrintVisitor implements TermVisitor {
         }
         printer.append(schemaProgramTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
+        printer.end();
     }
     
     public void visit(UpdateTerm updateTerm) throws TermException {
@@ -278,7 +279,7 @@ class PrettyPrintVisitor implements TermVisitor {
             if(i > 0)
                 printer.append(" || ");
             printer.append(assignments.get(i).getTarget().toString());
-            printer.append(":=");
+            printer.append(" := ");
             assignments.get(i).getValue().visit(this);
         }
         printer.append(" }");

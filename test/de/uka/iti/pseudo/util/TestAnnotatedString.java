@@ -92,7 +92,7 @@ public class TestAnnotatedString extends TestCaseWithEnv {
     // from a bug
     public void testVariableTerm() throws Exception {
         Term t = makeTerm("(\\exists x; x>0)");
-        PrettyPrint pp = new PrettyPrint(env, false, true);
+        PrettyPrint pp = new PrettyPrint(env, false);
         AnnotatedStringWithStyles<Term> as = pp.print(t);
         
         for (int i = 0; i < as.length(); i++) {

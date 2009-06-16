@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.term;
 
+import java.util.Arrays;
 import java.util.List;
 
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
@@ -16,12 +17,16 @@ public class UpdateTerm extends Term {
         assert assignments.length > 0;
     }
 
-    @Override public boolean equals(Object object) {
-        // TODO Implement UpdateTerm.equals
+    public boolean equals(Object object) {
+        if (object instanceof UpdateTerm) {
+            UpdateTerm ut = (UpdateTerm) object;
+            return Arrays.equals(assignments, ut.assignments) &&
+                    getSubterm(0).equals(ut.getSubterm(0));
+        }
         return false;
     }
 
-    @Override public String toString(boolean typed) {
+    public String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
         
         for (int i = 0; i < assignments.length; i++) {
@@ -31,12 +36,17 @@ public class UpdateTerm extends Term {
                 sb.append(" || ");
             sb.append(assignments[i].toString(typed));
         }
-        sb.append(" }").append(getSubterm(0).toString(typed));
+        sb.append(" }");
+        
+        if(typed)
+            sb.append("(").append(getSubterm(0).toString(true)).append(")");
+        else
+            sb.append(getSubterm(0).toString(false));
         
         return sb.toString();
     }
 
-    @Override public void visit(TermVisitor visitor) throws TermException {
+    public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
 

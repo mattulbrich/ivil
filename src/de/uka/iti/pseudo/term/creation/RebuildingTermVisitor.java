@@ -21,33 +21,62 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
 
-
 /**
  * This class is the base class to visitors which change the structure of a term
  * locally.
  * 
  * Since the term datastructure is immutable, this mechanism must be used to
- * change a term, i.e. to produce a new term which is identical to the original
- * but at certain places.
+ * partially change a term, i.e. to produce a new term which is identical to the
+ * original but at certain places.
  * 
  * The visitor visits into depth and only if a resulting item is not null,
  * reconstructs a parent item. It is hence guaranteed to reuse as much term
  * structure as possible.
  * 
+ * The mechanism does not traverse schema programs terms
  */
 
 public class RebuildingTermVisitor extends DefaultTermVisitor {
 
+    /**
+     * stores the result of a visitation.
+     * 
+     * May contain null to indicate that the last subterm has not changed due to 
+     * the rebuilding. 
+     */
     protected Term resultingTerm;
     
+    /**
+     * {@inheritDoc}
+     * 
+     * the default action is to not change the term.
+     */
     protected void defaultVisitTerm(Term term) throws TermException {
         resultingTerm = null;
     }
-    
+
+    /**
+     * Implement this method if your visitation needs to adapt types of terms
+     * also (for instance type variable instantiation).
+     * 
+     * One may for instance change change the type of an application but not the
+     * function symbol (in case of polymorphism)
+     * 
+     * This implementation just returns the argument
+     * 
+     * @param type
+     *            the type to potentially modify
+     * @return the modified type
+     * @throws TermException
+     *             may be thrown by an implementation
+     */
     protected Type modifyType(Type type) throws TermException {
         return type;
     }
     
+    /*
+     * a variable is rebuilt only if the type modification changes the type.
+     */
     @Override
     public void visit(Variable variable) throws TermException {
         defaultVisitTerm(variable);
@@ -58,7 +87,11 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 resultingTerm = new Variable(variable.getName(), type);
         }
     }
-    
+
+    /*
+     * a schema variable is rebuilt only if the 
+     * type modification changes the type.
+     */
     @Override
     public void visit(SchemaVariable schemaVariable) throws TermException {
         defaultVisitTerm(schemaVariable);
@@ -70,6 +103,9 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         }
     }
     
+    /*
+     * a binding is rebuilt if any of its arguments or the type have changed
+     */
     @Override
     public void visit(Binding binding) throws TermException {
         defaultVisitTerm(binding);
@@ -92,12 +128,15 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 args = Util.listToArray(binding.getSubterms(), Term.class);
                 resultingTerm = new Binding(binding.getBinder(), modifiedType,
                         binding.getVariable(), args);
-            }else {
+            } else {
                 resultingTerm = null;
             }
         }
     }
 
+    /*
+     * an application is rebuilt if any of its arguments or the type have changed
+     */
     @Override
     public void visit(Application application) throws TermException {
         defaultVisitTerm(application);
@@ -126,27 +165,51 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         }
     }
     
+    /*
+     * an update term is is rebuilt if any of its assignments is modified
+     * or if the updated term is modified.
+     * The type is not taken into consideration, this is always the type
+     * of the child term.
+     */
+    @Override
     public void visit(UpdateTerm updateTerm) throws TermException {
         defaultVisitTerm(updateTerm);
         if(resultingTerm == null) {
-            AssignmentStatement[] newAssignments = null;
             List<AssignmentStatement> assignments = updateTerm.getAssignments();
-            for(int i = 0; i < assignments.size(); i++) {
-                assignments.get(i).getValue().visit(this);
-                if(resultingTerm != null) {
-                    if(newAssignments == null) {
-                        newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
-                    }
-                    newAssignments[i] = new AssignmentStatement(assignments.get(i).getTarget(), resultingTerm);
-                }
-            }
+            AssignmentStatement[] newAssignments = visitAssignments(assignments);
             
-            if(newAssignments != null) {
-                resultingTerm = new UpdateTerm(newAssignments, updateTerm.getSubterm(0));
+            updateTerm.getSubterm(0).visit(this);
+            Term childResult = resultingTerm;
+            
+            if(newAssignments != null || childResult != null) {
+                if(newAssignments == null)
+                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+                if(childResult == null)
+                    childResult = updateTerm.getSubterm(0);
+                resultingTerm = new UpdateTerm(newAssignments, childResult);
             } else {
                 resultingTerm = null;
             }
         }
     }
+
+    /*
+     * An assignment list is updated if one assignment value is updated. 
+     */
+    private AssignmentStatement[] visitAssignments(
+            List<AssignmentStatement> assignments) throws TermException {
+        AssignmentStatement[] newAssignments = null;
+        for(int i = 0; i < assignments.size(); i++) {
+            assignments.get(i).getValue().visit(this);
+            if(resultingTerm != null) {
+                if(newAssignments == null) {
+                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+                }
+                newAssignments[i] = new AssignmentStatement(assignments.get(i).getTarget(), resultingTerm);
+            }
+        }
+        return newAssignments;
+    }
+    
 
 }

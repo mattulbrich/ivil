@@ -23,6 +23,8 @@ import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
+
+// TODO update doc for new sit
 /**
  * The SchemaFinder visitor provides the possibilty to collect all schema
  * variables from a term. This includes schematic program references like [&a].
@@ -35,11 +37,6 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * The set of collected schema variables, identified by their name
      */
     private Set<SchemaVariable> schemaVariables = new LinkedHashSet<SchemaVariable>();
-
-    /**
-     * The set of collected schema modalities.
-     */
-    private Set<SchemaProgram> schemaPrograms = new LinkedHashSet<SchemaProgram>();
 
     /**
      * perform collection of schema identifiers in a term
@@ -117,7 +114,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * @return true, if is empty
      */
     public boolean isEmpty() {
-        return schemaPrograms.isEmpty() && schemaVariables.isEmpty();
+        return schemaVariables.isEmpty();
     }
 
     /**
@@ -129,17 +126,8 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
         return schemaVariables;
     }
 
-    /**
-     * Gets the set of schema programs.
-     * 
-     * @return the schema programs
-     */
-    public Set<SchemaProgram> getSchemaPrograms() {
-        return schemaPrograms;
-    }
-
     public void visit(SchemaProgram schemaProgram) throws TermException {
-        schemaPrograms.add(schemaProgram);
+        schemaVariables.add(schemaProgram.getSchemaVariable());
         Statement statement = schemaProgram.getMatchingStatement();
         if (statement != null) {
             for (Term term : statement.getSubterms()) {

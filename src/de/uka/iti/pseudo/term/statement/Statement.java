@@ -43,8 +43,16 @@ public abstract class Statement {
     public List<Term> getSubterms() {
         return Util.readOnlyArrayList(subTerms);
     }
+    
+    public String toString() {
+        return toString(Term.SHOW_TYPES);
+    }
 
     public abstract String toString(boolean typed);
+    
+    public /*abstract*/ boolean equals(Object object) {
+        throw new Error(getClass() + ".equals() not implemented");
+    }
 
     public abstract void visit(StatementVisitor visitor) throws TermException;
 

@@ -12,10 +12,10 @@ ASTTerm Term():
 {
 
         ( term=OpIdentifier() { list.add(term); } )*
-        term=AsTerm() { list.add(term); }
+        term=UpdateTerm() { list.add(term); }
         (
           ( term=OpIdentifier() { list.add(term); } )+
-          term=AsTerm() { list.add(term); }
+          term=UpdateTerm() { list.add(term); }
         )*
    { 
      if(list.size() > 1)

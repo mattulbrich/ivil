@@ -89,6 +89,17 @@ public class TypeUnification {
     public TypeUnification(Map<String, Type> map) {
         instantiation = new HashMap<String, Type>(map);
     }
+    
+    /**
+     * create a copy of this type unification object which has a copy of
+     * the type variable mapping.
+     * 
+     * @return a clone of this.
+     */
+    public TypeUnification clone() {
+        TypeUnification retval = new TypeUnification(instantiation);
+        return retval;
+    }
 
     /**
      * Make variant of a type.
@@ -281,11 +292,6 @@ public class TypeUnification {
         }
     }
     
-    public TypeUnification clone() {
-        TypeUnification retval = new TypeUnification(instantiation);
-        return retval;
-    }
-
     /*
      * do the actual unification after Robinson
      */

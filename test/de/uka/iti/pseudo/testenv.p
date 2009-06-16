@@ -18,7 +18,7 @@ function
 	int i4
 
 (* some booleans *)	
-	bool b1
+	bool b1 assignable
 	bool b2
 
 (* alternate arb *)
@@ -28,3 +28,14 @@ function
         'a id('a)
 	poly('a, 'b) P('a, 'b)
 	'a Q(poly('a,'a))
+
+(* for tests with programs *)
+
+program
+    assume b1
+    assert b2
+    skip
+    goto 5, 0
+    skip (* havov i1 *)
+    i1 := i2 + i3
+    end true

@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -280,6 +281,14 @@ public class TypingResolver extends ASTDefaultVisitor {
         TypeVariable typeVar = new TypeVariable(name);
         schemaVariableTerm.setTyping(new Typing(typeVar, typingContext));
     }
+    
+    @Override 
+    public void visit(ASTUpdateTerm updateTerm) throws ASTVisitException {
+        super.visit(updateTerm);
+        ASTTerm subterm = updateTerm.getSubterms().get(0);
+        updateTerm.setTyping(subterm.getTyping());
+    } 
+
     
     @Override
     public void visit(ASTNumberLiteralTerm numberLiteralTerm)

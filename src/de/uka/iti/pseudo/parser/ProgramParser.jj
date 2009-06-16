@@ -56,8 +56,6 @@ ASTStatement Statement():
 	| assignment=Assignment() { return assignment; }
 	| kw="goto" targets=Goto_Targets()
 	     { return new ASTGotoStatement(kw, targets); }
-	     
-	| kw="source" t=<STRING> { return new ASTSourceStatement(kw, t); }
 }
 
 ASTAssignmentStatement Assignment():
