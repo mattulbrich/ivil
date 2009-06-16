@@ -148,10 +148,12 @@ public class EnvironmentMaker {
      */
     private void doProgram(ASTFile astFile) throws ASTVisitException {
         ASTStatementList astProgram = astFile.getProgram();
-        try {
-            program = ProgramMaker.makeProgram(astProgram, env);
-        } catch (ASTVisitException e) {
-            throw new ASTVisitException("Program contains schema identifier", astProgram);
+        if(astProgram != null) {
+            try {
+                program = ProgramMaker.makeProgram(astProgram, env);
+            } catch (ASTVisitException e) {
+                throw new ASTVisitException("Program contains schema identifier", astProgram);
+            }
         }
     }
 

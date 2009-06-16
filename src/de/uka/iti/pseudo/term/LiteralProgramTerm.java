@@ -19,7 +19,7 @@ public class LiteralProgramTerm extends ProgramTerm {
         try {
             programIndex = Integer.parseInt(image);
         } catch(NumberFormatException ex) {
-            throw new TermException("Illegally formated program index: " + image, ex);
+            throw new TermException("Illegally formated literal program index: " + image, ex);
         }
     }
 

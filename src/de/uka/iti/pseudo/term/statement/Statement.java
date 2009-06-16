@@ -29,12 +29,12 @@ public abstract class Statement {
      * the statement is of boolean type.
      * 
      * @throws TermException
-     *             the first argument to this statement is not of type booleanß
+     *             the first argument to this statement is not of type boolean
      */
     protected void ensureCondition() throws TermException {
         assert subTerms.length > 0;
 
-        if (subTerms[0].getType().equals(Environment.getBoolType()))
+        if (!subTerms[0].getType().equals(Environment.getBoolType()))
             throw new TermException(
                     "This statement expects a boolean condition, but received "
                             + subTerms[0]);

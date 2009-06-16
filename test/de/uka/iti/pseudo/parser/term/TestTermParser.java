@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
@@ -31,6 +32,7 @@ public class TestTermParser extends TestCaseWithEnv {
             Term t = TermMaker.makeAndTypeTerm(term, env);
             fail(term + " should not be parsable, but parses as: " + t.toString(true));
         } catch (ASTVisitException e) {
+        } catch (ParseException e) {
         }
     }
     
@@ -59,7 +61,7 @@ public class TestTermParser extends TestCaseWithEnv {
             TermMaker.makeAndTypeTerm("arb as 'a = arb as set('a)", env);
             fail("should not be parsable");
         } catch (ASTVisitException e) {
-        }
+        } 
     }
 
     public void testAs() throws Exception {
@@ -76,21 +78,18 @@ public class TestTermParser extends TestCaseWithEnv {
     }
 
     public void testModality() throws Exception {
-        testTerm("[i1:=1]i1", false);
-        testTerm("[while b1 do i1:=0 end]true", false);
-        testTerm("[while b1 inv b1 & b2 do skip end]true", "[while b1 inv $and(b1,b2) do skip end]true", false);
-        testTerm("[if b1 then skip else i1:=0 end]false", false);
-        testTerm("[if b1 then skip end]b2", false);
-        testTerm("[skip; skip; skip]b2", false); 
-        testTermFail("[i2:=1]i2");
-        testTerm("[i1:=1]i1", "[i1:=1 as int](i1 as int)", true);
-        testTerm("([skip]b1) = b1", "$eq([skip]b1,b1)", false);
+        testTerm("[5] as bool", true);
+        testTerm("[[7]]", false);
+        testTerm("[7] -> [9]", "$impl([7],[9])", false);
+        testTerm("[8 || 8:=assert $gt(%i1,1) || 9:=end true || 10:=assume %b]", false);
+        testTerm("[[%a]]", false);
+        testTerm("[%a: end %b]", false);
+        testTerm("[%a: goto %b, %c]", false);
+        
+        testTermFail("[6: end true");
+        testTermFail("[%a: end 1");
+        testTermFail("[%a || 1:=skip");
     }
-    
-//    public void testModalityPrecedence() throws Exception {
-//        Term t1 = TermMaker.makeTerm("[skip]b1 as bool", env);
-//        Term t2 = TermMaker.makeTerm("[skip](b1 as bool)", env);
-//    }
     
     public void testAssociativity() throws Exception {
         testTerm("b1 -> b2 -> b1", "$impl($impl(b1,b2),b1)", false);

@@ -13,32 +13,31 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
+import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 
 public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
-    private boolean schema;
     private Token position;
     
-    private ASTProgramTerm(Token position, boolean terminating, boolean schema) {
+    private ASTProgramTerm(Token position, boolean terminating) {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
-        this.schema = schema;
         this.position = position;
     }
 
     public ASTProgramTerm(Token label, boolean termination,
             ASTStatement matchStatement) {
-        this(label, termination, true);
+        this(label, termination);
         if(matchStatement != null)
             addChild(matchStatement);
     }
 
     public ASTProgramTerm(Token label, boolean termination,
             List<ASTProgramUpdate> list) {
-        this(label, termination, false);
+        this(label, termination);
         addChildren(list);
     }
 
@@ -61,7 +60,7 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public boolean hasMatchingStatement() {
-        return schema && getChildren().size() > 0;
+        return isSchema() && getChildren().size() > 0;
     }
 
     public ASTStatement getMatchingStatement() {
@@ -70,7 +69,7 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public boolean isSchema() {
-        return schema;
+        return position.kind == ParserConstants.SCHEMA_IDENTIFIER;
     }
 
 }

@@ -89,7 +89,7 @@ ASTTerm ProgramTerm():
 }
 {
     (  "[" pt=ProgramTerm_Content(false) "]" 
-    |  "[[" pt=ProgramTerm_Content(true) "]"
+    |  "[[" pt=ProgramTerm_Content(true) "]]"
     )
     { return pt; }
 }
@@ -102,20 +102,16 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
   List<ASTProgramUpdate> list = new LinkedList<ASTProgramUpdate>();
 }
 {
-       ( label=<NATURAL> 
-       | label=<SCHEMA_IDENTIFIER>
-       )
-       
-       // never have both!
-       ( 
-         ":" matchStatement=Statement()
-           { return new ASTProgramTerm(label, termination, matchStatement); } 
-       |      
+       ( label=<SCHEMA_IDENTIFIER> 
+         (  ":" matchStatement=Statement() )?
+           { return new ASTProgramTerm(label, termination, matchStatement); }
+            
+       | 
+         label=<NATURAL>
          ( "||" t=<NATURAL> ":=" st=Statement() 
-           { list.add(new ASTProgramUpdate(t, st)); } )+
-       )?
-       
-       { return new ASTProgramTerm(label, termination, list); }
+           { list.add(new ASTProgramUpdate(t, st)); } )*
+         { return new ASTProgramTerm(label, termination, list); }
+       )
 }
 
 ASTBinderTerm BinderTerm():

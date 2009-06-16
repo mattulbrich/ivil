@@ -13,7 +13,7 @@ rule rule_Test1
 rule forall_left
    find (\forall x as 'a; %b)  |-
    where
-      interact  %inst as 'a
+      interact %inst as 'a
    samegoal
       add |-  %inst = %inst 
 
@@ -38,7 +38,11 @@ rule test_where
    samegoal
      replace  true 
      
-rule test_schema_mod
+rule test_mod
    find  [ 1 ]
    samegoal
      replace  cond(%b, [ 2 ], [[ 3 ]])
+
+rule test_schema_mod
+   find  [ %a ]
+   replace  %a -> %a

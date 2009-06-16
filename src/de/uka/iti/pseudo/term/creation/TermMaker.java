@@ -545,9 +545,9 @@ public class TermMaker extends ASTDefaultVisitor {
     }
     
     public void visit(ASTProgramUpdate arg) throws ASTVisitException {
-        super.visit(arg);
         try {
             int position = Integer.parseInt(arg.getPosition().image);
+            arg.getChildren().get(0).visit(this);
             resultProgramUpdate = new ProgramUpdate(position, resultStatement);
         } catch (Exception e) {
             throw new ASTVisitException(arg, e);

@@ -21,10 +21,16 @@ public abstract class ProgramTerm extends Term {
     }
     
     public String toString(boolean typed) {
+        String res;
         if(isTerminating())
-            return "[[ " + getContentString(typed) + "]]";
+            res =  "[[" + getContentString(typed) + "]]";
         else
-            return "[ " + getContentString(typed) + "]";
+            res =  "[" + getContentString(typed) + "]";
+        
+        if(typed)
+            res += " as bool";
+        
+        return res;
     }
 
     protected abstract String getContentString(boolean typed);
