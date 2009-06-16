@@ -13,9 +13,12 @@ public class ASTSourceStatement extends ASTStatement {
         this.argumentToken = argument;
     }
 
-    @Override public void visit(ASTVisitor v) throws ASTVisitException {
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
+    public Token getArgumentToken() {
+        return argumentToken;
+    }
 
 }

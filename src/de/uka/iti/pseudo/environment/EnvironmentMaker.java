@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -43,6 +44,11 @@ public class EnvironmentMaker {
      * The environment that is being built.
      */
     private Environment env;
+    
+    /**
+     * the program description possibly found in the {@link ASTFile}
+     */
+    private Program program;
 
     /**
      * The problem term possibly found in the {@link ASTFile}
@@ -132,10 +138,22 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
 
+        doProgram(astFile);
+        
         doProblem(astFile);
     }
 
-
+    /*
+     * conert the AST program description to an object.
+     */
+    private void doProgram(ASTFile astFile) throws ASTVisitException {
+        ASTStatementList astProgram = astFile.getProgram();
+        try {
+            program = ProgramMaker.makeProgram(astProgram, env);
+        } catch (ASTVisitException e) {
+            throw new ASTVisitException("Program contains schema identifier", astProgram);
+        }
+    }
 
     /*
      * convert the AST term problem description to a real term object.

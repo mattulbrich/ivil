@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
+import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -297,6 +298,32 @@ public class TermMaker extends ASTDefaultVisitor {
 
         return termMaker.resultType;
     }
+    
+    /**
+     * Make a statement from an AST.
+     * 
+     * A given statement AST is subject to an instance of this class which then
+     * creates a {@link Statement} object out of the AST.
+     * 
+     * @param astStatement
+     *            the ast of the statement to be created
+     * @param env
+     *            the environment used to resolve in term making
+     *            
+     * @return a statement which represents astStatement
+     * 
+     * @throws ASTVisitException
+     *             thrown on error during AST traversal.
+     */
+    public static Statement makeStatement(ASTStatement astStatement,
+            Environment env) throws ASTVisitException {
+        
+        TermMaker termMaker = new TermMaker(env);
+        astStatement.visit(termMaker);
+        
+        return termMaker.resultStatement;
+    }
+
 
 
     //
@@ -519,6 +546,12 @@ public class TermMaker extends ASTDefaultVisitor {
     
     public void visit(ASTProgramUpdate arg) throws ASTVisitException {
         super.visit(arg);
+        try {
+            int position = Integer.parseInt(arg.getPosition().image);
+            resultProgramUpdate = new ProgramUpdate(position, resultStatement);
+        } catch (Exception e) {
+            throw new ASTVisitException(arg, e);
+        } 
     }
 
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
@@ -605,5 +638,5 @@ public class TermMaker extends ASTDefaultVisitor {
             throw new ASTVisitException(arg, e);
         }
     }
-    
+
 }

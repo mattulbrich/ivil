@@ -55,6 +55,24 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
             throw new Error();
         }
     }
+    
+    /**
+     * perform collection of schema identifiers on a statement
+     * 
+     * @param statement
+     *            statement to collect
+     */
+    public void collect(Statement statement) {
+        try {
+            for (Term subterm : statement.getSubterms()) {
+                subterm.visit(this);
+            }
+        } catch (TermException e) {
+            // not thrown in this code
+            throw new Error();
+        }
+    }
+
 
     /**
      * perform collection of schema identifiers on a rule.
