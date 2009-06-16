@@ -124,6 +124,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < RULE: "rule" >
 | < SAMEGOAL: "samegoal" >
 | < SORT: "sort" >
+| < SOURCE: "source" >
 | < TAGS: "tags" >
 | < UNIQUE: "unique" >
 | < WHERE: "where" >

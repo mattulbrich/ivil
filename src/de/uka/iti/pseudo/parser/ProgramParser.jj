@@ -38,13 +38,18 @@ ASTStatement Statement():
 	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
 	| kw="assume" term=Term() { return new ASTAssumeStatement(kw, term); }
 	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
+	// TODO variant can be specified also
 	| kw="skip_loopinv" term=Term() { return new ASTSkipStatement(kw, term); }
 	| kw="skip" { return new ASTSkipStatement(kw); }
 	| t=<IDENTIFIER> ":=" term=Term() { return new ASTAssignmentStatement(t, term); }
 	| kw="goto" targets=Goto_Targets()
 	     { return new ASTGotoStatement(kw, targets); }
+	     
+	| kw="source" t=<STRING> { return new ASTSourceStatement(kw, t); }
 }
 
+// TODO limit number of goals to 2? would not really matter ... 
+// (even for switches ... cascade them)
 List<Token> Goto_Targets():
 {
     List<Token> targets = new LinkedList<Token>();
@@ -57,6 +62,6 @@ List<Token> Goto_Targets():
     ( "," 
       (t=<IDENTIFIER>|t=<NATURAL>)
         { targets.add(t); }
-    )*
+    )?
     { return targets; }
 }
