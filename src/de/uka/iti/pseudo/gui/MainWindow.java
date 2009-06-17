@@ -10,12 +10,11 @@ package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
@@ -35,7 +34,7 @@ import com.javadocking.model.FloatDockModel;
 
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
-import de.uka.iti.pseudo.gui.bar.ExitAction;
+import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -135,10 +134,16 @@ public class MainWindow extends JFrame {
             Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");
             tabDock.addDockable(dock, new Position(2));
         }
+//        {
+//            JPanel settings = new JPanel();
+//            settings.add(new JLabel("yet to come ..."));
+//            Dockable dock = new DefaultDockable("settings", settings, "Settings");
+//            tabDock.addDockable(dock, new Position(3));
+//        }
         {
-            JPanel settings = new JPanel();
-            settings.add(new JLabel("yet to come ..."));
-            Dockable dock = new DefaultDockable("settings", settings, "Settings");
+            File file = new File(proofCenter.getEnvironment().getResourceName());
+            PFileEditor pfedit = new PFileEditor(file);
+            Dockable dock = new DefaultDockable("pfedit", pfedit, "Environment");
             tabDock.addDockable(dock, new Position(3));
         }
         {

@@ -1,3 +1,20 @@
+#
+# This file is part of PSEUDO
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+#
+# The system is protected by the GNU General Public License.
+# See LICENSE.TXT for details.
+#
+
+(*
+ * This file contains definitions and rules for handling the
+ * integer type:
+ *  - arithmetic operations
+ *  - comparison predicates
+ *  - the sum binder
+ *)
+
 include 
   "$base.p"
 
@@ -18,8 +35,6 @@ function  # prefixes
 
 binder
         int (\sum int; int; int; int)
-
-
 
 (*
  * Rules concerning + and -
@@ -80,6 +95,8 @@ rule gt_minus_one
 (*
  * Handling expressions with only literals
  *)
+# TODO: later have rules for the possible operators
+# themselves so that it matches less often.
 
 rule resolve_int_literals
   find %t
