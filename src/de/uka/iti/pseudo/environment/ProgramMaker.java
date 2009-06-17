@@ -97,7 +97,7 @@ public class ProgramMaker extends ASTDefaultVisitor {
     
     private boolean detectSchemaVariables(Statement statement) {
         for (Term subterm : statement.getSubterms()) {
-            if(TermUnification.containsSchemaIdentifier(subterm))
+            if(TermUnification.containsSchemaVariables(subterm))
                 return true;
         }
         return false;

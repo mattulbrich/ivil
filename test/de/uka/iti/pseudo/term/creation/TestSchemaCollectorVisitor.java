@@ -28,4 +28,13 @@ public class TestSchemaCollectorVisitor extends TestCaseWithEnv {
         scv.collect(makeTerm("{ b1 := [%a]}true"));
         assertTrue(scv.getSchemaVariables().contains(new SchemaVariable("%a", Environment.getBoolType())));
     }
+    
+    public void testSchemaAssignment() throws Exception {
+        SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
+        
+        scv.collect(makeTerm("{ %i := 0 }true"));
+        scv.collect(makeTerm("[ %a : %j := 0 ]true"));
+        assertTrue(scv.getSchemaVariables().contains(new SchemaVariable("%i", Environment.getIntType())));
+        assertTrue(scv.getSchemaVariables().contains(new SchemaVariable("%j", Environment.getIntType())));
+    }
 }

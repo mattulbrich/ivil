@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Properties;
 
@@ -11,6 +12,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 // TODO DOC
@@ -29,7 +31,9 @@ public class Proof extends Observable {
     
     public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {
         
-        TermInstantiator inst = new TermInstantiator(ruleApp);
+        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+        TermInstantiator inst = new TermInstantiator(schemaMap, typeMap);
         
         int goalno = extractGoalNo(ruleApp);
         ProofNode goal = openGoals.get(goalno);

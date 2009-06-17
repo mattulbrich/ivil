@@ -163,7 +163,7 @@ public class EnvironmentMaker {
         if(term != null) {
             problemTerm = TermMaker.makeTerm(term, env);
 
-            if(TermUnification.containsSchemaIdentifier(problemTerm))
+            if(TermUnification.containsSchemaVariables(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
         }
 

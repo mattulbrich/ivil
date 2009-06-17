@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.gui;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
@@ -25,6 +26,8 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 /**
@@ -151,7 +154,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             GoalAction ga = rule.getGoalActions().get(index);
             String actionName = ga.getName();
             
-            TermInstantiator termInst = new TermInstantiator(appliedRuleApp);
+            Map<String, Term> schemaMap = appliedRuleApp.getSchemaVariableMapping();
+            Map<String, Type> typeMap = appliedRuleApp.getTypeVariableMapping();
+            TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap);
             
             return actionName == null ? "branch " + (index+1) : termInst.replaceInString(actionName);
         }

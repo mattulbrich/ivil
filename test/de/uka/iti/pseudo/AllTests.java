@@ -6,7 +6,6 @@ import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.parser.term.TestTermParser;
-import de.uka.iti.pseudo.proof.TestTermUnification;
 import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
@@ -15,6 +14,7 @@ import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
+import de.uka.iti.pseudo.term.creation.TestTermUnification;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
 

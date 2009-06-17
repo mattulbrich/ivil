@@ -34,7 +34,7 @@ public abstract class Term {
 	 * system environment and indicates whether terms are
 	 * to be output with or without types.
 	 */
-	public static final boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
+	public static boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
 	
 	/**
 	 * The array of sub terms

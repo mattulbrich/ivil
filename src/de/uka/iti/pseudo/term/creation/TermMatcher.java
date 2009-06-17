@@ -112,6 +112,9 @@ class TermMatcher extends DefaultTermVisitor {
         if(inst != null) {
             compare(inst, litPrg);
         } else {
+            if(sp.isTerminating() != litPrg.isTerminating())
+                throw new UnificationException("Incomparable termination", sp, litPrg);
+            
             termUnification.addInstantiation(sv, litPrg);
             termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), Environment.getBoolType());
             if(sp.hasMatchingStatement()) {
@@ -207,6 +210,9 @@ class TermMatcher extends DefaultTermVisitor {
         LiteralProgramTerm p2 = (LiteralProgramTerm) compareTerm;
         
         if(p.getProgramIndex() != p2.getProgramIndex())
-            throw new UnificationException(p, p2);
+            throw new UnificationException("Incompatible indices", p, p2);
+        
+        if(p.isTerminating() != p2.isTerminating())
+            throw new UnificationException("Incompatible termination", p, p2);
     }
 }

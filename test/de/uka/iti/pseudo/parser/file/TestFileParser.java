@@ -33,7 +33,7 @@ public class TestFileParser extends TestCase {
             fail("should fail");
         } catch(ASTVisitException e) {
             // this should happen
-            System.out.println(e.getMessage());
+            // System.out.println(e.getMessage());
         }
     }
     

@@ -77,9 +77,9 @@ public class TestAnnotatedString extends TestCaseWithEnv {
         as.append("and again");
         as.resetPreviousStyle();
         
-        for (int i = 0; i < as.length(); i++) {
-            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
-        }
+//        for (int i = 0; i < as.length(); i++) {
+//            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
+//        }
         
         assertEquals("", as.getStyleAt(0));
         assertEquals("", as.getStyleAt(5));
@@ -95,9 +95,9 @@ public class TestAnnotatedString extends TestCaseWithEnv {
         PrettyPrint pp = new PrettyPrint(env, false);
         AnnotatedStringWithStyles<Term> as = pp.print(t);
         
-        for (int i = 0; i < as.length(); i++) {
-            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
-        }
+//        for (int i = 0; i < as.length(); i++) {
+//            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));
+//        }
         
         assertEquals("", as.getStyleAt(0));
         assertEquals("variable", as.getStyleAt(9));
