@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.gui.bar;
 
+import java.awt.Frame;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -25,6 +27,10 @@ public abstract class AbstractStateListeningAction extends AbstractAction implem
 
     protected ProofCenter getProofCenter() {
         return (ProofCenter) getValue(BarManager.CENTER);
+    }
+    
+    protected Frame getParentFrame() {
+        return (Frame) getValue(BarManager.PARENT_FRAME);
     }
 
     protected boolean isSelected() {

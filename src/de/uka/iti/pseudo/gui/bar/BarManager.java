@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -29,20 +30,21 @@ import de.uka.iti.pseudo.util.Util;
 // TODO cache all classes -> objects and create only one instance per class. ...
 public class BarManager {
     
-    static final String CENTER = "barmanager.center";
+    public static final String CENTER = "barmanager.center";
+    public static final String PARENT_FRAME = "barmanager.parentframe";
 
     private List<StateListener> listeners = 
         new ArrayList<StateListener>();
     
-    private Object centerObject;
     private ActionListener actionListener;
+    
+    private Map<String, Object> defaultProperties = new HashMap<String, Object>();
 
     private Map<Class<?>, StateListeningAction> actionCache = 
         new HashMap<Class<?>, StateListeningAction>();
     
-    public BarManager(Object centerObject, ActionListener actionListener) {
+    public BarManager(ActionListener actionListener) {
         super();
-        this.centerObject = centerObject;
         this.actionListener = actionListener;
     }
     
@@ -232,7 +234,7 @@ public class BarManager {
                         menuItem.addActionListener(actionListener);
                     
                     result.add(menuItem);
-                } else if(args[0].equals("DELOCATED_ACTION ")) {
+                } else if(args[0].equals("DELOCATED_ACTION")) {
                     String className = args[1];
                     StateListeningAction action = makeAction(className);
                     JMenuItem menuItem = new JMenuItem(action);
@@ -273,8 +275,10 @@ public class BarManager {
             actionCache.put(clss, action);
             addStateListener(action);
             
-            if(CENTER != null)
-                action.putValue(CENTER, centerObject);
+            for (Entry<String, Object> entry : defaultProperties.entrySet()) {
+                action.putValue(entry.getKey(), entry.getValue());
+            }
+
             return action;
         } catch (Exception e) {
             throw new IOException("cannot create Action instance of " + className, e);
@@ -317,5 +321,9 @@ public class BarManager {
         for (StateListener listener : listeners) {
             listener.stateChanged(e);
         }
+    }
+
+    public void putProperty(String property, Object value) {
+        defaultProperties.put(property, value);
     }
 }

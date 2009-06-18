@@ -22,7 +22,8 @@ public class StartupWindow extends JFrame {
 
     private void makeGUI() throws IOException {
         {
-            barManager = new BarManager(null, null);
+            barManager = new BarManager(null);
+            barManager.putProperty(BarManager.PARENT_FRAME, this);
             URL resource = getClass().getResource("bar/startupmenu.properties");
             if(resource == null)
                 throw new IOException("resource bar/startupmenu.properties not found");

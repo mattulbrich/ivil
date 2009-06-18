@@ -68,6 +68,7 @@ rule replace_known_right
   assume |-  %b 
   where
     toplevel
+  where
     distinctAssumeAndFind
   samegoal replace  false 
 

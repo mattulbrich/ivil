@@ -11,24 +11,21 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class CloseAction extends AbstractStateListeningAction implements WindowListener {
+public class CloseEditorAction extends AbstractStateListeningAction implements WindowListener {
 
-    public CloseAction() {
-        super("Close", BarManager.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
+    public CloseEditorAction() {
+        super("Close", BarManager.makeIcon(CloseEditorAction.class.getResource("img/bullet_orange.png")));
         putValue(ACTION_COMMAND_KEY, "close");
-        putValue(SHORT_DESCRIPTION, "closes the current proof window");
+        putValue(SHORT_DESCRIPTION, "closes the editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
         putValue(MNEMONIC_KEY, KeyEvent.VK_C);
     }
     
     public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            // switch off if within proof action
-            setEnabled(!e.isActive());
-        }
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -41,18 +38,19 @@ public class CloseAction extends AbstractStateListeningAction implements WindowL
     }
 
     private void tryClose() {
-        boolean changed = getProofCenter().getProof().hasUnsafedChanges();
+        PFileEditor editor = (PFileEditor) getValue(BarManager.PARENT_FRAME);
+        boolean changed = editor.hasUnsafedChanges();
         if(changed) {
             int result = JOptionPane.showConfirmDialog(getParentFrame(),
-                    "There are changes in the current proof. Close anyway?",
-                    "Exit", JOptionPane.YES_NO_OPTION,
+                    "There are changes in the current edit window. Close anyway?",
+                    "Close", JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
             
             if(result != JOptionPane.YES_OPTION)
                 return;
         }
         
-        Main.closeProofCenter(getProofCenter());
+        Main.closeFileEditor(editor);
     }
 
     public void windowDeactivated(WindowEvent e) {

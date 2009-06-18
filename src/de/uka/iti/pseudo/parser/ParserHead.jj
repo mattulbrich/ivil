@@ -143,6 +143,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < COMMA: "," >
 | < PARALLEL: "||" >
 | < COLON: ":" >
+| < SEMICOLON: ";" >
 | < AS: "as" >
 | < SEP: "|-" >
 
@@ -172,4 +173,6 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_","'"] )* >
 
+// Avoid TokenManagerErrors and make parser exceptions instead
+| < UNEXPECTED_TOKEN : ~[] >
 }

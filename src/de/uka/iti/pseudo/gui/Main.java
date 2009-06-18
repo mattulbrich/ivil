@@ -7,8 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import com.sun.xml.internal.bind.v2.util.EditDistance;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 
@@ -25,6 +28,7 @@ public class Main {
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
     private static final List<ProofCenter> PROOF_CENTERS = new LinkedList<ProofCenter>();
+    private static final List<PFileEditor> EDITORS = new LinkedList<PFileEditor>();
     
     static {
         loadProperties();
@@ -62,6 +66,15 @@ public class Main {
         PROOF_CENTERS.add(proofCenter);
     }
     
+    public static void showFileEditor(PFileEditor editor) {
+        if(startupWindow != null) {
+            startupWindow.dispose();
+            startupWindow = null;
+        }
+        editor.setVisible(true);
+        EDITORS.add(editor);
+    }
+    
     public static void closeProofCenter(ProofCenter proofCenter) {
         assert PROOF_CENTERS.contains(proofCenter);
         
@@ -69,17 +82,32 @@ public class Main {
         main.dispose();
         PROOF_CENTERS.remove(proofCenter);
         
-        if(PROOF_CENTERS.isEmpty())
+        if(PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
+            System.exit(0);
+    }
+    
+    public static void closeFileEditor(PFileEditor editor) {
+        assert EDITORS.contains(editor);
+        
+        editor.dispose();
+        EDITORS.remove(editor);
+        
+        if(PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
             System.exit(0);
     }
 
     /**
-     * check whether at least one open proof center has unsafed changes
-     * @return true iff there are changes in one proof center
+     * check whether at least one open proof center or one editor
+     * has unsaved changes
+     * @return true iff there are changes in one window
      */
-    public static boolean proofCentersHaveChanges() {
+    public static boolean windowsHaveChanges() {
         for (ProofCenter pc : PROOF_CENTERS) {
             if(pc.getProof().hasUnsafedChanges())
+                return true;
+        }
+        for (PFileEditor editor : EDITORS) {
+            if(editor.hasUnsafedChanges())
                 return true;
         }
         return false;

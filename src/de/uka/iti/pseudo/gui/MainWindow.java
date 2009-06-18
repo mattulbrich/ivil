@@ -147,7 +147,9 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(3));
         }
         {
-            barManager = new BarManager(proofCenter, null);
+            barManager = new BarManager(null);
+            barManager.putProperty(BarManager.CENTER, proofCenter);
+            barManager.putProperty(BarManager.PARENT_FRAME, this);
             URL resource = getClass().getResource("bar/menu.properties");
             if(resource == null)
                 throw new IOException("resource bar/menu.properties not found");

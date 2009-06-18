@@ -34,9 +34,9 @@ public class ExitAction extends AbstractStateListeningAction {
     }
 
     private void tryExit() {
-        boolean changed = Main.proofCentersHaveChanges();
+        boolean changed = Main.windowsHaveChanges();
         if(changed) {
-            int result = JOptionPane.showConfirmDialog(getProofCenter().getMainWindow(),
+            int result = JOptionPane.showConfirmDialog(getParentFrame(),
                     "There are changes in the a proof. Exit anyway?",
                     "Exit", JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);

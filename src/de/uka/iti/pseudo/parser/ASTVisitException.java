@@ -59,4 +59,8 @@ public class ASTVisitException extends Exception {
 			return super.getMessage() + " (" + location.getLocation() + ")";
 	}
 
+    public ASTLocatedElement getLocation() {
+        return location;
+    }
+
 }

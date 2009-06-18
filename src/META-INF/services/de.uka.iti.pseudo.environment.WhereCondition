@@ -27,7 +27,7 @@ de.uka.iti.pseudo.rule.where.DistinctAssumeAndFind
 
 # check whether the find selector is not whitin a modality
 # or in the range of a modality term
-#de.uka.iti.pseudo.rule.where.TopLevel
+de.uka.iti.pseudo.rule.where.TopLevel
 
 # check whether a term using meta functions can be evaluated
 de.uka.iti.pseudo.rule.where.CanEvaluateMeta
