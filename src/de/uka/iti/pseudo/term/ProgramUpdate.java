@@ -27,5 +27,14 @@ public class ProgramUpdate {
     public Statement getStatement() {
         return statement;
     }
+    
+    public boolean equals(Object obj) {
+        if (obj instanceof ProgramUpdate) {
+            ProgramUpdate upd = (ProgramUpdate) obj;
+            return position == upd.position &&
+                statement.equals(upd.statement);
+        }
+        return false;
+    }
 
 }

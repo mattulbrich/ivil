@@ -37,12 +37,4 @@ public class AssignmentStatement extends Statement {
         return getSubterms().get(1);
     }
 
-    public boolean equals(Object object) {
-        if (object instanceof AssignmentStatement) {
-            AssignmentStatement as = (AssignmentStatement) object;
-            return getTarget().equals(as.getTarget()) && getValue().equals(as.getValue());
-        }
-        return false;
-    }
-
 }

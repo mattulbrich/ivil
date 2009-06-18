@@ -55,7 +55,8 @@ public class LiteralProgramTerm extends ProgramTerm {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
             return programIndex == prog.programIndex &&
-                Arrays.equals(updates, prog.updates);
+                Arrays.equals(updates, prog.updates) &&
+                isTerminating() == prog.isTerminating();
         }
         return false;
     }

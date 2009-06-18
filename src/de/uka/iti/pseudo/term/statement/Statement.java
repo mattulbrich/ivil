@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.term.statement;
 
+import java.util.Arrays;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
@@ -50,8 +51,13 @@ public abstract class Statement {
 
     public abstract String toString(boolean typed);
     
-    public /*abstract*/ boolean equals(Object object) {
-        throw new Error(getClass() + ".equals() not implemented");
+    public boolean equals(Object object) {
+        if (object instanceof Statement) {
+            Statement statement = (Statement) object;
+            return statement.getClass() == getClass() &&
+                Arrays.equals(subTerms, statement.subTerms);
+        }
+        return false;
     }
 
     public abstract void visit(StatementVisitor visitor) throws TermException;

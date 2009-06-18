@@ -18,12 +18,4 @@ public class GotoStatement extends Statement {
         visitor.visit(this);
     }
 
-    public boolean equals(Object object) {
-        if (object instanceof GotoStatement) {
-            GotoStatement gotoSt = (GotoStatement) object;
-            return getSubterms().equals(gotoSt.getSubterms());
-        }
-        return false;
-    }
-
 }
