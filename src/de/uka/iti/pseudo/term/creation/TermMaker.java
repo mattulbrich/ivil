@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
+import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -315,11 +316,19 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ASTVisitException
      *             thrown on error during AST traversal.
      */
-    public static Statement makeStatement(ASTStatement astStatement,
+    public static Statement makeAndTypeStatement(ASTStatement astStatement,
             Environment env) throws ASTVisitException {
+        
+        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
+        
+        for (ASTElement child : astStatement.getChildren()) {
+            child.visit(typingResolver);
+        }
         
         TermMaker termMaker = new TermMaker(env);
         astStatement.visit(termMaker);
+        
+        assert termMaker.resultStatement != null;
         
         return termMaker.resultStatement;
     }
@@ -333,7 +342,7 @@ public class TermMaker extends ASTDefaultVisitor {
     /*
      * default behaviour: do nothing
      */
-    @Override protected void visitDefault(ASTElement arg) throws ASTVisitException {
+    protected void visitDefault(ASTElement arg) throws ASTVisitException {
     }
 
     /*
@@ -638,6 +647,13 @@ public class TermMaker extends ASTDefaultVisitor {
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
+    }
+    
+    /*
+     * return the statement which is wrapped by the label
+     */
+    public void visit(ASTLabeledStatement arg) throws ASTVisitException {
+        arg.getChildren().get(0).visit(this);
     }
 
 }

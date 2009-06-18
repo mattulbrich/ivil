@@ -74,10 +74,9 @@ public class MainWindow extends JFrame {
     public MainWindow(ProofCenter proofCenter, String resourceName) throws IOException {
         super("Pseudo - " + resourceName);
         this.proofCenter = proofCenter;
-        makeGUI();
     }
 
-    private void makeGUI() throws IOException {
+    void makeGUI() throws IOException {
         
         final JSplitPane content = new JSplitPane();
         getContentPane().setLayout(new BorderLayout());
@@ -149,12 +148,6 @@ public class MainWindow extends JFrame {
 //            Dockable dock = new DefaultDockable("settings", settings, "Settings");
 //            tabDock.addDockable(dock, new Position(3));
 //        }
-        {
-            File file = new File(proofCenter.getEnvironment().getResourceName());
-            PFileEditor pfedit = new PFileEditor(file);
-            Dockable dock = new DefaultDockable("pfedit", pfedit, "Environment");
-            tabDock.addDockable(dock, new Position(3));
-        }
         {
             URL resource = getClass().getResource("bar/menu.properties");
             if(resource == null)

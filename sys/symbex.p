@@ -79,12 +79,12 @@ rule tprg_end
 
 rule prg_assignment
   find [%a : %x := %v]
-  samegoal replace  { %x := %v }$$incProg(%a) 
+  samegoal replace  { %x := %v }$$incPrg(%a) 
   tags rewrite "symbex"
 
 rule tprg_assignment
   find [[%a : %x := %v]]
-  samegoal replace  { %x := %v }$$incProg(%a) 
+  samegoal replace  { %x := %v }$$incPrg(%a) 
   tags rewrite "symbex"
 
 

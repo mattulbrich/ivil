@@ -18,3 +18,11 @@ de.uka.iti.pseudo.rule.meta.SkolemMetaFunction
 # int literal evaluation
 de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction
 
+# increment program counter
+de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction
+
+# jump to new program counter
+de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction
+
+# the general update simplifier
+de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction

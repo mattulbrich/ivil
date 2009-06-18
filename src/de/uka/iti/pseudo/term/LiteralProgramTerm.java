@@ -21,6 +21,26 @@ public class LiteralProgramTerm extends ProgramTerm {
         } catch(NumberFormatException ex) {
             throw new TermException("Illegally formated literal program index: " + image, ex);
         }
+        if(programIndex < 0)
+            throw new TermException("Illegally formated literal program index: " + image);
+    }
+    
+    /**
+     * create a new literal program term which is a copy of the original 
+     * program term with the exception of the programIndex which differs.
+     *  
+     * @param index program index of the new program term
+     * @param original the original program term
+     * @throws TermException if the index is invalid
+     */
+    public LiteralProgramTerm(int index, LiteralProgramTerm original) throws TermException {
+        super(original.isTerminating());
+        this.updates = original.updates;
+        programIndex = index;
+        
+        if(programIndex < 0)
+            throw new TermException("Illegally formated literal program index: " + index);
+        
     }
 
     protected String getContentString(boolean typed) {

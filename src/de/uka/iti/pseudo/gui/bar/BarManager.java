@@ -19,6 +19,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -199,6 +200,20 @@ public class BarManager {
         
         return result;
     }
+    
+    public JPopupMenu makePopup(String propertyName) throws IOException {
+        
+        prepareProperties();
+        
+        String items[] = getPropertyOrFail(propertyName).split(" +");
+        JPopupMenu result = new JPopupMenu();
+        
+        for (String item : items) {
+            result.add(makeMenuItem(item));
+        }
+        
+        return result;
+    }
 
     private JMenu makeMenu(String property) throws IOException {
         
@@ -228,7 +243,7 @@ public class BarManager {
                 result = new JSeparator();
 
             } else if(args[0].equals("SUBMENU")) {
-                result = makeMenu(value);
+                result = makeMenu(property);
 
             } else if(args[0].equals("ACTION")) {
                 String className = args[1]; 

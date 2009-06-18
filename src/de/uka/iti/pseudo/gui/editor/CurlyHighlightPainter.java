@@ -7,8 +7,9 @@ import java.awt.Shape;
 
 import javax.swing.plaf.TextUI;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
 import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.text.JTextComponent;
+
 
 class CurlyHighlightPainter implements HighlightPainter {
 
@@ -53,7 +54,7 @@ class CurlyHighlightPainter implements HighlightPainter {
     }
 
     private void markError(Graphics g, int x, int y, int width) {
-    //    g.setClip(x, y-STEP+1, width, STEP);
+        g.setClip(x, y-STEP+1, width, STEP);
 
         for (int p = x; p < x + width; p += 2 * STEP) {
             g.drawLine(p, y, p+STEP, y-STEP);

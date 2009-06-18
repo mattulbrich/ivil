@@ -109,6 +109,7 @@ public class ProofCenter implements TermSelectionListener {
         this.proof = proof;
         this.env = env;
         mainWindow = new MainWindow(this, env.getResourceName());
+        mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();

@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 
-// TODO Documentation needed
+// TODO Documentation badly needed
 public abstract class MetaFunction extends Function {
     
     public static final ServiceLoader<MetaFunction> SERVICES =

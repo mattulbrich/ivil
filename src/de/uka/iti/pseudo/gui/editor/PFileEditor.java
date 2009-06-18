@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.HeadlessException;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileReader;
@@ -19,6 +22,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -53,6 +57,8 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 public class PFileEditor extends JFrame implements ActionListener {
     
     private static final long serialVersionUID = 8116827588545997986L;
+    private static final String ERROR_FILE_PROPERTY = "errorFile";
+    private static final String ERROR_LINE_PROPERTY = "errorLine";
     private JTextArea editor;
     private File editedFile;
     private String content;
@@ -60,6 +66,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     private JLabel statusLine;
     private BarManager barManager;
     private UpdateThread updateThread;
+    private String errorFilename;
     private DocumentListener doclistener = new DocumentListener() {
 
         public void changedUpdate(DocumentEvent e) {
@@ -75,9 +82,8 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
         
     };
-    
-    
-    
+    private int errorLine;
+
     private class UpdateThread extends Thread {
         public UpdateThread() {
             super("UpdateThread");
@@ -155,6 +161,15 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
         {
             statusLine = new JLabel();
+            final JPopupMenu popup = barManager.makePopup("editor.popup");
+            statusLine.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    if(SwingUtilities.isRightMouseButton(e)) {
+                        Point p = e.getPoint();
+                        popup.show(statusLine, p.x, p.y);
+                    }
+                }
+            });
             contentPane.add(statusLine, BorderLayout.SOUTH);
         }
         {
@@ -172,6 +187,8 @@ public class PFileEditor extends JFrame implements ActionListener {
             new EnvironmentMaker(p, file, filename);
             
             System.err.println("Syntax checked ... no more errors");
+            
+            setErrorFilename(null);
             markError(null, null);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -182,10 +199,15 @@ public class PFileEditor extends JFrame implements ActionListener {
             ASTLocatedElement location = e.getLocation();
             if (location instanceof ASTElement) {
                 ASTElement ast = (ASTElement) location;
-                if(ast.getFileName().equals(filename))
+                if(ast.getFileName().equals(filename)) {
+                    setErrorFilename(null);
                     markError(e, ast.getLocationToken());
-                else
+                }
+                else {
+                    // error outside this thing here
+                    setErrorFilename(ast.getFileName());
                     markError(e, null);
+                }
             } else {
                 markError(e, null);
             }
@@ -193,19 +215,29 @@ public class PFileEditor extends JFrame implements ActionListener {
         
     }
 
+    private void setErrorFilename(String fileName) {
+        firePropertyChange(ERROR_FILE_PROPERTY, errorFilename, fileName);
+        errorFilename = fileName;
+    }
+    
+    private void setErrorLine(int line) {
+        firePropertyChange(ERROR_LINE_PROPERTY, errorLine, line);
+        errorLine = line;
+    }
+
+
     private void markError(final Exception exc, final Token token) {
         Runnable action = new Runnable() {
-            private int errorLine;
             public void run() {
                 int from, to;
                 try {
                     if(token == null) {
                         from = to = 0;
-                        errorLine = -1;
+                        setErrorLine(0);
                     } else {
                         from = toIndex(token.beginLine, token.beginColumn);
                         to = toIndex(token.endLine, token.endColumn) + 1;
-                        errorLine = editor.getLineOfOffset(from) + 1;
+                        setErrorLine(token.beginLine);
                     }
                     editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
                 } catch (BadLocationException e) {
@@ -219,7 +251,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                     statusLine.setToolTipText(null);
                 } else {
                     statusLine.setForeground(Color.red);
-                    if(errorLine == -1)
+                    if(errorLine == 0)
                         statusLine.setText("Error outside this file while parsing");
                     else
                         statusLine.setText("Error in line " + errorLine);
@@ -250,7 +282,8 @@ public class PFileEditor extends JFrame implements ActionListener {
             return 0;
         }
     }
-
+    
+    // XXX move to some action code
     /** 
      * @param filePath      name of file to open. The file can reside
      *                      anywhere in the classpath
@@ -360,5 +393,19 @@ public class PFileEditor extends JFrame implements ActionListener {
     public File getFile() {
         // TODO Implement PFileEditor.getFile
         return null;
+    }
+
+
+    public String getErrorFilename() {
+        return errorFilename;
+    }
+
+    public int getErrorLine() {
+        return errorLine;
+    }
+
+
+    public JTextArea getEditPane() {
+        return editor;
     }
 }

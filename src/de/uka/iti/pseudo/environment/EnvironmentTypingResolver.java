@@ -9,7 +9,9 @@ import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatementList;
+import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -73,10 +75,10 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
     }
     
     public void visit(ASTStatementList arg) throws ASTVisitException {
-        super.visit(arg);
-        
-        // reset context for the problem
-        typingResolver = new TypingResolver(env, new TypingContext()); 
+//        super.visit(arg);
+//        
+//        // reset context for the problem
+//        typingResolver = new TypingResolver(env, new TypingContext()); 
     }
     
     public void visit(ASTRuleFind arg) throws ASTVisitException {

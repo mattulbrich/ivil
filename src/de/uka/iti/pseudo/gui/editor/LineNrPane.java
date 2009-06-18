@@ -23,7 +23,7 @@ import javax.swing.text.Document;
  *         Copyright (c) 2004<br>
  * @version 1.0<br>
  */
-public class LineNrPane extends JPanel {
+class LineNrPane extends JPanel {
 	// for this simple experiment, we keep the pane + scrollpane as members.
 	private JTextArea pane;
 	private JScrollPane scrollPane;

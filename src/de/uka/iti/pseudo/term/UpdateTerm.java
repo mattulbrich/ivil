@@ -16,6 +16,10 @@ public class UpdateTerm extends Term {
         
         assert assignments.length > 0;
     }
+    
+    public UpdateTerm(List<AssignmentStatement> assignments, Term term) {
+        this(Util.listToArray(assignments, AssignmentStatement.class), term);
+    }
 
     public boolean equals(Object object) {
         if (object instanceof UpdateTerm) {

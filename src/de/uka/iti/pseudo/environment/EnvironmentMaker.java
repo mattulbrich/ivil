@@ -134,7 +134,6 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
 
         doProgram(astFile);
-        
         doProblem(astFile);
     }
 
@@ -147,8 +146,6 @@ public class EnvironmentMaker {
             try {
                 Program program = ProgramMaker.makeProgram(astProgram, env);
                 env.setProgram(program);
-            } catch (ASTVisitException e) {
-                throw new ASTVisitException(astProgram, e);
             } catch (EnvironmentException e) {
                 throw new ASTVisitException(astProgram, e);
             }

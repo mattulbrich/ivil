@@ -63,7 +63,9 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                 Main.showProofCenter(pc);
             } catch(IOException ex) {
                 // TODO gescheiter Fehlerdialog
+                ex.printStackTrace();
             } catch(Exception ex) {
+                ex.printStackTrace();
                 int res = JOptionPane.showConfirmDialog(getParentFrame(), "'" + selectedFile + 
                         "' cannot be loaded. Do you want to open an editor to analyse?",
                         "Error in File",

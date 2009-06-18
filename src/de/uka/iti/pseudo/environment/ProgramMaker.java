@@ -68,7 +68,7 @@ public class ProgramMaker extends ASTDefaultVisitor {
                         String label = id.getSymbol().image;
                         Integer val = labelMap.get(label);
                         if(val == null)
-                            throw new ASTVisitException("Unknown label in goto statement: " + label, ast);
+                            throw new ASTVisitException("Unknown label in goto statement: " + label, id);
                         ast.replaceChild(term, new ASTNumberLiteralTerm(mkToken(val)));
                     }
                 }
@@ -85,7 +85,7 @@ public class ProgramMaker extends ASTDefaultVisitor {
 
     private void makeStatements() throws ASTVisitException {
         for (ASTStatement ast : rawStatements) {
-            Statement statement = TermMaker.makeStatement(ast, env);
+            Statement statement = TermMaker.makeAndTypeStatement(ast, env);
             if(detectSchemaVariables(statement))
                 throw new ASTVisitException("Unallowed schema entity in statement", ast);
             statements.add(statement);
@@ -115,6 +115,10 @@ public class ProgramMaker extends ASTDefaultVisitor {
     public void visit(ASTLabeledStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
         labelAnnotations.add(new LabelAnnotation(label, rawStatements.size()));
+        if(labelMap.containsKey(label)) {
+            throw new ASTVisitException("The label " + label + " has already been defined earlier", arg);
+        }
+        labelMap.put(label, rawStatements.size());
         super.visit(arg);
     }
     

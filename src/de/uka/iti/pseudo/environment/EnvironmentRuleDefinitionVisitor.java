@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -250,4 +251,11 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         resultingMatchingLocation = arg.getMatchingLocation();
     }
 
+    /*
+     * ignore the program definition because it may contain identifier labels and
+     */
+    public void visit(ASTStatementList arg) throws ASTVisitException {
+        // do nothing
+    }
+    
 }
