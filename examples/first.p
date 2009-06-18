@@ -1,5 +1,5 @@
 include
-  "$dynamic.p"
+  "$symbex.p"
   "$int.p"
 
 
@@ -10,7 +10,20 @@ function
   bool b2
   bool p(int)
 
-problem
-#{ (\exists x; x = arb) }
-#{ (\exists x; p(x)) -> !(\forall x; !p(x)) }
-{ [if b1 then val:=7 else val:=9 end]val>0 }
+program
+
+  source "if b1"
+           goto then1 else1
+  source "then"
+  then1:   assume b1
+           val := 7
+           goto after1
+  source "else"
+  else1:   assume !b1
+           val := 9
+           goto after1
+  after1:  assert val >0
+
+
+problem 
+  [0]
