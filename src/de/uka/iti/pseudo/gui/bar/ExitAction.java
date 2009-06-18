@@ -3,16 +3,18 @@ package de.uka.iti.pseudo.gui.bar;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.MainWindow;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class ExitAction extends AbstractStateListeningAction {
+public class ExitAction extends BarAction implements PropertyChangeListener {
 
     public ExitAction() {
         super("Exit", BarManager.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
@@ -22,11 +24,12 @@ public class ExitAction extends AbstractStateListeningAction {
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
     }
     
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            // switch off if within proof action
-            setEnabled(!e.isActive());
-        }
+    public void initialised() {
+        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        setEnabled((Boolean)evt.getOldValue());
     }
     
     public void actionPerformed(ActionEvent e) {

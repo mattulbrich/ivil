@@ -8,29 +8,28 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
-// TODO Documentation needed
+//TODO Documentation needed
 @SuppressWarnings("serial") 
-public class SaveAsEditorAction extends AbstractStateListeningAction {
-    
+public class SaveAsEditorAction extends BarAction {
+
     private JFileChooser fileChooser;
-    
+
     public SaveAsEditorAction() {
-        super("Save proof ...");
+        super("Save As ...");
         putValue(ACTION_COMMAND_KEY, "save");
         putValue(SHORT_DESCRIPTION, "save the edited file under a selected name");
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         if(fileChooser == null) {
             fileChooser = new JFileChooser(".");
         }
-        
+
         while(true) {
-            PFileEditor editor = (PFileEditor) getValue(BarManager.PARENT_FRAME);
-            
+            PFileEditor editor = (PFileEditor) getValue(PARENT_FRAME);
+
             int result = fileChooser.showSaveDialog(editor);
             if(result == JFileChooser.APPROVE_OPTION) {
 
@@ -44,29 +43,35 @@ public class SaveAsEditorAction extends AbstractStateListeningAction {
                     if(result == JOptionPane.CANCEL_OPTION)
                         return;
                 }
-                
-                FileWriter fileWriter= null;
-                try {
-                    fileWriter = new FileWriter(selectedFile);
-                    
-                    fileWriter.write(editor.getContent());
-                    fileWriter.flush();
-                    editor.changesSaved();
-                    
-                } catch (Exception ex) {
-                    // TODO gescheiter Fehlerdialog
-                    ex.printStackTrace();
-                } finally {
-                    if(fileWriter != null)
-                        try { fileWriter.close();
-                        } catch (IOException ioex) {
-                            ioex.printStackTrace();
-                        }
-                }
+
+                saveUnder(editor, selectedFile);
+                return;
+            } else {
                 return;
             }
         }
-    public void stateChanged(StateChangeEvent e) {
     }
+    
+    // TODO make copy if exists 
+    protected void saveUnder(PFileEditor editor, File selectedFile) {
+        FileWriter fileWriter= null;
+        try {
+            fileWriter = new FileWriter(selectedFile);
 
+            fileWriter.write(editor.getContent());
+            fileWriter.flush();
+            editor.changesSaved();
+
+        } catch (Exception ex) {
+            // TODO gescheiter Fehlerdialog
+            ex.printStackTrace();
+        } finally {
+            if(fileWriter != null)
+                try { fileWriter.close();
+                } catch (IOException ioex) {
+                    ioex.printStackTrace();
+                }
+        }
+    }
+    
 }

@@ -5,16 +5,19 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.MainWindow;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class CloseAction extends AbstractStateListeningAction implements WindowListener {
+public class CloseAction extends BarAction 
+    implements WindowListener, PropertyChangeListener {
 
     public CloseAction() {
         super("Close", BarManager.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
@@ -24,13 +27,14 @@ public class CloseAction extends AbstractStateListeningAction implements WindowL
         putValue(MNEMONIC_KEY, KeyEvent.VK_C);
     }
     
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            // switch off if within proof action
-            setEnabled(!e.isActive());
-        }
+    public void initialised() {
+        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
     }
     
+    public void propertyChange(PropertyChangeEvent evt) {
+        setEnabled((Boolean)evt.getOldValue());
+    }
+
     public void actionPerformed(ActionEvent e) {
         tryClose();
     }

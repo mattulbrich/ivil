@@ -1,18 +1,22 @@
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Icon;
 
 import de.uka.iti.pseudo.auto.MyStrategy;
 import de.uka.iti.pseudo.auto.Strategy;
-import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.MainWindow;
+import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class AutoProofAction extends AbstractStateListeningAction implements Runnable {
+public class AutoProofAction extends BarAction 
+    implements Runnable, PropertyChangeListener, InitialisingAction {
 
     private static Icon goIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
@@ -26,25 +30,22 @@ public class AutoProofAction extends AbstractStateListeningAction implements Run
         super("Automatic Proof", goIcon);
         putValue(SHORT_DESCRIPTION, "Run automatic proving on the current node");
     }
-
+    
+    public void initialised() {
+        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+    }
+    
     public void actionPerformed(ActionEvent e) {
 
         // TODO synchronization!
         
         if(thread == null) {
             thread = new Thread(this, "Autoproving");
-            StateChangeEvent evt = new StateChangeEvent(this, StateConstants.IN_PROOF, true);
-            getProofCenter().getBarManager().fireStateChange(evt);
+            getProofCenter().getMainWindow().firePropertyChange(MainWindow.IN_PROOF, true);
             shouldStop = false;
             thread.start();
         } else {
             shouldStop = true;
-        }
-    }
-
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            setIcon(e.isActive() ? stopIcon : goIcon);
         }
     }
 
@@ -73,9 +74,12 @@ public class AutoProofAction extends AbstractStateListeningAction implements Run
             e.printStackTrace();
         } finally {
             thread = null;
-            StateChangeEvent evt = new StateChangeEvent(this, StateConstants.IN_PROOF, false);
-            getProofCenter().getBarManager().fireStateChange(evt);
+            getProofCenter().getMainWindow().firePropertyChange(MainWindow.IN_PROOF, false);
         }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        setIcon(((Boolean)evt.getNewValue()) ? stopIcon : goIcon);
     }
 
 }

@@ -10,12 +10,12 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.StateConstants;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class CloseEditorAction extends AbstractStateListeningAction implements WindowListener {
+public class CloseEditorAction extends BarAction 
+    implements WindowListener {
 
     public CloseEditorAction() {
         super("Close", BarManager.makeIcon(CloseEditorAction.class.getResource("img/bullet_orange.png")));
@@ -23,9 +23,6 @@ public class CloseEditorAction extends AbstractStateListeningAction implements W
         putValue(SHORT_DESCRIPTION, "closes the editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
         putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-    }
-    
-    public void stateChanged(StateChangeEvent e) {
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -38,7 +35,7 @@ public class CloseEditorAction extends AbstractStateListeningAction implements W
     }
 
     private void tryClose() {
-        PFileEditor editor = (PFileEditor) getValue(BarManager.PARENT_FRAME);
+        PFileEditor editor = getEditor();
         boolean changed = editor.hasUnsafedChanges();
         if(changed) {
             int result = JOptionPane.showConfirmDialog(getParentFrame(),

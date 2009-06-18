@@ -8,6 +8,7 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.StateListener.StateChangeEvent;
 
@@ -22,12 +23,12 @@ public class StartupWindow extends JFrame {
 
     private void makeGUI() throws IOException {
         {
-            barManager = new BarManager(null);
-            barManager.putProperty(BarManager.PARENT_FRAME, this);
-            URL resource = getClass().getResource("bar/startupmenu.properties");
+            URL resource = getClass().getResource("bar/menu.properties");
             if(resource == null)
-                throw new IOException("resource bar/startupmenu.properties not found");
-            setJMenuBar(barManager.makeMenubar(resource));
+                throw new IOException("resource bar/menu.properties not found");
+            barManager = new BarManager(null, resource);
+            barManager.putProperty(BarAction.PARENT_FRAME, this);
+            setJMenuBar(barManager.makeMenubar("menubar.startup"));
         }
         getContentPane().add(new JLabel(makeImage()), BorderLayout.CENTER);
         pack();

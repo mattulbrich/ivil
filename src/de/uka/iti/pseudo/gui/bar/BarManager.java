@@ -5,278 +5,333 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
-import de.uka.iti.pseudo.gui.bar.StateListener.StateListeningAction;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO Documentation needed
 // TODO cache all classes -> objects and create only one instance per class. ...
 public class BarManager {
     
-    public static final String CENTER = "barmanager.center";
-    public static final String PARENT_FRAME = "barmanager.parentframe";
+    public static interface InitialisingAction extends Action {
+        public void initialised();
+    }
 
-    private List<StateListener> listeners = 
-        new ArrayList<StateListener>();
+    private static final String DEFAULT_MENUBAR_PROPERTY = "menubar";
+    private static final String DEFAULT_TOOLBAR_PROPERTY = "toolbar";
     
     private ActionListener actionListener;
     
-    private Map<String, Object> defaultProperties = new HashMap<String, Object>();
+    private Map<String, Object> defaultActionProperties = new HashMap<String, Object>();
 
-    private Map<Class<?>, StateListeningAction> actionCache = 
-        new HashMap<Class<?>, StateListeningAction>();
+    private Properties properties;
     
-    public BarManager(ActionListener actionListener) {
+    private URL resource;
+    
+    private Map<Class<?>, Action> actionCache = 
+        new HashMap<Class<?>, Action>();
+
+    private String packagePrefix;
+
+    private boolean toolbarOnlyIcons;
+    
+    public BarManager(ActionListener actionListener, URL resource) {
         super();
         this.actionListener = actionListener;
+        this.resource = resource;
     }
     
-    public JToolBar makeToolbar(URL resource) throws IOException {
+    private void prepareProperties() throws IOException {
+        if(properties == null) {
+            properties = new Properties();
+            InputStream stream = resource.openStream();
+            properties.load(stream);
+            
+            properties.put("SEPARATOR", "SEPARATOR");
+            
+            packagePrefix = properties.getProperty("package");
+            if(packagePrefix == null)
+                packagePrefix = "";
+            else
+                packagePrefix = packagePrefix + ".";
+            
+            toolbarOnlyIcons = "true".equals(properties.getProperty("toolbar.onlyIcons"));
+        }
+    }
+    
+    public JToolBar makeToolbar() throws IOException {
+        return makeToolbar(DEFAULT_TOOLBAR_PROPERTY);
+    }
+    
+    public JToolBar makeToolbar(String propertyName) throws IOException {
         
-        Properties properties = new Properties();
-        
-        InputStream stream = resource.openStream();
-        
-        properties.load(stream);
-        
-        String packagePrefix = properties.getProperty("package");
-        if(packagePrefix == null)
-            packagePrefix = "";
-        else
-            packagePrefix = packagePrefix + ".";
+        prepareProperties();
         
         JToolBar result = new JToolBar();
         
-        int buttonNo = 1;
-        while(true) {
-            String name = "toolbar" + buttonNo;
-            String value = properties.getProperty(name);
-            
-            if(value == null)
-                break;
-            
-            String args[] = value.split(" ", 3);
-            try {
-                if(args[0].equals("SEPARATOR")) {
-                    if(args.length == 3) {
-                        int h = Integer.parseInt(args[1]);
-                        int w = Integer.parseInt(args[1]);
-                        result.addSeparator(new Dimension(h, w));
-                    } else {
-                        result.addSeparator();
-                    }
-                    
-                } else if(args[0].equals("ACTION")) {
-                    String className = packagePrefix + args[1];
-                    StateListeningAction action = makeAction(className);
-                    JButton menuItem = new JButton(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    if(args.length == 3) {
-                        if(args[2].equals("ICON")) {
-                            menuItem.setText("");
-                        } else if(args[2].equals("TEXT")) {
-                            menuItem.setIcon(null);
-                        }
-                    }
-                    
-                    result.add(menuItem);
-                    
-                } else if(args[0].equals("COMMAND")) {
-                    String command = args[1];
-                    String menuTitle = args[2];
-                    JButton menuItem = new JButton(menuTitle);
-                    menuItem.setActionCommand(command);
-                    
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                } else if(args[0].equals("DELOCATED_ACTION ")) {
-                    String className = args[1];
-                    StateListeningAction action = makeAction(className);
-                    JButton menuItem = new JButton(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    if(args.length == 3) {
-                        if(args[2].equals("ICON")) {
-                            menuItem.setText("");
-                        } else if(args[2].equals("TEXT")) {
-                            menuItem.setIcon(null);
-                        }
-                    }
-                    
-                    result.add(menuItem);
-                    
-                } else if(args[0].equals("TODO")){
-                    JButton menuItem = new JButton(args[1]);
-                    menuItem.setEnabled(false);
-                    result.add(menuItem);
-                    
-                } else {
-                    throw new IOException("invalid menu description: " + name + " = " + value);
-                }
-            } catch (RuntimeException e) {
-                throw new IOException("Illegal format in " + name + " = " + value);
-            }
-            
-            buttonNo ++;
+        String[] elements = getPropertyOrFail(propertyName).split(" +");
+        
+        for (String element : elements) {
+            result.add(makeToolbarItem(element));
         }
         
         return result;
     }
 
-    public JMenuBar makeMenubar(URL resource) throws IOException {
+    private JComponent makeToolbarItem(String element)
+            throws IOException {
         
-        Properties properties = new Properties();
+        String value = getPropertyOrFail(element);
+        String args[] = value.split(" ", 3);
+        JComponent result;
         
-        InputStream stream = resource.openStream();
+        try {
+            if(args[0].equals("SEPARATOR")) {
+                if(args.length == 3) {
+                    int h = Integer.parseInt(args[1]);
+                    int w = Integer.parseInt(args[2]);
+                    result = new JToolBar.Separator(new Dimension(h, w));
+                } else {
+                    result = new JToolBar.Separator();
+                }
+                
+            } else if(args[0].equals("ACTION")) {
+                String className = args[1]; 
+                Action action = makeAction(className);
+                JButton button = new JButton(action);
+                
+                if(actionListener != null)
+                    button.addActionListener(actionListener);
+
+                if(toolbarOnlyIcons && button.getIcon() != null)
+                    button.setText(null);
+                
+                result = button;
+                
+            } else if(args[0].equals("TOGGLE_ACTION")) {
+                String className = args[1]; 
+                Action action = makeAction(className);
+                JToggleButton button = new JToggleButton(action);
+                
+                if(actionListener != null)
+                    button.addActionListener(actionListener);
+
+                if(toolbarOnlyIcons)
+                    button.setIcon(null);
+                
+                result = button;
+
+            } else if(args[0].equals("COMMAND")) {
+                String command = args[1];
+                JButton button = new JButton();
+                button.setActionCommand(command);
+                
+                String val =  properties.getProperty(element + ".text");
+                if(val != null && !toolbarOnlyIcons)
+                    button.setText(val);
+                
+                val = properties.getProperty(element + ".icon");
+                if(val != null) {
+                    String location = packagePrefix.replace('.', '/') + val;
+                    button.setIcon(makeIcon(ClassLoader.getSystemResource(location)));
+                }
+                
+                val = properties.getProperty(element + ".tooltip");
+                if(val != null)
+                    button.setToolTipText(val);
+                
+                if(actionListener != null)
+                    button.addActionListener(actionListener);
+                
+                result = button;
+                
+            } else if(args[0].equals("TODO")){
+                JButton button = new JButton(value.substring(5));
+                button.setEnabled(false);
+                result = button;
+                
+            } else {
+                throw new IOException("invalid toolbar description: " + element + " = " + value);
+            }
+        } catch (RuntimeException e) {
+            throw new IOException("Illegal format in " + element + " = " + value);
+        }
         
-        properties.load(stream);
+        return result;
+    }
+
+    public JMenuBar makeMenubar() throws IOException {
+        return makeMenubar(DEFAULT_MENUBAR_PROPERTY);
+    }
+    
+    public JMenuBar makeMenubar(String propertyName) throws IOException {
+        prepareProperties();
         
-        String packagePrefix = properties.getProperty("package");
-        if(packagePrefix == null)
-            packagePrefix = "";
-        else
-            packagePrefix = packagePrefix + ".";
+        String[] menus = getPropertyOrFail(propertyName).split(" +");
         
         JMenuBar result = new JMenuBar();
-        int menuNo = 1;
-        while(true) {
-            String name = "menu" + menuNo;
-            String value = properties.getProperty(name);
+        
+        for (String element : menus) {
+            String value = properties.getProperty(element);
             
             if(value == null)
-                break;
+                throw new IOException("cannot create menubar, missing property '" + element + "'");
             
-            result.add(makeMenu(value, name + ".", packagePrefix, properties));
-            
-            menuNo ++;
+            result.add(makeMenu(element));
         }
         
         return result;
     }
 
-    private JMenu makeMenu(String title, String baseName, String packagePrefix, Properties properties) throws IOException {
-        JMenu result = new JMenu(title);
+    private JMenu makeMenu(String property) throws IOException {
+        
+        String items[] = getPropertyOrFail(property).split(" +");
+        JMenu result = new JMenu(getPropertyOrFail(property + ".text"));
+        
+        for (String item : items) {
+            // submenu must be ignored - it may appear however
+            if(item.equals("SUBMENU"))
+                continue;
+            result.add(makeMenuItem(item));
+        }
+        
+        return result;
+    }
+    
+    private JComponent makeMenuItem(String property) throws IOException {
+        
+        JComponent result;
+        
+        String value = getPropertyOrFail(property);
 
-        int menuNo = 1;
-        while(true) {
-            String name = baseName + menuNo;
-            String value = properties.getProperty(name);
+        String args[] = value.split(" ", 3);
 
-            if(value == null)
-                break;
-            
-            String args[] = value.split(" ", 3);
+        try {
+            if(args[0].equals("SEPARATOR")) {
+                result = new JSeparator();
 
-            try {
-                if(args[0].equals("SEPARATOR")) {
-                    result.add(new JSeparator());
-                    
-                } else if(args[0].equals("SUBMENU")) {
-                    String subName = value.substring(8);
-                    result.add(makeMenu(subName, name + ".", packagePrefix, properties));
-                    
-                } else if(args[0].equals("ACTION")) {
-                    String className = packagePrefix + args[1];
-                    StateListeningAction action = makeAction(className);
-                    JMenuItem menuItem = new JMenuItem(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                    
-                } else if(args[0].equals("RADIO_ACTION")) {
-                    String className = packagePrefix + args[1];
-                    StateListeningAction action = makeAction(className);
-                    JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                 
-                } else if(args[0].equals("CHECKBOX_ACTION")) {
-                    String className = packagePrefix + args[1];
-                    StateListeningAction action = makeAction(className);
-                    JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                    
-                } else if(args[0].equals("COMMAND")) {
-                    String command = args[1];
-                    String menuTitle = args[2];
-                    JMenuItem menuItem = new JMenuItem(menuTitle);
-                    menuItem.setActionCommand(command);
-                    
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                } else if(args[0].equals("DELOCATED_ACTION")) {
-                    String className = args[1];
-                    StateListeningAction action = makeAction(className);
-                    JMenuItem menuItem = new JMenuItem(action);
-                    if(actionListener != null)
-                        menuItem.addActionListener(actionListener);
-                    
-                    result.add(menuItem);
-                    
-                } else if(args[0].equals("TODO")){
-                    JMenuItem menuItem = new JMenuItem(value.substring(5));
-                    menuItem.setEnabled(false);
-                    result.add(menuItem);
-                    
-                } else {
-                    throw new IOException("invalid menu description: " + name + " = " + value);
+            } else if(args[0].equals("SUBMENU")) {
+                result = makeMenu(value);
+
+            } else if(args[0].equals("ACTION")) {
+                String className = args[1]; 
+                Action action = makeAction(className);
+                JMenuItem menuItem = new JMenuItem(action);
+                
+                if(actionListener != null)
+                    menuItem.addActionListener(actionListener);
+
+                result = menuItem;
+
+            } else if(args[0].equals("RADIO_ACTION")) {
+                String className = args[1];
+                Action action = makeAction(className);
+                JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action);
+                if(actionListener != null)
+                    menuItem.addActionListener(actionListener);
+
+                result = menuItem;
+
+            } else if(args[0].equals("TOGGLE_ACTION")) {
+                String className = args[1];
+                Action action = makeAction(className);
+                JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(action);
+                if(actionListener != null)
+                    menuItem.addActionListener(actionListener);
+
+                result = menuItem;
+
+            } else if(args[0].equals("COMMAND")) {
+                String command = args[1];
+                JMenuItem menuItem = new JMenuItem();
+                menuItem.setActionCommand(command);
+                
+                String val = properties.getProperty(property + ".text");
+                if(val != null)
+                    menuItem.setText(val);
+                
+                val = properties.getProperty(property + ".icon");
+                if(val != null) {
+                    String location = packagePrefix.replace('.', '/') + val;
+                    menuItem.setIcon(makeIcon(ClassLoader.getSystemResource(location)));
                 }
-            } catch (IndexOutOfBoundsException e) {
-                throw new IOException("Illegal format in " + name + " = " + value);
+                
+                val = properties.getProperty(property + ".tooltip");
+                if(val != null)
+                    menuItem.setToolTipText(val);
+
+                if(actionListener != null)
+                    menuItem.addActionListener(actionListener);
+
+                result = menuItem;
+
+            } else if(args[0].equals("TODO")){
+                JMenuItem menuItem = new JMenuItem(value.substring(5));
+                menuItem.setEnabled(false);
+                result = menuItem;
+
+            } else {
+                throw new IOException("invalid menu description: " + property + " = " + value);
             }
-            
-            menuNo ++;
+        } catch (RuntimeException e) {
+            throw new IOException("Illegal format in " + property + " = " + value, e);
         }
-        
+
         return result;
     }
 
+    
 
-    public StateListeningAction makeAction(String className) throws IOException {
+
+    private String getPropertyOrFail(String property) throws IOException {
+        String value = properties.getProperty(property);
+        if(value == null) {
+            throw new IOException("BarManager: Missing property '" + property +"' in " + resource);
+        }
+        return value;
+    }
+
+
+    public Action makeAction(String className) throws IOException {
+        
+        if(!className.contains("."))
+            className = packagePrefix + className;
+        
         try {
             Class<?> clss = Class.forName(className);
             
-            StateListeningAction cached = actionCache.get(clss);
+            Action cached = actionCache.get(clss);
             if(cached != null) {
                 return cached;
             }
             
-            StateListeningAction action = (StateListeningAction) clss.newInstance();
+            Action action = (Action) clss.newInstance();
             actionCache.put(clss, action);
-            addStateListener(action);
             
-            for (Entry<String, Object> entry : defaultProperties.entrySet()) {
+            for (Entry<String, Object> entry : defaultActionProperties.entrySet()) {
                 action.putValue(entry.getKey(), entry.getValue());
+            }
+            
+            if (action instanceof InitialisingAction) {
+                InitialisingAction initAction = (InitialisingAction) action;
+                initAction.initialised();
             }
 
             return action;
@@ -299,31 +354,7 @@ public class BarManager {
         actionCache.clear();
     }
 
-    /**
-     * add a state listener.
-     * 
-     * If the same object has already been registered as state listener, nothing
-     * is done.
-     * 
-     * @param listener
-     *            listener to register for future events
-     */
-    public void addStateListener(StateListener listener) {
-        if(!listeners.contains(listener))
-            listeners.add(listener);
-    }
-    
-    public void removeStateListener(StateListener listener) {
-        listeners.remove(listener);
-    }
-    
-    public void fireStateChange(StateListener.StateChangeEvent e) {
-        for (StateListener listener : listeners) {
-            listener.stateChanged(e);
-        }
-    }
-
     public void putProperty(String property, Object value) {
-        defaultProperties.put(property, value);
+        defaultActionProperties.put(property, value);
     }
 }

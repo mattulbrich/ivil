@@ -9,7 +9,7 @@ public interface StateConstants {
     /**
      * this is used to trigger that we are within an automatic proof
      */
-    String IN_PROOF = "in proof";
+
     
     /**
      * this is used to trigger that a window does not contain a proof

@@ -19,7 +19,6 @@ import javax.swing.SwingUtilities;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.bar.BarManager;
-import de.uka.iti.pseudo.gui.bar.StateListener.StateChangeEvent;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -56,7 +55,7 @@ public class ProofCenter implements TermSelectionListener {
      * Constants used as tags in property clauses in rule definitions
      */
     private static final String AUTOONLY_TAG = "autoonly";
-    
+
     /**
      * The main window.
      */
@@ -114,9 +113,7 @@ public class ProofCenter implements TermSelectionListener {
         
         prepareRuleLists();
         
-        // propagate end of initialisation to everyone
-        StateChangeEvent evt = new StateChangeEvent(this, StateChangeEvent.INITIALISED, true);
-        mainWindow.getBarManager().fireStateChange(evt);
+        mainWindow.firePropertyChange(MainWindow.INITIALISED, true);
     }
 
     /*

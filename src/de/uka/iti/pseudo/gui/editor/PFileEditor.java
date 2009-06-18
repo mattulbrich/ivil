@@ -5,27 +5,40 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.URL;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
-import de.uka.iti.pseudo.gui.bar.CloseAction;
 import de.uka.iti.pseudo.gui.bar.CloseEditorAction;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -37,7 +50,7 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 
 // TODO in some future: syntax highlighting
 
-public class PFileEditor extends JFrame {
+public class PFileEditor extends JFrame implements ActionListener {
     
     private static final long serialVersionUID = 8116827588545997986L;
     private JTextArea editor;
@@ -107,11 +120,16 @@ public class PFileEditor extends JFrame {
         setLayout(new BorderLayout());
         Container contentPane = getContentPane();
         {
-            barManager = new BarManager(null);
-            barManager.putProperty(BarManager.PARENT_FRAME, this);
-            JToolBar toolbar = barManager.makeToolbar(getClass().getResource("menu.properties")); 
+            URL resource = getClass().getResource("../bar/menu.properties");
+            if(resource == null)
+                throw new IOException("cannot find menu.properties");
+            
+            barManager = new BarManager(this, resource);
+            barManager.putProperty(BarAction.PARENT_FRAME, this);
+            barManager.putProperty(BarAction.EDITOR_FRAME, this);
+            JToolBar toolbar = barManager.makeToolbar("editor.toolbar"); 
             contentPane.add(toolbar, BorderLayout.NORTH);
-            setJMenuBar(barManager.makeMenubar(getClass().getResource("menu.properties")));
+            setJMenuBar(barManager.makeMenubar("editor.menubar"));
         }
         {
             addWindowListener((WindowListener) barManager.makeAction(CloseEditorAction.class.getName()));    
@@ -122,11 +140,12 @@ public class PFileEditor extends JFrame {
             editor = lineNrPane.getPane();
             editor.setText(content);
             editor.setLineWrap(false);
+            installUndoManager(editor);
             // TODO make this configurable
             editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
             editor.getDocument().addDocumentListener(doclistener);
             try {
-                errorHighlighting = editor.getHighlighter().addHighlight(12, 19, new CurlyHighlightPainter());
+                errorHighlighting = editor.getHighlighter().addHighlight(0, 0, new CurlyHighlightPainter());
             } catch (BadLocationException e) {
                // cannot happen
                 throw new Error(e);
@@ -197,7 +216,7 @@ public class PFileEditor extends JFrame {
                 if(exc == null) {
                     statusLine.setForeground(Color.black);
                     statusLine.setText("syntax check succesful");
-                    statusLine.setToolTipText("");
+                    statusLine.setToolTipText(null);
                 } else {
                     statusLine.setForeground(Color.red);
                     if(errorLine == -1)
@@ -248,6 +267,47 @@ public class PFileEditor extends JFrame {
         reader.close();
         return fileData.toString();
     }
+    
+    // from http://www.java2s.com/Code/Java/Swing-JFC/AddingUndoandRedotoaTextComponent.htm
+    private static void installUndoManager(JTextComponent textcomp) {
+        final UndoManager undo = new UndoManager();
+        Document doc = textcomp.getDocument();
+
+        doc.addUndoableEditListener(new UndoableEditListener() {
+            public void undoableEditHappened(UndoableEditEvent evt) {
+                undo.addEdit(evt.getEdit());
+            }
+        });
+        
+        textcomp.getActionMap().put("Undo",
+            new AbstractAction("Undo") {
+                public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canUndo()) {
+                            undo.undo();
+                        }
+                    } catch (CannotUndoException e) {
+                    }
+                }
+           });
+        
+        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
+        
+        textcomp.getActionMap().put("Redo",
+            new AbstractAction("Redo") {
+                public void actionPerformed(ActionEvent evt) {
+                    try {
+                        if (undo.canRedo()) {
+                            undo.redo();
+                        }
+                    } catch (CannotRedoException e) {
+                    }
+                }
+            });
+        
+        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
+    }
+    
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
@@ -255,7 +315,8 @@ public class PFileEditor extends JFrame {
                 try {
                     PFileEditor editor;
                     editor = new PFileEditor(new File("sys/proposition.p"));
-                    editor.setSize(300,600);
+                    editor.setSize(600,600);
+                    editor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     editor.setVisible(true);
                 } catch (HeadlessException e) {
                     // TODO Auto-generated catch block
@@ -267,6 +328,12 @@ public class PFileEditor extends JFrame {
             }
         });
         
+    }
+    
+    public void actionPerformed(ActionEvent evt) {
+        Action action = editor.getActionMap().get(evt.getActionCommand());
+        if(action != null)
+            action.actionPerformed(evt);
     }
 
     public boolean hasUnsafedChanges() {
@@ -281,9 +348,12 @@ public class PFileEditor extends JFrame {
     }
 
 
-    public char[] getContent() {
+    public String getContent() {
         // TODO Implement PFileEditor.getContent
         return null;
+    }
+    
+    public void setContentAndFile() {
     }
 
 

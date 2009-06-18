@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.StateConstants;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -21,7 +24,7 @@ import de.uka.iti.pseudo.proof.serialisation.ProofXML;
  */
 
 @SuppressWarnings("serial") 
-public class LoadProofAction extends AbstractStateListeningAction {
+public class LoadProofAction extends BarAction implements PropertyChangeListener {
 
     private JFileChooser fileChooser;
     
@@ -32,6 +35,14 @@ public class LoadProofAction extends AbstractStateListeningAction {
         super("Load proof ...", BarManager.makeIcon(LoadProofAction.class.getResource("img/page.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(SHORT_DESCRIPTION, "load a proof to the currently active problem");
+    }
+    
+    public void initialised() {
+        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        setEnabled((Boolean)evt.getOldValue());
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -67,13 +78,6 @@ public class LoadProofAction extends AbstractStateListeningAction {
                 // TODO gescheiter Fehlerdialog
                 ex.printStackTrace();
             }
-        }
-    }
-
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            // switch off if within proof action
-            setEnabled(!e.isActive());
         }
     }
 

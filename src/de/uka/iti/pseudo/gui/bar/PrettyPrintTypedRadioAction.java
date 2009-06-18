@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.gui.PrettyPrint;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class PrettyPrintTypedRadioAction extends AbstractStateListeningAction implements PropertyChangeListener {
+public class PrettyPrintTypedRadioAction extends BarAction implements PropertyChangeListener {
     
     public PrettyPrintTypedRadioAction() {
         super("Print types");
@@ -19,17 +19,15 @@ public class PrettyPrintTypedRadioAction extends AbstractStateListeningAction im
         PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
         pp.setTyped(isSelected());
     }
-
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateChangeEvent.INITIALISED)) {
-            PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
-            pp.addPropertyChangeListener(this);
-            setSelected(pp.isTyped());
-        }
-    }
-
+    
     public void propertyChange(PropertyChangeEvent evt) {
         PrettyPrint pp = (PrettyPrint) evt.getSource();
+        setSelected(pp.isTyped());
+    }
+    
+    public void initialised() {
+        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        pp.addPropertyChangeListener(PrettyPrint.PRINT_FIX_PROPERTY, this);
         setSelected(pp.isTyped());
     }
 

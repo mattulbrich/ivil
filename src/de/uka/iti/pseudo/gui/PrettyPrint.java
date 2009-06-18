@@ -15,6 +15,7 @@ import java.beans.PropertyChangeSupport;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.bar.PrettyPrintFixedRadioAction;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.term.Term;
@@ -360,6 +361,13 @@ public class PrettyPrint {
         propertiesSupport.addPropertyChangeListener(listener);
     }
     
+    public void addPropertyChangeListener(String property,
+            PropertyChangeListener listener) {
+        if(propertiesSupport == null)
+            propertiesSupport = new PropertyChangeSupport(this);
+        propertiesSupport.addPropertyChangeListener(property, listener);
+    }
+    
     /**
      * Removes the property change listener.
      * 
@@ -381,6 +389,8 @@ public class PrettyPrint {
         if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal))
             propertiesSupport.firePropertyChange(property, oldVal, newVal);
     }
+
+    
 
    
     

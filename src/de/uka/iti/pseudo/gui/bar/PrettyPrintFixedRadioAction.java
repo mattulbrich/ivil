@@ -5,10 +5,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class PrettyPrintFixedRadioAction extends AbstractStateListeningAction implements PropertyChangeListener {
+public class PrettyPrintFixedRadioAction extends BarAction 
+    implements PropertyChangeListener, InitialisingAction {
     
     public PrettyPrintFixedRadioAction() {
         super("Print infix and prefix");
@@ -19,17 +21,15 @@ public class PrettyPrintFixedRadioAction extends AbstractStateListeningAction im
         PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
         pp.setPrintingFix(isSelected());
     }
-
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateChangeEvent.INITIALISED)) {
-            PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
-            pp.addPropertyChangeListener(this);
-            setSelected(pp.isPrintingFix());
-        }
-    }
-
+    
     public void propertyChange(PropertyChangeEvent evt) {
         PrettyPrint pp = (PrettyPrint) evt.getSource();
+        setSelected(pp.isPrintingFix());
+    }
+    
+    public void initialised() {
+        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        pp.addPropertyChangeListener(PrettyPrint.PRINT_FIX_PROPERTY, this);
         setSelected(pp.isPrintingFix());
     }
 

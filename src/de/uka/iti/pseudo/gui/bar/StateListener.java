@@ -8,8 +8,6 @@ import javax.swing.Icon;
 // TODO Documentation needed
 public interface StateListener {
     
-    public interface StateListeningAction extends Action, StateListener {}
-
     public static class StateChangeEvent extends EventObject {
         
         public static final String INITIALISED = "initialised";

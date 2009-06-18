@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.gui.bar;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,13 +18,14 @@ import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import de.uka.iti.pseudo.gui.MainWindow;
-import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class SaveProofAction extends AbstractStateListeningAction {
+public class SaveProofAction extends BarAction 
+    implements PropertyChangeListener, InitialisingAction {
     
     private static class ExporterFileFilter extends FileFilter {
         
@@ -55,6 +58,14 @@ public class SaveProofAction extends AbstractStateListeningAction {
         for(ProofExport export : ServiceLoader.load(ProofExport.class)) {
             filters.add(new ExporterFileFilter(export));
         }
+    }
+    
+    public void initialised() {
+        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        setEnabled((Boolean)evt.getOldValue());
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -117,13 +128,6 @@ public class SaveProofAction extends AbstractStateListeningAction {
                 }
                 return;
             }
-        }
-    }
-
-    public void stateChanged(StateChangeEvent e) {
-        if(e.getState().equals(StateConstants.IN_PROOF)) {
-            // switch off if within proof action
-            setEnabled(!e.isActive());
         }
     }
 

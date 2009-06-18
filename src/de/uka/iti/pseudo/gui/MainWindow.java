@@ -32,6 +32,7 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
+import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
@@ -42,6 +43,14 @@ import de.uka.iti.pseudo.proof.ProofNode;
 // TODO DOC
 
 public class MainWindow extends JFrame {
+    
+    /**
+     * indicator for property changes on mainwindow that 
+     * window is initialised now.
+     */
+    public static final String INITIALISED = "pseudo.initialised";
+    
+    public static final String IN_PROOF = "pseudo.ongoing_proof";
 
     private ProofCenter proofCenter;
 
@@ -147,14 +156,14 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(3));
         }
         {
-            barManager = new BarManager(null);
-            barManager.putProperty(BarManager.CENTER, proofCenter);
-            barManager.putProperty(BarManager.PARENT_FRAME, this);
             URL resource = getClass().getResource("bar/menu.properties");
             if(resource == null)
                 throw new IOException("resource bar/menu.properties not found");
-            setJMenuBar(barManager.makeMenubar(resource));
-            getContentPane().add(barManager.makeToolbar(resource), BorderLayout.NORTH);
+            barManager = new BarManager(null, resource);
+            barManager.putProperty(BarAction.CENTER, proofCenter);
+            barManager.putProperty(BarAction.PARENT_FRAME, this);
+            setJMenuBar(barManager.makeMenubar());
+            getContentPane().add(barManager.makeToolbar(), BorderLayout.NORTH);
         }
         {
             // ExitAction is actually also a WindowListener. ...
@@ -190,5 +199,9 @@ public class MainWindow extends JFrame {
     public BarManager getBarManager() {
         return barManager;
     }
-   
+
+    public void firePropertyChange(String property, boolean value) {
+        firePropertyChange(property, !value, value);
+    }
+    
 }

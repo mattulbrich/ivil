@@ -7,30 +7,37 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.bar.StateListener.StateListeningAction;
+import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
 // TODO Documentation needed
-public abstract class AbstractStateListeningAction extends AbstractAction implements
-        StateListeningAction {
+public abstract class BarAction extends AbstractAction {
 
-    public AbstractStateListeningAction() {
+    public static final String CENTER = "barmanager.center";
+    public static final String PARENT_FRAME = "barmanager.parentframe";
+    public static final String EDITOR_FRAME = "barmanager.editorframe";
+    
+    public BarAction() {
         super();
     }
 
-    public AbstractStateListeningAction(String name, Icon icon) {
+    public BarAction(String name, Icon icon) {
         super(name, icon);
     }
 
-    public AbstractStateListeningAction(String name) {
+    public BarAction(String name) {
         super(name);
     }
 
     protected ProofCenter getProofCenter() {
-        return (ProofCenter) getValue(BarManager.CENTER);
+        return (ProofCenter) getValue(CENTER);
     }
     
     protected Frame getParentFrame() {
-        return (Frame) getValue(BarManager.PARENT_FRAME);
+        return (Frame) getValue(PARENT_FRAME);
+    }
+    
+    protected PFileEditor getEditor() {
+        return (PFileEditor) getValue(EDITOR_FRAME);
     }
 
     protected boolean isSelected() {
