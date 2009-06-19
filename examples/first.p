@@ -10,7 +10,7 @@ function
   bool b2
   bool p(int)
 
-program
+program P
 
   source "pre: val != 0"
            assume !val = 0
@@ -37,5 +37,5 @@ program
 
 
 problem 
-  [0]
+  [0; P]
 

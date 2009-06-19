@@ -96,10 +96,8 @@ ASTTerm ProgramTerm():
 
 ASTProgramTerm ProgramTerm_Content(boolean termination):
 {
-  Token t, label;
+  Token t, label, progref;
   ASTStatement matchStatement = null, st;
-  ASTProgramUpdate up;
-  List<ASTProgramUpdate> list = new LinkedList<ASTProgramUpdate>();
 }
 {
        ( label=<SCHEMA_IDENTIFIER> 
@@ -107,10 +105,8 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
            { return new ASTProgramTerm(label, termination, matchStatement); }
             
        | 
-         label=<NATURAL>
-         ( "||" t=<NATURAL> ":=" st=Statement() 
-           { list.add(new ASTProgramUpdate(t, st)); } )*
-         { return new ASTProgramTerm(label, termination, list); }
+         label=<NATURAL> ";" progref=<IDENTIFIER>
+         { return new ASTProgramTerm(label, termination, progref); }
        )
 }
 

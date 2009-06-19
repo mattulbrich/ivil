@@ -76,13 +76,13 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     }
     
     public void testIncPrg() throws Exception {
-        assertEvalsTo("$$incPrg([1])", "[2]");
-        assertEvalsTo("$$incPrg([[100 || 99 := end true]])", "[101 || 99 := end true]");
+        assertEvalsTo("$$incPrg([1;P])", "[2;P]");
+        assertEvalsTo("$$incPrg([[100; Q]])", "[[101;Q]]");
     }
     
     public void testJmpPrg() throws Exception {
-        assertEvalsTo("$$jmpPrg([1], 0)", "[0]");
-        assertEvalsTo("$$jmpPrg([[100 || 99 := end true]], 99)", "[99 || 99 := end true]");
+        assertEvalsTo("$$jmpPrg([1;P], 0)", "[0;P]");
+        assertEvalsTo("$$jmpPrg([[100 ; Q]], 99)", "[[99 ; Q]]");
     }
     
 }

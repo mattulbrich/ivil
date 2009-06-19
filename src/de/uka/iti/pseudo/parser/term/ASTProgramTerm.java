@@ -21,6 +21,7 @@ public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
     private Token position;
+    private Token programReference;
     
     private ASTProgramTerm(Token position, boolean terminating) {
         super(Collections.<ASTTerm>emptyList());
@@ -36,15 +37,21 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public ASTProgramTerm(Token label, boolean termination,
-            List<ASTProgramUpdate> list) {
+            Token programReference) {
         this(label, termination);
-        addChildren(list);
+        this.programReference = programReference;
     }
 
     @Override
 	public Token getLocationToken() {
     	return position;
 	}
+    
+    public Token getProgramReferenceToken() {
+        assert !isSchema() : "Schema programs have no such token";
+        assert programReference != null;
+        return programReference;
+    }
     
     public Token getLabel() {
         return position;
@@ -71,5 +78,7 @@ public class ASTProgramTerm extends ASTTerm {
     public boolean isSchema() {
         return position.kind == ParserConstants.SCHEMA_IDENTIFIER;
     }
+
+
 
 }

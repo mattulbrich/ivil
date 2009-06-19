@@ -11,6 +11,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
@@ -19,7 +20,6 @@ import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -254,7 +254,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * ignore the program definition because it may contain identifier labels and
      */
-    public void visit(ASTStatementList arg) throws ASTVisitException {
+    public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         // do nothing
     }
     

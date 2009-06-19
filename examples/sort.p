@@ -34,7 +34,7 @@ rule theory_of_arrays
   replace cond(%i = %j & %a = %b, %v, R(%h, %a, %j))
   tags rewrite "fol simp"
 
-program
+program P
     
   source "pre: N = 1"
     assume H0 = H
@@ -62,5 +62,5 @@ program
     assume !(i <N)
     end (\forall x; x>=0 & x < N -> R(H,a,i)=R(H0,b,i) & R(H,b,i) = R(H0,a,i))
 
-problem [0]
+problem [0; P]
 

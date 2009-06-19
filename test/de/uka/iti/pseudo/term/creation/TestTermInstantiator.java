@@ -58,7 +58,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     public void testStringInst() throws Exception {
         
         Term t1 = makeTerm("1+2");
-        Term t2 = makeTerm("[99]");
+        Term t2 = makeTerm("[99; P]");
         termmap.put("%x", t1);
         termmap.put("%longerName", t2);
         
@@ -83,16 +83,16 @@ public class TestTermInstantiator extends TestCaseWithEnv {
 
     public void testSchemaProgram() throws Exception {
         
-        termmap.put("%a", makeTerm("[2]"));
+        termmap.put("%a", makeTerm("[2; P]"));
         
         Term t = inst.instantiate(makeTerm("%a as bool"));
-        assertEquals(makeTerm("[2]"), t);
+        assertEquals(makeTerm("[2; P]"), t);
         
         t = inst.instantiate(makeTerm("[%a]"));
-        assertEquals(makeTerm("[2]"), t);
+        assertEquals(makeTerm("[2; P]"), t);
         
         try {
-            t = inst.instantiate(makeTerm("[[%a]]"));
+            t = inst.instantiate(makeTerm("[[%a; P]]"));
             fail("wrong termination - should have failed");
         } catch (Exception e) {
         }
@@ -103,7 +103,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     public void testProgramComparingInstantiation() throws Exception {
         
         inst = new ProgramComparingTermInstantiator(termmap, typemap, env);
-        termmap.put("%a", makeTerm("[1]"));
+        termmap.put("%a", makeTerm("[1;P]"));
         termmap.put("%b", makeTerm("b2"));
         
         // it suffices if it does not fail

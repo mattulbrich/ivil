@@ -49,5 +49,7 @@ public interface ASTFileVisitor {
     public void visit(ASTGoalAction goalAction) throws ASTVisitException;
 
     public void visit(ASTRuleRemove ruleRemove)  throws ASTVisitException;
+    
+    public void visit(ASTProgramDeclaration statementList) throws ASTVisitException;
 
 }

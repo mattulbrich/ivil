@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
@@ -26,7 +27,6 @@ import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
@@ -36,7 +36,6 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
-import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -252,12 +251,8 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         visitDefault(arg);
     }
     
-    public void visit(ASTStatementList arg) throws ASTVisitException {
+    public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
     
-    public void visit(ASTProgramUpdate arg) throws ASTVisitException {
-        visitDefault(arg);
-    }
-
 }

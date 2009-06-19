@@ -24,12 +24,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("(i1+i2)+i3", "i1 + i2 + i3");
         testTerm("i1+i2+i3", "i1 + i2 + i3");
         testTerm("(i1+i2)*i3", "(i1 + i2) * i3");
-        pp.setPrintingProgramModifications(true);
-        testTerm("[ 6 || 0 := end true || 8 := goto 8, 0 ](1+2)", 
-                 "[ 6 || 0 := end true || 8 := goto 8, 0 ]");
-        pp.setPrintingProgramModifications(false);
-        testTerm("[ 6 || 0 := end true || 8 := goto 8, 0 ]", 
-                "[ 6 || 0 || 8 ]");
+        testTerm("[ 6; P ]", "[ 6; P ]"); 
         testTerm("{b1 := true}{i1:=0}i2", "{ b1 := true }{ i1 := 0 }i2");
         testTerm("[[%a : assert %b]]", "[[ %a : assert %b ]]");
         testTerm("! !b1", "! !b1");
@@ -99,7 +94,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testOrderEqual("1 + (2+3)");
         testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
         testOrderEqual("[[ %a : goto %n, %k ]]");
-        testOrderEqual("[ 6 || 8 := end true ]");
+        testOrderEqual("[ 6 ; P ]");
     }
 
     private void testOrderEqual(String string) throws Exception {

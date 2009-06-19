@@ -11,7 +11,6 @@ ASTFile File():
   ASTDeclarationBlock block;
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
   ASTTerm problem = null;
-  ASTStatementList program = null;
 }
 {      (
         ( block=IncludeDeclarationBlock()
@@ -19,16 +18,15 @@ ASTFile File():
         | block=FunctionDeclarationBlock()
         | block=BinderDeclarationBlock()
         | block=RuleDeclaration()
+        | block=ProgramDeclaration()
         )   { blocks.add(block); }
        )*
-       
-       ( "program" program=StatementList() )?
        
        ( "problem" problem=Term() )?
        
        <EOF>
        
-   { return new ASTFile(blocks, program, problem); }
+   { return new ASTFile(blocks, problem); }
 }
 
 ASTIncludeDeclarationBlock IncludeDeclarationBlock():
@@ -140,6 +138,16 @@ ASTBinderDeclaration BinderDeclaration():
     ")"
 
     { return new ASTBinderDeclaration(name, range, varty, tyrefs); }
+}
+
+ASTProgramDeclaration ProgramDeclaration():
+{
+  List<ASTStatement> statements;
+  Token first, name;
+}
+{
+   first="program" name=<IDENTIFIER> statements=StatementList()
+     { return new ASTProgramDeclaration(first, name, statements); } 
 }
 
 ASTRule RuleDeclaration():

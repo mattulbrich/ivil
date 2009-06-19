@@ -10,11 +10,11 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
-public class ProgramMaker extends ASTDefaultVisitor {
+public class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
     private Environment env;
     private List<ASTStatement> rawStatements = new ArrayList<ASTStatement>();
@@ -35,30 +35,11 @@ public class ProgramMaker extends ASTDefaultVisitor {
     private List<LabelAnnotation> labelAnnotations = new ArrayList<LabelAnnotation>();
     private Map<String, Integer> labelMap = new HashMap<String, Integer>();
     
-    public ProgramMaker(Environment env) {
+    public EnvironmentProgramMaker(Environment env) {
         this.env = env;
     }
 
-    public static Program makeProgram(ASTStatementList statementList, Environment env) 
-                throws ASTVisitException {
-        ProgramMaker programMaker = new ProgramMaker(env);
-        programMaker.visit(statementList);
-        programMaker.resolveLables();
-        programMaker.makeStatements();
-        
-        Program program;
-        try {
-            program = new Program(programMaker.statements, 
-                    programMaker.sourceAnnotations,
-                    programMaker.labelAnnotations);
-        } catch (EnvironmentException e) {
-            throw new ASTVisitException(statementList, e);
-        }
-        
-        return program;
-    }
-
-    private void resolveLables() throws ASTVisitException {
+    private void resolveLabels() throws ASTVisitException {
         for (ASTStatement ast : rawStatements) {
             if (ast instanceof ASTGotoStatement) {
                 List<ASTTerm> targets = SelectList.select(ASTTerm.class, ast.getChildren());
@@ -93,6 +74,9 @@ public class ProgramMaker extends ASTDefaultVisitor {
     }
     
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
+        for (ASTElement child : arg.getChildren()) {
+            child.visit(this);
+        }
     }
     
     private boolean detectSchemaVariables(Statement statement) {
@@ -121,9 +105,28 @@ public class ProgramMaker extends ASTDefaultVisitor {
         labelMap.put(label, rawStatements.size());
     }
     
-    public void visit(ASTStatementList arg) throws ASTVisitException {
+    public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
+        
+        rawStatements.clear();
+        statements.clear();
+        sourceAnnotations.clear();
+        labelAnnotations.clear();
+        labelMap.clear();
+        
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
+        }
+        
+        resolveLabels();
+        makeStatements();
+        
+        try {
+            String name = arg.getName().image;
+            Program program = new Program(name, statements, 
+                    sourceAnnotations, labelAnnotations, arg);
+            env.addProgram(program);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
         }
     }
 

@@ -69,27 +69,29 @@ public class TestTermUnification extends TestCaseWithEnv {
         Type intTy = Environment.getIntType();
         Term.SHOW_TYPES = true;
         
-        assertFalse(mc.leftUnify(mt("[%a : assert %b]"), mt("[0]")));
-        assertTrue(mc.leftUnify(mt("[%a : assert %b]"), mt("[1]")));
-        assertFalse(mc.leftUnify(mt("[%a]"), mt("[2]")));
+        assertFalse(mc.leftUnify(mt("[%a : assert %b]"), mt("[0;P]")));
+        assertTrue(mc.leftUnify(mt("[%a : assert %b]"), mt("[1;P]")));
+        assertFalse(mc.leftUnify(mt("[%a]"), mt("[2;P]")));
         
         assertEquals(mt("b2"), mc.getTermFor(new SchemaVariable("%b", bool)));
 
-        assertTrue(mc.leftUnify(mt("[%c : %x := %v]"), mt("[5]")));
+        assertTrue(mc.leftUnify(mt("[%c : %x := %v]"), mt("[5;P]")));
         assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%x", intTy)));
         assertEquals(mt("i2+i3"), mc.instantiate(new SchemaVariable("%v", intTy)));
         
-        // was a bug
-        assertFalse(mc.leftUnify(mt("[[%d]]"), mt("[7]")));
-        // was a bug
-        assertFalse(mc.leftUnify(mt("[[7]]"), mt("[7]")));
+        assertFalse(mc.leftUnify(mt("[0;P]"), mt("[0;Q]")));
         
-        assertTrue(mc.leftUnify(mt("[%e]"), mt("[6]")));
+        // was a bug
+        assertFalse(mc.leftUnify(mt("[[%d]]"), mt("[7;P]")));
+        // was a bug
+        assertFalse(mc.leftUnify(mt("[[7;P]]"), mt("[7;P]")));
+        
+        assertTrue(mc.leftUnify(mt("[%e]"), mt("[6;P]")));
         // cannot match because not same number even though same statement
-        assertFalse(mc.leftUnify(mt("[%e]"), mt("[7]")));
+        assertFalse(mc.leftUnify(mt("[%e]"), mt("[7;P]")));
         
         // beyond program range
-        assertTrue(mc.leftUnify(mt("[%f : end true]"), mt("[100]")));
+        assertTrue(mc.leftUnify(mt("[%f : end true]"), mt("[100;P]")));
     }
     
     

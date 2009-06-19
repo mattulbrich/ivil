@@ -5,12 +5,12 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
@@ -74,7 +74,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         currentFindRawType = null;
     }
     
-    public void visit(ASTStatementList arg) throws ASTVisitException {
+    public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
 //        super.visit(arg);
 //        
 //        // reset context for the problem

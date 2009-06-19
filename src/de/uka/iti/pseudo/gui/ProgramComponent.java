@@ -32,7 +32,7 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 // things calc'ed from FrontMetrics
 // plus make it configurable.
 
-public class ProgramComponent extends JComponent implements ProofNodeSelectionListener {
+public class ProgramComponent extends JComponent  {
 
     private static final Font FONT_LARGE = new Font(Font.MONOSPACED, Font.PLAIN, 14);
     private static final Font FONT_SMALL = new Font(Font.MONOSPACED, Font.PLAIN, 12);
@@ -47,6 +47,7 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
     
     private static final Color LIGHT_BLUE = new Color(192, 192, 255);
 
+    private ProofNode proofNode;
     private Program program;
     private List<Node> statementNodes = new ArrayList<Node>();
     
@@ -65,11 +66,8 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
         int ypos;
     }
     
-    public ProgramComponent(@NonNull Program program) {
+    public ProgramComponent() {
         setBackground(Color.white);
-        this.program = program;
-        
-        makeModel();
         
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -82,7 +80,13 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
     
     private void makeModel() {
         
+        if(program == null) {
+            root = null;
+            return;
+        }
+        
         List<SourceAnnotation> sources = program.getSourceAnnotations();
+        statementNodes.clear();
         
         int sourcePtr = 0;
 
@@ -107,11 +111,22 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
             prgLine.top = lastTop;
             last = prgLine;
         }
+        
+        while(sourcePtr < sources.size()) {
+            Node node = new Node(sources.get(sourcePtr).toString());
+            lastTop.next = node;
+            last = lastTop = node;
+            sourcePtr++;
+        }
+
     }
     
     public void paintComponent(Graphics g) {
         g.setColor(getBackground());
         g.fillRect(0, 0, getWidth(), getHeight());
+        
+        if(program == null)
+            return;
         
         int y = 0;
         
@@ -170,10 +185,10 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
     }
     
     private TermVisitor selectionFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-        public void visit(LiteralProgramTerm literalProgramTerm)
+        public void visit(LiteralProgramTerm progTerm)
                 throws TermException {
-            int index = literalProgramTerm.getProgramIndex();
-            if(index < statementNodes.size()) {
+            int index = progTerm.getProgramIndex();
+            if(index < statementNodes.size() && progTerm.getProgram() == program) {
                 Node node = statementNodes.get(index);
                 selectedNodes.add(node);
                 selectedNodes.add(node.top);
@@ -181,25 +196,52 @@ public class ProgramComponent extends JComponent implements ProofNodeSelectionLi
         }
     };
 
-    public void proofNodeSelected(ProofNode node) {
+    public void setProofNode(ProofNode node) {
+        proofNode = node;
+        selectTerms();
+    }
+
+    private void selectTerms() {
+        
+        if(proofNode == null || program == null)
+            return;
+        
         try {
             selectedNodes.clear();
-            for (Term term : node.getSequent().getAntecedent()) {
+            for (Term term : proofNode.getSequent().getAntecedent()) {
                 term.visit(selectionFindVisitor);
             }
-            for (Term term : node.getSequent().getSuccedent()) {
+            for (Term term : proofNode.getSequent().getSuccedent()) {
                 term.visit(selectionFindVisitor);
             }
         } catch (TermException e) {
             // should not happen
             throw new Error(e);
         }
-        repaint();
     }
 
-    public void ruleApplicationSelected(RuleApplication ruleApplication) {
-        // perhaps mark this one stronger?
-        // do nothing
+    public Program getProgram() {
+        return program;
     }
+
+    public void setProgram(Program program) {
+        this.program = program;
+        makeModel();
+        selectTerms();
+    }
+    
+    private void dump() {
+        Node n = root;
+        while(n != null) {
+            System.out.println(n + " " + n.text);
+            Node m = n.child;
+            while(m != null) {
+                System.out.println("  " + m + " " + m.text);
+                m = m.child;
+            }
+            n = n.next;
+        }
+    }
+
     
 }

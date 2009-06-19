@@ -39,7 +39,7 @@ rule test_where
      replace  true 
      
 rule test_mod
-     find  [ 1;P ]
+     find  [ 1; ]
    samegoal
      replace  cond(%b, [ 2;P ], [[ 3;P ]])
 

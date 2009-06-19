@@ -119,7 +119,7 @@ class TermMatcher extends DefaultTermVisitor {
             termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), Environment.getBoolType());
             if(sp.hasMatchingStatement()) {
                 Statement matchingSt = sp.getMatchingStatement();
-                Statement statement = litPrg.getStatement(env);
+                Statement statement = litPrg.getStatement();
                 
                 if(matchingSt.getClass() != statement.getClass())
                     throw new UnificationException("Incomparable types of statements", matchingSt, statement);
@@ -208,6 +208,9 @@ class TermMatcher extends DefaultTermVisitor {
     @Override 
     public void visit(LiteralProgramTerm p) throws TermException {
         LiteralProgramTerm p2 = (LiteralProgramTerm) compareTerm;
+        
+        if(p.getProgram() != p2.getProgram())
+            throw new UnificationException("Incompatible programs", p, p2);
         
         if(p.getProgramIndex() != p2.getProgramIndex())
             throw new UnificationException("Incompatible indices", p, p2);

@@ -4,7 +4,7 @@
 //
 
 
-ASTStatementList StatementList():
+List<ASTStatement> StatementList():
 {
 	List<ASTStatement> list = new ArrayList<ASTStatement>();
 	ASTStatement st;
@@ -15,7 +15,7 @@ ASTStatementList StatementList():
 	| st=SourceStatement() { list.add(st); } 
 	| st=LabelStatement() { list.add(st); } 
 	)+
-	{ return new ASTStatementList(list); }
+	{ return list; }
 }
 
 ASTSourceStatement SourceStatement():

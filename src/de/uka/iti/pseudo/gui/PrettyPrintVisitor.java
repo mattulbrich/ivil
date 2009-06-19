@@ -9,7 +9,6 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.ProgramUpdate;
 import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -241,16 +240,8 @@ class PrettyPrintVisitor implements TermVisitor {
         printer.begin(litProgTerm);
         printer.setStyle("program");
         printer.append(litProgTerm.isTerminating() ? "[[ " : "[ ");
-        printer.append(Integer.toString(litProgTerm.getProgramIndex()));
-        List<ProgramUpdate> updates = litProgTerm.getUpdates();
-        for (int i = 0; i < updates.size(); i++) {
-            if(i >= 0)
-                printer.append(" || ");
-            printer.append(Integer.toString(updates.get(i).getUpdatedIndex()));
-            if(pp.isPrintingProgramModifications()) {
-                printer.append(" := " + updates.get(i).getStatement().toString(pp.isTyped()));
-            }
-        }
+        printer.append(Integer.toString(litProgTerm.getProgramIndex())
+                + "; " + litProgTerm.getProgram());
         printer.append(litProgTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
         printer.end();

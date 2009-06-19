@@ -232,7 +232,7 @@ public class TermComponent extends JTextPane {
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
             try {
-                return prog.getStatement(env).toString();
+                return prog.getStatement().toString();
             } catch (TermException e) {
             }
         }

@@ -78,14 +78,14 @@ public class TestTermParser extends TestCaseWithEnv {
     }
 
     public void testModality() throws Exception {
-        testTerm("[5] as bool", true);
-        testTerm("[[7]]", false);
-        testTerm("[7] -> [9]", "$impl([7],[9])", false);
-        testTerm("[8 || 8:=assert $gt(%i1,1) || 9:=end true || 10:=assume %b]", false);
+        testTerm("[5;P] as bool", true);
+        testTerm("[[7;P]]", false);
+        testTerm("[7;P] -> [9; Q]", "$impl([7;P],[9;Q])", false);
         testTerm("[[%a]]", false);
         testTerm("[%a: end %b]", false);
         testTerm("[%a: goto %b, %c]", false);
         
+        testTermFail("[6; Unknown]");
         testTermFail("[6: end true");
         testTermFail("[%a: end 1");
         testTermFail("[%a || 1:=skip");

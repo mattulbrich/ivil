@@ -10,10 +10,12 @@ package de.uka.iti.pseudo.environment;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -21,7 +23,6 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.meta.SubstMetaFunction;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -66,12 +67,6 @@ public class Environment {
     private @Nullable Environment parentEnvironment;
     
     /**
-     * The program defined for this environment. 
-     * Null if none has been specified.
-     */
-    private Program program;
-    
-    /**
      * Has this environment been fixed?
      */
     private boolean fixed;
@@ -85,6 +80,7 @@ public class Environment {
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
+    private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
     // literal map is created lazily.
     private Map<BigInteger, NumberLiteral> numberMap = null;
 
@@ -93,6 +89,8 @@ public class Environment {
      */
     private List<Rule> rules = new ArrayList<Rule>();
     private Map<String, Rule> ruleMap = new HashMap<String, Rule>();
+
+    
 
     /**
      * Instantiates a new environment which only contains the built ins.
@@ -191,36 +189,56 @@ public class Environment {
     }
 
     /**
-     * get the program defined for this environment
+     * get a program by name
      * 
-     * If no program is defined the call is delegated to the parent environment.
-     * Null is returned if no program has been defined within all reachable
-     * environments.
+     * <p>
+     * If no program is defined by this name, the call is delegated to the
+     * parent environment. Null is returned if no program has been defined
+     * within all reachable environments.
+     * 
+     * @param programName name of the searched program
      * 
      * @return a program or null
      */
-    public Program getProgram() {
-        if(program != null)
-            return program;
+    public Program getProgram(String programName) {
+        Program program = programMap.get(programName);
         
-        if(parentEnvironment != null)
-            return parentEnvironment.getProgram();
+        if (program == null && parentEnvironment != null)
+            program = parentEnvironment.getProgram(programName);
         
-        return null;
+        return program;
     }
+
+    // TODO DOC
+    public Collection<Program> getPrograms() {
+        return programMap.values();
+    }
+
     
     /**
-     * set the program of the environment
+     * add a program of the environment.
      * 
-     * overwrites a previously set program
+     * <p>No program by the same name may already exist in this (or a parent)
+     * environment
+     * 
+     * @param program the program to add to the environment
      * 
      * @throws EnvironmentException if the environment has already been fixed. 
      */
-    public void setProgram(Program program) throws EnvironmentException {
+    public void addProgram(Program program) throws EnvironmentException {
         if(isFixed())
             throw new EnvironmentException("This environment has already been fixed, program cannot be set");
-        
-        this.program = program;
+        String programName = program.getName(); 
+        Program existing = getProgram(programName);
+
+        if (existing != null) {
+            throw new EnvironmentException("A program with name " + programName
+                    + " has already been defined at "
+                    + existing.getDeclaration().getLocation());
+        }
+
+        programMap.put(programName, program);
+
     }
 
 
@@ -249,7 +267,7 @@ public class Environment {
         if (existing != null) {
             throw new EnvironmentException("Sort " + name
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
 
         sortMap.put(name, sort);
@@ -326,7 +344,7 @@ public class Environment {
         if (existing != null) {
             throw new EnvironmentException("Function " + name
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
 
         functionMap.put(name, function);
@@ -441,7 +459,7 @@ public class Environment {
             throw new EnvironmentException("Infix operator "
                     + infixOperator.getOpIdentifier()
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
 
         assert infixOperator.getArity() == 2;
@@ -492,7 +510,7 @@ public class Environment {
             throw new EnvironmentException("Prefix operator "
                     + prefixOperator.getOpIdentifier()
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
 
         assert prefixOperator.getArity() == 1;
@@ -560,7 +578,7 @@ public class Environment {
         if (existing != null) {
             throw new EnvironmentException("Binder " + name
                     + " has already been defined at "
-                    + existing.getDeclaration());
+                    + existing.getDeclaration().getLocation());
         }
 
         // if(!checkNoFreeReturnTypeVariables(binder.getResultType(),
@@ -698,6 +716,7 @@ public class Environment {
 
     /**
      * Debug dump to stdout.
+     * TODO use EntrySet for iteration over Maps
      */
     public void dump() {
 
@@ -731,6 +750,12 @@ public class Environment {
         System.out.println("Rules:");
         for (Rule rule : rules) {
             rule.dump();
+        }
+        
+        System.out.println("Programs:");
+        for (Entry<String, Program> entry : programMap.entrySet()) {
+            System.out.println("  program " + entry.getKey());
+            entry.getValue().dump();
         }
 
         if (parentEnvironment != null) {

@@ -9,7 +9,6 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -18,6 +17,7 @@ import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -42,7 +42,6 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
-import de.uka.iti.pseudo.parser.term.ASTProgramUpdate;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -53,7 +52,6 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.ProgramUpdate;
 import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -351,7 +349,6 @@ public class TermMaker extends ASTDefaultVisitor {
     private Term resultTerm;
     private Type resultType;
     private Statement resultStatement;
-    private ProgramUpdate resultProgramUpdate;
 
     /**
      * The environment to use.
@@ -526,17 +523,10 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTProgramTerm programTerm) throws ASTVisitException {
 
         Statement matchingStatement = null;
-        List<ProgramUpdate> updates = new ArrayList<ProgramUpdate>(); 
         
         if(programTerm.hasMatchingStatement()) {
             programTerm.getMatchingStatement().visit(this);
             matchingStatement = resultStatement;
-        } else {
-            for (ASTProgramUpdate child : 
-                SelectList.select(ASTProgramUpdate.class, programTerm.getChildren())) {
-                child.visit(this);
-                updates.add(resultProgramUpdate);
-            }
         }
         
         try {
@@ -546,7 +536,11 @@ public class TermMaker extends ASTDefaultVisitor {
                 SchemaVariable sv = new SchemaVariable(position.image, Environment.getBoolType());
                 resultTerm = new SchemaProgram(sv, terminating, matchingStatement);
             } else {
-                resultTerm = new LiteralProgramTerm(position.image, terminating, updates);
+                Token programReference = programTerm.getProgramReferenceToken();
+                Program program = env.getProgram(programReference.image);
+                if(program == null)
+                    throw new TermException("Unknown program '" +programReference + "'");
+                resultTerm = new LiteralProgramTerm(position.image, terminating, program);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);
@@ -554,16 +548,6 @@ public class TermMaker extends ASTDefaultVisitor {
         
     }
     
-    public void visit(ASTProgramUpdate arg) throws ASTVisitException {
-        try {
-            int position = Integer.parseInt(arg.getPosition().image);
-            arg.getChildren().get(0).visit(this);
-            resultProgramUpdate = new ProgramUpdate(position, resultStatement);
-        } catch (Exception e) {
-            throw new ASTVisitException(arg, e);
-        } 
-    }
-
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         List<ASTType> subty = typeRef.getArgumentTypeRefs();
         Type[] retval = new Type[subty.size()];

@@ -289,7 +289,6 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
     }
     
-    // XXX move to some action code
     /** 
      * @param filePath      name of file to open. The file can reside
      *                      anywhere in the classpath

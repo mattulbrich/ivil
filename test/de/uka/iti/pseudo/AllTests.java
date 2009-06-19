@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
+import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermCollector;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
@@ -39,6 +40,7 @@ public class AllTests {
         suite.addTestSuite(TestTermUnification.class);
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
+        suite.addTestSuite(TestProgramTerm.class);
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTermInstantiator.class);
         suite.addTestSuite(TestTermReplacer.class);

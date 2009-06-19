@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
@@ -146,15 +147,12 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(2));
         }
         {
-            // TODO At the moment ...
-            Program program = proofCenter.getEnvironment().getProgram();
-            if(program != null) {
-                programComponent = new ProgramComponent(program);
-                proofCenter.addProofNodeSelectionListener(programComponent);
-                JScrollPane scroll = new JScrollPane(programComponent);
-                Dockable dock = new DefaultDockable("program", scroll, "Program");
-                tabDock.addDockable(dock, new Position(3));
-            }
+            // FIXME At the moment ...
+            ProgramPanel panel = new ProgramPanel(proofCenter.getEnvironment());
+            proofCenter.addProofNodeSelectionListener(panel);
+            JScrollPane scroll = new JScrollPane(panel);
+            Dockable dock = new DefaultDockable("program", scroll, "Program");
+            tabDock.addDockable(dock, new Position(3));
         }
 //        {
 //            JPanel settings = new JPanel();

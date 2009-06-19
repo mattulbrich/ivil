@@ -31,7 +31,7 @@ function
 
 (* for tests with programs *)
 
-program
+program P
     assume b1
     assert b2
     skip
@@ -39,3 +39,10 @@ program
     skip (* havov i1 *)
     i1 := i2 + i3
     end true
+
+program Q
+    assume b1 & b2
+    source "testline"
+  label: label2:
+    skip
+    goto label

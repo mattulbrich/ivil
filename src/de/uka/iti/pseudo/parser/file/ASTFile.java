@@ -15,7 +15,6 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTFile extends ASTElement {
@@ -27,18 +26,12 @@ public class ASTFile extends ASTElement {
 	// do not store program and problem here in persona
 	// problem may be replaced if it is a fix expression.
 	// -1 indicates not present
-	private int programIndex = -1;
 	private int problemIndex = -1;
 
-	public ASTFile(List<ASTDeclarationBlock> blocks, ASTStatementList program, ASTTerm problem) {
+	public ASTFile(List<ASTDeclarationBlock> blocks, ASTTerm problem) {
 		this.declarationBlocks = blocks;
 		
 		addChildren(blocks);
-		
-		if(program != null) {
-		    programIndex = getChildren().size();
-		    addChild(program);
-		}
 		
 		if(problem != null) {
 		    problemIndex = getChildren().size();
@@ -66,9 +59,5 @@ public class ASTFile extends ASTElement {
 	public Token getLocationToken() {
 		return null;
 	}
-
-    public ASTStatementList getProgram() {
-        return (ASTStatementList) (programIndex > 0 ? getChildren().get(programIndex) : null);
-    }
 
 }

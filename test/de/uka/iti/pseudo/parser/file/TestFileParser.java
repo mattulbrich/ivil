@@ -86,5 +86,12 @@ public class TestFileParser extends TestCase {
         testEnv("problem `1` `` ` =1`");
     }
 
+    public void testPrograms() throws Exception {
+        Environment e = testEnv("program P assert true program Q assume true");
+        e.dump();
+        assertNotNull(e.getProgram("P"));
+        assertNotNull(e.getProgram("Q"));
+        assertNull(e.getProgram("Unknown"));
+    }
     
 }

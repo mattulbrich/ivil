@@ -53,11 +53,13 @@ public class Parser {
     }
     
     
-    public ASTStatementList parseProgram(Reader reader, String filename) throws ParseException
+    public List<ASTStatement> parseProgram(Reader reader, String filename) throws ParseException
     {  
         ReInit(reader);
-        ASTStatementList statementList = StatementList();
-        statementList.setFilename(filename);
+        List<ASTStatement> statementList = StatementList();
+        for(ASTStatement ast : statementList) {
+            ast.setFilename(filename);
+        }
         return statementList;
     }
     

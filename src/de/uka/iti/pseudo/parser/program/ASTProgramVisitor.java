@@ -9,6 +9,7 @@
 package de.uka.iti.pseudo.parser.program;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 
 /**
  * This interface is part of the visitor pattern for program ast elements
@@ -16,8 +17,6 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 
 public interface ASTProgramVisitor {
 
-    public void visit(ASTStatementList statementList) throws ASTVisitException;
-    
     public void visit(ASTLabelStatement labeledStatement) throws ASTVisitException;
 
     public void visit(ASTAssertStatement assertStatement) throws ASTVisitException;

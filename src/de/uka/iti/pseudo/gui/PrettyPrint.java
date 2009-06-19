@@ -49,9 +49,9 @@ public class PrettyPrint {
     private boolean printFix = true;
     
     /**
-     * whether or not program modifications are printed verbosely.
+     * whether or not updates should appear on separate lines
      */
-    private boolean printProgramModifications = false;
+    private boolean breakUpdates = false;
     
     /**
      * the style (attribute string) to be set in the beginning.
@@ -331,12 +331,12 @@ public class PrettyPrint {
     
     // TODO DOC
     public boolean isPrintingProgramModifications() {
-        return printProgramModifications;
+        return breakUpdates;
     }
 
-    public void setPrintingProgramModifications(boolean printProgramModifications) {
-        boolean old = this.printProgramModifications;
-        this.printProgramModifications = printProgramModifications;
+    public void setbreakUpdates(boolean printProgramModifications) {
+        boolean old = this.breakUpdates;
+        this.breakUpdates = printProgramModifications;
         firePropertyChanged(PRINT_FIX_PROPERTY, old, printProgramModifications);
     }
 

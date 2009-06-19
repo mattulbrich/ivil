@@ -38,15 +38,18 @@ public class SelectList<E> extends AbstractList<E> {
 	private LinkedList<E> internalList;
 	
 	/**
-	 * create a new Sublist with elements of a certain class.
-	 * 
-	 * <p>The resulting class contains the elements of the class <code>list</code>
-	 * which are instances of the class <code>clss</code> and only those. The 
-	 * created class is immutable.
-	 * 
-	 * @param clss the class of which instances are to be selected
-	 * @param list the list from which a sublist is to be extracted.
-	 */
+     * create a new Sublist with elements of a certain class.
+     * 
+     * <p>
+     * The resulting class contains the elements of the class <code>list</code>
+     * which are instances of the class <code>clss</code> and only those. The
+     * created class is immutable.
+     * 
+     * @param clss
+     *            the class of which instances are to be selected
+     * @param list
+     *            the list from which a sublist is to be extracted.
+     */
 	public SelectList(Class<E> clss, List<?> list) {
 		assert clss != null;
 		assert list != null;

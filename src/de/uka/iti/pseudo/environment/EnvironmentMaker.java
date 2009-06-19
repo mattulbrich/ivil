@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
-import de.uka.iti.pseudo.parser.program.ASTStatementList;
+import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -131,25 +131,10 @@ public class EnvironmentMaker {
 
         astFile.visit(new EnvironmentDefinitionVisitor(env));
         astFile.visit(new EnvironmentTypingResolver(env));
+        astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
 
-        doProgram(astFile);
         doProblem(astFile);
-    }
-
-    /*
-     * convert the AST program description to an object.
-     */
-    private void doProgram(ASTFile astFile) throws ASTVisitException {
-        ASTStatementList astProgram = astFile.getProgram();
-        if(astProgram != null) {
-            try {
-                Program program = ProgramMaker.makeProgram(astProgram, env);
-                env.setProgram(program);
-            } catch (EnvironmentException e) {
-                throw new ASTVisitException(astProgram, e);
-            }
-        }
     }
 
     /*

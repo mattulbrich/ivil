@@ -33,7 +33,7 @@ public class ProgramComparingTermInstantiator extends TermInstantiator {
         
         if(schema.hasMatchingStatement()) {
             Statement schemaStatement = schema.getMatchingStatement();
-            Statement statement = prog.getStatement(env);
+            Statement statement = prog.getStatement();
             
             if(statement.getClass() != schemaStatement.getClass()) 
                 throw new UnificationException("Incomparable statement types", statement, schemaStatement);
