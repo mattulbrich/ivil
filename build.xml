@@ -72,9 +72,9 @@
   </target>
 
   <target name="dist" depends="jar" description="package the software to deliver it">
-    <zip destfile="pseudo.zip" basedir=".">
-      <fileset dir="." includes="examples" />
-      <fileset dir="." includes="sys" />
+    <zip destfile="pseudo.zip" >
+      <fileset dir="." includes="examples/**" />
+      <fileset dir="." includes="sys/**" />
       <fileset dir="." includes="lib/javadocking.jar" />
       <fileset dir="." includes="pseudo.jar" />
     </zip>
