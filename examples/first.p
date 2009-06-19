@@ -12,8 +12,11 @@ function
 
 program
 
+  source "pre: val != 0"
+           assume !val = 0
+
   source "if b1"
-           goto then1 else1
+           goto then1, else1
   source "then"
   then1:   assume b1
            val := 7
@@ -27,3 +30,4 @@ program
 
 problem 
   [0]
+

@@ -57,6 +57,8 @@ public class MainWindow extends JFrame {
     private SequentComponent sequentComponent;
 
     private GoalList goalList;
+    
+    private ProgramComponent programComponent;
 
     private ProofComponent proofComponent;
 
@@ -141,6 +143,12 @@ public class MainWindow extends JFrame {
             JScrollPane scroll = new JScrollPane(ruleApplicationComponent);
             Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");
             tabDock.addDockable(dock, new Position(2));
+        }
+        {
+            programComponent = new ProgramComponent(proofCenter.getEnvironment().getProgram());
+            JScrollPane scroll = new JScrollPane(programComponent);
+            Dockable dock = new DefaultDockable("program", scroll, "Program");
+            tabDock.addDockable(dock, new Position(3));
         }
 //        {
 //            JPanel settings = new JPanel();

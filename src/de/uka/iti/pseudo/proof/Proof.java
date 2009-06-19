@@ -13,6 +13,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 // TODO DOC
@@ -33,7 +34,7 @@ public class Proof extends Observable {
         
         Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
         Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        TermInstantiator inst = new TermInstantiator(schemaMap, typeMap);
+        TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, env);
         
         int goalno = extractGoalNo(ruleApp);
         ProofNode goal = openGoals.get(goalno);

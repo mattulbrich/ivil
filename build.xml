@@ -13,10 +13,11 @@
   </target>
 
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
-    <javac srcdir="genSrc" destdir="classes" debug="${compile.debug}" sourcepath="genSrc:src"/>
     <javac srcdir="src" destdir="classes" debug="${compile.debug}">
-       <classpath>
-        <pathelement location="lib/javadocking.jar" />
+      <src path="src" />
+      <src path="genSrc" />
+      <classpath>
+        <pathelement path="lib/javadocking.jar" />
       	<pathelement path="classes" />
       </classpath>
       <compilerarg value="-Xlint"/>
@@ -56,7 +57,27 @@
   </target>
 
   <target name="jar" depends="build, nonnull" description="creates the jar file">
-    <jar jarfile="pseudo.jar" basedir="classes"/>
+    <jar jarfile="pseudo.jar" basedir="classes">
+      <manifest>
+        <!-- Who is building this jar? -->
+        <attribute name="Built-By" value="${user.name}"/>
+        <!-- Information about the program itself -->
+        <attribute name="Implementation-Vendor" value="ITI, Universitaet Karlsruhe"/>
+        <attribute name="Implementation-Title" value="Pseudo/BooKeY"/>
+        <attribute name="Implementation-Version" value="0.0"/>
+        <attribute name="Class-Path" value="lib/javadocking.jar"/>
+        <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="dist" depends="jar" description="package the software to deliver it">
+    <zip destfile="pseudo.zip" basedir=".">
+      <fileset dir="." includes="examples" />
+      <fileset dir="." includes="sys" />
+      <fileset dir="." includes="lib/javadocking.jar" />
+      <fileset dir="." includes="pseudo.jar" />
+    </zip>
   </target>
 
   <target name="build-test" depends="build" description="build test cases">

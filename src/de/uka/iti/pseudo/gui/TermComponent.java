@@ -34,7 +34,9 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 /**
@@ -209,7 +211,7 @@ public class TermComponent extends JTextPane {
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 
                 Term term = annotatedString.getAttributeAt(index);
-                setToolTipText(term.getType().toString());
+                setToolTipText(makeTermToolTip(term));
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
             }
@@ -217,6 +219,25 @@ public class TermComponent extends JTextPane {
             // TODO just ignore this for now
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * calculate the text to display in tooltip for a term
+     * Usually this is the type. For programs, however, print 
+     * the current statement
+     * @param term to print
+     * @return tooltip text
+     */
+    private String makeTermToolTip(Term term) {
+        if (term instanceof LiteralProgramTerm) {
+            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+            try {
+                return prog.getStatement(env).toString();
+            } catch (TermException e) {
+            }
+        }
+        
+        return term.getType().toString();
     }
 
     /**

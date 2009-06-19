@@ -8,14 +8,14 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -130,6 +130,34 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
+    public void visit(SchemaProgram schemaProgramTerm) throws TermException {
+        // see above
+        super.visit(schemaProgramTerm);
+        
+        if(termMap != null) {
+            SchemaVariable schemaVariable = schemaProgramTerm.getSchemaVariable();
+            Term t  = termMap.get(schemaVariable.getName());
+            LiteralProgramTerm progTerm = (LiteralProgramTerm) t;
+            
+            checkSchemaProgramInstantiation(schemaProgramTerm, progTerm);
+            resultingTerm = progTerm;
+        }
+
+    }
+
+    /**
+     * @param schema
+     * @param prog
+     * @throws TermException 
+     */
+    protected void checkSchemaProgramInstantiation(
+            SchemaProgram schema, LiteralProgramTerm prog)
+            throws TermException {
+        if(prog.isTerminating() != schema.isTerminating())
+            throw new UnificationException("Instantiation failed! Termination incompatible", 
+                    schema, prog);
+    }
+    
     /*
      * we need to handle this separately since the bound variable may be instantiated. 
      */
@@ -187,10 +215,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
         
         if(newAssignments != null) {
-            resultingTerm = new UpdateTerm(newAssignments, updateTerm.getSubterm(0));
+            resultingTerm = new UpdateTerm(newAssignments, innerResult);
         } else if(innerResult != updateTerm.getSubterm(0)) {
             newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
-            resultingTerm = new UpdateTerm(newAssignments, updateTerm.getSubterm(0));
+            resultingTerm = new UpdateTerm(newAssignments, innerResult);
         } else {
             resultingTerm = null;
         }

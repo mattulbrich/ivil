@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
+// TODO
 public class Program {
     
     private static final Statement OUT_OF_BOUNDS_STATEMENT;
@@ -39,6 +40,18 @@ public class Program {
             return OUT_OF_BOUNDS_STATEMENT;
         
         return statements[i];
+    }
+    
+    public List<SourceAnnotation> getSourceAnnotations() {
+        return Util.readOnlyArrayList(sourceAnnotations);
+    }
+    
+    public List<LabelAnnotation> getLabelAnnotations() {
+        return Util.readOnlyArrayList(labelAnnotations);
+    }
+
+    public int countStatements() {
+        return statements.length;
     }
 
 }
