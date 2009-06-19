@@ -22,15 +22,15 @@ import java.util.concurrent.LinkedBlockingQueue;
  * This is an asynchronous observable, since the observer may (but do not have
  * to) run in a different thread.
  */
-
-public class DeferredObservable extends Observable {
+@Deprecated
+class DeferredObservable extends Observable {
 
     /**
      * DispatchThread is the thread to actually cann the observers.
      */
     private static class DispatchThread extends Thread {
 
-        public DispatchThread() {
+        private DispatchThread() {
             super("DeferredObservable.DispatchThread");
         }
 

@@ -34,9 +34,19 @@ public class SelectList<E> extends AbstractList<E> {
 	/** the wrapped original list */
 	private List<?> list;
 	
-	/** the internal list which holds the selected elments */
+	/** the internal list which holds the selected elements */
 	private LinkedList<E> internalList;
 	
+	/**
+	 * create a new Sublist with elements of a certain class.
+	 * 
+	 * <p>The resulting class contains the elements of the class <code>list</code>
+	 * which are instances of the class <code>clss</code> and only those. The 
+	 * created class is immutable.
+	 * 
+	 * @param clss the class of which instances are to be selected
+	 * @param list the list from which a sublist is to be extracted.
+	 */
 	public SelectList(Class<E> clss, List<?> list) {
 		assert clss != null;
 		assert list != null;
@@ -45,7 +55,22 @@ public class SelectList<E> extends AbstractList<E> {
 		this.list = list;
 	}
 	
-	// shorter than constructor since type inference can be applied
+	// 
+	/**
+     * create a new Sublist with elements of a certain class. This is a
+     * convenience wrapper for the constructor call, but significantly shorter
+     * since type inference can be applied and the type parameter E can be
+     * omitted in many cases.
+     * 
+     * @param <E>
+     *            the type of the extracted elements
+     * @param clss
+     *            the class of which instances are to be selected
+     * @param list
+     *            the list from which a sublist is to be extracted.
+     * @return a freshly created selectList object
+     * @see #SelectList(Class, List)
+     */
 	public static <E> SelectList<E> select(Class<E> clss, List<?> list) {
 		return new SelectList<E>(clss, list);
 	}

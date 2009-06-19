@@ -65,7 +65,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         /*
          * Instantiates a new linked entry which is a shallow copy of an existing entry. 
          */
-        public LinkedEntry(LinkedEntry<K, V> entry) {
+        private LinkedEntry(LinkedEntry<K, V> entry) {
             this.value = entry.value;
             this.key = entry.key;
             this.next = entry.next;
@@ -186,5 +186,10 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
             // cannot appear
             throw new Error(e);
         }
+    }
+    
+    public void clear() {
+        head = null;
+        size = 0;
     }
 }

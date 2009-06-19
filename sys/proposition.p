@@ -247,3 +247,11 @@ rule not_not
   replace  %b 
   tags rewrite "concrete"
 
+(*
+ * stuff with equivalence
+ *)
+
+rule equiv_to_eq
+  find %a <-> %b
+  replace %a = %b
+  tags rewrite "prop simp"

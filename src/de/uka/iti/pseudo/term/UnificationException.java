@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.term;
 
 import java.util.LinkedList;
@@ -5,8 +13,16 @@ import java.util.List;
 
 import de.uka.iti.pseudo.term.statement.Statement;
 
-// TODO DOC
+/**
+ * The exception UnificationException is used to propagate errors that happened during
+ * unification/matching of two syntactical entities.
+ * 
+ * It usually does not indicate an error state but rather a failed unification try.
+ *  
+ * Messages can be added to allow more thorough inspection of errors. 
+ */
 
+@SuppressWarnings("serial") 
 public class UnificationException extends TermException {
     
     private List<String> details = new LinkedList<String>();

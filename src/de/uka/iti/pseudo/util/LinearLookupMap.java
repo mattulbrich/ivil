@@ -16,7 +16,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
+
+import nonnull.NonNull;
 
 /**
  * The Class LinearLookupMap is a very space optimised implementation of the
@@ -36,11 +37,19 @@ import java.util.Map.Entry;
  */
 public class LinearLookupMap<K, V> implements Map<K, V> {
 
+    /*
+     * the keys and values are stored in two separate arrays of the same size
+     */
     private K[] keys;
     private V[] values;
     
+    /**
+     * create a new lookup map containing the entries of another map.
+     * 
+     * @param original the list to copy the entries from
+     */
     @SuppressWarnings("unchecked") 
-    public LinearLookupMap(Map<K,V> original) {
+    public LinearLookupMap(@NonNull Map<K,V> original) {
         
         Set<Entry<K, V>> entrySet = original.entrySet();
         
@@ -54,6 +63,10 @@ public class LinearLookupMap<K, V> implements Map<K, V> {
             i++;
         }
     }
+    
+    //
+    // the remainder is merely the straight forward implementation of the Map interface
+    //
 
     public void clear() {
         throw new UnsupportedOperationException("this map is unmodifiable");

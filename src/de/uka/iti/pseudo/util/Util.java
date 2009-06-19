@@ -133,7 +133,7 @@ public class Util {
 	private static class ReadOnlyArrayList<E> extends AbstractList<E> implements RandomAccess {
 		E[] array;
 
-		public ReadOnlyArrayList(E[] array) {
+		private ReadOnlyArrayList(E[] array) {
 		    if(array == null)
 		        throw new NullPointerException();
 			this.array = array;
@@ -196,7 +196,7 @@ public class Util {
     /**
      * List the types of terms of a list of terms on several lines
      * 
-     * @param terms
+     * @param subterms
      *            the list of terms
      * 
      * @return the string consisting of a line per term

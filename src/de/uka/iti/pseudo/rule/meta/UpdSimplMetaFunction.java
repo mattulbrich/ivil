@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.rule.meta;
 
 import java.util.ArrayList;
@@ -22,9 +30,31 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
-// TODO Documentation needed
+/**
+ * The Class UpdSimplMetaFunction handles updates in front of terms.
+ * 
+ * <p>In contrast to the KeY system, simplifications are single steps.
+ * 
+ * <p>The following simplifications are built in (let x be an 
+ * assignable symbol, v a variable)
+ * <ul>
+ * <li> <code>{U} f(t1,...,tn) --&gt; f( {U}t1, ..., {U}tn )</code>
+ * <li> <code>{U} (\b v;t1;...;tn) --&gt; (\b v; {U}t1; ...; {U}tn)</code>
+ * <li> <code>{... || x:=t || ...} x --&gt; t</code>
+ * <li> <code>{U}x --&gt; x</code> if x is not assigned in U
+ * <li> <code>{U}v --&gt; v</code>
+ * <li> <code>{U}{V}t --&gt; {U' || V'}t</code> in which U' does not 
+ * contain updates to assignables assigned in V and every value in V' 
+ * is updated with U.
+ * </ul>
+ * 
+ * See methods for more detail.
+ */
 public class UpdSimplMetaFunction extends MetaFunction {
 
+    /**
+     * Instantiates a new update simplificator.
+     */
     public UpdSimplMetaFunction() {
         super(TypeVariable.ALPHA, "$$updSimpl", TypeVariable.ALPHA);
     }
@@ -46,12 +76,21 @@ public class UpdSimplMetaFunction extends MetaFunction {
             
             return visitor.resultTerm;
         } else {
-            throw new TermException("Update Simplifier only applicable to updat terms");
+            throw new TermException("Update Simplifier only applicable to update terms");
         }
     }
     
+    /*
+     * Apply update to an assignable application term.
+     * 
+     * if the assignable is changed in the assignment list the assigned value is
+     * returned, otherwise the unchanged (and un-updated) application itself is
+     * returned
+     */
     private static Term applyUpdate(List<AssignmentStatement> assignments,
             Application application) {
+        
+        assert application.getFunction().isAssignable();
         
         for (AssignmentStatement assStatement : assignments) {
             if(assStatement.getTarget().equals(application))
@@ -61,6 +100,11 @@ public class UpdSimplMetaFunction extends MetaFunction {
         return application;
     }
     
+    /*
+     * Distribute an update over an application.
+     * 
+     * Return a new application with all subterms updated.
+     */
     private static Application distributeUpdate(List<AssignmentStatement> assignments,
             Application application) throws TermException {
         
@@ -75,6 +119,11 @@ public class UpdSimplMetaFunction extends MetaFunction {
         return new Application(f, type, args);
     }
     
+    /*
+     * Distribute an update over a binder.
+     * 
+     * Return a new application with all subterms updated.
+     */
     private static Binding distributeUpdateInBinding(List<AssignmentStatement> assignments,
             Binding binding) throws TermException {
         
@@ -89,6 +138,19 @@ public class UpdSimplMetaFunction extends MetaFunction {
         return new Binding(b, type, bi, args);
     }
     
+    /**
+     * Combine two consecutive updates.
+     * 
+     * @param oldAss
+     *            the old assignments (the outer ones)
+     * @param updTerm
+     *            the update term (the inner one)
+     * 
+     * @return the term
+     * 
+     * @throws TermException
+     *             the term exception
+     */
     private static Term combineUpdate(List<AssignmentStatement> oldAss,
             UpdateTerm updTerm) throws TermException {
         
@@ -120,12 +182,17 @@ public class UpdSimplMetaFunction extends MetaFunction {
         return new UpdateTerm(result, updTerm.getSubterm(0));
     }
     
+    /*
+     * The visitor is used to do the case distinction and to handle
+     * update erasure in front of variables.
+     */
     private static class Visitor extends DefaultTermVisitor {
         
         private Term resultTerm = null;
+        
         private List<AssignmentStatement> assignments;
 
-        public Visitor(List<AssignmentStatement> assignments) {
+        private Visitor(List<AssignmentStatement> assignments) {
             this.assignments = assignments;
         }
 

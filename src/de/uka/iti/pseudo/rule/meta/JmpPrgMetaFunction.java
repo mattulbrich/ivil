@@ -11,7 +11,11 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 
-// TODO Documentation needed
+/**
+ * This function changes the program pointer in a literal program term without
+ * changing the remaining information within the program term (i.e. the program
+ * to which it references)
+ */
 public class JmpPrgMetaFunction extends MetaFunction {
     
     private static final Type BOOL = Environment.getBoolType();
@@ -38,7 +42,7 @@ public class JmpPrgMetaFunction extends MetaFunction {
         }
         
         if(jmpTarget == -1)
-            throw new TermException("jmp target is not a literal: " + target);
+            throw new TermException("jmp target is not an integer literal: " + target);
         
         if (arg instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) arg;
