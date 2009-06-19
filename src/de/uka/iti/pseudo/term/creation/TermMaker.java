@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
+import de.uka.iti.pseudo.parser.program.ASTHavocStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
@@ -66,6 +67,7 @@ import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
+import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.SelectList;
@@ -614,6 +616,16 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
     
+    public void visit(ASTHavocStatement arg) throws ASTVisitException {
+        arg.getArgument().visit(this);
+        try {
+            resultStatement = new HavocStatement(resultTerm);
+        } catch (TermException e) {
+            throw new ASTVisitException(arg, e);
+        }
+    }
+
+    // TODO parameters to the skip statement
     public void visit(ASTSkipStatement arg) throws ASTVisitException {
         resultStatement = new SkipStatement();
     }

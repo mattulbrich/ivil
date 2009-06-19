@@ -13,6 +13,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.text.Document;
 
+import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
+
 /**
  * A class illustrating running line number count on JTextPane. Nothing is
  * painted on the pane itself, but a separate JPanel handles painting the line
@@ -34,7 +36,7 @@ class LineNrPane extends JPanel {
 		linenr = new LineNr();
 		//linenr.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
 		
-		pane = new JTextArea()
+		pane = new BracketMatchingTextArea()
 		// we need to override paint so that the
 		// linenumbers stay in sync
 		{

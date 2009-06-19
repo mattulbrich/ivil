@@ -11,11 +11,11 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
-// TODO Documentation needed
-public class SubstMetaFunction extends MetaFunction {
+// TODO Finish when needed one day ;)
+public class SaveVarMetaFunction extends MetaFunction {
 
-    public SubstMetaFunction() {
-        super(ALPHA, "$$subst", BETA, BETA, ALPHA );
+    public SaveVarMetaFunction() {
+        super(ALPHA, "$$saveVar", BETA );
         // TODO Auto-generated constructor stub
     }
 
@@ -47,7 +47,7 @@ public class SubstMetaFunction extends MetaFunction {
             }
         }
         
-        public void visit(Binding binding) throws TermException {
+        @Override public void visit(Binding binding) throws TermException {
             // TODO method documentation
             // TODO make test case for that
             if(binding.getVariable().equals(termToReplace))

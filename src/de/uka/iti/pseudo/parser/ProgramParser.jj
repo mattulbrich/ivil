@@ -41,18 +41,21 @@ ASTStatement Statement():
 	ASTTerm term;
 	Token kw;
 	ASTAssignmentStatement assignment;
-	List<ASTTerm> targets;
+	List<ASTTerm> termList;
 }
 {
 	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
 	| kw="assume" term=Term() { return new ASTAssumeStatement(kw, term); }
 	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
 	// TODO variant can be specified also
-	| kw="skip_loopinv" term=Term() { return new ASTSkipStatement(kw, term); }
+	| kw="skip_loopinv" termList=Statement_TermList()
+	            { return new ASTSkipStatement(kw, termList); }
 	| kw="skip" { return new ASTSkipStatement(kw); }
+	| kw="havoc" (term=Identifier() | term=SchemaVariable()) 
+	            { return new ASTHavocStatement(kw, term); }
 	| assignment=Assignment() { return assignment; }
-	| kw="goto" targets=Goto_Targets()
-	     { return new ASTGotoStatement(kw, targets); }
+	| kw="goto" termList=Statement_TermList()
+	     { return new ASTGotoStatement(kw, termList); }
 }
 
 ASTAssignmentStatement Assignment():
@@ -69,7 +72,7 @@ ASTAssignmentStatement Assignment():
 	{ return new ASTAssignmentStatement(target, term); }
 }
 	
-List<ASTTerm> Goto_Targets():
+List<ASTTerm> Statement_TermList():
 {
     List<ASTTerm> targets = new LinkedList<ASTTerm>();
     ASTTerm t;

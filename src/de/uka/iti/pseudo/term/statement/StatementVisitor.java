@@ -16,4 +16,6 @@ public interface StatementVisitor {
 
     void visit(SkipStatement skipStatement) throws TermException;
 
+    void visit(HavocStatement havocStatement) throws TermException;
+
 }

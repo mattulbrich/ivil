@@ -11,11 +11,13 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
@@ -120,14 +122,26 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                     args[i] = resultingTerm;
                 }
             }
+            
+            binding.getVariable().visit(this);
+            Term bindingReplacement = resultingTerm == null ? binding
+                    .getVariable() : resultingTerm;
+
+            if (!(bindingReplacement instanceof BindableIdentifier)) {
+                throw new UnificationException(
+                        "Only a variable or schema variable can be instantiated into bindings with schemas",
+                        binding, bindingReplacement);
+            }
+            
             Type modifiedType = modifyType(binding.getType());
             if(args != null) {
                 resultingTerm = new Binding(binding.getBinder(), modifiedType,
-                        binding.getVariable(), args);
-            } else if(!modifiedType.equals(binding.getType())) {
+                        (BindableIdentifier)bindingReplacement, args);
+            } else if(!modifiedType.equals(binding.getType()) ||
+                    bindingReplacement.equals(binding.getVariable())) {
                 args = Util.listToArray(binding.getSubterms(), Term.class);
                 resultingTerm = new Binding(binding.getBinder(), modifiedType,
-                        binding.getVariable(), args);
+                        (BindableIdentifier)bindingReplacement, args);
             } else {
                 resultingTerm = null;
             }

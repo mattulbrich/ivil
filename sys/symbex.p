@@ -92,6 +92,15 @@ rule tprg_assignment
   tags rewrite "symbex"
 
 
+rule prg_havoc
+  find [%a : havoc %v]
+  samegoal replace (\forall x; { %v := x }$$incPrg(%a))
+
+rule tprg_havoc
+  find [[%a : havoc %v]]
+  samegoal replace (\forall x; { %v := x }$$incPrg(%a))
+
+
 rule update_simplification
   find %t
   where canEval $$updSimpl(%t)

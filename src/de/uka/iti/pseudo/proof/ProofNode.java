@@ -54,7 +54,8 @@ public class ProofNode {
         appliedRuleApp = null;
     }
 
-    public void apply(RuleApplication ruleApp, TermInstantiator inst, Environment env, Properties whereClauseProperties)
+    public void apply(RuleApplication ruleApp, TermInstantiator inst, 
+            Environment env, Properties whereClauseProperties)
             throws ProofException {
         
         if(appliedRuleApp != null)

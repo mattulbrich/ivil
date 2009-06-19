@@ -129,4 +129,15 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         } catch (Exception e) {
         }
     }
+    
+    // from a bug
+    // the type of the bound variable is not updated
+    public void testBindingInstantiation() throws Exception {
+        Term.SHOW_TYPES = true;
+        termmap.put("%v", makeTerm("1"));
+        typemap.put("%v", Environment.getIntType());
+        
+        Term t = inst.instantiate(makeTerm("(\\forall x; x = %v)"));
+        assertEquals(makeTerm("(\\forall x; x = 1)"), t);
+    }
 }

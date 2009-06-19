@@ -105,7 +105,7 @@ public class Binding extends Term {
         return variable.getType();
     }
 
-    
+    // TODO
     public BindableIdentifier getVariable() {
         return variable;
     }

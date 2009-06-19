@@ -1,6 +1,6 @@
 
 //
-// This file contains partial parser defition for terms only
+// This file contains partial parser definition for terms only
 //
 
 
@@ -177,6 +177,15 @@ ASTTerm OpIdentifier():
 {
         t=<OP_IDENTIFIER> 
   { return new ASTOperatorIdentifierTerm(t); }
+}
+
+ASTTerm Identifier():
+{
+  Token t;
+}
+{
+        t=<IDENTIFIER>
+  { return new ASTIdentifierTerm(t); }
 }
 
 ASTNumberLiteralTerm NumberLiteral():

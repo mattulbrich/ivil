@@ -12,24 +12,13 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTSkipStatement extends ASTStatement {
 
-    public ASTSkipStatement(Token keyWord, ASTTerm term) {
+    public ASTSkipStatement(Token keyWord, List<ASTTerm> termList) {
         super(keyWord);
-        addChild(term);
+        addChildren(termList);
     }
 
     public ASTSkipStatement(Token keyWord) {
         super(keyWord);
-    }
-
-    /*
-     * skip may or may not have a formula!
-     */
-    public @Nullable ASTTerm getTerm() {
-        List<ASTElement> children = getChildren();
-        if(children.size() > 0)
-            return (ASTTerm) children.get(0);
-        else
-            return null;
     }
 
     public void visit(ASTVisitor v) throws ASTVisitException {

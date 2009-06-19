@@ -54,12 +54,12 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
     }
 
     public void visit(SchemaProgram schemaProgram) throws TermException {
-        throw new TermException("Top level term contains schema modality"
+        throw new TermException("Top level term contains schema program"
                 + schemaProgram);
     }
 
     public void visit(SchemaVariable schemaVariable) throws TermException {
-        throw new TermException("Top level term contains schema modality"
+        throw new TermException("Top level term contains schema variable"
                 + schemaVariable);
     }
 

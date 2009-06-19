@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.term.BindableIdentifier;
-import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgram;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -161,29 +159,30 @@ public class TermInstantiator extends RebuildingTermVisitor {
     /*
      * we need to handle this separately since the bound variable may be instantiated. 
      */
-    @Override
-    public void visit(Binding binding) throws TermException {
-        super.visit(binding);
-        if(binding.hasSchemaVariable() && termMap != null) {
-            SchemaVariable sv = (SchemaVariable) binding.getVariable(); 
-            Term bindingReplacement = termMap.get(sv.getName());
-            if(bindingReplacement != null) {
-                
-                if(!(bindingReplacement instanceof BindableIdentifier)) {
-                    throw new UnificationException("Only a variable or schema variable can be instantiated into bindings with schemas", binding, bindingReplacement);
-                }
-                
-                if(resultingTerm != null)
-                    binding = (Binding) resultingTerm;
-                
-                resultingTerm = new Binding(binding.getBinder(),
-                        binding.getType(), 
-                        (BindableIdentifier)bindingReplacement, 
-                        Util.listToArray(binding.getSubterms(), Term.class));
-                
-            }
-        }
-    }
+    // moved to rebuidlingtermvisitor
+//    @Override
+//    public void visit(Binding binding) throws TermException {
+//        super.visit(binding);
+//        if(binding.hasSchemaVariable() && termMap != null) {
+//            SchemaVariable sv = (SchemaVariable) binding.getVariable(); 
+//            Term bindingReplacement = termMap.get(sv.getName());
+//            if(bindingReplacement != null) {
+//                
+//                if(!(bindingReplacement instanceof BindableIdentifier)) {
+//                    throw new UnificationException("Only a variable or schema variable can be instantiated into bindings with schemas", binding, bindingReplacement);
+//                }
+//                
+//                if(resultingTerm != null)
+//                    binding = (Binding) resultingTerm;
+//                
+//                resultingTerm = new Binding(binding.getBinder(),
+//                        binding.getType(), 
+//                        (BindableIdentifier)bindingReplacement, 
+//                        Util.listToArray(binding.getSubterms(), Term.class));
+//                
+//            }
+//        }
+//    }
     
     /*
      * we need to handle this separately since the element to which sth is assigned 
