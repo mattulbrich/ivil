@@ -4,14 +4,17 @@
 <project name="PseudoHybris" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
-  <property name="compile.nonnullchecks" value="true" />
+<!--  <property name="compile.nonnullchecks" value="remove this line to switchoff" /> -->
  
   <target name="init">
     <mkdir dir="classes"/>
     <mkdir dir="classes-test"/>
-    <mkdir dir="genSrc"/>
+    <mkdir dir="genSrc"/> 
+    <uptodate property="javacc.notRequired" targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
+      <srcfiles dir="src/de/uka/iti/pseudo/parser/" includes="*.jj"/>
+    </uptodate>
   </target>
-
+	
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
     <javac srcdir="src" destdir="classes" debug="${compile.debug}">
       <src path="src" />
@@ -33,7 +36,7 @@
     </java> 
   </target>
 	
-  <target name="javacc" depends="init">
+  <target name="javacc" depends="init" unless="javacc.notRequired">
     <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
       <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
@@ -65,7 +68,7 @@
         <attribute name="Implementation-Vendor" value="ITI, Universitaet Karlsruhe"/>
         <attribute name="Implementation-Title" value="Pseudo/BooKeY"/>
         <attribute name="Implementation-Version" value="0.0"/>
-        <attribute name="Class-Path" value="lib/javadocking.jar"/>
+        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
       </manifest>
     </jar>

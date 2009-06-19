@@ -61,7 +61,6 @@ public class PFileEditor extends JFrame implements ActionListener {
     private static final String ERROR_LINE_PROPERTY = "errorLine";
     private JTextArea editor;
     private File editedFile;
-    private String content;
     private Object errorHighlighting;
     private JLabel statusLine;
     private BarManager barManager;
@@ -71,18 +70,22 @@ public class PFileEditor extends JFrame implements ActionListener {
 
         public void changedUpdate(DocumentEvent e) {
             updateThread.changed();
+            setHasChanges(true);
         }
 
         public void insertUpdate(DocumentEvent e) {
             updateThread.changed();
+            setHasChanges(true);
         }
 
         public void removeUpdate(DocumentEvent e) {
             updateThread.changed();
+            setHasChanges(true);
         }
         
     };
     private int errorLine;
+    private boolean hasChanged;
 
     private class UpdateThread extends Thread {
         public UpdateThread() {
@@ -115,18 +118,22 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
     }
     
-    public PFileEditor(File file) throws IOException {
-        editedFile = file;
-        content = readFileAsString(file);
-        init();
+    public PFileEditor() throws IOException {
+        this(null);
     }
 
     
+    public PFileEditor(File file) throws IOException {
+        init();
+        loadFile(file);
+    }
+
+
     private void init() throws IOException {
         setLayout(new BorderLayout());
         Container contentPane = getContentPane();
         {
-            URL resource = getClass().getResource("../bar/menu.properties");
+            URL resource = BarManager.class.getResource("menu.properties");
             if(resource == null)
                 throw new IOException("cannot find menu.properties");
             
@@ -144,7 +151,6 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             LineNrPane lineNrPane = new LineNrPane();
             editor = lineNrPane.getPane();
-            editor.setText(content);
             editor.setLineWrap(false);
             installUndoManager(editor);
             // TODO make this configurable
@@ -342,26 +348,26 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
     
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    PFileEditor editor;
-                    editor = new PFileEditor(new File("sys/proposition.p"));
-                    editor.setSize(600,600);
-                    editor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    editor.setVisible(true);
-                } catch (HeadlessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-        });
-        
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                try {
+//                    PFileEditor editor;
+//                    editor = new PFileEditor(new File("sys/proposition.p"));
+//                    editor.setSize(600,600);
+//                    editor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//                    editor.setVisible(true);
+//                } catch (HeadlessException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//        
+//    }
     
     public void actionPerformed(ActionEvent evt) {
         Action action = editor.getActionMap().get(evt.getActionCommand());
@@ -370,29 +376,48 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
 
     public boolean hasUnsafedChanges() {
-        // TODO Implement PFileEditor.hasUnsafedChanges
-        return true;
+        return hasChanged;
     }
 
-
-    public void changesSaved() {
-        // TODO Implement PFileEditor.changesSaved
-        
+    public void setHasChanges(boolean b) {
+        boolean old = hasChanged;
+        hasChanged = b;
+        if(hasChanged != old)
+            updateTitle();
     }
-
 
     public String getContent() {
-        // TODO Implement PFileEditor.getContent
-        return null;
+        return editor.getText();
     }
     
-    public void setContentAndFile() {
+    public void loadFile(File file) throws IOException {
+        if(file != null) {
+            String content = readFileAsString(file);
+            editor.setText(content);
+        } else {
+            editor.setText("");
+        }
+        this.editedFile = file;
+        
+        setHasChanges(false);
+        updateTitle();
+    }
+
+    private void updateTitle() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Pseudo - Editor");
+        if(editedFile != null)
+            sb.append(" [" + editedFile + "]");
+        else
+            sb.append(" <untitled>");
+        if(hasChanged)
+            sb.append(" *");
+        setTitle(sb.toString());
     }
 
 
     public File getFile() {
-        // TODO Implement PFileEditor.getFile
-        return null;
+        return editedFile;
     }
 
 

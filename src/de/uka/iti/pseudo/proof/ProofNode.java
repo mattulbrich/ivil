@@ -195,8 +195,7 @@ public class ProofNode {
             Term assumeTerm = assSel.selectTopterm(sequent);
             LocatedTerm assumption = rule.getAssumptions().get(i);
             if (!assumption.isFittingSelect(assSel)) {
-                throw new ProofException("Illegal selector for assume (" + i
-                        + ")");
+                throw new ProofException("Illegal selector for assume (" + i + ")");
             }
             Term instantiated;
             try {

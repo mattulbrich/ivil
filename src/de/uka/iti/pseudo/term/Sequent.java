@@ -20,10 +20,10 @@ public class Sequent {
     public Sequent(List<Term> antecedent, List<Term> succedent) throws TermException {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
-        typeCheck();
+        check();
     }
 
-    private void typeCheck() throws TermException {
+    private void check() throws TermException {
         ToplevelCheckVisitor checker = new ToplevelCheckVisitor();
         for (Term t : antecedent) {
             t.visit(checker);

@@ -81,7 +81,7 @@ public class RewriteRuleCollection {
         
         if (term instanceof ProgramTerm) {
             // no further classification at the moment
-            return "[modality]";
+            return "[program]";
         }
         
         return "[generic]";
@@ -112,6 +112,14 @@ public class RewriteRuleCollection {
                 try {
                     TermSelector selector = new TermSelector(side, termno, subtermno);
                     List<Rule> ruleset = getRuleSet(term);
+                    if(ruleset != null && ruleset.size() > 0) {
+                        RuleApplicationMaker ram = finder.findOne(selector, ruleset);
+                        if(ram != null) {
+                            return ram;
+                        }
+                    }
+                    // try generic ones in the end
+                    ruleset = classificationMap.get("[generic]");
                     if(ruleset != null && ruleset.size() > 0) {
                         RuleApplicationMaker ram = finder.findOne(selector, ruleset);
                         if(ram != null) {

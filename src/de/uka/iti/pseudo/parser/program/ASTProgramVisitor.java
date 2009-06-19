@@ -18,7 +18,7 @@ public interface ASTProgramVisitor {
 
     public void visit(ASTStatementList statementList) throws ASTVisitException;
     
-    public void visit(ASTLabeledStatement labeledStatement) throws ASTVisitException;
+    public void visit(ASTLabelStatement labeledStatement) throws ASTVisitException;
 
     public void visit(ASTAssertStatement assertStatement) throws ASTVisitException;
 

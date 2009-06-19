@@ -11,7 +11,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
-import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
+import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatementList;
@@ -112,14 +112,13 @@ public class ProgramMaker extends ASTDefaultVisitor {
         sourceAnnotations.add(new SourceAnnotation(argument, rawStatements.size()));
     }
 
-    public void visit(ASTLabeledStatement arg) throws ASTVisitException {
+    public void visit(ASTLabelStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
         labelAnnotations.add(new LabelAnnotation(label, rawStatements.size()));
         if(labelMap.containsKey(label)) {
             throw new ASTVisitException("The label " + label + " has already been defined earlier", arg);
         }
         labelMap.put(label, rawStatements.size());
-        super.visit(arg);
     }
     
     public void visit(ASTStatementList arg) throws ASTVisitException {

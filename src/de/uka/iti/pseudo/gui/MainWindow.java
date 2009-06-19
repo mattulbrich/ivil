@@ -32,6 +32,7 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
@@ -145,10 +146,15 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(2));
         }
         {
-            programComponent = new ProgramComponent(proofCenter.getEnvironment().getProgram());
-            JScrollPane scroll = new JScrollPane(programComponent);
-            Dockable dock = new DefaultDockable("program", scroll, "Program");
-            tabDock.addDockable(dock, new Position(3));
+            // TODO At the moment ...
+            Program program = proofCenter.getEnvironment().getProgram();
+            if(program != null) {
+                programComponent = new ProgramComponent(program);
+                proofCenter.addProofNodeSelectionListener(programComponent);
+                JScrollPane scroll = new JScrollPane(programComponent);
+                Dockable dock = new DefaultDockable("program", scroll, "Program");
+                tabDock.addDockable(dock, new Position(3));
+            }
         }
 //        {
 //            JPanel settings = new JPanel();

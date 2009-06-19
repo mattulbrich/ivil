@@ -15,8 +15,10 @@ public class MyStrategy implements Strategy {
     private final static String[] REWRITE_CATEGORIES = {
         "close",
         "concrete",
-        "prop simp"
-        // "symbex"
+        "updSimpl",
+        "prop simp",
+        "fol simp",
+        "symbex"
     };
     
     private RewriteRuleCollection ruleCollections[];

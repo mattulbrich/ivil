@@ -29,52 +29,56 @@ rule tprg_skip
 rule prg_goto1
   find [%a : goto %n] 
   samegoal replace  $$jmpPrg(%a, %n) 
-  tags rewrite "symbex"
+#  tags rewrite "symbex"
 
 rule tprg_goto1
   find [[%a : goto %n]] 
   samegoal replace  $$jmpPrg(%a, %n) 
-  tags rewrite "symbex"
+#  tags rewrite "symbex"
 
 
 rule prg_goto2
   find  [%a : goto %n, %k] 
-  samegoal replace  $$jmpPrg(%a, %n)
-  samegoal replace  $$jmpPrg(%a, %k) 
+  samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
   tags rewrite "symbex"
 
 rule tprg_goto2
   find  [[%a : goto %n, %k]] 
-  samegoal replace  $$jmpPrg(%a, %n)
-  samegoal replace  $$jmpPrg(%a, %k) 
+  samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
   tags rewrite "symbex"
 
 
 rule prg_assert
   find  [%a : assert %b]
   samegoal replace %b & $$incPrg(%a)
+  tags rewrite "symbex"
 
 rule tprg_assert
   find  [[%a : assert %b]]
   samegoal replace %b & $$incPrg(%a)
+  tags rewrite "symbex"
 
 
 rule prg_assume
   find [%a : assume %b]
   samegoal replace %b -> $$incPrg(%a)
+  tags rewrite "symbex"
 
 rule tprg_assume
   find [[%a : assume %b]]
   samegoal replace %b -> $$incPrg(%a)
+  tags rewrite "symbex"
 
 
 rule prg_end
   find [%a : end %b]
   samegoal replace %b
+  tags rewrite "symbex"
 
 rule tprg_end
   find [[%a : end %b]]
   samegoal replace %b
+  tags rewrite "symbex"
 
 
 rule prg_assignment
@@ -92,3 +96,4 @@ rule update_simplification
   find %t
   where canEval $$updSimpl(%t)
   samegoal replace $$updSimpl(%t)
+  tags rewrite "updSimpl"

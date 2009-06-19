@@ -31,8 +31,10 @@ public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 
 	private boolean onlyStringTokens() {
 		for (Token token : includeStrings) {
-			if(token.kind != ParserConstants.STRING)
+			if(token.kind != ParserConstants.STRING) {
+				System.err.println("Unexpected token " + token);
 				return false;
+			}
 		}
 		return true;
 	}

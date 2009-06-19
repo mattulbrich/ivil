@@ -1,7 +1,5 @@
 package de.uka.iti.pseudo.gui.bar;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -9,11 +7,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
@@ -21,6 +18,7 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.term.Term;
 
 /**
  * This is the action to load a problem file.
@@ -58,7 +56,10 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                 Parser fp = new Parser();
                 EnvironmentMaker em = new EnvironmentMaker(fp, selectedFile);
                 Environment env = em.getEnvironment();
-                Proof proof = new Proof(em.getProblemTerm());
+                Term problemTerm = em.getProblemTerm();
+                if(problemTerm == null)
+                    throw new EnvironmentException("Cannot load an environment without problem");
+                Proof proof = new Proof(problemTerm);
                 ProofCenter pc = new ProofCenter(proof, env);
                 Main.showProofCenter(pc);
             } catch(IOException ex) {

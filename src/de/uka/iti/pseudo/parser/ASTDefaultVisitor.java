@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
-import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
+import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
@@ -168,7 +168,7 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         visitDefaultStatement(arg);
     }
 
-    public void visit(ASTLabeledStatement arg)  throws ASTVisitException {
+    public void visit(ASTLabelStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 

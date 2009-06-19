@@ -10,8 +10,10 @@ ASTStatementList StatementList():
 	ASTStatement st;
 }
 {
-	( st=LabeledStatement() { list.add(st); }
+	( LOOKAHEAD(2)
+	  st=Statement() { list.add(st); }
 	| st=SourceStatement() { list.add(st); } 
+	| st=LabelStatement() { list.add(st); } 
 	)+
 	{ return new ASTStatementList(list); }
 }
@@ -25,18 +27,13 @@ ASTSourceStatement SourceStatement():
 	{ return new ASTSourceStatement(kw,argument); }
 }
 
-ASTStatement LabeledStatement():
+ASTLabelStatement LabelStatement():
 {
 	Token label;
-	ASTStatement st;
 }
-{
-	LOOKAHEAD(2)
-	  ( label = <IDENTIFIER> ":" st=Statement() 
-	     { return new ASTLabeledStatement(label, st); }
+{         ( label = <IDENTIFIER> ":" 
+	     { return new ASTLabelStatement(label); }
 	  )
-	|
-	  ( st=Statement() { return st; } )
 }
 
 ASTStatement Statement():

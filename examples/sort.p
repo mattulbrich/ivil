@@ -1,54 +1,66 @@
+(*
+ * Experiments with arrays
+ *
+ * Lets do only int arrays first.
+ *  -- ignore null pointers first
+ *  -- ignore lengths first
+ * check negative indices however!
+ *)
+
 include
-  "$dynamic.p"
+  "$symbex.p"
   "$int.p"
 
 sort
-  array('component_type)
-  elem
+  heap
+  array
 
 function
-  'a R(array('a), int) 
-  array('a) W(array('a), int, 'a)
-  
-  bool lessThanOrEqual(elem, elem) infix <<= 70 
+  int R(heap, array, int) 
+  heap W(heap, array, int, int)
+  heap         H0
 
-  array(elem)  a   assignable
+(* Program variables *)
+  heap         H   assignable
+  array        a   assignable
+  array        b   assignable
   int          i   assignable
   int          j   assignable
-  elem         tmp assignable
+  int          tmp assignable
   int          N
 
 rule theory_of_arrays
-  find { R(W(%a, %i, %v), %j) }
-  replace { cond(%i = %j, %v, R(%a,%i)) }
+  find  R(W(%h, %a, %i, %v), %b, %j) 
+  replace cond(%i = %j & %a = %b, %v, R(%h, %a, %j))
+  tags rewrite "fol simp"
 
-rule ___BESCHISS___
-  find { %b }
-  closegoal
+program
+    
+  source "pre: N = 1"
+    assume H0 = H
+    assume N = 1
+  source "for(int i = 0; i < N; i++) {"
+    i := 0
+   loopCondition:
+    goto loopBody, afterLoop
+   loopBody:
+    assume i < N    
+  source "  int tmp = a[i];"
+    assert i >= 0
+    tmp := R(H, a, i)
+  source "  a[i] = b[i];"
+    assert i >= 0
+    H := W(H, a, i, R(H, b, i))
+  source "  b[i] = tmp;"
+    assert i >= 0
+    H := W(H, b, i, tmp)
+  source "}"
+    i := i + 1
+    goto loopCondition
+  source "post: \forall i in [0..N] ; a[i]=\old(b[i]) & b[i] = \old(a[i])"
+   afterLoop:
+    assume !(i <N)
+    end (\forall x; x>=0 & x < N -> R(H,a,i)=R(H0,b,i) & R(H,b,i) = R(H0,a,i))
 
-problem
-{
-     N >= 0
- ->
-     [ i := 0;
-       while i < N
-       inv
-         (\forall x; (\forall y; 0<=x & x<y & y<i -> R(a,x) <<= R(a,y))) & 0<=i & i<=N
-       do
-         j := i+1;
-         while j < N
-         inv
-           (\forall l; l>=i & l<j -> R(a,j) <<= R(a,l)) & i<j & j<=N & 0<=i & i<N
-         do
-           if R(a,j) <<= R(a,i)
-           then
-              tmp := R(a,i);          (* tmp := a[i] *)
-              a := W(a, i, R(a,j));   (* a[i] := a[j] *)
-              a := W(a, j, R(a,i))    (* a[j] := a[i] *)
-           end;
-           j := j+1
-         end;
-         i := i+1
-       end
-     ] (\forall x; (\forall y; 0<=x & x<y & y<N -> R(a,x) <<=  R(a,y)))
-}
+problem [0]
+

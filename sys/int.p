@@ -104,3 +104,4 @@ rule resolve_int_literals
     canEval($$intEval(%t))
   samegoal
     replace $$intEval(%t)
+  tags rewrite "fol simp"

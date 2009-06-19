@@ -29,7 +29,7 @@ import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
-import de.uka.iti.pseudo.parser.program.ASTLabeledStatement;
+import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -652,7 +652,7 @@ public class TermMaker extends ASTDefaultVisitor {
     /*
      * return the statement which is wrapped by the label
      */
-    public void visit(ASTLabeledStatement arg) throws ASTVisitException {
+    public void visit(ASTLabelStatement arg) throws ASTVisitException {
         arg.getChildren().get(0).visit(this);
     }
 

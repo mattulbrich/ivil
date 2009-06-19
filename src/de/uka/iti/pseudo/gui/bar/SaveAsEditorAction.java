@@ -52,15 +52,15 @@ public class SaveAsEditorAction extends BarAction {
         }
     }
     
-    // TODO make copy if exists 
     protected void saveUnder(PFileEditor editor, File selectedFile) {
         FileWriter fileWriter= null;
         try {
+            backupFile(selectedFile);
             fileWriter = new FileWriter(selectedFile);
 
             fileWriter.write(editor.getContent());
             fileWriter.flush();
-            editor.changesSaved();
+            editor.setHasChanges(false);
 
         } catch (Exception ex) {
             // TODO gescheiter Fehlerdialog
@@ -72,6 +72,18 @@ public class SaveAsEditorAction extends BarAction {
                     ioex.printStackTrace();
                 }
         }
+    }
+
+    private void backupFile(File file) {
+        String name = file.getPath();
+        for(int i = 0; i < 100; i++) {
+            File backupFile = new File(name + "~" + i);
+            if(!backupFile.exists()) {
+                file.renameTo(backupFile);
+                return;
+            }
+        }
+        System.err.println("No backup made ... exceeding limit");
     }
     
 }

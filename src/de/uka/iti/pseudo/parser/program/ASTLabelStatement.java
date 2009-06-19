@@ -4,18 +4,17 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 
-public class ASTLabeledStatement extends ASTStatement {
+public class ASTLabelStatement extends ASTStatement {
     
-    public ASTLabeledStatement(Token label, ASTStatement st) {
+    public ASTLabelStatement(Token label) {
         super(label);
-        addChild(st);
     }
 
     public Token getLabel() {
         return firstToken;
     }
 
-    @Override public void visit(ASTVisitor v) throws ASTVisitException {
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 

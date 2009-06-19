@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
@@ -102,17 +103,19 @@ public class UpdSimplMetaFunction extends MetaFunction {
         // create target update
         List<AssignmentStatement> result = new ArrayList<AssignmentStatement>();
         
-        // go over all old updates and decide whether or not to keep them
+        // go over all old updates
         for (AssignmentStatement ass : oldAss) {
             if(!overwritten.contains(ass.getTarget())) {
-                UpdateTerm value = new UpdateTerm(newAss, ass.getValue());
-                AssignmentStatement freshAss = new AssignmentStatement(ass.getTarget(), value);
-                result.add(freshAss);
+                result.add(ass);
             }
         }
         
-        // add all new updates
-        result.addAll(newAss);
+        // add all new updates in which the old update is applied
+        for (AssignmentStatement ass : newAss) {
+            UpdateTerm value = new UpdateTerm(oldAss, ass.getValue());
+            AssignmentStatement freshAss = new AssignmentStatement(ass.getTarget(), value);
+            result.add(freshAss);
+        }
         
         return new UpdateTerm(result, updTerm.getSubterm(0));
     }
@@ -128,6 +131,10 @@ public class UpdSimplMetaFunction extends MetaFunction {
 
         public void visit(Binding binding) throws TermException {
             resultTerm = distributeUpdateInBinding(assignments, binding);
+        }
+        
+        public void visit(Variable variable) throws TermException {
+            resultTerm  = variable;
         }
 
         public void visit(Application application) throws TermException {
