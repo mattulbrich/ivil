@@ -3,7 +3,8 @@
 <node CREATED="1245429154655" ID="Freemind_Link_328938757" MODIFIED="1245429164253" TEXT="B O O K E Y">
 <node CREATED="1245429177416" ID="_" MODIFIED="1245429182253" POSITION="right" TEXT="Technical Issues">
 <node CREATED="1245430124643" ID="Freemind_Link_518911068" MODIFIED="1245430130061" TEXT="Refactorings">
-<node CREATED="1245429183835" ID="Freemind_Link_1398087395" MODIFIED="1245429192789" TEXT="Implement the programs in Ben&apos;s way">
+<node CREATED="1245429183835" FOLDED="true" ID="Freemind_Link_1398087395" MODIFIED="1245456613115" TEXT="Implement the programs in Ben&apos;s way">
+<icon BUILTIN="button_ok"/>
 <node CREATED="1245429207901" ID="Freemind_Link_502806605" MODIFIED="1245429274587" TEXT="Allow multiple programs in problem files"/>
 <node CREATED="1245429279793" ID="Freemind_Link_1005763933" MODIFIED="1245429314445" TEXT="Program terms are like  [22; P1]"/>
 <node CREATED="1245429362022" ID="Freemind_Link_1920067139" MODIFIED="1245429379554" TEXT="several Program components"/>
@@ -15,7 +16,9 @@
 <node CREATED="1245430078170" ID="Freemind_Link_1301942090" MODIFIED="1245430099027" TEXT="Important bugs">
 <node CREATED="1245430139522" ID="Freemind_Link_472607094" MODIFIED="1245430153031" TEXT="Synchronisation while auto proving"/>
 </node>
-<node CREATED="1245430100522" ID="Freemind_Link_1680326013" MODIFIED="1245430104644" TEXT="Bugs"/>
+<node CREATED="1245430100522" ID="Freemind_Link_1680326013" MODIFIED="1245430104644" TEXT="Bugs">
+<node CREATED="1245455660042" ID="Freemind_Link_1181182157" MODIFIED="1245455674591" TEXT="BracketHighlight multiline is wrong"/>
+</node>
 </node>
 <node CREATED="1245429546858" ID="Freemind_Link_832088571" MODIFIED="1245429549051" POSITION="right" TEXT="GUI">
 <node CREATED="1245429550891" ID="Freemind_Link_1454501847" MODIFIED="1245429583708" TEXT="ProgramComponent"/>
@@ -44,6 +47,7 @@
 <node CREATED="1245429984475" ID="Freemind_Link_836729312" MODIFIED="1245429987435" TEXT="Meta"/>
 <node CREATED="1245429990327" ID="Freemind_Link_599233262" MODIFIED="1245429991587" TEXT="Where"/>
 <node CREATED="1245429993426" ID="Freemind_Link_181313864" MODIFIED="1245430007668" TEXT="Strategies"/>
+<node CREATED="1245456596004" ID="Freemind_Link_435857153" MODIFIED="1245456602110" TEXT="Pretty printing"/>
 </node>
 <node CREATED="1245430163662" ID="Freemind_Link_1877164881" MODIFIED="1245430174392" POSITION="left" TEXT="Theoretical Issues">
 <node CREATED="1245430178031" ID="Freemind_Link_564766030" MODIFIED="1245430193385" TEXT="Type system : Subtyping vs. predicates">
@@ -52,6 +56,7 @@
 <node CREATED="1245430213234" ID="Freemind_Link_196608197" MODIFIED="1245430226932" TEXT="Java Translation">
 <icon BUILTIN="messagebox_warning"/>
 </node>
+<node CREATED="1245456572926" ID="Freemind_Link_1069274705" MODIFIED="1245456585870" TEXT="new heap - type theoretic"/>
 </node>
 </node>
 </map>

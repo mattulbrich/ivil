@@ -47,7 +47,7 @@ import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 
-public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener, ListSelectionListener, ActionListener, Observer {
+public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener, ListSelectionListener, ActionListener {
     
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
@@ -65,15 +65,14 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     private DefaultListModel applicableListModel;
 
-    private JPanel applicableListPanel;
     private ProofCenter proofCenter;
+    private JPanel applicableListPanel;
     private List<Triple<String, Type, ? extends JTextComponent>> interactionList = 
         new ArrayList<Triple<String, Type, ? extends JTextComponent>>();
 
     public RuleApplicationComponent(ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
-        proofCenter.getProof().addObserver(this);
         makeGUI();
     }
 
@@ -236,23 +235,11 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         }
     }
 
-    /*
-     * This method is called by the observable (the proof) if the 
-     * proof changes. In that case we choose to display nothing. 
-     */
-    public void update(Observable o, Object arg) {
-        assert o == proofCenter.getProof();
-        // ProofNode proofNode = (ProofNode) arg;
-        ruleApplicationSelected(null);
-    }
-
-
     // chosen ruleappl
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e);
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
-            // TODO this works if no user instantiations
+            // TODO illegal instantiations
             try {
                 
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
@@ -270,6 +257,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                     assert type.equals(term.getType());
                     
                     app.getSchemaVariableMapping().put(varname, term);
+                    putClientProperty("finished", true);
                 }
                 
                 proofCenter.apply(app);

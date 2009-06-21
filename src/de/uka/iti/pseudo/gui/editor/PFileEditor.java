@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
-import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -186,7 +185,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     
     private void addErrorHighlighting() {
         Parser p = new Parser(new StringReader(editor.getText()));
-        String filename = editedFile.getName();
+        String filename = editedFile == null ? null : editedFile.getName();
         try {
             ASTFile file = p.File();
             file.setFilename(filename);
@@ -431,5 +430,11 @@ public class PFileEditor extends JFrame implements ActionListener {
 
     public JTextArea getEditPane() {
         return editor;
+    }
+
+
+    public void setFilename(File path) {
+        editedFile = path;
+        updateTitle();
     }
 }

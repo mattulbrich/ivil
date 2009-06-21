@@ -61,6 +61,7 @@ public class SaveAsEditorAction extends BarAction {
             fileWriter.write(editor.getContent());
             fileWriter.flush();
             editor.setHasChanges(false);
+            editor.setFilename(selectedFile);
 
         } catch (Exception ex) {
             // TODO gescheiter Fehlerdialog

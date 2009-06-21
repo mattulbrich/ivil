@@ -6,22 +6,30 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.Popup;
+import javax.swing.PopupFactory;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.PopupDisappearListener;
 
 // TODO DOC
 
@@ -101,27 +109,47 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     };
     
     private MouseListener termMouseListener = new MouseAdapter() {
+
         @Override 
         public void mouseClicked(MouseEvent e) {
-            
+
             if(!SwingUtilities.isRightMouseButton(e) || e.getClickCount() > 1)
                 return;
+
+
+            try {
+                RuleApplicationComponent rac = new RuleApplicationComponent(proofCenter);
+                proofCenter.addProofNodeSelectionListener(rac);
+                rac.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+                rac.setPreferredSize(new Dimension(200, 400));
+                
+                TermComponent tc = (TermComponent) e.getSource();
+                TermSelector termSelector = tc.getTermAt(e.getPoint());
+                List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
+                rac.setInteractiveApplications(ruleApps);
+
+                PopupFactory pf = PopupFactory.getSharedInstance();
+                Point p = e.getLocationOnScreen();
+                Popup popup = pf.getPopup(SequentComponent.this, rac, p.x, p.y);
+                new PopupDisappearListener(popup, rac);
+                popup.show();
+            } catch (ProofException ex) {
+                // TODO gescheiter fehlerreport
+                ex.printStackTrace();
+            }
             
-            // we listen only to TermComponents, this will not fail
-            TermComponent tc = (TermComponent) e.getSource();
-            
-            TermSelector termSelector = tc.getTermAt(e.getPoint());
-            fireRuleApp(termSelector);
         }  
     };
 
     private Separator separator = new Separator();
     private Sequent sequent;
     private Environment env;
+    private ProofCenter proofCenter;
     private PrettyPrint prettyPrinter;
 
-    public SequentComponent(@NonNull Environment env) {
-        this.env = env;
+    public SequentComponent(@NonNull ProofCenter proofCenter) {
+        this.env = proofCenter.getEnvironment();
+        this.proofCenter = proofCenter;
         this.setLayout(new Layout());
         prettyPrinter = new PrettyPrint(env);
         prettyPrinter.addPropertyChangeListener(this);
@@ -158,20 +186,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             }});
     }
     
-    private void fireRuleApp(TermSelector termSelector) {
-        for(TermSelectionListener ral : listenerList.getListeners(TermSelectionListener.class)) {
-            ral.termSelected(sequent, termSelector);
-        }
-    }
-    
-    public void addTermSelectionListener(TermSelectionListener obs) {
-        listenerList.add(TermSelectionListener.class, obs);
-    }
-
-    public void removeTermSelectionListener(TermSelectionListener obs) {
-        listenerList.remove(TermSelectionListener.class, obs);
-    }
-
     public void proofNodeSelected(ProofNode node) {
         if(node.getChildren() == null)
             prettyPrinter.setInitialStyle(null);

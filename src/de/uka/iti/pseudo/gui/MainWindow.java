@@ -107,9 +107,8 @@ public class MainWindow extends JFrame {
             dockModel.addRootDock("splitDock", topDock, this);
         }
         {
-            sequentComponent = new SequentComponent(proofCenter.getEnvironment());
+            sequentComponent = new SequentComponent(proofCenter);
             sequentComponent.setBorder(new EmptyBorder(5,5,5,5));
-            sequentComponent.addTermSelectionListener(proofCenter);
             content.add(sequentComponent, JSplitPane.RIGHT);
             proofCenter.addProofNodeSelectionListener(sequentComponent);
         }

@@ -46,10 +46,10 @@ import de.uka.iti.pseudo.term.Sequent;
  * 
  * It acts also as {@link TermSelectionListener} which reacts on term selection
  * (right click) on a term in the sequent view, see
- * {@link #termSelected(Sequent, TermSelector)}.
+ * {@link #getApplicableRules(Sequent, TermSelector)}.
  * 
  */
-public class ProofCenter implements TermSelectionListener {
+public class ProofCenter {
     
     /**
      * Constants used as tags in property clauses in rule definitions
@@ -237,33 +237,30 @@ public class ProofCenter implements TermSelectionListener {
     }
     
     /**
-     * handles a term selection in the sequent component.
+     * Gets the List of possible rule applications for a certain term within a
+     * sequent. The term is given by its selector 
      * 
-     * Setting up the rule application component with all possible rule
-     * applications for the situation.
+     * TODO DOC
      * 
      * @param sequent
      *            the sequent on which the term appeared.
      * @param termSelector
      *            the reference of the selected term.
+     * @return 
+     * @throws ProofException 
      */
-    public void termSelected(Sequent sequent, TermSelector termSelector) {
+    public List<RuleApplication> getApplicableRules(Sequent sequent, TermSelector termSelector) throws ProofException {
 
         int goalNo = proof.getOpenGoals().indexOf(currentProofNode);
         if(goalNo == -1) {
             // current sequent is not a goal.
-            return;
+            return Collections.emptyList();
         }
         
         RuleApplicationFinder iraf = new RuleApplicationFinder(proof, goalNo, env);
-        try {
-            List<RuleApplication> result = iraf.findAll(termSelector, rulesSortedForInteraction);
-            getMainWindow().getRuleApplicationComponent().setInteractiveApplications(result);
-        } catch (ProofException e) {
-            // TODO gescheiter Report!
-            e.printStackTrace();
-        }
-        
+        List<RuleApplication> result = iraf.findAll(termSelector, rulesSortedForInteraction);
+
+        return result;
     }
 
     /**
