@@ -542,9 +542,12 @@ public class TermMaker extends ASTDefaultVisitor {
                 Program program = env.getProgram(programReference.image);
                 if(program == null)
                     throw new TermException("Unknown program '" +programReference + "'");
-                resultTerm = new LiteralProgramTerm(position.image, terminating, program);
+                int programIndex = Integer.parseInt(position.image);
+                resultTerm = new LiteralProgramTerm(programIndex, terminating, program);
             }
         } catch (TermException e) {
+            throw new ASTVisitException(programTerm, e);
+        } catch (NumberFormatException e) {
             throw new ASTVisitException(programTerm, e);
         }
         

@@ -9,17 +9,13 @@ public class LiteralProgramTerm extends ProgramTerm {
     private int programIndex;
     private Program program;
 
-    public LiteralProgramTerm(@NonNull String image, boolean terminating,
+    public LiteralProgramTerm(int programIndex, boolean terminating,
             @NonNull Program program) throws TermException {
         super(terminating);
         this.program = program;
-        try {
-            this.programIndex = Integer.parseInt(image);
-        } catch(NumberFormatException ex) {
-            throw new TermException("Illegally formated literal program index: " + image, ex);
-        }
+        this.programIndex = programIndex;
         if(programIndex < 0)
-            throw new TermException("Illegally formated literal program index: " + image);
+            throw new TermException("Illegally formated literal program index: " + programIndex);
     }
     
     /**

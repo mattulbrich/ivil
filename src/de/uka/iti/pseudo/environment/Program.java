@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.environment;
 
+import java.util.Collection;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -24,20 +25,18 @@ public class Program {
     }
     
     private String name;
+    private ASTLocatedElement declaration;
     
     private Statement[] statements;
     private SourceAnnotation[] sourceAnnotations;
-    private LabelAnnotation[] labelAnnotations;
-    private ASTLocatedElement declaration;
+
     
     public Program(@NonNull String name,
             List<Statement> statements,
             List<SourceAnnotation> sourceAnnotations,
-            List<LabelAnnotation> labelAnnotations,
             ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
         this.sourceAnnotations = Util.listToArray(sourceAnnotations, SourceAnnotation.class);
-        this.labelAnnotations = Util.listToArray(labelAnnotations, LabelAnnotation.class);
         this.declaration = declaration;
         this.name = name;
     }
@@ -56,9 +55,9 @@ public class Program {
         return Util.readOnlyArrayList(sourceAnnotations);
     }
     
-    public List<LabelAnnotation> getLabelAnnotations() {
-        return Util.readOnlyArrayList(labelAnnotations);
-    }
+//    public List<LabelAnnotation> getLabelAnnotations() {
+//        return Util.readOnlyArrayList(labelAnnotations);
+//    }
 
     public int countStatements() {
         return statements.length;
@@ -74,10 +73,10 @@ public class Program {
             System.out.println("      " + ann + " -> " + ann.getStatementNo());
         }
         
-        System.out.println("    Labels");
-        for (LabelAnnotation ann : labelAnnotations) {
-            System.out.println("      " + ann + " -> " + ann.getStatementNo());
-        }
+//        System.out.println("    Labels");
+//        for (LabelAnnotation ann : labelAnnotations) {
+//            System.out.println("      " + ann + " -> " + ann.getStatementNo());
+//        }
 
         System.out.println("    Statements");
         int i = 0;
@@ -92,6 +91,10 @@ public class Program {
     
     @Override public String toString() {
         return name;
+    }
+
+    public List<Statement> getStatements() {
+        return Util.readOnlyArrayList(statements);
     }
 
 }

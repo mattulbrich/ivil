@@ -32,7 +32,6 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     private List<ASTStatement> rawStatements = new ArrayList<ASTStatement>();
     private List<Statement> statements = new ArrayList<Statement>();
     private List<SourceAnnotation> sourceAnnotations = new ArrayList<SourceAnnotation>();
-    private List<LabelAnnotation> labelAnnotations = new ArrayList<LabelAnnotation>();
     private Map<String, Integer> labelMap = new HashMap<String, Integer>();
     
     public EnvironmentProgramMaker(Environment env) {
@@ -98,7 +97,6 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
     public void visit(ASTLabelStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
-        labelAnnotations.add(new LabelAnnotation(label, rawStatements.size()));
         if(labelMap.containsKey(label)) {
             throw new ASTVisitException("The label " + label + " has already been defined earlier", arg);
         }
@@ -110,7 +108,6 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         rawStatements.clear();
         statements.clear();
         sourceAnnotations.clear();
-        labelAnnotations.clear();
         labelMap.clear();
         
         for (ASTElement child : arg.getChildren()) {
@@ -123,7 +120,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         try {
             String name = arg.getName().image;
             Program program = new Program(name, statements, 
-                    sourceAnnotations, labelAnnotations, arg);
+                    sourceAnnotations, arg);
             env.addProgram(program);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);

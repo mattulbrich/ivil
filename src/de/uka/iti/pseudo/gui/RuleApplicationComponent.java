@@ -257,9 +257,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                     assert type.equals(term.getType());
                     
                     app.getSchemaVariableMapping().put(varname, term);
-                    putClientProperty("finished", true);
                 }
-                
+                putClientProperty("finished", true);
                 proofCenter.apply(app);
             } catch (ProofException ex) {
                 // TODO gescheite Fehlerausgabe

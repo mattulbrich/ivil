@@ -412,6 +412,20 @@ public class Environment {
         
         return nl;
     }
+
+    /**
+     * Gets a collection of all functions which are assignable.
+     * 
+     * @return a freshly created collection of all assignables.
+     */
+    public List<Function> getAllAssignables() {
+        List<Function> result = new ArrayList<Function>();
+        for (Function f : functionMap.values()) {
+            if(f.isAssignable())
+                result.add(f);
+        }
+        return result;
+    }
     
     /**
      * Gets the $interaction symbol which is always present
