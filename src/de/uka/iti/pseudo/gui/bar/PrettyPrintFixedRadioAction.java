@@ -18,7 +18,7 @@ public class PrettyPrintFixedRadioAction extends BarAction
     }
     
     public void actionPerformed(ActionEvent e) {
-        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        PrettyPrint pp = getProofCenter().getPrettyPrinter();
         pp.setPrintingFix(isSelected());
     }
     
@@ -28,7 +28,7 @@ public class PrettyPrintFixedRadioAction extends BarAction
     }
     
     public void initialised() {
-        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        PrettyPrint pp = getProofCenter().getPrettyPrinter();
         pp.addPropertyChangeListener(PrettyPrint.PRINT_FIX_PROPERTY, this);
         setSelected(pp.isPrintingFix());
     }

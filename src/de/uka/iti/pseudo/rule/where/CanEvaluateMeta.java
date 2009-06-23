@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 
 // TODO Documentation needed
 public class CanEvaluateMeta extends WhereCondition {
@@ -76,6 +77,10 @@ public class CanEvaluateMeta extends WhereCondition {
         public Map<String, Term> getSchemaVariableMapping() {
             return wrappedApplication.getSchemaVariableMapping();
         }
+        
+        public Map<String, Update> getSchemaUpdateMapping() {
+            return wrappedApplication.getSchemaUpdateMapping();
+        }
 
         public Map<String, Type> getTypeVariableMapping() {
             return wrappedApplication.getTypeVariableMapping();
@@ -84,6 +89,8 @@ public class CanEvaluateMeta extends WhereCondition {
         public boolean hasMutableProperties() {
             return false;
         }
+
+        
         
     }
 }

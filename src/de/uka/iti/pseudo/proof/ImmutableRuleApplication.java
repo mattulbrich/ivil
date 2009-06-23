@@ -6,6 +6,7 @@ import java.util.Map;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.util.LinearLookupMap;
 import de.uka.iti.pseudo.util.Util;
 
@@ -18,7 +19,8 @@ public class ImmutableRuleApplication implements RuleApplication {
     private TermSelector findSelector;
     private TermSelector[] assumeSelectors;
     private Map<String,Term> schemaVariableMap;
-    private Map<String, String> properties;
+    private Map<String,Update> schemaUpdateMap;
+    private Map<String,String> properties;
     private Map<String,Type> typeVariableMap;
     
     public ImmutableRuleApplication(RuleApplication ruleApp) {
@@ -28,6 +30,7 @@ public class ImmutableRuleApplication implements RuleApplication {
         assumeSelectors = Util.listToArray(ruleApp.getAssumeSelectors(), TermSelector.class);
         
         schemaVariableMap = new LinearLookupMap<String, Term>(ruleApp.getSchemaVariableMapping());
+        schemaUpdateMap = new LinearLookupMap<String, Update>(ruleApp.getSchemaUpdateMapping());
         typeVariableMap = new LinearLookupMap<String, Type>(ruleApp.getTypeVariableMapping());
         properties = new LinearLookupMap<String, String>(ruleApp.getProperties());
     }
@@ -64,8 +67,13 @@ public class ImmutableRuleApplication implements RuleApplication {
     public Map<String, Type> getTypeVariableMapping() {
         return typeVariableMap;
     }
+    
 
     public boolean hasMutableProperties() {
         return false;
+    }
+
+    public Map<String, Update> getSchemaUpdateMapping() {
+        return schemaUpdateMap;
     }
 }

@@ -424,6 +424,10 @@ public class Environment {
             if(f.isAssignable())
                 result.add(f);
         }
+        
+        if(parentEnvironment != null)
+            result.addAll(parentEnvironment.getAllAssignables());
+            
         return result;
     }
     
@@ -784,18 +788,19 @@ public class Environment {
      * 
      * @param prefix
      *            the resulting function name will start with this prefix
+     *            
      * @return an identifier that can be used as a function name for this
      *         environment
      */
     public String createNewFunctionName(String prefix) {
-        String newName;
+        String newName = prefix;
         int counter = 1;
-        boolean exists;
-        do {
+        boolean exists = getFunction(newName) != null;
+        while(exists) {
             newName = prefix + counter;
             counter ++;
             exists = getFunction(newName) != null;
-        } while(exists);
+        }
         
         return newName;
     }

@@ -52,6 +52,13 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(mc.leftUnify(mt("%i2"), mt("7")));
     }
 
+    public void testUpdates() throws Exception {
+        TermUnification mc = new TermUnification(env);
+        
+        assertFalse(mc.leftUnify(mt("{ i1 := 0 }true"), mt("{ i1 := 1 }true")));
+        assertTrue(mc.leftUnify(mt("{ i1 := 0 }true"), mt("{ i1 := 0 }true")));
+    }
+    
     /*
      * the program under test:
      *  0: assume b1
@@ -121,4 +128,12 @@ public class TestTermUnification extends TestCaseWithEnv {
     }
     
     // TODO Test binders!
+    
+    public void testSchemaUpdates() throws Exception {
+        TermUnification mc = new TermUnification(env);
+        mc.leftUnify(mt("{U}%a"), mt("{i1:=0}b2"));
+        
+        assertEquals(mt("{i1:=0}i1"), mc.instantiate(mt("{U}i1")));
+        assertEquals(mt("{V}b2"), mc.instantiate(mt("{V}%a")));
+    }
 }

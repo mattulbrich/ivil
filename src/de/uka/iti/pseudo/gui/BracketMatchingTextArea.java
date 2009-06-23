@@ -328,24 +328,16 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
                 // --- determine locations ---
                 TextUI mapper = c.getUI();
                 Rectangle p0 = mapper.modelToView(c, offs0);
-                Rectangle p1 = mapper.modelToView(c, offs1);
+                Rectangle p1 = mapper.modelToView(c, offs0-1);
+                Rectangle q0 = mapper.modelToView(c, offs1+1);
+                Rectangle q1 = mapper.modelToView(c, offs1);
+                
+                Rectangle p = p0.union(p1);
+                Rectangle q = q0.union(q1);
 
                 g.setColor(HIGHLIGHT_COLOR);
-                
-                if (p0.y == p1.y) {
-                    // same line, render a rectangle
-                    Rectangle r = p0.union(p1);
-                    g.drawRect(r.x, r.y, r.width-1, r.height-1);
-                } else {
-                    // different lines
-                    int p0ToMarginWidth = alloc.x + alloc.width - p0.x;
-                    g.drawRect(p0.x, p0.y, p0ToMarginWidth, p0.height);
-                    if ((p0.y + p0.height) != p1.y) {
-                        g.drawRect(alloc.x, p0.y + p0.height, alloc.width-1, 
-                                   p1.y - (p0.y + p0.height)-1);
-                    }
-                    g.drawRect(alloc.x, p1.y, (p1.x - alloc.x)-1, p1.height-1);
-                }
+                g.fillRect(p.x, p.y, p.width, p.height);
+                g.fillRect(q.x, q.y, q.width, q.height);
             } catch (BadLocationException e) {
                 // can't render
             }

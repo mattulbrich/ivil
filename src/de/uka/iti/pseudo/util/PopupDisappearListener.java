@@ -1,30 +1,25 @@
 package de.uka.iti.pseudo.util;
 
-import java.applet.Applet;
 import java.awt.AWTEvent;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.AWTEventListener;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.JPopupMenu;
-import javax.swing.Popup;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 public class PopupDisappearListener implements AWTEventListener, PropertyChangeListener {
 
-    private Popup popup;
     private Component component;
+    private Container container;
 
-    public PopupDisappearListener(Popup popup, Component component) {
+    public PopupDisappearListener(Component component, Container container) {
         super();
-        this.popup = popup;
         this.component = component;
+        this.container = container;
 
         install();
     }
@@ -32,10 +27,7 @@ public class PopupDisappearListener implements AWTEventListener, PropertyChangeL
     private void install() {
         Toolkit tk = Toolkit.getDefaultToolkit();
         tk.addAWTEventListener(this,
-                AWTEvent.MOUSE_EVENT_MASK // |
-//                AWTEvent.MOUSE_MOTION_EVENT_MASK |
-//                AWTEvent.MOUSE_WHEEL_EVENT_MASK |
-//                AWTEvent.WINDOW_EVENT_MASK | sun.awt.SunToolkit.GRAB_EVENT_MASK
+                AWTEvent.MOUSE_EVENT_MASK 
                 );
         component.addPropertyChangeListener("finished", this);
     }
@@ -47,8 +39,8 @@ public class PopupDisappearListener implements AWTEventListener, PropertyChangeL
     }
 
     private void cancelPopup() {
-        if(component.isVisible()) {
-            popup.hide();
+        if(container.isVisible()) {
+            container.setVisible(false);
         }
         uninstall();
     }
@@ -56,7 +48,7 @@ public class PopupDisappearListener implements AWTEventListener, PropertyChangeL
     boolean isInPopup(Component src) {
         for (Component c=src; c!=null; c=c.getParent()) {
             System.out.println(c);
-            if(c == component)
+            if(c == container)
                 return true;
         }
         return false;
@@ -73,6 +65,7 @@ public class PopupDisappearListener implements AWTEventListener, PropertyChangeL
             return;
         
         cancelPopup();
+        
         boolean consumeEvent =
             UIManager.getBoolean("PopupMenu.consumeEventOnClose");
             

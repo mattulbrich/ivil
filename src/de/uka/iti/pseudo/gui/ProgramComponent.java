@@ -6,6 +6,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +55,7 @@ public class ProgramComponent extends JComponent  {
     
     private Node root;
     private Set<Node> selectedNodes = new HashSet<Node>();
+    private PrettyPrint prettyPrinter;
     
     private static class Node {
         public Node(String string) {
@@ -66,7 +69,7 @@ public class ProgramComponent extends JComponent  {
         int ypos;
     }
     
-    public ProgramComponent() {
+    public ProgramComponent(ProofCenter proofCenter) {
         setBackground(Color.white);
         
         addMouseListener(new MouseAdapter() {
@@ -74,6 +77,13 @@ public class ProgramComponent extends JComponent  {
                 if (e.getClickCount() == 1
                         && SwingUtilities.isLeftMouseButton(e))
                     expandClick(e.getPoint());
+            }
+        });
+        
+        this.prettyPrinter = proofCenter.getPrettyPrinter();
+        prettyPrinter.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                ProgramComponent.this.repaint();
             }
         });
     }
@@ -105,7 +115,8 @@ public class ProgramComponent extends JComponent  {
                 last = lastTop = node;
                 sourcePtr++;
             }
-            Node prgLine = new Node(i + ": " + program.getStatement(i).toString());
+            String text = prettyPrinter.print(program.getStatement(i)).toString();
+            Node prgLine = new Node(i + ": " + text);
             statementNodes.add(prgLine);
             last.child = prgLine;
             prgLine.top = lastTop;
@@ -139,7 +150,7 @@ public class ProgramComponent extends JComponent  {
                 node.ypos = y;
                 if(selectedNodes.contains(node)) {
                     g.setColor(LIGHT_BLUE);
-                    g.fillRect(0, y-14, 200, 18);
+                    g.fillRect(0, y-14, getWidth(), 18);
                 }
                 g.setColor(Color.blue);
                 g.drawString(node.text, 20, y);
@@ -156,7 +167,7 @@ public class ProgramComponent extends JComponent  {
                     y += 14;
                     if(selectedNodes.contains(child)) {
                         g.setColor(Color.lightGray);
-                        g.fillRect(0, y-14, 200, 18);
+                        g.fillRect(0, y-14, getWidth(), 18);
                     }
                     g.setColor(Color.gray);
                     g.drawString(child.text, 40, y);
@@ -199,6 +210,7 @@ public class ProgramComponent extends JComponent  {
     public void setProofNode(ProofNode node) {
         proofNode = node;
         selectTerms();
+        repaint();
     }
 
     private void selectTerms() {
@@ -228,6 +240,7 @@ public class ProgramComponent extends JComponent  {
         this.program = program;
         makeModel();
         selectTerms();
+        repaint();
     }
     
     private void dump() {

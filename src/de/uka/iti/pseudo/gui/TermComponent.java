@@ -169,7 +169,10 @@ public class TermComponent extends JTextPane {
                 if(descr.contains("closed")) 
                     StyleConstants.setForeground(retval, Color.DARK_GRAY);
                 
-                if(descr.contains("modality"))
+                if(descr.contains("program"))
+                    StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+                
+                if(descr.contains("update"))
                     StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
                     
                 if(descr.contains("keyword"))

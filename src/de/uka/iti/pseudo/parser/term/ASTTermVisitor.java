@@ -41,6 +41,8 @@ public interface ASTTermVisitor {
 	void visit(ASTTypeVar typeVar) throws ASTVisitException;
 
 	void visit(ASTUpdateTerm updateTerm) throws ASTVisitException;
+	
+	void visit(ASTSchemaUpdateTerm updateTerm) throws ASTVisitException;
 
     void visit(ASTProgramTerm programTerm) throws ASTVisitException;
 

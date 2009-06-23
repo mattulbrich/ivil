@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.term.statement.Statement;
 
 public class ProgramChanger {
     
-    private List<Statement> statements;
+    private LinkedList<Statement> statements;
     private List<SourceAnnotation> sourceAnnotations;
     private Environment env;
 
@@ -35,6 +35,7 @@ public class ProgramChanger {
 
     public void insertAt(int index, Statement statement) throws TermException {
         updateTargets(index, +1);
+        statements.add(index, statement);
     }
     
     public void replaceAt(int index, Statement statement) throws TermException {
@@ -43,9 +44,8 @@ public class ProgramChanger {
 
     public void deleteAt(int index) throws TermException {
         updateTargets(index + 1, -1);
-        throw new UnsupportedOperationException();
+        statements.remove(index);
     }
-
     
     private void updateTargets(int index, int offset) throws TermException {
         updateSourceAnnotations(index, offset);

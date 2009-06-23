@@ -16,7 +16,6 @@ include
 
 sort
   field('type)
-  array('type)
   heap
   ref
   locset
@@ -24,34 +23,34 @@ sort
 function
   'a defaultVal
   field(bool) $created
+  field(int) $length
   ref null
 
+  field(ref) arrayIndex(int)
+
   heap H assignable
+
   'a R(heap, ref, field('a))
   heap W(heap, ref, field('a), 'a)
-  heap N(heap, ref)
-  heap WH(heap, heap, locset)
-
-  'a Ra(heap, array('a), int)
-  int La(heap, array('a))
-  heap Wa(heap, array('a), int, 'a)
-  heap Na(heap, array('a), int)
+  heap newObject(heap, ref)
+  heap havocHeap(heap, heap, locset)
 
   bool inLocset(ref, field('a), locset)
-  bool inLocsetA(array('a), int, locset)
 
 rule heap_RW
   find R(W(%h, %o, %f, %v), %o2, %f2)
   replace cond(%o = %o2 & %f = %f2, %v, R(%h, %o2, %f2))
   tags rewrite "fol simp"
 
-rule heap_RWa
-  find R(Wa(%h, %a, %i, %v), %o2, %f2)
-  replace R(%h, %o2, %f2)
-
-rule heap_RN
-  find R(N(%h, %o), %o2, %f2)
+rule heap_Rnew
+  find R(newObject(%h, %o), %o2, %f2)
   replace cond(%o = %o2, defaultVal, R(%h, %o2, %f2))
+
+rule heap_Rhavoc
+  find R(havocHeap(%h, %h2, %locset), %o, %f)
+  replace R(cond(inLocset(%o, %f, %locset), %h2, %h1), %o, %f)
+
+
 
 rule defaultVal_int
   find defaultVal as int

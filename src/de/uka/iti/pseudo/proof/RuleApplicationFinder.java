@@ -167,7 +167,7 @@ public class RuleApplicationFinder {
 
             }
         } catch (RuleException e) {
-            throw new ProofException("Error during finding of applicable rules", e);
+            throw new ProofException("Error during finding applicable rules", e);
         } 
         
     }

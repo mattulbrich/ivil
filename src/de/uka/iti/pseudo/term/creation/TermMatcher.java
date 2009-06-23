@@ -16,11 +16,14 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.Statement;
 
@@ -69,6 +72,9 @@ class TermMatcher extends DefaultTermVisitor {
      * the variable is expanded. If there is no term for it, yet, the schema
      * variable is correspondingly instantiated.
      * 
+     * Schema programs are matched in 
+     * {@link #matchSchemaProgram(SchemaProgram, LiteralProgramTerm)}
+     * 
      * All other cases are subject to a visit.
      * 
      * However, only if the types (=class) of the terms coincide, comparison
@@ -93,17 +99,37 @@ class TermMatcher extends DefaultTermVisitor {
                 termUnification.addInstantiation(sv, t2);
                 termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), t2.getType());
             }
+            
         } else if(t1 instanceof SchemaProgram && t2 instanceof LiteralProgramTerm) {
             SchemaProgram sp = (SchemaProgram) t1;
             LiteralProgramTerm litPrg = (LiteralProgramTerm) t2;
             matchSchemaProgram(sp, litPrg);
+            
+        } else if(t1 instanceof SchemaUpdateTerm && t2 instanceof UpdateTerm) {
+            SchemaUpdateTerm su = (SchemaUpdateTerm) t1;
+            UpdateTerm upt = (UpdateTerm) t2; 
+            matchSchemaUpdate(su, upt);
+            
         } else if(t1.getClass() == t2.getClass()) {
             compareTerm = t2;
             t1.visit(this);
+            
         } else 
             throw new UnificationException("Incomparable types of terms", t1, t2);
     }
     
+    private void matchSchemaUpdate(SchemaUpdateTerm su, UpdateTerm upt) throws TermException {
+        String schemaIdentifier = su.getSchemaIdentifier();
+        Update inst = termUnification.getUpdateFor(schemaIdentifier);
+        if(inst == null){
+            termUnification.addUpdateInstantiation(schemaIdentifier, upt.getUpdate());
+        } else {
+            if(!inst.equals(upt.getUpdate()))
+                throw new UnificationException("Incomparable updates", su, upt);
+        }
+        compare(su.getSubterm(0), upt.getSubterm(0));
+    }
+
     // TODO DOC
     private void matchSchemaProgram(SchemaProgram sp, LiteralProgramTerm litPrg) throws TermException {
         SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
@@ -203,6 +229,23 @@ class TermMatcher extends DefaultTermVisitor {
     @Override 
     public void visit(SchemaProgram schemaProgramTerm) throws TermException {
         throw new Error("unification of 2 schema program terms is not implemented / intended");
+    }
+    
+    @Override 
+    public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
+        throw new Error("unification of 2 schema update terms is not implemented / intended");
+    }
+    
+    @Override 
+    public void visit(UpdateTerm u1) throws TermException {
+        
+        UpdateTerm u2 = (UpdateTerm) compareTerm;
+        
+        if(!u2.getAssignments().equals(u1.getAssignments())) {
+            throw new UnificationException(u1, u2);
+        }
+        
+        super.visit(u1);
     }
     
     @Override 

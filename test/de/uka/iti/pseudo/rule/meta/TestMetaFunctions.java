@@ -34,8 +34,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term result = eval.evalutate(t);
         Term result2 = eval.evalutate(t);
         
-        assertEquals(makeTerm("sk1 as int"), result);
-        assertEquals(makeTerm("sk1 as int"), result2);
+        assertEquals(makeTerm("sk as int"), result);
+        assertEquals(makeTerm("sk as int"), result2);
     }
     
     public void testSkolemDifferent() throws Exception {
@@ -44,8 +44,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         Term t2 = makeTerm("$$skolem(true)");
         Term result2 = eval.evalutate(t2);
         
-        assertEquals(makeTerm("sk1 as int"), result);
-        assertEquals(makeTerm("sk2 as bool"), result2);
+        assertEquals(makeTerm("sk as int"), result);
+        assertEquals(makeTerm("sk1 as bool"), result2);
     }
     
     public void testSkolemReplay() throws Exception {

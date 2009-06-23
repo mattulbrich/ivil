@@ -97,6 +97,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("{ %x := %v || %y := %t }true", false);
         testTerm("{ i1 := 1 }{ i1 := 2 }false", false);
         testTerm("{ i1 := { b1 := true }i1 }true", false);
+        testTerm("{ U }{ V }true", false);
         
         // must be assignable
         testTermFail("{ i2 := 0 }true");

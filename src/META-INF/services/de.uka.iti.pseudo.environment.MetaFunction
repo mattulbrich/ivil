@@ -26,3 +26,6 @@ de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction
 
 # the general update simplifier
 de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction
+
+# the loop invariant program changements
+de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction

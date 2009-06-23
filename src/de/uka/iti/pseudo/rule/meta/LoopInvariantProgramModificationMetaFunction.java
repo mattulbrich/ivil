@@ -106,6 +106,8 @@ class LoopModifier {
         insertAssumptions(index);
 
         Program newProgram = programChanger.makeProgram(program.getName() + "'");
+        env.addProgram(newProgram);
+        
         LiteralProgramTerm newProgramTerm = new LiteralProgramTerm(index, programTerm.isTerminating(), newProgram);
         
         Term result = tf.impl(atPreEqualities, newProgramTerm);
@@ -115,7 +117,7 @@ class LoopModifier {
     }
 
     private void insertAssumptions(int index) throws TermException {
-        programChanger.addSourceAnnotation(new SourceAnnotation("loop STARTS with invariant", index));
+        int index0 = index;
         for (Function f : modifiedAssignables) {
             programChanger.insertAt(index, new HavocStatement(tf.cons(f)));
             index ++;
@@ -123,6 +125,8 @@ class LoopModifier {
         
         programChanger.insertAt(index, new AssumeStatement(invariant));
         index ++;
+        
+        programChanger.addSourceAnnotation(new SourceAnnotation("loop STARTS with invariant", index0));
     }
 
     private void makeAtPreSymbols() throws TermException {
@@ -144,9 +148,8 @@ class LoopModifier {
     }
 
     private int insertProofObligations(int index) throws TermException {
-        programChanger.addSourceAnnotation(new SourceAnnotation("loop PRESERVES invariants", index));
-        
         programChanger.insertAt(index, new AssertStatement(invariant));
+        programChanger.addSourceAnnotation(new SourceAnnotation("loop PRESERVES invariants", index));
         index ++;
         
 // XXX variant

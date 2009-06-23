@@ -34,4 +34,16 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
         assertNull(result);
     }
     
+    // was a bug!
+    public void testBinding() throws Exception {
+        Term org = makeTerm("(\\forall n; n > 0) -> [ 1; P]");
+        Term two = TermMaker.makeAndTypeTerm("true", env);
+        
+        System.out.println(SubtermCollector.collect(org));
+        
+        Term result = SubtermReplacer.replace(org, 5, two);
+        Term expected = makeTerm("(\\forall n; n > 0) -> true");
+        assertEquals(expected, result);
+    }
+    
 }

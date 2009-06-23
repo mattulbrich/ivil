@@ -3,7 +3,9 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Variable;
 
 public class TestSubtermCollector extends TestCaseWithEnv {
 
@@ -47,6 +49,18 @@ public class TestSubtermCollector extends TestCaseWithEnv {
         assertEquals(makeTerm("i1=i3"), subterms.get(i++));
         assertEquals(makeTerm("i1"), subterms.get(i++));
         assertEquals(makeTerm("i3"), subterms.get(i++));
+    }
+    
+    public void testCollect3() throws Exception {
+        String string = "(\\forall x; x>0)";
+        Term term = makeTerm(string);
+        List<Term> subterms = SubtermCollector.collect(term);
+        
+        int i = 0;
+        assertEquals(term, subterms.get(i++));
+        assertEquals(term.getSubterm(0), subterms.get(i++));
+        assertEquals(new Variable("x", Environment.getIntType()), subterms.get(i++));
+        assertEquals(makeTerm("0"), subterms.get(i++));
     }
 
 }

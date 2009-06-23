@@ -24,42 +24,20 @@ import de.uka.iti.pseudo.util.Util;
  * TODO We might reconsider the set of subterms to let it include ass. values.
  */
 public class UpdateTerm extends Term {
-
+    
+    private Update update;
+    
     /**
-     * The assignments are stored in an array which is not changed.
-     */
-    private AssignmentStatement[] assignments;
-
-    /**
-     * Instantiates a new update term with the given assignments in this 
-     * order and the updated term.
+     * Instantiates a new update term with the given update and the updated term.
      * 
-     * @param assignments
-     *            update terms stores a copy of this array
-     * @param term
-     *            the subterm of the result
+     * @param update the update to apply
+     * @param term the term to be updated
      */
-    public UpdateTerm(AssignmentStatement[] assignments, Term term) {
+    public UpdateTerm(Update update, Term term) {
         super(new Term[] { term }, term.getType());
-        this.assignments = assignments.clone();
+        this.update = update;
 
-        assert assignments.length > 0;
-    }
-
-    /**
-     * Instantiates a new update term with the given assignments in this 
-     * order and the updated term.
-     * 
-     * @param assignments
-     *            update terms stores a copy of this list
-     * @param term
-     *            the subterm of the result
-     */
-    public UpdateTerm(List<AssignmentStatement> assignments, Term term) {
-        super(new Term[] { term }, term.getType());
-        this.assignments = Util.listToArray(assignments, AssignmentStatement.class);
-        
-        assert this.assignments.length > 0;
+        // TODO Auto-generated constructor stub
     }
 
     /*
@@ -69,7 +47,7 @@ public class UpdateTerm extends Term {
     public boolean equals(Object object) {
         if (object instanceof UpdateTerm) {
             UpdateTerm ut = (UpdateTerm) object;
-            return Arrays.equals(assignments, ut.assignments)
+            return update.equals(ut.update)
                     && getSubterm(0).equals(ut.getSubterm(0));
         }
         return false;
@@ -82,14 +60,7 @@ public class UpdateTerm extends Term {
     public String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < assignments.length; i++) {
-            if (i == 0)
-                sb.append("{ ");
-            else
-                sb.append(" || ");
-            sb.append(assignments[i].toString(typed));
-        }
-        sb.append(" }");
+        sb.append(update.toString(typed));
 
         if (typed)
             sb.append("(").append(getSubterm(0).toString(true)).append(")");
@@ -106,10 +77,21 @@ public class UpdateTerm extends Term {
     /**
      * Gets the assignments of the update of this update term.
      * 
+     * the call is delegated to the update
+     * 
      * @return an immutable list of assignments
      */
     public List<AssignmentStatement> getAssignments() {
-        return Util.readOnlyArrayList(assignments);
+        return update.getAssignments();
+    }
+
+    /**
+     * Gets the iummutable update object for this updated term
+     * 
+     * @return the update object
+     */
+    public Update getUpdate() {
+        return update;
     }
 
 }

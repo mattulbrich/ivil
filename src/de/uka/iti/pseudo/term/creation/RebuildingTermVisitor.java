@@ -13,11 +13,13 @@ import java.util.List;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
@@ -123,13 +125,18 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 }
             }
             
-            binding.getVariable().visit(this);
+            /*
+             * sub classes may choose to do things with bound variables
+             * as well. 
+             */
+            visitBindingVariable(binding);
+            
             Term bindingReplacement = resultingTerm == null ? binding
                     .getVariable() : resultingTerm;
 
             if (!(bindingReplacement instanceof BindableIdentifier)) {
                 throw new UnificationException(
-                        "Only a variable or schema variable can be instantiated into bindings with schemas",
+                        "Only a variable or schema variable can be bound in a binder",
                         binding, bindingReplacement);
             }
             
@@ -146,6 +153,22 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 resultingTerm = null;
             }
         }
+    }
+
+    /**
+     * Some implementations may choose to visit the bound variable as a subterm
+     * and others may not.
+     * 
+     * They can then override this method according to their needs.
+     * It should return its result in resultingTerm which may be null if 
+     * nothing should be changed or may contain a {@link BindableIdentifier}.
+     * 
+     * The default behaviour is to NOT visit the variable
+     * 
+     * @param binding binding to visit the bound variable in.
+     */
+    protected void visitBindingVariable(Binding binding) throws TermException {
+        resultingTerm = null;
     }
 
     /*
@@ -200,12 +223,26 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                     newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
                 if(childResult == null)
                     childResult = updateTerm.getSubterm(0);
-                resultingTerm = new UpdateTerm(newAssignments, childResult);
+                Update update = new Update(newAssignments);
+                resultingTerm = new UpdateTerm(update, childResult);
             } else {
                 resultingTerm = null;
             }
         }
     }
+    
+    /*
+     * a schema update term is is rebuilt if the updated term is modified.
+     * The type is not taken into consideration, this is always the type
+     * of the child term.
+     */
+    public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
+        defaultVisitTerm(schemaUpdateTerm);
+        if(resultingTerm != null) {
+            resultingTerm = new SchemaUpdateTerm(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
+        }
+    }
+
 
     /*
      * An assignment list is updated if one assignment value is updated. 

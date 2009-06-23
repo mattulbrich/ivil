@@ -15,9 +15,11 @@
 </node>
 <node CREATED="1245430078170" ID="Freemind_Link_1301942090" MODIFIED="1245430099027" TEXT="Important bugs">
 <node CREATED="1245430139522" ID="Freemind_Link_472607094" MODIFIED="1245430153031" TEXT="Synchronisation while auto proving"/>
+<node CREATED="1245709762724" ID="Freemind_Link_1927501923" MODIFIED="1245709790543" TEXT="identifiers should be interpreted as variables if within the scope of a quantifier"/>
 </node>
 <node CREATED="1245430100522" ID="Freemind_Link_1680326013" MODIFIED="1245430104644" TEXT="Bugs">
 <node CREATED="1245455660042" ID="Freemind_Link_1181182157" MODIFIED="1245455674591" TEXT="BracketHighlight multiline is wrong"/>
+<node CREATED="1245709644747" ID="Freemind_Link_1957286607" MODIFIED="1245709654186" TEXT="After auto jump to an open goal"/>
 </node>
 </node>
 <node CREATED="1245429546858" ID="Freemind_Link_832088571" MODIFIED="1245429549051" POSITION="right" TEXT="GUI">

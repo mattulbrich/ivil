@@ -28,10 +28,13 @@ ASTTerm Term():
 ASTTerm UpdateTerm():
 {
   ASTTerm term;
+  Token id;
   List<ASTAssignmentStatement> assignments;
 }
-{
-         "{" assignments=UpdateTerm_List() "}" term=UpdateTerm() 
+{      LOOKAHEAD(3)
+         "{" id=<IDENTIFIER> "}" term=UpdateTerm()
+            { return new ASTSchemaUpdateTerm(id, term); }
+       | "{" assignments=UpdateTerm_List() "}" term=UpdateTerm() 
             { return new ASTUpdateTerm(assignments, term); }
        | term=AsTerm()
             { return term; }

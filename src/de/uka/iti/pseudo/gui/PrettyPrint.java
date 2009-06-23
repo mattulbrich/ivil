@@ -15,11 +15,11 @@ import java.beans.PropertyChangeSupport;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.bar.PrettyPrintFixedRadioAction;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Util;
 
@@ -96,6 +96,43 @@ public class PrettyPrint {
         return print(term, new AnnotatedStringWithStyles<Term>());
     }
     
+    /** TODO DOC
+     * pretty print a term using the currently set properties on this object.
+     * 
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * @param statement
+     *            the term to pretty print
+     * @return a freshly created annotated string object
+     */
+    public AnnotatedStringWithStyles<Term> print(Statement statement) {
+        return print(statement, new AnnotatedStringWithStyles<Term>());
+    }
+    
+    /** TODO DOC */
+    public AnnotatedStringWithStyles<Term> print(Statement statement,
+            AnnotatedStringWithStyles<Term> printer) {
+        
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
+        try {
+            if(initialStyle != null)
+                printer.setStyle(initialStyle);
+            
+            statement.visit(visitor);
+            
+            if(initialStyle != null)
+                printer.resetPreviousStyle();
+        } catch (TermException e) {
+            // not thrown in this code
+            throw new Error(e);
+        }
+
+        assert printer.hasEmptyStack();
+        
+        return printer;
+    }
+
     /**
      * pretty print a term using the currently set properties on this object.
      * 

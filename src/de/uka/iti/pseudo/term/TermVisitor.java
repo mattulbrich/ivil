@@ -18,4 +18,6 @@ public interface TermVisitor {
 
     void visit(UpdateTerm updateTerm) throws TermException;
 
+    void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException;
+
 }

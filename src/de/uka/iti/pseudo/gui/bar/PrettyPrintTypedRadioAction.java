@@ -16,7 +16,7 @@ public class PrettyPrintTypedRadioAction extends BarAction implements PropertyCh
     }
     
     public void actionPerformed(ActionEvent e) {
-        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        PrettyPrint pp = getProofCenter().getPrettyPrinter();
         pp.setTyped(isSelected());
     }
     
@@ -26,7 +26,7 @@ public class PrettyPrintTypedRadioAction extends BarAction implements PropertyCh
     }
     
     public void initialised() {
-        PrettyPrint pp = getProofCenter().getMainWindow().getSequentComponent().getPrettyPrinter();
+        PrettyPrint pp = getProofCenter().getPrettyPrinter();
         pp.addPropertyChangeListener(PrettyPrint.TYPED_PROPERTY, this);
         setSelected(pp.isTyped());
     }

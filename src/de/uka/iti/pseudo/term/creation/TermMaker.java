@@ -43,6 +43,7 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
@@ -54,12 +55,14 @@ import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -505,8 +508,20 @@ public class TermMaker extends ASTDefaultVisitor {
             assignments[i-1] = (AssignmentStatement) resultStatement;
         }
         
-        resultTerm = new UpdateTerm(assignments, term);
+        resultTerm = new UpdateTerm(new Update(assignments), term);
     }
+    
+    public void visit(ASTSchemaUpdateTerm arg) throws ASTVisitException {
+        List<ASTElement> children = arg.getChildren();
+        
+        children.get(0).visit(this);
+        Term term = resultTerm;
+        
+        String identifier = arg.getIdentifierToken().image;
+        
+        resultTerm = new SchemaUpdateTerm(identifier, term);
+    }
+    
 
     public void visit(ASTOperatorIdentifierTerm operatorIdentifierTerm)
             throws ASTVisitException {

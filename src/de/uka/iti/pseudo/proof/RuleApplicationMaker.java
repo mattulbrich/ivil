@@ -9,6 +9,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
 // TODO DOC
@@ -78,6 +79,10 @@ public class RuleApplicationMaker implements RuleApplication {
     public Map<String, Term> getSchemaVariableMapping() {
         return termUnification.getTermInstantiation();
     }
+    
+    public Map<String, Update> getSchemaUpdateMapping() {
+        return termUnification.getUpdateInstantiation();
+    }
 
     public Map<String, Type> getTypeVariableMapping() {
         return termUnification.getTypeUnification().getInstantiation();
@@ -94,4 +99,6 @@ public class RuleApplicationMaker implements RuleApplication {
     public TermUnification getTermUnification() {
         return termUnification;
     }
+
+    
 }

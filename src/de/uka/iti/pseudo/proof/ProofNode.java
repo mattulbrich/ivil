@@ -129,7 +129,7 @@ public class ProofNode {
             return Util.listToArray(newNodes, ProofNode.class);
             
         } catch (TermException e) {
-            throw new ProofException("Exception during application of rule", e);
+            throw new ProofException("Exception during application of rule " + rule.getName(), e);
         }
     }
 

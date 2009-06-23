@@ -7,18 +7,22 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 
 public class TestTermInstantiator extends TestCaseWithEnv {
     
     Map<String, Term> termmap;
     Map<String, Type> typemap;
-    private TermInstantiator inst;
+    Map<String, Update> updatemap;
+    TermInstantiator inst;
     
     protected void setUp() throws Exception {
         termmap = new HashMap<String, Term>();
         typemap = new HashMap<String, Type>();
-        inst = new TermInstantiator(termmap, typemap);
+        updatemap = new HashMap<String, Update>();
+        inst = new TermInstantiator(termmap, typemap, updatemap);
     }
 
     // from a bug
@@ -102,7 +106,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     // [1] is assert b2 
     public void testProgramComparingInstantiation() throws Exception {
         
-        inst = new ProgramComparingTermInstantiator(termmap, typemap, env);
+        inst = new ProgramComparingTermInstantiator(termmap, typemap, updatemap, env);
         termmap.put("%a", makeTerm("[1;P]"));
         termmap.put("%b", makeTerm("b2"));
         
@@ -139,5 +143,18 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         
         Term t = inst.instantiate(makeTerm("(\\forall x; x = %v)"));
         assertEquals(makeTerm("(\\forall x; x = 1)"), t);
+    }
+    
+    public void testSchemaUpdates() throws Exception {
+        UpdateTerm ut = (UpdateTerm) makeTerm("{ i1 := 0 || b1 := false }true");
+        updatemap.put("U", ut.getUpdate());
+        termmap.put("%a", makeTerm("33"));
+        typemap.put("%a", Environment.getIntType());
+        
+        Term t = inst.instantiate(makeTerm("false & { U }false"));
+        assertEquals(makeTerm("false & { i1 := 0 || b1 := false } false"), t);
+        
+        t = inst.instantiate(makeTerm("{ U }%a"));
+        assertEquals(makeTerm("{ i1 := 0 || b1 := false }33"), t);
     }
 }
