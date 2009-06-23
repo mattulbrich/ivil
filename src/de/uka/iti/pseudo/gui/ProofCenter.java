@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.gui;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
@@ -92,6 +93,12 @@ public class ProofCenter {
      * The currently selected proof node.
      */
     private ProofNode currentProofNode;
+
+    /**
+     * the system pretty printer used by components, 
+     * configured by menu
+     */
+    private PrettyPrint prettyPrinter;
     
     /**
      * Instantiates a new proof center.
@@ -108,6 +115,7 @@ public class ProofCenter {
     public ProofCenter(@NonNull Proof proof, @NonNull Environment env)  throws IOException {
         this.proof = proof;
         this.env = env;
+        this.prettyPrinter = new PrettyPrint(env);
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
@@ -339,6 +347,17 @@ public class ProofCenter {
      */
     public BarManager getBarManager() {
         return getMainWindow().getBarManager();
+    }
+
+    /**
+     * Get the pretty printer for this proof surrounding. The printer can be
+     * changed via menu entries. You can add a {@link PropertyChangeListener} if
+     * you want to be informed about changes.
+     * 
+     * @return the system pretty printer;
+     */
+    public PrettyPrint getPrettyPrinter() {
+        return prettyPrinter;
     }
 
 //    /**

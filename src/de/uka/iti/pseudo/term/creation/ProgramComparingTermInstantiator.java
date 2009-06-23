@@ -11,6 +11,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
@@ -20,8 +21,8 @@ public class ProgramComparingTermInstantiator extends TermInstantiator {
     private Environment env;
 
     public ProgramComparingTermInstantiator(Map<String, Term> termMap,
-            Map<String, Type> typeMap, Environment env) {
-        super(termMap, typeMap);
+            Map<String, Type> typeMap, Map<String, Update> updateMap, Environment env) {
+        super(termMap, typeMap, updateMap);
         
         this.env = env;
     }

@@ -9,16 +9,18 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
@@ -45,6 +47,8 @@ public class TermUnification {
      */
     private AppendMap<String, Term> instantiation = new AppendMap<String, Term>();
     
+    private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
+    
     /**
      * The term matcher performs the actual matching comparisons.
      */
@@ -54,7 +58,7 @@ public class TermUnification {
      * The environment too lookup things
      */
     private Environment env;
-    
+
     /**
      * Instantiates a new term unification.
      * 
@@ -80,7 +84,7 @@ public class TermUnification {
     public boolean leftUnify(Term adaptingTerm, Term fixTerm) {
         
         AppendMap<String, Term> copyTermInst = instantiation.clone();
-
+        AppendMap<String, Update> copyUpdateInst = updateInst.clone();
         try {
             
             termMatcher.compare(adaptingTerm, fixTerm);
@@ -88,6 +92,7 @@ public class TermUnification {
             
         } catch (TermException e) {
             instantiation = copyTermInst;
+            updateInst = copyUpdateInst;
             return false;
         }
         
@@ -115,30 +120,15 @@ public class TermUnification {
         
         instantiation.put(sv.getName(), term);
     }
- 
-// // if instantiation CAN contain schema variables
-//    public void addInstantiation(SchemaVariable sv, Term term) throws TermException {
-//        
-//        SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
-//        scv.collect(term);
-//        
-//        if(scv.getSchemaVariables().contains(sv)) {
-//            throw new UnificationException("The schema variable cannot be instantiated, occur check failed", sv, term);
-//        }
-//        
-//        assert instantiation.get(sv) == null;
-//        
-//        instantiation.put(sv.getName(), term);
-//        
-//        if(containsSchema) {
-//            for (String s : instantiation.keySet()) {
-//                instantiation.put(s, instantiate(instantiation.get(s)));
-//            }
-//        }
-//        
-//        containsSchema |= !scv.isEmpty();
-//    }
     
+    public void addUpdateInstantiation(String schemaIdentifier,
+            Update update) throws TermException {
+        if(instantiation.get(schemaIdentifier) != null)
+            throw new TermException("SchemaUpdate " + schemaIdentifier + " already instantiated");
+        
+        updateInst.put(schemaIdentifier, update);
+    }
+ 
     /**
      * Gets the instantiation for a schema variable.
      * 
@@ -150,9 +140,13 @@ public class TermUnification {
     public Term getTermFor(@NonNull SchemaVariable sv) {
         return instantiation.get(sv.getName());
     }
-    
-    
+
     // TODO DOC upto here
+    
+    public Update getUpdateFor(String schemaIdentifier) {
+        return updateInst.get(schemaIdentifier);
+    }
+
     /**
      * Instantiate.
      * 
@@ -205,6 +199,9 @@ public class TermUnification {
         public void visit(SchemaVariable schemaVariable) throws TermException {
             throw new TermException("Unexpected schema variable found: " + schemaVariable);
         }
+        public void visit(SchemaUpdateTerm schemaUpdate) throws TermException {
+            throw new TermException("Unexpected schema variable found: " + schemaUpdate);
+        }
         public void visit(UpdateTerm updateTerm) throws TermException {
             for (AssignmentStatement ass : updateTerm.getAssignments()) {
                 if(ass.getTarget() instanceof SchemaVariable)
@@ -249,7 +246,17 @@ public class TermUnification {
      * @return the term instantiator
      */
     public TermInstantiator getTermInstantiator() {
-        return new TermInstantiator(instantiation, typeUnification.getInstantiation());
+        return new TermInstantiator(instantiation, typeUnification.getInstantiation(), updateInst);
+    }
+    
+    /**
+     * Gets an unmodifiable copy of the schemaupdate-to-term map.
+     * 
+     * @return a map from schema update names to updates.
+     */
+    public Map<String, Update> getUpdateInstantiation() {
+        return Collections.unmodifiableMap(updateInst);
     }
 
+    
 }

@@ -21,16 +21,18 @@ public class ProgramPanel extends JPanel implements ProofNodeSelectionListener {
     private ProgramComponent programComponent;
     private int numberOfKnownPrograms = 0;
     private JComboBox selectionBox;
+    private ProofCenter proofCenter;
     
-    public ProgramPanel(Environment environment) {
-        env = environment;
+    public ProgramPanel(ProofCenter proofCenter) {
+        this.env = proofCenter.getEnvironment();
+        this.proofCenter = proofCenter;
         init();
     }
 
     private void init() {
         setLayout(new BorderLayout());
         {
-            programComponent = new ProgramComponent();
+            programComponent = new ProgramComponent(proofCenter);
             add(programComponent, BorderLayout.CENTER);
         }
         {
@@ -46,7 +48,7 @@ public class ProgramPanel extends JPanel implements ProofNodeSelectionListener {
     }
 
     private void updatePrograms() {
-        Collection<Program> programs = env.getPrograms();
+        Collection<Program> programs = env.getAllPrograms();
         
         if(programs.size() == numberOfKnownPrograms)
             return;

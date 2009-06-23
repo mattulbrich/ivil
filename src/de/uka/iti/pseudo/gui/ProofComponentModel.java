@@ -28,6 +28,7 @@ import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 /**
@@ -156,7 +157,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             
             Map<String, Term> schemaMap = appliedRuleApp.getSchemaVariableMapping();
             Map<String, Type> typeMap = appliedRuleApp.getTypeVariableMapping();
-            TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap);
+            Map<String, Update> updateMapping = appliedRuleApp.getSchemaUpdateMapping();
+            TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
             
             return actionName == null ? "branch " + (index+1) : termInst.replaceInString(actionName);
         }

@@ -12,14 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
@@ -28,11 +31,13 @@ public class TermInstantiator extends RebuildingTermVisitor {
 
     private Map<String, Term> termMap;
     private Map<String, Type> typeMap;
+    private Map<String, Update> updateMap;
 
-    public TermInstantiator(Map<String, Term> termMap, Map<String, Type> typeMap) {
+    public TermInstantiator(Map<String, Term> termMap, Map<String, Type> typeMap, Map<String, Update> updateMap) {
         super();
         this.termMap = termMap;
         this.typeMap = typeMap;
+        this.updateMap = updateMap;
     }
 
     public Term instantiate(Term toInst) throws TermException {
@@ -128,6 +133,29 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
+    public void visit(SchemaUpdateTerm schemaUpdateTerm)
+            throws TermException {
+        
+        String schemaIdentifier = schemaUpdateTerm.getSchemaIdentifier();
+        
+        schemaUpdateTerm.getSubterm(0).visit(this);
+        
+        if(resultingTerm == null) 
+        {
+            Update resultingUpdate = updateMap.get(schemaIdentifier);
+            if(resultingUpdate != null) {
+                resultingTerm = new UpdateTerm(resultingUpdate, schemaUpdateTerm.getSubterm(0));
+            }
+        } else {
+            Update resultingUpdate = updateMap.get(schemaIdentifier);
+            if(resultingUpdate == null) {
+                resultingTerm = new SchemaUpdateTerm(schemaIdentifier, resultingTerm);
+            } else {
+                resultingTerm = new UpdateTerm(resultingUpdate, resultingTerm);
+            }
+        }
+    }
+    
     public void visit(SchemaProgram schemaProgramTerm) throws TermException {
         // see above
         super.visit(schemaProgramTerm);
@@ -159,30 +187,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
     /*
      * we need to handle this separately since the bound variable may be instantiated. 
      */
-    // moved to rebuidlingtermvisitor
-//    @Override
-//    public void visit(Binding binding) throws TermException {
-//        super.visit(binding);
-//        if(binding.hasSchemaVariable() && termMap != null) {
-//            SchemaVariable sv = (SchemaVariable) binding.getVariable(); 
-//            Term bindingReplacement = termMap.get(sv.getName());
-//            if(bindingReplacement != null) {
-//                
-//                if(!(bindingReplacement instanceof BindableIdentifier)) {
-//                    throw new UnificationException("Only a variable or schema variable can be instantiated into bindings with schemas", binding, bindingReplacement);
-//                }
-//                
-//                if(resultingTerm != null)
-//                    binding = (Binding) resultingTerm;
-//                
-//                resultingTerm = new Binding(binding.getBinder(),
-//                        binding.getType(), 
-//                        (BindableIdentifier)bindingReplacement, 
-//                        Util.listToArray(binding.getSubterms(), Term.class));
-//                
-//            }
-//        }
-//    }
+    protected void visitBindingVariable(Binding binding)
+            throws TermException {
+        binding.getVariable().visit(this);
+    }
     
     /*
      * we need to handle this separately since the element to which sth is assigned 
@@ -214,10 +222,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
         
         if(newAssignments != null) {
-            resultingTerm = new UpdateTerm(newAssignments, innerResult);
+            resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
         } else if(innerResult != updateTerm.getSubterm(0)) {
             newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
-            resultingTerm = new UpdateTerm(newAssignments, innerResult);
+            resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
         } else {
             resultingTerm = null;
         }

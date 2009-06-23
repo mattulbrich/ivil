@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -16,8 +15,7 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.Popup;
-import javax.swing.PopupFactory;
+import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
@@ -127,12 +125,15 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                 TermSelector termSelector = tc.getTermAt(e.getPoint());
                 List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
                 rac.setInteractiveApplications(ruleApps);
-
-                PopupFactory pf = PopupFactory.getSharedInstance();
-                Point p = e.getLocationOnScreen();
-                Popup popup = pf.getPopup(SequentComponent.this, rac, p.x, p.y);
-                new PopupDisappearListener(popup, rac);
-                popup.show();
+                
+                JWindow window = new JWindow(proofCenter.getMainWindow());
+                window.setAlwaysOnTop(true);
+                window.getContentPane().add(rac);
+                window.pack();
+                window.setLocation(e.getLocationOnScreen());
+                new PopupDisappearListener(rac, window);
+                window.setVisible(true);
+                
             } catch (ProofException ex) {
                 // TODO gescheiter fehlerreport
                 ex.printStackTrace();
@@ -151,7 +152,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         this.env = proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
         this.setLayout(new Layout());
-        prettyPrinter = new PrettyPrint(env);
+        prettyPrinter = proofCenter.getPrettyPrinter();
         prettyPrinter.addPropertyChangeListener(this);
     }
     
@@ -232,10 +233,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
             markTerm(sel, 1);
         }
-    }
-
-    public PrettyPrint getPrettyPrinter() {
-        return prettyPrinter;
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

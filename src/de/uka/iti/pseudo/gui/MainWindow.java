@@ -147,7 +147,7 @@ public class MainWindow extends JFrame {
         }
         {
             // FIXME At the moment ...
-            ProgramPanel panel = new ProgramPanel(proofCenter.getEnvironment());
+            ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addProofNodeSelectionListener(panel);
             JScrollPane scroll = new JScrollPane(panel);
             Dockable dock = new DefaultDockable("program", scroll, "Program");

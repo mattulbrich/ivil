@@ -73,12 +73,12 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
     /**
      * The Constant OPENING_PARENS holds the characters which serve as opening parenthesis
      */
-    private static final String OPENING_PARENS = "({<[";
+    private static final String OPENING_PARENS = "({[";
     
     /**
      * The Constant CLOSING_PARENS holds the characters which serve as closing parenthesis.
      */
-    private static final String CLOSING_PARENS = ")}>]";
+    private static final String CLOSING_PARENS = ")}]";
     
     /**
      * The highlighter stores the highlights in an object which is used to denote the highlighting.
@@ -207,16 +207,15 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
             int end = -1;
             
             if(OPENING_PARENS.indexOf(charOn) != -1) {
-                begin = findMatchingClose(dot);
-                if(begin > 0)
-                    begin++;
-                end = dot;
-            } else if(CLOSING_PARENS.indexOf(charBefore) != -1) {
+                end = findMatchingClose(dot) + 1;
                 begin = dot;
-                end = findMatchingOpen(dot-1);
+            } else if(CLOSING_PARENS.indexOf(charBefore) != -1) {
+                end = dot;
+                begin = findMatchingOpen(dot-1);
             }
             
             if(begin != -1 && end != -1) {
+                assert begin < end : "begin=" + begin + " end=" + end;
                 getHighlighter().changeHighlight(theHighlight, begin, end);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
@@ -323,21 +322,20 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
             if(offs0 == offs1)
                 return;
             
-            Rectangle alloc = bounds.getBounds();
             try {
                 // --- determine locations ---
                 TextUI mapper = c.getUI();
                 Rectangle p0 = mapper.modelToView(c, offs0);
-                Rectangle p1 = mapper.modelToView(c, offs0-1);
-                Rectangle q0 = mapper.modelToView(c, offs1+1);
+                Rectangle p1 = mapper.modelToView(c, offs0+1);
+                Rectangle q0 = mapper.modelToView(c, offs1-1);
                 Rectangle q1 = mapper.modelToView(c, offs1);
                 
                 Rectangle p = p0.union(p1);
                 Rectangle q = q0.union(q1);
 
                 g.setColor(HIGHLIGHT_COLOR);
-                g.fillRect(p.x, p.y, p.width, p.height);
-                g.fillRect(q.x, q.y, q.width, q.height);
+                g.drawRect(p.x, p.y, p.width-1, p.height-1);
+                g.drawRect(q.x, q.y, q.width-1, q.height-1);
             } catch (BadLocationException e) {
                 // can't render
             }

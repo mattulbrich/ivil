@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
@@ -67,8 +68,8 @@ public class UpdSimplMetaFunction extends MetaFunction {
         if (arg instanceof UpdateTerm) {
             UpdateTerm updTerm = (UpdateTerm) arg;
             Term updatedTerm = updTerm.getSubterm(0);
-            List<AssignmentStatement> assignments = updTerm.getAssignments();
-            Visitor visitor = new Visitor(assignments);
+            Update update = updTerm.getUpdate();
+            Visitor visitor = new Visitor(update);
             updatedTerm.visit(visitor);
             
             if(visitor.resultTerm == null)
@@ -87,12 +88,12 @@ public class UpdSimplMetaFunction extends MetaFunction {
      * returned, otherwise the unchanged (and un-updated) application itself is
      * returned
      */
-    private static Term applyUpdate(List<AssignmentStatement> assignments,
+    private static Term applyUpdate(Update update,
             Application application) {
         
         assert application.getFunction().isAssignable();
-        
-        for (AssignmentStatement assStatement : assignments) {
+         
+        for (AssignmentStatement assStatement : update.getAssignments()) {
             if(assStatement.getTarget().equals(application))
                 return assStatement.getValue();
         }
@@ -105,7 +106,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
      * 
      * Return a new application with all subterms updated.
      */
-    private static Application distributeUpdate(List<AssignmentStatement> assignments,
+    private static Application distributeUpdate(Update update,
             Application application) throws TermException {
         
         Function f = application.getFunction();
@@ -113,7 +114,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
         Term[] args = new Term[application.countSubterms()];
         
         for (int i = 0; i < args.length; i++) {
-            args[i] = new UpdateTerm(assignments, application.getSubterm(i));
+            args[i] = new UpdateTerm(update, application.getSubterm(i));
         }
         
         return new Application(f, type, args);
@@ -124,7 +125,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
      * 
      * Return a new application with all subterms updated.
      */
-    private static Binding distributeUpdateInBinding(List<AssignmentStatement> assignments,
+    private static Binding distributeUpdateInBinding(Update update,
             Binding binding) throws TermException {
         
         Binder b = binding.getBinder();
@@ -132,7 +133,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
         BindableIdentifier bi = binding.getVariable();
         Term[] args = new Term[binding.countSubterms()];
         for (int i = 0; i < args.length; i++) {
-            args[i] = new UpdateTerm(assignments, binding.getSubterm(i));
+            args[i] = new UpdateTerm(update, binding.getSubterm(i));
         }
         
         return new Binding(b, type, bi, args);
@@ -151,7 +152,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
      * @throws TermException
      *             the term exception
      */
-    private static Term combineUpdate(List<AssignmentStatement> oldAss,
+    private static Term combineUpdate(Update oldAss,
             UpdateTerm updTerm) throws TermException {
         
         List<AssignmentStatement> newAss = updTerm.getAssignments();
@@ -166,7 +167,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
         List<AssignmentStatement> result = new ArrayList<AssignmentStatement>();
         
         // go over all old updates
-        for (AssignmentStatement ass : oldAss) {
+        for (AssignmentStatement ass : oldAss.getAssignments()) {
             if(!overwritten.contains(ass.getTarget())) {
                 result.add(ass);
             }
@@ -179,7 +180,7 @@ public class UpdSimplMetaFunction extends MetaFunction {
             result.add(freshAss);
         }
         
-        return new UpdateTerm(result, updTerm.getSubterm(0));
+        return new UpdateTerm(new Update(result), updTerm.getSubterm(0));
     }
     
     /*
@@ -190,14 +191,14 @@ public class UpdSimplMetaFunction extends MetaFunction {
         
         private Term resultTerm = null;
         
-        private List<AssignmentStatement> assignments;
+        private Update update;
 
-        private Visitor(List<AssignmentStatement> assignments) {
-            this.assignments = assignments;
+        private Visitor(Update update) {
+            this.update = update;
         }
 
         public void visit(Binding binding) throws TermException {
-            resultTerm = distributeUpdateInBinding(assignments, binding);
+            resultTerm = distributeUpdateInBinding(update, binding);
         }
         
         public void visit(Variable variable) throws TermException {
@@ -207,14 +208,14 @@ public class UpdSimplMetaFunction extends MetaFunction {
         public void visit(Application application) throws TermException {
             Function f = application.getFunction();
             if(f.isAssignable())
-                resultTerm = applyUpdate(assignments, application);
+                resultTerm = applyUpdate(update, application);
             else {
-                resultTerm = distributeUpdate(assignments, application);
+                resultTerm = distributeUpdate(update, application);
             }
         }
 
         public void visit(UpdateTerm updateTerm) throws TermException {
-            resultTerm = combineUpdate(assignments, updateTerm);
+            resultTerm = combineUpdate(update, updateTerm);
         }
 
         protected void defaultVisitTerm(Term term) throws TermException {

@@ -14,6 +14,8 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
+// TODO DOC
+// TODO write tests
 public class ProgramChanger {
     
     private LinkedList<Statement> statements;

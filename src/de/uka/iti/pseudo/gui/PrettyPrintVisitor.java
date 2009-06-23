@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -17,7 +18,15 @@ import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
+import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.AssumeStatement;
+import de.uka.iti.pseudo.term.statement.EndStatement;
+import de.uka.iti.pseudo.term.statement.GotoStatement;
+import de.uka.iti.pseudo.term.statement.HavocStatement;
+import de.uka.iti.pseudo.term.statement.SkipStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.term.statement.StatementVisitor;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 // TODO Documentation needed
@@ -31,7 +40,7 @@ import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
 * visitors {@link SubtermCollector}
 */
-class PrettyPrintVisitor implements TermVisitor {
+class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     
     private PrettyPrint pp;
     private Environment env;
@@ -47,8 +56,6 @@ class PrettyPrintVisitor implements TermVisitor {
         this.env = pp.getEnvironment();
         this.printer = printer;
     }
-    
-    
     
     /*
      * Visit a subterm and put it in parens possibly.
@@ -269,7 +276,7 @@ class PrettyPrintVisitor implements TermVisitor {
         for (int i = 0; i < assignments.size(); i++) {
             if(i > 0)
                 printer.append(" || ");
-            printer.append(assignments.get(i).getTarget().toString());
+            printer.append(assignments.get(i).getTarget().toString(false));
             printer.append(" := ");
             assignments.get(i).getValue().visit(this);
         }
@@ -279,9 +286,76 @@ class PrettyPrintVisitor implements TermVisitor {
         printer.end();
     }
 
+    public void visit(SchemaUpdateTerm schUpdateTerm) throws TermException {
+        printer.begin(schUpdateTerm);
+        printer.setStyle("update");
+        printer.append("{ " + schUpdateTerm.getSchemaIdentifier() + " }");
+        printer.resetPreviousStyle();
+        visitMaybeParen(schUpdateTerm.getSubterm(0), Integer.MAX_VALUE);
+        printer.end();
+    }
+
+
     public AnnotatedStringWithStyles<Term> getPrinter() {
         return printer;
     }
 
+    /*
+     * A statement is not a term, but we want to be able to print it also.
+     */
+    
+    public void visitStatement(String keyword, Statement statement) throws TermException {
+        printer.setStyle("statement");
+        printer.setStyle("keyword");
+        printer.append(keyword);
+        printer.resetPreviousStyle();
+        printer.append(" ");
+        
+        List<Term> subterms = statement.getSubterms();
+        for (int i = 0; i < subterms.size(); i++) {
+            subterms.get(i).visit(this);
+            if(i != subterms.size()-1)
+                printer.append(", ");
+        }
+        printer.resetPreviousStyle();
+    }
+    
+    public void visit(AssertStatement assertStatement)
+            throws TermException {
+        visitStatement("assert", assertStatement);
+    }
+
+    public void visit(AssignmentStatement assignmentStatement)
+            throws TermException {
+        printer.setStyle("statement");
+        printer.append(assignmentStatement.getTarget().toString(false));
+        printer.append(" := ");
+        assignmentStatement.getValue().visit(this);
+        printer.resetPreviousStyle();
+    }
+
+    public void visit(AssumeStatement assumeStatement)
+            throws TermException {
+        visitStatement("assume", assumeStatement);
+    }
+
+    public void visit(EndStatement endStatement) throws TermException {
+        visitStatement("end", endStatement);        
+    }
+
+    public void visit(GotoStatement gotoStatement)
+            throws TermException {
+        visitStatement("goto", gotoStatement);        
+    }
+
+    public void visit(SkipStatement skipStatement)
+            throws TermException {
+        visitStatement("skip", skipStatement);        
+    }
+
+    public void visit(HavocStatement havocStatement)
+            throws TermException {
+        visitStatement("havoc", havocStatement);        
+    }
 
 }

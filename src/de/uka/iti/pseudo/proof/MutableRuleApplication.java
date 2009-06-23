@@ -8,6 +8,7 @@ import java.util.Map;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
 
 // TODO Documentation needed
 public class MutableRuleApplication implements RuleApplication {
@@ -18,6 +19,7 @@ public class MutableRuleApplication implements RuleApplication {
     private int goalNumber;
     private Map<String, String> properties;
     private Map<String, Term> schemaVariableMapping;
+    private Map<String, Update> schemaUpdateMapping;
     private Map<String, Type> typeVariableMapping;
     
     public MutableRuleApplication(RuleApplication ruleApp) {
@@ -27,6 +29,7 @@ public class MutableRuleApplication implements RuleApplication {
         this.goalNumber = ruleApp.getGoalNumber();
         this.properties = new HashMap<String, String>(ruleApp.getProperties());
         this.schemaVariableMapping = new HashMap<String, Term>(ruleApp.getSchemaVariableMapping());
+        this.schemaUpdateMapping = new HashMap<String, Update>(ruleApp.getSchemaUpdateMapping());
         this.typeVariableMapping = new HashMap<String, Type>(ruleApp.getTypeVariableMapping());
     }
 
@@ -64,6 +67,10 @@ public class MutableRuleApplication implements RuleApplication {
         return schemaVariableMapping;
     }
 
+    public Map<String, Update> getSchemaUpdateMapping() {
+        return schemaUpdateMapping;
+    }
+    
     public Map<String, Type> getTypeVariableMapping() {
         return typeVariableMapping;
     }
@@ -79,5 +86,7 @@ public class MutableRuleApplication implements RuleApplication {
     public boolean hasMutableProperties() {
         return true;
     }
+
+   
 
 }

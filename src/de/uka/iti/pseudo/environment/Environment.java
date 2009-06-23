@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -30,17 +31,21 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 
 /**
- * The Class Environment captures definitions and provides lookup facilities for
+ * The Class Environment captures all defined entities for a proof
+ * environment and provides lookup facilities for
  * <ul>
  * <li>sorts
  * <li>functions
  * <li>binders
  * <li>fix operators
  * <li>rules
+ * <li>programs
  * </ul>
  * 
- * Every enviroment has a parent environment and delegates lookups that it
- * cannot resolve to that parent before return null
+ * Every enviroment has a parent environment which it extends. 
+ * Lookups that it cannot resolve are delegated to that parent.
+ * 
+ * There is exactly one environment {@link #BUILT_IN_ENV} which does have
  */
 public class Environment {
 
@@ -209,11 +214,25 @@ public class Environment {
         return program;
     }
 
-    // TODO DOC
-    public Collection<Program> getPrograms() {
-        return programMap.values();
-    }
+    /**
+     * gets a collection containing all programs of this environment and all
+     * parenting environments.
+     *
+     * <p>The result is a freshly created collection which you may modify.
+     * 
+     * @return a freshly created list of all programs
+     */
+    public List<Program> getAllPrograms() {
+        List<Program> programs;
+        
+        if(parentEnvironment == null)
+            programs = new LinkedList<Program>();
+        else
+            programs = parentEnvironment.getAllPrograms();
 
+        programs.addAll(programMap.values());
+        return programs;
+    }
     
     /**
      * add a program of the environment.
@@ -420,14 +439,14 @@ public class Environment {
      */
     public List<Function> getAllAssignables() {
         List<Function> result = new ArrayList<Function>();
-        for (Function f : functionMap.values()) {
-            if(f.isAssignable())
-                result.add(f);
-        }
         
-        if(parentEnvironment != null)
-            result.addAll(parentEnvironment.getAllAssignables());
-            
+        for(Environment env = this; env != null; env = env.parentEnvironment) {
+            for (Function f : env.functionMap.values()) {
+                if(f.isAssignable())
+                    result.add(f);
+            }
+        }
+
         return result;
     }
     
