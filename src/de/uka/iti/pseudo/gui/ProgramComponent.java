@@ -2,12 +2,20 @@ package de.uka.iti.pseudo.gui;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,15 +23,13 @@ import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-
-import nonnull.NonNull;
 
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.SourceAnnotation;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -34,10 +40,17 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 // things calc'ed from FrontMetrics
 // plus make it configurable.
 
-public class ProgramComponent extends JComponent  {
-
-    private static final Font FONT_LARGE = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-    private static final Font FONT_SMALL = new Font(Font.MONOSPACED, Font.PLAIN, 12);
+public class ProgramComponent extends JComponent implements ActionListener  {
+    
+    /**
+     * some UI properties which can be modified using editors.
+     */
+    private Font sourceFont = Main.getFont("pseudo.program.sourcefont");
+    private Font boogieFont = Main.getFont("pseudo.program.boogiefont");
+    private Color sourceHighlightColor = Main.getColor("pseudo.program.sourcehighlight");
+    private Color sourceColor = Main.getColor("pseudo.program.sourcecolor");
+    private Color boogieHighlightColor = Main.getColor("pseudo.program.boogiehighlight");
+    private Color boogieColor = Main.getColor("pseudo.program.boogiecolor");
     
     private static final Icon PLUS_ICON = BarManager
             .makeIcon(ProgramComponent.class
@@ -47,8 +60,11 @@ public class ProgramComponent extends JComponent  {
             .makeIcon(ProgramComponent.class
                     .getResource("img/bullet_toggle_minus.png"));
     
-    private static final Color LIGHT_BLUE = new Color(192, 192, 255);
-
+    private int sourceTextHeight = -1;
+    private int sourceTextDescent = -1;
+    private int boogieTextHeight = -1;
+    private int boogieTextDescent = -1;
+    
     private ProofNode proofNode;
     private Program program;
     private List<Node> statementNodes = new ArrayList<Node>();
@@ -56,6 +72,7 @@ public class ProgramComponent extends JComponent  {
     private Node root;
     private Set<Node> selectedNodes = new HashSet<Node>();
     private PrettyPrint prettyPrinter;
+    private JPopupMenu popup;
     
     private static class Node {
         public Node(String string) {
@@ -69,7 +86,7 @@ public class ProgramComponent extends JComponent  {
         int ypos;
     }
     
-    public ProgramComponent(ProofCenter proofCenter) {
+    public ProgramComponent(ProofCenter proofCenter) throws IOException {
         setBackground(Color.white);
         
         addMouseListener(new MouseAdapter() {
@@ -77,6 +94,11 @@ public class ProgramComponent extends JComponent  {
                 if (e.getClickCount() == 1
                         && SwingUtilities.isLeftMouseButton(e))
                     expandClick(e.getPoint());
+                else if(e.getClickCount() == 1
+                        && SwingUtilities.isRightMouseButton(e)) {
+                    Point p = e.getPoint(); 
+                    popup.show(ProgramComponent.this, p.x, p.y);
+                }
             }
         });
         
@@ -86,6 +108,12 @@ public class ProgramComponent extends JComponent  {
                 ProgramComponent.this.repaint();
             }
         });
+        
+        URL resource = getClass().getResource("bar/popup.menu.properties");
+        if(resource == null)
+            throw new IOException("resource bar/popup.menu.properties not found");
+        BarManager barManager = new BarManager(this, resource);
+        popup = barManager.makePopup("program.popup");
     }
     
     private void makeModel() {
@@ -139,42 +167,61 @@ public class ProgramComponent extends JComponent  {
         if(program == null)
             return;
         
+        calcTextHeights(g);
+        
+        int iconheight = PLUS_ICON.getIconHeight();
+        int iconoffset = (sourceTextHeight + iconheight)/2;
         int y = 0;
         
         Node node = root;
         while(node != null) {
             
             if(node.text != null) {
-                g.setFont(FONT_LARGE);
-                y += 16;
+                g.setFont(sourceFont);
+                y += sourceTextHeight;
                 node.ypos = y;
                 if(selectedNodes.contains(node)) {
-                    g.setColor(LIGHT_BLUE);
-                    g.fillRect(0, y-14, getWidth(), 18);
+                    g.setColor(sourceHighlightColor);
+                    g.fillRect(0, y-sourceTextHeight, getWidth(), sourceTextHeight);
                 }
-                g.setColor(Color.blue);
-                g.drawString(node.text, 20, y);
+                g.setColor(sourceColor);
+                g.drawString(node.text, 20, y-sourceTextDescent);
                 if(node.child != null) {
                     Icon icon = node.expanded ? MINUS_ICON : PLUS_ICON;
-                    icon.paintIcon(this, g, 5, y - 12);
+                    icon.paintIcon(this, g, 5, y - iconoffset);
                 }
             }
             
             if(node.expanded && node.child != null) {
                 Node child = node.child;
-                g.setFont(FONT_SMALL);
+                g.setFont(boogieFont);
                 while(child != null) {
-                    y += 14;
+                    y += boogieTextHeight;
                     if(selectedNodes.contains(child)) {
-                        g.setColor(Color.lightGray);
-                        g.fillRect(0, y-14, getWidth(), 18);
+                        g.setColor(boogieHighlightColor);
+                        g.fillRect(0, y-boogieTextHeight, getWidth(), boogieTextHeight);
                     }
-                    g.setColor(Color.gray);
-                    g.drawString(child.text, 40, y);
+                    g.setColor(boogieColor);
+                    g.drawString(child.text, 40, y-boogieTextDescent);
                     child = child.child;
                 }
             }
             node = node.next;
+        }
+    }
+
+    private void calcTextHeights(Graphics g) {
+        if(sourceTextHeight == -1) {
+            g.setFont(sourceFont);
+            FontMetrics fm = g.getFontMetrics();
+            sourceTextHeight = fm.getHeight();
+            sourceTextDescent = fm.getDescent();
+        }
+        if(boogieTextHeight == -1) {
+            g.setFont(boogieFont);
+            FontMetrics fm = g.getFontMetrics();
+            boogieTextHeight = fm.getHeight();
+            boogieTextDescent = fm.getDescent();
         }
     }
 
@@ -256,5 +303,103 @@ public class ProgramComponent extends JComponent  {
         }
     }
 
+    public Font getSourceFont() {
+        return sourceFont;
+    }
+
+    public void setSourceFont(Font sourceFont) {
+        this.sourceFont = sourceFont;
+        repaint();
+    }
+
+    public Font getBoogieFont() {
+        return boogieFont;
+    }
+
+    public void setBoogieFont(Font boogieFont) {
+        this.boogieFont = boogieFont;
+        repaint();
+    }
+
+    public Color getSourceHighlightColor() {
+        return sourceHighlightColor;
+    }
+
+    public void setSourceHighlightColor(Color sourceHighlightColor) {
+        this.sourceHighlightColor = sourceHighlightColor;
+        repaint();
+    }
+
+    public Color getSourceColor() {
+        return sourceColor;
+    }
+
+    public void setSourceColor(Color sourceColor) {
+        this.sourceColor = sourceColor;
+        repaint();
+    }
+
+    public Color getBoogieHighlightColor() {
+        return boogieHighlightColor;
+    }
+
+    public void setBoogieHighlightColor(Color boogieHighlightColor) {
+        this.boogieHighlightColor = boogieHighlightColor;
+        repaint();
+    }
+
+    public Color getBoogieColor() {
+        return boogieColor;
+    }
+
+    public void setBoogieColor(Color boogieColor) {
+        this.boogieColor = boogieColor;
+        repaint();
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        if("expandAll".equals(command)) {
+            for(Node n = root; n != null; n = n.next) {
+                n.expanded = true;
+            }
+        } else if("collapseAll".equals(command)) {
+            for(Node n = root; n != null; n = n.next) {
+                n.expanded = false;
+            }
+        } else if("expandSelected".equals(command)) {
+            for(Node n = root; n != null; n = n.next) {
+                n.expanded = selectedNodes.contains(n);
+            }
+        }
+        repaint();
+    }
+
+}
+
+
+class ProgramComponentBeanInfo extends SimpleBeanInfo {
     
+    private static final PropertyDescriptor[] PROPERTIES = {
+        makeProperty("sourceFont", "Font for source code"),
+        makeProperty("sourceColor", "Color for source code"),
+        makeProperty("sourceHighlightColor", "Color for source code highlighting"),
+        makeProperty("boogieFont", "Font for boogie code"),
+        makeProperty("boogieColor", "Color for boogie code"),
+        makeProperty("boogieHighlightColor", "Color for boogie code highlighting")
+    };
+
+    public PropertyDescriptor[] getPropertyDescriptors() {
+        return super.getPropertyDescriptors();
+    }
+    
+    private static PropertyDescriptor makeProperty(String name, String descr) {
+        try {
+            PropertyDescriptor pd = new PropertyDescriptor(name, ProgramComponent.class);
+            pd.setName(descr);
+            return pd;
+        } catch (IntrospectionException e) {
+            throw new Error(e);
+        }
+    }
 }

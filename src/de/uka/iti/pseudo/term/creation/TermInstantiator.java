@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
@@ -101,12 +102,26 @@ public class TermInstantiator extends RebuildingTermVisitor {
         return retval.toString();
     }
     
+    private boolean typesInstantiated;
+    private TypeVisitor typeInstantiator = new DefaultTypeVisitor() {
+        public Type visit(TypeVariable typeVariable) throws TermException {
+            Type t = typeMap.get(typeVariable.getVariableName());
+            if(t == null)
+                return typeVariable;
+            else {
+                typesInstantiated = true;
+                return t;
+            }
+        }
+    };
+    
     @Override
     protected Type modifyType(Type type) throws TermException {
-        if(typeMap != null && type instanceof TypeVariable) {
-            String typeString = ((TypeVariable)type).getVariableName();
-            if(typeMap.containsKey(typeString))
-                return typeMap.get(typeString);
+        if(typeMap != null) {
+            typesInstantiated = false;
+            Type newType = type.visit(typeInstantiator);
+            if(typesInstantiated)
+                type = newType;
         }
 
         return type;

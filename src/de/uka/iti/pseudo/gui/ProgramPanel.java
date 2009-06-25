@@ -3,8 +3,8 @@ package de.uka.iti.pseudo.gui;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -23,13 +23,13 @@ public class ProgramPanel extends JPanel implements ProofNodeSelectionListener {
     private JComboBox selectionBox;
     private ProofCenter proofCenter;
     
-    public ProgramPanel(ProofCenter proofCenter) {
+    public ProgramPanel(ProofCenter proofCenter) throws IOException {
         this.env = proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
         init();
     }
 
-    private void init() {
+    private void init() throws IOException {
         setLayout(new BorderLayout());
         {
             programComponent = new ProgramComponent(proofCenter);

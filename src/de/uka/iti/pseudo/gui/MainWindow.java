@@ -146,7 +146,6 @@ public class MainWindow extends JFrame {
             tabDock.addDockable(dock, new Position(2));
         }
         {
-            // FIXME At the moment ...
             ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addProofNodeSelectionListener(panel);
             JScrollPane scroll = new JScrollPane(panel);

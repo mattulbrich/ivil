@@ -31,3 +31,6 @@ de.uka.iti.pseudo.rule.where.TopLevel
 
 # check whether a term using meta functions can be evaluated
 de.uka.iti.pseudo.rule.where.CanEvaluateMeta
+
+# check whether two terms have different types
+de.uka.iti.pseudo.rule.where.DifferentTypes

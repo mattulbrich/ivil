@@ -1,27 +1,31 @@
 package de.uka.iti.pseudo.gui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Properties;
+import java.util.NoSuchElementException;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 public class Main {
     
-    public static Properties PROPERTIES = new Properties();
+    public static Settings SETTINGS;
 
     private static StartupWindow startupWindow;
     
     public static final String PROPERTIES_FILENAME = "pseudo.properties";
-    public static final String BASE_DIRECTORY = System.getProperty("pseudo.baseDir", ".");
-    public static final String SYSTEM_DIRECTORY = System.getProperty("pseudo.sysDir", BASE_DIRECTORY + "/sys");
+    public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
+    public static final String BASE_DIRECTORY;
+    public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
+    public static String SYSTEM_DIRECTORY;
     
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
@@ -31,6 +35,13 @@ public class Main {
     static {
         loadProperties();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(getBoolean(ASSERTION_PROPERTY, true));
+        
+        BASE_DIRECTORY = SETTINGS.getProperty(BASE_DIRECTORY_KEY);
+        try {
+            SYSTEM_DIRECTORY = SETTINGS.getProperty(SYSTEM_DIRECTORY_KEY);
+        } catch (NoSuchElementException e) {
+            SYSTEM_DIRECTORY = BASE_DIRECTORY + File.separator + "sys";
+        }
     }
 
     public static void main(String[] args) throws Exception {
@@ -118,37 +129,47 @@ public class Main {
      * Command line and system overwrite the file
      */
     private static void loadProperties() {
-        
-        File propFile = new File(BASE_DIRECTORY, PROPERTIES_FILENAME);
-        if(propFile.canRead()) {
-            try {
-                PROPERTIES.load(new FileInputStream(propFile));
-                System.err.println("read from " + propFile);
-            } catch (IOException e) {
-                System.err.println("Cannot read file " + propFile + " though I should ..., continue");
-                e.printStackTrace();
-            }
+        try {
+            SETTINGS = Settings.getInstance();
+            SETTINGS.loadFromSystemDirectory(BASE_DIRECTORY_KEY, PROPERTIES_FILENAME);
+            SETTINGS.putAll(System.getProperties());
+        } catch (IOException e) {
+            System.err.println("Cannot read file " + BASE_DIRECTORY_KEY +
+                    File.pathSeparator + PROPERTIES_FILENAME + ", continue");
+            e.printStackTrace();
         }
+    }
         
-        PROPERTIES.putAll(System.getProperties());
+    public static boolean getBoolean(String property, boolean def) {
+        return SETTINGS.getBoolean(property, def);
+    }
+
+    public static Font getFont(String property) {
+        return SETTINGS.getFont(property);
     }
     
-    /**
-     * get a boolean system property.
-     * 
-     * @param property
-     *            name of the property to be retrieved
-     * @param def
-     *            the default value if the property is not set
-     * @return the value to which the property is set or def, if not set
-     */
-    public static boolean getBoolean(String property, boolean def) {
-        String v = PROPERTIES.getProperty(property);
-        if(v != null) {
-            return Boolean.valueOf(def);
-        } else {
-            return def;
-        }
+    public static Color getColor(String key) {
+        return SETTINGS.getColor(key);
+    }
+
+    public double getDouble(String key) {
+        return SETTINGS.getDouble(key);
+    }
+
+    public int getInteger(String key) throws NumberFormatException {
+        return SETTINGS.getInteger(key);
+    }
+
+    public String getProperty(String key, String defaultValue) {
+        return SETTINGS.getProperty(key, defaultValue);
+    }
+
+    public String getProperty(String key) {
+        return SETTINGS.getProperty(key);
+    }
+
+    public String[] getStrings(String key) {
+        return SETTINGS.getStrings(key);
     }
 
 }

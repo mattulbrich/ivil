@@ -15,18 +15,22 @@
 include
    "$fol.p"
 
+(*
+ * First the theoretical rules
+ * They are not applied automatically
+ * -- inefficient
+ *)
+
 function 
   int $enumerateAssignables('a, 'b)  infix // 50
 
 rule prg_skip
   find [%a : skip] 
   samegoal replace  $$incPrg(%a) 
-#  tags rewrite "symbex"
 
 rule tprg_skip
   find [[%a : skip]] 
   samegoal replace  $$incPrg(%a) 
-#  tags rewrite "symbex"
 
 
 rule prg_goto1
@@ -43,34 +47,28 @@ rule tprg_goto1
 rule prg_goto2
   find  [%a : goto %n, %k] 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
-  tags rewrite "symbex"
 
 rule tprg_goto2
   find  [[%a : goto %n, %k]] 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
-  tags rewrite "symbex"
 
 
 rule prg_assert
   find  [%a : assert %b]
   samegoal replace %b & $$incPrg(%a)
-  tags rewrite "symbex"
 
 rule tprg_assert
   find  [[%a : assert %b]]
   samegoal replace %b & $$incPrg(%a)
-  tags rewrite "symbex"
 
 
 rule prg_assume
   find [%a : assume %b]
   samegoal replace %b -> $$incPrg(%a)
-  tags rewrite "symbex"
 
 rule tprg_assume
   find [[%a : assume %b]]
   samegoal replace %b -> $$incPrg(%a)
-  tags rewrite "symbex"
 
 
 rule prg_end
@@ -98,13 +96,122 @@ rule tprg_assignment
 rule prg_havoc
   find [%a : havoc %v]
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
-  tags rewrite "symbex"
 
 rule tprg_havoc
   find [[%a : havoc %v]]
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
+
+
+(*
+ * Rules for automation
+ * 
+ * Are given only for programs on toplevel succendent
+ *)
+
+rule auto_goto2
+  find |- [%a : goto %n, %k]
+  samegoal replace $$jmpPrg(%a, %n) 
+  samegoal replace $$jmpPrg(%a, %k)
   tags rewrite "symbex"
 
+rule auto_goto2_upd
+  find |- {U} [%a : goto %n, %k]
+  samegoal replace {U} $$jmpPrg(%a, %n) 
+  samegoal replace {U} $$jmpPrg(%a, %k)
+  tags rewrite "symbex"
+
+rule autot_goto2
+  find |- [[%a : goto %n, %k]]
+  samegoal replace $$jmpPrg(%a, %n) 
+  samegoal replace $$jmpPrg(%a, %k)
+  tags rewrite "symbex"
+
+rule autot_goto2_upd
+  find |- {U} [[%a : goto %n, %k]]
+  samegoal replace {U} $$jmpPrg(%a, %n) 
+  samegoal replace {U} $$jmpPrg(%a, %k)
+  tags rewrite "symbex"
+
+
+
+rule auto_assert
+  find |- [%a : assert %b]
+  samegoal replace %b 
+  samegoal replace $$incPrg(%a)
+  tags rewrite "symbex"
+
+rule autot_assert
+  find |- [[%a : assert %b]]
+  samegoal replace %b 
+  samegoal replace $$incPrg(%a)
+  tags rewrite "symbex"
+
+rule auto_assert_upd
+  find |- {U} [%a : assert %b]
+  samegoal replace {U} %b 
+  samegoal replace {U} $$incPrg(%a)
+  tags rewrite "symbex"
+
+rule autot_assert_upd
+  find |- {U} [[%a : assert %b]]
+  samegoal replace {U} %b 
+  samegoal replace {U} $$incPrg(%a)
+  tags rewrite "symbex"
+
+
+rule auto_assume
+  find |- [%a : assume %b]
+  samegoal 
+    replace $$incPrg(%a)
+    add %b |-
+  tags rewrite "symbex"
+
+rule autot_assume
+  find |- [%a : assume %b]
+  samegoal 
+    replace $$incPrg(%a)
+    add %b |-
+  tags rewrite "symbex"
+
+rule auto_assume_upd
+  find |- {U} [%a : assume %b]
+  samegoal 
+    replace {U} $$incPrg(%a)
+    add {U} %b |-
+  tags rewrite "symbex"
+
+rule autot_assume_upd
+  find |- {U} [%a : assume %b]
+  samegoal 
+    replace {U} $$incPrg(%a)
+    add {U} %b |-
+  tags rewrite "symbex"
+
+
+rule auto_havoc
+  find |- [%a : havoc %v]
+  samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
+  tags rewrite "symbex"
+
+rule autot_havoc
+  find |- [%a : havoc %v]
+  samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
+  tags rewrite "symbex"
+
+rule auto_havoc_upd
+  find |- {U} [%a : havoc %v]
+  samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
+  tags rewrite "symbex"
+
+rule autot_havoc_upd
+  find |- {U} [%a : havoc %v]
+  samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
+  tags rewrite "symbex"
+
+
+(*
+ * loop invariant rules
+ *)
 
 rule loop_invariant
   find |- [%a]
@@ -115,6 +222,8 @@ rule loop_invariant
   samegoal "inv initially valid" replace %inv
   samegoal "run with cut program" 
     replace $$loopInvPrgMod(%a, %inv, 0, %modifies)
+
+
 
 rule loop_invariant_update
   find |- {U}[%a]
@@ -128,7 +237,7 @@ rule loop_invariant_update
 
 
 rule update_simplification
-  find %t
-  where canEval $$updSimpl(%t)
-  samegoal replace $$updSimpl(%t)
+  find {U}%t
+  where canEval $$updSimpl({U}%t)
+  samegoal replace $$updSimpl({U}%t)
   tags rewrite "updSimpl"

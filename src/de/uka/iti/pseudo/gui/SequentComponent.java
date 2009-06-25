@@ -14,8 +14,9 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JWindow;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
@@ -121,14 +122,16 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                 rac.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
                 rac.setPreferredSize(new Dimension(200, 400));
                 
+                JScrollPane sp = new JScrollPane(rac);
+                
                 TermComponent tc = (TermComponent) e.getSource();
                 TermSelector termSelector = tc.getTermAt(e.getPoint());
                 List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
                 rac.setInteractiveApplications(ruleApps);
                 
-                JWindow window = new JWindow(proofCenter.getMainWindow());
+                JDialog window = new JDialog(proofCenter.getMainWindow());
                 window.setAlwaysOnTop(true);
-                window.getContentPane().add(rac);
+                window.getContentPane().add(sp);
                 window.pack();
                 window.setLocation(e.getLocationOnScreen());
                 new PopupDisappearListener(rac, window);

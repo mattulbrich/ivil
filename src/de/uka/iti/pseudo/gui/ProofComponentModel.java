@@ -16,6 +16,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
 
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
@@ -169,17 +170,22 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         super(new ProofTreeNode(null, root, false));
     }
 
-    public void update(Observable proof, Object arg) {
-        
-        ProofNode proofNode = (ProofNode) arg;
-        TreePath path = getPath(proofNode).getParentPath();
-        ProofTreeNode ptn =  (ProofTreeNode) path.getLastPathComponent();
-        ptn.invalidate();
-        
-        TreeModelEvent event = new TreeModelEvent(proof, path);
-        for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-            listener.treeStructureChanged(event);
-        }
+    /**
+     * the observation is likely to appear outside the AWT thread
+     */
+    public void update(final Observable proof, final Object arg) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ProofNode proofNode = (ProofNode) arg;
+                TreePath path = getPath(proofNode).getParentPath();
+                ProofTreeNode ptn =  (ProofTreeNode) path.getLastPathComponent();
+                ptn.invalidate();
+
+                TreeModelEvent event = new TreeModelEvent(proof, path);
+                for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+                    listener.treeStructureChanged(event);
+                }
+            }});
     }
     
     public ProofNode getProofNode(TreePath path) {

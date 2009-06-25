@@ -40,6 +40,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseEditorAction;
@@ -148,12 +149,12 @@ public class PFileEditor extends JFrame implements ActionListener {
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
         {
-            LineNrPane lineNrPane = new LineNrPane();
-            editor = lineNrPane.getPane();
+            editor = new BracketMatchingTextArea();
             editor.setLineWrap(false);
+            editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+            editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
             // TODO make this configurable
-            editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
             editor.getDocument().addDocumentListener(doclistener);
             try {
                 errorHighlighting = editor.getHighlighter().addHighlight(0, 0, new CurlyHighlightPainter());
@@ -161,7 +162,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                // cannot happen
                 throw new Error(e);
             }
-            JScrollPane scroll = new JScrollPane(lineNrPane);
+            JScrollPane scroll = new JScrollPane(editor);
             contentPane.add(scroll, BorderLayout.CENTER);
         }
         {

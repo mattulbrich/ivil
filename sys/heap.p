@@ -37,10 +37,19 @@ function
 
   bool inLocset(ref, field('a), locset)
 
-rule heap_RW
-  find R(W(%h, %o, %f, %v), %o2, %f2)
+
+rule heap_RW_same
+  find R(W(%h, %o, %f as 'field, %v), %o2, %f2 as 'field)
   replace cond(%o = %o2 & %f = %f2, %v, R(%h, %o2, %f2))
   tags rewrite "fol simp"
+
+rule heap_RW_diff
+  find R(W(%h, %o, %f, %v), %o2, %f2)
+  where
+    differentTypes %f, %f2
+  replace R(%h, %o2, %f2)
+  tags rewrite "fol simp"
+
 
 rule heap_Rnew
   find R(newObject(%h, %o), %o2, %f2)

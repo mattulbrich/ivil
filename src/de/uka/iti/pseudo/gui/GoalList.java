@@ -8,6 +8,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -72,12 +73,15 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
             return proof.getOpenGoals().size();
         }
 
-        public void update(Observable o, Object arg) {
-            assert o == proof;
-            ListDataEvent event = new ListDataEvent(GoalList.this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
-            for (ListDataListener listener : listenerList.getListeners(ListDataListener.class)) {
-                listener.contentsChanged(event);
-            }
+        public void update(final Observable o, Object arg) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    assert o == proof;
+                    ListDataEvent event = new ListDataEvent(GoalList.this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
+                    for (ListDataListener listener : listenerList.getListeners(ListDataListener.class)) {
+                        listener.contentsChanged(event);
+                    }
+                }});
         }
         
     }

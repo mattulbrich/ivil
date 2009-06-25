@@ -157,4 +157,14 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         t = inst.instantiate(makeTerm("{ U }%a"));
         assertEquals(makeTerm("{ i1 := 0 || b1 := false }33"), t);
     }
+    
+    // was a bug
+    public void testComposedTypes() throws Exception {
+        Term.SHOW_TYPES = true;
+        typemap.put("a", Environment.getIntType());
+        
+        Term t = inst.instantiate(makeTerm("arb as poly('a, 'b)"));
+        assertEquals(makeTerm("arb as poly(int, 'b)"), t);
+
+    }
 }
