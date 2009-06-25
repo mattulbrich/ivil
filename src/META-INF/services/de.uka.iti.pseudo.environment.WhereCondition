@@ -34,3 +34,6 @@ de.uka.iti.pseudo.rule.where.CanEvaluateMeta
 
 # check whether two terms have different types
 de.uka.iti.pseudo.rule.where.DifferentTypes
+
+# ask a decision procedure.
+de.uka.iti.pseudo.rule.where.AskDecisionProcedure
