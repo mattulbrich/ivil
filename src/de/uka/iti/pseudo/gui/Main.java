@@ -17,7 +17,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 public class Main {
     
-    public static Settings SETTINGS;
+    private static Settings settings;
 
     private static StartupWindow startupWindow;
     
@@ -36,9 +36,9 @@ public class Main {
         loadProperties();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(getBoolean(ASSERTION_PROPERTY, true));
         
-        BASE_DIRECTORY = SETTINGS.getProperty(BASE_DIRECTORY_KEY);
+        BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
         try {
-            SYSTEM_DIRECTORY = SETTINGS.getProperty(SYSTEM_DIRECTORY_KEY);
+            SYSTEM_DIRECTORY = settings.getProperty(SYSTEM_DIRECTORY_KEY);
         } catch (NoSuchElementException e) {
             SYSTEM_DIRECTORY = BASE_DIRECTORY + File.separator + "sys";
         }
@@ -130,9 +130,9 @@ public class Main {
      */
     private static void loadProperties() {
         try {
-            SETTINGS = Settings.getInstance();
-            SETTINGS.loadFromSystemDirectory(BASE_DIRECTORY_KEY, PROPERTIES_FILENAME);
-            SETTINGS.putAll(System.getProperties());
+            settings = Settings.getInstance();
+            settings.loadFromSystemDirectory(BASE_DIRECTORY_KEY, PROPERTIES_FILENAME);
+            settings.putAll(System.getProperties());
         } catch (IOException e) {
             System.err.println("Cannot read file " + BASE_DIRECTORY_KEY +
                     File.pathSeparator + PROPERTIES_FILENAME + ", continue");
@@ -141,35 +141,35 @@ public class Main {
     }
         
     public static boolean getBoolean(String property, boolean def) {
-        return SETTINGS.getBoolean(property, def);
+        return settings.getBoolean(property, def);
     }
 
     public static Font getFont(String property) {
-        return SETTINGS.getFont(property);
+        return settings.getFont(property);
     }
     
     public static Color getColor(String key) {
-        return SETTINGS.getColor(key);
+        return settings.getColor(key);
     }
 
     public double getDouble(String key) {
-        return SETTINGS.getDouble(key);
+        return settings.getDouble(key);
     }
 
     public int getInteger(String key) throws NumberFormatException {
-        return SETTINGS.getInteger(key);
+        return settings.getInteger(key);
     }
 
     public String getProperty(String key, String defaultValue) {
-        return SETTINGS.getProperty(key, defaultValue);
+        return settings.getProperty(key, defaultValue);
     }
 
     public String getProperty(String key) {
-        return SETTINGS.getProperty(key);
+        return settings.getProperty(key);
     }
 
     public String[] getStrings(String key) {
-        return SETTINGS.getStrings(key);
+        return settings.getStrings(key);
     }
 
 }

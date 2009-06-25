@@ -41,7 +41,7 @@ import de.uka.iti.pseudo.term.UnificationException;
  * 
  */
 
-public class TypeUnification {
+public class TypeUnification implements Cloneable {
 
     /**
      * This mapping records the substitution.

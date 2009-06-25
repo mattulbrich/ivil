@@ -33,7 +33,7 @@ import de.uka.iti.pseudo.util.AppendMap;
  * 
  * @see TermMatcher
  */
-public class TermUnification {
+public class TermUnification implements Cloneable {
     
     /**
      * The type unification is sourced out.
@@ -113,7 +113,7 @@ public class TermUnification {
      *             if sv is already instantiated or term contains schema variables.
      */
     public void addInstantiation(@NonNull SchemaVariable sv, @NonNull Term term) throws TermException {
-        if(instantiation.get(sv) != null)
+        if(instantiation.get(sv.getName()) != null)
             throw new TermException("SchemaVariable " + sv + " already instantiated");
         if(containsSchemaVariables(term))
             throw new TermException("Instantiation " + term + " contains schema variable(s)");

@@ -37,7 +37,8 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
     
-    private class Renderer extends DefaultListCellRenderer {
+    @SuppressWarnings("serial") 
+    private static class Renderer extends DefaultListCellRenderer {
         public Component getListCellRendererComponent(
                 JList list,
                 Object value,

@@ -24,7 +24,7 @@ public class RulePriorityComparator implements Comparator<Rule> {
     /**
      * The property that can be set in rule declarations
      */
-    public static String PRIORITY_PROPERTY = "prio";
+    public static final String PRIORITY_PROPERTY = "prio";
 
     /* 
      * compare two Rule objects.

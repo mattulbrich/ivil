@@ -63,16 +63,22 @@ public class Util {
 	}
 	
 	/**
-     * Join a list of objects separated by some string in between them.
+     * Join a collection of objects into a string, 
+     * separated by some string in between them.
+     * The order in the resulting string is determined by the order of 
+     * the iteration.
+     * 
+     * <p>
+     * On each elment in the list {@link Object#toString()} will be called.
      * 
      * @param list
-     *            some list of objects
+     *            some collection of objects
      * @param sep
      *            the separating string
      * 
      * @return the concatenation of the objects as strings.
      */
-	public static String join(List<?> list, String sep) {
+	public static String join(Collection<?> list, String sep) {
 	    StringBuilder sb = new StringBuilder();
 	    Iterator<?> it = list.iterator();
 	    while(it.hasNext()) {
@@ -82,6 +88,24 @@ public class Util {
 	    }
 	    return sb.toString();
 	}
+	
+	/**
+     * Join an array of objects into a string separated by some string in
+     * between them
+     * 
+     * <p>
+     * On each elment in the array {@link Object#toString()} will be called.
+     * 
+     * @param array
+     *            some array of objects
+     * @param sep
+     *            the separating string
+     * @return
+     */
+    public static String join(Object[] array, String sep) {
+        return join(readOnlyArrayList(array), sep);
+    }
+
 
 //    /**
 //     * Join a list of objects separated by some string
@@ -273,4 +297,5 @@ public class Util {
     public static String stripQuotes(String s) {
         return s.substring(1, s.length() - 1);
     }
+
 }

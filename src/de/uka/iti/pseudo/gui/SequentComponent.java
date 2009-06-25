@@ -55,7 +55,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         }
     }
     
-    private class Layout implements LayoutManager {
+    private static class Layout implements LayoutManager {
 
         public void addLayoutComponent(String name, Component comp) { }
         public void removeLayoutComponent(Component comp) { }

@@ -10,7 +10,6 @@ package de.uka.iti.pseudo.environment;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -22,7 +21,6 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.meta.SubstMetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -133,7 +131,6 @@ public class Environment {
             addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("true", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("false", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
-            Class<SubstMetaFunction> s = SubstMetaFunction.class;
             for (MetaFunction metaFunction : MetaFunction.SERVICES) {
                 addFunction(metaFunction);
             }

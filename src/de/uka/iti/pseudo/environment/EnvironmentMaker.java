@@ -38,7 +38,7 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static File SYS_DIR = new File(Main.SYSTEM_DIRECTORY);
+    private static final File SYS_DIR = new File(Main.SYSTEM_DIRECTORY);
 
     /**
      * The environment that is being built.

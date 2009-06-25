@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
  *         Copyright (c) 2004<br>
  * @version 1.0<br>
  */
+@Deprecated
 class LineNrPane extends JPanel {
 	// for this simple experiment, we keep the pane + scrollpane as members.
 	private JTextArea pane;
