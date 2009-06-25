@@ -2,6 +2,8 @@ package de.uka.iti.pseudo;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
+import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
@@ -18,6 +20,7 @@ import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TestTermUnification;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
+import de.uka.iti.pseudo.util.TestUtil;
 
 public class AllTests {
     
@@ -44,6 +47,9 @@ public class AllTests {
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTermInstantiator.class);
         suite.addTestSuite(TestTermReplacer.class);
+        suite.addTestSuite(TestUtil.class);
+        suite.addTestSuite(TestSMTLibTranslator.class);
+        suite.addTestSuite(TestZ3.class);
         //$JUnit-END$
         return suite;
     }
