@@ -15,5 +15,5 @@ rule close_by_Z3
   find %b
     where askDecisionProcedure
   closegoal
-  tags decisionProcedure "de.uka.iti.pseudo.auto.Z3"
+  tags decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
   

@@ -4,6 +4,7 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
+import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
@@ -50,6 +51,7 @@ public class AllTests {
         suite.addTestSuite(TestUtil.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestZ3.class);
+        suite.addTestSuite(TestZ3Translator.class);
         //$JUnit-END$
         return suite;
     }

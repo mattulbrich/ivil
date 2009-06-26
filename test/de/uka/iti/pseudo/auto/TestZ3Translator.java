@@ -11,6 +11,21 @@ public class TestZ3Translator extends TestCaseWithEnv {
         
         Term t = makeTerm("(\\forall x; x > 0)");
         t.visit(trans);
+        
     }
+    
+    
+    public void testBoolean() throws Exception {
+        Z3Translator trans = new Z3Translator(env);
+        
+        Term t = makeTerm("true");
+        t.visit(trans);
+        assertEquals("App c1 true", trans.translation.get(0));
+        
+        t = makeTerm("b1");
+        t.visit(trans);
+        assertEquals("Const c2 x.b1.bool bool", trans.translation.get(1));
+    }
+
     
 }

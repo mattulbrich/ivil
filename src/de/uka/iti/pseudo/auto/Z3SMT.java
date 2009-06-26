@@ -1,8 +1,12 @@
 package de.uka.iti.pseudo.auto;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -12,25 +16,33 @@ import java.util.concurrent.TimeoutException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Pair;
 
-public class Z3 implements DecisionProcedure, Callable<String> {
+public class Z3SMT implements DecisionProcedure {
     
-    public Z3() {
+    public Z3SMT() {
     }
 
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException {
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException, IOException {
+
+        StringBuilder builder = new StringBuilder();
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+        try {
+            trans.export(sequent, builder);
+        } catch (TermException e) {
+            throw new ProofException("Error while preparing Z3 proof obligation");
+        }
+        
+        final String challenge = builder.toString();
         
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
-        public Pair<Result, String> call() throws Exception {
+            public Pair<Result, String> call() throws Exception {
             Runtime rt = Runtime.getRuntime();
-            Process process = rt.exec("z3 -in -z3");
+            Process process = rt.exec("z3 -in -smt");
             
             Writer w = new OutputStreamWriter(process.getOutputStream());
-            
-            Z3Translator trans = new Z3Translator(env);
-            trans.export(sequent, w);
-//            trans.export(sequent, new OutputStreamWriter(System.out));
+            w.write(challenge);
             w.close();
             
             process.waitFor();
@@ -42,11 +54,10 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             StringBuilder msg = new StringBuilder();
             String line = r.readLine();
             while(line != null) {
-                msg.append(line);
+                msg.append(line).append("\n");
                 line = r.readLine();
             }
             
-//            System.err.println("Z3 answers: " + msg);
             if("unsat".equals(answerLine)) {
                 return Pair.make(Result.VALID, msg.toString());
             } else if("sat".equals(answerLine)) {
@@ -69,6 +80,7 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             //ex.printStackTrace();
             return Pair.make(Result.UNKNOWN, "Call to Z3 has timed out");
         } catch(Exception ex) {
+            dumpTmp(challenge);
             throw new ProofException("Error while calling decision procedure Z3", ex);
         } finally {
             if(t != null)
@@ -76,8 +88,16 @@ public class Z3 implements DecisionProcedure, Callable<String> {
         }
     }
 
-    public String call() throws Exception {
-        return null;
+    private void dumpTmp(String challenge) {
+        try {
+            File tmp = File.createTempFile("pseudo", ".smt");
+            Writer w = new FileWriter(tmp);
+            w.write(challenge);
+            w.close();
+            System.err.println("Challenge dumped to file " + tmp);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

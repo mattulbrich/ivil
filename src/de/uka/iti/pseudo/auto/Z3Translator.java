@@ -60,11 +60,10 @@ public class Z3Translator extends DefaultTermVisitor {
      */
     Set<String> types = new HashSet<String>();
     Set<String> functions = new HashSet<String>();
-    
     List<String> translation = new ArrayList<String>();
     
-    int registerNo = 0;
-    Stack<Variable> boundVariables = new Stack<Variable>();
+    private int registerNo = 0;
+    private Stack<Variable> boundVariables = new Stack<Variable>();
 
     public Z3Translator(Environment env) {
         for (int i = 0; i < BUILTIN_FUNCTIONS.length; i += 2) {
@@ -91,7 +90,7 @@ public class Z3Translator extends DefaultTermVisitor {
         
         String trans = translationMap.get(name);
         
-        if(application.countSubterms() == 0) {
+        if(trans == null && application.countSubterms() == 0) {
             registerNo ++;
             String ty = makeSort(application.getType());
             if(trans == null) {
@@ -150,16 +149,22 @@ public class Z3Translator extends DefaultTermVisitor {
         binding.getSubterm(0).visit(this);
         boundVariables.pop();
         
-        int index = registerNo;
-        registerNo++;
+        int innerIndex = registerNo;
+        
         
         String bound = variable.toString(false);
         String boundType = makeSort(variable.getType());
-
+        
+        registerNo++;
+        translation.add("Var c" + registerNo + " 0 " + boundType);
+        registerNo++;
+        translation.add("Pat c" + registerNo + " c" + (registerNo - 1));
+        int pattern = registerNo;
+        registerNo++;
         translation.add("Qua c" + registerNo + 
                 " " + trans + " 0 sk." + bound + 
                 " q." + bound + " 1 " + bound + " " + boundType + 
-                " 0 c" + index);
+                " 1 c" + pattern + " c" + innerIndex);
         
     }
     
