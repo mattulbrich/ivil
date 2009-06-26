@@ -3,6 +3,7 @@ include "$int.p"
   "$fol.p"
   "$symbex.p"
   "$heap.p"
+  "$decproc.p"
 
 function 
   ref head assignable

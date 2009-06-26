@@ -24,11 +24,11 @@ public class Z3 implements DecisionProcedure, Callable<String> {
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
         public Pair<Result, String> call() throws Exception {
             Runtime rt = Runtime.getRuntime();
-            Process process = rt.exec("z3");
+            Process process = rt.exec("z3 -in -z3");
             
             Writer w = new OutputStreamWriter(process.getOutputStream());
             
-            SMTLibTranslator trans = new SMTLibTranslator(env);
+            Z3Translator trans = new Z3Translator(env);
             trans.export(sequent, w);
             trans.export(sequent, new OutputStreamWriter(System.out));
             w.close();
@@ -36,28 +36,32 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             process.waitFor();
             
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String answerLine = r.readLine();
             
-            String firstLine = r.readLine();
-            
-            StringBuilder msg = new StringBuilder(firstLine);
+            r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            StringBuilder msg = new StringBuilder();
             String line = r.readLine();
             while(line != null) {
                 msg.append(line);
                 line = r.readLine();
             }
             
-            if("unsat".equals(firstLine)) {
+            System.err.println("Z3 answers: " + msg);
+            if("unsat".equals(answerLine)) {
                 return Pair.make(Result.VALID, msg.toString());
-            } else if("sat".equals(firstLine)) {
+            } else if("sat".equals(answerLine)) {
                 return Pair.make(Result.NOT_VALID, msg.toString());
-            } else if("unknown".equals(firstLine)){
+            } else if("unknown".equals(answerLine)){
                 return Pair.make(Result.UNKNOWN, msg.toString());
             } else
                 throw new ProofException("Z3 returned an error message: " + msg);
+            
         }};
         
         
         FutureTask<Pair<Result, String>> ft = new FutureTask<Pair<Result, String>>(callable);
+        Thread t = new Thread(ft, "Z3");
+        t.start();
         
         try {
             return ft.get(timeout, TimeUnit.MILLISECONDS);
@@ -66,6 +70,9 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             return Pair.make(Result.UNKNOWN, "Call to Z3 has timed out");
         } catch(Exception ex) {
             throw new ProofException("Error while calling decision procedure Z3", ex);
+        } finally {
+            if(t != null)
+                t.interrupt();
         }
     }
 

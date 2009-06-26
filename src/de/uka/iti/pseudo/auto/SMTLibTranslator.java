@@ -1,6 +1,10 @@
 package de.uka.iti.pseudo.auto;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,25 +30,28 @@ import de.uka.iti.pseudo.util.Util;
 
 public class SMTLibTranslator extends DefaultTermVisitor {
     
-    private static final String[] KNOWN_TRANSLATIONS = {
-        "false", "false",
-        "true", "true",
-        "$not", "not",
-        "$and", "and",
-        "$or", "or",
-        "$and", "and",
-        "$impl", "implies",
-        "$equiv", "iff",
+    private static final String[] BUILTIN_FUNCTIONS = {
+        "false", "boolFalse",
+        "true", "boolTrue",
+        "$not", "boolNot",
+        "$and", "boolAnd",
+        "$or", "boolOr",
+        "$impl", "boolImplies",
+        "$equiv", "boolIff",
         "\\forall", "forall",
         "\\exists", "exists",
-        "$gt", ">",
-        "$lt", "<",
-        "$gte", ">=",
-        "$lte", "<=",
-        "$eq", "=",
+        "$gt", "boolGt",
+        "$lt", "boolLt",
+        "$gte", "boolGte",
+        "$lte", "boolLte",
+        "$eq", "boolEq",
         "$plus", "+",
         "$minus", "-",
         "$mult", "*"
+    };
+    
+    private static final String[] PREDICATES = {
+        "true", "false", "and", "or", "implies", "iff", "lt", "gt", "lte", "gte"
     };
     
     private Map<Term, String> unknownMap = new HashMap<Term, String>();
@@ -66,8 +73,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
 
     public SMTLibTranslator(Environment env) {
         this.env = env;
-        for (int i = 0; i < KNOWN_TRANSLATIONS.length; i += 2) {
-            translationMap.put(KNOWN_TRANSLATIONS[i], KNOWN_TRANSLATIONS[i+1]);
+        for (int i = 0; i < BUILTIN_FUNCTIONS.length; i += 2) {
+            translationMap.put(BUILTIN_FUNCTIONS[i], BUILTIN_FUNCTIONS[i+1]);
         }
     }
     
@@ -81,13 +88,14 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     public String translate(Sequent sequent) throws TermException { 
         append("(and true "); 
         for (Term term : sequent.getAntecedent()) {
+            append("(=");
             term.visit(this);
-            append(" ");
+            append(" boolTrue) ");
         }
         for (Term term : sequent.getSuccedent()) {
-            append("(not ");
+            append("(= ");
             term.visit(this);
-            append(") ");
+            append(" boolFalse) ");
         }
             
         append(")");
@@ -101,11 +109,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         unknownCounter++;
         append(name);
         
-        if(term.getType().equals(Environment.getBoolType())) {
-            extrapreds.add("(" + name + ")");
-        } else {
-            extrafuncs.add("(" + name + " " + makeSort(term.getType()) + ")");
-        }
+        extrafuncs.add("(" + name + " " + makeSort(term.getType()) + ")");
     }
     
     public void visit(Application application) throws TermException {
@@ -146,7 +150,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             return;
         }
         
-        append("(" + translation);
+        append("(ifte (" + translation);
         BindableIdentifier variable = binding.getVariable();
         
         assert variable instanceof Variable;
@@ -154,9 +158,9 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         String bound = variable.toString(false);
         String boundType = makeSort(variable.getType());
 
-        append(" (?" + bound +" " + boundType + ") ");
+        append(" (?" + bound +" " + boundType + ") (= ");
         binding.getSubterm(0).visit(this);
-        append(")");
+        append(" boolTrue)) boolTrue boolFalse)");
     }
     
     public void visit(Variable variable) throws TermException {
@@ -177,20 +181,18 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         
         String result = name + "." + Util.join(argTypes, ".") + "." + resultType;
         
-        if(application.getType().equals(Environment.getBoolType())) {
-            extrapreds.add("(" + result + " " + Util.join(argTypes, " ") + ")");
-        } else {
-            extrafuncs.add("(" + result + " " + Util.join(argTypes, " ") + " " + resultType + ")");
-        }
+        extrafuncs.add("(" + result + " " + Util.join(argTypes, " ") + " " + resultType + ")");
         
         return result;
     }
     
     private String makeSort(Type type) {
         String typeString = toString(type);
-        if(typeString.equals("int"))
+        if(typeString.equals("int"))  {
             return "Int";
-        else {
+        } else if(typeString.equals("int"))  {
+            return "Bool";
+        } else {
             extrasorts.add(typeString);
             return typeString;
         }
@@ -227,7 +229,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         }
     }
     
-    public void export(Sequent sequent, Writer stream) throws TermException {
+    public void export(Sequent sequent, Writer stream) throws TermException, IOException {
         
         extrapreds.clear();
         extrafuncs.clear();
@@ -240,6 +242,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         pw.println("(benchmark pseudo_verification");
         pw.println(":logic AUFLIA");
         pw.println();
+        includePreamble(pw);
         pw.println(":extrasorts (" + Util.join(extrasorts, "\n   ") + ")");
         pw.println();
         pw.println(":extrapreds (" + Util.join(extrapreds, "\n   ") + ")");
@@ -249,6 +252,19 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         pw.println(":assumption (" + translation + ")");
         
         pw.flush();
+    }
+
+    private void includePreamble(Writer pw) throws IOException {
+        InputStream stream = getClass().getResourceAsStream("preamble.smt");
+        if(stream == null)
+            throw new IOException("Resource preamble.smt not found");
+        Reader r = new InputStreamReader(stream);
+        char[] buffer = new char[1024];
+        int read = r.read(buffer);
+        while(read != -1) {
+            pw.write(buffer, 0, read);
+            read = r.read(buffer);
+        }
     }
 
 }
