@@ -47,7 +47,6 @@ public class PopupDisappearListener implements AWTEventListener, PropertyChangeL
     
     boolean isInPopup(Component src) {
         for (Component c=src; c!=null; c=c.getParent()) {
-            System.out.println(c);
             if(c == container)
                 return true;
         }

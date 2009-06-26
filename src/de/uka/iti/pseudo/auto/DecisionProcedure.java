@@ -7,7 +7,7 @@ import de.uka.iti.pseudo.util.Pair;
 
 public interface DecisionProcedure {
 
-    public Pair<Result, String> solve(Sequent sequent, Environment env)
+    public Pair<Result, String> solve(Sequent sequent, Environment env, long timeout)
        throws ProofException;
     
     enum Result { VALID, NOT_VALID, UNKNOWN };

@@ -47,27 +47,22 @@ import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 
-public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener, ListSelectionListener, ActionListener {
+public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener {
     
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
-    private List<RuleApplication> interactiveApplications;
-    
     private RuleApplication ruleApplication;
 
-    private Environment env;
-
-    private JList applicableList;
+    protected Environment env;
 
     private JTextArea ruleText;
 
-    private JPanel instantiationsPanel;
+    // protected for interactive fields added by a subclass
+    protected JPanel instantiationsPanel;
 
-    private DefaultListModel applicableListModel;
-
-    private ProofCenter proofCenter;
-    private JPanel applicableListPanel;
-    private List<Triple<String, Type, ? extends JTextComponent>> interactionList = 
+    protected ProofCenter proofCenter;
+    
+    protected List<Triple<String, Type, ? extends JTextComponent>> interactionList = 
         new ArrayList<Triple<String, Type, ? extends JTextComponent>>();
 
     public RuleApplicationComponent(ProofCenter proofCenter) {
@@ -78,28 +73,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     private void makeGUI() {
         this.setLayout(new GridBagLayout());
-        {
-            applicableListPanel = new JPanel(new BorderLayout());
-            applicableListPanel.setBorder(BorderFactory.createTitledBorder("Applicable rules"));
-            applicableList = new JList();
-            applicableListModel = new DefaultListModel();
-            applicableList.setModel(applicableListModel);
-            applicableList.setBorder(BorderFactory.createEtchedBorder());
-            applicableList.addListSelectionListener(this);
-            applicableListPanel.add(applicableList, BorderLayout.CENTER);
-            add(applicableListPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 0), 0, 0));
-            applicableListPanel.setVisible(false);
-            
-            // action listener for the poor
-            applicableList.addMouseListener(new MouseAdapter() { 
-                public void mouseClicked(MouseEvent e) {
-                    if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
-                        actionPerformed(null);
-                }
-            });
-        }
+        // slot (0,0) in the gridbaglayout is filled in the interactive rule subclass
         {
             JPanel panel = new JPanel(new BorderLayout());
             panel.setBorder(BorderFactory.createTitledBorder("Rule"));
@@ -126,31 +100,11 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
         }
-        
     }
 
-    public void setInteractiveApplications(List<RuleApplication> apps) {
-        this.interactiveApplications = apps;
-        this.ruleApplication = null;
-        applicableListModel.removeAllElements();
-        
-        if(apps.isEmpty()) {
-            applicableListModel.addElement("No applicable rules");
-            applicableList.setEnabled(false);
-        } else {
-            for (RuleApplication ruleApplication : apps) {
-                applicableListModel.addElement(ruleApplication);
-            }
-            applicableList.setEnabled(true);
-        }
-        instantiationsPanel.removeAll();
-        ruleText.setText("");
-        applicableListPanel.setVisible(true);
-    }
-    
     public void ruleApplicationSelected(RuleApplication ruleApp) {
-        this.ruleApplication = ruleApp;
-        displayRuleApp(ruleApp);
+        // do nothing ...
+        // the interactive subclass does however react to this
     }
     
     private void displayRuleApp(RuleApplication app) {
@@ -163,7 +117,7 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         }
     }
     
-    private void setInstantiations(RuleApplication app) {
+    protected void setInstantiations(RuleApplication app) {
         instantiationsPanel.removeAll();
         interactionList.clear();
         for (Map.Entry<String, Term> entry : app.getSchemaVariableMapping().entrySet()) {
@@ -175,38 +129,12 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
             instantiationsPanel.add(label);
             
             JTextField textField = new JTextField();
-            textField.setText(PrettyPrint.print(env, t, true).toString());
+            textField.setText(proofCenter.getPrettyPrinter().print(t).toString());
             textField.setEditable(false);
             instantiationsPanel.add(textField);
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
         }
         
-        for(Map.Entry<String, String> entry : app.getProperties().entrySet()) {
-            String key = entry.getKey();
-            if(!key.startsWith(Interactive.INTERACTION))
-               continue;
-            
-            String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
-            Type svType;
-            try {
-                svType = TermMaker.makeType(entry.getValue(), env);
-            } catch (ASTVisitException e) {
-                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
-                continue;
-            } catch (ParseException e) {
-                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
-                continue;
-            }
-            
-            JLabel label = new JLabel(svName + " as " + svType);
-            instantiationsPanel.add(label);
-            BracketMatchingTextArea textField = new BracketMatchingTextArea();
-            textField.addActionListener(this);
-            instantiationsPanel.add(textField);
-            interactionList.add(Triple.make(svName, svType, textField));
-            instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
-        }
-       
     }
 
     private void setRuleText(Rule rule) {
@@ -215,62 +143,16 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
 
     public void proofNodeSelected(ProofNode node) {
         RuleApplication ruleApp = node.getAppliedRuleApp();
-        applicableListPanel.setVisible(false);
-        ruleApplicationSelected(ruleApp);
+        setRuleApplication(ruleApp);
     }
 
-    /*
-     * This method is called when a new value in the rule application
-     * list is selected.
-     */
-    public void valueChanged(ListSelectionEvent e) {
-        // ignore those "adjusting" events
-        if(e.getValueIsAdjusting())
-            return;
-        
-        Object selected = applicableList.getSelectedValue();
-        if (selected instanceof ImmutableRuleApplication) {
-            RuleApplication ruleApp = (RuleApplication) selected;
-            proofCenter.fireSelectedRuleApplication(ruleApp);
-        }
+    protected void setRuleApplication(RuleApplication ruleApplication) {
+        this.ruleApplication = ruleApplication;
+        displayRuleApp(ruleApplication);
     }
 
-    // chosen ruleappl
-    public void actionPerformed(ActionEvent e) {
-        Object selected = applicableList.getSelectedValue();
-        if (selected instanceof ImmutableRuleApplication) {
-            // TODO illegal instantiations
-            try {
-                
-                MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
-                
-                // collect the user instantiations
-                for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
-                    String varname = pair.fst();
-                    Type type = pair.snd();
-                    String content = pair.trd().getText();
-                    
-                    
-                    Term term = TermMaker.makeAndTypeTerm(content, env, 
-                            "User input for " + varname, type);
-                    
-                    assert type.equals(term.getType());
-                    
-                    app.getSchemaVariableMapping().put(varname, term);
-                }
-                putClientProperty("finished", true);
-                proofCenter.apply(app);
-            } catch (ProofException ex) {
-                // TODO gescheite Fehlerausgabe
-                ex.printStackTrace();
-            } catch (ParseException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-            } catch (ASTVisitException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-            }
-        }
+    protected RuleApplication getRuleApplication() {
+        return ruleApplication;
     }
 
     

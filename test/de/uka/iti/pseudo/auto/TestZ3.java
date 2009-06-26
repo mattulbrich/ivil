@@ -14,7 +14,7 @@ public class TestZ3 extends TestCaseWithEnv {
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3 z3 = new Z3();
         
-        z3.solve(s, env);
+        z3.solve(s, env, 100);
     }
 
 }

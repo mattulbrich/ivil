@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,11 +15,12 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -29,6 +31,7 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
+import de.uka.iti.pseudo.util.WindowMover;
 
 // TODO DOC
 
@@ -107,44 +110,6 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
 
     };
     
-    private MouseListener termMouseListener = new MouseAdapter() {
-
-        @Override 
-        public void mouseClicked(MouseEvent e) {
-
-            if(!SwingUtilities.isRightMouseButton(e) || e.getClickCount() > 1)
-                return;
-
-
-            try {
-                RuleApplicationComponent rac = new RuleApplicationComponent(proofCenter);
-                proofCenter.addProofNodeSelectionListener(rac);
-                rac.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-                rac.setPreferredSize(new Dimension(200, 400));
-                
-                JScrollPane sp = new JScrollPane(rac);
-                
-                TermComponent tc = (TermComponent) e.getSource();
-                TermSelector termSelector = tc.getTermAt(e.getPoint());
-                List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
-                rac.setInteractiveApplications(ruleApps);
-                
-                JDialog window = new JDialog(proofCenter.getMainWindow());
-                window.setAlwaysOnTop(true);
-                window.getContentPane().add(sp);
-                window.pack();
-                window.setLocation(e.getLocationOnScreen());
-                new PopupDisappearListener(rac, window);
-                window.setVisible(true);
-                
-            } catch (ProofException ex) {
-                // TODO gescheiter fehlerreport
-                ex.printStackTrace();
-            }
-            
-        }  
-    };
-
     private Separator separator = new Separator();
     private Sequent sequent;
     private Environment env;
@@ -243,4 +208,29 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         if(sequent != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
             setSequent(sequent);
     }
+    
+    // the listener that launches and makes the rule popup
+    private MouseListener termMouseListener = new MouseAdapter() {
+
+        @Override 
+        public void mouseClicked(MouseEvent e) {
+
+            if(!SwingUtilities.isRightMouseButton(e) || e.getClickCount() > 1)
+                return;
+
+            try {
+                TermComponent tc = (TermComponent) e.getSource();
+                TermSelector termSelector = tc.getTermAt(e.getPoint());
+                List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
+                
+                new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 
+                        e.getLocationOnScreen()).setVisible(true);
+                
+            } catch (ProofException ex) {
+                // TODO gescheiter fehlerreport
+                ex.printStackTrace();
+            }
+            
+        }  
+    };
 }

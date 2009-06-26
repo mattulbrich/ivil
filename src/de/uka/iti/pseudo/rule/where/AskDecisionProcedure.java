@@ -32,7 +32,7 @@ public class AskDecisionProcedure extends WhereCondition {
             DecisionProcedure decisionProcedure = 
                 (DecisionProcedure) Class.forName(decisionProcClass).newInstance();
             
-            Pair<DecisionProcedure.Result, String> res = decisionProcedure.solve(sequent, env);
+            Pair<DecisionProcedure.Result, String> res = decisionProcedure.solve(sequent, env, 100);
             
             return res.fst() == DecisionProcedure.Result.VALID; 
             
