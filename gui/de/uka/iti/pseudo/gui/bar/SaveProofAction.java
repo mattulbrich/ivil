@@ -127,6 +127,8 @@ public class SaveProofAction extends BarAction
                         }
                 }
                 return;
+            } else {
+                return;
             }
         }
     }

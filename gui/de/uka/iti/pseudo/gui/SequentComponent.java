@@ -1,6 +1,5 @@
 package de.uka.iti.pseudo.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,13 +13,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JWindow;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -30,8 +25,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.PopupDisappearListener;
-import de.uka.iti.pseudo.util.WindowMover;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 // TODO DOC
 
@@ -147,12 +141,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             i++;
         }
         
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                doLayout();
-                // needed? yes!
-                repaint();
-            }});
+        validate();
     }
     
     public void proofNodeSelected(ProofNode node) {
@@ -227,8 +216,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                         e.getLocationOnScreen()).setVisible(true);
                 
             } catch (ProofException ex) {
-                // TODO gescheiter fehlerreport
-                ex.printStackTrace();
+                ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), ex);
             }
             
         }  

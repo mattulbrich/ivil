@@ -12,20 +12,19 @@ package de.uka.iti.pseudo.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JTextPane;
-import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -42,6 +41,8 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.TermSelectionTransfer;
+import de.uka.iti.pseudo.util.TermSelectionTransferable;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
@@ -58,8 +59,6 @@ public class TermComponent extends JTextPane {
     
     private static final Integer FONT_SIZE = Integer.getInteger(
             "pseudo.termfont.size", 14);
-    
-    private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
     
     // the highlight color should be bright 
     private static final Color HIGHLIGHT_COLOR = new Color(0xFFB366);
@@ -87,7 +86,7 @@ public class TermComponent extends JTextPane {
      * the term which is currently highlighted by the mouse
      * can be null
      */
-    private Term mouseSelectedTerm;
+    private int mouseSelectedSubterm;
     
     /**
      * the position of term within its sequent
@@ -135,12 +134,10 @@ public class TermComponent extends JTextPane {
         //
         // Set display properties
         setEditable(false);
-        setFont(FONT);
         setBorder(BORDER);
         annotatedString.appendToDocument(getDocument(), attributeFactory);
-        setTransferHandler(new Transfer());
         setDragEnabled(true);
-        // setText(annotatedString.toString());
+        setTransferHandler(new TermSelectionTransfer());
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
@@ -150,7 +147,14 @@ public class TermComponent extends JTextPane {
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseMoved(MouseEvent e) {
-                TermComponent.this.mouseMoved(e);
+                TermComponent.this.mouseMoved(e.getPoint());
+            }
+        });
+        addPropertyChangeListener("dropLocation", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                DropLocation loc = (DropLocation) evt.getNewValue();
+                if(loc != null)
+                    TermComponent.this.mouseMoved(loc.getDropPoint());
             }
         });
 
@@ -206,7 +210,7 @@ public class TermComponent extends JTextPane {
     private void mouseExited(MouseEvent e) {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
-            mouseSelectedTerm = null;
+            mouseSelectedSubterm = -1;
         } catch (BadLocationException ex) {
             // this shant happen
             throw new Error(ex);
@@ -216,8 +220,7 @@ public class TermComponent extends JTextPane {
     /*
      * Mouse moved: move the highlighting
      */
-    protected void mouseMoved(MouseEvent e) {
-        Point p = e.getPoint();
+    protected void mouseMoved(Point p) {
         int index = viewToModel(p);
         try {
             if (index >= 0 && index < annotatedString.length()) {
@@ -225,11 +228,12 @@ public class TermComponent extends JTextPane {
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 
-                mouseSelectedTerm = annotatedString.getAttributeAt(index);
-                setToolTipText(makeTermToolTip(mouseSelectedTerm));
+                mouseSelectedSubterm = annotatedString.getAttributeIndexAt(index);
+                Term term = annotatedString.getAttributeAt(index);
+                setToolTipText(makeTermToolTip(term));
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
-                mouseSelectedTerm = null;
+                mouseSelectedSubterm = -1;
             }
         } catch (BadLocationException ex) {
             // TODO just ignore this for now
@@ -293,6 +297,8 @@ public class TermComponent extends JTextPane {
         int characterIndex = super.viewToModel(new Point((int) p.getX()
                 - (previousCharacterWidth / 2), (int) p.getY()));
 
+        characterIndex = Math.max(0, characterIndex);
+        
         return characterIndex;
     }
     
@@ -320,22 +326,21 @@ public class TermComponent extends JTextPane {
         marks.clear();
     }
 
-    private class Transfer extends TransferHandler {
-
-        public int getSourceActions(JComponent c) {
-            return COPY;
-        }
-
-        protected Transferable createTransferable(JComponent c) {
-            String string;
-            if(mouseSelectedTerm != null) {
-                string = mouseSelectedTerm.toString(false);
-            } else {
-                string = "";
-            }
-            return new StringSelection(string);
-        }
-
+    public Transferable createTransferable() {
+        if(mouseSelectedSubterm == -1)
+            return null;
+        
+        TermSelector ts = new TermSelector(termSelector, mouseSelectedSubterm);
+        String string = annotatedString.getAttributeOf(mouseSelectedSubterm).toString(false);
+        return new TermSelectionTransferable(ts, string);
     }
-    
+
+    public boolean dropTermOnLocation(TermSelector ts, Point point) {
+        // TODO Implement drag and drop between terms
+        System.out.println("NOT IMPLEMENTED YET");
+        System.out.println(ts +" on " + getTermAt(point));
+        return false;
+    }
+
+
 }

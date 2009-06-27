@@ -73,6 +73,26 @@ public class TermSelector {
         assert termNo >= 0;
         assert subtermNo >= 0;
     }
+
+    /**
+     * Instantiates a new term selector from a term selector and a subterm
+     * number.
+     * 
+     * <p>
+     * The created selector has a sequent side and toplevel number of the
+     * argument, only the subterm number is replaced.
+     * 
+     * @param termSelector
+     *            the term selector to modify
+     * @param subtermNo
+     *            the subterm number to replace with
+     */
+    public TermSelector(TermSelector termSelector, int subtermNo) {
+        this.inAntecedent = termSelector.inAntecedent;
+        this.termNo = termSelector.termNo;
+        this.subtermNo = subtermNo;
+    }
+
     
     /**
      * Instantiates a new term selector which refers to a toplevel term.
