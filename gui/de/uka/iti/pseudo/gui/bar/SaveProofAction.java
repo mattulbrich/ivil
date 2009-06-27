@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -117,8 +118,7 @@ public class SaveProofAction extends BarAction
                     proof.changesSaved();
                     
                 } catch (Exception ex) {
-                    // TODO gescheiter Fehlerdialog
-                    ex.printStackTrace();
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 } finally {
                     if(os != null)
                         try { os.close();

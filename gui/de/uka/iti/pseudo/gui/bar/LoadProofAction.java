@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 // TODO Documentation needed
 
@@ -51,8 +52,8 @@ public class LoadProofAction extends BarAction implements PropertyChangeListener
         List<ProofNode> rootChildren = origProof.getRoot().getChildren();
         
         if(rootChildren != null) {
-            // XXX gescheiter dialog
-            System.err.println("Oops. Root must not have children if loading a proof");
+            ExceptionDialog.showExceptionDialog(getParentFrame(), 
+                    "Oops. Oops. Root must not have children if loading a proof");
         }
         
         if(fileChooser == null)
@@ -75,8 +76,7 @@ public class LoadProofAction extends BarAction implements PropertyChangeListener
                 
             } catch (Exception ex) {
                 origProof.prune(origProof.getRoot());
-                // TODO gescheiter Fehlerdialog
-                ex.printStackTrace();
+                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             }
         }
     }

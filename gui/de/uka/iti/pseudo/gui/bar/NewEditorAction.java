@@ -9,6 +9,7 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 //TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -28,8 +29,7 @@ public class NewEditorAction extends BarAction {
             editor.setSize(600, 800);
             Main.showFileEditor(editor);
         } catch (IOException e1) {
-            // TODO gescheiter Fehler!
-            e1.printStackTrace();
+            ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
         }
     }
 }

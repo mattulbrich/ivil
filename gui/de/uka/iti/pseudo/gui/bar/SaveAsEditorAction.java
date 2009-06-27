@@ -9,6 +9,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 //TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -64,8 +65,7 @@ public class SaveAsEditorAction extends BarAction {
             editor.setFilename(selectedFile);
 
         } catch (Exception ex) {
-            // TODO gescheiter Fehlerdialog
-            ex.printStackTrace();
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } finally {
             if(fileWriter != null)
                 try { fileWriter.close();

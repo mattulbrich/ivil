@@ -136,6 +136,15 @@ public class Settings extends Properties {
             throw new NoSuchElementException();
         return super.getProperty(key);
     }
+    
+    // TODO
+    public String getProperty(String key, String defaultValue) {
+        try {
+            return getProperty(key);
+        } catch (NoSuchElementException e) {
+            return defaultValue;
+        }
+    }
 
     // / @todo DOC
     public String[] getStrings(String key) {

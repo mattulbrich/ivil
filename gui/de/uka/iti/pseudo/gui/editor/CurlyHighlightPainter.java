@@ -11,7 +11,7 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
 
 
-class CurlyHighlightPainter implements HighlightPainter {
+public class CurlyHighlightPainter implements HighlightPainter {
 
     private static final int STEP = 3;
 

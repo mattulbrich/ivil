@@ -25,22 +25,25 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
+import de.uka.iti.pseudo.gui.editor.CurlyHighlightPainter;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
 import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
+import de.uka.iti.pseudo.util.settings.ColorResolver;
 
 public class InteractiveRuleApplicationComponent extends
         RuleApplicationComponent implements ActionListener, ListSelectionListener {
@@ -111,7 +114,14 @@ public class InteractiveRuleApplicationComponent extends
     public void actionPerformed(ActionEvent e) {
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
-            // TODO illegal instantiations
+
+            // remove old error notices
+            for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
+                pair.trd().setBackground(getBackground());
+                pair.trd().setToolTipText(null);
+            }
+            
+            JTextComponent component = null;
             try {
                 
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
@@ -120,8 +130,8 @@ public class InteractiveRuleApplicationComponent extends
                 for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
                     String varname = pair.fst();
                     Type type = pair.snd();
-                    String content = pair.trd().getText();
-                    
+                    component = pair.trd();
+                    String content = component.getText();
                     
                     Term term = TermMaker.makeAndTypeTerm(content, env, 
                             "User input for " + varname, type);
@@ -132,17 +142,18 @@ public class InteractiveRuleApplicationComponent extends
                 }
                 putClientProperty("finished", true);
                 proofCenter.apply(app);
-            } catch (ProofException ex) {
-                // TODO gescheite Fehlerausgabe
-                ex.printStackTrace();
-            } catch (ParseException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
-            } catch (ASTVisitException ex) {
-                // TODO Auto-generated catch block
-                ex.printStackTrace();
+            } catch (Exception ex) {
+                component.setBackground(ColorResolver.getInstance().resolve("orange red"));
+                component.setToolTipText(htmlize(ex.getMessage()));
             }
         }
+    }
+    
+    private String htmlize(String message) {
+        message = message.replace("&", "&amp;");
+        message = message.replace("<", "&lt;");
+        message = message.replace("\n", "<br>");
+        return "<html><pre>" + message + "</pre>";
     }
     
     @Override protected void setInstantiations(RuleApplication app) {
@@ -190,7 +201,7 @@ class InteractiveRuleApplicationPopup extends JWindow {
         
         JScrollPane sp = new JScrollPane(rac);
         
-        setAlwaysOnTop(true);
+        // setAlwaysOnTop(true);
         getContentPane().add(sp);
         setSize(300,500);
         setLocation(location);

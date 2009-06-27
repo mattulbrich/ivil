@@ -9,8 +9,12 @@ import java.io.IOException;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
-public class PopupOpenErrorFile extends BarAction implements InitialisingAction, PropertyChangeListener{
+@SuppressWarnings("serial") 
+public class PopupOpenErrorFile 
+    extends BarAction 
+    implements InitialisingAction, PropertyChangeListener{
 
     private String errorFile;
 
@@ -28,8 +32,7 @@ public class PopupOpenErrorFile extends BarAction implements InitialisingAction,
             editor.setSize(600, 800);
             Main.showFileEditor(editor);
         } catch (IOException e1) {
-            // TODO gescheiter feherl
-            e1.printStackTrace();
+            ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
         }
     }
 

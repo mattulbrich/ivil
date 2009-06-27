@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
  * This is the action to load a problem file.
@@ -66,8 +67,7 @@ public class LoadEditedProblemAction extends BarAction {
             ProofCenter pc = new ProofCenter(proof, env);
             Main.showProofCenter(pc);
         } catch(Exception ex) {
-            // TODO gescheiter Fehlerdialog
-            ex.printStackTrace();
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } 
     }
 

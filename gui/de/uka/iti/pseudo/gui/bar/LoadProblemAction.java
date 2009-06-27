@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
  * This is the action to load a problem file.
@@ -63,8 +64,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                 ProofCenter pc = new ProofCenter(proof, env);
                 Main.showProofCenter(pc);
             } catch(IOException ex) {
-                // TODO gescheiter Fehlerdialog
-                ex.printStackTrace();
+                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
                 ex.printStackTrace();
                 int res = JOptionPane.showConfirmDialog(getParentFrame(), "'" + selectedFile + 
@@ -78,8 +78,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                         editor.setSize(600, 800);
                         Main.showFileEditor(editor);
                     } catch (IOException e1) {
-                        // TODO gescheiter Fehler!
-                        e1.printStackTrace();
+                        ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
                     }
                     
                 }
