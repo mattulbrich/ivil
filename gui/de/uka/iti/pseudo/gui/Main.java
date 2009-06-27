@@ -25,7 +25,6 @@ public class Main {
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
     public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
-    public static String SYSTEM_DIRECTORY;
     
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
@@ -37,11 +36,13 @@ public class Main {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(getBoolean(ASSERTION_PROPERTY, true));
         
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
+        String sysDir;
         try {
-            SYSTEM_DIRECTORY = settings.getProperty(SYSTEM_DIRECTORY_KEY);
+            sysDir = settings.getProperty(SYSTEM_DIRECTORY_KEY);
         } catch (NoSuchElementException e) {
-            SYSTEM_DIRECTORY = BASE_DIRECTORY + File.separator + "sys";
+            sysDir = BASE_DIRECTORY + File.separator + "sys";
         }
+        settings.setProperty(SYSTEM_DIRECTORY_KEY, sysDir);
     }
 
     public static void main(String[] args) throws Exception {

@@ -5,7 +5,6 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.term.Term;
@@ -219,49 +218,6 @@ public class Rule {
         for (GoalAction ga : goalActions) {
             ga.dump();
         }
-    }
-    
-    /**
-     * Pretty print the rule using the term pretty printer into a string
-     * 
-     * @param env
-     *            the environment to lookup infix etc.
-     * 
-     * @return the rule as pretty printed string.
-     */
-    public String prettyPrint(@NonNull Environment env) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("rule ").append(getName()).append(NEWLINE);
-        sb.append("  find ").append(PrettyPrint.print(env, getFindClause())).append(NEWLINE);
-        for (LocatedTerm ass : getAssumptions()) {
-            sb.append("  assume ").append(PrettyPrint.print(env, ass)).append(NEWLINE);
-        }
-        for (WhereClause where : getWhereClauses()) {
-            sb.append("  where ").append(where.getWhereCondition().getName());
-            for (Term arg : where.getArguments()) {
-                sb.append(" ").append(PrettyPrint.print(env, arg));
-            }
-            sb.append(NEWLINE);
-        }
-        for (GoalAction action : getGoalActions()) {
-            switch(action.getKind()) {
-            case CLOSE: sb.append("  closegoal"); break;
-            case COPY: sb.append("  samegoal"); break;
-            case NEW: sb.append("  newgoal"); break;
-            }
-            
-            sb.append(NEWLINE);
-            Term rep = action.getReplaceWith();
-            if(rep != null)
-                sb.append("    replace ").append(PrettyPrint.print(env, rep)).append(NEWLINE);
-            for (Term t : action.getAddAntecedent()) {
-                sb.append("    add ").append(PrettyPrint.print(env, t)).append(" |-").append(NEWLINE);
-            }
-            for (Term t : action.getAddSuccedent()) {
-                sb.append("    add |-").append(PrettyPrint.print(env, t)).append(NEWLINE);
-            }
-        }
-        return sb.toString();
     }
     
     public String toString() {

@@ -16,7 +16,10 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
+import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.Statement;
@@ -285,6 +288,49 @@ public class PrettyPrint {
         }
         // unreachable
         throw new Error();
+    }
+    
+    /**
+     * Pretty print the rule using the term pretty printer into a string
+     * 
+     * @param env
+     *            the environment to lookup infix etc.
+     * 
+     * @return the rule as pretty printed string.
+     */
+    public String print(Rule rule) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("rule ").append(rule.getName()).append("\n");
+        sb.append("  find ").append(PrettyPrint.print(env, rule.getFindClause())).append("\n");
+        for (LocatedTerm ass : rule.getAssumptions()) {
+            sb.append("  assume ").append(PrettyPrint.print(env, ass)).append("\n");
+        }
+        for (WhereClause where : rule.getWhereClauses()) {
+            sb.append("  where ").append(where.getWhereCondition().getName());
+            for (Term arg : where.getArguments()) {
+                sb.append(" ").append(PrettyPrint.print(env, arg));
+            }
+            sb.append("\n");
+        }
+        for (GoalAction action : rule.getGoalActions()) {
+            switch(action.getKind()) {
+            case CLOSE: sb.append("  closegoal"); break;
+            case COPY: sb.append("  samegoal"); break;
+            case NEW: sb.append("  newgoal"); break;
+            }
+            
+            sb.append("\n");
+            Term rep = action.getReplaceWith();
+            if(rep != null)
+                sb.append("    replace ").append(PrettyPrint.print(env, rep)).append("\n");
+            for (Term t : action.getAddAntecedent()) {
+                sb.append("    add ").append(PrettyPrint.print(env, t)).append(" |-").append("\n");
+            }
+            for (Term t : action.getAddSuccedent()) {
+                sb.append("    add |-").append(PrettyPrint.print(env, t)).append("\n");
+            }
+        }
+        return sb.toString();
     }
 
     /**

@@ -6,44 +6,25 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ParseException;
-import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
-import de.uka.iti.pseudo.proof.MutableRuleApplication;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Triple;
-import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 
@@ -138,7 +119,8 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
     }
 
     private void setRuleText(Rule rule) {
-        ruleText.setText(rule.prettyPrint(env));
+        PrettyPrint pp = proofCenter.getPrettyPrinter();
+        ruleText.setText(pp.print(rule));
     }
 
     public void proofNodeSelected(ProofNode node) {

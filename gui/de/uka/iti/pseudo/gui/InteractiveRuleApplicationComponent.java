@@ -178,6 +178,7 @@ public class InteractiveRuleApplicationComponent extends
 }
 
 
+@SuppressWarnings("serial") 
 class InteractiveRuleApplicationPopup extends JWindow {
 
     public InteractiveRuleApplicationPopup(ProofCenter proofCenter,

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.UpdateTerm;

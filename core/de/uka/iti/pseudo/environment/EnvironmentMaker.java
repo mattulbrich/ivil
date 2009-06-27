@@ -14,20 +14,19 @@ import java.io.FileNotFoundException;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
-import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class EnvironmentMaker traverses an {@link ASTFile} to extract
@@ -38,7 +37,8 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static final File SYS_DIR = new File(Main.SYSTEM_DIRECTORY);
+    private static final File SYS_DIR = 
+        new File(Settings.getInstance().getProperty("pseudo.sysDir"));
 
     /**
      * The environment that is being built.
