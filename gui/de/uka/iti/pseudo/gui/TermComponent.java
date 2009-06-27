@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -21,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JTextPane;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -78,7 +82,13 @@ public class TermComponent extends JTextPane {
      * The term displayed
      */
     private Term term;
-
+    
+    /**
+     * the term which is currently highlighted by the mouse
+     * can be null
+     */
+    private Term mouseSelectedTerm;
+    
     /**
      * the position of term within its sequent
      */
@@ -127,8 +137,9 @@ public class TermComponent extends JTextPane {
         setEditable(false);
         setFont(FONT);
         setBorder(BORDER);
-        // setLineWrap(true);
         annotatedString.appendToDocument(getDocument(), attributeFactory);
+        setTransferHandler(new Transfer());
+        setDragEnabled(true);
         // setText(annotatedString.toString());
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
@@ -195,6 +206,7 @@ public class TermComponent extends JTextPane {
     private void mouseExited(MouseEvent e) {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
+            mouseSelectedTerm = null;
         } catch (BadLocationException ex) {
             // this shant happen
             throw new Error(ex);
@@ -213,10 +225,11 @@ public class TermComponent extends JTextPane {
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 
-                Term term = annotatedString.getAttributeAt(index);
-                setToolTipText(makeTermToolTip(term));
+                mouseSelectedTerm = annotatedString.getAttributeAt(index);
+                setToolTipText(makeTermToolTip(mouseSelectedTerm));
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
+                mouseSelectedTerm = null;
             }
         } catch (BadLocationException ex) {
             // TODO just ignore this for now
@@ -307,4 +320,22 @@ public class TermComponent extends JTextPane {
         marks.clear();
     }
 
+    private class Transfer extends TransferHandler {
+
+        public int getSourceActions(JComponent c) {
+            return COPY;
+        }
+
+        protected Transferable createTransferable(JComponent c) {
+            String string;
+            if(mouseSelectedTerm != null) {
+                string = mouseSelectedTerm.toString(false);
+            } else {
+                string = "";
+            }
+            return new StringSelection(string);
+        }
+
+    }
+    
 }
