@@ -42,8 +42,20 @@ import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
 
+/**
+ * This class describes the component which is in the rule application popup.
+ * 
+ * <p>In addition to a normal RuleApplicationComponent, it possesses also a list
+ * of rule application from which one can choose. The instantiations may 
+ * also contain input fields for interactive instantiation.
+ * 
+ * <p>Once a rule application has been chosen it is sent to the attached 
+ * ProofCenter to be applied via {@link ProofCenter#apply(RuleApplication)}. 
+ */
 public class InteractiveRuleApplicationComponent extends
         RuleApplicationComponent implements ActionListener, ListSelectionListener {
+
+    private static final long serialVersionUID = 1198343020746961376L;
 
     public InteractiveRuleApplicationComponent(ProofCenter proofCenter, List<RuleApplication> ruleApps) {
         super(proofCenter);
@@ -51,8 +63,13 @@ public class InteractiveRuleApplicationComponent extends
         makeGUI();
     }
 
+    // the applications to choose from
     private List<RuleApplication> interactiveApplications;
+    
+    // the panel that holds the list of applicable rules
     private JPanel applicableListPanel;
+    
+    // the list of applicable rules
     private JList applicableList;
 
     private void makeGUI() {
@@ -177,8 +194,14 @@ public class InteractiveRuleApplicationComponent extends
 
 }
 
+/**
+ * A little helper class which embeds a {@link InteractiveRuleApplicationComponent} 
+ * into a {@link JWindow} which can then be shown as a popup.  
+ */
 
 class InteractiveRuleApplicationPopup extends JWindow {
+
+    private static final long serialVersionUID = 251617174624191216L;
 
     public InteractiveRuleApplicationPopup(ProofCenter proofCenter,
             List<RuleApplication> ruleApps, Point location) {
