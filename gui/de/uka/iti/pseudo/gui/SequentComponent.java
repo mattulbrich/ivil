@@ -1,6 +1,5 @@
 package de.uka.iti.pseudo.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -14,13 +13,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JWindow;
+import javax.swing.JToolTip;
 import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -30,8 +25,6 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.PopupDisappearListener;
-import de.uka.iti.pseudo.util.WindowMover;
 
 // TODO DOC
 
@@ -112,9 +105,11 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     
     private Separator separator = new Separator();
     private Sequent sequent;
+    private boolean open;
     private Environment env;
     private ProofCenter proofCenter;
     private PrettyPrint prettyPrinter;
+
 
     public SequentComponent(@NonNull ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
@@ -124,15 +119,17 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         prettyPrinter.addPropertyChangeListener(this);
     }
     
-    public void setSequent(Sequent sequent) {
+    private void setSequent(Sequent sequent, boolean open) {
         this.sequent = sequent;
+        this.open = open;
         
         this.removeAll();
         
         int i = 0;
         for (Term t : sequent.getAntecedent()) {
-            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.ANTECEDENT, i), prettyPrinter);
+            TermComponent termComp = new TermComponent(t, open, env, new TermSelector(TermSelector.ANTECEDENT, i), prettyPrinter);
             termComp.addMouseListener(termMouseListener);
+            termComp.setToolTipText("<html><a href=\"p3\">sdfsfd");
             add(termComp);
             i++;
         }
@@ -141,27 +138,18 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         i = 0;
         for (Term t : sequent.getSuccedent()) {
-            TermComponent termComp = new TermComponent(t, env, new TermSelector(TermSelector.SUCCEDENT, i), prettyPrinter);
+            TermComponent termComp = new TermComponent(t, open, env, new TermSelector(TermSelector.SUCCEDENT, i), prettyPrinter);
             termComp.addMouseListener(termMouseListener);
             add(termComp);
             i++;
         }
         
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                doLayout();
-                // needed? yes!
-                repaint();
-            }});
+        validate();
     }
     
     public void proofNodeSelected(ProofNode node) {
-        if(node.getChildren() == null)
-            prettyPrinter.setInitialStyle(null);
-        else
-            prettyPrinter.setInitialStyle("closed");
         
-        setSequent(node.getSequent());
+        setSequent(node.getSequent(), node.getChildren() == null);
         RuleApplication ruleApp = node.getAppliedRuleApp();
         if(ruleApp != null)
             ruleApplicationSelected(ruleApp);
@@ -206,7 +194,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     public void propertyChange(PropertyChangeEvent evt) {
         // property on the pretty printer has changed --> remake the term components
         if(sequent != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
-            setSequent(sequent);
+            setSequent(sequent, open);
     }
     
     // the listener that launches and makes the rule popup
@@ -215,22 +203,24 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         @Override 
         public void mouseClicked(MouseEvent e) {
 
-            if(!SwingUtilities.isRightMouseButton(e) || e.getClickCount() > 1)
-                return;
+            if(SwingUtilities.isLeftMouseButton(e)) {
+                try {
+                    TermComponent tc = (TermComponent) e.getSource();
+                    TermSelector termSelector = tc.getTermAt(e.getPoint());
+                    
+                    if(termSelector == null)
+                        return;
+                    
+                    List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
 
-            try {
-                TermComponent tc = (TermComponent) e.getSource();
-                TermSelector termSelector = tc.getTermAt(e.getPoint());
-                List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
-                
-                new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 
-                        e.getLocationOnScreen()).setVisible(true);
-                
-            } catch (ProofException ex) {
-                // TODO gescheiter fehlerreport
-                ex.printStackTrace();
+                    new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 
+                            e.getLocationOnScreen()).setVisible(true);
+
+                } catch (ProofException ex) {
+                    // TODO gescheiter fehlerreport
+                    ex.printStackTrace();
+                }
             }
-            
         }  
     };
 }

@@ -49,31 +49,31 @@ public class TermComponent extends JTextPane {
     /**
      * some UI constants
      */
+    // TODO read constants from settings.
     private static final String FONT_NAME = System.getProperty(
             "pseudo.termfont.name", "Monospaced");
-    
+
     private static final Integer FONT_SIZE = Integer.getInteger(
             "pseudo.termfont.size", 14);
-    
+
     private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
-    
-    // the highlight color should be bright 
+
+    // the highlight color should be bright
     private static final Color HIGHLIGHT_COLOR = new Color(0xFFB366);
-    
+
     // the modality background should be rather unnoticed
     private static final Color MODALITY_BACKGROUND = new Color(240, 240, 255);
-    
+
     // empty border
     private static final Border BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.LIGHT_GRAY), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
-    
+
     // darker and a lighter color for marking
-    private HighlightPainter[] MARKINGS = { 
+    private HighlightPainter[] MARKINGS = {
             new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9999FF)),
-            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x99CCFF))
-    };
-    
+            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x99CCFF)) };
+
     /**
      * The term displayed
      */
@@ -102,11 +102,15 @@ public class TermComponent extends JTextPane {
     // TODO DOC
     private List<Object> marks = new ArrayList<Object>();
 
+    private boolean open;
+
+    // TODO DOC
     /**
      * Instantiates a new term component.
      * 
      * @param t
      *            the term to display
+     * @param open
      * @param env
      *            the environment to use for pretty printing
      * @param termSelector
@@ -115,21 +119,21 @@ public class TermComponent extends JTextPane {
      * @param prettyPrinter
      *            the pretty printer to print the term in this component
      */
-    public TermComponent(@NonNull Term t, @NonNull Environment env,
-            @NonNull TermSelector termSelector, PrettyPrint prettyPrinter) {
+    public TermComponent(@NonNull Term t, boolean open,
+            @NonNull Environment env, @NonNull TermSelector termSelector,
+            PrettyPrint prettyPrinter) {
         this.env = env;
         this.term = t;
         this.termSelector = termSelector;
         this.annotatedString = prettyPrinter.print(t);
+        this.open = open;
 
         //
         // Set display properties
         setEditable(false);
         setFont(FONT);
         setBorder(BORDER);
-        // setLineWrap(true);
         annotatedString.appendToDocument(getDocument(), attributeFactory);
-        // setText(annotatedString.toString());
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
@@ -154,41 +158,44 @@ public class TermComponent extends JTextPane {
     }
 
     private static Map<String, AttributeSet> attributeCache = new HashMap<String, AttributeSet>();
-    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
-        new AnnotatedStringWithStyles.AttributeSetFactory() {
-            public AttributeSet makeStyle(String descr) {
-                AttributeSet cached = attributeCache.get(descr);
-                
-                if(cached != null)
-                    return cached;
-                
-                MutableAttributeSet retval = new SimpleAttributeSet();
-                StyleConstants.setFontFamily(retval, FONT_NAME);
-                StyleConstants.setFontSize(retval, FONT_SIZE);
-                
-                if(descr.contains("closed")) 
-                    StyleConstants.setForeground(retval, Color.DARK_GRAY);
-                
-                if(descr.contains("program"))
-                    StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
-                
-                if(descr.contains("update"))
-                    StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
-                    
-                if(descr.contains("keyword"))
-                    StyleConstants.setBold(retval, true);
-                
-                if(descr.contains("variable"))
-                    StyleConstants.setForeground(retval, Color.magenta);
-                    //                    StyleConstants.setItalic(retval, true);
-                
-                attributeCache.put(descr, retval);
-                
-                return retval;
-            }
-        
+    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory = new AnnotatedStringWithStyles.AttributeSetFactory() {
+        public AttributeSet makeStyle(String descr) {
+
+            if (!open)
+                descr += " closed";
+
+            AttributeSet cached = attributeCache.get(descr);
+
+            if (cached != null)
+                return cached;
+
+            MutableAttributeSet retval = new SimpleAttributeSet();
+            StyleConstants.setFontFamily(retval, FONT_NAME);
+            StyleConstants.setFontSize(retval, FONT_SIZE);
+
+            if (descr.contains("closed"))
+                StyleConstants.setForeground(retval, Color.LIGHT_GRAY);
+
+            if (descr.contains("program"))
+                StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+
+            if (descr.contains("update"))
+                StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+
+            if (descr.contains("keyword"))
+                StyleConstants.setBold(retval, true);
+
+            if (descr.contains("variable"))
+                StyleConstants.setForeground(retval, Color.magenta);
+            // StyleConstants.setItalic(retval, true);
+
+            attributeCache.put(descr, retval);
+
+            return retval;
+        }
+
     };
-    
+
     /*
      * Mouse exited the component: remove highlighting
      */
@@ -212,7 +219,7 @@ public class TermComponent extends JTextPane {
                 int begin = annotatedString.getBeginAt(index);
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
-                
+
                 Term term = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(term));
             } else {
@@ -225,10 +232,11 @@ public class TermComponent extends JTextPane {
     }
 
     /**
-     * calculate the text to display in tooltip for a term
-     * Usually this is the type. For programs, however, print 
-     * the current statement
-     * @param term to print
+     * calculate the text to display in tooltip for a term Usually this is the
+     * type. For programs, however, print the current statement
+     * 
+     * @param term
+     *            to print
      * @return tooltip text
      */
     private String makeTermToolTip(Term term) {
@@ -239,7 +247,7 @@ public class TermComponent extends JTextPane {
             } catch (TermException e) {
             }
         }
-        
+
         return term.getType().toString();
     }
 
@@ -254,7 +262,10 @@ public class TermComponent extends JTextPane {
     public TermSelector getTermAt(Point point) {
         int charIndex = viewToModel(point);
         int termIndex = annotatedString.getAttributeIndexAt(charIndex);
-        assert termIndex >= 0 : charIndex + " in " + annotatedString;
+        
+        if(termIndex == -1)
+            return null;
+        
         return termSelector.selectSubterm(termIndex);
     }
 
@@ -263,9 +274,9 @@ public class TermComponent extends JTextPane {
         String seqText = getText();
 
         // bugfix for empty strings
-        if(seqText.length() == 0)
+        if (seqText.length() == 0)
             return 0;
-        
+
         int cursorPosition = super.viewToModel(p);
 
         cursorPosition -= (cursorPosition > 0 ? 1 : 0);
@@ -273,7 +284,7 @@ public class TermComponent extends JTextPane {
         cursorPosition = (cursorPosition >= seqText.length() ? seqText.length() - 1
                 : cursorPosition);
         cursorPosition = (cursorPosition >= 0 ? cursorPosition : 0);
-        
+
         int previousCharacterWidth = getFontMetrics(getFont()).charWidth(
                 seqText.charAt(cursorPosition));
 
@@ -282,19 +293,19 @@ public class TermComponent extends JTextPane {
 
         return characterIndex;
     }
-    
-    
+
     public void markSubterm(int subtermNo, int type) {
-        if(type < 0 || type >= MARKINGS.length) {
+        if (type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();
         }
-        
+
         int begin = annotatedString.getBeginOf(subtermNo);
         int end = annotatedString.getEndOf(subtermNo);
-        
+
         try {
-            Object mark = getHighlighter().addHighlight(begin, end, MARKINGS[type]);
-            marks .add(mark);
+            Object mark = getHighlighter().addHighlight(begin, end,
+                    MARKINGS[type]);
+            marks.add(mark);
         } catch (BadLocationException e) {
             throw new Error(e);
         }
@@ -305,6 +316,10 @@ public class TermComponent extends JTextPane {
             getHighlighter().removeHighlight(highlight);
         }
         marks.clear();
+    }
+
+    public TermSelector getTermSelector() {
+        return termSelector;
     }
 
 }
