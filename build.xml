@@ -11,14 +11,20 @@
     <mkdir dir="classes-test"/>
     <mkdir dir="genSrc"/> 
     <uptodate property="javacc.notRequired" targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
-      <srcfiles dir="src/de/uka/iti/pseudo/parser/" includes="*.jj"/>
+      <srcfiles dir="core/de/uka/iti/pseudo/parser/" includes="*.jj"/>
     </uptodate>
   </target>
 	
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
-    <javac srcdir="src" destdir="classes" debug="${compile.debug}">
-      <src path="src" />
+    <javac destdir="classes" debug="${compile.debug}">
+      <src path="core" />
       <src path="genSrc" />
+      <compilerarg value="-Xlint"/>
+      <classpath>
+      	<pathelement path="classes" />
+      </classpath>
+    </javac>
+    <javac srcdir="gui" destdir="classes" debug="${compile.debug}">
       <classpath>
         <pathelement path="lib/javadocking.jar" />
       	<pathelement path="classes" />
@@ -38,10 +44,10 @@
 	
   <target name="javacc" depends="init" unless="javacc.notRequired">
     <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
-      <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
-      <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
-      <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
-      <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
+      <fileset file="core/de/uka/iti/pseudo/parser/ParserHead.jj"/>
+      <fileset file="core/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <fileset file="core/de/uka/iti/pseudo/parser/TermParser.jj"/>
+      <fileset file="core/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
     </concat>
     <exec executable="javacc">
       <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
@@ -51,7 +57,7 @@
 	
   <target name="copy" depends="init">
     <copy todir="classes">
-      <fileset dir="src">
+      <fileset dir="core">
         <include name="**/*.png" />
         <include name="**/*.properties" />
         <include name="**/*.smt" />
@@ -121,9 +127,9 @@
     <mkdir dir="javadoc"/>
     <javadoc destdir="javadoc">
       <sourcepath>
-        <pathelement location="src"/>
+        <pathelement location="core"/>
       </sourcepath>
-      <fileset dir="src">
+      <fileset dir="core">
         <include name="**/*.java"/>
       </fileset>
       <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
