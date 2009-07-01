@@ -26,6 +26,8 @@ public class Proof extends Observable {
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
 
     private boolean changedSinceSave;
+
+    private int proofNodeCounter;
     
     public void apply(@NonNull RuleApplication ruleApp, Environment env) throws ProofException {
         apply(ruleApp, env, null);
@@ -66,7 +68,7 @@ public class Proof extends Observable {
     }
     
     public Proof(Sequent initialSequent) {
-        root = new ProofNode(this, null, initialSequent);
+        root = new ProofNode(this, initialSequent, new SequentHistory.Annotation("formula on initial sequent"));
         openGoals.add(root);
     }
 
@@ -105,6 +107,11 @@ public class Proof extends Observable {
 
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
+    }
+
+    int makeFreshNumber() {
+        proofNodeCounter ++;
+        return proofNodeCounter;
     }
 
     
