@@ -134,8 +134,8 @@ public class BarManager {
                 if(actionListener != null)
                     button.addActionListener(actionListener);
 
-                if(toolbarOnlyIcons)
-                    button.setIcon(null);
+                if(toolbarOnlyIcons && button.getIcon() != null)
+                    button.setText(null);
                 
                 result = button;
 
