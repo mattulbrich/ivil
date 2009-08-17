@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
@@ -23,28 +31,17 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
-// TODO Documentation needed
+/**
+ * This action is used to save a proof to a file. A dialog window pops up and
+ * asks the user to select the file to store the proof to. All registered
+ * implementing classes of {@link ProofExport} are listed as possible export
+ * formats.
+ */
 @SuppressWarnings("serial") 
 public class SaveProofAction extends BarAction 
     implements PropertyChangeListener, InitialisingAction {
     
-    private static class ExporterFileFilter extends FileFilter {
-        
-        ProofExport exporter;
-
-        public ExporterFileFilter(ProofExport exporter) {
-            this.exporter = exporter;
-        }
-
-        public boolean accept(File f) {
-            return f.isDirectory() || f.getName().endsWith("." + exporter.getFileExtension());
-        }
-
-        public String getDescription() {
-            return exporter.getName();
-        }
-        
-    }
+    
 
     private JFileChooser fileChooser;
     
@@ -61,14 +58,24 @@ public class SaveProofAction extends BarAction
         }
     }
     
+    /*
+     * Add myself as a listener to IN_PROOF messages. 
+     */
     public void initialised() {
         getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
     }
     
+    /*
+     * We are only listening to IN_PROOF messages so we can disable and enable
+     * ourselves directly.
+     */
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled((Boolean)evt.getOldValue());
     }
     
+    /*
+     * Show a save As Dialog and save the data using a {@link ProofExport}.
+     */
     public void actionPerformed(ActionEvent e) {
         
         if(fileChooser == null) {
@@ -90,8 +97,7 @@ public class SaveProofAction extends BarAction
                     ExporterFileFilter exportFilter = (ExporterFileFilter) ff;
                     proofExporter = exportFilter.exporter;
                 } else {
-                    // XXX
-                    JOptionPane.showMessageDialog(mainWindow, "You need to choose file format");
+                    JOptionPane.showMessageDialog(mainWindow, "You need to choose a file format");
                     continue;
                 }
 
@@ -131,6 +137,29 @@ public class SaveProofAction extends BarAction
                 return;
             }
         }
+    }
+
+    /**
+     * This class is used to filter files of a certain type. The file name
+     * extension is used to fiter. This filter wraps a {@link ProofExport} and
+     * takes its values from it.
+     */
+    private static class ExporterFileFilter extends FileFilter {
+        
+        ProofExport exporter;
+
+        public ExporterFileFilter(ProofExport exporter) {
+            this.exporter = exporter;
+        }
+
+        public boolean accept(File f) {
+            return f.isDirectory() || f.getName().endsWith("." + exporter.getFileExtension());
+        }
+
+        public String getDescription() {
+            return exporter.getName();
+        }
+        
     }
 
 }

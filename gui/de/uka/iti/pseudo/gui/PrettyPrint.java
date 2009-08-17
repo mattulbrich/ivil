@@ -301,7 +301,11 @@ public class PrettyPrint {
     public String print(Rule rule) {
         StringBuilder sb = new StringBuilder();
         sb.append("rule ").append(rule.getName()).append("\n");
-        sb.append("  find ").append(PrettyPrint.print(env, rule.getFindClause())).append("\n");
+        
+        LocatedTerm findClause = rule.getFindClause();
+        if(findClause != null)
+            sb.append("  find ").append(PrettyPrint.print(env, findClause)).append("\n");
+        
         for (LocatedTerm ass : rule.getAssumptions()) {
             sb.append("  assume ").append(PrettyPrint.print(env, ass)).append("\n");
         }

@@ -263,10 +263,10 @@ public class TermComponent extends JTextPane {
     private String makeTermToolTip(Term term) {
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
-            try {
+//            try {
                 return prog.getStatement().toString();
-            } catch (TermException e) {
-            }
+//            } catch (TermException e) {
+//            }
         }
 
         return term.getType().toString();

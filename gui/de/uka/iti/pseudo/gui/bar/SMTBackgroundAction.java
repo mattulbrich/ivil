@@ -1,16 +1,29 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import javax.swing.Icon;
 
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.Z3SMT;
@@ -18,77 +31,170 @@ import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Pair;
 
+
+@SuppressWarnings("serial") 
 public class SMTBackgroundAction extends BarAction implements
         InitialisingAction, PropertyChangeListener, Observer, Runnable {
     
+    /**
+     * The solver used to determine the status.
+     */
     private DecisionProcedure solver = new Z3SMT();
     
+    /**
+     * Cache to remember solvability of sequents.
+     */
     private Map<Sequent, Boolean> sequentStatus =
         Collections.synchronizedMap(new HashMap<Sequent, Boolean>());
     
+    /**
+     * The synchronised blocking queue of proof nodes to be investigated.
+     */
     private BlockingQueue<ProofNode> jobs = new LinkedBlockingQueue<ProofNode>();
     
+    /**
+     * The nodes which can be proven using Z3.
+     */
+    private Set<ProofNode> provableNodes = new HashSet<ProofNode>();
+    
+    /**
+     * The lock used to synchronise the thread.
+     */
     private Object lock = new Object();
+    
+    /**
+     * The proof element we are working on.
+     */
     private Proof proof;
 
+    /**
+     * The environment is needed to provide the rules.
+     */
     private Environment env;
 
-    private SMTAnnunciatorAction peer;
+    /**
+     * image resources.
+     */
+    private Icon noflashImg;
+    private Icon flashImg;
+
+    /**
+     * This action can be made inactive
+     */
+    private boolean backgroundActive;
     
+    
+    /**
+     * If some service (a rule, the solver etc) is not available, the button is disabled.
+     */
+    private boolean available = true;
+
+    /**
+     * The rule to close by Z3.
+     */
+    private Rule closeByZ3;
+
+    /*
+     * Instantiates a new SMT background action.
+     */
     public SMTBackgroundAction() {
         Thread thread = new Thread(this, "SMT Background");
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-        setIcon(BarManager.makeIcon(getClass().getResource("img/smt.png")));
+        noflashImg = BarManager.makeIcon(getClass().getResource("img/smt.png"));
+        flashImg = BarManager.makeIcon(getClass().getResource("img/smt_flash.gif"));
+        setFlashing(false);
     }
 
+    /* 
+     * 
+     */
     public void initialised() {
         getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
         proof = getProofCenter().getProof();
         proof.addObserver(this);
         env = getProofCenter().getEnvironment();
-        try {
-            peer = (SMTAnnunciatorAction) getProofCenter().getMainWindow().
-                    getBarManager().makeAction(SMTAnnunciatorAction.class.getName());
-        } catch (IOException e) {
-            throw new Error(e);
-        }
+        
+        closeByZ3 = env.getRule("close_by_Z3");
+        if(closeByZ3 == null)
+            available = false;
     }
 
-    public void actionPerformed(ActionEvent e) {
-        if(isSelected()) {
-            // tell the thread that we are in again
-            jobs.clear();
-            for(ProofNode pn : proof.getOpenGoals()) {
-                jobs.add(pn);
-            }
-            synchronized (lock) {
-                lock.notify();
+    /* 
+     * Try to prove all open goals.
+     */
+    public void actionPerformed(ActionEvent actionEvt) {
+
+        // synchronise it with lock so that the thread does not tamper with provable nodes
+        synchronized (proof) {
+            List<ProofNode> openGoals = proof.getOpenGoals();
+            for (int index = 0; index < openGoals.size(); index++) {
+                MutableRuleApplication ra = new MutableRuleApplication();
+                ra.setGoalNumber(index);
+                ra.setRule(closeByZ3);
+                try {
+                    proof.apply(ra, env);
+                } catch(ProofException ex) {
+                  // this is ok - the goal may not be closeable.  
+                } catch (Exception e) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                }
             }
         }
+        
     }
     
+    /* 
+     * switch the button off when in proof elsewhere
+     */
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled((Boolean) evt.getOldValue());
     }
-
+    
+    /* 
+     * the proof object has changed. change our structures accordingly:
+     * - remove from provable if no longer a goal
+     * - set jobs to all newly open goals
+     */
     public void update(Observable o, Object arg) {
-        jobs.clear();
-        for(ProofNode pn : proof.getOpenGoals()) {
-            jobs.add(pn);
+        Iterator<ProofNode> it = provableNodes.iterator();
+        while(it.hasNext()) {
+            if(!proof.getOpenGoals().contains(it.next()))
+                it.remove();
         }
+        
+        setFlashing(!provableNodes.isEmpty());
+        
+        jobs.clear();
+        jobs.addAll(proof.getOpenGoals());
     }
 
+    /*
+     * flashing or non-flashing icon
+     */
+    private void setFlashing(boolean flashing) {
+        setIcon(flashing ? flashImg : noflashImg);
+    }
+
+    /* 
+     * perform a endless looping. Take one from the jobs and test for closability.
+     * Add to provableNodes if so, cache the result.
+     */
     public void run() {
         try {
             while(!Thread.interrupted()) {
                 synchronized (lock) {
-                    while(!isSelected()) {
+                    while(!backgroundActive && isEnabled()) {
                         lock.wait();
                     }
                 }
@@ -99,24 +205,43 @@ public class SMTBackgroundAction extends BarAction implements
                 Boolean cached = sequentStatus.get(sequent);
                 if(cached != null) {
                     if(cached) {
-                        peer.addProvable(pn);
+                        provableNodes.add(pn);
+                        setFlashing(true);
                     }
                 }
                 
                 try {
-                    Pair<Result, String> result = solver.solve(sequent, env, 3000);
+                    Pair<Result, String> result = solver.solve(sequent, env, 500);
                     boolean proveable = result.fst() == Result.VALID;
                     sequentStatus.put(sequent, proveable);
-                    if(proveable)
-                        peer.addProvable(pn);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    if(proveable) {
+                        provableNodes.add(pn);
+                        setFlashing(true);
+                    }
+                } catch (Exception ex) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                    ex.printStackTrace();
                 }
                 
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Sets the background thread active or not.
+     * 
+     * @param active
+     *            the new background active
+     */
+    public void setBackgroundActive(boolean active) {
+        synchronized (lock) {
+            this.backgroundActive = active;
+            if(active)
+                lock.notify();
+        }
+            
     }
     
 }

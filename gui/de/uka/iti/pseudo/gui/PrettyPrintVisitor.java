@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -254,7 +254,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.end();
     }
     
-    public void visit(SchemaProgram schemaProgramTerm)
+    public void visit(SchemaProgramTerm schemaProgramTerm)
             throws TermException {
         printer.begin(schemaProgramTerm);
         printer.setStyle("program");

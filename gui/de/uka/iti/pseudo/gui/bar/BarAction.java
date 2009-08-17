@@ -40,6 +40,11 @@ public abstract class BarAction extends AbstractAction {
         return (PFileEditor) getValue(EDITOR_FRAME);
     }
 
+    /**
+     * 
+     * @return
+     * @see AbstractAction#isSelected(Action)
+     */
     protected boolean isSelected() {
         return Boolean.TRUE.equals(getValue(Action.SELECTED_KEY));
     }

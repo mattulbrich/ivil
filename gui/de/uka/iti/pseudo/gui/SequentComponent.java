@@ -14,7 +14,6 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.JPanel;
-import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
@@ -218,8 +217,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                             e.getLocationOnScreen()).setVisible(true);
 
                 } catch (ProofException ex) {
-                    // TODO gescheiter fehlerreport
-                    ex.printStackTrace();
+                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), ex);
                 }
             }
         }  
