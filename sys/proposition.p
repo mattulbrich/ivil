@@ -73,7 +73,6 @@ rule replace_known_right
   samegoal replace  false 
 
 rule cut
-  find  %c 
   where
     interact  %inst as bool 
   samegoal "Assume true for %c"

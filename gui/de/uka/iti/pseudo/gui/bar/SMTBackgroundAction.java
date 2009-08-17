@@ -35,8 +35,8 @@ import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.AskDecisionProcedure;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Pair;
@@ -45,11 +45,25 @@ import de.uka.iti.pseudo.util.Pair;
 @SuppressWarnings("serial") 
 public class SMTBackgroundAction extends BarAction implements
         InitialisingAction, PropertyChangeListener, Observer, Runnable {
-    
+
     /**
-     * The solver used to determine the status.
+     * The rule to be called to close goals with
      */
-    private DecisionProcedure solver = new Z3SMT();
+    private static final String CLOSE_RULE_NAME = "auto_smt_close";
+
+    /**
+     * The solver used to determine the status. Retrieved from the rule named
+     * {@value #CLOSE_RULE_NAME} using the key
+     * {@link AskDecisionProcedure#KEY_DECISION_PROCEDURE}
+     */
+    private DecisionProcedure solver;
+
+    /**
+     * The timeout to be used by the solver. Retrieved from the rule named
+     * {@value #CLOSE_RULE_NAME} using the key
+     * {@link AskDecisionProcedure#KEY_TIMEOUT}
+     */
+    private long timeout;
     
     /**
      * Cache to remember solvability of sequents.
@@ -93,31 +107,32 @@ public class SMTBackgroundAction extends BarAction implements
      */
     private boolean backgroundActive;
     
-    
-    /**
-     * If some service (a rule, the solver etc) is not available, the button is disabled.
-     */
-    private boolean available = true;
-
     /**
      * The rule to close by Z3.
      */
-    private Rule closeByZ3;
+    private Rule closeRule;
 
     /*
      * Instantiates a new SMT background action.
+     * TODO tooltip
      */
     public SMTBackgroundAction() {
         Thread thread = new Thread(this, "SMT Background");
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-        noflashImg = BarManager.makeIcon(getClass().getResource("img/smt.png"));
+        
+        // make images and set the non-flashing one
+        noflashImg = BarManager.makeIcon(getClass().getResource("img/smt.gif"));
         flashImg = BarManager.makeIcon(getClass().getResource("img/smt_flash.gif"));
         setFlashing(false);
+        
+        // we will set us enabled after initialisation
+        setEnabled(false);
     }
 
     /* 
-     * 
+     * retrieve the environment and read from it the necessary information, such as the
+     * rule to apply, and the solver to use.
      */
     public void initialised() {
         getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
@@ -125,9 +140,20 @@ public class SMTBackgroundAction extends BarAction implements
         proof.addObserver(this);
         env = getProofCenter().getEnvironment();
         
-        closeByZ3 = env.getRule("close_by_Z3");
-        if(closeByZ3 == null)
-            available = false;
+        closeRule = env.getRule(CLOSE_RULE_NAME);
+        if(closeRule != null) {
+            try {
+                String className = closeRule.getProperty(AskDecisionProcedure.KEY_DECISION_PROCEDURE);
+                solver = (DecisionProcedure) Class.forName(className).newInstance();
+                timeout = Long.parseLong(closeRule.getProperty(AskDecisionProcedure.KEY_TIMEOUT));
+            } catch(Exception ex) {
+                System.err.println("Cannot start background decision procedure");
+                ex.printStackTrace();
+                closeRule = null;
+            }
+        }
+        
+        setEnabled(closeRule != null);
     }
 
     /* 
@@ -141,7 +167,7 @@ public class SMTBackgroundAction extends BarAction implements
             for (int index = 0; index < openGoals.size(); index++) {
                 MutableRuleApplication ra = new MutableRuleApplication();
                 ra.setGoalNumber(index);
-                ra.setRule(closeByZ3);
+                ra.setRule(closeRule);
                 try {
                     proof.apply(ra, env);
                 } catch(ProofException ex) {
@@ -158,7 +184,7 @@ public class SMTBackgroundAction extends BarAction implements
      * switch the button off when in proof elsewhere
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean) evt.getOldValue());
+        setEnabled((Boolean) evt.getOldValue() && solver != null);
     }
     
     /* 
@@ -211,7 +237,7 @@ public class SMTBackgroundAction extends BarAction implements
                 }
                 
                 try {
-                    Pair<Result, String> result = solver.solve(sequent, env, 500);
+                    Pair<Result, String> result = solver.solve(sequent, env, timeout);
                     boolean proveable = result.fst() == Result.VALID;
                     sequentStatus.put(sequent, proveable);
                     if(proveable) {

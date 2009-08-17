@@ -11,9 +11,15 @@
  * This file contains rules to contact decision procedures.
  *)
 
-rule close_by_Z3
-  find %b
+(*
+ * The rule auto_smt_close is special since it is the one used
+ * for the background smt solver
+ * The solver and the timeout are read from this rule
+ *)
+rule auto_smt_close
     where askDecisionProcedure
   closegoal
-  tags decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
+  tags 
+    decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
+    timeout "1000"
   

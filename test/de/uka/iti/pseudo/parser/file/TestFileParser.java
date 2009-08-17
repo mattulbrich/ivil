@@ -69,6 +69,13 @@ public class TestFileParser extends TestCase {
         assertEnvFail("rule something find 1 assume %b |- samegoal replace %b+1");
     }
     
+    // test findless rules
+    public void testFindless() throws Exception {
+        testEnv("rule cut_findless samegoal add |- %b samegoal add %b |-");
+        assertEnvFail("rule may_not_replace samegoal replace %b");
+        assertEnvFail("rule may_not_remove samegoal remove");
+    }
+    
     public void testFindReplaceSameType() throws Exception {
         assertEnvFail("rule something find 1 newgoal replace true");
         

@@ -5,15 +5,21 @@ import java.io.IOException;
 
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 
+/**
+ * Simple Action to enable/disable background smt solver.
+ * Used in Settings menu
+ */
+@SuppressWarnings("serial") 
 public class SMTActivationAction extends BarAction implements InitialisingAction {
 
     private SMTBackgroundAction peer;
     
     public SMTActivationAction() {
+        super("Background SMT");
         setSelected(false);
+        putValue(SHORT_DESCRIPTION, "Activate background SMT solver");
     }
     
-    @Override 
     public void initialised() {
         try {
             peer = (SMTBackgroundAction) getProofCenter().getMainWindow().
