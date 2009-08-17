@@ -15,7 +15,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -100,8 +100,8 @@ class TermMatcher extends DefaultTermVisitor {
                 termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), t2.getType());
             }
             
-        } else if(t1 instanceof SchemaProgram && t2 instanceof LiteralProgramTerm) {
-            SchemaProgram sp = (SchemaProgram) t1;
+        } else if(t1 instanceof SchemaProgramTerm && t2 instanceof LiteralProgramTerm) {
+            SchemaProgramTerm sp = (SchemaProgramTerm) t1;
             LiteralProgramTerm litPrg = (LiteralProgramTerm) t2;
             matchSchemaProgram(sp, litPrg);
             
@@ -131,7 +131,7 @@ class TermMatcher extends DefaultTermVisitor {
     }
 
     // TODO DOC
-    private void matchSchemaProgram(SchemaProgram sp, LiteralProgramTerm litPrg) throws TermException {
+    private void matchSchemaProgram(SchemaProgramTerm sp, LiteralProgramTerm litPrg) throws TermException {
         SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
         
@@ -227,7 +227,7 @@ class TermMatcher extends DefaultTermVisitor {
     }
     
     @Override 
-    public void visit(SchemaProgram schemaProgramTerm) throws TermException {
+    public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
         throw new Error("unification of 2 schema program terms is not implemented / intended");
     }
     

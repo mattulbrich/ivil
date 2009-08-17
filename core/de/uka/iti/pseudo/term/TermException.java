@@ -12,7 +12,7 @@ package de.uka.iti.pseudo.term;
 /**
  * Exceptions of type TermException are thrown during term creation, 
  * by {@link TermVisitor}s, {@link ModalityVisitor}s to indicate that 
- * some typing / unification / construction issue has been rised. 
+ * some typing / unification / construction issue has been raised. 
  */
 public class TermException extends Exception {
 

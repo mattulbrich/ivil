@@ -1,19 +1,17 @@
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.Statement;
-import de.uka.iti.pseudo.util.Util;
 
 // TODO DOC
 public class ProgramComparingTermInstantiator extends TermInstantiator {
@@ -28,7 +26,7 @@ public class ProgramComparingTermInstantiator extends TermInstantiator {
     }
 
     protected void checkSchemaProgramInstantiation(
-            SchemaProgram schema, LiteralProgramTerm prog)
+            SchemaProgramTerm schema, LiteralProgramTerm prog)
             throws TermException {
         super.checkSchemaProgramInstantiation(schema, prog);
         

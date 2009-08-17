@@ -124,17 +124,20 @@ public abstract class Term {
 	}
 	
 	/**
-	 * Depending on the argument typed print the term with or 
-	 * without typing information.
-	 * 
-	 * If typing is switched on, every subterm will be annotated
-	 * as in "t as T". 
-	 * 
-	 * @param typed should the result contain typing information 
-	 * 
-	 * @return the string for this term, with tpying information
-	 *         iff typed==true.
-	 */
+     * Depending on the argument give a string representation of this term with
+     * or without typing information. If typing is switched on, every subterm
+     * will be annotated as in <code>"t as T"</code>.
+     * 
+     * <p>
+     * The resulting term should be parsable again by the term parser resulting
+     * in the same term.
+     * 
+     * @param typed
+     *            should the result contain typing information
+     * 
+     * @return the string for this term, with tpying information iff
+     *         typed==true.
+     */
 	public abstract String toString(boolean typed);
 	
 	/**

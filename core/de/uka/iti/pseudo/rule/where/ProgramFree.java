@@ -6,7 +6,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
@@ -36,7 +36,7 @@ public class ProgramFree extends WhereCondition {
 
     private boolean checkProgramFree(Term term) {
         TermVisitor tv = new DefaultTermVisitor.DepthTermVisitor() {
-          public void visit(SchemaProgram programTerm) throws TermException {
+          public void visit(SchemaProgramTerm programTerm) throws TermException {
                 throw new TermException("Modality found!");
           }
           public void visit(LiteralProgramTerm programTerm) throws TermException {

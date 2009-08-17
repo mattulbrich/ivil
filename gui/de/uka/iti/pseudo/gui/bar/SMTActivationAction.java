@@ -13,6 +13,7 @@ import javax.swing.Icon;
 
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 
@@ -31,7 +32,11 @@ public class SMTAnnunciatorAction extends BarAction implements InitialisingActio
     }
 
     public void actionPerformed(ActionEvent e) {
-        System.out.println("TODO");
+        for (ProofNode node : provableNodes) {
+            synchronized (proof) {               
+                int index = proof.getOpenGoals().indexOf(node);
+                RuleApplication ruleApp = new MutableRuleApplication();
+        }
     }
 
     public void addProvable(ProofNode pn) {

@@ -54,7 +54,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -551,7 +551,7 @@ public class TermMaker extends ASTDefaultVisitor {
             boolean terminating = programTerm.isTerminating();
             if (programTerm.isSchema()) {
                 SchemaVariable sv = new SchemaVariable(position.image, Environment.getBoolType());
-                resultTerm = new SchemaProgram(sv, terminating, matchingStatement);
+                resultTerm = new SchemaProgramTerm(sv, terminating, matchingStatement);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);

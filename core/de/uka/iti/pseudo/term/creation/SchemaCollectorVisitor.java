@@ -15,7 +15,7 @@ import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -126,7 +126,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
         return schemaVariables;
     }
 
-    public void visit(SchemaProgram schemaProgram) throws TermException {
+    public void visit(SchemaProgramTerm schemaProgram) throws TermException {
         schemaVariables.add(schemaProgram.getSchemaVariable());
         Statement statement = schemaProgram.getMatchingStatement();
         if (statement != null) {

@@ -14,7 +14,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -53,7 +53,7 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
             throw new TermException("Top level term does not have boolean type");
     }
 
-    public void visit(SchemaProgram schemaProgram) throws TermException {
+    public void visit(SchemaProgramTerm schemaProgram) throws TermException {
         throw new TermException("Top level term contains schema program"
                 + schemaProgram);
     }

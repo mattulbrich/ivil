@@ -8,11 +8,9 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.util.Arrays;
 import java.util.List;
 
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
-import de.uka.iti.pseudo.util.Util;
 
 // TODO: Auto-generated Javadoc
 /**

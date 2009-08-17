@@ -14,7 +14,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -171,7 +171,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
     }
     
-    public void visit(SchemaProgram schemaProgramTerm) throws TermException {
+    public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
         // see above
         super.visit(schemaProgramTerm);
         
@@ -192,7 +192,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
      * @throws TermException 
      */
     protected void checkSchemaProgramInstantiation(
-            SchemaProgram schema, LiteralProgramTerm prog)
+            SchemaProgramTerm schema, LiteralProgramTerm prog)
             throws TermException {
         if(prog.isTerminating() != schema.isTerminating())
             throw new UnificationException("Instantiation failed! Termination incompatible", 

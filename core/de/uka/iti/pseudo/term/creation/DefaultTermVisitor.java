@@ -3,7 +3,7 @@ package de.uka.iti.pseudo.term.creation;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaProgram;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -51,7 +51,7 @@ public abstract class DefaultTermVisitor implements TermVisitor {
         defaultVisitTerm(schemaVariable);
     }
 
-    public void visit(SchemaProgram schemaProgramTerm) throws TermException {
+    public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
         defaultVisitTerm(schemaProgramTerm);
     }
 
