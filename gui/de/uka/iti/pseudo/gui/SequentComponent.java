@@ -15,6 +15,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -25,6 +26,7 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
 
@@ -117,6 +119,8 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         this.setLayout(new Layout());
         prettyPrinter = proofCenter.getPrettyPrinter();
         prettyPrinter.addPropertyChangeListener(this);
+        
+        setBackground(Settings.getInstance().getColor("pseudo.sequentview.background"));
     }
     
     private void setSequent(Sequent sequent, boolean open) {
@@ -157,6 +161,8 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
 
     public void markTerm(TermSelector selector, int type) {
         
+        assert selector != null;
+        
         if(sequent == null)
             return;
         
@@ -185,7 +191,11 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         //
         // set the current markings
-        markTerm(ruleApplication.getFindSelector(), 0);
+        TermSelector findSelector = ruleApplication.getFindSelector();
+        // might be a rule w/o find clause
+        if(findSelector != null) {
+            markTerm(findSelector, 0);
+        }
         for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
             markTerm(sel, 1);
         }

@@ -109,7 +109,7 @@ public class ProofNode {
     /**
      * This constructor is called when starting a new proof with an initial
      * sequent. It is only package visible since this is to be called only from
-     * Proof.
+     * {@link Proof}.
      * 
      * @param proof
      *            the proof to which this node belongs
@@ -459,14 +459,20 @@ public class ProofNode {
     }
 
     /*
-     * Match find clause against the sequent
+     * Match find clause against the sequent.
+     * 
+     * If there is no find clause in this rule, just return.
      */
     private void matchFindClause(RuleApplication ruleApp, TermInstantiator inst,
             Rule rule) throws ProofException {
+        
+        LocatedTerm findClause = rule.getFindClause();
+        if(findClause == null)
+            return;
+        
         TermSelector findSelector = ruleApp.getFindSelector();
         Term findSubTerm = findSelector.selectSubterm(sequent);
 
-        LocatedTerm findClause = rule.getFindClause();
         if (!findClause.isFittingSelect(findSelector)) {
             throw new ProofException("Illegal selector for find");
         }
@@ -488,6 +494,8 @@ public class ProofNode {
 
     /*
      * Match assume clauses against the sequent.
+     * 
+     * FIXME start with rule's clauses not with app's clauses
      */
     private void matchAssumeClauses(RuleApplication ruleApp,
             TermInstantiator inst, Rule rule) throws ProofException {

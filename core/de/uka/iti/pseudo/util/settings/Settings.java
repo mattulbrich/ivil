@@ -30,7 +30,7 @@ import java.util.Properties;
  * 
  * Store results in caches for the conversion may be costly.
  * 
- * For convinience also store all keys in here.
+ * For convenience also store all keys in here.
  * 
  * This is a singleton.
  * 
@@ -187,8 +187,7 @@ public class Settings extends Properties {
     }
 
     /**
-     * 
-     * use the {@link ColorResolver} to resolve a color name or id.
+     * Use the {@link ColorResolver} to resolve a color name or id.
      * 
      * @param key
      *            key to look up

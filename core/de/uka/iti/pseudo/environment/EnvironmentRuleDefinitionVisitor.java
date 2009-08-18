@@ -95,13 +95,18 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
             {
                 List<ASTRuleFind> findASTs = SelectList.select(
                         ASTRuleFind.class, children);
-                if (findASTs.size() != 1) {
+                if (findASTs.size() > 1) {
                     throw new ASTVisitException(
-                            "There is not exactly one find clause.", arg);
+                            "There is more than one find clause in this rule.", arg);
+                } 
+                
+                if (findASTs.size() == 1) {
+                    ASTRuleFind astFind = findASTs.get(0);
+                    astFind.visit(this);
+                    find = new LocatedTerm(resultingTerm, resultingMatchingLocation);
+                } else {
+                    find = null;
                 }
-                ASTRuleFind astFind = findASTs.get(0);
-                astFind.visit(this);
-                find = new LocatedTerm(resultingTerm, resultingMatchingLocation);
             }
 
             List<WhereClause> wheres = new ArrayList<WhereClause>();

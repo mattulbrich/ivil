@@ -19,7 +19,9 @@ class RuleSchemaConsistencyChecker extends SchemaCollectorVisitor {
     public static void check(Rule rule) throws RuleException {
         try {
             RuleSchemaConsistencyChecker checker = new RuleSchemaConsistencyChecker();
-            rule.getFindClause().getTerm().visit(checker);
+            LocatedTerm findClause = rule.getFindClause();
+            if(findClause != null)
+                findClause.getTerm().visit(checker);
             for (LocatedTerm assumption : rule.getAssumptions()) {
                 assumption.getTerm().visit(checker);
             }

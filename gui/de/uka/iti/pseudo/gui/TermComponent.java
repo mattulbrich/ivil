@@ -43,35 +43,34 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
  */
 public class TermComponent extends JTextPane {
 
+    private static Settings S = Settings.getInstance();
+    
     private static final long serialVersionUID = -4415736579829917335L;
 
     /**
      * some UI constants
      */
-    // TODO read constants from settings.
-    private static final String FONT_NAME = System.getProperty(
-            "pseudo.termfont.name", "Monospaced");
-
-    private static final Integer FONT_SIZE = Integer.getInteger(
-            "pseudo.termfont.size", 14);
-
-    private static final Font FONT = new Font(FONT_NAME, Font.PLAIN, FONT_SIZE);
-
+    private static final Font FONT = S.getFont("pseudo.termcomponent.font");
+    
     // the highlight color should be bright
-    private static final Color HIGHLIGHT_COLOR = new Color(0xFFB366);
+    private static final Color HIGHLIGHT_COLOR = S.getColor("pseudo.termcomponent.highlightcolor");
 
     // the modality background should be rather unnoticed
-    private static final Color MODALITY_BACKGROUND = new Color(240, 240, 255);
+    private static final Color MODALITY_BACKGROUND = S.getColor("pseudo.termcomponent.modalitybackground");
+    
+    // border color needs to match background of sequent view
+    private static final Color BORDER_COLOR = S.getColor("pseudo.termcomponent.bordercolor");
 
     // empty border
     private static final Border BORDER = BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY), BorderFactory
+            BorderFactory.createLineBorder(BORDER_COLOR), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
 
     // darker and a lighter color for marking
@@ -189,11 +188,11 @@ public class TermComponent extends JTextPane {
                 return cached;
 
             MutableAttributeSet retval = new SimpleAttributeSet();
-            StyleConstants.setFontFamily(retval, FONT_NAME);
-            StyleConstants.setFontSize(retval, FONT_SIZE);
+            StyleConstants.setFontFamily(retval, FONT.getFamily());
+            StyleConstants.setFontSize(retval, FONT.getSize());
 
             if (descr.contains("closed"))
-                StyleConstants.setForeground(retval, Color.LIGHT_GRAY);
+                StyleConstants.setForeground(retval, BORDER_COLOR);
 
             if (descr.contains("program"))
                 StyleConstants.setBackground(retval, MODALITY_BACKGROUND);

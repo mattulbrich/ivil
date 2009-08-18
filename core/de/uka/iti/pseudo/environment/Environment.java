@@ -721,7 +721,7 @@ public class Environment {
      * 
      * @return a rule by that name
      */
-    public Rule getRule(String name) {
+    public @Nullable Rule getRule(String name) {
         Rule rule = ruleMap.get(name);
         if (rule == null && parentEnvironment != null)
             rule = parentEnvironment.getRule(name);

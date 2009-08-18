@@ -26,10 +26,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.Icon;
 
 import de.uka.iti.pseudo.auto.DecisionProcedure;
-import de.uka.iti.pseudo.auto.Z3SMT;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.MainWindow;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
@@ -147,7 +147,7 @@ public class SMTBackgroundAction extends BarAction implements
                 solver = (DecisionProcedure) Class.forName(className).newInstance();
                 timeout = Long.parseLong(closeRule.getProperty(AskDecisionProcedure.KEY_TIMEOUT));
             } catch(Exception ex) {
-                System.err.println("Cannot start background decision procedure");
+                System.err.println("Cannot instantiate background decision procedure");
                 ex.printStackTrace();
                 closeRule = null;
             }
@@ -160,7 +160,8 @@ public class SMTBackgroundAction extends BarAction implements
      * Try to prove all open goals.
      */
     public void actionPerformed(ActionEvent actionEvt) {
-
+        ProofCenter proofCenter = getProofCenter();
+        
         // synchronise it with lock so that the thread does not tamper with provable nodes
         synchronized (proof) {
             List<ProofNode> openGoals = proof.getOpenGoals();
@@ -169,7 +170,7 @@ public class SMTBackgroundAction extends BarAction implements
                 ra.setGoalNumber(index);
                 ra.setRule(closeRule);
                 try {
-                    proof.apply(ra, env);
+                    proofCenter.apply(ra);
                 } catch(ProofException ex) {
                   // this is ok - the goal may not be closeable.  
                 } catch (Exception e) {

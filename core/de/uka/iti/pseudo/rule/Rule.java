@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
@@ -111,9 +112,9 @@ public class Rule {
     /**
      * Gets the find clause.
      * 
-     * @return the find clause
+     * @return the find clause, may be null
      */
-    public LocatedTerm getFindClause() {
+    public @Nullable LocatedTerm getFindClause() {
         return findClause;
     }
 
@@ -157,7 +158,7 @@ public class Rule {
      *             if the elements do not compose a valid rule.
      */
     public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes, 
-            @NonNull LocatedTerm find, @NonNull List<WhereClause> wheres,
+            @Nullable LocatedTerm find, @NonNull List<WhereClause> wheres,
             @NonNull List<GoalAction> actions, 
             @NonNull Map<String, String> properties, 
             @NonNull ASTLocatedElement location)
@@ -182,9 +183,13 @@ public class Rule {
         // remove only if find is top level
         for (GoalAction goalAction : getGoalActions()) {
             if(goalAction.isRemoveOriginalTerm() && 
-               getFindClause().getMatchingLocation() == MatchingLocation.BOTH) {
-                throw new RuleException("Goal action contains remove element where find is not top level");
+                    (getFindClause() == null ||
+                            getFindClause().getMatchingLocation() == MatchingLocation.BOTH)) {
+                throw new RuleException("Goal action contains remove element where find is not present or not top level");
             }
+            
+            if(goalAction.getReplaceWith() != null && getFindClause() == null)
+                throw new RuleException("Find-less rules may not have a replace claus");
         }
         
         if(getGoalActions().size() == 0)
@@ -201,8 +206,10 @@ public class Rule {
 
         System.out.println("  Rule " + name);
         
-        System.out.print("    Find: ");
-        System.out.println(findClause);
+        if(findClause != null) {
+            System.out.print("    Find: ");
+            System.out.println(findClause);
+        }
         
         System.out.println("    Assumptions:");
         for (LocatedTerm lt : assumptions) {

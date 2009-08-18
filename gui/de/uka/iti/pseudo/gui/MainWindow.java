@@ -10,14 +10,14 @@ package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
 import java.awt.event.WindowListener;
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -33,17 +33,21 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
-import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
+import de.uka.iti.pseudo.gui.parameters.ParameterTest;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
-// the center of this all
-// TODO DOC
-
+/**
+ * The class MainWindow describes the proof window for one single proof.
+ * 
+ * The different views are layout using javadocking dockables allowing a very
+ * flexible way to look at things.
+ */
+@SuppressWarnings("serial") 
 public class MainWindow extends JFrame {
     
     /**
@@ -82,17 +86,16 @@ public class MainWindow extends JFrame {
 
     void makeGUI() throws IOException {
         
-        final JSplitPane content = new JSplitPane();
+        // Create the split dock.
+        SplitDock topDock = new SplitDock();
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(content, BorderLayout.CENTER);
+        getContentPane().add(topDock, BorderLayout.CENTER);
         
         // Create the dockings
-        TabDock tabDock = new TabDock();
+        TabDock leftTabDock = new TabDock();
+        TabDock rightTabDock = new TabDock();
+        TabDock bottomTabDock = new TabDock();
         {
-            // Create the enclosing tock
-            SplitDock topDock = new SplitDock();
-            topDock.addChildDock(tabDock, new Position(Position.TOP));
-            
             // Create the dock model for the docks.
             FloatDockModel dockModel = new FloatDockModel();
             dockModel.addOwner("mainFrame", this);
@@ -100,8 +103,17 @@ public class MainWindow extends JFrame {
             // Give the dock model to the docking manager.
             DockingManager.setDockModel(dockModel);
             
-            // add as content 
-            content.add(topDock, JSplitPane.LEFT);
+            // create compound dock for right and bottom
+            SplitDock rbSplitDock = new SplitDock();
+            
+            // Add the child docks to the split dock at the left and right.
+            rbSplitDock.addChildDock(rightTabDock, new Position(Position.CENTER));
+            rbSplitDock.addChildDock(bottomTabDock, new Position(Position.BOTTOM));
+            rbSplitDock.setDividerLocation(400);
+            
+            topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
+            topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
+            topDock.setDividerLocation(200);
             
             // Add the root dock to the dock model.
             dockModel.addRootDock("splitDock", topDock, this);
@@ -109,7 +121,8 @@ public class MainWindow extends JFrame {
         {
             sequentComponent = new SequentComponent(proofCenter);
             sequentComponent.setBorder(new EmptyBorder(5,5,5,5));
-            content.add(sequentComponent, JSplitPane.RIGHT);
+            Dockable dock = new DefaultDockable("sequentview", sequentComponent, "Sequent");
+            rightTabDock.addDockable(dock, new Position(0));
             proofCenter.addProofNodeSelectionListener(sequentComponent);
         }
         {
@@ -122,7 +135,7 @@ public class MainWindow extends JFrame {
                 }});
             JScrollPane scroll = new JScrollPane(goalList);
             Dockable dock = new DefaultDockable("goallist", scroll, "Goal list");
-            tabDock.addDockable(dock, new Position(0));
+            leftTabDock.addDockable(dock, new Position(0));
         }
         {
             proofComponent = new ProofComponent(proofCenter.getProof());
@@ -136,28 +149,42 @@ public class MainWindow extends JFrame {
             });
             JScrollPane scroll = new JScrollPane(proofComponent);
             Dockable dock = new DefaultDockable("proof", scroll, "Proof tree");
-            tabDock.addDockable(dock, new Position(1));
+            leftTabDock.addDockable(dock, new Position(1));
         }
         {
             ruleApplicationComponent = new RuleApplicationComponent(proofCenter);
             proofCenter.addProofNodeSelectionListener(ruleApplicationComponent);
             JScrollPane scroll = new JScrollPane(ruleApplicationComponent);
             Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");
-            tabDock.addDockable(dock, new Position(2));
+            leftTabDock.addDockable(dock, new Position(2));
         }
         {
             ProgramPanel panel = new ProgramPanel(proofCenter);
+            programComponent = panel.getProgramComponent();
             proofCenter.addProofNodeSelectionListener(panel);
             JScrollPane scroll = new JScrollPane(panel);
             Dockable dock = new DefaultDockable("program", scroll, "Program");
-            tabDock.addDockable(dock, new Position(3));
+            bottomTabDock.addDockable(dock, new Position(0));
         }
-//        {
+        {
+            JPanel source = new JPanel();
+            source.add(new JLabel("yet to come ..."));
+            Dockable dock = new DefaultDockable("source", source, "Sources");
+            bottomTabDock.addDockable(dock, new Position(1));
+        }
+        {
 //            JPanel settings = new JPanel();
 //            settings.add(new JLabel("yet to come ..."));
-//            Dockable dock = new DefaultDockable("settings", settings, "Settings");
-//            tabDock.addDockable(dock, new Position(3));
-//        }
+            ParameterSheet settings;
+            try {
+                settings = new ParameterSheet(ParameterTest.class, new ParameterTest());
+                Dockable dock = new DefaultDockable("settings", settings, "Settings");
+                leftTabDock.addDockable(dock, new Position(3));
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         {
             URL resource = getClass().getResource("bar/menu.properties");
             if(resource == null)

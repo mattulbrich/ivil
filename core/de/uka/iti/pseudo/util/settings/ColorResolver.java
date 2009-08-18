@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.*;
 import java.util.HashMap;
 
+import javax.swing.UIManager;
+
 /**
  * Singleton to be used to resolve color names to Color objects.
  * 
@@ -14,6 +16,8 @@ import java.util.HashMap;
  */
 
 public class ColorResolver {
+
+    private static final String UI_REFERENCE_PREFIX = "UI:";
 
     private static ColorResolver defaultInstance;
 
@@ -45,20 +49,29 @@ public class ColorResolver {
     /**
      * resolve a String to a color.
      * 
-     * Valid color names are either the ones stored in "colors.properties" or an
-     * integer constant in either decimal or hexadecimal format.
+     * Valid color names are either the ones stored in "colors.properties", or an
+     * integer constant in either decimal or hexadecimal format, or a reference to
+     * a UI color prefixed with <code>{@value #UI_REFERENCE_PREFIX}</code>.
      * 
      * Results are stored in a cache table.
      * 
      * @param colorString
-     *            a name of a color or a string containing an integer
+     *            a name of a color or a string containing an integer or
+     *            a reference to a UI reference.
      * @return a Color object, possibly cached, null if the named color has not
      *         been found
      */
     public Color resolve(String colorString) {
         try {
-
-            Integer entry = lookuptable.get(colorString);
+            
+            if(colorString.startsWith(UI_REFERENCE_PREFIX)) {
+                Color color = UIManager.getColor(colorString.substring(UI_REFERENCE_PREFIX.length()));
+                if(color != null)
+                    return color;
+            }
+            
+            Integer entry= lookuptable.get(colorString);
+            
             if (entry == null) {
                 try {
                     entry = Integer.decode(colorString);

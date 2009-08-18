@@ -36,7 +36,10 @@ public class MutableRuleApplication implements RuleApplication {
     public MutableRuleApplication() {
         this.properties = new HashMap<String, String>();
         this.schemaVariableMapping = new HashMap<String, Term>();
+        this.schemaUpdateMapping = new HashMap<String, Update>();
         this.typeVariableMapping = new HashMap<String, Type>();
+        this.assumeSelectors = new ArrayList<TermSelector>();
+        this.goalNumber = 0;
     }
 
     public void setFindSelector(TermSelector findSelector) {

@@ -85,7 +85,9 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
      * @param rule the rule to inspect
      */
     public void collect(Rule rule) {
-        collect(rule.getFindClause().getTerm());
+        LocatedTerm findClause = rule.getFindClause();
+        if(findClause != null)
+            collect(findClause.getTerm());
         for (LocatedTerm lterm : rule.getAssumptions()) {
             collect(lterm.getTerm());
         }

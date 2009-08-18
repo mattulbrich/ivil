@@ -60,7 +60,7 @@ public abstract class Type {
      * {@inheritDoc}
      * 
      * <p>
-     * The hashcode of a type is calculated using the string representation and
+     * The hash code of a type is calculated using the string representation and
      * its hash code. Once calculated, the value is stored in the variable
      * {@link #storedHashCode}.
      */

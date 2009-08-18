@@ -34,6 +34,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Sequent;
@@ -269,18 +270,22 @@ class SAXHandler extends DefaultHandler {
         }
     }
     
+    // TODO Does this really check from which side the terms come from?!
     private void matchRuleApp() throws ProofException {
         ProofNode goal = proof.getGoal(ram.getGoalNumber());
         Sequent seq = goal.getSequent();
         List<TermSelector> assumeSelectors = ram.getAssumeSelectors();
         
-        Term t1 = ram.getFindSelector().selectSubterm(seq);
-        Term t2 = ram.getRule().getFindClause().getTerm();
-        ram.getTermUnification().leftUnify(t2, t1);
+        LocatedTerm ruleFindClause = ram.getRule().getFindClause();
+        if(ruleFindClause != null) {
+            Term t1 = ram.getFindSelector().selectSubterm(seq);
+            Term t2 = ruleFindClause.getTerm();
+            ram.getTermUnification().leftUnify(t2, t1);
+        }
         
         for(int i = 0; i < assumeSelectors.size(); i++) {
-            t1 = assumeSelectors.get(i).selectSubterm(seq);
-            t2 = ram.getRule().getAssumptions().get(i).getTerm();
+            Term t1 = assumeSelectors.get(i).selectSubterm(seq);
+            Term t2 = ram.getRule().getAssumptions().get(i).getTerm();
             ram.getTermUnification().leftUnify(t2, t1);
         }
     }

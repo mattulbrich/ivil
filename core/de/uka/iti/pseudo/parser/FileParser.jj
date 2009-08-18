@@ -167,7 +167,7 @@ ASTRule RuleDeclaration():
     t="find" lt=LocatedTerm(true) { list.add(new ASTRuleFind(t, lt)); }
   | t="assume" lt=LocatedTerm(false) { list.add(new ASTRuleAssume(t, lt)); }
   | t="where" elem=WhereClause(t) { list.add(elem); }
-  )+
+  )*
   
   (
     (

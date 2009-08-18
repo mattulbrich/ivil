@@ -61,9 +61,13 @@ public class RewriteRuleCollection {
         
     }
 
+    /*
+     * checks on the rules which can be used in this pattern:
+     * - need to have a find clause
+     */
     private boolean checkRule(Rule rule) throws RuleException {
 
-        return true;
+        return rule.getFindClause() != null;
         
     }
 

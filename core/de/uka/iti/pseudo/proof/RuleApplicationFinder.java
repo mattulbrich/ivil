@@ -147,23 +147,27 @@ public class RuleApplicationFinder {
                 ruleAppMaker.setFindSelector(termSelector);
 
                 LocatedTerm findClause = rule.getFindClause();
-
-                if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
-                        && (termSelector.isSuccedent() || !termSelector
-                                .isToplevel()))
-                    continue;
-
-                if (findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT
-                        && (termSelector.isAntecedent() || !termSelector
-                                .isToplevel()))
-                    continue;
-
                 TermUnification mc = new TermUnification(env);
                 ruleAppMaker.setTermUnification(mc);
 
-                if (mc.leftUnify(findClause.getTerm(), termSelector
-                        .selectSubterm(sequent)))
-                    matchAssumptions(rule.getAssumptions(), mc, 0);
+                if(findClause != null) {
+                    if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
+                            && (termSelector.isSuccedent() || !termSelector
+                                    .isToplevel()))
+                        continue;
+
+                    if (findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT
+                            && (termSelector.isAntecedent() || !termSelector
+                                    .isToplevel()))
+                        continue;
+
+
+                    if (!mc.leftUnify(findClause.getTerm(), termSelector
+                            .selectSubterm(sequent)))
+                        continue;
+                }
+
+                matchAssumptions(rule.getAssumptions(), mc, 0);
 
             }
         } catch (RuleException e) {

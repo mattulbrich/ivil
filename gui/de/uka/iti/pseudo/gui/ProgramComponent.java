@@ -390,7 +390,7 @@ class ProgramComponentBeanInfo extends SimpleBeanInfo {
     };
 
     public PropertyDescriptor[] getPropertyDescriptors() {
-        return super.getPropertyDescriptors();
+        return PROPERTIES;
     }
     
     private static PropertyDescriptor makeProperty(String name, String descr) {

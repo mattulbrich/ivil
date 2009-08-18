@@ -11,6 +11,8 @@ import javax.swing.TransferHandler;
 import de.uka.iti.pseudo.gui.TermComponent;
 import de.uka.iti.pseudo.proof.TermSelector;
 
+// TODO DOC
+
 public class TermSelectionTransfer extends TransferHandler {
 
     public int getSourceActions(JComponent c) {

@@ -90,7 +90,9 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         super.visit(arg);
         
         // there must be a find clause if there is a replace clause
-        assert currentFindRawType != null;
+        if(currentFindRawType == null)
+            throw new ASTVisitException("There must be a find clause if there is a replace clause", arg);
+        
         Type rawType = arg.getTerm().getTyping().getRawType();
         try {
             TypingContext typingContext = typingResolver.getTypingContext();

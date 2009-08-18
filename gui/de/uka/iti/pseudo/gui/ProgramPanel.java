@@ -75,4 +75,8 @@ public class ProgramPanel extends JPanel implements ProofNodeSelectionListener {
         // do nothing
     }
 
+    public ProgramComponent getProgramComponent() {
+        return programComponent;
+    }
+
 }
