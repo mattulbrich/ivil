@@ -3,7 +3,6 @@ package de.uka.iti.pseudo.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,6 +40,7 @@ import javax.swing.undo.UndoManager;
 
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseEditorAction;
@@ -151,7 +151,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             editor = new BracketMatchingTextArea();
             editor.setLineWrap(false);
-            editor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+            editor.setFont(Main.getFont("pseudo.editor.font"));
             editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
             // TODO make this configurable

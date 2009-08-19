@@ -9,14 +9,12 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.WindowListener;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
@@ -38,6 +36,7 @@ import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
 import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
 import de.uka.iti.pseudo.gui.parameters.ParameterTest;
+import de.uka.iti.pseudo.gui.source.SourcePane;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -167,17 +166,14 @@ public class MainWindow extends JFrame {
             bottomTabDock.addDockable(dock, new Position(0));
         }
         {
-            JPanel source = new JPanel();
-            source.add(new JLabel("yet to come ..."));
+            Component source = (new JScrollPane(new SourcePane()));
             Dockable dock = new DefaultDockable("source", source, "Sources");
             bottomTabDock.addDockable(dock, new Position(1));
         }
         {
-//            JPanel settings = new JPanel();
-//            settings.add(new JLabel("yet to come ..."));
             ParameterSheet settings;
             try {
-                settings = new ParameterSheet(ParameterTest.class, new ParameterTest());
+                settings = new ParameterSheet(new ParameterTest());
                 Dockable dock = new DefaultDockable("settings", settings, "Settings");
                 leftTabDock.addDockable(dock, new Position(3));
             } catch (Exception e) {

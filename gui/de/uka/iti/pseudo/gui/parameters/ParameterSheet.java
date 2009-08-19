@@ -74,7 +74,7 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * </tr></table>
  *   
  */
-public class ParameterSheet<T> extends JPanel {
+public class ParameterSheet extends JPanel {
 
     private static final long serialVersionUID = -7751152514376689123L;
 
@@ -130,12 +130,12 @@ public class ParameterSheet<T> extends JPanel {
     /**
      * the object under inspection
      */
-    private T object;
+    private Object object;
 
     /**
      * The type of the object under inspection
      */
-    private Class<T> objectClass;
+    private Class<?> objectClass;
 
     /**
      * The properties from which parameter information is read
@@ -162,10 +162,10 @@ public class ParameterSheet<T> extends JPanel {
      * @throws InvocationTargetException
      *             may be thrown by reflections
      */
-    public ParameterSheet(T object) throws SecurityException,
+    public <T> ParameterSheet(T object) throws SecurityException,
             IllegalArgumentException, IOException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException {
-        this((Class<T>) object.getClass(), object);
+        this((Class<T>)object.getClass(), object);
     }
 
     /**
@@ -191,7 +191,7 @@ public class ParameterSheet<T> extends JPanel {
      * @throws InvocationTargetException
      *             may be thrown by reflections
      */
-    public ParameterSheet(Class<T> clss, T object) throws IOException,
+    public <T> ParameterSheet(Class<T> clss, T object) throws IOException,
             SecurityException, NoSuchMethodException, IllegalArgumentException,
             IllegalAccessException, InvocationTargetException {
         this(clss, null, object);
@@ -223,7 +223,7 @@ public class ParameterSheet<T> extends JPanel {
      * @throws InvocationTargetException
      *             may be thrown by reflections
      */
-    public ParameterSheet(Class<T> clss, URL propertyResource, T object)
+    public <T> ParameterSheet(Class<T> clss, URL propertyResource, T object)
             throws IOException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, IllegalAccessException,
             InvocationTargetException {

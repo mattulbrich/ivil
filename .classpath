@@ -5,7 +5,6 @@
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="gui"/>
 	<classpathentry kind="src" path="dock-samples"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/nonnull.jar"/>
 	<classpathentry kind="lib" path="lib/javadocking.jar" sourcepath="/export/home/i12pc3/mattias/local/lib/java/javadocking/src">
 		<attributes>
@@ -13,5 +12,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/syntax.jar" sourcepath="lib/syntax.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JDK 1.6.10 fastdebug"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
