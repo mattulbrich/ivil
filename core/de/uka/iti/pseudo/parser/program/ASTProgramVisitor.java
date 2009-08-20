@@ -32,6 +32,6 @@ public interface ASTProgramVisitor {
 
     public void visit(ASTAssignmentStatement assignmentStatement) throws ASTVisitException;
     
-    public void visit(ASTSourceStatement sourceStatement) throws ASTVisitException;
+    public void visit(ASTSourceLineStatement sourceLineStatement) throws ASTVisitException;
 
 }

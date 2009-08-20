@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.auto;
+package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.HashMap;
 import java.util.LinkedList;

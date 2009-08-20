@@ -5,13 +5,14 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class EndStatement extends Statement {
 
-    public EndStatement(Term conditionTerm) throws TermException {
-        super(conditionTerm);
+    public EndStatement(int sourceLineNumber, Term conditionTerm) throws TermException {
+        super(sourceLineNumber, conditionTerm);
         ensureCondition();
     }
 
     public String toString(boolean typed) {
-        return "end " + getSubterms().get(0).toString(typed);
+        return super.toString(typed) + "end "
+                + getSubterms().get(0).toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

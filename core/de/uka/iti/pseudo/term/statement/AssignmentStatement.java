@@ -5,11 +5,19 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
+/**
+ * AssignmentStatements act as statements in programs, but they can also appear
+ * as basic assignments in updates.
+ */
 public class AssignmentStatement extends Statement {
 
-    public AssignmentStatement(Term target, Term value) throws TermException {
-        super(new Term[] { target, value });
+    public AssignmentStatement(int sourceLineNumber, Term target, Term value) throws TermException {
+        super(sourceLineNumber, new Term[] { target, value });
         check();
+    }
+
+    public AssignmentStatement(Term target, Term value) throws TermException {
+        this(-1, target, value);
     }
 
     private void check() throws TermException {
@@ -22,7 +30,8 @@ public class AssignmentStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return getTarget().toString(false) + " := " + getValue().toString(typed);
+        return super.toString(typed) + getTarget().toString(false) + " := "
+                + getValue().toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

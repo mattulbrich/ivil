@@ -6,12 +6,13 @@ import de.uka.iti.pseudo.util.Util;
 
 public class GotoStatement extends Statement {
 
-    public GotoStatement(Term[] targets) throws TermException {
-        super(targets);
+    public GotoStatement(int sourceLineNumber, Term[] targets) throws TermException {
+        super(sourceLineNumber, targets);
     }
 
     public String toString(boolean typed) {
-        return "goto " + Util.commatize(getSubterms());
+        return super.toString(typed) + 
+            "goto " + Util.commatize(getSubterms());
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

@@ -10,15 +10,17 @@ import de.uka.iti.pseudo.util.Util;
 
 public abstract class Statement {
 
+    private int sourceLineNumber;
     private Term[] subTerms;
     private static Term[] NO_TERMS = new Term[0];
 
-    public Statement(Term[] subTerms) throws TermException {
+    public Statement(int sourceLineNumber, Term[] subTerms) throws TermException {
         this.subTerms = subTerms;
+        this.sourceLineNumber = sourceLineNumber;
     }
 
-    public Statement(Term subTerm) throws TermException {
-        this.subTerms = new Term[] { subTerm };
+    public Statement(int sourceLineNumber, Term subTerm) throws TermException {
+        this(sourceLineNumber, new Term[] { subTerm });
     }
 
     public Statement() {
@@ -49,7 +51,12 @@ public abstract class Statement {
         return toString(Term.SHOW_TYPES);
     }
 
-    public abstract String toString(boolean typed);
+    public String toString(boolean typed) {
+        if(sourceLineNumber != -1 )
+            return "[" + sourceLineNumber +"] ";
+        else
+            return "";
+    }
     
     public boolean equals(Object object) {
         if (object instanceof Statement) {
@@ -64,5 +71,9 @@ public abstract class Statement {
 
     public int countSubterms() {
         return subTerms.length;
+    }
+
+    public int getSourceLineNumber() {
+        return sourceLineNumber;
     }
 }

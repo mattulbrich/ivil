@@ -18,6 +18,10 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
+import de.uka.iti.pseudo.auto.strategy.BreakpointStrategy;
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
+import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.proof.Proof;
@@ -73,6 +77,12 @@ public class ProofCenter {
     private Proof proof;
     
     /**
+     * The strategy manager which is used throughout this proof for
+     * automated deduction
+     */
+    private StrategyManager strategyManager;
+    
+    /**
      * All rules of the environment, sorted for interaction.
      * (at the moment not sorted at all)
      */
@@ -103,6 +113,9 @@ public class ProofCenter {
     /**
      * Instantiates a new proof center.
      * 
+     * Creates a new pretty pringer, a new strategy manager, a new main window,
+     * ...
+     * 
      * @param proof
      *            the proof to use
      * @param env
@@ -111,11 +124,18 @@ public class ProofCenter {
      * @throws IOException
      *             Signals that an I/O exception has occurred. This happens if
      *             the {@link BarManager} cannot find resources
+     * @throws StrategyException
+     *             signals that the strategy manager could not be properly
+     *             initialised.
      */
-    public ProofCenter(@NonNull Proof proof, @NonNull Environment env)  throws IOException {
+    public ProofCenter(@NonNull Proof proof, @NonNull Environment env)  throws IOException, StrategyException {
         this.proof = proof;
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
+        
+        this.strategyManager = new StrategyManager();
+        this.strategyManager.registerAllKnownStrategies();
+        
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
@@ -358,6 +378,30 @@ public class ProofCenter {
      */
     public PrettyPrint getPrettyPrinter() {
         return prettyPrinter;
+    }
+
+    /**
+     * Get the strategy manager for this proof surrounding.
+     *  
+     * @return the system strategy manager 
+     */
+    public @NonNull StrategyManager getStrategyManager() {
+        return strategyManager;
+    }
+    
+    /**
+     * get the BreakpointManager for the surrounding.
+     * 
+     * The BreakpointManager is not necessarily part of the system.
+     * This will fail if {@link BreakpointStrategy} is not available since
+     * this clas is asked to provide that instance.
+     * 
+     * @return the breakpoint manager of the {@link BreakpointStrategy}.
+     * @see BreakpointStrategy#getBreakpointManager() 
+     */
+    public BreakpointManager getBreakpointManager() {
+        return getStrategyManager().getStrategy(BreakpointStrategy.class)
+                .getBreakpointManager();
     }
 
 //    /**

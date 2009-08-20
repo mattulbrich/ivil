@@ -19,19 +19,14 @@ import de.uka.iti.pseudo.term.statement.Statement;
 public class ProgramChanger {
     
     private LinkedList<Statement> statements;
-    private List<SourceAnnotation> sourceAnnotations;
     private Environment env;
+    private String sourceFile;
 
 
     public ProgramChanger(Program program, Environment env) {
         this.env = env;
+        this.sourceFile = program.getSourceFile();
         this.statements = new LinkedList<Statement>(program.getStatements());
-        this.sourceAnnotations = new ArrayList<SourceAnnotation>(program.getSourceAnnotations());
-    }
-
-
-    public void addSourceAnnotation(SourceAnnotation sourceAnnotation) {
-        sourceAnnotations.add(sourceAnnotation);
     }
 
 
@@ -50,7 +45,6 @@ public class ProgramChanger {
     }
     
     private void updateTargets(int index, int offset) throws TermException {
-        updateSourceAnnotations(index, offset);
         updateGotoStatements(index, offset);
     }
 
@@ -61,9 +55,10 @@ public class ProgramChanger {
             Statement statement = it.next();
             if (statement instanceof GotoStatement) {
                 GotoStatement gotoSt = (GotoStatement) statement;
+                int srcLine = gotoSt.getSourceLineNumber();
                 Term[] newTargets = updateGotoStatement(index, offset, gotoSt);
                 if(newTargets != null) {
-                    it.set(new GotoStatement(newTargets));
+                    it.set(new GotoStatement(srcLine, newTargets));
                 }
             }
         }
@@ -106,22 +101,9 @@ public class ProgramChanger {
     }
 
 
-    private void updateSourceAnnotations(int index, int offset) {
-        ListIterator<SourceAnnotation> it = sourceAnnotations.listIterator();
-        while(it.hasNext()) {
-            SourceAnnotation annotation = it.next();
-            if(annotation.getStatementNo() >= index) {
-                it.set(new SourceAnnotation(annotation.toString(), 
-                        annotation.getStatementNo() + offset));
-            }
-        }
-    }
-
-
     public Program makeProgram(String name) throws EnvironmentException {
-        Collections.sort(sourceAnnotations);
         
-        Program p = new Program(name, statements, sourceAnnotations, ASTLocatedElement.BUILTIN);
+        Program p = new Program(name, sourceFile, statements, ASTLocatedElement.BUILTIN);
         return p;
     }
 

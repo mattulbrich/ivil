@@ -37,42 +37,54 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
 
 /**
  * A component which can be used to set or change the parameters of an object.
- * The information on the possible parameters of the object are given by a properties file
- * which describes the parameters of a class.
+ * The information on the possible parameters of the object are given by a
+ * properties file which describes the parameters of a class.
  * 
  * <h2>Properties File format</h2>
- * The key <code>parameters</code> needs to be present. It enumerates as space separated list all
- * available parameters. The name of a parameter decides also on the setter and getter method which is used to
- * write and read information of this parameter. The getter is expected to be called <code>get</code> followed by
- * the parameter name with the first letter capitalised, and the setter is expected to be called <code>set</code>
- * followed by  the parameter name with the first letter capitalised. <b>Please note</b> that also boolean parameters need
- * to have a getter with "get" instead of "is".
+ * The key <code>parameters</code> needs to be present. It enumerates as space
+ * separated list all available parameters. The name of a parameter decides also
+ * on the setter and getter method which is used to write and read information
+ * of this parameter. The getter is expected to be called <code>get</code>
+ * followed by the parameter name with the first letter capitalised, and the
+ * setter is expected to be called <code>set</code> followed by the parameter
+ * name with the first letter capitalised. <b>Please note</b> that also boolean
+ * parameters need to have a getter with "get" instead of "is".
  * 
- * <p>For parameters <code>p</code> the following keys may be present:
- * <table border=1 cellpadding=4>
- * <tr><th>Key</th><th>Purpose</th><th>Notes</th></tr>
+ * <p>
+ * For parameters <code>p</code> the following keys may be present: <table
+ * border=1 cellpadding=4>
  * <tr>
- *   <td><code>p.shortDesc</code></td>
- *   <td>The description which will be used to label the entry in the UI.</td>
- *   <td>defaults to name of the parameter</td>
- * </tr><tr>
- *   <td><code>p.longDesc</code></td>
- *   <td>The description which will be used as tooltip.</td>
- *   <td>defaults to null</td>
- * </tr><tr>
- *   <td><code>p.min</code></td>
- *   <td>The minimum value used for a slider component.</td>
- *   <td>only used for integer parameters</td>
- * </tr><tr>
- *   <td><code>p.max</code></td>
- *   <td>The maximum value used for a slider component.</td>
- *   <td>only used for integer parameters</td>
- * </tr><tr>
- *   <td><code>p.enum.XYZ</code></td>
- *   <td>The label for an enumerated element which is named XYZ</td>
- *   <td>only used for enum parameters</td>
- * </tr></table>
- *   
+ * <th>Key</th>
+ * <th>Purpose</th>
+ * <th>Notes</th>
+ * </tr>
+ * <tr>
+ * <td><code>p.shortDesc</code></td>
+ * <td>The description which will be used to label the entry in the UI.</td>
+ * <td>defaults to name of the parameter</td>
+ * </tr>
+ * <tr>
+ * <td><code>p.longDesc</code></td>
+ * <td>The description which will be used as tooltip.</td>
+ * <td>defaults to null</td>
+ * </tr>
+ * <tr>
+ * <td><code>p.min</code></td>
+ * <td>The minimum value used for a slider component.</td>
+ * <td>only used for integer parameters</td>
+ * </tr>
+ * <tr>
+ * <td><code>p.max</code></td>
+ * <td>The maximum value used for a slider component.</td>
+ * <td>only used for integer parameters</td>
+ * </tr>
+ * <tr>
+ * <td><code>p.enum.XYZ</code></td>
+ * <td>The label for an enumerated element which is named XYZ</td>
+ * <td>only used for enum parameters</td>
+ * </tr>
+ * </table>
+ * 
  */
 public class ParameterSheet extends JPanel {
 

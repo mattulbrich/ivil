@@ -158,6 +158,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < _SKIP: "skip" >
 | < SKIP_LOOP_INV: "skip_loopinv" >
 | < SOURCE: "source" >
+| < SOURCELINE: "sourceline" >
 | < ASSIGN: ":=" >
 
 // Literals

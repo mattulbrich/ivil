@@ -12,19 +12,19 @@ List<ASTStatement> StatementList():
 {
 	( LOOKAHEAD(2)
 	  st=Statement() { list.add(st); }
-	| st=SourceStatement() { list.add(st); } 
+	| st=SourceLineStatement() { list.add(st); } 
 	| st=LabelStatement() { list.add(st); } 
 	)+
 	{ return list; }
 }
 
-ASTSourceStatement SourceStatement():
+ASTSourceLineStatement SourceLineStatement():
 {
 	Token kw, argument;
 }
 {
-	kw="source" argument=<STRING>
-	{ return new ASTSourceStatement(kw,argument); }
+	kw="sourceline" argument=<NATURAL>
+	{ return new ASTSourceLineStatement(kw,argument); }
 }
 
 ASTLabelStatement LabelStatement():
@@ -47,7 +47,6 @@ ASTStatement Statement():
 	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
 	| kw="assume" term=Term() { return new ASTAssumeStatement(kw, term); }
 	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
-	// TODO variant can be specified also
 	| kw="skip_loopinv" termList=Statement_TermList()
 	            { return new ASTSkipStatement(kw, termList); }
 	| kw="skip" { return new ASTSkipStatement(kw); }

@@ -8,8 +8,8 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class HavocStatement extends Statement {
     
-    public HavocStatement(Term parameter) throws TermException {
-        super(parameter);
+    public HavocStatement(int sourceLineNumber, Term parameter) throws TermException {
+        super(sourceLineNumber, parameter);
         
         if(!(parameter instanceof SchemaVariable)) {
             if(parameter instanceof Application) {
@@ -24,7 +24,8 @@ public class HavocStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return "havoc " + getSubterms().get(0).toString(typed);
+        return super.toString(typed) +
+            "havoc " + getSubterms().get(0).toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

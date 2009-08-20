@@ -22,40 +22,26 @@ rule positive_sum
   find %a + %b >= 0
   replace true
 
-program P
-  source "PRE: \forall Node n; n.size >= 0"
+program P source "./java1.java"
     assume (\forall k; R(H,k,field_size) >= 0)
-  source "PRE: head != null"
     assume !head = null
-  source ""
-  source "int sumList(Node head) {"
-  source "   int sum = 0;"
     sum := 0
-  source "   Node n = head;"
     n := head
 
-  source "   while(n != null) {"
    loop:
     skip
     goto body, after
    body:
     assume !n = null
-  source "      sum += n.size;"
     assert !n = null
     sum := sum + R(H, n, field_size)
-  source "      n = n.next;"
     assert !n = null
     n := R(H, n, field_next)
-  source "   }"
     goto loop
 
    after:
-  source "   heap.done = true;"
     assert ! head = null
     H := W(H, head, field_done, true)
-  source "}"
-  source ""
-  source "POST: sum > 0 && head.length == \old(head.length)"
     assert sum >= 0 & length(H, head) = length(heapBegin, head)
 
 problem

@@ -1,10 +1,9 @@
 package de.uka.iti.pseudo.environment;
 
-import java.util.Collection;
 import java.util.List;
 
 import nonnull.NonNull;
-
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.EndStatement;
@@ -17,7 +16,8 @@ public class Program {
     private static final Statement OUT_OF_BOUNDS_STATEMENT;
     static {
         try {
-            OUT_OF_BOUNDS_STATEMENT = new EndStatement(Environment.getTrue());
+            // this statement is not associated with a line number (therefore -1)
+            OUT_OF_BOUNDS_STATEMENT = new EndStatement(-1, Environment.getTrue());
         } catch (TermException e) {
             // this cannot happen
             throw new Error(e);
@@ -25,18 +25,17 @@ public class Program {
     }
     
     private String name;
+    private String sourceFile;
     private ASTLocatedElement declaration;
     
     private Statement[] statements;
-    private SourceAnnotation[] sourceAnnotations;
 
     
-    public Program(@NonNull String name,
+    public Program(@NonNull String name, 
+            @Nullable String sourceFile,
             List<Statement> statements,
-            List<SourceAnnotation> sourceAnnotations,
             ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
-        this.sourceAnnotations = Util.listToArray(sourceAnnotations, SourceAnnotation.class);
         this.declaration = declaration;
         this.name = name;
     }
@@ -49,10 +48,6 @@ public class Program {
             return OUT_OF_BOUNDS_STATEMENT;
         
         return statements[i];
-    }
-    
-    public List<SourceAnnotation> getSourceAnnotations() {
-        return Util.readOnlyArrayList(sourceAnnotations);
     }
     
 //    public List<LabelAnnotation> getLabelAnnotations() {
@@ -69,10 +64,7 @@ public class Program {
 
     public void dump() {
         System.out.println("    Source annotations");
-        for (SourceAnnotation ann : sourceAnnotations) {
-            System.out.println("      " + ann + " -> " + ann.getStatementNo());
-        }
-        
+
 //        System.out.println("    Labels");
 //        for (LabelAnnotation ann : labelAnnotations) {
 //            System.out.println("      " + ann + " -> " + ann.getStatementNo());
@@ -84,7 +76,7 @@ public class Program {
             System.out.println("      " + i++ + ": " + st);
         }
     }
-
+    
     public String getName() {
         return name;
     }
@@ -95,6 +87,10 @@ public class Program {
 
     public List<Statement> getStatements() {
         return Util.readOnlyArrayList(statements);
+    }
+
+    public String getSourceFile() {
+        return sourceFile;
     }
 
 }

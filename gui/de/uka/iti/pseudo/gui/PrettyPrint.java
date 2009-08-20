@@ -15,6 +15,7 @@ import java.beans.PropertyChangeSupport;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -477,8 +478,4 @@ public class PrettyPrint {
             propertiesSupport.firePropertyChange(property, oldVal, newVal);
     }
 
-    
-
-   
-    
 }

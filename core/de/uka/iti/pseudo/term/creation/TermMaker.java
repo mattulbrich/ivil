@@ -311,6 +311,7 @@ public class TermMaker extends ASTDefaultVisitor {
      * 
      * @param astStatement
      *            the ast of the statement to be created
+     * @param linenumber the linenumber to be used for this statment
      * @param env
      *            the environment used to resolve in term making
      *            
@@ -320,7 +321,7 @@ public class TermMaker extends ASTDefaultVisitor {
      *             thrown on error during AST traversal.
      */
     public static Statement makeAndTypeStatement(ASTStatement astStatement,
-            Environment env) throws ASTVisitException {
+            int linenumber, Environment env) throws ASTVisitException {
         
         TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
         
@@ -329,6 +330,7 @@ public class TermMaker extends ASTDefaultVisitor {
         }
         
         TermMaker termMaker = new TermMaker(env);
+        termMaker.sourceLineNumber = linenumber;
         astStatement.visit(termMaker);
         
         assert termMaker.resultStatement != null;
@@ -359,6 +361,13 @@ public class TermMaker extends ASTDefaultVisitor {
      * The environment to use.
      */
     private Environment env;
+    
+    /**
+     * The linenumber to be set when creating statements.
+     * This must be set from outside, is not changed within the visitor code
+     * but given to statements when creating them.
+     */
+    private int sourceLineNumber;
 
     /**
      * create a new TermMaker
@@ -595,7 +604,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTAssertStatement arg) throws ASTVisitException {
         arg.getTerm().visit(this);
         try {
-            resultStatement = new AssertStatement(resultTerm);
+            resultStatement = new AssertStatement(sourceLineNumber, resultTerm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -604,7 +613,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTAssumeStatement arg) throws ASTVisitException {
         arg.getTerm().visit(this);
         try {
-            resultStatement = new AssumeStatement(resultTerm);
+            resultStatement = new AssumeStatement(sourceLineNumber, resultTerm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -613,7 +622,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTEndStatement arg) throws ASTVisitException {
         arg.getTerm().visit(this);
         try {
-            resultStatement = new EndStatement(resultTerm);
+            resultStatement = new EndStatement(sourceLineNumber, resultTerm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -628,7 +637,7 @@ public class TermMaker extends ASTDefaultVisitor {
         }
         
         try {
-            resultStatement = new GotoStatement(targets);
+            resultStatement = new GotoStatement(sourceLineNumber, targets);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -637,7 +646,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public void visit(ASTHavocStatement arg) throws ASTVisitException {
         arg.getArgument().visit(this);
         try {
-            resultStatement = new HavocStatement(resultTerm);
+            resultStatement = new HavocStatement(sourceLineNumber, resultTerm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -657,7 +666,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Term value = resultTerm;
 
         try {
-            resultStatement = new AssignmentStatement(target, value);
+            resultStatement = new AssignmentStatement(sourceLineNumber, target, value);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }

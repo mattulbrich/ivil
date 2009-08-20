@@ -31,12 +31,13 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
+import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
 import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
 import de.uka.iti.pseudo.gui.parameters.ParameterTest;
-import de.uka.iti.pseudo.gui.source.SourcePane;
+import de.uka.iti.pseudo.gui.source.BreakpointPane;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -159,14 +160,16 @@ public class MainWindow extends JFrame {
         }
         {
             ProgramPanel panel = new ProgramPanel(proofCenter);
-            programComponent = panel.getProgramComponent();
-            proofCenter.addProofNodeSelectionListener(panel);
+//            programComponent = panel.getProgramComponent();
+//            proofCenter.addProofNodeSelectionListener(panel);
             JScrollPane scroll = new JScrollPane(panel);
             Dockable dock = new DefaultDockable("program", scroll, "Program");
             bottomTabDock.addDockable(dock, new Position(0));
         }
         {
-            Component source = (new JScrollPane(new SourcePane()));
+            BreakpointPane breakpointPane = new BreakpointPane(proofCenter.getBreakpointManager(), true);
+            breakpointPane.setBreakPointResource("2");
+            Component source = (new JScrollPane(breakpointPane));
             Dockable dock = new DefaultDockable("source", source, "Sources");
             bottomTabDock.addDockable(dock, new Position(1));
         }

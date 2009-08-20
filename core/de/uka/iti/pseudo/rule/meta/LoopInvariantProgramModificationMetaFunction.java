@@ -11,7 +11,6 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.ProgramChanger;
-import de.uka.iti.pseudo.environment.SourceAnnotation;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -118,15 +117,15 @@ class LoopModifier {
 
     private void insertAssumptions(int index) throws TermException {
         int index0 = index;
+        int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
         for (Function f : modifiedAssignables) {
-            programChanger.insertAt(index, new HavocStatement(tf.cons(f)));
+            programChanger.insertAt(index, new HavocStatement(sourceLineNumber, tf.cons(f)));
             index ++;
         }
         
-        programChanger.insertAt(index, new AssumeStatement(invariant));
+        programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, invariant));
         index ++;
         
-        programChanger.addSourceAnnotation(new SourceAnnotation("loop STARTS with invariant", index0));
     }
 
     private void makeAtPreSymbols() throws TermException {
@@ -148,8 +147,9 @@ class LoopModifier {
     }
 
     private int insertProofObligations(int index) throws TermException {
-        programChanger.insertAt(index, new AssertStatement(invariant));
-        programChanger.addSourceAnnotation(new SourceAnnotation("loop PRESERVES invariants", index));
+        int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
+        
+        programChanger.insertAt(index, new AssertStatement(sourceLineNumber, invariant));
         index ++;
         
 // XXX variant
@@ -160,10 +160,10 @@ class LoopModifier {
 //            index++;
 //        }
         
-        programChanger.insertAt(index, new AssertStatement(atPreEqualities));
+        programChanger.insertAt(index, new AssertStatement(sourceLineNumber, atPreEqualities));
         index ++;
         
-        programChanger.insertAt(index, new EndStatement(Environment.getTrue()));
+        programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
         index ++;
         
         return index;

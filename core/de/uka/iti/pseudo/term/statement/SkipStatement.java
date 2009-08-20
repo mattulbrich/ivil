@@ -5,8 +5,8 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class SkipStatement extends Statement {
 
-    @Override public String toString(boolean typed) {
-        return "skip";
+    public String toString(boolean typed) {
+        return super.toString(typed) + "skip";
     }
 
     public void visit(StatementVisitor visitor) throws TermException {

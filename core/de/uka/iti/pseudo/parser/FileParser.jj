@@ -143,11 +143,13 @@ ASTBinderDeclaration BinderDeclaration():
 ASTProgramDeclaration ProgramDeclaration():
 {
   List<ASTStatement> statements;
-  Token first, name;
+  Token first, name, source=null;
 }
 {
-   first="program" name=<IDENTIFIER> statements=StatementList()
-     { return new ASTProgramDeclaration(first, name, statements); } 
+   first="program" name=<IDENTIFIER> 
+   ( "source" source=<STRING> )?
+   statements=StatementList()
+     { return new ASTProgramDeclaration(first, name, source, statements); } 
 }
 
 ASTRule RuleDeclaration():

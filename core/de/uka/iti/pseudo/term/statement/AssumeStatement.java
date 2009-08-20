@@ -5,13 +5,14 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class AssumeStatement extends Statement {
 
-    public AssumeStatement(Term conditionTerm) throws TermException {
-        super(conditionTerm);
+    public AssumeStatement(int sourceLineNumber, Term conditionTerm) throws TermException {
+        super(sourceLineNumber, conditionTerm);
         ensureCondition();
     }
 
     public String toString(boolean typed) {
-        return "assume " + getSubterms().get(0).toString(typed);
+        return super.toString(typed) + "assume "
+                + getSubterms().get(0).toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {
