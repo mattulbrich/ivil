@@ -137,5 +137,9 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         return ruleApplication;
     }
 
+    protected ProofCenter getProofCenter() {
+        return null;
+    }
+
     
 }

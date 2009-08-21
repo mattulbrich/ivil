@@ -23,6 +23,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
@@ -37,10 +39,12 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
     private static final Color HIGHLIGHT_COLOR = Main.getColor("pseudo.program.highlightcolor");
     private static final Icon BULLET_ICON = BarManager.makeIcon(
             BulletBorder.class.getResource("../img/bullet_blue.png"));
+    private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);
     
     private BreakpointManager breakpointManager;
     private Object breakPointResource;
-
+    private List<Object> lineHighlights = new ArrayList<Object>();
+    
     public BreakpointPane(BreakpointManager breakpointManager,
             boolean showLineNumbers) {
         super();
@@ -48,7 +52,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         init(showLineNumbers);
     }
     
-    private Object currentLineHighlight;
+
 
     private void init(boolean showLineNumbers) {
         {
@@ -67,13 +71,6 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         setFont(FONT);
         setEditable(false);
 
-        try {
-            currentLineHighlight = getHighlighter().addHighlight(0, 0, 
-                    new BarHighlightPainter(HIGHLIGHT_COLOR));
-        } catch (BadLocationException e) {
-            throw new Error(e);
-        }
-        
         addMouseListener(new MouseAdapter() {
            public void mouseClicked(MouseEvent e) {
                if(SwingUtilities.isRightMouseButton(e)) {
@@ -83,19 +80,6 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         });
         
         this.breakpointManager.addObserver(this);
-        
-        // Demo
-        String initString = "/**\n"
-            + " * Simple common test program.\n"
-            + " */\n" + "public class HelloWorld {\n"
-            + "    public static void main(String[] args) {\n"
-            + "        // Display the greeting.\n"
-            + "        System.out.println(\"Hello World!\");\n"
-            + "    }\n"
-            + "}\n";
-
-        setText(initString);
-        setHighlight(0);
     }
     
     protected void showPopup(MouseEvent e) {
@@ -115,14 +99,14 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         
         JMenuItem item;
         if (hasBreakPointHere) {
-            item = new JMenuItem("Remove breakpoint in line " + line);
+            item = new JMenuItem("Remove this breakpoint");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     breakpointManager.removeBreakpoint(breakPointResource, line);
                 }
             });
         } else {
-            item = new JMenuItem("Add breakpoint in line " + line);
+            item = new JMenuItem("Set breakpoint here");
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     breakpointManager.addBreakpoint(breakPointResource, line);
@@ -134,15 +118,22 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         popup.add(item);
         popup.show(e.getComponent(), e.getX(), e.getY());
     }
+    
+    public void removeHighlights() {
+        Highlighter highlighter = getHighlighter();
+        for (Object hl : lineHighlights) {
+            highlighter.removeHighlight(hl);
+        }
+        lineHighlights.clear();
+        repaint();
+    }
 
-    public void setHighlight(int line) {
+    public void addHighlight(int line) {
         try {
-            if(line == -1) {
-                getHighlighter().changeHighlight(currentLineHighlight, 1, 0);
-            } else {
-                int begin = getLineStartOffset(line);
-                getHighlighter().changeHighlight(currentLineHighlight, begin, begin);
-            }
+            int begin = getLineStartOffset(line);
+            Object tag = getHighlighter().addHighlight(begin, begin, BAR_PAINTER);
+            lineHighlights.add(tag);
+            repaint();
         } catch (BadLocationException e) {
             throw new Error(e);
         }
@@ -182,6 +173,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
 
     public void setBreakPointResource(Object breakPointResource) {
         this.breakPointResource = breakPointResource;
+        repaint();
     }
 
     

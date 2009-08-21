@@ -37,6 +37,7 @@ public class Program {
             ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
         this.declaration = declaration;
+        this.sourceFile = sourceFile;
         this.name = name;
     }
     

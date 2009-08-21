@@ -207,6 +207,10 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             setSequent(sequent, open);
     }
     
+    protected ProofCenter getProofCenter() {
+        return null;
+    }
+
     // the listener that launches and makes the rule popup
     private MouseListener termMouseListener = new MouseAdapter() {
 

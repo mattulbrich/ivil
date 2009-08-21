@@ -21,8 +21,6 @@ public class AutoProofAction extends BarAction
     private static Icon goIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     
-    private Strategy strategy;
-    
     private Thread thread = null;
     private boolean shouldStop;
 
@@ -51,8 +49,7 @@ public class AutoProofAction extends BarAction
 
     public void run() {
         try {
-            if(strategy == null)
-                strategy = new MyStrategy(getProofCenter().getEnvironment());
+            Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
             
             while(true) {
                 RuleApplication ruleAppl = strategy.findRuleApplication(getProofCenter().getProof());

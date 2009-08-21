@@ -23,14 +23,6 @@ public class MyStrategy implements Strategy {
     
     private RewriteRuleCollection ruleCollections[];
     
-    public MyStrategy(Environment env) throws RuleException {
-        ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length];
-        List<Rule> allRules = env.getAllRules();
-        for (int i = 0; i < ruleCollections.length; i++) {
-            ruleCollections[i] = new RewriteRuleCollection(allRules, REWRITE_CATEGORIES[i], env);
-        }
-    }
-    
     public RuleApplication findRuleApplication(Proof proof) {
         List<ProofNode> openGoals = proof.getOpenGoals();
         for (int i = 0; i < openGoals.size(); i++) {
@@ -46,6 +38,8 @@ public class MyStrategy implements Strategy {
 
     private RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
         
+        assert ruleCollections != null;
+        
         for (int i = 0; i < ruleCollections.length; i++) {
             RuleApplicationMaker ruleApplication = ruleCollections[i].findRuleApplication(proof, goalNo);
             if(ruleApplication != null)
@@ -55,6 +49,23 @@ public class MyStrategy implements Strategy {
         return null;
     }
 
+    @Override 
+    public void init(Environment env, StrategyManager strategyManager)
+            throws StrategyException {
+        ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length];
+        List<Rule> allRules = env.getAllRules();
+        for (int i = 0; i < ruleCollections.length; i++) {
+            try {
+                ruleCollections[i] = new RewriteRuleCollection(allRules, REWRITE_CATEGORIES[i], env);
+            } catch (RuleException e) {
+                throw new StrategyException("Cannot initialise MyStrategy", e);
+            }
+        }
+    }
+
+    @Override public String toString() {
+        return "Test Strategy";
+    }
     
     
 }

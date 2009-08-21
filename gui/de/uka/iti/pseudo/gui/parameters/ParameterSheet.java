@@ -30,6 +30,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -138,6 +140,7 @@ public class ParameterSheet extends JPanel {
     private static final String SUFFIX_ENUM = ".enum.";
     private static final String SUFFIX_MIN = ".min";
     private static final String SUFFIX_MAX = ".max";
+    private static final String DESCRIPTION_KEY = "description";
 
     /**
      * the object under inspection
@@ -252,6 +255,7 @@ public class ParameterSheet extends JPanel {
             add(empty);
         } else {
             setLayout(new VerticalLayout());
+            addPreamble();
             for (Parameter parameter : parameters) {
                 addComponentsFor(parameter);
             }
@@ -272,7 +276,8 @@ public class ParameterSheet extends JPanel {
             throw new IOException("Key parameters is not defined");
 
         for (String param : parameterKey.split(" +")) {
-            result.add(readParameter(param));
+            if(param.length() > 0)
+                result.add(readParameter(param));
         }
         return result;
     }
@@ -323,6 +328,22 @@ public class ParameterSheet extends JPanel {
         result.load(instream);
         return result;
     }
+    
+    /*
+     * Adds a text component before the edit components.
+     */
+    private void addPreamble() {
+        String descr = properties.getProperty(DESCRIPTION_KEY);
+        if(descr != null) {
+            JTextPane pane = new JTextPane();
+            pane.setEditable(false);
+            pane.setText(descr);
+            pane.setBackground(getBackground());
+            add(pane);
+        }
+        
+    }
+
 
     /*
      * Adds the components for a parameter to the panel (i.e. this)

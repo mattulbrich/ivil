@@ -102,4 +102,8 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         // the goal list does not bother about ruleApplications
     }
 
+    protected ProofCenter getProofCenter() {
+        return null;
+    }
+
 }

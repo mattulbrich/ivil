@@ -9,5 +9,5 @@ public interface ProofNodeSelectionListener {
     public void proofNodeSelected(ProofNode node);
     
     public void ruleApplicationSelected(RuleApplication ruleApplication);
-    
+
 }

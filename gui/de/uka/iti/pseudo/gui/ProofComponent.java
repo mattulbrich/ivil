@@ -123,4 +123,9 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
         // we do not care about rule applications.
     }
 
+
+    protected ProofCenter getProofCenter() {
+        return null;
+    }
+
 }
