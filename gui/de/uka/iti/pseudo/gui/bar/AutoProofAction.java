@@ -52,7 +52,7 @@ public class AutoProofAction extends BarAction
             Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
             
             while(true) {
-                RuleApplication ruleAppl = strategy.findRuleApplication(getProofCenter().getProof());
+                RuleApplication ruleAppl = strategy.findRuleApplication();
 
                 if(ruleAppl == null || shouldStop) {
                     return;

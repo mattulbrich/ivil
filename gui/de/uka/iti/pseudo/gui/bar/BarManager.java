@@ -357,12 +357,14 @@ public class BarManager {
     
     public static Icon makeIcon(URL resource) {
         try {
-            return new ImageIcon(resource);
+            if(resource != null)
+                return new ImageIcon(resource);
         } catch (Exception e) {
-            System.err.println("Cannot load icon " + resource + ", continuing anyway ...");
             e.printStackTrace();
-            return Util.UNKNOWN_ICON;
         }
+        
+        System.err.println("Cannot load icon " + resource + ", continuing anyway ...");
+        return Util.UNKNOWN_ICON;
     }
     
     public void clearCache() {

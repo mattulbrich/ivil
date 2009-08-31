@@ -4,7 +4,7 @@
 <project name="PseudoHybris" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
-<!--  <property name="compile.nonnullchecks" value="remove this line to switchoff" /> -->
+  <property name="compile.nonnullchecks" value="remove this line to switchoff" /> 
  
   <target name="init">
     <mkdir dir="classes"/>
@@ -58,10 +58,14 @@
   <target name="copy" depends="init">
     <copy todir="classes">
       <fileset dir="core">
-        <include name="**/*.png" />
         <include name="**/*.properties" />
         <include name="**/*.smt" />
         <include name="META-INF/**" />     
+      </fileset>
+      <fileset dir="gui">
+        <include name="**/*.gif" />
+        <include name="**/*.png" />
+    	<include name="**/*.properties" />
       </fileset>  
     </copy>
   </target>

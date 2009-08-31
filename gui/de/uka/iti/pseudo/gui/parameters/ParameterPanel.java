@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
+import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.VerticalLayout;
 
@@ -26,14 +27,17 @@ public class ParameterPanel extends JPanel {
     }
 
     private void init() {
+        final StrategyManager strategyManager = proofCenter.getStrategyManager();
         setLayout(new VerticalLayout());
         {
             add(new JLabel("Active strategy:"));
-            activeStrategySelector = new JComboBox(proofCenter.getStrategyManager().getAllStrategies().toArray());
+            activeStrategySelector = new JComboBox(strategyManager.getAllStrategies().toArray());
+            System.out.println(strategyManager.getSelectedStrategy());
+            activeStrategySelector.setSelectedItem(strategyManager.getSelectedStrategy());
             activeStrategySelector.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     Strategy selectedItem = (Strategy) activeStrategySelector.getSelectedItem();
-                    proofCenter.getStrategyManager().setSelectedStrategy(selectedItem);
+                    strategyManager.setSelectedStrategy(selectedItem);
                 }
             });
             add(activeStrategySelector);
@@ -41,13 +45,16 @@ public class ParameterPanel extends JPanel {
         add(new JToolBar.Separator());
         {
             add(new JLabel("Configure strategy:"));
-            paramSelector = new JComboBox(proofCenter.getStrategyManager().getAllStrategies().toArray());
+            paramSelector = new JComboBox(strategyManager.getAllStrategies().toArray());
             paramSelector.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     makeParameterSheet(paramSelector.getSelectedItem());
                 }
             });
             add(paramSelector);
+            
+            // display properties of default item
+            makeParameterSheet(paramSelector.getSelectedItem());
         }
     }
     

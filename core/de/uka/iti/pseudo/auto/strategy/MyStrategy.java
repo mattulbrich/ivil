@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.List;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -11,6 +12,8 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 
 public class MyStrategy implements Strategy {
+    
+    private Proof proof;
     
     private final static String[] REWRITE_CATEGORIES = {
         "close",
@@ -23,10 +26,13 @@ public class MyStrategy implements Strategy {
     
     private RewriteRuleCollection ruleCollections[];
     
-    public RuleApplication findRuleApplication(Proof proof) {
+    public RuleApplication findRuleApplication() {
+        
+        assert proof != null;
+        
         List<ProofNode> openGoals = proof.getOpenGoals();
         for (int i = 0; i < openGoals.size(); i++) {
-            RuleApplicationMaker ram = findRuleApplication(proof, i);
+            RuleApplicationMaker ram = findRuleApplication(i);
             if(ram != null) {
                 ram.setGoalNumber(i);
                 return ram;
@@ -36,7 +42,7 @@ public class MyStrategy implements Strategy {
         return null;
     }
 
-    private RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
+    private RuleApplicationMaker findRuleApplication(int goalNo) {
         
         assert ruleCollections != null;
         
@@ -50,8 +56,11 @@ public class MyStrategy implements Strategy {
     }
 
     @Override 
-    public void init(Environment env, StrategyManager strategyManager)
+    public void init(@NonNull Proof proof, Environment env, StrategyManager strategyManager)
             throws StrategyException {
+        
+        this.proof = proof;
+        
         ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length];
         List<Rule> allRules = env.getAllRules();
         for (int i = 0; i < ruleCollections.length; i++) {
@@ -66,6 +75,5 @@ public class MyStrategy implements Strategy {
     @Override public String toString() {
         return "Test Strategy";
     }
-    
-    
+
 }

@@ -133,7 +133,7 @@ public class ProofCenter {
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
         
-        this.strategyManager = new StrategyManager();
+        this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
         
         mainWindow = new MainWindow(this, env.getResourceName());

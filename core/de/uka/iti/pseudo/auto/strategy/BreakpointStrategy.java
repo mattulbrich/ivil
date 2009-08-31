@@ -9,9 +9,10 @@ public class BreakpointStrategy implements Strategy {
     private BreakpointManager breakPointManager = new BreakpointManager();
     private boolean obeyProgramBreakpoints = true;
     private boolean obeySourceBreakpoints = true;
+    private boolean stopAtSkip = false;
 
     @Override 
-    public RuleApplication findRuleApplication(Proof proof)
+    public RuleApplication findRuleApplication()
             throws StrategyException {
         // TODO Implement BreakpointStrategy.findRuleApplication
         return null;
@@ -22,12 +23,13 @@ public class BreakpointStrategy implements Strategy {
     }
 
     @Override 
-    public void init(Environment env, StrategyManager strategyManager)
+    public void init(Proof proof, Environment env, StrategyManager strategyManager)
             throws StrategyException {
         
     }
     
-    @Override public String toString() {
+    @Override 
+    public String toString() {
         return "Breakpoint Strategy";
     }
 
@@ -54,4 +56,12 @@ public class BreakpointStrategy implements Strategy {
         this.obeySourceBreakpoints = obeySourceBreakpoints;
     }
 
+    public boolean getStopAtSkip() {
+        return stopAtSkip;
+    }
+
+    public void setStopAtSkip(boolean stopAtSkip) {
+        this.stopAtSkip = stopAtSkip;
+    }
+    
 }
