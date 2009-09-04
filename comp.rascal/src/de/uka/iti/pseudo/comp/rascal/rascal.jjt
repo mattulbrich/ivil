@@ -1,0 +1,383 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
+
+// heavily based upon
+
+/*
+ *               JavaCC source of a
+ *               parser for the Oberon-2 Programming Language
+ *
+ *       Author: James Power,
+ *  Affiliation: Dept. of Computer Science, National University of Ireland, 
+ *               Maynooth, Co. Kildare, Ireland.
+ * Last Revised: 17 November 1998
+ *
+ *     Based on: "The Programming Language Oberon"
+ *               H. Mossenbock, N. Wirth, ETH Zurich, 1992-1996
+ *
+ * For more information on Oberon see http://www.oberon.ethz.ch/language.html
+ */
+
+options {
+  MULTI=true;
+  VISITOR=true;
+  NODE_DEFAULT_VOID=true;
+}
+
+
+PARSER_BEGIN(RascalParser)
+package de.uka.iti.pseudo.comp.rascal;
+
+public final class RascalParser { 
+   public static void main(String args[]) {
+    RascalParser t;
+    try {
+      if(args.length == 0)
+        t = new RascalParser(System.in);
+      else
+        t = new RascalParser(new java.io.FileInputStream(args[0]));
+
+      ASTProgram n = t.Program();
+      n.dump("");
+      System.out.println("Thank you.");
+      System.exit(0);
+    } catch (Exception e) {
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+  
+}
+PARSER_END(RascalParser)
+
+/***************************************/
+/********** TOKEN DEFINITIONS **********/
+/***************************************/
+
+TOKEN_MGR_DECLS :
+{
+  static int commentNesting;  // Current level of nesting of comments
+}
+
+
+/*** Skip whitespace and comments ***/
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "(*"  { commentNesting=1; } : IN_COMMENT
+}
+<IN_COMMENT> MORE:
+{
+  < ~[] >
+}
+<IN_COMMENT> SKIP:
+{
+  < "(*" > { commentNesting++; } 
+| < "*)" > { commentNesting--; if (commentNesting==0) SwitchTo(DEFAULT); }
+}
+
+/*** Formulas ***/
+
+SKIP :
+{
+  "{" : IN_FORMULA
+}
+
+<IN_FORMULA> TOKEN:
+{
+  <INV : "INV">
+| <MODIFIES : "MODIFIES">
+| <PRE : "PRE">
+| <POST : "POST">
+| <FORMULA : "}"> 
+   { String s = matchedToken.image;
+   	 matchedToken.image = s.substring(0,s.length()-1); }
+   : DEFAULT
+}
+
+<IN_FORMULA> MORE:
+{
+  < ~[] >
+}
+
+/*** The keywords ***/
+TOKEN :
+{
+  <AND : "AND">
+| <ARRAY : "ARRAY">
+| <BEGIN : "BEGIN">
+| <BY : "BY">
+| <CONST : "CONST">
+| <DIV : "DIV">
+| <DO: "DO">
+| <ELSE : "ELSE">
+| <ELSIF : "ELSIF">
+| <END : "END">
+| <FALSE : "FALSE">
+| <IF : "IF">
+| <MOD : "MOD">
+| <NIL : "NIL">
+| <OF : "OF">
+| <OR : "OR">
+| <PROGRAM : "PROGRAM">
+| <PROCEDURE : "PROCEDURE">
+| <RECORD : "RECORD">
+| <RETURN : "RETURN">
+| <THEN : "THEN">
+| <TRUE : "TRUE">
+| <TYPE : "TYPE">
+| <VAR : "VAR">
+| <WHILE : "WHILE">
+}
+
+/*** Basic constants: numbers, idents, chars and strings ***/
+TOKEN  :
+{
+  < #DIGIT : ["0"-"9"] >
+| < #HEXDIGIT : ["0"-"9","A"-"F"] >
+| < INTEGER : (<DIGIT>)+ | <DIGIT> (<HEXDIGIT>)* "H" >
+
+| < #LETTER : ["A"-"Z","a"-"z"] >
+| < IDENT : <LETTER> (<LETTER> | <DIGIT>)* >
+
+}
+
+
+/**************************************/
+/********** START OF GRAMMAR **********/
+/**************************************/
+
+ASTProgram Program() # Program: {}
+{
+  <PROGRAM> IdentDef() ";" 
+  DeclSeq() 
+  (<BEGIN> StatementSeq())?
+  <END> "."
+  
+  { return jjtThis; }
+}
+
+void DeclSeq() : {}
+{
+  ( VarTypeDecl() )*
+  ( ProcedureDecl() )*
+}
+
+void VarTypeDecl() : {}
+{
+  <TYPE> (TypeDecl() ";")* 
+| <VAR> (VarDecl() ";")*
+| <INV> Formula() #Invariant 
+}
+
+void TypeDecl() # RecordDecl: {}
+{
+  IdentDef() "=" ( RecordDecl() )
+}
+
+void RecordDecl() : {}
+{
+  <RECORD> VarDeclList() <END>
+}
+
+void VarDeclList() : {}
+{
+  VarDecl() (";" VarDecl() )*
+}
+
+void VarDecl() # VarDecl : {}
+{
+  IdentDef() ":" Type()
+}
+
+void ProcedureDecl() #ProcDecl : {}
+{
+  <PROCEDURE> ProcDecl() ";"
+}
+
+void ProcDecl() : {}
+{
+  IdentDef() ( FormalPars() )? ( ":" Type() )?";" 
+        ProcHeadDeclSeq() <BEGIN> StatementSeq() <END>
+}
+
+void ProcHeadDeclSeq() : {}
+{
+  (  <VAR> ( VarDecl() ";" )+
+  | ( ( <PRE> Formula() ) #Precondition )
+  | ( ( <POST> Formula() ) #Postcondition )
+  | ( ( <MODIFIES> Formula() ) #Modifies )
+  )* 
+}
+
+void FormalPars() #FormalPars : {}
+{
+  "(" VarDeclList() ")" 
+}
+
+void Type() : {}
+{
+   ( <ARRAY> <OF> Type() ) #ArrayType
+  | IdentDef()
+}
+
+void StatementSeq() : {}
+{
+  ( optStatement() (";" optStatement())* ) #StatementSeq
+}
+
+void optStatement() : {}
+{
+  ( Statement() )?
+}
+
+void Statement() : 
+{
+  Token t;
+}
+{ (
+  LOOKAHEAD(2) 
+    ( Designator() t=":=" Expr() {jjtThis.setToken(t);} ) #AssignmentStmt
+    
+  | ( t=IdentDef() {jjtThis.setToken(t);} 
+      Arguments() ) #ProcCallStmt
+        
+  | t=<IF> IfPart(t) <END> 
+  
+  | (t=<WHILE> Expr() <DO> StatementSeq() <END> {jjtThis.setToken(t);}) #WhileStmt 
+   
+  | (t=<RETURN> (Expr())? {jjtThis.setToken(t);} ) #ReturnStmt
+  )
+  
+  
+}
+
+void IfPart(Token t) : {}
+{ 
+  ( {jjtThis.setToken(t);}
+    Expr() <THEN> StatementSeq() 
+    (
+      t=<ELSIF> IfPart(t) #StatementSeq
+    | <ELSE> StatementSeq()
+    )?
+  ) #IfStmt
+}
+
+void Expr() : {}
+{
+  ( SimpleExpr() ( Relation() SimpleExpr() )? )
+      #Arithmetic(>1)
+}
+
+void SimpleExpr() : {}
+{
+   ( ("+")? AdditiveExpr() )
+ | ( "-" AdditiveExpr() #NegativeExpr )
+}
+
+void AdditiveExpr() : {}
+{
+  ( Term() ( AddOp() Term() )* ) 
+     #Arithmetic(>1)
+}
+ 
+void Term() : {}
+{
+  ( Factor() ( MulOp() Factor() )* ) 
+     #Arithmetic(>1)
+}
+
+void Factor() : {}
+{
+    LOOKAHEAD(2)
+    (IdentDef() Arguments()) #ProcCall   
+  | Designator() 
+  | Literal() 
+  | "(" Expr() ")" 
+  | "~" Factor() #Negation
+}
+
+void Relation() #Operator : 
+{
+  Token t;
+}
+{
+  ( t="=" | t="<" | t="<=" | t=">" | t=">=" )
+   { jjtThis.setToken(t); }
+}
+
+void AddOp() #Operator :
+{
+  Token t;
+}
+{
+  ( t="+" | t="-" | t=<OR> )
+    { jjtThis.setToken(t); }
+}
+
+void MulOp() #Operator :
+{
+  Token t;
+}
+{
+  ( t="*" | t="/" | t=<DIV> | t=<MOD> | t=<AND> )
+   { jjtThis.setToken(t); }
+} 
+
+void Arguments() : {}
+{
+  "(" ( ExprList() )? ")"
+} 
+
+void Designator() : {}
+{
+  IdentDef() 
+  ( 
+      ( "." IdentDef() ) #FieldDesig(2)
+    | ( "[" Expr() "]" ) #ArrayDesig(2)
+  )*
+} 
+
+void ExprList() : {}
+{
+  Expr() ("," Expr())*
+}
+
+Token IdentDef() #Identifier : 
+{
+	Token t ;
+}
+{
+  t=<IDENT> { jjtThis.setToken(t); return t;}
+}
+
+void Literal() #Literal : 
+{
+    Token t ;
+}
+{
+  ( t=<INTEGER> 
+  | t=<TRUE>
+  | t=<FALSE>
+  | t=<NIL>
+  ) { jjtThis.setToken(t); }
+}
+
+void Formula() #Formula :
+{
+  Token t ;
+}
+{
+  t=<FORMULA> { jjtThis.setToken(t); }
+}

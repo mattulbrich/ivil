@@ -1,0 +1,44 @@
+PROGRAM sort;
+
+TYPE R = RECORD
+ value : int;
+ valid : boolean
+END;
+
+
+PROCEDURE cmp(a:R; b:R) : bool;
+  {PRE: !a=nil & !b=nil}
+  {POST: atLeastAsGood($result,a) & atLeastAsGood($result,b) & ($result = a | $result = b) }
+BEGIN
+  IF a.valid
+  THEN
+    IF b.valid
+    THEN 
+      IF a.value > b.value
+      THEN RETURN a
+      ELSE RETURN b
+      END
+    ELSE
+      RETURN a
+    END
+  ELSE
+    RETURN b
+  END
+END;
+
+
+PROCEDURE sort(arr:ARRAY OF R);
+  {PRE: !arr = nil}
+  {POST: sorted(arr)}
+  VAR i : int;
+      j : int;
+BEGIN
+  
+  i := 1;
+  WHILE i <= arr.length
+  DO
+    arr[i] := arr[i] + 1;
+  END
+END;
+
+END.

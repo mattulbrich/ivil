@@ -1,0 +1,77 @@
+PROGRAM P1;
+
+TYPE R = RECORD
+   i : int;
+   b : bool;
+   a : ARRAY OF int
+END;
+
+TYPE f = RECORD f : int END;
+
+VAR x : int;
+
+{ INV x > 0 }
+
+PROCEDURE fac(v: int) : int;
+  { PRE v > 0 }
+  { POST $result > 0 }
+  { MODIFIES a,b,c }
+  VAR r : int;
+BEGIN
+  r := 1;
+  WHILE v > 0 
+  DO
+    r := r * v;
+    v := v - 1;
+  END;
+  RETURN r;
+  a[1][1]:=0;
+  xx.yy.zz := 3;
+END;
+
+PROCEDURE funccall;
+BEGIN
+  assignment := fac(0);
+  fac(0);
+  manyparams(0,1,2,a.x,b[4]);
+  withoutparams();
+  assignment := fac(0);
+END;
+
+PROCEDURE iftest;
+BEGIN
+  IF condition
+  THEN 
+    fac(3)
+  ELSE
+    fac(4)
+  END;
+
+  IF fac(5) > fac(7)
+  THEN
+    fac(9)
+  END;
+
+  IF TRUE
+  THEN
+    fac(3)
+  ELSIF false
+  THEN
+    fac(9)
+  ELSE
+    fac(1)
+  END
+END;
+
+PROCEDURE arith;
+BEGIN
+  x := 1 + 2;
+  x := 1 * 2;
+  x := 1 MOD 2;
+  x := 1 > 2
+END;  
+
+(* Nested (* comments *) are tested *)
+
+END.
+

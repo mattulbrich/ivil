@@ -1,0 +1,21 @@
+package de.uka.iti.pseudo.comp.rascal;
+
+public class LinedStatement {
+    
+    public static final int NO_LINE = -1;
+    public static final int SAME_LINE = -2;
+    
+    private int line;
+    private String statement;
+
+    public LinedStatement(int line, String statement) {
+        this.line = line;
+        this.statement = statement;
+    }
+
+    public LinedStatement(TokenNode n, String string) {
+        this(n.getToken().beginLine, string);
+    }
+
+
+}
