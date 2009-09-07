@@ -18,48 +18,45 @@ sort
   field('type)
   heap
   ref
+  array('type)
+  location('type)
   locset
 
 function
   'a defaultVal
-  field(bool) $created
-  field(int) $length
   ref null
+  array('a) nil
 
-  field(ref) arrayIndex(int)
 
-  heap H assignable
+  location('a) loc(ref, field('a)) unique
+  location('a) locA(array('a), int) unique
+  location(int) length(array('a)) unique
 
-  'a R(heap, ref, field('a))
-  heap W(heap, ref, field('a), 'a)
+  'a sel(heap, location('a))
+  heap stor(heap, location('a), 'a)
+
   heap newObject(heap, ref)
+  heap newArray(heap, array('a), int)
   heap havocHeap(heap, heap, locset)
 
-  bool inLocset(ref, field('a), locset)
+  bool inLocset(location('a), locset)
 
-
-rule heap_RW_same
-  find R(W(%h, %o, %f as 'field, %v), %o2, %f2 as 'field)
-  replace cond(%o = %o2 & %f = %f2, %v, R(%h, %o2, %f2))
+rule heap_stor
+  find sel(stor(%h, %loc1, %v), %loc2)
+  replace cond(%loc1=%loc2, %v, sel(%h, locA(%r2, %i2)))
   tags rewrite "fol simp"
 
-rule heap_RW_diff
-  find R(W(%h, %o, %f, %v), %o2, %f2)
-  where
-    differentTypes %f, %f2
-  replace R(%h, %o2, %f2)
-  tags rewrite "fol simp"
+rule heap_newObject
+  find sel(newObject(%h, %o), loc(%ref, %f))
+  replace cond(%o = %ref, defaultVal, sel(%h, loc(%ref, %f)))
 
+rule heap_newArray
+  find sel(newArray(%h, %arr, %size), length(%arr2))
+  replace cond(%arr = %arr2, %size, sel(%h, length(%arr2)))
 
-rule heap_Rnew
-  find R(newObject(%h, %o), %o2, %f2)
-  replace cond(%o = %o2, defaultVal, R(%h, %o2, %f2))
-
-rule heap_Rhavoc
-  find R(havocHeap(%h, %h2, %locset), %o, %f)
-  replace R(cond(inLocset(%o, %f, %locset), %h2, %h1), %o, %f)
-
-
+rule heap_havocHeap
+  find sel(havocHeap(%h, %h2, %locset), %loc)
+  replace sel(cond(inLocset(%loc, %locset), %h2, %h1), %loc)
 
 rule defaultVal_int
   find defaultVal as int
@@ -68,6 +65,10 @@ rule defaultVal_int
 rule defaultVal_ref
   find defaultVal as ref
   replace null
+
+rule defaultVal_array
+  find defaultVal as array('a)
+  replace nil
 
 rule defaultVal_bool
   find defaultVal as bool

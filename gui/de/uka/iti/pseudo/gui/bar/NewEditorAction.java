@@ -25,9 +25,7 @@ public class NewEditorAction extends BarAction {
 
     public void actionPerformed(ActionEvent e) {
         try {
-            PFileEditor editor = new PFileEditor();
-            editor.setSize(600, 800);
-            Main.showFileEditor(editor);
+            Main.openEditor(null);
         } catch (IOException e1) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
         }

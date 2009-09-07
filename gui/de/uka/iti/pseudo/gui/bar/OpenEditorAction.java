@@ -10,7 +10,6 @@ import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
 // TODO Documentation needed
@@ -28,16 +27,12 @@ public class OpenEditorAction extends BarAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        if(fileChooser == null)
-            fileChooser = new JFileChooser(".");
         
-        int result = fileChooser.showOpenDialog(getParentFrame());
+        int result = Main.makeFileChooser(Main.PROBLEM_FILE).showOpenDialog(getParentFrame());
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                PFileEditor editor = new PFileEditor(selectedFile);
-                editor.setSize(600, 800);
-                Main.showFileEditor(editor);
+                Main.openEditor(selectedFile);
             } catch (IOException e1) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
             }

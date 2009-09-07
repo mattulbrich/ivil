@@ -16,6 +16,12 @@ function
 	int i2
 	int i3
 	int i4
+	
+(* some unique functions *)
+        int uniq1 unique
+        bool uniq2 unique
+        bool uniq3(int, int) unique
+        bool uniq4(int, int) unique
 
 (* some booleans *)	
 	bool b1 assignable
@@ -42,7 +48,7 @@ program P
 
 program Q
     assume b1 & b2
-    source "testline"
+    sourceline 3
   label: label2:
     skip
     goto label

@@ -23,9 +23,7 @@ public class OpenCurrentInEditorAction extends BarAction {
         File file = new File(getProofCenter().getEnvironment().getResourceName());
 
         try {
-            PFileEditor editor = new PFileEditor(file);
-            editor.setSize(600, 800);
-            Main.showFileEditor(editor);
+            Main.openEditor(file);
         } catch (IOException e1) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
         }

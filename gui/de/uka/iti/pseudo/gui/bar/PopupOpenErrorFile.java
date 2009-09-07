@@ -27,10 +27,8 @@ public class PopupOpenErrorFile
         if(errorFile == null)
             return;
         try {
-            File file = new File(errorFile); 
-            PFileEditor editor = new PFileEditor(file);
-            editor.setSize(600, 800);
-            Main.showFileEditor(editor);
+            File file = new File(errorFile);
+            Main.openEditor(file);
         } catch (IOException e1) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
         }

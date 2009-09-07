@@ -38,9 +38,9 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
-import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseEditorAction;
@@ -124,7 +124,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
 
     
-    public PFileEditor(File file) throws IOException {
+    public PFileEditor(@Nullable File file) throws IOException {
         init();
         loadFile(file);
     }

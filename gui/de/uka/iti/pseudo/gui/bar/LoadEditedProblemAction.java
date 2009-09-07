@@ -1,26 +1,14 @@
 package de.uka.iti.pseudo.gui.bar;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
-import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
@@ -60,12 +48,7 @@ public class LoadEditedProblemAction extends BarAction {
         }
 
         try {
-            Parser fp = new Parser();
-            EnvironmentMaker em = new EnvironmentMaker(fp, file);
-            Environment env = em.getEnvironment();
-            Proof proof = new Proof(em.getProblemTerm());
-            ProofCenter pc = new ProofCenter(proof, env);
-            Main.showProofCenter(pc);
+            ProofCenter pc = Main.openProver(file);
         } catch(Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } 

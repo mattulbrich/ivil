@@ -37,3 +37,6 @@ de.uka.iti.pseudo.rule.where.DifferentTypes
 
 # ask a decision procedure.
 de.uka.iti.pseudo.rule.where.AskDecisionProcedure
+
+# check whether a term has a unique top level function symbol
+de.uka.iti.pseudo.rule.where.IsUnique

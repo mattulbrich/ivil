@@ -63,7 +63,7 @@ public class Proof extends Observable {
         fireNodeChanged(proofNode);
     }
     
-    public Proof(Term initialProblem) throws TermException {
+    public Proof(@NonNull Term initialProblem) throws TermException {
         this(new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(initialProblem)));
     }
     

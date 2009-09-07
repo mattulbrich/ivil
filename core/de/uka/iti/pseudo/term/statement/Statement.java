@@ -52,9 +52,11 @@ public abstract class Statement {
     }
 
     public String toString(boolean typed) {
-        if(sourceLineNumber != -1 )
-            return "[" + sourceLineNumber +"] ";
-        else
+        // this may not be ... used for rendering schematic program terms
+        // TODO remove this function, make it abstract...
+//        if(sourceLineNumber != -1 )
+//            return "[" + sourceLineNumber +"] ";
+//        else
             return "";
     }
     

@@ -56,7 +56,7 @@ public class MyStrategy implements Strategy {
     }
 
     @Override 
-    public void init(@NonNull Proof proof, Environment env, StrategyManager strategyManager)
+    public void init(@NonNull Proof proof, @NonNull Environment env, @NonNull StrategyManager strategyManager)
             throws StrategyException {
         
         this.proof = proof;
@@ -72,7 +72,8 @@ public class MyStrategy implements Strategy {
         }
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "Test Strategy";
     }
 

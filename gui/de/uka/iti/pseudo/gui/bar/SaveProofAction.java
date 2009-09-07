@@ -25,6 +25,8 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
+import de.uka.iti.pseudo.gui.ExporterFileFilter;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
@@ -41,21 +43,11 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 public class SaveProofAction extends BarAction 
     implements PropertyChangeListener, InitialisingAction {
     
-    
-
-    private JFileChooser fileChooser;
-    
-    private List<FileFilter> filters = new ArrayList<FileFilter>();
-    
     public SaveProofAction() {
         super("Save proof ...", BarManager.makeIcon(SaveProofAction.class.getResource("img/page_save.png")));
         putValue(ACTION_COMMAND_KEY, "saveProb");
         putValue(SHORT_DESCRIPTION, "save a proof to the currently active problem");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
-        
-        for(ProofExport export : ServiceLoader.load(ProofExport.class)) {
-            filters.add(new ExporterFileFilter(export));
-        }
     }
     
     /*
@@ -78,12 +70,7 @@ public class SaveProofAction extends BarAction
      */
     public void actionPerformed(ActionEvent e) {
         
-        if(fileChooser == null) {
-            fileChooser = new JFileChooser(".");
-            for (FileFilter ff : filters) {
-                fileChooser.addChoosableFileFilter(ff);
-            }
-        }
+        JFileChooser fileChooser = Main.makeFileChooser(Main.PROOF_FILE);
         
         while(true) {
 
@@ -95,7 +82,7 @@ public class SaveProofAction extends BarAction
                 ProofExport proofExporter;
                 if (ff instanceof ExporterFileFilter) {
                     ExporterFileFilter exportFilter = (ExporterFileFilter) ff;
-                    proofExporter = exportFilter.exporter;
+                    proofExporter = exportFilter.getExporter();
                 } else {
                     JOptionPane.showMessageDialog(mainWindow, "You need to choose a file format");
                     continue;
@@ -138,28 +125,4 @@ public class SaveProofAction extends BarAction
             }
         }
     }
-
-    /**
-     * This class is used to filter files of a certain type. The file name
-     * extension is used to fiter. This filter wraps a {@link ProofExport} and
-     * takes its values from it.
-     */
-    private static class ExporterFileFilter extends FileFilter {
-        
-        ProofExport exporter;
-
-        public ExporterFileFilter(ProofExport exporter) {
-            this.exporter = exporter;
-        }
-
-        public boolean accept(File f) {
-            return f.isDirectory() || f.getName().endsWith("." + exporter.getFileExtension());
-        }
-
-        public String getDescription() {
-            return exporter.getName();
-        }
-        
-    }
-
 }

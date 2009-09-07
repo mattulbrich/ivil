@@ -39,7 +39,7 @@ public class MetaEvaluator extends RebuildingTermVisitor {
      *            during the evaluation.
      * 
      * @param env
-     *            the Environmment which will be passed to the meta functions
+     *            the environment which will be passed to the meta functions
      *            during the evaluation.
      */
     public MetaEvaluator(RuleApplication ruleApp, Environment env) {

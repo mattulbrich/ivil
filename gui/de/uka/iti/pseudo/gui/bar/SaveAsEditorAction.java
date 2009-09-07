@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
@@ -15,7 +16,6 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 @SuppressWarnings("serial") 
 public class SaveAsEditorAction extends BarAction {
 
-    private JFileChooser fileChooser;
 
     public SaveAsEditorAction() {
         super("Save As ...");
@@ -24,10 +24,9 @@ public class SaveAsEditorAction extends BarAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        if(fileChooser == null) {
-            fileChooser = new JFileChooser(".");
-        }
 
+        JFileChooser fileChooser = Main.makeFileChooser(Main.PROBLEM_FILE);
+        
         while(true) {
             PFileEditor editor = (PFileEditor) getValue(PARENT_FRAME);
 

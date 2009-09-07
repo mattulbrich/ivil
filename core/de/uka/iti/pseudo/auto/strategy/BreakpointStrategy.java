@@ -55,7 +55,8 @@ public class BreakpointStrategy implements Strategy {
     public void setObeySourceBreakpoints(boolean obeySourceBreakpoints) {
         this.obeySourceBreakpoints = obeySourceBreakpoints;
     }
-
+    
+    // due to ParameterSheet, we need get instead of is
     public boolean getStopAtSkip() {
         return stopAtSkip;
     }

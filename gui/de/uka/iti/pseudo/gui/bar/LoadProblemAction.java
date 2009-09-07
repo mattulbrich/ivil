@@ -47,22 +47,11 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
     
     public void actionPerformed(ActionEvent e) {
         
-        if(fileChooser == null)
-            fileChooser = new JFileChooser(".");
-        
-        int result = fileChooser.showOpenDialog(getParentFrame());
+        int result = Main.makeFileChooser(Main.PROBLEM_FILE).showOpenDialog(getParentFrame());
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                Parser fp = new Parser();
-                EnvironmentMaker em = new EnvironmentMaker(fp, selectedFile);
-                Environment env = em.getEnvironment();
-                Term problemTerm = em.getProblemTerm();
-                if(problemTerm == null)
-                    throw new EnvironmentException("Cannot load an environment without problem");
-                Proof proof = new Proof(problemTerm);
-                ProofCenter pc = new ProofCenter(proof, env);
-                Main.showProofCenter(pc);
+                ProofCenter pc = Main.openProver(selectedFile);
             } catch(IOException ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
@@ -74,9 +63,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                 
                 if(res == JOptionPane.YES_OPTION) {
                     try {
-                        PFileEditor editor = new PFileEditor(selectedFile);
-                        editor.setSize(600, 800);
-                        Main.showFileEditor(editor);
+                        Main.openEditor(selectedFile);
                     } catch (IOException e1) {
                         ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
                     }

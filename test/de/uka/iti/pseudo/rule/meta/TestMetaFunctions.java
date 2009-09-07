@@ -63,9 +63,21 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         assertEvalsTo("$$intEval(2+3)", "5");
         assertEvalsTo("$$intEval(2-3)", "-1");
         
-
         try {
             Term t = makeTerm("$$intEval(i1+3)");
+            Term result = eval.evalutate(t);
+            fail("should fail but is " + result);
+        } catch(TermException ex) {}
+    }
+    
+    public void testResolveUnique() throws Exception {
+        assertEvalsTo("$$resolveUnique(uniq1, uniq1)", "true");
+        assertEvalsTo("$$resolveUnique(uniq1, uniq2)", "false");
+        assertEvalsTo("$$resolveUnique(uniq3(0,0), uniq4(0,0))", "false");
+        assertEvalsTo("$$resolveUnique(uniq3(i1,0), uniq3(i3,0))", "i1=i3 & 0=0");
+        
+        try {
+            Term t = makeTerm("$$resolveUnique(i1, uniq1)");
             Term result = eval.evalutate(t);
             fail("should fail but is " + result);
         } catch(TermException ex) {}

@@ -29,3 +29,6 @@ de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction
 
 # the loop invariant program changements
 de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction
+
+# translate an equality of unique terms
+de.uka.iti.pseudo.rule.meta.ResolveUniqueMetaFunction

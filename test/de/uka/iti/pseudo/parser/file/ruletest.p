@@ -4,6 +4,7 @@ include
         
 function
 	int t
+	int ass assignable
         
 rule rule_Test1
         find 1 
@@ -47,5 +48,12 @@ rule test_schema_mod
    find  [ %a ]
    replace  %a -> %a
 
-program P
-   source "some empty program"
+program P source "somefilename"
+  label: assume t > 0
+    assert t < 0
+    havoc ass
+    sourceline 5
+  label2:
+    ass := t + 1
+    goto label, label2 
+    

@@ -468,6 +468,20 @@ public class Environment {
             throw new Error(e);
         }
     }
+    
+    /**
+     * The constant false as a freshly created term
+     * 
+     * @return a fresh application of the constant true
+     */
+    public static Term getFalse() {
+        try {
+            return new Application(BUILT_IN_ENV.getFunction("false"), getBoolType());
+        } catch (TermException e) {
+            throw new Error(e);
+        }
+    }
+
 
 
     /**
