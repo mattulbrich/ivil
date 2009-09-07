@@ -33,7 +33,7 @@ public class Main {
     
     static {
         loadProperties();
-        ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(getBoolean(ASSERTION_PROPERTY, true));
+        ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
         
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
         String sysDir;
@@ -139,38 +139,6 @@ public class Main {
                     File.pathSeparator + PROPERTIES_FILENAME + ", continue");
             e.printStackTrace();
         }
-    }
-        
-    public static boolean getBoolean(String property, boolean def) {
-        return settings.getBoolean(property, def);
-    }
-
-    public static Font getFont(String property) {
-        return settings.getFont(property);
-    }
-    
-    public static Color getColor(String key) {
-        return settings.getColor(key);
-    }
-
-    public double getDouble(String key) {
-        return settings.getDouble(key);
-    }
-
-    public int getInteger(String key) throws NumberFormatException {
-        return settings.getInteger(key);
-    }
-
-    public String getProperty(String key, String defaultValue) {
-        return settings.getProperty(key, defaultValue);
-    }
-
-    public String getProperty(String key) {
-        return settings.getProperty(key);
-    }
-
-    public String[] getStrings(String key) {
-        return settings.getStrings(key);
     }
 
 }

@@ -8,6 +8,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import de.uka.iti.pseudo.gui.bar.BarManager;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 // PROOF OF CONCEPT ONLY --- change all those numbers to 
 // things calc'ed from FrontMetrics
@@ -15,15 +16,17 @@ import de.uka.iti.pseudo.gui.bar.BarManager;
 
 public class ProgramComponent extends JComponent {
     
+    private static Settings SETTINGS = Settings.getInstance(); 
+    
     /**
      * some UI properties which can be modified using editors.
      */
-    private Font sourceFont = Main.getFont("pseudo.program.sourcefont");
-    private Font boogieFont = Main.getFont("pseudo.program.boogiefont");
-    private Color sourceHighlightColor = Main.getColor("pseudo.program.sourcehighlight");
-    private Color sourceColor = Main.getColor("pseudo.program.sourcecolor");
-    private Color boogieHighlightColor = Main.getColor("pseudo.program.boogiehighlight");
-    private Color boogieColor = Main.getColor("pseudo.program.boogiecolor");
+    private Font sourceFont = SETTINGS.getFont("pseudo.program.sourcefont");
+    private Font boogieFont = SETTINGS.getFont("pseudo.program.boogiefont");
+    private Color sourceHighlightColor = SETTINGS.getColor("pseudo.program.sourcehighlight");
+    private Color sourceColor = SETTINGS.getColor("pseudo.program.sourcecolor");
+    private Color boogieHighlightColor = SETTINGS.getColor("pseudo.program.boogiehighlight");
+    private Color boogieColor = SETTINGS.getColor("pseudo.program.boogiecolor");
     
     private static final Icon PLUS_ICON = BarManager
             .makeIcon(ProgramComponent.class

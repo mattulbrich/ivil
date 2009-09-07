@@ -23,11 +23,12 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 public class SourcePanel extends ChoosePanel implements
         ProofNodeSelectionListener {
 
-    private static final Color SOURCE_COLOR = Main
+    private static final Color SOURCE_COLOR = Settings.getInstance()
             .getColor("pseudo.program.sourcecolor");
 
     public SourcePanel(ProofCenter proofCenter) throws IOException {

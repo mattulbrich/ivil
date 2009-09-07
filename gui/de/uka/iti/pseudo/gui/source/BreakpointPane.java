@@ -28,15 +28,16 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
-import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
 import de.uka.iti.pseudo.util.Util;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 public class BreakpointPane extends BracketMatchingTextArea implements Observer {
-
-    private static final Font FONT = Main.getFont("pseudo.program.font");
-    private static final Color HIGHLIGHT_COLOR = Main.getColor("pseudo.program.highlightcolor");
+    private static Settings SETTINGS = Settings.getInstance(); 
+    
+    private static final Font FONT = SETTINGS.getFont("pseudo.program.font");
+    private static final Color HIGHLIGHT_COLOR = SETTINGS.getColor("pseudo.program.highlightcolor");
     private static final Icon BULLET_ICON = BarManager.makeIcon(
             BulletBorder.class.getResource("../img/bullet_blue.png"));
     private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);

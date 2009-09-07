@@ -51,6 +51,7 @@ import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO in some future: syntax highlighting
 
@@ -151,7 +152,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             editor = new BracketMatchingTextArea();
             editor.setLineWrap(false);
-            editor.setFont(Main.getFont("pseudo.editor.font"));
+            editor.setFont(Settings.getInstance().getFont("pseudo.editor.font"));
             editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
             // TODO make this configurable
@@ -186,7 +187,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     
     private void addErrorHighlighting() {
         Parser p = new Parser(new StringReader(editor.getText()));
-        String filename = editedFile == null ? null : editedFile.getName();
+        String filename = editedFile == null ? "<unnamed>" : editedFile.getName();
         try {
             ASTFile file = p.File();
             file.setFilename(filename);

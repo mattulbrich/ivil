@@ -20,10 +20,11 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 public class ProgramPanel extends ChoosePanel {
 
-    private static final Color PROGRAM_COLOR = Main
+    private static final Color PROGRAM_COLOR = Settings.getInstance()
             .getColor("pseudo.program.boogiecolor");
 
     private PrettyPrint prettyPrinter;
