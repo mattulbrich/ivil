@@ -16,8 +16,6 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 @SuppressWarnings("serial") 
 public class OpenEditorAction extends BarAction {
     
-    private JFileChooser fileChooser;
-
     public OpenEditorAction() {
         putValue(NAME, "Edit problem file ...");
         putValue(SMALL_ICON, BarManager.makeIcon(OpenEditorAction.class.getResource("img/page_white_text_edit.png")));
@@ -28,7 +26,8 @@ public class OpenEditorAction extends BarAction {
     
     public void actionPerformed(ActionEvent e) {
         
-        int result = Main.makeFileChooser(Main.PROBLEM_FILE).showOpenDialog(getParentFrame());
+        JFileChooser fileChooser = Main.makeFileChooser(Main.PROBLEM_FILE);
+        int result = fileChooser.showOpenDialog(getParentFrame());
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {

@@ -276,7 +276,7 @@ public class TermSelector {
      * @throws ProofException if the selection cannot be 
      * applied to the sequent.
      */
-    public Term selectSubterm(Sequent sequent) throws ProofException {
+    public Term selectSubterm(@NonNull Sequent sequent) throws ProofException {
         Term term = selectTopterm(sequent);
         if (isToplevel()) {
             return term;

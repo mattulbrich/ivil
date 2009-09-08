@@ -59,9 +59,8 @@ public class SourcePanel extends ChoosePanel implements
     @Override
     protected String makeContent(Object reference) {
         
-        if(!(reference instanceof File)) {
-            return "";
-        }
+        if(!(reference instanceof File) || reference == null)
+            return null;
         
         FileReader reader = null;
         try {

@@ -17,6 +17,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
@@ -72,6 +73,8 @@ public class RewriteRuleCollection {
      */
     private int size;
 
+    private RuleApplicationFilter applicationFilter;
+
     /**
      * Instantiates a new rewrite rule collection.
      * 
@@ -93,6 +96,58 @@ public class RewriteRuleCollection {
         this.size = 0;
         collectRules(rules, category);
         this.env = env;
+    }
+    
+    /**
+     * Find an applicable rule application in a sequent.
+     * 
+     * We apply a {@link RuleApplicationFinder} first to the antecedent then to
+     * the succedent.
+     * 
+     * @param proof
+     *            the proof to look in
+     * @param goalNo
+     *            the goal number in the goal.
+     * 
+     * @return a rule application maker if we can find something, null otherwise
+     */
+    public RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
+
+        RuleApplicationFinder finder = new RuleApplicationFinder(proof, goalNo, env);
+        finder.setApplicationFilter(applicationFilter);
+        Sequent seq = proof.getGoal(goalNo).getSequent();
+
+        List<Term> ante = seq.getAntecedent();
+        RuleApplicationMaker ram = findRuleApplication(finder, ante,
+                TermSelector.ANTECEDENT);
+
+        if (ram == null) {
+            List<Term> succ = seq.getSuccedent();
+            ram = findRuleApplication(finder, succ, TermSelector.SUCCEDENT);
+        }
+
+        return ram;
+
+    }
+    
+    /**
+     * Gets the currently installed application filter.
+     * 
+     * @return the application filter or null
+     */
+    public RuleApplicationFilter getApplicationFilter() {
+        return applicationFilter;
+    }
+
+    /**
+     * Sets the application filter to be used in the future.
+     * Setting it to null turns filtering off.
+     * 
+     * @param applicationFilter
+     *            the new application filter or null
+     */
+    public void setApplicationFilter(RuleApplicationFilter applicationFilter) {
+        this.applicationFilter = applicationFilter;
     }
 
     /**
@@ -189,38 +244,6 @@ public class RewriteRuleCollection {
         return "[generic]";
     }
 
-    /**
-     * Find an applicable rule application in a sequent.
-     * 
-     * We apply a {@link RuleApplicationFinder} first to the antecedent then to
-     * the succedent
-     * 
-     * @param proof
-     *            the proof to look in
-     * @param goalNo
-     *            the goal number in the goal.
-     * 
-     * @return a rule application maker if we can find something, null otherwise
-     */
-    public RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
-
-        RuleApplicationFinder finder = new RuleApplicationFinder(proof, goalNo,
-                env);
-        Sequent seq = proof.getGoal(goalNo).getSequent();
-
-        List<Term> ante = seq.getAntecedent();
-        RuleApplicationMaker ram = findRuleApplication(finder, ante,
-                TermSelector.ANTECEDENT);
-
-        if (ram == null) {
-            List<Term> succ = seq.getSuccedent();
-            ram = findRuleApplication(finder, succ, TermSelector.SUCCEDENT);
-        }
-
-        return ram;
-
-    }
-
     /*
      * for all subterms in terms, select the rules of the classification (and
      * the generic ones) and try to match one against the term. return this
@@ -274,5 +297,6 @@ public class RewriteRuleCollection {
     @Override public String toString() {
         return "RuleCollection[" + category + "] with " + size + " rules";
     }
+
 
 }

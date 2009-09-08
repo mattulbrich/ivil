@@ -9,16 +9,9 @@ import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
-import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
@@ -28,8 +21,6 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
  */
 @SuppressWarnings("serial") 
 public class LoadProblemAction extends BarAction implements PropertyChangeListener {
-
-    private JFileChooser fileChooser;
 
     public LoadProblemAction() {
         super("Load problem ...", BarManager.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
@@ -47,7 +38,8 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
     
     public void actionPerformed(ActionEvent e) {
         
-        int result = Main.makeFileChooser(Main.PROBLEM_FILE).showOpenDialog(getParentFrame());
+        JFileChooser fileChooser = Main.makeFileChooser(Main.PROBLEM_FILE);
+        int result = fileChooser.showOpenDialog(getParentFrame());
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {

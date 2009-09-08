@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Set;
+import java.util.TreeSet;
 
 import nonnull.NonNull;
 
@@ -14,13 +16,13 @@ import nonnull.NonNull;
 
 public class BreakpointManager extends Observable {
     
-    private Map<Object, List<Integer>> breakpointCollection =
-        new HashMap<Object, List<Integer>>();
+    private Map<Object, Set<Integer>> breakpointCollection =
+        new HashMap<Object, Set<Integer>>();
 
     public void addBreakpoint(@NonNull Object breakPointResource, int line) {
-        List<Integer> list = breakpointCollection.get(breakPointResource);
+        Set<Integer> list = breakpointCollection.get(breakPointResource);
         if(list == null) {
-            list = new LinkedList<Integer>();
+            list = new TreeSet<Integer>();
             breakpointCollection.put(breakPointResource, list);
         }
         
@@ -30,7 +32,7 @@ public class BreakpointManager extends Observable {
     }
 
     public void removeBreakpoint(@NonNull Object breakPointResource, int line) {
-        List<Integer> list = breakpointCollection.get(breakPointResource);
+        Set<Integer> list = breakpointCollection.get(breakPointResource);
         if(list != null) {
             list.remove(Integer.valueOf(line));
             setChanged();
@@ -40,7 +42,7 @@ public class BreakpointManager extends Observable {
     }
 
     public Collection<Integer> getBreakpoints(Object breakPointResource) {
-        List<Integer> list = breakpointCollection.get(breakPointResource);
+        Set<Integer> list = breakpointCollection.get(breakPointResource);
         if(list == null)
             return Collections.emptyList();
         else

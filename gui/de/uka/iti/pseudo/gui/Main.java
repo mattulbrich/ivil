@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
 
 import javax.swing.JFileChooser;
@@ -76,13 +75,10 @@ public class Main {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
         
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
-        String sysDir;
-        try {
-            sysDir = settings.getProperty(SYSTEM_DIRECTORY_KEY);
-        } catch (NoSuchElementException e) {
-            sysDir = BASE_DIRECTORY + File.separator + "sys";
+        if(!settings.containsKey(SYSTEM_DIRECTORY_KEY)) {
+            String sysDir = BASE_DIRECTORY + File.separator + "sys";
+            settings.setProperty(SYSTEM_DIRECTORY_KEY, sysDir);
         }
-        settings.setProperty(SYSTEM_DIRECTORY_KEY, sysDir);
     }
 
     

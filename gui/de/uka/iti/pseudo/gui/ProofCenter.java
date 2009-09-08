@@ -394,7 +394,10 @@ public class ProofCenter {
      * 
      * The BreakpointManager is not necessarily part of the system.
      * This will fail if {@link BreakpointStrategy} is not available since
-     * this clas is asked to provide that instance.
+     * this class is asked to provide that instance.
+     * 
+     * <p>We cannot keep the instance here because the strategies are part
+     * of the core system and cannot access proof centers.
      * 
      * @return the breakpoint manager of the {@link BreakpointStrategy}.
      * @see BreakpointStrategy#getBreakpointManager() 

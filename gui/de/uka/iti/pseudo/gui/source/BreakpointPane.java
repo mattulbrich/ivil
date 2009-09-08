@@ -39,7 +39,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
     private static final Font FONT = SETTINGS.getFont("pseudo.program.font");
     private static final Color HIGHLIGHT_COLOR = SETTINGS.getColor("pseudo.program.highlightcolor");
     private static final Icon BULLET_ICON = BarManager.makeIcon(
-            BulletBorder.class.getResource("../img/bullet_blue.png"));
+            BulletBorder.class.getResource("/de/uka/iti/pseudo/gui/img/bullet_blue.png"));
     private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);
     
     private BreakpointManager breakpointManager;

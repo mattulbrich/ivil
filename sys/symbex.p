@@ -26,12 +26,13 @@ function
 
 rule prg_skip
   find [%a : skip] 
-  samegoal replace  $$incPrg(%a) 
+  samegoal replace  $$incPrg(%a)
+  tags rewrite "symbex"
 
 rule tprg_skip
   find [[%a : skip]] 
   samegoal replace  $$incPrg(%a) 
-
+  tags rewrite "symbex"
 
 rule prg_goto1
   find [%a : goto %n] 

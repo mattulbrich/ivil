@@ -10,8 +10,9 @@ function
   ref n assignable
   int sum assignable
   int result assignable
+  heap H assignable
 
-  int length(heap, ref)
+  int len(heap, ref)
   heap heapBegin
 
   field(int) field_size
@@ -28,7 +29,7 @@ program P source "./java1.java"
 
     sourceline 11
     assume !this = null
-    assume (\forall t; R(H,t,field_size) >= 0)
+    assume (\forall t; sel(H,loc(t,field_size)) >= 0)
 
     sourceline 16
     sum := 0
@@ -45,11 +46,11 @@ program P source "./java1.java"
 
     sourceline 19
     assert !n = null
-    sum := sum + R(H, n, field_size)
+    sum := sum + sel(H, loc(n, field_size))
 
     sourceline 20
     assert !n = null
-    n := R(H, n, field_next)
+    n := sel(H, loc(n, field_next))
 
     sourceline 21
     goto loop
@@ -62,7 +63,7 @@ program P source "./java1.java"
     assert result >= 0 
 
     sourceline 13
-    assert (\forall f; (\forall o; R(H, o, f) = R(heapBegin, o, f)))
+    assert (\forall l; sel(H, l) = sel(heapBegin, l))
 
 problem
   heapBegin = H -> [0; P]

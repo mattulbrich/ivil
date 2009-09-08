@@ -25,9 +25,10 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO Documentation needed
+// TODO Documentation needed DOC!
 // TODO cache all classes -> objects and create only one instance per class. ...
 public class BarManager {
     
@@ -355,7 +356,7 @@ public class BarManager {
         }
     }
     
-    public static Icon makeIcon(URL resource) {
+    public static Icon makeIcon(@NonNull URL resource) {
         try {
             if(resource != null)
                 return new ImageIcon(resource);

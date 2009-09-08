@@ -221,7 +221,7 @@ public class SMTBackgroundAction extends BarAction implements
         try {
             while(!Thread.interrupted()) {
                 synchronized (lock) {
-                    while(!backgroundActive && isEnabled()) {
+                    while(!backgroundActive || !isEnabled()) {
                         lock.wait();
                     }
                 }
