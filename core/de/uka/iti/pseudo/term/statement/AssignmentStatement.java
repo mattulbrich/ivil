@@ -30,8 +30,7 @@ public class AssignmentStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return super.toString(typed) + getTarget().toString(false) + " := "
-                + getValue().toString(typed);
+        return getTarget().toString(false) + " := " + getValue().toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

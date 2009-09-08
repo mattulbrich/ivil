@@ -12,8 +12,7 @@ public class AssertStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return super.toString(typed) + 
-            "assert " + getSubterms().get(0).toString(typed);
+        return "assert " + getSubterms().get(0).toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

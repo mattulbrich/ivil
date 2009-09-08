@@ -51,14 +51,7 @@ public abstract class Statement {
         return toString(Term.SHOW_TYPES);
     }
 
-    public String toString(boolean typed) {
-        // this may not be ... used for rendering schematic program terms
-        // TODO remove this function, make it abstract...
-//        if(sourceLineNumber != -1 )
-//            return "[" + sourceLineNumber +"] ";
-//        else
-            return "";
-    }
+    public abstract String toString(boolean typed);
     
     public boolean equals(Object object) {
         if (object instanceof Statement) {

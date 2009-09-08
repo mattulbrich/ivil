@@ -11,7 +11,7 @@ public class AssumeStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return super.toString(typed) + "assume "
+        return "assume "
                 + getSubterms().get(0).toString(typed);
     }
     

@@ -11,7 +11,7 @@ public class GotoStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return super.toString(typed) + 
+        return  
             "goto " + Util.commatize(getSubterms());
     }
     

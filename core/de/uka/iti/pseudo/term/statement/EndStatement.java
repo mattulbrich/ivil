@@ -11,7 +11,7 @@ public class EndStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return super.toString(typed) + "end "
+        return "end "
                 + getSubterms().get(0).toString(typed);
     }
     
