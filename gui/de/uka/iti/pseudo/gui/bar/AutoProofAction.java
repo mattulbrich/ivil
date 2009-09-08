@@ -6,7 +6,6 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.Icon;
 
-import de.uka.iti.pseudo.auto.strategy.MyStrategy;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;

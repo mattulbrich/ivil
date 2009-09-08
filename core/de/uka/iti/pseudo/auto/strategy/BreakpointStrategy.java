@@ -7,17 +7,15 @@ import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
-// TODO Behaviour undefined if multiple program terms present
-// we could do this by installing a filter in RewriteRuleCollection
-// so that not all rule applications are returned.
-
-public class BreakpointStrategy implements Strategy {
+public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     
     private BreakpointManager breakPointManager = new BreakpointManager();
     
@@ -50,32 +48,17 @@ public class BreakpointStrategy implements Strategy {
     }
 
     @Override 
-    public RuleApplication findRuleApplication() throws StrategyException {
-        try {
-            int countGoals = proof.getOpenGoals().size();
-            for (int i = 0; i < countGoals; i++) {
-                RuleApplication ra = ruleCollection.findRuleApplication(proof, i);
-                if(ra != null) {
-                    Term find = ra.getFindSelector().selectSubterm(proof.getGoal(i).getSequent());
-                    if (!(find instanceof LiteralProgramTerm)) {
-                        find = find.getSubterm(0);
-                    }
-                    
-                    if (find instanceof LiteralProgramTerm) {
-                        LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
-                        if (!hasBreakpoint(progTerm))
-                            return ra;
-                    } else {
-                        throw new StrategyException(
-                                "Rules in 'symbex' MUST match a program term or updated prorgram terms, this rule did not: "
-                                        + ra.getRule().getName());
-                    }
-                }
+    public RuleApplication findRuleApplication() {
+        int countGoals = proof.getOpenGoals().size();
+        
+        for (int i = 0; i < countGoals; i++) {
+            RuleApplication ra = ruleCollection.findRuleApplication(proof, i);
+            if (ra != null) {
+                return ra;
             }
-            return null;
-        } catch (ProofException e) {
-            throw new StrategyException("Error while applying BreakpointStrategy", e);
         }
+        
+        return null;
     }
     
     private boolean hasBreakpoint(LiteralProgramTerm progTerm) {
@@ -154,6 +137,34 @@ public class BreakpointStrategy implements Strategy {
 
     public void setStopAtSkip(boolean stopAtSkip) {
         this.stopAtSkip = stopAtSkip;
+    }
+
+    @Override 
+    public boolean accepts(RuleApplication ruleApp) throws RuleException {
+        int goal = ruleApp.getGoalNumber();
+        Sequent sequent = proof.getGoal(goal).getSequent();
+        Term find;
+        try {
+            find = ruleApp.getFindSelector().selectSubterm(sequent);
+        } catch (ProofException e) {
+            throw new RuleException(e);
+        }
+        
+        if (!(find instanceof LiteralProgramTerm)) {
+            find = find.getSubterm(0);
+        }
+        
+        if (find instanceof LiteralProgramTerm) {
+            LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
+            if (hasBreakpoint(progTerm))
+                return false;
+        } else {
+            throw new RuleException(
+                    "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
+                            + ruleApp.getRule().getName());
+        }
+        
+        return true;
     }
     
 }

@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.proof;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.rule.RuleException;
 
 /**
  * Filter rule applications.
@@ -17,6 +18,6 @@ public interface RuleApplicationFilter {
      * @param ruleApp rule application to check 
      * @return true if the application has been approved.
      */
-    boolean accepts(@NonNull RuleApplication ruleApp);
+    boolean accepts(@NonNull RuleApplication ruleApp) throws RuleException;
 
 }

@@ -149,6 +149,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         }
         
         validate();
+        repaint();
     }
     
     public void proofNodeSelected(ProofNode node) {

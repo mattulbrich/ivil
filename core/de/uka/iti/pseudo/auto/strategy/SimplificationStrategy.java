@@ -29,7 +29,7 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 /**
  * The Class SimplificationStrategy.
  */
-public class MyStrategy implements Strategy, RuleApplicationFilter {
+public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
     
     /**
      * SplitMode lists all possibilities to handle splitting:
@@ -135,7 +135,7 @@ public class MyStrategy implements Strategy, RuleApplicationFilter {
         
         ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length + 1];
         List<Rule> allRules = env.getAllRules();
-        for (int i = 0; i < ruleCollections.length; i++) {
+        for (int i = 0; i < REWRITE_CATEGORIES.length; i++) {
             try {
                 ruleCollections[i] = new RewriteRuleCollection(allRules, REWRITE_CATEGORIES[i], env);
             } catch (RuleException e) {
@@ -148,7 +148,7 @@ public class MyStrategy implements Strategy, RuleApplicationFilter {
             ruleCollections[REWRITE_CATEGORIES.length] = new RewriteRuleCollection(allRules, SPLIT_CATEGORY, env);
             ruleCollections[REWRITE_CATEGORIES.length].setApplicationFilter(this);
         } catch (RuleException e) {
-            throw new StrategyException("Cannot initialise MyStrategy", e);
+            throw new StrategyException("Cannot initialise SimplificationStrategy", e);
         }
     }
     
@@ -202,7 +202,7 @@ public class MyStrategy implements Strategy, RuleApplicationFilter {
 
     @Override
     public String toString() {
-        return "Test Strategy";
+        return "Simplification";
     }
 
     /**
