@@ -61,12 +61,12 @@ public abstract class ASTTerm extends ASTElement {
     }
 
     /**
-     * Sets the typing object.
+     * Sets the typing object. This may be called at most once.
      * 
      * @param typing the new typing
      */
-    public void setTyping(Typing typing) {
+    public void setTyping(@NonNull Typing typing) {
+        assert this.typing == null;
         this.typing = typing;
     }
-    
 }

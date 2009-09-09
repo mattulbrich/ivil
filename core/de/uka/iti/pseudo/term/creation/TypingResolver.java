@@ -388,16 +388,23 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     @Override 
     public void visit(ASTGotoStatement arg) throws ASTVisitException {
-        super.visit(arg);
-        try {
-            for (ASTTerm term : SelectList.select(ASTTerm.class, arg.getChildren())) {
-                typingContext.solveConstraint(Environment.getIntType(), term.getTyping().getRawType());
+        // do not type resolve labeled goto statements: 
+        // labels are *not* integer variables, and therefore unknown to the environment
+        // however, schema variables may appear here, they need to be typed
+        for(ASTElement child : arg.getChildren()) {
+            if(child instanceof ASTSchemaVariableTerm) {
+                ASTSchemaVariableTerm sv = (ASTSchemaVariableTerm)child;
+                child.visit(this);
+                try {
+                    typingContext.solveConstraint(Environment.getIntType(), sv.getTyping().getRawType());
+                } catch (UnificationException e) {
+                    throw new ASTVisitException("An end statement needs a boolean argument", arg, e);
+                }
             }
-        } catch (UnificationException e) {
-            throw new ASTVisitException("A goto statement needs integer arguments", arg, e);
         }
     }
     
+    @Override 
     public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
         super.visit(arg);
         try {

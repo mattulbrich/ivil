@@ -17,6 +17,8 @@ public class TestCaseWithEnv extends TestCase {
     
     protected static Environment env;
     
+    public static final boolean VERBOSE = Boolean.valueOf(System.getProperty("pseudo.test.verbose", "true"));
+    
     protected static void loadEnv() throws FileNotFoundException, ParseException, ASTVisitException {
         Parser fp = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(fp, new File("test/de/uka/iti/pseudo/testenv.p"));

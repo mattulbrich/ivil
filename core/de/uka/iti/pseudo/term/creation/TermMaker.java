@@ -325,9 +325,7 @@ public class TermMaker extends ASTDefaultVisitor {
         
         TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
         
-        for (ASTElement child : astStatement.getChildren()) {
-            child.visit(typingResolver);
-        }
+        astStatement.visit(typingResolver);
         
         TermMaker termMaker = new TermMaker(env);
         termMaker.sourceLineNumber = linenumber;

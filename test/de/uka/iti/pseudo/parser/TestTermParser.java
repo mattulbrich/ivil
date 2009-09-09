@@ -7,7 +7,7 @@
  * See LICENSE.TXT for details.
  */
 
-package de.uka.iti.pseudo.parser.term;
+package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -98,11 +98,14 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("{ i1 := 1 }{ i1 := 2 }false", false);
         testTerm("{ i1 := { b1 := true }i1 }true", false);
         testTerm("{ U }{ V }true", false);
+        // type inference
+        testTerm("{ i1 := arb } i1", "{ i1 := arb as int }(i1 as int)", true);
         
         // must be assignable
         testTermFail("{ i2 := 0 }true");
         // wrong types
         testTermFail("{ b1 := 0 }true");
+
     }
     
     public void testAssociativity() throws Exception {

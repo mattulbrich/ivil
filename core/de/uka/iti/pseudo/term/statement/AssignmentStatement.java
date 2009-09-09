@@ -27,6 +27,8 @@ public class AssignmentStatement extends Statement {
             if(!func.isAssignable())
                 throw new TermException("Target in an assignment needs to be 'assignable'");
         }
+        if(!getTarget().getType().equals(getValue().getType()))
+            throw new TermException("target and value need to have identical types");
     }
 
     public String toString(boolean typed) {

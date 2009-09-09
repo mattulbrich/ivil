@@ -6,9 +6,10 @@ import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
+import de.uka.iti.pseudo.parser.TestProgramParser;
+import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
-import de.uka.iti.pseudo.parser.term.TestTermParser;
 import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
@@ -34,6 +35,7 @@ public class AllTests {
         //$JUnit-BEGIN$
         suite.addTestSuite(TestFileParser.class);
         suite.addTestSuite(TestTermParser.class);
+        suite.addTestSuite(TestProgramParser.class);
         suite.addTestSuite(TestRuleParsing.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);
