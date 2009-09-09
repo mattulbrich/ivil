@@ -151,7 +151,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
                 Rule rule = new Rule(name, assumes, find, wheres, actions, properties, arg);
                 env.addRule(rule);
             } catch (EnvironmentException e) {
-                throw new ASTVisitException(e);
+                throw new ASTVisitException(arg, e);
             }
             
         } catch (RuleException e) {

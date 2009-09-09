@@ -65,7 +65,8 @@ ASTAssignmentStatement Assignment():
 }
 {
 	( target=SchemaVariable()
-	| t=<IDENTIFIER>  { target = new ASTIdentifierTerm(t); }
+	| ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
+	        { target = new ASTIdentifierTerm(t); }
 	)
 	":=" term=Term()
 	{ return new ASTAssignmentStatement(target, term); }
