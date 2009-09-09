@@ -1,13 +1,17 @@
 package de.uka.iti.pseudo.gui.parameters;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
+import javax.swing.UIManager;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
@@ -42,7 +46,17 @@ public class ParameterPanel extends JPanel {
             });
             add(activeStrategySelector);
         }
-        add(new JToolBar.Separator());
+        {
+            JComponent separator = new JComponent() { 
+                protected void paintComponent(Graphics g) {
+                    g.setColor(UIManager.getColor("TabbedPane.selected"));
+                    int h = getHeight()/2;
+                    g.fill3DRect(5, h-1, getWidth()-10, 2, false);
+                }
+            };
+            separator.setPreferredSize(new Dimension(30,30));
+            add(separator);
+        }
         {
             add(new JLabel("Configure strategy:"));
             paramSelector = new JComboBox(strategyManager.getAllStrategies().toArray());

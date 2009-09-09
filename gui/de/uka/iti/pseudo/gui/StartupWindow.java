@@ -10,7 +10,6 @@ import javax.swing.JLabel;
 
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
-import de.uka.iti.pseudo.gui.bar.StateListener.StateChangeEvent;
 
 // TODO Documentation needed
 public class StartupWindow extends JFrame {
@@ -31,6 +30,7 @@ public class StartupWindow extends JFrame {
             setJMenuBar(barManager.makeMenubar("menubar.startup"));
         }
         getContentPane().add(new JLabel(makeImage()), BorderLayout.CENTER);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
     }
     

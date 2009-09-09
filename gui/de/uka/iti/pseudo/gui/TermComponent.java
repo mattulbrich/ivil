@@ -192,7 +192,8 @@ public class TermComponent extends JTextPane {
             StyleConstants.setFontSize(retval, FONT.getSize());
 
             if (descr.contains("closed"))
-                StyleConstants.setForeground(retval, BORDER_COLOR);
+//                StyleConstants.setForeground(retval, BORDER_COLOR);
+                StyleConstants.setItalic(retval, true);
 
             if (descr.contains("program"))
                 StyleConstants.setBackground(retval, MODALITY_BACKGROUND);

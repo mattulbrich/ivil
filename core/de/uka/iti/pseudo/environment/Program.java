@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.environment;
 
+import java.io.File;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -25,14 +26,14 @@ public class Program {
     }
     
     private String name;
-    private String sourceFile;
+    private File sourceFile;
     private ASTLocatedElement declaration;
     
     private Statement[] statements;
 
     
     public Program(@NonNull String name, 
-            @Nullable String sourceFile,
+            @Nullable File sourceFile,
             List<Statement> statements,
             ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
@@ -90,7 +91,7 @@ public class Program {
         return Util.readOnlyArrayList(statements);
     }
 
-    public String getSourceFile() {
+    public File getSourceFile() {
         return sourceFile;
     }
 

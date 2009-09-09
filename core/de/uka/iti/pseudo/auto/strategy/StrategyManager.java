@@ -16,18 +16,29 @@ import java.util.ServiceLoader;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * A StrategyManager is essentially a collection of all applicable strategies
  * for a proof context.
  * 
  * It has got one distinguished selected strategy which can be set and
- * retrieved.
+ * retrieved. The initially selected strategy is retrieved by querying
+ * {@link Settings} for the key {@value StrategyManager#DEFAULT_STRATEGY_KEY}.
  * 
  * New Strategies can be registered by their class. There can only be one
  * strategy per implementation (per manager).
  */
 public class StrategyManager {
+    
+    /**
+     * query the settings for this key to determine the first selected
+     * strategy.
+     */
+    private static final String DEFAULT_STRATEGY_KEY = "pseudo.auto.defaultStrategy";
+    
+    private static final String DEFAULT_STRATEGY_CLASSNAME =
+        Settings.getInstance().getProperty(DEFAULT_STRATEGY_KEY);
 
     /**
      * The registered strategies as map from their implementing class to the
@@ -36,8 +47,8 @@ public class StrategyManager {
     private Map<Class<? extends Strategy>, Strategy> registeredStrategies = new HashMap<Class<? extends Strategy>, Strategy>();
 
     /**
-     * The currently selected strategy. This is not null as soon as the first
-     * strategy has been registered.
+     * The currently selected strategy. This is not null as long the
+     * pre-defined selected strategy is not registered.
      */
     private Strategy selectedStrategy;
 
@@ -99,8 +110,8 @@ public class StrategyManager {
      * <ol>
      * <li>initialise the strategy
      * <li>add it to the mapping of registered strategies
-     * <li>make it the selected strategy if this is the first strategy to be
-     * around
+     * <li>make it the selected strategy if this is class to be selected first
+     * and nothing else has been selected yet.
      * </ol>
      * 
      * @throws StrategyException
@@ -110,7 +121,8 @@ public class StrategyManager {
     private void registerInternally(Strategy strategy) throws StrategyException {
         strategy.init(proof, env, this);
         registeredStrategies.put(strategy.getClass(), strategy);
-        if (selectedStrategy == null)
+        if (selectedStrategy == null && 
+                strategy.getClass().getName().equals(DEFAULT_STRATEGY_CLASSNAME))
             selectedStrategy = strategy;
     }
 

@@ -39,17 +39,15 @@ public class SourcePanel extends ChoosePanel implements
     protected ComboBoxModel updatePrograms() {
         Environment env = getProofCenter().getEnvironment();
         Collection<Program> programs = env.getAllPrograms();
-        File resource = new File(env.getResourceName());
 
         Set<Object> sourceFilenames = new HashSet<Object>();
         for (Program program : programs) {
-            String sourceFile = program.getSourceFile();
+            File sourceFile = program.getSourceFile();
             if (sourceFile != null) {
-                File f = new File(resource.getParentFile(), sourceFile);
-                if(f.canRead())
-                    sourceFilenames.add(f);
+                if(sourceFile.canRead())
+                    sourceFilenames.add(sourceFile);
                 else
-                    sourceFilenames.add(f + " - cannot be read");
+                    sourceFilenames.add(sourceFile + " - cannot be read");
             }
         }
 
@@ -116,16 +114,12 @@ public class SourcePanel extends ChoosePanel implements
     private TermVisitor selectionFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
         public void visit(LiteralProgramTerm progTerm) {
 
-            String sourceName = progTerm.getProgram().getSourceFile();
-            if(sourceName != null) {
-                File res = new File(getProofCenter().getEnvironment().
-                        getResourceName()).getParentFile();
-                File source = new File(res, sourceName);
-                if(source.equals(getDisplayedResource())) {
-                    int index = progTerm.getStatement().getSourceLineNumber();
-                    if(index != -1)
-                        getSourceComponent().addHighlight(index);
-                }
+            File source = progTerm.getProgram().getSourceFile();
+            if (source != null && source.equals(getDisplayedResource())) {
+                int index = progTerm.getStatement().getSourceLineNumber();
+                if (index != -1)
+                    getSourceComponent().addHighlight(index);
+                
             }
         }};
 

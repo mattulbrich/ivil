@@ -1,8 +1,7 @@
 package de.uka.iti.pseudo.environment;
 
+import java.io.File;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -20,7 +19,7 @@ public class ProgramChanger {
     
     private LinkedList<Statement> statements;
     private Environment env;
-    private String sourceFile;
+    private File sourceFile;
 
 
     public ProgramChanger(Program program, Environment env) {

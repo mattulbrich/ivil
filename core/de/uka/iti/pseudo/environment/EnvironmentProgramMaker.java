@@ -8,6 +8,7 @@
  */
 package de.uka.iti.pseudo.environment;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -210,11 +211,15 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
             String name = arg.getName().image;
             
             Token sourceAST = arg.getSource();
-            String sourceFilename = null;
-            if(sourceAST != null)
-                sourceFilename = Util.stripQuotes(sourceAST.image);
+            
+            File sourceFile = null;
+            if (sourceAST != null) {
+                String sourceFilename = Util.stripQuotes(sourceAST.image);
+                File res = new File(env.getResourceName()).getParentFile();
+                sourceFile = new File(res, sourceFilename);
+            }
                 
-            Program program = new Program(name, sourceFilename, statements, arg);
+            Program program = new Program(name, sourceFile, statements, arg);
             env.addProgram(program);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);

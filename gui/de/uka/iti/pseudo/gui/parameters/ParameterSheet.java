@@ -25,12 +25,12 @@ import java.util.Properties;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -85,8 +85,61 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * <td>The label for an enumerated element which is named XYZ</td>
  * <td>only used for enum parameters</td>
  * </tr>
+ * <tr>
+ * <td><code>p.component</code></td>
+ * <td>For parameters other than integer, boolean, string and enum, you need to
+ * specify a class extending JComponent (see below). </td>
+ * <td>defaults to null</td>
+ * </tr>
  * </table>
  * 
+ * <h3>Specifying a special component for a parameter</h3>
+ * 
+ * If you want/need a special {@link JComponent} to display/edit your parameter,
+ * set this using the <code>p.component</code> syntax described above. The
+ * component class needs a nullary constructor. The following properities are
+ * set in this order using {@link JComponent#putClientProperty(Object, Object)}:
+ * <table>
+ * <tr>
+ * <th>Symbolic Property</th>
+ * <th>Property value</th>
+ * <th>Meaning</th>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_OBJECT</code></td>
+ * <td><code>"param.object"</code></td>
+ * <td>The object which is to be parametrised</td>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_PARAM</code></td>
+ * <td><code>"param.param"</code></td>
+ * <td>The parameter which is to be set</td>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_SHORTDESC</code></td>
+ * <td><code>"param.shortDesc"</code></td>
+ * <td>The parameter's short description (can be used as caption)</td>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_LONGDESC</code></td>
+ * <td><code>"param.longDesc"</code></td>
+ * <td>The parameter's long description (e.g. as tooltip)</td>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_GETTER</code></td>
+ * <td><code>"param.getter"</code></td>
+ * <td>The corresponding getter method</td>
+ * </tr>
+ * <tr>
+ * <td><code>PARAM_SETTER</code></td>
+ * <td><code>"param.setter"</code></td>
+ * <td>The corresponding setter method</td>
+ * </tr>
+ * </table>
+ * 
+ * A custom component can provide a {@link PropertyChangeListener} noticing
+ * changes in these parameters. You can but do not have to use the provided
+ * getter and setter methods.
  */
 public class ParameterSheet extends JPanel {
 
@@ -131,6 +184,11 @@ public class ParameterSheet extends JPanel {
          * The setter method is retrieved by reflection
          */
         Method setterMethod;
+
+        /**
+         * If a custom component has been specified, this is not null
+         */
+        JComponent customComponent;
     }
 
     //
@@ -138,9 +196,19 @@ public class ParameterSheet extends JPanel {
     private static final String SUFFIX_SHORT_DESC = ".shortDesc";
     private static final String SUFFIX_LONG_DESC = ".longDesc";
     private static final String SUFFIX_ENUM = ".enum.";
+    private static final String SUFFIX_COMPONENT = ".component";
     private static final String SUFFIX_MIN = ".min";
     private static final String SUFFIX_MAX = ".max";
     private static final String DESCRIPTION_KEY = "description";
+
+    //
+    // Attributes to custom components
+    public static final String PARAM_OBJECT = "param.object";
+    public static final String PARAM_PARAM = "param.param";
+    public static final String PARAM_GETTER = "param.getter";
+    public static final String PARAM_SETTER = "param.setter";
+    public static final String PARAM_LONGDESC = "param.longDesc";
+    public static final String PARAM_SHORTDESC = "param.shortDesc";
 
     /**
      * the object under inspection
@@ -176,11 +244,18 @@ public class ParameterSheet extends JPanel {
      *             may be thrown by reflections
      * @throws InvocationTargetException
      *             may be thrown by reflections
+     * @throws ClassNotFoundException
+     *             may be thrown by reflections
+     * @throws InstantiationException
+     *             may be thrown by reflections
+     * @throws ClassCastException
+     *             may be thrown by reflections
      */
     public <T> ParameterSheet(T object) throws SecurityException,
             IllegalArgumentException, IOException, NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException {
-        this((Class<T>)object.getClass(), object);
+            IllegalAccessException, InvocationTargetException,
+            ClassCastException, InstantiationException, ClassNotFoundException {
+        this((Class<T>) object.getClass(), object);
     }
 
     /**
@@ -205,10 +280,17 @@ public class ParameterSheet extends JPanel {
      *             may be thrown by reflections
      * @throws InvocationTargetException
      *             may be thrown by reflections
+     * @throws ClassNotFoundException
+     *             may be thrown by reflections
+     * @throws InstantiationException
+     *             may be thrown by reflections
+     * @throws ClassCastException
+     *             may be thrown by reflections
      */
     public <T> ParameterSheet(Class<T> clss, T object) throws IOException,
             SecurityException, NoSuchMethodException, IllegalArgumentException,
-            IllegalAccessException, InvocationTargetException {
+            IllegalAccessException, InvocationTargetException,
+            ClassCastException, InstantiationException, ClassNotFoundException {
         this(clss, null, object);
     }
 
@@ -237,11 +319,18 @@ public class ParameterSheet extends JPanel {
      *             may be thrown by reflections
      * @throws InvocationTargetException
      *             may be thrown by reflections
+     * @throws ClassNotFoundException
+     *             may be thrown by reflections
+     * @throws InstantiationException
+     *             may be thrown by reflections
+     * @throws ClassCastException
+     *             may be thrown by reflections
      */
     public <T> ParameterSheet(Class<T> clss, URL propertyResource, T object)
             throws IOException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException {
+            InvocationTargetException, ClassCastException,
+            InstantiationException, ClassNotFoundException {
 
         this.objectClass = clss;
         this.object = object;
@@ -268,7 +357,9 @@ public class ParameterSheet extends JPanel {
      * read the properties and provide a list of parameters from them
      */
     private List<Parameter> makeParameters() throws SecurityException,
-            NoSuchMethodException, IOException {
+            NoSuchMethodException, IOException, ClassCastException,
+            InstantiationException, IllegalAccessException,
+            ClassNotFoundException {
         ArrayList<Parameter> result = new ArrayList<Parameter>();
 
         String parameterKey = properties.getProperty("parameters");
@@ -276,7 +367,7 @@ public class ParameterSheet extends JPanel {
             throw new IOException("Key parameters is not defined");
 
         for (String param : parameterKey.split(" +")) {
-            if(param.length() > 0)
+            if (param.length() > 0)
                 result.add(readParameter(param));
         }
         return result;
@@ -284,13 +375,15 @@ public class ParameterSheet extends JPanel {
 
     /*
      * Read a single parameter from the properties. The parameter has set its
-     * name, shortDesc, longDesc, reader and setter fields.
+     * name, shortDesc, longDesc, reader and setter fields. The user component
+     * field is only created if set.
      * 
      * If a method cannot be found or is of illegal type, an exception is
      * issued.
      */
     private Parameter readParameter(String name) throws SecurityException,
-            NoSuchMethodException {
+            NoSuchMethodException, ClassCastException, InstantiationException,
+            IllegalAccessException, ClassNotFoundException {
         Parameter p = new Parameter();
         p.name = name;
         p.shortDesc = properties.getProperty(name + SUFFIX_SHORT_DESC, name);
@@ -304,8 +397,33 @@ public class ParameterSheet extends JPanel {
         p.getterMethod = objectClass.getMethod(getterMethodName);
         p.type = p.getterMethod.getReturnType();
         p.setterMethod = objectClass.getMethod(setterMethodName, p.type);
+        
+        String userComponentClass = properties.getProperty(name
+                + SUFFIX_COMPONENT);
+        if (userComponentClass != null) {
+            p.customComponent = makeCustomComponent(userComponentClass, p);
+        }
 
         return p;
+    }
+
+    /*
+     * using the specified class name create an object which has the necessary
+     * custom fields set.
+     */
+    private JComponent makeCustomComponent(String userComponentClass,
+            Parameter p) throws InstantiationException, IllegalAccessException,
+            ClassNotFoundException, ClassCastException {
+
+        JComponent component = (JComponent) Class.forName(userComponentClass)
+                .newInstance();
+        component.putClientProperty(PARAM_OBJECT, object);
+        component.putClientProperty(PARAM_PARAM, p.name);
+        component.putClientProperty(PARAM_SHORTDESC, p.shortDesc);
+        component.putClientProperty(PARAM_LONGDESC, p.longDesc);
+        component.putClientProperty(PARAM_GETTER, p.getterMethod);
+        component.putClientProperty(PARAM_SETTER, p.setterMethod.toString());
+        return component;
     }
 
     /*
@@ -328,22 +446,21 @@ public class ParameterSheet extends JPanel {
         result.load(instream);
         return result;
     }
-    
+
     /*
      * Adds a text component before the edit components.
      */
     private void addPreamble() {
         String descr = properties.getProperty(DESCRIPTION_KEY);
-        if(descr != null) {
+        if (descr != null) {
             JTextPane pane = new JTextPane();
             pane.setEditable(false);
             pane.setText(descr);
             pane.setBackground(getBackground());
             add(pane);
         }
-        
-    }
 
+    }
 
     /*
      * Adds the components for a parameter to the panel (i.e. this)
@@ -354,7 +471,10 @@ public class ParameterSheet extends JPanel {
 
         Object value = parameter.getterMethod.invoke(object);
 
-        if (parameter.type == Boolean.TYPE) {
+        if (parameter.customComponent != null) {
+            add(parameter.customComponent);
+
+        } else if (parameter.type == Boolean.TYPE) {
             addComponentsForBoolean(parameter, value);
 
         } else if (parameter.type == String.class) {
@@ -443,7 +563,7 @@ public class ParameterSheet extends JPanel {
     private void addComponentsForString(final Parameter parameter, Object value) {
         JPanel panel = makeTitledPanel(parameter.shortDesc);
         panel.setToolTipText(parameter.longDesc);
-        
+
         final JFormattedTextField text = new JFormattedTextField();
         text.setText(value == null ? "" : value.toString());
         text.addPropertyChangeListener("value", new PropertyChangeListener() {

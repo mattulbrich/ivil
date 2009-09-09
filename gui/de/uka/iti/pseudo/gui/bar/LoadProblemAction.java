@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
@@ -25,6 +28,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
     public LoadProblemAction() {
         super("Load problem ...", BarManager.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
         putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
     }
     

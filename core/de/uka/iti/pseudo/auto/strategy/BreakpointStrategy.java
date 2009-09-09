@@ -42,6 +42,7 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         
         try {
             ruleCollection = new RewriteRuleCollection(env.getAllRules(), REWRITE_CATEGORY, env);
+            ruleCollection.setApplicationFilter(this);
         } catch (RuleException e) {
             throw new StrategyException("Cannot initialise BreakpointStrategy", e);
         }
@@ -85,13 +86,13 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         
         // we store in differs whether the statement in front of the current 
         // has a different source line number. only then the breakpoint is hit.
-        String sourceFile = program.getSourceFile();
+        File sourceFile = program.getSourceFile();
         if(sourceFile != null && obeySourceBreakpoints) {
             int sourceline = progTerm.getStatement().getSourceLineNumber();
             boolean differs = number == 0
                     || program.getStatement(number - 1).getSourceLineNumber() != sourceline;
             
-            if(differs && breakPointManager.hasBreakpoint(new File(sourceFile), sourceline))
+            if(differs && breakPointManager.hasBreakpoint(sourceFile, sourceline))
                 return true;
         }
         
