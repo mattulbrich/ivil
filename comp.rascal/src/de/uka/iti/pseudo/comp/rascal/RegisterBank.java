@@ -35,6 +35,10 @@ public class RegisterBank {
     }
 
     public void dump(PrintWriter pw) {
+        
+        if(usedRegisters.isEmpty())
+            return;
+        
         pw.println("(* Temporary variables *)");
         pw.println("function");
         for (String reg : usedRegisters) {

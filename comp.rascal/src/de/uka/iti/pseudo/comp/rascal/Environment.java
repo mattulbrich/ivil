@@ -18,25 +18,30 @@ public class Environment {
     List<Token> invariants = new ArrayList<Token>();
     
     public void exportPseudo(PrintWriter pw) {
-        
-        pw.println("(* Variables and function parameters *)");
-        pw.println("function");
-        for (Entry<String, Type> entry : varMap.entrySet()) {
-            pw.println("   " + entry.getValue().toSimpleType() + " " + entry.getKey() + " assignable");
-        }
-        pw.println();
-        
-        pw.println("(* Record fields *)");
-        pw.println("function");
-        for (Entry<String, RecordDefinition> entry : recordMap.entrySet()) {
-            String rec = entry.getKey();
-            RecordDefinition def = entry.getValue();
-            for (Entry<String,Type> field : def) {
-                pw.println("   field(" + field.getValue().toSimpleType() + ") " + 
-                        rec + "_" + field.getKey() + " unique");
+
+        if(!varMap.isEmpty()) {
+            pw.println("(* Variables *)");
+            pw.println("function");
+            for (Entry<String, Type> entry : varMap.entrySet()) {
+                pw.println("   " + entry.getValue().toSimpleType() + " " + entry.getKey() + " assignable");
             }
+            pw.println();
         }
-        pw.println();
+
+        // TODO what if only empty records?
+        if(!recordMap.isEmpty()) {
+            pw.println("(* Record fields *)");
+            pw.println("function");
+            for (Entry<String, RecordDefinition> entry : recordMap.entrySet()) {
+                String rec = entry.getKey();
+                RecordDefinition def = entry.getValue();
+                for (Entry<String,Type> field : def) {
+                    pw.println("   field(" + field.getValue().toSimpleType() + ") " + 
+                            rec + "_" + field.getKey() + " unique");
+                }
+            }
+            pw.println();
+        }
         
     }
     

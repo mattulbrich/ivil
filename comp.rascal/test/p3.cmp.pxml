@@ -1,0 +1,426 @@
+<?xml version="1.0"?>
+<pseudoproof format="0"><info>
+    <date>Wed Sep 09 20:01:38 CEST 2009</date>
+    <version>0.0</version>
+    <problem><![CDATA[|- [0;P]]]></problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="auto_assume">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="and_left">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="not_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close">
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_goto2_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="not_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close">
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.5</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_goto2_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.1.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="not_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close">
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="not_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close">
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.5</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.8</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.9</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.10</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.11</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_goto2_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.2.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.12</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.12</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="or_true_l">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_skip">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_end">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.2.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.2.1</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left">
+      <find>A.2.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.12</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.12</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.5</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="or_true_r">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_skip">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_end">
+      <find>S.0.13</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.1.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.1.1</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left">
+      <find>A.1.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="or_true_l">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_skip">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_end">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assume_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>A.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left">
+      <find>A.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_assert_upd">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.1</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.2</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.3</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.5</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.6</find>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl">
+      <find>S.0.4</find>
+    </ruleApplication>
+    <ruleApplication rule="or_true_r">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_skip">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="prg_end">
+      <find>S.0.7</find>
+    </ruleApplication>
+    <ruleApplication rule="update_simplification">
+      <find>S.0.0</find>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right">
+      <find>S.0.0</find>
+    </ruleApplication>
+  </steps>
+</pseudoproof>

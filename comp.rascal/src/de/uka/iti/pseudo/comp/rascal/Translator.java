@@ -95,7 +95,7 @@ public class Translator extends DefaultVisitor {
         String afterTarget = makeTarget("after");
 
         statements.add("$cnd := " + exprString);
-        statements.add("goto " + thenTarget + " " + elseTarget);
+        statements.add("goto " + thenTarget + ", " + elseTarget);
 
         statements.addLabel(thenTarget);
         statements.add("assume $cnd");
@@ -129,7 +129,7 @@ public class Translator extends DefaultVisitor {
         String exprString = (String) expr.jjtAccept(this, null);
         statements.add("$cnd := " + exprString);
 
-        statements.add("goto " + bodyTarget + " " + afterTarget);
+        statements.add("goto " + bodyTarget + ", " + afterTarget);
 
         statements.addLabel(bodyTarget);
         statements.add("assume $cnd");
@@ -267,8 +267,9 @@ public class Translator extends DefaultVisitor {
     @Override public Object visit(ASTFieldDesig node, Object arg) {
         String operand = (String) node.jjtGetChild(0).jjtAccept(this, null);
         String field = node.jjtGetChild(1).getImage();
+        //String record = getTypeOfLocal(operand);
         statements.add("assert !nil = " + operand);
-        return "sel($h, " + operand + ", " + field + ")";
+        return "sel($h, loc(" + operand + ", " + field + "))";
     }
 
     //

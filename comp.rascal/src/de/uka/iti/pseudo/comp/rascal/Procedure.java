@@ -1,8 +1,8 @@
 package de.uka.iti.pseudo.comp.rascal;
 
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class Procedure {
     
@@ -47,10 +47,22 @@ public class Procedure {
         this.returnType = returnType;
     }
     public void addParameter(String param, Type type) {
-        parameters.add(Pair.make(name, type));
+        parameters.add(Pair.make(param, type));
     }
     public List<Pair<String, Type>> getParameters() {
         return parameters;
+    }
+    public void dumpParameters(PrintWriter out) {
+        if(parameters.isEmpty())
+            return;
+        
+        out.println("(* Function paramters *)");
+        out.println("function");
+        
+        for (Pair<String, Type> param : parameters) {
+            out.println("  " + param.snd().toSimpleType() + " " + param.fst() + " assignable");
+        }
+        out.println();
     }
     
 }

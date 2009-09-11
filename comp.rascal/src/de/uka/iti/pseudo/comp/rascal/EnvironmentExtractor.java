@@ -72,11 +72,11 @@ public class EnvironmentExtractor extends DefaultVisitor {
         for (int i = 1; i < node.jjtGetNumChildren(); i++) {
             TokenNode n = node.jjtGetChild(i);
             if(n instanceof ASTPrecondition)
-                contract.setPrecondition(n.getToken());
-            if(n instanceof ASTPrecondition)
-                contract.setPostcondition(n.getToken());
+                contract.setPrecondition(n.jjtGetChild(0).getToken());
+            if(n instanceof ASTPostcondition)
+                contract.setPostcondition(n.jjtGetChild(0).getToken());
             if(n instanceof ASTModifies)
-                contract.setModifies(n.getToken());
+                contract.setModifies(n.jjtGetChild(0).getToken());
             
             // it is a shame ... but this is to detect the return type
             if(n instanceof ASTIdentifier || n instanceof ASTArrayType)

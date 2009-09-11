@@ -7,8 +7,8 @@ END;
 
 
 PROCEDURE cmp(a:R; b:R) : bool;
-  {PRE: !a=nil & !b=nil}
-  {POST: atLeastAsGood($result,a) & atLeastAsGood($result,b) & ($result = a | $result = b) }
+  {PRE !a=nil & !b=nil}
+  {POST atLeastAsGood($result,a) & atLeastAsGood($result,b) & ($result = a | $result = b) }
 BEGIN
   IF a.valid
   THEN

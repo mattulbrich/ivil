@@ -49,7 +49,7 @@
     <copy todir="classes">
       <fileset dir="src">
         <include name="**/*.properties" />
-        <include name="**/*.smt" />
+        <include name="**/*.txt" />
         <include name="META-INF/**" />     
       </fileset>
     </copy>
