@@ -18,45 +18,64 @@ sort
   field('type)
   heap
   ref
-  array('type)
-  location('type)
+
   locset
 
 function
   'a defaultVal
   ref null
-  array('a) nil
 
+  locset loc(ref, field('a)) unique
 
-  location('a) loc(ref, field('a)) unique
-  location('a) locA(array('a), int) unique
-  location(int) length(array('a)) unique
+  field(int) intIdx(int) unique
+  field(bool) boolIdx(int) unique
+  field(ref) refIdx(int) unique
 
-  'a sel(heap, location('a))
-  heap stor(heap, location('a), 'a)
+  'a sel(heap, ref, field('a))
+  heap stor(heap, ref, field('a), 'a)
 
   heap newObject(heap, ref)
-  heap newArray(heap, array('a), int)
-  heap havocHeap(heap, heap, locset)
+  heap disturb(heap, heap, locset)
 
-  bool inLocset(location('a), locset)
+function
+  bool inLocset(ref, field('a), locset)
 
-rule heap_stor
-  find sel(stor(%h, %loc1, %v), %loc2)
-  replace cond(%loc1=%loc2, %v, sel(%h, locA(%r2, %i2)))
+  locset everything
+  locset nothing
+
+  locset $union(locset, locset) infix :: 40
+
+binder
+  locset (\union 'a; bool; locset)
+
+(*
+ * stor
+ *)
+
+rule heap_sel_stor
+  find sel(stor(%h, %o, %f, %v), %o2, %f2)
+  replace cond(%loc1=%loc2 & %f=%f2, %v, sel(%h, %o, %f))
   tags rewrite "fol simp"
 
-rule heap_newObject
-  find sel(newObject(%h, %o), loc(%ref, %f))
-  replace cond(%o = %ref, defaultVal, sel(%h, loc(%ref, %f)))
+(*
+ * newObject
+ *)
 
-rule heap_newArray
-  find sel(newArray(%h, %arr, %size), length(%arr2))
-  replace cond(%arr = %arr2, %size, sel(%h, length(%arr2)))
+rule heap_newObject
+  find sel(newObject(%h, %o), %ref, %f)
+  replace cond(%o = %ref, defaultVal, sel(%h, %ref, %f))
+
+(*
+ * disturb
+ *)
 
 rule heap_havocHeap
-  find sel(havocHeap(%h, %h2, %locset), %loc)
-  replace sel(cond(inLocset(%loc, %locset), %h2, %h1), %loc)
+  find sel(disturb(%h, %h2, %locset), %o, %f)
+  replace sel(cond(inLocset(%o, %f, %locset), %h2, %h1), %o, %f)
+
+(*
+ * default values
+ *)
 
 rule defaultVal_int
   find defaultVal as int
@@ -66,10 +85,38 @@ rule defaultVal_ref
   find defaultVal as ref
   replace null
 
-rule defaultVal_array
-  find defaultVal as array('a)
-  replace nil
-
 rule defaultVal_bool
   find defaultVal as bool
+  replace false
+
+(*
+ * locset
+ *)
+
+(* a location is in its own singleton *)
+rule locset_self
+  find inLocset(%o, %f, loc(%o2, %f2))
+  replace %o=%o2 & %f=%f2
+
+(* a location is in a union if in own of the two 
+ * operands *)
+rule locset_union
+  find inLocset(%o, %f, %s1::%s2)
+  replace inLocset(%o, %f, %s1) | inLocset(%o, %f, %s2)
+
+(* a location is in a set extension iff there is
+ * one instantiation such that the location is
+ * in it *)
+rule locset_extension
+  find inLocset(%o, %f, (\union %x; %g; %s))
+  replace (\exists %x; %g & inLocset(%o, %f, %s))
+
+(* any location is in everything *)
+rule locset_everything
+  find inLocset(%o, %f, everything)
+  replace true
+
+(* no location is in nothing *)
+rule locset_nothing
+  find inLocset(%o, %f, nothing)
   replace false

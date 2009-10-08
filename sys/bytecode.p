@@ -8,17 +8,19 @@
 #
 
 (*
- * This file contains the definitions needed to parse 
- * compiled rascal files
+ * This file contains infrastructure for bytecode treatment.
  *)
 
-include 
-  "$base.p"
-  "$fol.p"
-  "$int.p"
-  "$heap.p"
+include
+   "$heap.p"
+   "$stack.p"
 
-(* function that are always present *)
-function 
+function
   heap h assignable
-  bool cnd assignable
+  stack st assignable
+
+  field(int) length
+  field(bool) created
+
+  ref exc
+  ref new
