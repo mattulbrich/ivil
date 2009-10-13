@@ -13,6 +13,7 @@
 
 include
    "$fol.p"
+   "$heap.p"
 
 sort
   stack
@@ -29,6 +30,10 @@ function
   stack pop2(stack)
   stack pop3(stack)
   stack popN(depth, stack)
+
+  int topInt(stack)
+  bool topBool(stack)
+  ref topRef(stack)
 
   'a top(stack)
   'a top2(stack)
