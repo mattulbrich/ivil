@@ -140,8 +140,11 @@ public class ProofXML implements ProofImport, ProofExport {
                 appendEncoded(entry.getValue()).end().newline();
         }
         
-        // finds
-        w.start("find").append(ruleApp.getFindSelector().toString()).end().newline();
+        // find
+        TermSelector findSelector = ruleApp.getFindSelector();
+        if(findSelector != null) {
+            w.start("find").append(findSelector.toString()).end().newline();
+        }
         
         // assumes
         for(TermSelector sel : ruleApp.getAssumeSelectors()) {

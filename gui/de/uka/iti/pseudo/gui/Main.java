@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
+import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
@@ -22,7 +23,6 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 

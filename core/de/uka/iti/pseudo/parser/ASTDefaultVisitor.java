@@ -8,6 +8,8 @@ import de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
+import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
@@ -198,6 +200,14 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
         visitDefault(arg);
     }
 
+    public void visit(ASTPlugins arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+    
+    public void visit(ASTPluginDeclaration arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+    
     public void visit(ASTIncludeDeclarationBlock arg) throws ASTVisitException {
         visitDefault(arg);
     }

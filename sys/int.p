@@ -18,12 +18,23 @@
 include 
   "$base.p"
 
+plugin
+  # int literal evaluation
+  metaFunction : "de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction"
+
+  # check whether a term is a number literal
+  whereCondition : "de.uka.iti.pseudo.rule.where.IntLiteral"
+
 function  # infixes
         int $pow(int, int)      infix ^  80
         int $div(int, int)      infix /  70 
         int $mult(int, int)     infix *  70 
         int $plus(int, int)     infix +  60 
-        int $minus(int, int)    infix -  60 
+        int $minus(int, int)    infix -  60
+
+        int $shl(int, int)      infix << 55
+        int $shr(int, int)      infix >> 55
+        int $ushr(int, int)      infix >>> 55
        
         bool $lt(int, int)      infix <  50
         bool $gt(int, int)      infix >  50

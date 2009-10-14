@@ -12,8 +12,10 @@ ASTFile File():
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
   ASTTerm problem = null;
 }
-{      (
+{
+       (
         ( block=IncludeDeclarationBlock()
+        | block=PluginsBlock()
         | block=SortDeclarationBlock()
         | block=FunctionDeclarationBlock()
         | block=BinderDeclarationBlock()
@@ -28,6 +30,20 @@ ASTFile File():
        
    { return new ASTFile(blocks, problem); }
 }
+
+ASTPlugins PluginsBlock():
+{
+  Token first, service, implementation;
+  List<ASTPluginDeclaration> pairs = new ArrayList<ASTPluginDeclaration>();
+}
+{
+        first="plugin"
+        ( service=<IDENTIFIER> ":" implementation=<STRING>
+             { pairs.add(new ASTPluginDeclaration(service, implementation)); }
+        )+
+    { return new ASTPlugins(first, pairs); }
+}
+
 
 ASTIncludeDeclarationBlock IncludeDeclarationBlock():
 {

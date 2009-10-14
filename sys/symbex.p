@@ -15,6 +15,22 @@
 include
    "$fol.p"
 
+plugin
+  # increment program counter
+  metaFunction : "de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction"
+
+  # jump to new program counter
+  metaFunction : "de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction"
+
+  # the loop invariant program changements
+  metaFunction : "de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction"
+
+  # the general update simplifier
+  metaFunction : "de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction"
+
+  # check whether a term does not contain modalities
+  whereCondition : "de.uka.iti.pseudo.rule.where.ProgramFree"
+
 (*
  * First the theoretical rules
  * They are not applied automatically

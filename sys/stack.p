@@ -24,21 +24,23 @@ function
   depth D(depth)
 
   stack empty
-  stack push(stack, 'a)
+  stack push(stack, 'a) infix +> 40
 
   stack pop(stack)
   stack pop2(stack)
   stack pop3(stack)
-  stack popN(depth, stack)
 
   int topInt(stack)
   bool topBool(stack)
   ref topRef(stack)
 
-  'a top(stack)
-  'a top2(stack)
-  'a top3(stack)
-  'a topN(depth, stack)
+  (* for convenience *)
+  int topInt2(stack)
+  int topInt3(stack)
+  bool topBool2(stack)
+  bool topBool3(stack)
+  ref topRef2(stack)
+  ref topRef3(stack)
 
 (*
  * pop/push
@@ -63,16 +65,6 @@ rule stack_pop_push
   replace %st
   tags rewrite "fol simp"
 
-rule stack_pop0
-  find popN(ZERO, %st)
-  replace %st
-  tags rewrite "fol simp"
-
-rule stack_popN_push
-  find popN(D(%d), push(%st, %v))
-  replace popN(%d, %st)
-  tags rewrite "fol simp"
-
 (*
  * top/push
  *
@@ -81,27 +73,55 @@ rule stack_popN_push
  * executed
  *)
 
-rule stack_top3_push3
-  find top(push(push(push(%st, %v1 as 'a), %v2), %v3)) as 'a
-  replace %v1 as 'a
+rule stack_topInt_pushInt
+  find topInt(push(%st, %v as int))
+  replace %v
   tags rewrite "fol simp"
 
-rule stack_top2_push2
-  find top(push(push(%st, %v1 as 'a), %v2)) as 'a
-  replace %v1 as 'a
+rule stack_topBool_pushBool
+  find topBool(push(%st, %v as bool))
+  replace %v
   tags rewrite "fol simp"
 
-rule stack_top_push
-  find top(push(%st, %v1 as 'a)) as 'a
-  replace %v1 as 'a
+rule stack_topRef_pushRef
+  find topRef(push(%st, %v as ref))
+  replace %v
   tags rewrite "fol simp"
 
-rule stack_topN_DZERO
-  find topN(D(ZERO), push(%st, %v as 'a)) as 'a
-  replace %v as 'a
+rule stack_topInt_pushBool
+  find topInt(push(%st, %v as bool))
+  replace cond(%v, 1, 0)
   tags rewrite "fol simp"
 
-rule stack_topN_D
-  find topN(D(%d), push(%st, %v))
-  replace topN(%d, %st)
+rule stack_topBool_pushInt
+  find topBool(push(%st, %v as int))
+  replace %v = 1
   tags rewrite "fol simp"
+
+(*
+ * top conveniences
+ *)
+
+rule stack_topInt2
+  find topInt2(%st)
+  replace topInt(pop(%st))
+
+rule stack_topInt3
+  find topInt3(%st)
+  replace topInt(pop2(%st))
+
+rule stack_topBool2
+  find topBool2(%st)
+  replace topBool(pop(%st))
+
+rule stack_topBool3
+  find topBool3(%st)
+  replace topBool(pop2(%st))
+
+rule stack_topRef2
+  find topRef2(%st)
+  replace topRef(pop(%st))
+
+rule stack_topRef3
+  find topRef3(%st)
+  replace topRef(pop2(%st))

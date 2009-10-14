@@ -8,56 +8,46 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
-
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 
 
+// TODO: Auto-generated Javadoc
+//TODO DOC
+
 /**
  * The Class WhereCondition.
  */
-public abstract class WhereCondition {
+public abstract class WhereCondition implements Mappable {
 
     //////////////////////////////////////
     // Static material
     
-    /**
-     * The condition table provides linear lookup possibility for 
-     * where conditions.
-     */
-    private static Map<String, WhereCondition> whereConditionTable =
-        new HashMap<String, WhereCondition>();
-    
-    /*
-     * add all known conditions to the hash table
-     */
-    static {
-        ServiceLoader<WhereCondition> loader = ServiceLoader.load(WhereCondition.class);
-        for (WhereCondition wc : loader) {
-            String name = wc.getName();
-            if(whereConditionTable.get(name) != null)
-                System.err.println("Warning: where condition " + name + " registered more than once.");
-            whereConditionTable.put(name, wc);
-        }
-    }
+    public static final String SERVICE_NAME = "whereCondition";
 
     /**
-     * retrieve a where condition of a given name
+     * Retrieve a where condition from an environment.
      * 
-     * @param name name of the condition
+     * The plugin manager of the given environment is asked to get the where
+     * condition of the given name.
      * 
-     * @return the where condition if there is one by this name, null otherwise
+     * @param env
+     *            the environment to retrieve the plugin manager from
+     * @param name
+     *            the name of the where condition to be looked up
+     * 
+     * @return the where condition, or null if not found
+     * 
+     * @throws EnvironmentException
+     *             if the plugin manager fails.
      */
-    public static @Nullable WhereCondition getWhereCondition(@NonNull String name) {
-        return whereConditionTable.get(name);
+    public static @Nullable WhereCondition getWhereCondition(@NonNull Environment env, @NonNull String name)
+            throws EnvironmentException {
+        return env.getPluginManager().getPlugin(SERVICE_NAME, WhereCondition.class, name);
     }
     
     //////////////////////////////////////
@@ -87,6 +77,15 @@ public abstract class WhereCondition {
     }
     
     /**
+     * {@inheritDoc}
+     * 
+     * <p>For where conditions, the name is the unique key
+     */
+    @Override public Object getKey() {
+        return getName();
+    }
+    
+    /**
      * Any implementation must provide this method to check the syntax of 
      * where clauses.
      * 
@@ -103,8 +102,6 @@ public abstract class WhereCondition {
      */
     public abstract void checkSyntax(Term[] arguments) throws RuleException;
     
- // TODO: Auto-generated Javadoc
-  //TODO DOC
     
     
     public abstract boolean check(Term[] formalArguments, Term[] actualArguments, 

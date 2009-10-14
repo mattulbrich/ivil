@@ -160,8 +160,13 @@ public class InteractiveRuleApplicationComponent extends
                 putClientProperty("finished", true);
                 proofCenter.apply(app);
             } catch (Exception ex) {
-                component.setBackground(ColorResolver.getInstance().resolve("orange red"));
-                component.setToolTipText(htmlize(ex.getMessage()));
+                ex.printStackTrace();
+                if(component != null) {
+                    component.setBackground(ColorResolver.getInstance().resolve("orange red"));
+                    component.setToolTipText(htmlize(ex.getMessage()));
+                } else {
+                    // TODO give feedback somewhere else
+                }
             }
         }
     }

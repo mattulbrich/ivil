@@ -18,6 +18,10 @@ public interface ASTFileVisitor {
 
 	public void visit(ASTFile file) throws ASTVisitException;
 
+	public void visit(ASTPlugins plugins) throws ASTVisitException;
+	
+	public void visit(ASTPluginDeclaration plugin) throws ASTVisitException;
+	
 	public void visit(ASTIncludeDeclarationBlock includeDeclarationBlock) throws ASTVisitException;
 
 	public void visit(ASTSortDeclarationBlock sortDeclarationBlock) throws ASTVisitException;

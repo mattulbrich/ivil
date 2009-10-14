@@ -258,16 +258,27 @@ public class PFileEditor extends JFrame implements ActionListener {
                     statusLine.setToolTipText(null);
                 } else {
                     statusLine.setForeground(Color.red);
+                    
+                    String message = exc.getMessage();
                     if(errorLine == 0)
-                        statusLine.setText("Error outside this file while parsing");
+                        statusLine.setText("Error outside this file while parsing: " + shortMessage(message));
                     else
-                        statusLine.setText("Error in line " + errorLine);
-                    statusLine.setToolTipText(htmlize(exc.getMessage()));
+                        statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
+                    
+                    statusLine.setToolTipText(htmlize(message));
                 }
 
                 getContentPane().invalidate();
                 getContentPane().doLayout();
                 repaint();
+            }
+
+            private String shortMessage(String message) {
+                int index = message.indexOf('\n');
+                if(index != -1)
+                    return message.substring(0, index);
+                else
+                    return message;
             }
 
             private String htmlize(String message) {

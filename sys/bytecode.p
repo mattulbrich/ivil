@@ -12,15 +12,24 @@
  *)
 
 include
-   "$heap.p"
-   "$stack.p"
+  "$heap.p"
+  "$stack.p"
+  "$int.p"
+  "$symbex.p"
+  "$reftypes.p"
 
 function
   heap h assignable
+  heap h_pre assignable
+  heap anon assignable
   stack st assignable
 
   field(int) length
   field(bool) created
 
-  ref exc
-  ref new
+  int intRet assignable
+  bool boolRet assignable
+  ref refRet assignable
+
+  ref exc assignable
+  ref new assignable

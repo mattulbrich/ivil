@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.environment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -20,10 +21,13 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
+import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -127,8 +131,11 @@ public class EnvironmentMaker {
         this.parser = parser;
         this.env = new Environment(name, parent);
 
+        
         doIncludes(astFile);
-
+        // first includes, then plugins!
+        doPlugins(astFile);
+        
         astFile.visit(new EnvironmentDefinitionVisitor(env));
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentProgramMaker(env));
@@ -150,6 +157,32 @@ public class EnvironmentMaker {
         }
 
     }
+    
+    /*
+     * register all defined plugins with the plugin manager. 
+     */
+    private void doPlugins(ASTFile astFile) throws ASTVisitException {
+
+        List<ASTPlugins> plugins = SelectList.select(ASTPlugins.class, astFile.getChildren());
+        for (ASTPlugins block : plugins) {
+            List<ASTPluginDeclaration> pairs = SelectList.select(ASTPluginDeclaration.class, block.getChildren());        
+            for (ASTPluginDeclaration decl : pairs) {
+                String serviceName = decl.getServiceName().image;
+                String implementation = Util.stripQuotes(decl.getImplementationClass().image);
+                try {
+                    env.getPluginManager().register(serviceName, implementation);
+                } catch (EnvironmentException e) {
+                    throw new ASTVisitException(decl, e);
+                }
+            }
+        }
+        
+        try {
+            env.registerPlugins();
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(e);
+        }
+    }
 
     private void doIncludes(ASTFile astFile) throws ASTVisitException  {
         // TODO method documentation
@@ -165,7 +198,9 @@ public class EnvironmentMaker {
                 try {
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
                             parser, file, env.getParent());
-                    env.setParent(includeMaker.getEnvironment());
+                    Environment innerEnv = includeMaker.getEnvironment();
+                    innerEnv.setFixed();
+                    env.setParent(innerEnv);
                 } catch (FileNotFoundException e) {
                     throw new ASTVisitException("Cannot include " + file
                             + " (not found)", block, e);

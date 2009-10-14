@@ -57,6 +57,7 @@ public class Environment {
     // since meta functions might want access to BUILT_IN_ENV.
     static {
         BUILT_IN_ENV.addBuiltIns();
+        BUILT_IN_ENV.setFixed();
     }
 
     /**
@@ -84,6 +85,7 @@ public class Environment {
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
+    private PluginManager pluginManager = null;
     // literal map is created lazily.
     private Map<BigInteger, NumberLiteral> numberMap = null;
 
@@ -92,8 +94,6 @@ public class Environment {
      */
     private List<Rule> rules = new ArrayList<Rule>();
     private Map<String, Rule> ruleMap = new HashMap<String, Rule>();
-
-    
 
     /**
      * Instantiates a new environment which only contains the built ins.
@@ -114,6 +114,7 @@ public class Environment {
             @NonNull Environment parentEnvironment) {
         this.resourceName = resourceName;
         this.parentEnvironment = parentEnvironment;
+        assert parentEnvironment.isFixed();
     }
 
     /**
@@ -131,13 +132,31 @@ public class Environment {
             addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("true", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("false", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
-            for (MetaFunction metaFunction : MetaFunction.SERVICES) {
-                addFunction(metaFunction);
-            }
+//            for (MetaFunction metaFunction : MetaFunction.SERVICES) {
+//                addFunction(metaFunction);
+//            }
         } catch (EnvironmentException e) {
             throw new Error("Fatal during creation of interal elements", e);
         }
     }
+    
+    /**
+     * registers all elements that have been defined through plugins.
+     * 
+     * Currently this are only meta functions.
+     * 
+     * @throws EnvironmentException if the addition of meta functions fails. 
+     */
+    public void registerPlugins() throws EnvironmentException {
+        PluginManager pm = getPluginManager();
+        List<MetaFunction> metaFunctions = pm.getLocalPlugins(
+                MetaFunction.SERVICE_NAME, MetaFunction.class);
+
+        for (MetaFunction metaFunction : metaFunctions) {
+            addFunction(metaFunction);
+        }
+    }
+
 
     /**
      * Gets the parent. This may return null. This is the case for the initial
@@ -150,8 +169,8 @@ public class Environment {
     }
     
     /**
-     * Sets the parent environment. This must happen <b>before</b> any sort,
-     * function, binder or rule has been added to the environment
+     * Sets the parent environment. This must happen <b>before</b> any plugins,
+     * sort, function, binder or rule has been added to the environment.
      * 
      * @param environment
      *            the new parent environment
@@ -162,18 +181,21 @@ public class Environment {
     public void setParent(@NonNull Environment environment)
             throws EnvironmentException {
         if (!sortMap.isEmpty() || !functionMap.isEmpty()
-                || !binderMap.isEmpty() || !rules.isEmpty()) {
+                || !binderMap.isEmpty() || !rules.isEmpty() || pluginManager != null) {
             dump();
             throw new EnvironmentException(
                     "setting parent on inhabited environment forbidden");
         }
         parentEnvironment = environment;
+        assert parentEnvironment.isFixed();
     }
     
     /**
-     * set this environment as fixed. After this, no new symbols may be added to
-     * it. A call to {@link #addBinder(Binder)}, {@link #addFunction(Function)},
-     * ... yields an {@link EnvironmentException}.
+     * set this environment as fixed.
+     * 
+     * After this, no new symbols may be added to it. A call to
+     * {@link #addBinder(Binder)}, {@link #addFunction(Function)}, ... yields
+     * an {@link EnvironmentException}.
      */
     public void setFixed() {
         fixed = true;
@@ -760,6 +782,34 @@ public class Environment {
         }
         retval.addAll(rules);
         return retval;
+    }
+    
+    //
+    // ---------- Handling plugins ----------
+    //
+    
+    
+    /**
+     * Retrieve the plugin manager. If it has not yet been created, create it.
+     * However, if this environment is already closed, do not create the manager but
+     * throw an exception.
+     * 
+     * @return the plugin manager for this environment.
+     * @throws EnvironmentException if the environment has already been closed.
+     */
+    public @NonNull PluginManager getPluginManager() throws EnvironmentException {
+        
+        if(pluginManager == null) {
+            
+            if (isFixed())
+                throw new EnvironmentException(
+                        "cannot create the plugin manager for this environment, it has been fixed already");
+
+            PluginManager parentManger = parentEnvironment != null ? parentEnvironment.pluginManager : null;
+            pluginManager = new PluginManager(parentManger);
+        }
+        
+        return pluginManager;
     }
 
     /**

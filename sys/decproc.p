@@ -11,6 +11,10 @@
  * This file contains rules to contact decision procedures.
  *)
 
+plugin 
+  # ask a decision procedure.
+  whereCondition : "de.uka.iti.pseudo.rule.where.AskDecisionProcedure"
+
 (*
  * The rule auto_smt_close is special since it is the one used
  * for the background smt solver

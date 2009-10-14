@@ -10,25 +10,25 @@
 # This file lists all applicable MetaFunctions
 
 # general substitution
-de.uka.iti.pseudo.rule.meta.SubstMetaFunction
+#de.uka.iti.pseudo.rule.meta.SubstMetaFunction
 
 # skolem symbol generation
-de.uka.iti.pseudo.rule.meta.SkolemMetaFunction
+#de.uka.iti.pseudo.rule.meta.SkolemMetaFunction
 
 # int literal evaluation
-de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction
+#de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction
 
 # increment program counter
-de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction
+#de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction
 
 # jump to new program counter
-de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction
+#de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction
 
 # the general update simplifier
-de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction
+#de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction
 
 # the loop invariant program changements
-de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction
+#de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction
 
 # translate an equality of unique terms
-de.uka.iti.pseudo.rule.meta.ResolveUniqueMetaFunction
+#de.uka.iti.pseudo.rule.meta.ResolveUniqueMetaFunction

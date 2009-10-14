@@ -29,8 +29,8 @@ public class ASTFile extends ASTElement {
 	private int problemIndex = -1;
 
 	public ASTFile(List<ASTDeclarationBlock> blocks, ASTTerm problem) {
+
 		this.declarationBlocks = blocks;
-		
 		addChildren(blocks);
 		
 		if(problem != null) {

@@ -4,7 +4,7 @@
 <project name="PseudoHybris" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
-  <property name="compile.nonnullchecks" value="remove this line to switchoff" /> 
+<!-- has a bug ;( <property name="compile.nonnullchecks" value="remove this line to switchoff" /> -->
  
   <target name="init">
     <mkdir dir="classes"/>

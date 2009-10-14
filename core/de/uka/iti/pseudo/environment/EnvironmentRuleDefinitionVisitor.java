@@ -167,7 +167,13 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 
         String identifier = arg.getIdentifier().image;
 
-        WhereCondition where = WhereCondition.getWhereCondition(identifier);
+        WhereCondition where;
+        try {
+            where = WhereCondition.getWhereCondition(env, identifier);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
+        }
+        
         if (where == null)
             throw new ASTVisitException("Unknown where condition: "
                     + identifier, arg);

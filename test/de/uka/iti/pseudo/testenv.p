@@ -1,6 +1,7 @@
 include
         "$base.p"
         "$int.p"
+        "$symbex.p"
 
 sort
 	poly('a, 'b)

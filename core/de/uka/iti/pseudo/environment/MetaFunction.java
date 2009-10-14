@@ -1,7 +1,5 @@
 package de.uka.iti.pseudo.environment;
 
-import java.util.ServiceLoader;
-
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -12,8 +10,7 @@ import de.uka.iti.pseudo.term.Type;
 // TODO Documentation badly needed
 public abstract class MetaFunction extends Function {
     
-    public static final ServiceLoader<MetaFunction> SERVICES =
-        ServiceLoader.load(MetaFunction.class);
+    public static final String SERVICE_NAME = "metaFunction";
 
     public MetaFunction(Type resultType, String name, Type... argumentTypes) {
         super(name, resultType, argumentTypes, false, false, ASTLocatedElement.BUILTIN);

@@ -10,11 +10,14 @@
 (*
  * This file contains the very basic definitions for the
  * system:
+ *  - basic meta functions and where conditions as plugins (plugin.p)
  *  - propositional connectives
  *  - the conditional function (i.e. "if")
  *  - the first order quantifiers
- *  - the hildert operator
+ *  - the hilbert operator
  *)
+
+include "$plugins.p"
 
 function
     'a cond(bool, 'a, 'a)

@@ -117,8 +117,8 @@ public class SourcePanel extends ChoosePanel implements
             File source = progTerm.getProgram().getSourceFile();
             if (source != null && source.equals(getDisplayedResource())) {
                 int index = progTerm.getStatement().getSourceLineNumber();
-                if (index != -1)
-                    getSourceComponent().addHighlight(index);
+                if (index > 0)
+                    getSourceComponent().addHighlight(index - 1);
                 
             }
         }};
