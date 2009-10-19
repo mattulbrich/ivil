@@ -9,28 +9,28 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class PrettyPrintFixedRadioAction extends BarAction 
+public class PrettyPrintPluginsRadioAction extends BarAction 
     implements PropertyChangeListener, InitialisingAction {
     
-    public PrettyPrintFixedRadioAction() {
-        super("Print infix and prefix");
+    public PrettyPrintPluginsRadioAction() {
+        super("Use installed pretty printers");
         // TODO tooltip
     }
     
     public void actionPerformed(ActionEvent e) {
         PrettyPrint pp = getProofCenter().getPrettyPrinter();
-        pp.setPrintingFix(isSelected());
+        pp.setPrintingPlugins(isSelected());
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
         PrettyPrint pp = (PrettyPrint) evt.getSource();
-        setSelected(pp.isPrintingFix());
+        setSelected(pp.isPrintingPlugins());
     }
     
     public void initialised() {
         PrettyPrint pp = getProofCenter().getPrettyPrinter();
-        pp.addPropertyChangeListener(PrettyPrint.PRINT_FIX_PROPERTY, this);
-        setSelected(pp.isPrintingFix());
+        pp.addPropertyChangeListener(PrettyPrint.PRINT_PLUGINS_PROPERTY, this);
+        setSelected(pp.isPrintingPlugins());
     }
 
 }

@@ -14,8 +14,8 @@
 include
    "$fol.p"
 
-#plugin
-#  prettyPrinter : "de.uka.iti.pseudo."
+plugin
+  prettyPrinter : "test.HeapPrettyPrinter"
 
 sort
   field('type)
@@ -60,6 +60,12 @@ rule heap_sel_stor
   replace cond(%loc1=%loc2 & %f=%f2, %v, sel(%h, %o, %f))
   tags rewrite "fol simp"
 
+rule heap_sel_stor_wrong_type
+  find sel(stor(%h, %o, %f, %v), %o2, %f2)
+  where differentTypes %f, %f2
+  replace sel(%h, %o2, %f2)
+  tags rewrite "fol simp"
+
 (*
  * newObject
  *)
@@ -102,9 +108,15 @@ rule defaultVal_bool
  *)
 
 (* a location is in its own singleton *)
-rule locset_self
+rule locset_single
   find inLocset(%o, %f, loc(%o2, %f2))
   replace %o=%o2 & %f=%f2
+  tags rewrite "fol simp"
+
+rule locset_single_wrong_type
+  find inLocset(%o, %f, loc(%o2, %f2))
+  where differentTypes %f, %f2
+  replace false
   tags rewrite "fol simp"
 
 (* a location is in a union if in own of the two 

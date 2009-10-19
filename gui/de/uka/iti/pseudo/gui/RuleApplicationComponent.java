@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;

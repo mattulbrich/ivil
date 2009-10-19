@@ -7,15 +7,17 @@
  * See LICENSE.TXT for details.
  */
 
-package de.uka.iti.pseudo.gui;
+package de.uka.iti.pseudo.prettyprint;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collections;
+import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -34,23 +36,36 @@ public class PrettyPrint {
 
     public static final String TYPED_PROPERTY = "pseudo.pp.typed";
     public static final String PRINT_FIX_PROPERTY = "pseudo.pp.printFix";
+    public static final String PRINT_PLUGINS_PROPERTY = "pseudo.pp.printPlugins";
     public static final String INITIALSTYLE_PROPERTY = "pseudo.pp.initialstyle";
     public static final String BREAK_MODALITIES_PROPERTY = "pseudo.pp.breakModalities";
+    public static final String SERVICE_NAME = "prettyPrinter";
 
     /**
-     * The environment to lookup infix and prefix operators
+     * The environment to lookup infix and prefix operators, plugins
      */
     private Environment env;
+    
+    /**
+     * the list of installed pretty print plugins (extracted from env)
+     */
+    private List<PrettyPrintPlugin> pluginPrettyPrinters;
 
     /**
      * whether or not types are to be printed.
+     * (Defaults to default in constructor
      */
-    private boolean typed = false;
+    private boolean typed;
 
     /**
      * whether or not fix operators are printed as such.
      */
     private boolean printFix = true;
+    
+    /**
+     * whether or not the pretty printer plugins are to be used.
+     */
+    private boolean printPlugins = true;
     
     /**
      * whether or not updates should appear on separate lines
@@ -70,7 +85,7 @@ public class PrettyPrint {
      *            the environment to lookup infix and prefix operators
      */
     public PrettyPrint(@NonNull Environment env) {
-        this.env = env;
+        this(env, false);
     }
 
     /**
@@ -84,6 +99,16 @@ public class PrettyPrint {
     public PrettyPrint(@NonNull Environment env, boolean typed) {
         this.env = env;
         this.typed = typed;
+        
+        try {
+            List<PrettyPrintPlugin> list = env.getPluginManager().getPlugins(
+                    SERVICE_NAME, PrettyPrintPlugin.class);
+            this.pluginPrettyPrinters = Collections.unmodifiableList(list);
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            System.err.println("Disabling pretty printer plugins!");
+            this.pluginPrettyPrinters = Collections.emptyList();
+        }
     }
     
     /**
@@ -372,6 +397,23 @@ public class PrettyPrint {
     }
     
     /**
+     * Checks if is printing using the pretty printer plugins.
+     * 
+     * @return true, if is printing fix
+     */
+    public boolean isPrintingPlugins() {
+        return printPlugins;
+    }
+    
+    /**
+     * retrieve all registered pretty printer plugins.
+     * @return an unmodifiable list
+     */
+    public List<PrettyPrintPlugin> getPrettyPrinterPlugins() {
+        return pluginPrettyPrinters;
+    }
+
+    /**
      * Sets the printing fix.
      * 
      * All registered {@link PropertyChangeListener} are informed of this
@@ -384,6 +426,22 @@ public class PrettyPrint {
         this.printFix = printFix;
         firePropertyChanged(PRINT_FIX_PROPERTY, old, printFix);
     }
+    
+    /**
+     * Sets the printing plugins.
+     * 
+     * All registered {@link PropertyChangeListener} are informed of this
+     * change if the current value differs from the set value.
+     * 
+     * @param selected
+     *            the new printing plugins value
+     */
+    public void setPrintingPlugins(boolean printPlugins) {
+        boolean old = this.printPlugins;
+        this.printPlugins = printPlugins;
+        firePropertyChanged(PRINT_PLUGINS_PROPERTY, old, printPlugins);
+    }
+
 
     /**
      * The underlying annotating string

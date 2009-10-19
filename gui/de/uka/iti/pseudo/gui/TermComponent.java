@@ -36,10 +36,10 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;

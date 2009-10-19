@@ -10,9 +10,8 @@ import javax.swing.DefaultComboBoxModel;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.PrettyPrint;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;

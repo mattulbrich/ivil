@@ -1,7 +1,7 @@
 package de.uka.iti.pseudo.util;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 
 public class TestAnnotatedString extends TestCaseWithEnv {

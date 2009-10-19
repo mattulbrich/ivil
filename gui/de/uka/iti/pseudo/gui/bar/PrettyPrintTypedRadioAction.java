@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import de.uka.iti.pseudo.gui.PrettyPrint;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 

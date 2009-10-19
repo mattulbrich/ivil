@@ -10,29 +10,28 @@ function
   bool b2
   bool p(int)
 
-program P
+program P source "first.src"
 
-  source "pre: val != 0"
+  sourceline 7
            assume !val = 0
 
-  source "if b1"
+  sourceline 9
            goto then1, else1
-  source "then"
+  sourceline 10
   then1:   assume b1
-  source "  val = 7"
+  sourceline 11
            val := 7
            goto after1
-  source "else"
+  sourceline 12
   else1:   assume !b1
-  source "begin"
-  source "  val = 1/val"
+  sourceline 14
            assert !val = 0
            val := 1/val
-  source "  val = 9"
-           val := 9
+  sourceline 15
+           val := val + 9
            goto after1
-  source "end"
-  source "post: val > 0"
+  sourceline 18
+
   after1:  assert val >0
 
 

@@ -1,4 +1,12 @@
-package de.uka.iti.pseudo.gui;
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
+package de.uka.iti.pseudo.prettyprint;
 
 import java.util.List;
 
@@ -15,6 +23,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
@@ -37,9 +46,9 @@ import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
  * Parentheses are introduced only where necessary. This is done using
  * 
  *
-* <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
-* visitors {@link SubtermCollector}
-*/
+ * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
+ * visitors {@link SubtermCollector}
+ */
 class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     
     private PrettyPrint pp;
@@ -120,12 +129,29 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         visitMaybeParen(subterm, fixOperator.getPrecedence());
     }
 
+    /*
+     * Try to print a term using the registered pretty print plugins.
+     * 
+     * the first which returns true has successfully printed the term.
+     * Processing is stopped and true returned
+     */
+    private boolean printByPlugins(Term term) throws TermException {
+        if(pp.isPrintingPlugins()) {
+            for (PrettyPrintPlugin plugin : pp.getPrettyPrinterPlugins()) {
+                boolean res = plugin.possiblyPrettyPrintTerm(term, this, pp, printer);
+                if(res)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     // keep this updated with TermParser.jj
     /**
      * Checks if a character is an operator char.
      */
     private boolean isOperatorChar(char c) {
-        return "+-<>&|=*/!^".indexOf(c) != -1;
+        return "+-<>&|=*/!^@.:".indexOf(c) != -1;
     }
 
     /*
@@ -183,58 +209,65 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
 
     public void visit(Binding binding) throws TermException {
         printer.begin(binding);
-        Binder binder = binding.getBinder();
-        String bindname = binder.getName();
-        printer.append("(").append(bindname).append(" ");
-        printer.setStyle("variable");
-        printer.append(binding.getVariableName());
-        if (pp.isTyped())
-            printer.append(" as ").append(binding.getType().toString());
-        printer.resetPreviousStyle();
-        for (Term t : binding.getSubterms()) {
-            printer.append("; ");
-            t.visit(this);
+        
+        if(!printByPlugins(binding)) { 
+            Binder binder = binding.getBinder();
+            String bindname = binder.getName();
+            printer.append("(").append(bindname).append(" ");
+            printer.setStyle("variable");
+            printer.append(binding.getVariableName());
+            if (pp.isTyped())
+                printer.append(" as ").append(binding.getType().toString());
+            printer.resetPreviousStyle();
+            for (Term t : binding.getSubterms()) {
+                printer.append("; ");
+                t.visit(this);
+            }
+            printer.append(")");
         }
-        printer.append(")");
         printer.end();
     }
 
     public void visit(Application application) throws TermException {
         printer.begin(application);
-        boolean isInParens = inParens;
-        inParens = false;
-        if (isInParens)
-            printer.append("(");
-
-        Function function = application.getFunction();
-        String fctname = function.getName();
-
-        FixOperator fixOperator = null;
-        if (pp.isPrintingFix())
-            fixOperator = env.getReverseFixOperator(fctname);
-
-        if (fixOperator != null) {
-            if (pp.isTyped())
+        if(!printByPlugins(application)) { 
+            boolean isInParens = inParens;
+            inParens = false;
+            if (isInParens)
                 printer.append("(");
 
-            if (function.getArity() == 1) {
-                printPrefix(application, fixOperator);
+            Function function = application.getFunction();
+            String fctname = function.getName();
+
+            FixOperator fixOperator = null;
+            if (pp.isPrintingFix())
+                fixOperator = env.getReverseFixOperator(fctname);
+
+            if (fixOperator != null) {
+                if (pp.isTyped())
+                    printer.append("(");
+
+                if (function.getArity() == 1) {
+                    printPrefix(application, fixOperator);
+                } else {
+                    printInfix(application, fixOperator);
+                }
+
+                if (pp.isTyped())
+                    printer.append(") as ")
+                    .append(application.getType().toString());
+
             } else {
-                printInfix(application, fixOperator);
+
+
+
+                printApplication(application, fctname);
+
             }
 
-            if (pp.isTyped())
-                printer.append(") as ")
-                        .append(application.getType().toString());
-
-        } else {
-
-            printApplication(application, fctname);
-
+            if (isInParens)
+                printer.append(")");
         }
-
-        if (isInParens)
-            printer.append(")");
         printer.end();
     }
 
@@ -272,19 +305,40 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.begin(updateTerm);
         printer.setStyle("update");
         printer.append("{ ");
-        List<AssignmentStatement> assignments = updateTerm.getAssignments();
-        for (int i = 0; i < assignments.size(); i++) {
-            if(i > 0)
-                printer.append(" || ");
-            printer.append(assignments.get(i).getTarget().toString(false));
-            printer.append(" := ");
-            assignments.get(i).getValue().visit(this);
+        
+        if(!printByPlugins(updateTerm.getUpdate())) {
+            List<AssignmentStatement> assignments = updateTerm.getAssignments();
+            for (int i = 0; i < assignments.size(); i++) {
+                if(i > 0)
+                    printer.append(" || ");
+                printer.append(assignments.get(i).getTarget().toString(false));
+                printer.append(" := ");
+                assignments.get(i).getValue().visit(this);
+            }
         }
         printer.append(" }");
         printer.resetPreviousStyle();
         visitMaybeParen(updateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
     }
+    
+    /*
+     * Try to print an update using the registered pretty print plugins.
+     * 
+     * the first which returns true has successfully printed the term.
+     * Processing is stopped and true returned
+     */
+    private boolean printByPlugins(Update update) throws TermException {
+        if(pp.isPrintingPlugins()) {
+            for (PrettyPrintPlugin plugin : pp.getPrettyPrinterPlugins()) {
+                boolean res = plugin.possiblyPrettyPrintUpdate(update, this, pp, printer);
+                if(res)
+                    return true;
+            }
+        }
+        return false;
+    }
+
 
     public void visit(SchemaUpdateTerm schUpdateTerm) throws TermException {
         printer.begin(schUpdateTerm);

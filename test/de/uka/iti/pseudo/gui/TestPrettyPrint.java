@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.gui;
 import java.util.List;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.creation.TermMaker;
