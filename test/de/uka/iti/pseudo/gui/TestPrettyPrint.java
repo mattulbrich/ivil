@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -48,7 +49,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     
     public void testAnnotations1() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("i1 + i2 + i3", env);
-        AnnotatedString<Term> as = PrettyPrint.print(env, t);
+        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
         assertEquals("i1 + i2 + i3", as.toString());
         assertEquals(0, as.getBeginAt(3));
         assertEquals(7, as.getEndAt(3));
@@ -60,7 +61,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
 
     public void testAnnotations2() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("{ i1 := i2 + i3 }(i1 = i3)", env);
-        AnnotatedString<Term> as = PrettyPrint.print(env, t);
+        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
         assertEquals("{ i1 := i2 + i3 }(i1 = i3)", as.toString());
         assertEquals(8, as.getBeginAt(11));
         assertEquals(15, as.getEndAt(11));
@@ -76,7 +77,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     public void testAnnotations3() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("1 + (2 + 3)", env);
         //                           01234567890
-        AnnotatedString<Term> as = PrettyPrint.print(env, t);
+        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
         assertEquals(0, as.getBeginAt(0));
         assertEquals(1, as.getEndAt(0));
@@ -90,24 +91,40 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         assertEquals(11, as.getEndAt(7));
     }
     
+    // these need to be the last test!
     public void testOrderConincidesWithSubtermCollector() throws Exception {
+        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        pp = new PrettyPrint(env);
         testOrderEqual("1 + 2 +3");
         testOrderEqual("1 + (2+3)");
         testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
         testOrderEqual("[[ %a : goto %n, %k ]]");
         testOrderEqual("[ 6 ; P ]");
+        testOrderEqual("f(g(3,4))");
     }
 
     private void testOrderEqual(String string) throws Exception {
         Term t = TermMaker.makeAndTypeTerm(string, env);
         List<Term> subterms = SubtermCollector.collect(t);
-        AnnotatedString<Term> astring = PrettyPrint.print(env, t);
-        List<Term> annotations = astring.getAllAttributes();
+        AnnotatedString<TermTag> astring = PrettyPrint.print(env, t);
+        List<TermTag> annotations = astring.getAllAttributes();
         
         assertEquals(subterms.size(), annotations.size());
-        for(int i = 0; i < subterms.size(); i++) {
-            assertEquals(subterms.get(i), annotations.get(i));
+        for (TermTag termTag : annotations) {
+            int pos = termTag.getTotalPos();
+            assertEquals(subterms.get(pos), termTag.getTerm());
         }
     }
     
+    public void testPPPlugin() throws Exception {
+        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        pp = new PrettyPrint(env);
+
+        testTerm("f(3)", "{-3-}");
+        testTerm("g(3,4)", "g[4, 3]");
+        testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
+        testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
+    }
+
+
 }

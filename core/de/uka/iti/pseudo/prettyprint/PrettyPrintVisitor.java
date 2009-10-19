@@ -53,17 +53,35 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     
     private PrettyPrint pp;
     private Environment env;
-    private AnnotatedStringWithStyles<Term> printer;
+    private AnnotatedStringWithStyles<TermTag> printer;
+    
+    /**
+     * stores the currently used term tag
+     */
+    private TermTag currentTermTag; 
     
     /**
      * Indicator that the current subterm is to be put in parentheses
      */
     private boolean inParens;
 
-    public PrettyPrintVisitor(PrettyPrint pp, AnnotatedStringWithStyles<Term> printer) {
+    public PrettyPrintVisitor(PrettyPrint pp, AnnotatedStringWithStyles<TermTag> printer) {
         this.pp = pp;
         this.env = pp.getEnvironment();
         this.printer = printer;
+    }
+    
+    private TermTag begin(Term term) throws TermException {
+        TermTag oldTag = currentTermTag;
+        
+        if(oldTag == null) {
+            currentTermTag = new TermTag(term);
+        } else {
+            currentTermTag = oldTag.derive(term);
+        }
+        printer.begin(currentTermTag);
+        
+        return oldTag;
     }
     
     /*
@@ -203,12 +221,14 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     
     public void visit(Variable variable) throws TermException {
         printer.setStyle("variable");
-        printer.begin(variable).append(variable.toString(pp.isTyped())).end();
+        TermTag oldTag = begin(variable);
+        printer.append(variable.toString(pp.isTyped())).end();
         printer.resetPreviousStyle();
+        currentTermTag = oldTag;
     }
 
     public void visit(Binding binding) throws TermException {
-        printer.begin(binding);
+        TermTag oldTag = begin(binding);
         
         if(!printByPlugins(binding)) { 
             Binder binder = binding.getBinder();
@@ -226,10 +246,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             printer.append(")");
         }
         printer.end();
+        currentTermTag = oldTag;
     }
-
+    
     public void visit(Application application) throws TermException {
-        printer.begin(application);
+        TermTag oldTag = begin(application);
         if(!printByPlugins(application)) { 
             boolean isInParens = inParens;
             inParens = false;
@@ -269,15 +290,17 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
                 printer.append(")");
         }
         printer.end();
+        currentTermTag = oldTag;
     }
 
     public void visit(SchemaVariable schemaVariable) throws TermException {
-        printer.begin(schemaVariable)
-                .append(schemaVariable.toString(pp.isTyped())).end();
+        TermTag oldTag = begin(schemaVariable);
+        printer.append(schemaVariable.toString(pp.isTyped())).end();
+        currentTermTag = oldTag;
     }
     
     public void visit(LiteralProgramTerm litProgTerm) throws TermException {
-        printer.begin(litProgTerm);
+        TermTag oldTag = begin(litProgTerm);
         printer.setStyle("program");
         printer.append(litProgTerm.isTerminating() ? "[[ " : "[ ");
         printer.append(Integer.toString(litProgTerm.getProgramIndex())
@@ -285,11 +308,12 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append(litProgTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
         printer.end();
+        currentTermTag = oldTag;
     }
     
     public void visit(SchemaProgramTerm schemaProgramTerm)
             throws TermException {
-        printer.begin(schemaProgramTerm);
+        TermTag oldTag = begin(schemaProgramTerm);
         printer.setStyle("program");
         printer.append(schemaProgramTerm.isTerminating() ? "[[ " : "[ ");
         schemaProgramTerm.getSchemaVariable().visit(this);
@@ -299,10 +323,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append(schemaProgramTerm.isTerminating() ? " ]]" : " ]");
         printer.resetPreviousStyle();
         printer.end();
+        currentTermTag = oldTag;
     }
     
     public void visit(UpdateTerm updateTerm) throws TermException {
-        printer.begin(updateTerm);
+        TermTag oldTag = begin(updateTerm);
         printer.setStyle("update");
         printer.append("{ ");
         
@@ -320,6 +345,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.resetPreviousStyle();
         visitMaybeParen(updateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
+        currentTermTag = oldTag;
     }
     
     /*
@@ -341,16 +367,17 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
 
 
     public void visit(SchemaUpdateTerm schUpdateTerm) throws TermException {
-        printer.begin(schUpdateTerm);
+        TermTag oldTag = begin(schUpdateTerm);
         printer.setStyle("update");
         printer.append("{ " + schUpdateTerm.getSchemaIdentifier() + " }");
         printer.resetPreviousStyle();
         visitMaybeParen(schUpdateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
+        currentTermTag = oldTag;
     }
 
 
-    public AnnotatedStringWithStyles<Term> getPrinter() {
+    public AnnotatedStringWithStyles<TermTag> getPrinter() {
         return printer;
     }
 

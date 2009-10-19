@@ -27,11 +27,11 @@ public abstract class PrettyPrintPlugin {
     
     private PrettyPrint prettyPrinter;
     private PrettyPrintVisitor prettyPrintVisitor;
-    private AnnotatedStringWithStyles<Term> printer;
+    private AnnotatedStringWithStyles<TermTag> printer;
 
     final public synchronized boolean possiblyPrettyPrintTerm(Term term,
             PrettyPrintVisitor prettyPrintVisitor, PrettyPrint pp,
-            AnnotatedStringWithStyles<Term> printer) {
+            AnnotatedStringWithStyles<TermTag> printer) {
         this.prettyPrinter = pp;
         this.prettyPrintVisitor = prettyPrintVisitor;
         this.printer = printer;
@@ -56,7 +56,7 @@ public abstract class PrettyPrintPlugin {
     
     final public synchronized boolean possiblyPrettyPrintUpdate(Update update,
             PrettyPrintVisitor prettyPrintVisitor, PrettyPrint pp,
-            AnnotatedStringWithStyles<Term> printer) throws TermException {
+            AnnotatedStringWithStyles<TermTag> printer) throws TermException {
         
         this.prettyPrinter = pp;
         this.prettyPrintVisitor = prettyPrintVisitor;
@@ -82,6 +82,14 @@ public abstract class PrettyPrintPlugin {
     
     final protected void printSubterm(Term subterm) throws TermException {
         subterm.visit(prettyPrintVisitor);
+    }
+    
+    protected void printBoundVariable(Binding binding) {
+        printer.setStyle("variable");
+        printer.append(binding.getVariableName());
+        if (prettyPrinter.isTyped())
+            printer.append(" as ").append(binding.getType().toString());
+        printer.resetPreviousStyle();
     }
     
     public Environment getEnvironment() {

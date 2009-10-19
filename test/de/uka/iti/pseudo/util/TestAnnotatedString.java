@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.util;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
 
 public class TestAnnotatedString extends TestCaseWithEnv {
@@ -59,7 +60,7 @@ public class TestAnnotatedString extends TestCaseWithEnv {
     // from a bug
     public void testTerm() throws Exception {
         Term t = makeTerm("b1 & b2 -> b2");
-        AnnotatedString<Term> as = PrettyPrint.print(env, t);
+        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
         assertEquals(0, as.getAttributeIndexAt(8));
     }
     
@@ -93,7 +94,7 @@ public class TestAnnotatedString extends TestCaseWithEnv {
     public void testVariableTerm() throws Exception {
         Term t = makeTerm("(\\exists x; x>0)");
         PrettyPrint pp = new PrettyPrint(env, false);
-        AnnotatedStringWithStyles<Term> as = pp.print(t);
+        AnnotatedStringWithStyles<TermTag> as = pp.print(t);
         
 //        for (int i = 0; i < as.length(); i++) {
 //            System.out.println(as.charAt(i) + " " + as.getStyleAt(i));

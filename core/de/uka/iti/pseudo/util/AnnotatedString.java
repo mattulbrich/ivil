@@ -214,7 +214,7 @@ public class AnnotatedString<T> implements CharSequence {
     }
 
     /**
-     * Begin a new annotated block. Use the parameter als annotation object.
+     * Begin a new annotated block. Use the parameter as annotation object.
      * 
      * @param attr the annotation to use in the new block
      * 

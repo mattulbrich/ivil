@@ -121,8 +121,8 @@ public class PrettyPrint {
      *            the term to pretty print
      * @return a freshly created annotated string object
      */
-    public AnnotatedStringWithStyles<Term> print(Term term) {
-        return print(term, new AnnotatedStringWithStyles<Term>());
+    public AnnotatedStringWithStyles<TermTag> print(Term term) {
+        return print(term, new AnnotatedStringWithStyles<TermTag>());
     }
     
     /** TODO DOC
@@ -135,13 +135,13 @@ public class PrettyPrint {
      *            the term to pretty print
      * @return a freshly created annotated string object
      */
-    public AnnotatedStringWithStyles<Term> print(Statement statement) {
-        return print(statement, new AnnotatedStringWithStyles<Term>());
+    public AnnotatedStringWithStyles<TermTag> print(Statement statement) {
+        return print(statement, new AnnotatedStringWithStyles<TermTag>());
     }
     
     /** TODO DOC */
-    public AnnotatedStringWithStyles<Term> print(Statement statement,
-            AnnotatedStringWithStyles<Term> printer) {
+    private AnnotatedStringWithStyles<TermTag> print(Statement statement,
+            AnnotatedStringWithStyles<TermTag> printer) {
         
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
@@ -174,7 +174,7 @@ public class PrettyPrint {
      *            the annotated string to append the term to
      * @return printer
      */
-    public AnnotatedStringWithStyles<Term> print(Term term, AnnotatedStringWithStyles<Term> printer) {
+    public AnnotatedStringWithStyles<TermTag> print(Term term, AnnotatedStringWithStyles<TermTag> printer) {
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         
         try {
@@ -212,7 +212,7 @@ public class PrettyPrint {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull Term term) {
         return print(env, term, false);
     }
@@ -235,7 +235,7 @@ public class PrettyPrint {
      * 
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull Term term, boolean typed) {
         PrettyPrint pp = new PrettyPrint(env, typed);
 
@@ -261,7 +261,7 @@ public class PrettyPrint {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false);
     }
@@ -287,11 +287,11 @@ public class PrettyPrint {
      * 
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<Term> print(
+    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
             boolean typed) {
         PrettyPrint pp = new PrettyPrint(env, typed);
-        AnnotatedStringWithStyles<Term> retval;
+        AnnotatedStringWithStyles<TermTag> retval;
 
         switch (lterm.getMatchingLocation()) {
         case ANTECEDENT:
@@ -301,7 +301,7 @@ public class PrettyPrint {
             return retval;
 
         case SUCCEDENT:
-            retval = new AnnotatedStringWithStyles<Term>();
+            retval = new AnnotatedStringWithStyles<TermTag>();
             retval.append("|- ");
             pp.print(lterm.getTerm(), retval);
             assert retval.hasEmptyStack();

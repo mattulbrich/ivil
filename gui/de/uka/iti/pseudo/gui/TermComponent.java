@@ -37,6 +37,7 @@ import javax.swing.text.Highlighter.HighlightPainter;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
@@ -84,10 +85,10 @@ public class TermComponent extends JTextPane {
     private Term term;
     
     /**
-     * the term which is currently highlighted by the mouse
+     * the tag of the term which is currently highlighted by the mouse
      * can be null
      */
-    private int mouseSelectedSubterm;
+    private TermTag mouseSelection;
     
     /**
      * the position of term within its sequent
@@ -102,7 +103,7 @@ public class TermComponent extends JTextPane {
     /**
      * The annotated string containing the pretty printed term
      */
-    private AnnotatedStringWithStyles<Term> annotatedString;
+    private AnnotatedStringWithStyles<TermTag> annotatedString;
 
     /**
      * The highlight object as returned by the highlighter
@@ -221,7 +222,7 @@ public class TermComponent extends JTextPane {
     private void mouseExited(MouseEvent e) {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
-            mouseSelectedSubterm = -1;
+            mouseSelection = null;
         } catch (BadLocationException ex) {
             // this shant happen
             throw new Error(ex);
@@ -239,12 +240,11 @@ public class TermComponent extends JTextPane {
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 
-                mouseSelectedSubterm = annotatedString.getAttributeIndexAt(index);
-                Term term = annotatedString.getAttributeAt(index);
-                setToolTipText(makeTermToolTip(term));
+                mouseSelection = annotatedString.getAttributeAt(index);
+                setToolTipText(makeTermToolTip(mouseSelection));
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
-                mouseSelectedSubterm = -1;
+                mouseSelection = null;
             }
         } catch (BadLocationException ex) {
             // TODO just ignore this for now
@@ -260,7 +260,9 @@ public class TermComponent extends JTextPane {
      *            to print
      * @return tooltip text
      */
-    private String makeTermToolTip(Term term) {
+    private String makeTermToolTip(TermTag termTag) {
+        Term term = termTag.getTerm();
+        
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
 //            try {
@@ -342,11 +344,11 @@ public class TermComponent extends JTextPane {
     }
 
     public Transferable createTransferable() {
-        if(mouseSelectedSubterm == -1)
+        if(mouseSelection == null)
             return null;
         
-        TermSelector ts = new TermSelector(termSelector, mouseSelectedSubterm);
-        String string = annotatedString.getAttributeOf(mouseSelectedSubterm).toString(false);
+        TermSelector ts = new TermSelector(termSelector, mouseSelection.getTotalPos());
+        String string = mouseSelection.getTerm().toString(false);
         return new TermSelectionTransferable(ts, string);
     }
 

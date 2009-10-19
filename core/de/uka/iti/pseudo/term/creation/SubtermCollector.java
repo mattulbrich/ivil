@@ -69,17 +69,18 @@ public class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
     /*
      * in updates the values are considered subterms on which rules can be applied.
      */
-    public void visit(UpdateTerm updateTerm) throws TermException {
-        // first the term itself
-        subtermsInOrder.add(updateTerm);
-
-        // then the update values
-        for (AssignmentStatement ass : updateTerm.getAssignments()) {
-            ass.getValue().visit(this);
-        }
-        
-        // then the updated term
-        updateTerm.getSubterm(0).visit(this);
-    }
+    // no buiilt in!
+//    public void visit(UpdateTerm updateTerm) throws TermException {
+//        // first the term itself
+//        subtermsInOrder.add(updateTerm);
+//
+//        // then the update values
+//        for (AssignmentStatement ass : updateTerm.getAssignments()) {
+//            ass.getValue().visit(this);
+//        }
+//        
+//        // then the updated term
+//        updateTerm.getSubterm(0).visit(this);
+//    }
 
 }

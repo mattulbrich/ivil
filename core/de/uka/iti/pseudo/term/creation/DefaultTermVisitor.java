@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.term.creation;
 
 import de.uka.iti.pseudo.term.Application;
@@ -11,9 +19,15 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
-// TODO DOC
+/**
+ * The Class DefaultTermVisitor provides an abstract implementation of
+ * {@link TermVisitor} in which all visit methods are delegated to
+ * a default visit implementation.
+ * 
+ * The subclass {@link DepthTermVisitor} is not abstract and simply implements
+ * the default visit method by a visitation of all children.
+ */
 public abstract class DefaultTermVisitor implements TermVisitor {
     
     public static class DepthTermVisitor extends DefaultTermVisitor {
@@ -23,14 +37,6 @@ public abstract class DefaultTermVisitor implements TermVisitor {
                 t.visit(this);
             }
         }
-
-        public void visit(UpdateTerm updateTerm) throws TermException {
-            defaultVisitTerm(updateTerm);
-            for(AssignmentStatement ass : updateTerm.getAssignments()) {
-                ass.getValue().visit(this);
-            }
-        }
-
     }
 
     protected abstract void defaultVisitTerm(Term term) throws TermException;

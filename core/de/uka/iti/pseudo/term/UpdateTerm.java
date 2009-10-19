@@ -17,9 +17,10 @@ import de.uka.iti.pseudo.term.statement.AssignmentStatement;
  * The Class UpdateTerm encapsulates the application of an update (a list of
  * assignments) to a term.
  * 
- * The updates are stores as {@link AssignmentStatement} (like withing programs)
+ * Subterms are the updated terms and the update values (in this order). Please
+ * note that the update targets are not subterms!
  * 
- * TODO We might reconsider the set of subterms to let it include ass. values.
+ * The updates are stores as {@link AssignmentStatement} (like withing programs)
  */
 public class UpdateTerm extends Term {
     
@@ -32,10 +33,23 @@ public class UpdateTerm extends Term {
      * @param term the term to be updated
      */
     public UpdateTerm(Update update, Term term) {
-        super(new Term[] { term }, term.getType());
+        super(prepareSubterms(term, update), term.getType());
         this.update = update;
+    }
 
-        // TODO Auto-generated constructor stub
+    /*
+     * prepare the subterms for the super class constructor.
+     * First the updated term then all update values in order. 
+     */
+    private static Term[] prepareSubterms(Term term, Update update) {
+        List<AssignmentStatement> assignments = update.getAssignments();
+        Term[] result = new Term[assignments.size() + 1];
+        
+        result[0] = term;
+        for (int i = 1; i < result.length; i++) {
+            result[i] = assignments.get(i-1).getValue();
+        }
+        return result;
     }
 
     /*

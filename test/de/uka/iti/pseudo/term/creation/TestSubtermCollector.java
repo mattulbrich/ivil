@@ -19,14 +19,7 @@ public class TestSubtermCollector extends TestCaseWithEnv {
         
         int i = 0;
         assertEquals(term, subterms.get(i++));
-        assertEquals(makeTerm("1 as int"), subterms.get(i++));
         assertEquals(makeTerm("{ b1 := true || i1 := { i1 := 0 }22*99 }(i1 = 3+2*1)"), subterms.get(i++));
-        assertEquals(makeTerm("true"), subterms.get(i++));
-        assertEquals(makeTerm("{ i1 := 0 }22*99"), subterms.get(i++));
-        assertEquals(makeTerm("{ i1 := 0 }22"), subterms.get(i++));
-        assertEquals(makeTerm("0"), subterms.get(i++));
-        assertEquals(makeTerm("22"), subterms.get(i++));
-        assertEquals(makeTerm("99"), subterms.get(i++));
         assertEquals(makeTerm("i1=3+2*1"), subterms.get(i++));
         assertEquals(makeTerm("i1"), subterms.get(i++));
         assertEquals(makeTerm("3+2*1"), subterms.get(i++));
@@ -34,6 +27,15 @@ public class TestSubtermCollector extends TestCaseWithEnv {
         assertEquals(makeTerm("2*1"), subterms.get(i++));
         assertEquals(makeTerm("2"), subterms.get(i++));
         assertEquals(makeTerm("1"), subterms.get(i++));
+        assertEquals(makeTerm("true"), subterms.get(i++));
+        assertEquals(makeTerm("{ i1 := 0 }22*99"), subterms.get(i++));
+        assertEquals(makeTerm("{ i1 := 0 }22"), subterms.get(i++));
+        assertEquals(makeTerm("22"), subterms.get(i++));
+        assertEquals(makeTerm("0"), subterms.get(i++));
+        assertEquals(makeTerm("99"), subterms.get(i++));
+        
+        
+        assertEquals(makeTerm("1 as int"), subterms.get(i++));
     }
     
     public void testCollect2() throws Exception {
@@ -43,12 +45,13 @@ public class TestSubtermCollector extends TestCaseWithEnv {
 
         int i = 0;
         assertEquals(term, subterms.get(i++));
-        assertEquals(makeTerm("i2 + i3"), subterms.get(i++));
-        assertEquals(makeTerm("i2"), subterms.get(i++));
-        assertEquals(makeTerm("i3"), subterms.get(i++));
         assertEquals(makeTerm("i1=i3"), subterms.get(i++));
         assertEquals(makeTerm("i1"), subterms.get(i++));
         assertEquals(makeTerm("i3"), subterms.get(i++));
+        assertEquals(makeTerm("i2 + i3"), subterms.get(i++));
+        assertEquals(makeTerm("i2"), subterms.get(i++));
+        assertEquals(makeTerm("i3"), subterms.get(i++));
+        
     }
     
     public void testCollect3() throws Exception {

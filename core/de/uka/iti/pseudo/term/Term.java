@@ -114,6 +114,22 @@ public abstract class Term {
 	}
 	
 	/**
+	 * Count all direct and indirect subterms.
+     * Includes all subterms and subterms of subterms, ...
+     * 
+     * Return the number of terms including myself.
+     * 
+     * @return a number > 0
+     */
+	public int countAllSubterms() {
+	    int sum = 1;
+	    for (int i = 0; i < subterms.length; i++) {
+            sum += subterms[i].countAllSubterms();
+        }
+	    return sum;
+	}
+	
+	/**
 	 * depending on {@link #SHOW_TYPES} print the term
 	 * woth or without typing information
 	 * 
