@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.Dimension;
@@ -28,38 +36,225 @@ import javax.swing.JToolBar;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO Documentation needed DOC!
-// TODO cache all classes -> objects and create only one instance per class. ...
+/**
+ * The Class BarManager is a pretty generic framework to allow menu bars and
+ * tool bars to be configured via a <code>.properties</code> file declaring
+ * all actions whose classes will then be loaded.
+ * 
+ * <h2>The actions</h2>
+ * 
+ * Actions can be both registered for toolbars and menu bars. There is at most
+ * one object for a certain lass within one bar manager. They are reused upon a
+ * second registration.
+ * 
+ * <p>
+ * When an action is created, the created object is furnished with the default
+ * properties first. If it also implements the interface
+ * {@link InitialisingAction}, the initialised method is invoked, to give the
+ * the action the opportunity to set itself up using the provided properties.
+ * 
+ * <h2>The configuration</h2>
+ * 
+ * Configuration has to be provided in a <code>.properties</code> file with
+ * the following special keys: <table border=1 cellspacing=5>
+ * <tr>
+ * <td><code>menubar</code></td>
+ * <td>Key for the menubar</td>
+ * <td>Listing all keys for top level menus in the bar in proper order</td>
+ * </tr>
+ * <tr>
+ * <td><code>toolbar</code></td>
+ * <td>Key for the toolbar</td>
+ * <td>Listing all keys for all buttons the bar in proper order. You may use
+ * <code>SEPARATOR</code> to create empty space between buttons.</td>
+ * </tr>
+ * <tr>
+ * <td>menu (as appearing in menubar)</td>
+ * <td>Key for a menu</td>
+ * <td>Listing all keys for menu items in the menu in proper order. You may use
+ * <code>SEPARATOR</code> to create a separating line between entries. An
+ * entry for the subkey <code>.text</code> defines the title of the menu</td>
+ * </tr>
+ * <tr>
+ * <td>item (as appearing in a menu/toolbar)</td>
+ * <td>Definition of an action</td>
+ * <td>Keyword and further information, see below</td>
+ * </tr>
+ * </table>
+ * 
+ * <h3>Action Types</h3>
+ * 
+ * <table border=1 cellspacing=5>
+ * <tr>
+ * <th>Keyword</th>
+ * <th>Menu/Toolbar</th>
+ * <th>Parameters</th>
+ * <th>Expl.</th>
+ * </tr>
+ * <tr>
+ * <td><code>ACTION</code></td>
+ * <td>M/T</td>
+ * <td>class name</td>
+ * <td>create an action object of the given class name and add a button or menu
+ * item for it</td>
+ * </tr>
+ * <tr>
+ * <td><code>TOGGLE_ACTION</code></td>
+ * <td>M/T</td>
+ * <td>class name</td>
+ * <td>create an action object of the given class name and add a toggle button
+ * or checkable menu item for it</td>
+ * </tr>
+ * <tr>
+ * <td><code>COMMAND</code></td>
+ * <td>M/T</td>
+ * <td>command string</td>
+ * <td>create a button or menu item with the given command set as command. You
+ * can use subkeys <code>.text</code>, <code>.icon</code> and
+ * <code>.tooltip</code> to set the text for the button/menu or the resource
+ * for the image.</td>
+ * </tr>
+ * <tr>
+ * <td><code>TODO</code></td>
+ * <td>M/T</td>
+ * <td>Name</td>
+ * <td>create a new deactivated button or menu item with the given title.
+ * Placeholder for future functionality</td>
+ * </tr>
+ * <tr>
+ * <td><code>SUBMENU</code></td>
+ * <td>M/-</td>
+ * <td>key</td>
+ * <td>create a submenu and create it using the specified key</td>
+ * </tr>
+ * </table>
+ * 
+ * To faciliate the specification of classnames, you can provide a key
+ * <code>package</code> into which all class names are assumed if they do not
+ * contain a "." (dot).
+ * 
+ * <h3>Example configuration</h3>
+ * Here a small but typical example:
+ * 
+ * <pre>
+ * package = org.example.barmanager
+ * menubar = fileMenu editorMenu helpMenu
+ * toolbar = file.open SEPARATOR editor.paste
+ * 
+ * fileMenu = file.open file.close SEPARATOR exit
+ * editorMenu = editor.copy editor.cut editor.paste
+ * helpMenu = help
+ * 
+ * file.open = ACTION FileOpenAction
+ * # ...
+ * 
+ * editor.copy = COMMAND copy-to-clipboard
+ * editor.copy.text = Copy
+ * editor.copy.tooltip = Copy to clipboard
+ * editor.copy.icon = img/copy.png
+ * # ...
+ * 
+ * help = help.index help.search
+ * help.index = TODO Index
+ * # ...
+ * </pre>
+ * 
+ * <h2>Example usage</h2>
+ * 
+ * To create a bar manager do something like:
+ * 
+ * <pre>
+ * BarManager barManager = new BarManager(null, resource);
+ * barManager.putProperty(PARENT_FRAME, jframe);
+ * barManager.putProperty(SOME_PROP, somevalue);
+ * jframe.setJMenuBar(barManager.makeMenubar());
+ * </pre>
+ * 
+ */
 public class BarManager {
     
+    /**
+     * An Action implementing this interface will have its initialised method
+     * invoked if created by a bar manager. This invocation happens after all
+     * properties have been set in the action, so that the information can be
+     * used to set the action up.
+     */
     public static interface InitialisingAction extends Action {
+        
+        /**
+         * Implementing classes can provide code which sets up the action.
+         * This method is invoked after all relevant properties have been set.
+         */
         public void initialised();
     }
 
+    /**
+     * The property name for the default menubar.
+     */
     private static final String DEFAULT_MENUBAR_PROPERTY = "menubar";
+    
+    /**
+     * The property name for the default toolbar.
+     */
     private static final String DEFAULT_TOOLBAR_PROPERTY = "toolbar";
     
+    /**
+     * The general action listener which is set on all created buttons, menu
+     * items, etc.
+     */
     private ActionListener actionListener;
     
+    /**
+     * The map of properties provided to the freshly created actions.
+     */
     private Map<String, Object> defaultActionProperties = new HashMap<String, Object>();
 
+    /**
+     * The properties with which the bar manager is configured
+     */
     private Properties properties;
     
+    /**
+     * The resource from where the properties are read
+     */
     private URL resource;
     
+    /**
+     * The action cache stores all created objects so that objected created once
+     * will be reused.
+     */
     private Map<Class<?>, Action> actionCache = 
         new HashMap<Class<?>, Action>();
 
+    /**
+     * The package prefix if one is provided in the properties, null only in the
+     * beginning
+     */
     private String packagePrefix;
 
+    /**
+     * A flag to indicate whether toolbar buttons should have text or images
+     * only.
+     */
     private boolean toolbarOnlyIcons;
     
+    /**
+     * Instantiates a new bar manager. The configuration is to be read from a
+     * URL.
+     * 
+     * @param actionListener
+     *            the action listener
+     * @param resource
+     *            the resource
+     */
     public BarManager(ActionListener actionListener, URL resource) {
-        super();
         this.actionListener = actionListener;
         this.resource = resource;
     }
     
+    /*
+     * Prepare properties: load from URL, read package info, make flags.
+     */
     private void prepareProperties() throws IOException {
         if(properties == null) {
             properties = new Properties();
@@ -78,11 +273,32 @@ public class BarManager {
         }
     }
     
+    /**
+     * Make the default toolbar from the property resources. It uses the key
+     * {@value #DEFAULT_TOOLBAR_PROPERTY}.
+     * 
+     * @return a freshly created toolbar object
+     * 
+     * @throws IOException
+     *             on read errors, or configuration error
+     */
     public JToolBar makeToolbar() throws IOException {
         return makeToolbar(DEFAULT_TOOLBAR_PROPERTY);
     }
     
-    public JToolBar makeToolbar(String propertyName) throws IOException {
+    /**
+     * Make a toolbar from the property resources. It uses the key the
+     * specified key as starting point
+     * 
+     * @param propertyName
+     *            the key in the properties to be used as toolbar definition.
+     * 
+     * @return a freshly created toolbar object
+     * 
+     * @throws IOException
+     *             on read errors, or configuration error
+     */
+    public JToolBar makeToolbar(@NonNull String propertyName) throws IOException {
         
         prepareProperties();
         
@@ -97,6 +313,11 @@ public class BarManager {
         return result;
     }
 
+    /*
+     * Make a toolbar item from a given key.
+     * 
+     * SEPARATOR, ACTION, TOGGLE_ACION, TODO, COMMAND
+     */
     private JComponent makeToolbarItem(String element)
             throws IOException {
         
@@ -179,10 +400,31 @@ public class BarManager {
         return result;
     }
 
+    /**
+     * Make the default menubar from the property resources. It uses the key
+     * {@value #DEFAULT_MENUBAR_PROPERTY}.
+     * 
+     * @return a freshly created menubar object
+     * 
+     * @throws IOException
+     *             on read errors, or configuration error
+     */
     public JMenuBar makeMenubar() throws IOException {
         return makeMenubar(DEFAULT_MENUBAR_PROPERTY);
     }
     
+    /**
+     * Make a menubar from the property resources. It uses the key the specified
+     * key as starting point
+     * 
+     * @param propertyName
+     *            the key in the properties to be used as menubar definition.
+     * 
+     * @return a freshly created menubar object
+     * 
+     * @throws IOException
+     *             on read errors, or configuration error
+     */
     public JMenuBar makeMenubar(String propertyName) throws IOException {
         prepareProperties();
         
@@ -202,6 +444,18 @@ public class BarManager {
         return result;
     }
     
+    /**
+     * Make a popup menu from the property resources. It uses the key the
+     * specified key as starting point
+     * 
+     * @param propertyName
+     *            the key in the properties to be used as menu definition.
+     * 
+     * @return a freshly created popup menu object
+     * 
+     * @throws IOException
+     *             on read errors, or configuration error
+     */
     public JPopupMenu makePopup(String propertyName) throws IOException {
         
         prepareProperties();
@@ -216,6 +470,9 @@ public class BarManager {
         return result;
     }
 
+    /*
+     * Make a menu from a given property key.
+     */
     private JMenu makeMenu(String property) throws IOException {
         
         String items[] = getPropertyOrFail(property).split(" +");
@@ -223,14 +480,19 @@ public class BarManager {
         
         for (String item : items) {
             // submenu must be ignored - it may appear however
-            if(item.equals("SUBMENU"))
-                continue;
+            // FIXME WHY THAT?
+//            if(item.equals("SUBMENU"))
+//                continue;
             result.add(makeMenuItem(item));
         }
         
         return result;
     }
     
+    /*
+     * Make menu item:
+     * ACTION, TOGGLE_ACTION, TODO, SUBMENU, RADIO_ACTION, COMMAND
+     */
     private JComponent makeMenuItem(String property) throws IOException {
         
         JComponent result;
@@ -313,9 +575,10 @@ public class BarManager {
         return result;
     }
 
-    
-
-
+    /**
+     * Get a property; fail if it is not present.
+     * @throws IOException if the property is not set in the resources.
+     */
     private String getPropertyOrFail(String property) throws IOException {
         String value = properties.getProperty(property);
         if(value == null) {
@@ -325,7 +588,26 @@ public class BarManager {
     }
 
 
-    public Action makeAction(String className) throws IOException {
+    /**
+     * Get an action object for a class name.
+     * 
+     * <p>
+     * The object is created, has the properties set and is initialised (if it
+     * implements {@link InitialisingAction}.)
+     * 
+     * <p>
+     * If the method has been called earlier with the same argument, no new
+     * object is created, but the old is returned.
+     * 
+     * @param className
+     *            the class name
+     * 
+     * @return the initilised action
+     * 
+     * @throws IOException
+     *             wrapping any exception
+     */
+    public @NonNull Action makeAction(@NonNull String className) throws IOException {
         
         if(!className.contains("."))
             className = packagePrefix + className;
@@ -356,6 +638,14 @@ public class BarManager {
         }
     }
     
+    /**
+     * Convenience mehtod to create an icon.
+     * 
+     * @param resource
+     *            the resource to load from
+     * 
+     * @return a freshly created icon
+     */
     public static Icon makeIcon(@NonNull URL resource) {
         try {
             if(resource != null)
@@ -368,11 +658,28 @@ public class BarManager {
         return Util.UNKNOWN_ICON;
     }
     
+    /**
+     * Clear the cache of actions.
+     */
+    @Deprecated
     public void clearCache() {
         actionCache.clear();
     }
 
-    public void putProperty(String property, Object value) {
+    /**
+     * Put property into the map of properties to be provided to the actions.
+     * 
+     * <p>
+     * <b>Please note:</b> Properties that are set after an action has been
+     * created have no effect on already created actions. The will not see the
+     * new values.
+     * 
+     * @param property
+     *            the property key to set a value for
+     * @param value
+     *            the value to set for the key.
+     */
+    public void putProperty(@NonNull String property, Object value) {
         defaultActionProperties.put(property, value);
     }
 }
