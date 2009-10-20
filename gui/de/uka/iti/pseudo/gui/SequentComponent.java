@@ -15,7 +15,6 @@ import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -223,6 +222,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                 try {
                     TermComponent tc = (TermComponent) e.getSource();
                     TermSelector termSelector = tc.getTermAt(e.getPoint());
+                    System.out.println("Mouse selected: " + termSelector);
                     
                     if(termSelector == null)
                         return;

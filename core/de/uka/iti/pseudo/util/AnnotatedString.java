@@ -178,13 +178,14 @@ public class AnnotatedString<T> implements CharSequence {
      * @return the largest index of a block, so that the character at index
      * belongs to the block
      */
-    public int getAttributeIndexAt(int index) {
-        Element<T> element = getElement(index);
-        if (element != null)
-            return allElements.indexOf(element);
-        else
-            return -1;
-    }
+//    @Deprecated
+//    public int getAttributeIndexAt(int index) {
+//        Element<T> element = getElement(index);
+//        if (element != null)
+//            return allElements.indexOf(element);
+//        else
+//            return -1;
+//    }
 
     /**
      * get a list of all annotations in the annotation blocks in order of

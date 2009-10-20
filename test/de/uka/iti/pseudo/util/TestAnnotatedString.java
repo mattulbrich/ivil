@@ -41,27 +41,28 @@ public class TestAnnotatedString extends TestCaseWithEnv {
         as.end();
         as.end();
         
+        // getAttributeIndexAt does no longer exist.
         assertEquals(null, as.getAttributeAt(0));
-        assertEquals(-1, as.getAttributeIndexAt(0));
+//        assertEquals(-1, as.getAttributeIndexAt(0));
         assertEquals(null, as.getAttributeAt(13));
-        assertEquals(-1, as.getAttributeIndexAt(13));
+//        assertEquals(-1, as.getAttributeIndexAt(13));
         assertEquals("value1", as.getAttributeAt(14));
-        assertEquals(0, as.getAttributeIndexAt(14));
+//        assertEquals(0, as.getAttributeIndexAt(14));
         assertEquals("value1", as.getAttributeAt(27));
-        assertEquals(0, as.getAttributeIndexAt(27));
+//        assertEquals(0, as.getAttributeIndexAt(27));
         assertEquals("value2", as.getAttributeAt(28));
-        assertEquals(1, as.getAttributeIndexAt(28));
+//        assertEquals(1, as.getAttributeIndexAt(28));
         assertEquals("value2", as.getAttributeAt(47));
-        assertEquals(1, as.getAttributeIndexAt(47));
+//        assertEquals(1, as.getAttributeIndexAt(47));
         assertEquals(null, as.getAttributeAt(48));
-        assertEquals(-1, as.getAttributeIndexAt(48));
+//        assertEquals(-1, as.getAttributeIndexAt(48));
     }
     
     // from a bug
     public void testTerm() throws Exception {
         Term t = makeTerm("b1 & b2 -> b2");
         AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
-        assertEquals(0, as.getAttributeIndexAt(8));
+        assertEquals(0, as.getAttributeAt(8).getTotalPos());
     }
     
     // example from the javadoc

@@ -127,52 +127,66 @@ rule tprg_havoc
 
 rule auto_goto2
   find |- [%a : goto %n, %k]
-  samegoal replace $$jmpPrg(%a, %n) 
-  samegoal replace $$jmpPrg(%a, %k)
+  samegoal "goto {%n}"
+    replace $$jmpPrg(%a, %n) 
+  samegoal "goto {%k}"
+    replace $$jmpPrg(%a, %k)
   tags rewrite "symbex"
 
 rule auto_goto2_upd
   find |- {U} [%a : goto %n, %k]
-  samegoal replace {U} $$jmpPrg(%a, %n) 
-  samegoal replace {U} $$jmpPrg(%a, %k)
+  samegoal "goto {%n}"
+    replace {U} $$jmpPrg(%a, %n) 
+  samegoal "goto {%k}"
+    replace {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
 
 rule autot_goto2
   find |- [[%a : goto %n, %k]]
-  samegoal replace $$jmpPrg(%a, %n) 
-  samegoal replace $$jmpPrg(%a, %k)
+  samegoal "goto {%n}"
+    replace $$jmpPrg(%a, %n) 
+  samegoal "goto {%}"
+    replace $$jmpPrg(%a, %k)
   tags rewrite "symbex"
 
 rule autot_goto2_upd
   find |- {U} [[%a : goto %n, %k]]
-  samegoal replace {U} $$jmpPrg(%a, %n) 
-  samegoal replace {U} $$jmpPrg(%a, %k)
+  samegoal "goto {%n}"
+    replace {U} $$jmpPrg(%a, %n) 
+  samegoal "goto {%k}"
+    replace {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
 
 
 
 rule auto_assert
   find |- [%a : assert %b]
-  samegoal replace %b 
+  samegoal  "assertion {%a}"replace %b 
   samegoal replace $$incPrg(%a)
   tags rewrite "symbex"
 
 rule autot_assert
   find |- [[%a : assert %b]]
-  samegoal replace %b 
-  samegoal replace $$incPrg(%a)
+  samegoal "assertion {%a}"
+    replace %b 
+  samegoal "continue program"
+    replace $$incPrg(%a)
   tags rewrite "symbex"
 
 rule auto_assert_upd
   find |- {U} [%a : assert %b]
-  samegoal replace {U} %b 
-  samegoal replace {U} $$incPrg(%a)
+  samegoal "assertion {%a}"
+    replace {U} %b 
+  samegoal "continue program"
+    replace {U} $$incPrg(%a)
   tags rewrite "symbex"
 
 rule autot_assert_upd
   find |- {U} [[%a : assert %b]]
-  samegoal replace {U} %b 
-  samegoal replace {U} $$incPrg(%a)
+  samegoal "assertion {%a}"
+    replace {U} %b 
+  samegoal "continue program"
+    replace {U} $$incPrg(%a)
   tags rewrite "symbex"
 
 
@@ -236,7 +250,8 @@ rule loop_invariant
     interact %inv
   where
     interact %modifies as int
-  samegoal "inv initially valid" replace %inv
+  samegoal "inv initially valid"
+    replace %inv
   samegoal "run with cut program" 
     replace $$loopInvPrgMod(%a, %inv, 0, %modifies)
 
@@ -258,3 +273,4 @@ rule update_simplification
   where canEval $$updSimpl({U}%t)
   samegoal replace $$updSimpl({U}%t)
   tags rewrite "updSimpl"
+       verbosity "10"

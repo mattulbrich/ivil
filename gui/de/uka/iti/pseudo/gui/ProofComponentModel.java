@@ -43,7 +43,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     
     private final static Vector<ProofTreeNode> EMPTY_VECTOR = new Vector<ProofTreeNode>();
     
-    public static class ProofTreeNode implements TreeNode {
+    private int verbosity;
+    
+    public class ProofTreeNode implements TreeNode {
         
         private ProofNode proofNode;
         private Vector<ProofTreeNode> children;
@@ -102,7 +104,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             while(nodeChildren != null && nodeChildren.size() == 1) {
                 node = nodeChildren.get(0);
                 nodeChildren = node.getChildren();
-                children.add(new ProofTreeNode(this, node, true));
+                if(shouldShow(node))
+                    children.add(new ProofTreeNode(this, node, true));
             }
             
             if(nodeChildren != null) {
@@ -110,6 +113,28 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                     children.add(new ProofTreeNode(this, pn, false));
                 }
             }
+        }
+
+        /*
+         * check whether verbosity makes us show this node:
+         * - verbosity of node <= set verbosity
+         */
+        
+        private boolean shouldShow(ProofNode node) {
+            RuleApplication ruleApp = node.getAppliedRuleApp();
+            if(ruleApp == null)
+                return true;
+            
+            Rule rule = ruleApp.getRule();
+            String string = rule.getProperty("verbosity");
+            int value;
+            try {
+                value = Integer.parseInt(string);
+            } catch (NumberFormatException e) {
+                return true;
+            }
+            
+            return value <= verbosity;
         }
 
         public ProofNode getProofNode() {
@@ -167,7 +192,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     }
 
     public ProofComponentModel(ProofNode root) {
-        super(new ProofTreeNode(null, root, false));
+        // we cannot do this in one call, since this would give a comp. error
+        super(null);
+        setRoot(new ProofTreeNode(null, root, false));
     }
 
     /**
@@ -223,6 +250,17 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         }
         
         return false;
+    }
+
+    public void setVerbosity(int verbosity) {
+        this.verbosity = verbosity;
+        ProofTreeNode root = (ProofTreeNode) getRoot();
+        root.invalidate();
+        
+        TreeModelEvent event = new TreeModelEvent(this, new TreePath(root));
+        for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+            listener.treeStructureChanged(event);
+        }
     }
 
 }

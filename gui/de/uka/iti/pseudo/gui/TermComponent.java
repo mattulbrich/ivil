@@ -39,7 +39,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.TermSelector;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
@@ -253,7 +252,7 @@ public class TermComponent extends JTextPane {
     }
 
     /**
-     * calculate the text to display in tooltip for a term Usually this is the
+     * calculate the text to display in tooltip for a term. Usually this is the
      * type. For programs, however, print the current statement
      * 
      * @param term
@@ -263,15 +262,13 @@ public class TermComponent extends JTextPane {
     private String makeTermToolTip(TermTag termTag) {
         Term term = termTag.getTerm();
         
-        if (term instanceof LiteralProgramTerm) {
-            LiteralProgramTerm prog = (LiteralProgramTerm) term;
-//            try {
-                return prog.getStatement().toString();
-//            } catch (TermException e) {
-//            }
-        }
+//        if (term instanceof LiteralProgramTerm) {
+//            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+//            return prog.getStatement().toString();
+//        }
 
-        return term.getType().toString();
+        // return term.getType().toString();
+        return termTag.toString();
     }
 
     /**
@@ -280,15 +277,15 @@ public class TermComponent extends JTextPane {
      * @param point
      *            the point within the component
      * 
-     * @return the selector for the subterm at this point
+     * @return the selector for the subterm at this point or null if there is none
      */
     public TermSelector getTermAt(Point point) {
         int charIndex = viewToModel(point);
-        int termIndex = annotatedString.getAttributeIndexAt(charIndex);
-        
-        if(termIndex == -1)
+        TermTag termTag = annotatedString.getAttributeAt(charIndex);
+        if(termTag == null)
             return null;
         
+        int termIndex = termTag.getTotalPos();
         return termSelector.selectSubterm(termIndex);
     }
 

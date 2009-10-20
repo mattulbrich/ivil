@@ -40,10 +40,14 @@ rule exists_left
 rule cond_true
   find  cond(true, %a, %b) 
   replace  %a 
+  tags rewrite "concrete"
+       verbosity "8"
 
 rule cond_false
   find  cond(false, %a, %b) 
-  replace  %b 
+  replace  %b
+  tags rewrite "concrete"
+       verbosity "8"
 
 (*
  * Equality
@@ -52,6 +56,7 @@ rule equality_refl
   find  %t = %t 
   replace true
   tags rewrite "concrete"
+       verbosity "8"
 
 rule equality_comm
   find  %t = %u 
@@ -70,3 +75,4 @@ rule equality_unique
   where isUnique %u
   replace $$resolveUnique(%t, %u)
   tags rewrite "fol simp"
+       verbosity "8"

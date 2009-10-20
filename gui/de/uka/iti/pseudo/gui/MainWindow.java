@@ -138,7 +138,7 @@ public class MainWindow extends JFrame {
             leftTabDock.addDockable(dock, new Position(0));
         }
         {
-            proofComponent = new ProofComponent(proofCenter.getProof());
+            proofComponent = new ProofComponent(proofCenter);
             proofCenter.addProofNodeSelectionListener(proofComponent);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {

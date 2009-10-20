@@ -224,27 +224,32 @@ rule not_right
   samegoal remove
            add  %b  |-
   tags rewrite "prop simp"
+       verbosity "8"
 
 rule not_left
   find  !%b  |-
   samegoal remove
            add |-  %b 
   tags rewrite "prop simp"
+       verbosity "8"
 
 rule not_true
   find  !true 
   replace  false 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule not_false
   find  !false 
   replace  true 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule not_not
   find  ! ! %b 
   replace  %b 
   tags rewrite "concrete"
+       verbosity "8"
 
 (*
  * stuff with equivalence
@@ -254,3 +259,4 @@ rule equiv_to_eq
   find %a <-> %b
   replace %a = %b
   tags rewrite "prop simp"
+       verbosity "8"

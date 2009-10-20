@@ -479,10 +479,10 @@ public class BarManager {
         JMenu result = new JMenu(getPropertyOrFail(property + ".text"));
         
         for (String item : items) {
-            // submenu must be ignored - it may appear however
-            // FIXME WHY THAT?
-//            if(item.equals("SUBMENU"))
-//                continue;
+            // submenu must be ignored - it may appear however as first item.
+            // just skip it
+            if(item.equals("SUBMENU"))
+                continue;
             result.add(makeMenuItem(item));
         }
         

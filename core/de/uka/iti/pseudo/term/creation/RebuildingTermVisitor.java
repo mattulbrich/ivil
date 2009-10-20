@@ -212,11 +212,11 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     public void visit(UpdateTerm updateTerm) throws TermException {
         defaultVisitTerm(updateTerm);
         if(resultingTerm == null) {
-            List<AssignmentStatement> assignments = updateTerm.getAssignments();
-            AssignmentStatement[] newAssignments = visitAssignments(assignments);
-            
             updateTerm.getSubterm(0).visit(this);
             Term childResult = resultingTerm;
+            
+            List<AssignmentStatement> assignments = updateTerm.getAssignments();
+            AssignmentStatement[] newAssignments = visitAssignments(assignments);
             
             if(newAssignments != null || childResult != null) {
                 if(newAssignments == null)

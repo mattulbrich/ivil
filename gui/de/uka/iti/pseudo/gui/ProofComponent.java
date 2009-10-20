@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.gui;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URL;
 
 import javax.swing.Icon;
@@ -33,12 +35,17 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
 
     private static final long serialVersionUID = 6352175425195393727L;
 
+    public static final String VERBOSITY_PROPERTY = "tree-verbosity";
+    public static final int DEFAULT_VERBOSITY = 5;
+    
     /*
      * some UI constants
      */
     private ProofComponentModel proofModel;
     private static final Icon GREEN_ICON = mkIcon("img/green.png");
     private static final Icon GREY_ICON = mkIcon("img/grey.png");
+
+    
     private final Font italicFont = getFont().deriveFont(Font.ITALIC);
     private final Font boldFont = getFont().deriveFont(Font.BOLD);
     
@@ -78,14 +85,26 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     /**
      * create a new proof component which shows the given proof.
      * 
-     * @param proof to be displaed
+     * @param proofCenter to be displaed
      */
-    public ProofComponent(@NonNull Proof proof) {
+    public ProofComponent(@NonNull ProofCenter proofCenter) {
         // this.proof = proof;
+        Proof proof = proofCenter.getProof();
         proofModel = new ProofComponentModel(proof.getRoot());
         proof.addObserver(proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());
+        addVerbosityListener(proofCenter);
+    }
+
+
+    private void addVerbosityListener(ProofCenter proofCenter) {
+        proofCenter.addPropertyChangeListener(VERBOSITY_PROPERTY, new PropertyChangeListener() {
+            @Override public void propertyChange(PropertyChangeEvent evt) {
+                        proofModel.setVerbosity((Integer) evt.getNewValue());
+                        repaint();
+                    }
+                });
     }
 
 

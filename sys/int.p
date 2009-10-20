@@ -90,18 +90,22 @@ rule times_one
 rule gte_to_gt
   find %a >= %b
   replace %a > %b | %a = %b
+  tags verbosity "8"
 
 rule lte_to_gt
   find %a <= %b
   replace %a < %b | %a = %b
+  tags verbosity "8"
 
 rule gt_to_lt
   find %a > %b
   replace %b < %a
+  tags verbosity "8"
 
 rule gt_minus_one
   find %a + (-1) >= %b
   replace %a > %b
+  tags verbosity "8"
 
 (*
  * Handling expressions with only literals
@@ -116,3 +120,4 @@ rule resolve_int_literals
   samegoal
     replace $$intEval(%t)
   tags rewrite "fol simp"
+       verbosity "8"

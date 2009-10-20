@@ -9,11 +9,14 @@
 package de.uka.iti.pseudo.gui;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingUtilities;
 
@@ -54,6 +57,8 @@ import de.uka.iti.pseudo.term.Sequent;
  * (right click) on a term in the sequent view, see
  * {@link #getApplicableRules(Sequent, TermSelector)}.
  * 
+ * A general PropertyChange mechanism is installed to provide an opportunity to
+ * work with general properties on the proof process. 
  */
 public class ProofCenter {
     
@@ -110,6 +115,18 @@ public class ProofCenter {
      * configured by menu
      */
     private PrettyPrint prettyPrinter;
+    
+    /**
+     * general property mechnism to allow listening w/o declaration of new
+     * elements here. This is the listener support
+     */
+    private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+
+    /**
+     * general property mechnism to allow listening w/o declaration of new
+     * elements here.This is the value support.
+     */
+    private Map<String, Object> generalProperties = new HashMap<String, Object>();
     
     /**
      * Instantiates a new proof center.
@@ -408,19 +425,67 @@ public class ProofCenter {
                 .getBreakpointManager();
     }
 
-//    /**
-//     * Replace the current proof by a new one (e.g. load from a file)
-//     * 
-//     * The proof must not have children yet.
-//     * 
-//     * @param proof the new proof
-//     */
-//    public void replaceProof(@NonNull Proof proof) {
-//        assert this.proof.getRoot().getChildren().size() == 0 : 
-//            "can only replace childless proof";
-//        
-//        this.proof = proof;
-//        fireSelectedProofNode(proof.getRoot());
-//    }
+    // Delegations to changeSupport!
+    
+    /**
+     * Adds a listener loooking for a certain kind of changes.
+     * 
+     * @see PropertyChangeSupport#addPropertyChangeListener(String,
+     *      PropertyChangeListener)
+     * 
+     * @param propertyName
+     *            the property to look out for
+     * @param listener
+     *            the listener to handle changes
+     */
+    public void addPropertyChangeListener(String propertyName,
+            PropertyChangeListener listener) {
+        changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
+
+    /**
+     * Notify all registered listeners that a property's value has changed.
+     * 
+     * @see PropertyChangeSupport#fireIndexedPropertyChange(String, int, Object,
+     *      Object)
+     *      
+     * @param propertyName
+     *            name of the property
+     * @param newValue
+     *            value after the change.
+     */
+    public void firePropertyChange(String propertyName, Object newValue) {
+        Object oldValue = generalProperties.get(propertyName);
+        generalProperties.put(propertyName, newValue);
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+    
+    /**
+     * Gets the value of a property.
+     * 
+     * @param propertyName
+     *            the property name
+     * 
+     * @return the property's value. null if not set
+     */
+    public Object getProperty(String propertyName) {
+        return generalProperties.get(propertyName);
+    }
+    
+    /**
+     * Removes a listener loooking for a certain kind of changes.
+     * 
+     * @see PropertyChangeSupport#removePropertyChangeListener(String,
+     *      PropertyChangeListener)
+     * 
+     * @param propertyName
+     *            the property to look out for
+     * @param listener
+     *            the listener to handle changes
+     */
+    public void removePropertyChangeListener(String propertyName,
+            PropertyChangeListener listener) {
+        changeSupport.removePropertyChangeListener(propertyName, listener);
+    }
 
 }
