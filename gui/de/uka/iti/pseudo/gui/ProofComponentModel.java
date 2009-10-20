@@ -100,7 +100,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             List<ProofNode> nodeChildren = proofNode.getChildren();
             ProofNode node = proofNode;
             
-            children.add(new ProofTreeNode(this, node, true));
+            if(shouldShow(node))
+                children.add(new ProofTreeNode(this, node, true));
+            
             while(nodeChildren != null && nodeChildren.size() == 1) {
                 node = nodeChildren.get(0);
                 nodeChildren = node.getChildren();
@@ -125,6 +127,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             if(ruleApp == null)
                 return true;
             
+            if(node.getChildren() == null)
+                return true;
+            
             Rule rule = ruleApp.getRule();
             String string = rule.getProperty("verbosity");
             int value;
@@ -146,6 +151,14 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             label = null;
         }
 
+        /*
+         * get the label to this node:
+         * IF it is an inner node with children of its own THEN return #getBranchName()
+         * IF it is a leaf THEN
+         *   IF it has no applied rule yet 
+         *   THEN return OPEN 
+         *   ELSE return the name of the applied rule.
+         */
         public String getLabel() {
             if(label == null) {
                 if(!isLeaf()) {
@@ -153,6 +166,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 } else {
                     RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
                     if(appliedRuleApp != null) {
+                        // TODO possible instantiate a text.
                         label = appliedRuleApp.getRule().getName();
                     } else {
                         label = "OPEN";
@@ -204,7 +218,16 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ProofNode proofNode = (ProofNode) arg;
-                TreePath path = getPath(proofNode).getParentPath();
+                // assert proofNode.getAppliedRuleApp() != null;
+                
+                TreePath proofNodePath = getPath(proofNode);
+                
+                // in case the node is no longer seen we do not need to update
+                // anything anyway.
+                if (proofNodePath == null)
+                    return;
+                
+                TreePath path = proofNodePath.getParentPath();
                 ProofTreeNode ptn =  (ProofTreeNode) path.getLastPathComponent();
                 ptn.invalidate();
 
