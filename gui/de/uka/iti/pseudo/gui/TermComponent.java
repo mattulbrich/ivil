@@ -269,8 +269,14 @@ public class TermComponent extends JTextPane {
 
     /**
      * calculate the text to display in tooltip for a term. This is a rather
-     * complex document: - the type - For programs, print the current statement -
-     * history information.
+     * complex document: 
+     * <ol>
+     * <li>the type
+     * <li>For programs, print the current statement
+     * <li>The history, at least the first 60 elements
+     * </li>
+     * 
+     * TODO Have something like "F2" to focus on the content and provide links ;)
      * 
      * @param termTag
      *            tag to print info on
@@ -282,30 +288,40 @@ public class TermComponent extends JTextPane {
     
         StringBuilder sb = new StringBuilder();
     
+        //
+        // type
         sb.append("<html><dl><dt>Type:</dt><dd>").append(term.getType())
                 .append("</dd>\n");
         
+        //
+        // statement
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
             String stm = prettyPrinter.print(prog.getStatement()).toString();
             sb.append("<dt>Statement:</dt><dd>").append(stm).append("</dd>\n");
         }
 
+        //
+        // history
         Annotation h = history;
         sb.append("<dt>History:</dt><dd><ol>");
-        while (h != null) {
+        int len = 0;
+        while (h != null && len < 60) {
             sb.append("<li>").append(h.getText());
             ProofNode creatingProofNode = h.getCreatingProofNode();
             if (creatingProofNode != null)
                 sb.append(" - ").append(creatingProofNode.getSummaryString());
             sb.append("</li>\n");
             h = h.getParentAnnotation();
+            len++;
         }
         sb.append("</ol>\n");
+        if(len == 60)
+            sb.append("... truncated history");
     
         sb.append("</dl>");
         
-        System.out.println(sb);
+        // System.out.println(sb);
         return sb.toString();
     }
     

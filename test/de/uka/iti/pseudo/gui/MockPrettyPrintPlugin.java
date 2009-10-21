@@ -15,16 +15,16 @@ public class MockPrettyPrintPlugin extends PrettyPrintPlugin {
         Function f = term.getFunction();
         if("f".equals(f.getName())) {
             append("{-");
-            printSubterm(term.getSubterm(0));
+            printSubterm(term, 0);
             append("-}");
         }
         
         // inverse order of subterms!
         if("g".equals(f.getName())) {
             append("g[");
-            printSubterm(term.getSubterm(1));
+            printSubterm(term, 1);
             append(", ");
-            printSubterm(term.getSubterm(0));
+            printSubterm(term, 0);
             append("]");
         }
     }
@@ -35,16 +35,16 @@ public class MockPrettyPrintPlugin extends PrettyPrintPlugin {
             append("ALL ");
             printBoundVariable(term);
             append(" ; ");
-            printSubterm(term.getSubterm(0));
+            printSubterm(term, 0);
         }
     }
 
-    @Override public void prettyPrintUpdate(AssignmentStatement assignment)
-            throws TermException {
-        if("i1".equals(assignment.getTarget().toString())) {
-            append("i1 <-- ");
-            printSubterm(assignment.getValue());
-        }
-    }
+//    @Override public void prettyPrintUpdate(AssignmentStatement assignment)
+//            throws TermException {
+//        if("i1".equals(assignment.getTarget().toString())) {
+//            append("i1 <-- ");
+//            printTerm(assignment.getValue());
+//        }
+//    }
 
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
@@ -69,6 +70,17 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         String instantiated = inst.replaceInString("test {%x} and try {%longerName} but not {this} nor {%that}");
         
         assertEquals("test " + t1 + " and try " + t2 + " but not ?? nor ??", instantiated);
+    }
+    
+    public void testStringInstWithPP() throws Exception {
+        PrettyPrint pp = new PrettyPrint(env);
+        Term t1 = makeTerm("1+2");
+        termmap.put("%x", t1);
+        
+        String instantiated = inst.replaceInString("test {%x} with pp", pp);
+        
+        assertEquals("test 1 + 2 with pp", instantiated);
+        
     }
     
     // partially from a bug

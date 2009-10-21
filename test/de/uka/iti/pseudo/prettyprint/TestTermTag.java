@@ -4,7 +4,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
-public class TestTermTag  extends TestCaseWithEnv {
+public class TestTermTag extends TestCaseWithEnv {
 
     // from a bug
     public void testSubtermCalc() throws Exception {
@@ -12,13 +12,13 @@ public class TestTermTag  extends TestCaseWithEnv {
         Term t = makeTerm("g(4+2,3)");
         
         TermTag tag = new TermTag(t);
-        TermTag tag2 = tag.derive(makeTerm("3"));
+        TermTag tag2 = tag.derive(1);
         
         assertEquals(4, tag2.getTotalPos());
         assertEquals(1, tag2.getSubTermNo());
         
         try {
-            tag.derive(makeTerm("5"));
+            tag.derive(2);
             fail("should fail");
         } catch(TermException ex) {}
         

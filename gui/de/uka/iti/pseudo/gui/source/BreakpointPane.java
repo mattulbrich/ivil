@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui.source;
 
 import java.awt.Color;
@@ -33,7 +41,18 @@ import de.uka.iti.pseudo.gui.editor.LineNrBorder;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
+/**
+ * BreakpointPane is a specialised TextArea which allows to:
+ * <ul>
+ * <li>set breakpoints
+ * <li>display breakpoints
+ * </ul> 
+ * 
+ * It is connected to a {@link BreakpointManager}.
+ */
 public class BreakpointPane extends BracketMatchingTextArea implements Observer {
+    private static final long serialVersionUID = -5566042549810690095L;
+
     private static Settings SETTINGS = Settings.getInstance(); 
     
     private static final Font FONT = SETTINGS.getFont("pseudo.program.font");

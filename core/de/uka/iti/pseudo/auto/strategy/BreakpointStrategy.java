@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
@@ -30,10 +32,13 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     private boolean obeyProgramBreakpoints = true;
     private boolean obeySourceBreakpoints = true;
     private boolean stopAtSkip = false;
+    private boolean stopAtLoop = true;
 
     private Proof proof;
 
     private RewriteRuleCollection ruleCollection;
+    
+    private Set<LiteralProgramTerm> seenProgramTerms = new HashSet<LiteralProgramTerm>();
     
     @Override 
     public void init(Proof proof, Environment env, StrategyManager strategyManager)
@@ -71,6 +76,14 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
                 return true;
         }
         
+        //
+        // check for unwanted looping
+        if(stopAtLoop) {
+            if(seenProgramTerms.contains(progTerm))
+                return true;
+        }
+        seenProgramTerms.add(progTerm);
+        
         Program program = progTerm.getProgram();
         int number = progTerm.getProgramIndex();
 
@@ -92,7 +105,8 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
             boolean differs = number == 0
                     || program.getStatement(number - 1).getSourceLineNumber() != sourceline;
             
-            if(differs && breakPointManager.hasBreakpoint(sourceFile, sourceline))
+            // bugfix: this "-1" is needed because line numbers actually start at 1
+            if(differs && breakPointManager.hasBreakpoint(sourceFile, sourceline - 1))
                 return true;
         }
         
@@ -135,11 +149,21 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     public boolean getStopAtSkip() {
         return stopAtSkip;
     }
-
+    
     public void setStopAtSkip(boolean stopAtSkip) {
         this.stopAtSkip = stopAtSkip;
     }
+    
+    // due to ParameterSheet, we need get instead of is
+    public boolean getStopAtLoop() {
+        return stopAtLoop;
+    }
 
+    public void setStopAtLoop(boolean stopAtLoop) {
+        this.stopAtLoop = stopAtLoop;
+    }
+
+    
     @Override 
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
         int goal = ruleApp.getGoalNumber();
@@ -151,6 +175,7 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
             throw new RuleException(e);
         }
         
+        // updated program term ==> go for the wrapped program
         if (!(find instanceof LiteralProgramTerm)) {
             find = find.getSubterm(0);
         }
@@ -167,5 +192,5 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         
         return true;
     }
-    
+
 }
