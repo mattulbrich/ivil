@@ -31,5 +31,8 @@ public class HavocStatement extends Statement {
     public void visit(StatementVisitor visitor) throws TermException {
         visitor.visit(this);
     }
-
+    
+    public Term getTarget() {
+        return getSubterms().get(0);
+    }
 }

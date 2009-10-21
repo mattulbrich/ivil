@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
+import de.uka.iti.pseudo.rule.meta.TestLoopInvariantProgramMetaFunction;
 import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
@@ -39,6 +40,7 @@ public class AllTests {
         suite.addTestSuite(TestRuleParsing.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);
+        suite.addTestSuite(TestLoopInvariantProgramMetaFunction.class);
         suite.addTestSuite(TestPrettyPrint.class);
         suite.addTestSuite(TestAnnotatedString.class);
         suite.addTestSuite(TestSubtermCollector.class);
