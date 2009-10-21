@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Stack;
@@ -82,16 +83,33 @@ public class AnnotatedString<T> implements CharSequence {
     /**
      * The Class Element is used to keep information on one annotated block.
      */
-    private static class Element<T> {
+    public static class Element<T> {
 
-        int begin;
-        int end;
-        T attr;
+        private int begin;
+        private int end;
+        private T attr;
+        
+        private Element() {
+            // hide constructor from outside
+        }
 
         @Override public String toString() {
             return "Element[begin=" + begin + ";end=" + end + ";attr=" + attr
                     + "]";
         }
+
+        public int getBegin() {
+            return begin;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+
+        public T getAttr() {
+            return attr;
+        }
+        
     }
 
     /**
@@ -188,7 +206,7 @@ public class AnnotatedString<T> implements CharSequence {
 //    }
 
     /**
-     * get a list of all annotations in the annotation blocks in order of
+     * get a list of all attributes in the annotation blocks in order of
      * appearance.
      * 
      * @return a freshly created list of annotation objects.
@@ -199,6 +217,16 @@ public class AnnotatedString<T> implements CharSequence {
             retval.add(elem.attr);
         }
         return retval;
+    }
+    
+    
+    /**
+     * Get a list of all annotation blocks in order of appearance.
+     * 
+     * @return an unmodifiable reference to the list of all elements.
+     */
+    public List<Element<T>> getAllAnnotations() {
+        return Collections.unmodifiableList(allElements);
     }
 
     /**
@@ -239,7 +267,6 @@ public class AnnotatedString<T> implements CharSequence {
      * @throws EmptyStackException if there is no open block.
      */
     public AnnotatedString<T> end() throws EmptyStackException {
-
         Element<T> element = elementStack.pop();
         element.end = length();
         return this;
@@ -262,9 +289,9 @@ public class AnnotatedString<T> implements CharSequence {
      * 
      * @return the beginning of the block with the given number
      */
-    public int getBeginOf(int number) {
-        return allElements.get(number).begin;
-    }
+//    public int getBeginOf(int number) {
+//        return allElements.get(number).begin;
+//    }
 
     /**
      * Gets the beginning index of the innermost block which contains the
@@ -290,9 +317,9 @@ public class AnnotatedString<T> implements CharSequence {
      * 
      * @return the end of the block with the given number
      */
-    public int getEndOf(int number) {
-        return allElements.get(number).end;
-    }
+//    public int getEndOf(int number) {
+//        return allElements.get(number).end;
+//    }
 
     /**
      * Gets the end index of the innermost block which contains the character at

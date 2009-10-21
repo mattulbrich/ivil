@@ -23,10 +23,12 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
@@ -44,6 +46,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     private final static Vector<ProofTreeNode> EMPTY_VECTOR = new Vector<ProofTreeNode>();
     
     private int verbosity;
+
+    private PrettyPrint prettyPrint;
     
     public class ProofTreeNode implements TreeNode {
         
@@ -131,7 +135,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 return true;
             
             Rule rule = ruleApp.getRule();
-            String string = rule.getProperty("verbosity");
+            String string = rule.getProperty(RuleTagConstants.KEY_VERBOSITY);
             int value;
             try {
                 value = Integer.parseInt(string);
@@ -162,12 +166,13 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         public String getLabel() {
             if(label == null) {
                 if(!isLeaf()) {
-                    label = getBranchName();
+                    label = getBranchLabel();
                 } else {
                     RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
                     if(appliedRuleApp != null) {
                         // TODO possible instantiate a text.
-                        label = appliedRuleApp.getRule().getName();
+                        label = getApplicationLabel();
+                        // label = appliedRuleApp.getRule().getName();
                     } else {
                         label = "OPEN";
                     }
@@ -176,7 +181,29 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             return label;
         }
 
-        private String getBranchName() {
+        /*
+         * Application label is either the name of the applied rule if no
+         * "display" property is set or the instantiated display property
+         * of the applied rule.
+         */
+        private String getApplicationLabel() {
+            
+            RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
+            Rule rule = appliedRuleApp.getRule();
+            String displayString = rule.getProperty(RuleTagConstants.KEY_DISPLAY);
+            if(displayString != null)
+                return instantiateString(appliedRuleApp, displayString);
+            else
+                return rule.getName();
+            
+        }
+
+        /*
+         * Branch names give a name to inner nodes: Extract it from the the rule
+         * and the index of the branch. If no name is set on the cases, use
+         * "branch" + index 
+         */
+        private String getBranchLabel() {
             ProofNode parent = proofNode.getParent();
             
             if(parent == null)
@@ -195,20 +222,32 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             GoalAction ga = rule.getGoalActions().get(index);
             String actionName = ga.getName();
             
-            Map<String, Term> schemaMap = appliedRuleApp.getSchemaVariableMapping();
-            Map<String, Type> typeMap = appliedRuleApp.getTypeVariableMapping();
-            Map<String, Update> updateMapping = appliedRuleApp.getSchemaUpdateMapping();
+            if(actionName == null)
+                return "branch" + (index + 1);
+            else
+                return instantiateString(appliedRuleApp, actionName);
+        }
+
+        /*
+         * instantiate the schema variables in a string.
+         */
+        private String instantiateString(RuleApplication ruleApp, String string) {
+            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+            Map<String, Update> updateMapping = ruleApp.getSchemaUpdateMapping();
             TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
             
-            return actionName == null ? "branch " + (index+1) : termInst.replaceInString(actionName);
+            return termInst.replaceInString(string, prettyPrint);
         }
         
     }
 
-    public ProofComponentModel(ProofNode root) {
+    public ProofComponentModel(ProofNode root, PrettyPrint pp) {
         // we cannot do this in one call, since this would give a comp. error
         super(null);
         setRoot(new ProofTreeNode(null, root, false));
+        
+        this.prettyPrint = pp;
     }
 
     /**

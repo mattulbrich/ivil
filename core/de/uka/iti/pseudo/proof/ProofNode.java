@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
 import de.uka.iti.pseudo.term.Sequent;
@@ -403,15 +404,15 @@ public class ProofNode {
     /*
      * Extract an textual annotation from a rule description.
      * 
-     * If the rule has got a tag "annotation" this value has its {%c} schema
+     * If the rule has got a tag "display" this value has its {%c} schema
      * references instantiated and is returned.
      * 
-     * Null is returned if there is no such tag.
+     * The name of the rule is returned if there is no such tag.
      */
     private String makeRuleAppAnnotation(Rule rule, TermInstantiator inst) {
-        String annotation = rule.getProperty("annotation");
+        String annotation = rule.getProperty(RuleTagConstants.KEY_DISPLAY);
         if(annotation == null)
-            return null;
+            return rule.getName();
         else
             return inst.replaceInString(annotation);
     }
@@ -519,5 +520,9 @@ public class ProofNode {
             if(!assumeTerm.equals(instantiated))
                 throw new ProofException("assumption clause does not match");
         }
+    }
+
+    public SequentHistory getSequentHistory() {
+        return sequentHistory;
     }
 }

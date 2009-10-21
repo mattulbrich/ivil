@@ -22,7 +22,9 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.SequentHistory;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -106,7 +108,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     };
     
     private Separator separator = new Separator();
-    private Sequent sequent;
+    private ProofNode proofNode;
     private boolean open;
     private Environment env;
     private ProofCenter proofCenter;
@@ -123,15 +125,20 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         setBackground(Settings.getInstance().getColor("pseudo.sequentview.background"));
     }
     
-    private void setSequent(Sequent sequent, boolean open) {
-        this.sequent = sequent;
+    private void setProofNode(ProofNode proofNode, boolean open) {
+        this.proofNode = proofNode;
         this.open = open;
+        
+        Sequent sequent = proofNode.getSequent();
+        SequentHistory history = proofNode.getSequentHistory();
         
         this.removeAll();
         
         int i = 0;
         for (Term t : sequent.getAntecedent()) {
-            TermComponent termComp = new TermComponent(t, open, env, new TermSelector(TermSelector.ANTECEDENT, i), prettyPrinter);
+            TermSelector termSelector = new TermSelector(TermSelector.ANTECEDENT, i);
+            Annotation annotation = history.select(termSelector);
+            TermComponent termComp = new TermComponent(t, annotation, open, env, termSelector, prettyPrinter);
             termComp.addMouseListener(termMouseListener);
             termComp.setToolTipText("<html><a href=\"p3\">sdfsfd");
             add(termComp);
@@ -142,7 +149,9 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         i = 0;
         for (Term t : sequent.getSuccedent()) {
-            TermComponent termComp = new TermComponent(t, open, env, new TermSelector(TermSelector.SUCCEDENT, i), prettyPrinter);
+            TermSelector termSelector = new TermSelector(TermSelector.SUCCEDENT, i);
+            Annotation annotation = history.select(termSelector);
+            TermComponent termComp = new TermComponent(t, annotation, open, env, termSelector, prettyPrinter);
             termComp.addMouseListener(termMouseListener);
             add(termComp);
             i++;
@@ -154,7 +163,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
     
     public void proofNodeSelected(ProofNode node) {
         
-        setSequent(node.getSequent(), node.getChildren() == null);
+        setProofNode(node, node.getChildren() == null);
         RuleApplication ruleApp = node.getAppliedRuleApp();
         if(ruleApp != null)
             ruleApplicationSelected(ruleApp);
@@ -164,7 +173,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         assert selector != null;
         
-        if(sequent == null)
+        if(proofNode == null)
             return;
         
         TermComponent termComp;
@@ -172,7 +181,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             termComp = (TermComponent) getComponent(selector.getTermNo()); 
         } else {
             // need to jump over antecedent and separator
-            int offset = sequent.getAntecedent().size() + 1;
+            int offset = proofNode.getSequent().getAntecedent().size() + 1;
             termComp = (TermComponent) getComponent(offset + selector.getTermNo());
         }
         
@@ -204,8 +213,8 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
 
     public void propertyChange(PropertyChangeEvent evt) {
         // property on the pretty printer has changed --> remake the term components
-        if(sequent != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
-            setSequent(sequent, open);
+        if(proofNode != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
+            setProofNode(proofNode, open);
     }
     
     protected ProofCenter getProofCenter() {
@@ -227,6 +236,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                     if(termSelector == null)
                         return;
                     
+                    Sequent sequent = proofNode.getSequent();
                     List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
 
                     new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 

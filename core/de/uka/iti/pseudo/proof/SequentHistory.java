@@ -2,14 +2,18 @@ package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Util;
 // TODO DOC DOC!!!
 public class SequentHistory {
 
     public static class Annotation {
-        String text;
-        ProofNode creatingProofNode;
-        Annotation parentAnnotation;
+        private String text;
+        private ProofNode creatingProofNode;
+        private Annotation parentAnnotation;
         public Annotation(String text, ProofNode creatingProofNode,
                 Annotation parentAnnotation) {
             this.text = text;
@@ -18,6 +22,36 @@ public class SequentHistory {
         }
         public Annotation(String text) {
             this.text = text;
+        }
+        
+        /**
+         * get the text that comes along with this annotation
+         * 
+         * @return the description, not null
+         */
+        public @NonNull String getText() {
+            return text;
+        }
+        /**
+         * get the proof node which gave raise to this annotation 
+         * 
+         * @return a non-null proof node
+         */
+        public @NonNull ProofNode getCreatingProofNode() {
+            return creatingProofNode;
+        }
+        /**
+         * get the parent annotation for this annotation.
+         * This may be null if the annotation is toplevel
+         * 
+         * @return the parent annotation or null
+         */
+        public @Nullable Annotation getParentAnnotation() {
+            return parentAnnotation;
+        }
+        
+        public String toString() {
+            return "Annotation[text=" + text + "; proofNode = " + creatingProofNode + "]";
         }
     }
 

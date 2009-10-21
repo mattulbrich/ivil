@@ -94,12 +94,18 @@ public abstract class Term {
 	}
 	
 	/**
-	 * Gets a particular subterm.
-	 * 
-	 * @param idx the index of the subterm
-	 * 
-	 * @return the subterm
-	 */
+     * Gets a particular subterm.
+     * 
+     * @param idx
+     *            the index of the subterm
+     * 
+     * @return the subterm
+     * 
+     * @throws IndexOutOfBoundsException
+     *             if <code>idx < 0 </code> or
+     *             <code>idx &gt;= countSubterms()</code>
+     * @see #countSubterms()
+     */
 	public Term getSubterm(int idx) {
 		return subterms[idx];
 	}

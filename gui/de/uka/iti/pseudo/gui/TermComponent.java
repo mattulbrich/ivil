@@ -38,11 +38,15 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
+import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -114,12 +118,20 @@ public class TermComponent extends JTextPane {
 
     private boolean open;
 
+    private @NonNull Annotation history;
+
+    /**
+     * pretty printing instance needed for tooltips
+     */
+    private PrettyPrint prettyPrinter;
+
     // TODO DOC
     /**
      * Instantiates a new term component.
      * 
      * @param t
      *            the term to display
+     * @param history 
      * @param open
      * @param env
      *            the environment to use for pretty printing
@@ -129,15 +141,19 @@ public class TermComponent extends JTextPane {
      * @param prettyPrinter
      *            the pretty printer to print the term in this component
      */
-    public TermComponent(@NonNull Term t, boolean open,
+    public TermComponent(@NonNull Term t, Annotation history, boolean open,
             @NonNull Environment env, @NonNull TermSelector termSelector,
             PrettyPrint prettyPrinter) {
         this.env = env;
         this.term = t;
+        this.history = history;
         this.termSelector = termSelector;
+        this.prettyPrinter = prettyPrinter;
         this.annotatedString = prettyPrinter.print(t);
         this.open = open;
 
+        assert history != null;
+        
         //
         // Set display properties
         setEditable(false);
@@ -252,25 +268,47 @@ public class TermComponent extends JTextPane {
     }
 
     /**
-     * calculate the text to display in tooltip for a term. Usually this is the
-     * type. For programs, however, print the current statement
+     * calculate the text to display in tooltip for a term. This is a rather
+     * complex document: - the type - For programs, print the current statement -
+     * history information.
      * 
-     * @param term
-     *            to print
+     * @param termTag
+     *            tag to print info on
+     * 
      * @return tooltip text
      */
     private String makeTermToolTip(TermTag termTag) {
         Term term = termTag.getTerm();
+    
+        StringBuilder sb = new StringBuilder();
+    
+        sb.append("<html><dl><dt>Type:</dt><dd>").append(term.getType())
+                .append("</dd>\n");
         
-//        if (term instanceof LiteralProgramTerm) {
-//            LiteralProgramTerm prog = (LiteralProgramTerm) term;
-//            return prog.getStatement().toString();
-//        }
+        if (term instanceof LiteralProgramTerm) {
+            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+            String stm = prettyPrinter.print(prog.getStatement()).toString();
+            sb.append("<dt>Statement:</dt><dd>").append(stm).append("</dd>\n");
+        }
 
-        // return term.getType().toString();
-        return termTag.toString();
+        Annotation h = history;
+        sb.append("<dt>History:</dt><dd><ol>");
+        while (h != null) {
+            sb.append("<li>").append(h.getText());
+            ProofNode creatingProofNode = h.getCreatingProofNode();
+            if (creatingProofNode != null)
+                sb.append(" - ").append(creatingProofNode.getSummaryString());
+            sb.append("</li>\n");
+            h = h.getParentAnnotation();
+        }
+        sb.append("</ol>\n");
+    
+        sb.append("</dl>");
+        
+        System.out.println(sb);
+        return sb.toString();
     }
-
+    
     /**
      * Gets the termselector for a subterm at a certain point in the component
      * 
@@ -316,13 +354,26 @@ public class TermComponent extends JTextPane {
         return characterIndex;
     }
 
-    public void markSubterm(int subtermNo, int type) {
+    public void markSubterm(int termNo, int type) {
         if (type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();
         }
 
-        int begin = annotatedString.getBeginOf(subtermNo);
-        int end = annotatedString.getEndOf(subtermNo);
+        int begin = -1;
+        int end = -1;
+        for(Element<TermTag> block : annotatedString.getAllAnnotations()) {
+            TermTag tag = block.getAttr();
+            if(tag.getTotalPos() == termNo) {
+                begin = block.getBegin();
+                end = block.getEnd();
+                break;
+            }
+        }
+        
+        if(begin == -1) {
+            System.err.println("cannot mark subterm number " + termNo + " in " + annotatedString);
+            return;
+        }
 
         try {
             Object mark = getHighlighter().addHighlight(begin, end,

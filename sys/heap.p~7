@@ -1,0 +1,145 @@
+#
+# This file is part of PSEUDO
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+#
+# The system is protected by the GNU General Public License.
+# See LICENSE.TXT for details.
+#
+
+(*
+ * This file contains infrastructure for heap manipulation.
+ *)
+
+include
+   "$fol.p"
+
+sort
+  field('type)
+  heap
+  ref
+
+  location('type)
+  locset
+
+function
+  'a defaultVal
+  ref null
+
+  location('a) loc(ref, field('a)) unique
+  location('a) idx(ref, int) unique
+
+  'a sel(heap, location('a))
+  heap stor(heap, location('a), 'a)
+
+  heap newObject(heap, ref)
+  heap disturb(heap, heap, locset)
+
+function
+  bool inLocset(location('a), locset)
+
+  locset everything
+  locset nothing
+
+  locset $singleLS(location('a))  prefix @ 50
+  locset $union(locset, locset) infix :: 40
+
+binder
+  locset (\union 'a; locset)
+
+(*
+ * stor
+ *)
+
+rule heap_sel_stor
+  find sel(stor(%h, %loc1, %v), %loc2)
+  replace cond(%loc1=%loc2, %v, sel(%h, %loc2))
+  tags rewrite "fol simp"
+
+(*
+ * newObject
+ *)
+
+rule heap_newObject
+  find sel(newObject(%h, %o), loc(%ref, %f))
+  replace cond(%o = %ref, defaultVal, sel(%h, loc(%ref, %f)))
+
+rule heap_newObject2
+  find sel(newObject(%h, %o), locA(%arr, %idx))
+  replace sel(%h, locA(%arr, %idx))
+
+rule heap_newObject3
+  find sel(newObject(%h, %o), length(%arr))
+  replace sel(%h, length(%arr))
+
+(*
+ * newArray
+ *)
+
+rule heap_newArray
+  find sel(newArray(%h, %arr, %size), length(%arr2))
+  replace cond(%arr = %arr2, %size, sel(%h, length(%arr2)))
+
+rule heap_newArray2
+  find sel(newArray(%h, %arr, %size), loc(%o, %f))
+  replace sel(%h, loc(%o,%f))
+
+rule heap_newArray3
+  find sel(newArray(%h, %arr, %size), locA(%arr2, %idx))
+  replace sel(%h, locA(%arr2,%idx))
+
+(*
+ * havocHeap
+ *)
+
+rule heap_havocHeap
+  find sel(havocHeap(%h, %h2, %locset), %loc)
+  replace sel(cond(inLocset(%loc, %locset), %h2, %h1), %loc)
+
+rule defaultVal_int
+  find defaultVal as int
+  replace 0
+
+rule defaultVal_ref
+  find defaultVal as ref
+  replace null
+
+rule defaultVal_array
+  find defaultVal as array('a)
+  replace nil
+
+rule defaultVal_bool
+  find defaultVal as bool
+  replace false
+
+(*
+ * locset
+ *)
+
+(* a location is in its own singleton *)
+rule locset_self
+  find inLocset(%l, @%l)
+  replace true
+
+(* a location is in a union if in own of the two 
+ * operands *)
+rule locset_union
+  find inLocset(%l, %s1::%s2)
+  replace inLocset(%l, %s1) | inLocset(%l, %s2)
+
+(* a location is in a set extension iff there is
+ * one instantiation such that the location is
+ * in it *)
+rule locset_extension
+  find inLocset(%l, (\union %x; %s))
+  replace (\exists %x; inLocset(%l, %s))
+
+(* any location is in everything *)
+rule locset_everything
+  find inLocset(%l, everything)
+  replace true
+
+(* no location is in everything *)
+rule locset_nothing
+  find inLocset(%l, nothing)
+  replace false

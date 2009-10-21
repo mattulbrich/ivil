@@ -51,6 +51,7 @@ import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO in some future: syntax highlighting
@@ -265,7 +266,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                     else
                         statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
                     
-                    statusLine.setToolTipText(htmlize(message));
+                    statusLine.setToolTipText("<html><pre>" + GUIUtil.htmlentities(message).replace("\n", "<br/>") + "</pre>");
                 }
 
                 getContentPane().invalidate();
@@ -281,12 +282,6 @@ public class PFileEditor extends JFrame implements ActionListener {
                     return message;
             }
 
-            private String htmlize(String message) {
-                message = message.replace("&", "&amp;");
-                message = message.replace("<", "&lt;");
-                message = message.replace("\n", "<br>");
-                return "<html><pre>" + message + "</pre>";
-            }
         };
         
         SwingUtilities.invokeLater(action);

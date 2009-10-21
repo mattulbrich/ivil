@@ -34,8 +34,6 @@ import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.bar.CloseAction;
 import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
-import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
-import de.uka.iti.pseudo.gui.parameters.ParameterTest;
 import de.uka.iti.pseudo.gui.source.ProgramPanel;
 import de.uka.iti.pseudo.gui.source.SourcePanel;
 import de.uka.iti.pseudo.proof.ProofNode;

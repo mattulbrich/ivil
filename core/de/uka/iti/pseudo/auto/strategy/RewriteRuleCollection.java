@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.ProgramTerm;
@@ -167,7 +168,7 @@ public class RewriteRuleCollection {
      *            the rules to select a category from
      * @param category
      *            the value that the chosen rules need to have for the property
-     *            "rewrite"
+     *            {@value RuleTagConstants#KEY_REWRITE}
      * 
      * @throws RuleException
      *             probably not at all
@@ -177,7 +178,7 @@ public class RewriteRuleCollection {
 
         for (Rule rule : rules) {
 
-            String rwProperty = rule.getProperty("rewrite");
+            String rwProperty = rule.getProperty(RuleTagConstants.KEY_REWRITE);
             if (rwProperty == null || !category.equals(rwProperty))
                 continue;
 

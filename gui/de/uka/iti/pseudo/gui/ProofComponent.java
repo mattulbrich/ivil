@@ -85,26 +85,28 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     /**
      * create a new proof component which shows the given proof.
      * 
-     * @param proofCenter to be displaed
+     * @param proofCenter to be displayed
      */
     public ProofComponent(@NonNull ProofCenter proofCenter) {
         // this.proof = proof;
         Proof proof = proofCenter.getProof();
-        proofModel = new ProofComponentModel(proof.getRoot());
+        proofModel = new ProofComponentModel(proof.getRoot(), proofCenter.getPrettyPrinter());
         proof.addObserver(proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());
-        addVerbosityListener(proofCenter);
+        addListeners(proofCenter);
     }
 
 
-    private void addVerbosityListener(ProofCenter proofCenter) {
+    private void addListeners(ProofCenter proofCenter) {
         proofCenter.addPropertyChangeListener(VERBOSITY_PROPERTY, new PropertyChangeListener() {
             @Override public void propertyChange(PropertyChangeEvent evt) {
                         proofModel.setVerbosity((Integer) evt.getNewValue());
                         repaint();
                     }
                 });
+        
+        
     }
 
 

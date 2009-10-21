@@ -58,36 +58,35 @@ public class TermTag {
     /**
      * Derive a new tag from this.
      * 
-     * <p>The argument needs to be a direct subterm od this's term.
+     * <p>
+     * The argument is used as index into the subterms of the term of this tag.
      * The fields are set accordingly to keep track of the information.
      * 
-     * @param t
-     *            the t
+     * @param index
+     *            the index of the subterm
      * 
      * @return the term tag
      * 
      * @throws TermException
-     *             if t is not a direct subterm of the term stored in this.
+     *             if the index is not within the bounds of subterms
      */
-    public TermTag derive(Term t) throws TermException {
-        TermTag result = new TermTag(t);
-        result.parentTag = this;
-        
-        int total = totalPos + 1;
-
-        for(int i = 0; i < term.countSubterms(); i++) {
-            Term subterm = term.getSubterm(i);
-            if(t.equals(subterm)) {
-                result.subTermNo = i;
-                result.totalPos = total;
-                break;
-            } else {
-                total += subterm.countAllSubterms();
-            }
+    public TermTag derive(int index) throws TermException {
+        Term subterm;
+        try {
+            subterm = term.getSubterm(index);
+        } catch (IndexOutOfBoundsException e) {
+            throw new TermException(e);
         }
         
-        if(result.subTermNo == -1)
-            throw new TermException(t + " is no subterm of " + term);
+        TermTag result = new TermTag(subterm);
+        result.parentTag = this;
+        result.subTermNo = index;
+        
+        result.totalPos = this.totalPos + 1;
+
+        for(int i = 0; i < index; i++) {
+            result.totalPos += term.getSubterm(i).countAllSubterms();
+        }
         
         return result;
     }

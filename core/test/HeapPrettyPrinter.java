@@ -12,51 +12,39 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
     @Override public void prettyPrintTerm(Application application) throws TermException {
         
         if ("sel".equals(application.getFunction().getName())) {
-            Term heap = application.getSubterm(0);
-            Term obj = application.getSubterm(1);
-            Term field = application.getSubterm(2);
 
-            printSubterm(obj);
+            // obj
+            printSubterm(application, 1);
             append(".");
-            printSubterm(field);
+            // field
+            printSubterm(application, 2);
 
-            if(!"h".equals(heap.toString(false))) {
+            if(!"h".equals(application.toString(false))) {
                 append("@");
-                printSubterm(heap);
+                // heap
+                printSubterm(application, 0);
             }
         } else
 
         if ("stor".equals(application.getFunction().getName())) {
-            Term heap = application.getSubterm(0);
-            Term obj = application.getSubterm(1);
-            Term field = application.getSubterm(2);
-            Term value = application.getSubterm(3);
-            
             append("{");
-            printSubterm(obj);
+            // obj
+            printSubterm(application, 1);
             append(".");
-            printSubterm(field);
+            // field
+            printSubterm(application, 2);
             append(" := ");
-            printSubterm(value);
+            // value
+            printSubterm(application, 3);
             append("}@");
-            printSubterm(heap);
+            // heap
+            printSubterm(application, 0);
         }
         
     }
 
     @Override public void prettyPrintTerm(Binding term) {
         // do nothing
-    }
-
-    @Override public void prettyPrintUpdate(AssignmentStatement assignment) throws TermException {
-        // do nothing
-//        Term lhs = assignment.getTarget();
-//        Term rhs = assignment.getValue();
-//        Function fct = rhs instanceof Application ? ((Application)rhs).getFunction() : null;
-//        
-//        if("h".equals(lhs.toString(false)) && fct != null && "stor".equals(fct.getName())) {
-//            
-//        }
     }
 
 }

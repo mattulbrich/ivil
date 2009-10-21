@@ -54,22 +54,22 @@ public abstract class PrettyPrintPlugin {
         return printer.length() > startLength;
     }
     
-    final public synchronized boolean possiblyPrettyPrintUpdate(Update update,
-            PrettyPrintVisitor prettyPrintVisitor, PrettyPrint pp,
-            AnnotatedStringWithStyles<TermTag> printer) throws TermException {
-        
-        this.prettyPrinter = pp;
-        this.prettyPrintVisitor = prettyPrintVisitor;
-        this.printer = printer;
-
-        int startLength = printer.length();
-        
-        for (AssignmentStatement assignment: update.getAssignments()) {
-            prettyPrintUpdate(assignment);    
-        }
-
-        return printer.length() > startLength;
-    }
+//    final public synchronized boolean possiblyPrettyPrintUpdate(Update update,
+//            PrettyPrintVisitor prettyPrintVisitor, PrettyPrint pp,
+//            AnnotatedStringWithStyles<TermTag> printer) throws TermException {
+//        
+//        this.prettyPrinter = pp;
+//        this.prettyPrintVisitor = prettyPrintVisitor;
+//        this.printer = printer;
+//
+//        int startLength = printer.length();
+//        
+//        for (AssignmentStatement assignment: update.getAssignments()) {
+//            prettyPrintUpdate(assignment);    
+//        }
+//
+//        return printer.length() > startLength;
+//    }
     
     /**
      * Append arbitrary text to the output stream.
@@ -80,7 +80,9 @@ public abstract class PrettyPrintPlugin {
         printer.append(string);
     }
     
-    final protected void printSubterm(Term subterm) throws TermException {
+    final protected void printSubterm(Term term, int subtermIndex) throws TermException {
+        prettyPrintVisitor.setCurrentSubTermIndex(subtermIndex);
+        Term subterm = term.getSubterm(subtermIndex);
         subterm.visit(prettyPrintVisitor);
     }
     
@@ -144,7 +146,7 @@ public abstract class PrettyPrintPlugin {
     public abstract void prettyPrintTerm(Binding term) throws TermException;
 
     
-    public abstract void prettyPrintUpdate(AssignmentStatement assignment) throws TermException;
+//    public abstract void prettyPrintUpdate(AssignmentStatement assignment) throws TermException;
     
 }
 

@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.where.AskDecisionProcedure;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -143,9 +144,9 @@ public class SMTBackgroundAction extends BarAction implements
         closeRule = env.getRule(CLOSE_RULE_NAME);
         if(closeRule != null) {
             try {
-                String className = closeRule.getProperty(AskDecisionProcedure.KEY_DECISION_PROCEDURE);
+                String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
                 solver = (DecisionProcedure) Class.forName(className).newInstance();
-                timeout = Long.parseLong(closeRule.getProperty(AskDecisionProcedure.KEY_TIMEOUT));
+                timeout = Long.parseLong(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
             } catch(Exception ex) {
                 System.err.println("Cannot instantiate background decision procedure");
                 ex.printStackTrace();

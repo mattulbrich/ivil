@@ -61,6 +61,13 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     private TermTag currentTermTag; 
     
     /**
+     * we need to keep track which is the index of the currently
+     * printed subterm wrt. its enclosing term. The order may differ from
+     * natural order, e.g. for updates or for plugin printed terms.
+     */
+    private int currentSubTermIndex = -1;
+    
+    /**
      * Indicator that the current subterm is to be put in parentheses
      */
     private boolean inParens;
@@ -77,7 +84,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         if(oldTag == null) {
             currentTermTag = new TermTag(term);
         } else {
-            currentTermTag = oldTag.derive(term);
+            currentTermTag = oldTag.derive(currentSubTermIndex);
         }
         printer.begin(currentTermTag);
         
@@ -144,6 +151,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         if (printer.length() > 0 && isOperatorChar(printer.getLastCharacter()))
             printer.append(" ");
         printer.append(fixOperator.getOpIdentifier());
+        currentSubTermIndex = 0;
         visitMaybeParen(subterm, fixOperator.getPrecedence());
     }
 
@@ -189,8 +197,10 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
      */
     private void printInfix(Application application, FixOperator fixOperator)
             throws TermException {
+        currentSubTermIndex = 0;
         visitMaybeParen(application.getSubterm(0), fixOperator.getPrecedence());
         printer.append(" ").append(fixOperator.getOpIdentifier()).append(" ");
+        currentSubTermIndex = 1;
         visitMaybeParen(application.getSubterm(1),
                 fixOperator.getPrecedence() + 1);
     }
@@ -203,11 +213,10 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append(fctname);
         List<Term> subterms = application.getSubterms();
         if (subterms.size() > 0) {
-            boolean first = true;
-            for (Term t : subterms) {
-                printer.append(first ? "(" : ", ");
-                first = false;
-                t.visit(this);
+            for (int i = 0; i < subterms.size(); i++) {
+                printer.append(i == 0 ? "(" : ", ");
+                currentSubTermIndex = i;
+                subterms.get(i).visit(this);
             }
             printer.append(")");
         }
@@ -239,8 +248,10 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             if (pp.isTyped())
                 printer.append(" as ").append(binding.getType().toString());
             printer.resetPreviousStyle();
+            int i = 0;
             for (Term t : binding.getSubterms()) {
                 printer.append("; ");
+                currentSubTermIndex = i++;
                 t.visit(this);
             }
             printer.append(")");
@@ -316,6 +327,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         TermTag oldTag = begin(schemaProgramTerm);
         printer.setStyle("program");
         printer.append(schemaProgramTerm.isTerminating() ? "[[ " : "[ ");
+        currentSubTermIndex = 0;
         schemaProgramTerm.getSchemaVariable().visit(this);
         if(schemaProgramTerm.hasMatchingStatement()) {
             printer.append(" : " + schemaProgramTerm.getMatchingStatement().toString(pp.isTyped()));
@@ -331,18 +343,19 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.setStyle("update");
         printer.append("{ ");
         
-        if(!printByPlugins(updateTerm.getUpdate())) {
-            List<AssignmentStatement> assignments = updateTerm.getAssignments();
-            for (int i = 0; i < assignments.size(); i++) {
-                if(i > 0)
-                    printer.append(" || ");
-                printer.append(assignments.get(i).getTarget().toString(false));
-                printer.append(" := ");
-                assignments.get(i).getValue().visit(this);
-            }
+        List<AssignmentStatement> assignments = updateTerm.getAssignments();
+        for (int i = 0; i < assignments.size(); i++) {
+            if(i > 0)
+                printer.append(" || ");
+            printer.append(assignments.get(i).getTarget().toString(false));
+            printer.append(" := ");
+            currentSubTermIndex = i + 1;
+            assignments.get(i).getValue().visit(this);
         }
+
         printer.append(" }");
         printer.resetPreviousStyle();
+        currentSubTermIndex = 0;
         visitMaybeParen(updateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
         currentTermTag = oldTag;
@@ -354,16 +367,16 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
      * the first which returns true has successfully printed the term.
      * Processing is stopped and true returned
      */
-    private boolean printByPlugins(Update update) throws TermException {
-        if(pp.isPrintingPlugins()) {
-            for (PrettyPrintPlugin plugin : pp.getPrettyPrinterPlugins()) {
-                boolean res = plugin.possiblyPrettyPrintUpdate(update, this, pp, printer);
-                if(res)
-                    return true;
-            }
-        }
-        return false;
-    }
+//    private boolean printByPlugins(Update update) throws TermException {
+//        if(pp.isPrintingPlugins()) {
+//            for (PrettyPrintPlugin plugin : pp.getPrettyPrinterPlugins()) {
+//                boolean res = plugin.possiblyPrettyPrintUpdate(update, this, pp, printer);
+//                if(res)
+//                    return true;
+//            }
+//        }
+//        return false;
+//    }
 
 
     public void visit(SchemaUpdateTerm schUpdateTerm) throws TermException {
@@ -371,6 +384,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.setStyle("update");
         printer.append("{ " + schUpdateTerm.getSchemaIdentifier() + " }");
         printer.resetPreviousStyle();
+        currentSubTermIndex = 0;
         visitMaybeParen(schUpdateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.end();
         currentTermTag = oldTag;
@@ -394,6 +408,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         
         List<Term> subterms = statement.getSubterms();
         for (int i = 0; i < subterms.size(); i++) {
+            currentSubTermIndex = i;
             subterms.get(i).visit(this);
             if(i != subterms.size()-1)
                 printer.append(", ");
@@ -411,6 +426,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.setStyle("statement");
         printer.append(assignmentStatement.getTarget().toString(false));
         printer.append(" := ");
+        currentSubTermIndex = 0;
         assignmentStatement.getValue().visit(this);
         printer.resetPreviousStyle();
     }
@@ -437,6 +453,10 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(HavocStatement havocStatement)
             throws TermException {
         visitStatement("havoc", havocStatement);        
+    }
+
+    public void setCurrentSubTermIndex(int currentSubTermIndex) {
+        this.currentSubTermIndex = currentSubTermIndex;
     }
 
 }

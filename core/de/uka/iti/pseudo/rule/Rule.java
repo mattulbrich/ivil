@@ -74,6 +74,11 @@ public class Rule {
      * environments. If the property is not set, null is returned. If the
      * property has been defined without a value, an empty string "" is returned
      * 
+     * <p>Please use a constant defined in {@link RuleTagConstants} as argument
+     * to keep all sensible tags at one place.
+     * 
+     * @see RuleTagConstants
+     * 
      * @param string
      *            name of the property to retrieve
      * @return the property if it is defined, null otherwise

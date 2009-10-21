@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
@@ -48,24 +49,45 @@ public class TermInstantiator extends RebuildingTermVisitor {
         else
             return toInst;
     }
-    
+
     /**
-     * Replace schema variables and modalities in a string.
+     * Replace schema variables in a string.
      * 
-     * They are printed using the pretty printer
+     * <p>
+     * For instance <code>Assume {%c} in {%a}</code> might become
+     * <code>Assume $eq(x,3) in [4; P]</code>
      * 
-     * For instance <code>Assume %c in &a</code> might become
-     * <code>Assume x=3 in y:=2</code>
+     * <p>
+     * Term{@link Term#toString())} is used to render the term.
      * 
-     * TODO use pretty printer
+     * @param string
+     *            the string to instantiate
      * 
-     * @param string the string to instantiate
-     * 
-     * @param env Environment to use for pretty printing
-     * 
-     * @return the string with subterms replaced
+     * @return the string with schema variables replaced
      */
     public @NonNull String replaceInString(@NonNull String string) {
+        return replaceInString(string, null);
+    }
+    
+    /**
+     * Replace schema variables in a string.
+     * 
+     * <p>
+     * For instance <code>Assume {%c} in {%a}</code> might become
+     * <code>Assume x = 3 in [4; P]</code>
+     * 
+     * <p>
+     * The provided pretty printer is used to render the term. If it is
+     * <code>null</code>, defaults to {@link #replaceInString(String)}.
+     * 
+     * @param pp
+     *            pretty printer to render the instantiations
+     * @param string
+     *            the string to instantiate
+     * 
+     * @return the string with schema variables replaced
+     */
+    public @NonNull String replaceInString(@NonNull String string, PrettyPrint pp) {
         
         StringBuilder retval = new StringBuilder();
         StringBuilder curley = new StringBuilder();
@@ -82,11 +104,19 @@ public class TermInstantiator extends RebuildingTermVisitor {
                 
             case '}':
                 String lookup = curley.toString();
-                Object o = null;
-                switch(lookup.charAt(0)) {
-                case '%': o = termMap.get(lookup); break;
+                Term o = null;
+                if(lookup.charAt(0) == '%') {
+                    o = termMap.get(lookup);
                 }
-                retval.append(o == null ? "??" : o);
+                
+                if(o == null) {
+                    retval.append("??");
+                } else if(pp == null) {
+                    retval.append(o.toString());
+                } else {
+                    retval.append(pp.print(o));
+                }
+                
                 inCurley = false;
                 curley.setLength(0);
                 break;

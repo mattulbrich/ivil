@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RulePriorityComparator;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
 
 /**
@@ -62,11 +63,6 @@ import de.uka.iti.pseudo.term.Sequent;
  */
 public class ProofCenter {
     
-    /**
-     * Constants used as tags in property clauses in rule definitions
-     */
-    private static final String AUTOONLY_TAG = "autoonly";
-
     /**
      * The main window.
      */
@@ -174,7 +170,7 @@ public class ProofCenter {
         Iterator<Rule> it = rulesSortedForInteraction.iterator();
         while (it.hasNext()) {
             Rule rule = it.next();
-            if(rule.getProperty(AUTOONLY_TAG) != null)
+            if(rule.getProperty(RuleTagConstants.KEY_AUTOONLY) != null)
                 it.remove();
         }
         Collections.sort(rulesSortedForInteraction, new RulePriorityComparator());
