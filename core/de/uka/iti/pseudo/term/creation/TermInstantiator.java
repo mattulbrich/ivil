@@ -116,8 +116,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
                     }
                 } else if(lookup.startsWith("explain %")) {
                     // retrieve explanation, overread "explain "
-                    String explain = extractExplanation(termMap.get(lookup.substring(8)));
-                    display = replaceInString(explain, pp);
+                    display = extractExplanation(termMap.get(lookup.substring(8)));
                 }
                 
                 retval.append(display);

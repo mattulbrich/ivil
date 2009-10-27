@@ -47,7 +47,6 @@ public class Program {
         
         assert statementAnnotations.size() == statements.size();
         assert Util.notNullArray(this.statements);
-        assert Util.notNullArray(this.statementAnnotations);
     }
     
     public Statement getStatement(int i) {

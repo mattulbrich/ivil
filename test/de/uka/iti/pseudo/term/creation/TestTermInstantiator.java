@@ -83,6 +83,17 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         
     }
     
+    public void testExplainStringInst() throws Exception {
+        PrettyPrint pp = new PrettyPrint(env);
+        Term t1 = makeTerm("[0;P]");
+        termmap.put("%x", t1);
+        
+        String instantiated = inst.replaceInString("test {explain %x}", pp);
+        
+        assertEquals("test first statement", instantiated);
+        
+    }
+    
     // partially from a bug
     public void testUpdate() throws Exception {
         

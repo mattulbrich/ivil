@@ -40,7 +40,7 @@ function
 (* for tests with programs *)
 
 program P
-    assume b1
+    assume b1 ; "first statement"
     assert b2
     skip
     goto 5, 0
