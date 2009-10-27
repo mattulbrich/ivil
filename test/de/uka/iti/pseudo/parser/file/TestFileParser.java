@@ -11,8 +11,10 @@ package de.uka.iti.pseudo.parser.file;
 import java.io.StringReader;
 
 import junit.framework.TestCase;
+import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
 
@@ -95,10 +97,23 @@ public class TestFileParser extends TestCase {
 
     public void testPrograms() throws Exception {
         Environment e = testEnv("program P assert true program Q assume true");
-        e.dump();
+        if(TestCaseWithEnv.VERBOSE)
+            e.dump();
         assertNotNull(e.getProgram("P"));
         assertNotNull(e.getProgram("Q"));
         assertNull(e.getProgram("Unknown"));
+    }
+    
+    public void testProgramTextAnnotation() throws Exception {
+        Environment e = testEnv("program P skip skip; \"hello world\" skip");
+        if(TestCaseWithEnv.VERBOSE)
+            e.dump();
+        Program P = e.getProgram("P");
+        assertNull(P.getTextAnnotation(0));
+        assertEquals("hello world", P.getTextAnnotation(1));
+        assertNull(P.getTextAnnotation(2));
+        assertNull(P.getTextAnnotation(3));
+        
     }
     
 }

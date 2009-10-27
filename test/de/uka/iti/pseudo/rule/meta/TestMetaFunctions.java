@@ -10,7 +10,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     MetaEvaluator eval;
     
     protected void setUp() throws Exception {
-        loadEnv();
+        env = loadEnv();
         ra = new MutableRuleApplication();
         eval = new MetaEvaluator(ra, env);
     }

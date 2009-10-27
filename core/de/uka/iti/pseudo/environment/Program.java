@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.environment;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -30,16 +31,23 @@ public class Program {
     private ASTLocatedElement declaration;
     
     private Statement[] statements;
+    private String[] statementAnnotations;
 
     
     public Program(@NonNull String name, 
             @Nullable File sourceFile,
             List<Statement> statements,
+            List<String> statementAnnotations,
             ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
+        this.statementAnnotations = Util.listToArray(statementAnnotations, String.class);
         this.declaration = declaration;
         this.sourceFile = sourceFile;
         this.name = name;
+        
+        assert statementAnnotations.size() == statements.size();
+        assert Util.notNullArray(this.statements);
+        assert Util.notNullArray(this.statementAnnotations);
     }
     
     public Statement getStatement(int i) {
@@ -52,9 +60,16 @@ public class Program {
         return statements[i];
     }
     
-//    public List<LabelAnnotation> getLabelAnnotations() {
-//        return Util.readOnlyArrayList(labelAnnotations);
-//    }
+    public String getTextAnnotation(int i) {
+        if(i < 0)
+            throw new IndexOutOfBoundsException();
+        
+        if(i >= statements.length)
+            return null;
+        
+        return statementAnnotations[i];
+    }
+
 
     public int countStatements() {
         return statements.length;
@@ -65,17 +80,12 @@ public class Program {
     }
 
     public void dump() {
-        System.out.println("    Source annotations");
-
-//        System.out.println("    Labels");
-//        for (LabelAnnotation ann : labelAnnotations) {
-//            System.out.println("      " + ann + " -> " + ann.getStatementNo());
-//        }
-
         System.out.println("    Statements");
-        int i = 0;
-        for (Statement st : statements) {
-            System.out.println("      " + i++ + ": " + st);
+        for (int i = 0; i < statements.length; i++) {
+            System.out.print("      " + i + ": " + statements[i]);
+            if(statementAnnotations[i] != null)
+                System.out.print("; \"" + statementAnnotations[i] + "\"");
+            System.out.println();
         }
     }
     
@@ -89,6 +99,10 @@ public class Program {
 
     public List<Statement> getStatements() {
         return Util.readOnlyArrayList(statements);
+    }
+    
+    public List<String> getTextAnnotations() {
+        return Util.readOnlyArrayList(statementAnnotations);
     }
 
     public File getSourceFile() {

@@ -2,11 +2,7 @@ package de.uka.iti.pseudo.rule.where;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
-import de.uka.iti.pseudo.proof.TermSelector;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
-import de.uka.iti.pseudo.util.Util;
 
 public class TestWhereConditions extends TestCaseWithEnv {
 

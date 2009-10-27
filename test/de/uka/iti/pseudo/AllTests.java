@@ -5,6 +5,7 @@ import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
+import de.uka.iti.pseudo.environment.TestProgramChanger;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
@@ -37,6 +38,7 @@ public class AllTests {
         suite.addTestSuite(TestFileParser.class);
         suite.addTestSuite(TestTermParser.class);
         suite.addTestSuite(TestProgramParser.class);
+        suite.addTestSuite(TestProgramChanger.class);
         suite.addTestSuite(TestRuleParsing.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);

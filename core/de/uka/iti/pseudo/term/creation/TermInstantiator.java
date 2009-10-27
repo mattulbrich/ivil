@@ -104,18 +104,23 @@ public class TermInstantiator extends RebuildingTermVisitor {
                 
             case '}':
                 String lookup = curley.toString();
-                Term o = null;
+                String display = "??";
                 if(lookup.charAt(0) == '%') {
-                    o = termMap.get(lookup);
+                    Term t = termMap.get(lookup);
+                    if(t != null) {
+                        if(pp == null) {
+                            display = t.toString();
+                        } else {
+                            display = pp.print(t).toString();
+                        }
+                    }
+                } else if(lookup.startsWith("explain %")) {
+                    // retrieve explanation, overread "explain "
+                    String explain = extractExplanation(termMap.get(lookup.substring(8)));
+                    display = replaceInString(explain, pp);
                 }
                 
-                if(o == null) {
-                    retval.append("??");
-                } else if(pp == null) {
-                    retval.append(o.toString());
-                } else {
-                    retval.append(pp.print(o));
-                }
+                retval.append(display);
                 
                 inCurley = false;
                 curley.setLength(0);
@@ -132,6 +137,15 @@ public class TermInstantiator extends RebuildingTermVisitor {
         return retval.toString();
     }
     
+    private String extractExplanation(Term term) {
+        if (term instanceof LiteralProgramTerm) {
+            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+            int index = prog.getProgramIndex();
+            return prog.getProgram().getTextAnnotation(index);
+        }
+        return null;
+    }
+
     private boolean typesInstantiated;
     private TypeVisitor typeInstantiator = new DefaultTypeVisitor() {
         public Type visit(TypeVariable typeVariable) throws TermException {

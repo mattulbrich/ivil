@@ -24,6 +24,7 @@ import javax.swing.Icon;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.proof.SequentHistory;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
  * This is a collection of static methods  
@@ -298,6 +299,24 @@ public class Util {
      */
     public static String stripQuotes(String s) {
         return s.substring(1, s.length() - 1);
+    }
+
+    /**
+     * Check wether an array and all entries are not null.
+     * 
+     * @param array
+     *            an array to check
+     * 
+     * @return true iff array is not null and all entries are different to null.
+     */
+    public static boolean notNullArray(Object[] array) {
+        if(array == null)
+            return false;
+        for (Object object : array) {
+            if(object == null)
+                return false;
+        }
+        return true;
     }
 
 }

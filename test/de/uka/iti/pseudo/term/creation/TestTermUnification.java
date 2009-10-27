@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.term.Type;
 
 public class TestTermUnification extends TestCaseWithEnv {
     
-    private static Term mt(String s) throws Exception {
+    private Term mt(String s) throws Exception {
         return makeTerm(s);
     }
     

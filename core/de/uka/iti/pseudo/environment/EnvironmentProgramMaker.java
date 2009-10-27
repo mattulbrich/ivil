@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
@@ -43,12 +44,23 @@ import de.uka.iti.pseudo.util.Util;
  * This class is used to extract program asts from a file AST and to turn them
  * into program definitions.
  * 
+ * The following steps are performed:
+ * <ol>
+ * <li>
+ * </ol>
+ * 
+ * Use an instance of this class as visitor to a {@link ASTFile} element. It
+ * will analyse all defined program ASTs and add programs to the environment
+ * accordingly. 
+ * 
  * This class provides means to resolve named labels into numeric ones. It keeps
  * track of the line numbers which were set.
  * 
  * The actual translation of a single {@link ASTStatement} into a
  * {@link Statement} is done via
  * {@link TermMaker#makeAndTypeStatement(ASTStatement, Environment)}.
+ * 
+ * @see EnvironmentMaker
  */
 public class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
@@ -68,6 +80,11 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
      * The resulting list of statements.
      */
     private List<Statement> statements = new ArrayList<Statement>();
+    
+    /**
+     * The resulting list of annotations.
+     */
+    private List<String> statementAnnotations = new ArrayList<String>();
     
     /**
      * The last set source line number.
@@ -149,9 +166,19 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
             if(detectSchemaVariables(statement))
                 throw new ASTVisitException("Unallowed schema entity in statement", ast);
             statements.add(statement);
+            
+            // Annotations to statements are kept separately:
+            String annotation = null;
+            Token exp = ast.getTextAnnotation();
+            if(exp != null)
+                annotation = Util.stripQuotes(exp.image);
+            statementAnnotations.add(annotation);
         }
     }
     
+    /*
+     * This is a depth visitor: descend to find program declarations for instance.
+     */
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
@@ -159,12 +186,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     }
     
     /**
-     * Detect schema variables.
-     * 
-     * @param statement
-     *            the statement
-     * 
-     * @return true, if successful
+     * find schema variables in a statement.
+     * @return true iff a subterm of statement contains a schema variable
      */
     private boolean detectSchemaVariables(Statement statement) {
         for (Term subterm : statement.getSubterms()) {
@@ -174,10 +197,17 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         return false;
     }
 
+    /**
+     * by default, a statement is wrapped into a pair along with the current
+     * source line number and stored in rawStatements.
+     */
     protected void visitDefaultStatement(ASTStatement arg) throws ASTVisitException {
         rawStatements.add(Pair.make(lastSetSourceLineNumber, arg));
     }
     
+    /**
+     * source line statements change the currently set line number
+     */
     public void visit(ASTSourceLineStatement arg) throws ASTVisitException {
         Token argument = arg.getLineNumberToken();
         
@@ -185,6 +215,9 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         lastSetSourceLineNumber = Integer.parseInt(argument.image);
     }
 
+    /**
+     * labeled statements are to be 
+     */
     public void visit(ASTLabelStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
         if(labelMap.containsKey(label)) {
@@ -197,6 +230,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         
         rawStatements.clear();
         statements.clear();
+        statementAnnotations.clear();
         lastSetSourceLineNumber = -1;
         labelMap.clear();
         
@@ -219,7 +253,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
                 sourceFile = new File(res, sourceFilename);
             }
                 
-            Program program = new Program(name, sourceFile, statements, arg);
+            Program program = new Program(name, sourceFile, statements, statementAnnotations, arg);
             env.addProgram(program);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);

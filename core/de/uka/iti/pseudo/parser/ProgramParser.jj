@@ -40,21 +40,30 @@ ASTStatement Statement():
 {
 	ASTTerm term;
 	Token kw;
-	ASTAssignmentStatement assignment;
+	ASTStatement result;
 	List<ASTTerm> termList;
+	Token textAnnotation = null;
 }
 {
-	  kw="assert" term=Term() { return new ASTAssertStatement(kw, term); }
-	| kw="assume" term=Term() { return new ASTAssumeStatement(kw, term); }
-	| kw="end" term=Term() { return new ASTEndStatement(kw, term); }
+	( kw="assert" term=Term() { result = new ASTAssertStatement(kw, term); }
+	| kw="assume" term=Term() { result = new ASTAssumeStatement(kw, term); }
+	| kw="end" term=Term() { result = new ASTEndStatement(kw, term); }
 	| kw="skip_loopinv" termList=Statement_TermList()
-	            { return new ASTSkipStatement(kw, termList); }
-	| kw="skip" { return new ASTSkipStatement(kw); }
+	            { result = new ASTSkipStatement(kw, termList); }
+	| kw="skip" { result = new ASTSkipStatement(kw); }
 	| kw="havoc" (term=Identifier() | term=SchemaVariable()) 
-	            { return new ASTHavocStatement(kw, term); }
-	| assignment=Assignment() { return assignment; }
+	            { result = new ASTHavocStatement(kw, term); }
+	| result=Assignment()
 	| kw="goto" termList=Statement_TermList()
-	     { return new ASTGotoStatement(kw, termList); }
+	     { result = new ASTGotoStatement(kw, termList); }
+	)     
+	
+	( ";" textAnnotation=<STRING> 
+	   { result.setTextAnnotation(textAnnotation);}
+	)?
+	
+	{ return result; }
+	
 }
 
 ASTAssignmentStatement Assignment():

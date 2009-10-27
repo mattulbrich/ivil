@@ -24,7 +24,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     
     public void testCollectAssignables() throws Exception {
         
-        env = testEnv("loopTest1.p.txt");
+        Environment env = testEnv("loopTest1.p.txt");
         
         LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env.getProgram("P"));
         
