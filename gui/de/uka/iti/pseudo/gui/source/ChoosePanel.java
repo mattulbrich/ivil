@@ -63,7 +63,7 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
     public void proofNodeSelected(ProofNode node) {
         int now = proofCenter.getEnvironment().getAllPrograms().size();
         if(now != numberOfKnownPrograms) {
-            updatePrograms();
+            selectionBox.setModel(updatePrograms());
             selectSource();
             numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }

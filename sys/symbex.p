@@ -280,12 +280,10 @@ rule loop_invariant
   find |- [%a]
   where
     interact %inv
-  where
-    interact %modifies as int
   samegoal "inv initially valid"
     replace %inv
   samegoal "run with cut program" 
-    replace $$loopInvPrgMod(%a, %inv, 0, %modifies)
+    replace $$loopInvPrgMod(%a, %inv, 0)
   tags
     display "invariant in {%a}"
 
@@ -295,11 +293,9 @@ rule loop_invariant_update
   find |- {U}[%a]
   where
     interact %inv
-  where
-    interact %modifies as int
   samegoal "inv initially valid" replace {U}%inv
   samegoal "run with cut program" 
-    replace {U}$$loopInvPrgMod(%a, %inv, 0, %modifies)
+    replace {U}$$loopInvPrgMod(%a, %inv, 0)
   tags
     display "invariant in {%a}"
 

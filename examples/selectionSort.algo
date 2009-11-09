@@ -1,0 +1,22 @@
+
+*
+* Selection Sort in Pseudo code
+*
+
+given: 
+  a ... array of integer
+  n ... length of a
+  i,j ... index variables
+  t ... index variable
+
+selectionSort:
+  for each i from 1 to n-1
+     t := i
+     for each j from i+1 to n
+        if a[j] < a[t] then
+           t := j
+     swap t and i in a
+
+post conditions:
+  for all applicable i: a[i] < a[i+1]
+  a is a permutation of original a
