@@ -30,7 +30,9 @@
 <node CREATED="1245429442468" ID="Freemind_Link_1508804184" MODIFIED="1245429451095" TEXT="Allow to define Strategies"/>
 <node CREATED="1245429453333" ID="Freemind_Link_356769408" MODIFIED="1245429462576" TEXT="Copy strategies from KeY"/>
 <node CREATED="1245429464109" ID="Freemind_Link_437491283" MODIFIED="1245429471777" TEXT="Copy rules from KeY"/>
-<node CREATED="1245429477742" ID="Freemind_Link_1088305247" MODIFIED="1245429522594" TEXT="Have SMT-LIB export"/>
+<node CREATED="1245429477742" ID="Freemind_Link_1088305247" MODIFIED="1245429522594" TEXT="Have SMT-LIB export">
+<node CREATED="1257847810531" ID="Freemind_Link_1849979446" MODIFIED="1257847816060" TEXT="translate rules to SMT"/>
+</node>
 <node CREATED="1245429523470" ID="Freemind_Link_972126454" MODIFIED="1245429530056" TEXT="Hints">
 <icon BUILTIN="idea"/>
 <icon BUILTIN="idea"/>
@@ -59,6 +61,7 @@
 <icon BUILTIN="messagebox_warning"/>
 </node>
 <node CREATED="1245456572926" ID="Freemind_Link_1069274705" MODIFIED="1245456585870" TEXT="new heap - type theoretic"/>
+<node CREATED="1257849399584" ID="Freemind_Link_60578392" MODIFIED="1257849415464" TEXT="have derived rules which are proven correct"/>
 </node>
 </node>
 </map>

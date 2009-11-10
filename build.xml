@@ -146,4 +146,11 @@
     <delete dir="genSrc" />
   </target>
 
+  <target name="clean-bak" description="Remove the backup files containing ~">
+    <delete>
+      <fileset dir="sys" includes="*.p~*"/>
+      <fileset dir="examples" includes="*.p~*"/>
+    </delete>
+  </target>
+
 </project>

@@ -1,6 +1,7 @@
 include
         "$base.p"
         "$int.p"
+        "$fol.p"
         "$symbex.p"
 
 sort

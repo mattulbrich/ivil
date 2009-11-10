@@ -271,7 +271,6 @@ rule autot_havoc_upd
   tags rewrite "symbex"
        display "|> havoc {%v}"
 
-
 (*
  * loop invariant rules
  *)
@@ -287,8 +286,6 @@ rule loop_invariant
   tags
     display "invariant in {%a}"
 
-
-
 rule loop_invariant_update
   find |- {U}[%a]
   where
@@ -299,6 +296,14 @@ rule loop_invariant_update
   tags
     display "invariant in {%a}"
 
+
+rule auto_loop_invariant_update
+  find |- {U}[%a : skip_loopinv %inv]
+  samegoal "inv initially valid" replace {U}%inv
+  samegoal "run with cut program" 
+    replace {U}$$loopInvPrgMod(%a, %inv, 0)
+  tags
+    display "invariant in {%a}: {explain %a}"
 
 rule update_simplification
   find {U}%t

@@ -11,12 +11,20 @@ given:
 
 selectionSort:
   for each i from 1 to n-1
+  invariant: subarray(a, 1..i) is sorted
+             a is a permutation of original a
+
      t := i
+
      for each j from i+1 to n
+     invariant: for k=i+1..j : a[t] <= a[k]
+                a is a permutation of original a
+
         if a[j] < a[t] then
            t := j
+
      swap t and i in a
 
 post conditions:
-  for all applicable i: a[i] < a[i+1]
+  for all applicable i: a[i] <= a[i+1]
   a is a permutation of original a
