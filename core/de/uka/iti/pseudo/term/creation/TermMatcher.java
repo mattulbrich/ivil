@@ -130,7 +130,15 @@ class TermMatcher extends DefaultTermVisitor {
         compare(su.getSubterm(0), upt.getSubterm(0));
     }
 
-    // TODO DOC
+    /*
+     * match a schema program [ %a : stmt_with %schemavars ] to a literal
+     * program term [ n ; P ] with n a number literal.
+     * 
+     * The statements are extracted and compared by class. If the classes are
+     * identical, then subterms are compared and matched pairwise.
+     * 
+     * Only an identical number of subterms can be matched.
+     */
     private void matchSchemaProgram(SchemaProgramTerm sp, LiteralProgramTerm litPrg) throws TermException {
         SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);

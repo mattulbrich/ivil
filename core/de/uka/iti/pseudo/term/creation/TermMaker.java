@@ -652,7 +652,18 @@ public class TermMaker extends ASTDefaultVisitor {
 
     // TODO parameters to the skip statement
     public void visit(ASTSkipStatement arg) throws ASTVisitException {
-        resultStatement = new SkipStatement();
+        List<ASTTerm> subterms = SelectList.select(ASTTerm.class, arg.getChildren());
+        Term[] arguments = new Term[subterms.size()];
+        for (int i = 0; i < arguments.length; i++) {
+            subterms.get(i).visit(this);
+            arguments[i] = resultTerm;
+        }
+        
+        try {
+            resultStatement = new SkipStatement(sourceLineNumber, arguments);
+        } catch (TermException e) {
+            throw new ASTVisitException(arg, e);
+        }
     }
     
     public void visit(ASTAssignmentStatement arg) throws ASTVisitException {

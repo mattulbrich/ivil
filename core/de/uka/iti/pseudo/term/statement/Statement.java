@@ -16,6 +16,7 @@ public abstract class Statement {
 
     public Statement(int sourceLineNumber, Term[] subTerms) throws TermException {
         this.subTerms = subTerms;
+        // TODO consider cloning ...
         this.sourceLineNumber = sourceLineNumber;
     }
 
@@ -23,7 +24,8 @@ public abstract class Statement {
         this(sourceLineNumber, new Term[] { subTerm });
     }
 
-    public Statement() {
+    public Statement(int sourceLineNumber) throws TermException {
+        this.sourceLineNumber = sourceLineNumber;
         subTerms = NO_TERMS;
     }
 

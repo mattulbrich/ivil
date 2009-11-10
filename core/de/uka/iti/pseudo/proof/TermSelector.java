@@ -97,6 +97,8 @@ public class TermSelector {
             assert path[i] >= 0 && path[i] <= Byte.MAX_VALUE;
             this.selectorInfo[i+1] = (byte) path[i];
         }
+        
+        this.selectorInfo[0] = (byte) termNo;
     }
 
     /**
@@ -142,6 +144,10 @@ public class TermSelector {
      *             if the string is incorrectly formatted
      */
     public TermSelector(String descr) throws FormatException {
+        
+        if(descr.startsWith(".") || descr.endsWith("."))
+            throw new FormatException("TermSelector", "Illegal character at start/end: .", descr);
+        
         String[] sect = descr.split("\\.");
 
         if ("A".equals(sect[0])) {
@@ -160,6 +166,8 @@ public class TermSelector {
 
         for (int i = 0; i < selectorInfo.length; i++) {
             try {
+                if(sect[i+1].length() == 0)
+                    throw new FormatException("TermSelector", "empty part", descr);
                 selectorInfo[i] = Byte.parseByte(sect[i+1]);
                 if (selectorInfo[i] < 0)
                     throw new FormatException("TermSelector", "negative: "
@@ -404,7 +412,7 @@ public class TermSelector {
         for (int i = 1; i < selectorInfo.length; i++) {
             byte subtermNo = selectorInfo[i];
             if(subtermNo >= term.countSubterms())
-                throw new ProofException("Can select " + subtermNo + " in "
+                throw new ProofException("Cannot select " + subtermNo + " in "
                         + term + " for " + this);
 
             term = term.getSubterm(subtermNo);

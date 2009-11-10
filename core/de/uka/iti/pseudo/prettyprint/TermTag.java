@@ -8,6 +8,8 @@
  */
 package de.uka.iti.pseudo.prettyprint;
 
+import nonnull.NonNull;
+import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
@@ -89,6 +91,31 @@ public class TermTag {
         }
         
         return result;
+    }
+    
+    /**
+     * retrieve the term selector information for this tag.
+     * 
+     * <p>
+     * This is done using the local term number and the parent tag information.
+     * All subterm numbers from the root of the the tag tree are appended to the
+     * given selector
+     * 
+     * @param topLevel
+     *            term selector to derive from
+     * @return a term selector which has the path to this tag as end of its path
+     */
+    public TermSelector getTermSelector(@NonNull TermSelector topLevel) {
+        TermSelector ts;
+        
+        if(parentTag != null) {
+            ts = parentTag.getTermSelector(topLevel);
+            ts = ts.selectSubterm(getSubTermNo());
+        }
+        else
+            ts = topLevel;
+        
+        return ts;
     }
     
     //

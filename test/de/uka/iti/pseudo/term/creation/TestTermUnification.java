@@ -69,6 +69,7 @@ public class TestTermUnification extends TestCaseWithEnv {
      *  5: i1 := i2 + i3
      *  6: end true
      *  7: end true
+     *  8: skip_loopinv i1>0, i2
      */  
     public void testModalities() throws Exception {
         TermUnification mc = new TermUnification(env);
@@ -99,6 +100,15 @@ public class TestTermUnification extends TestCaseWithEnv {
         
         // beyond program range
         assertTrue(mc.leftUnify(mt("[%f : end true]"), mt("[100;P]")));
+        
+        // skip matching
+        assertFalse(mc.leftUnify(mt("[%g : skip]"), mt("[8;P]")));
+        assertTrue(mc.leftUnify(mt("[%g : skip]"), mt("[2;P]")));
+        
+        assertFalse(mc.leftUnify(mt("[%h : skip_loopinv %inv]"), mt("[8;P]")));
+        assertTrue(mc.leftUnify(mt("[%h : skip_loopinv %inv, %var]"), mt("[8;P]")));;
+        assertEquals(mt("i1 > 0"), mc.instantiate(new SchemaVariable("%inv", bool)));
+        assertEquals(mt("i2"), mc.instantiate(new SchemaVariable("%var", intTy)));
     }
     
     

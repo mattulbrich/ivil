@@ -339,8 +339,7 @@ public class TermComponent extends JTextPane {
         if(termTag == null)
             return null;
         
-        int termIndex = termTag.getTotalPos();
-        return termSelector.selectSubterm(termIndex);
+        return termTag.getTermSelector(termSelector);
     }
 
     // stolen from KeY
@@ -370,10 +369,12 @@ public class TermComponent extends JTextPane {
         return characterIndex;
     }
 
-    public void markSubterm(int termNo, int type) {
+    public void markSubterm(TermSelector selector, int type) {
         if (type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();
         }
+        
+        int termNo = selector.getLinearIndex(term);
 
         int begin = -1;
         int end = -1;

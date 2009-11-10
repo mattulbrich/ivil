@@ -51,7 +51,7 @@ function
 
 (* for tests with programs *)
 
-program P
+program P (* tested in TerstTermUnification *)
     assume b1 ; "first statement"
     assert b2
     skip
@@ -59,6 +59,8 @@ program P
     skip (* havov i1 *)
     i1 := i2 + i3
     end true
+    end true
+    skip_loopinv i1 > 0, i2
 
 program Q
     assume b1 & b2
