@@ -10,16 +10,16 @@ function
   int t assignable
 
 program P source "selectionSort.algo"
-  assume n = length(a)
+  assume n = length(a) & n >= 1
   assume a_pre = a
-  
+
   sourceline 13
   i := 1
 
   sourceline 14
   skip_loopinv
      (\forall k; (\forall l; 
-        1<=k & k<=l & l<=i -> read(%a, i) <= read(%a, j)))
+        1<=k & k<=l & l<=i -> read(a, i) <= read(a, j)))
     & 1<=i & i<=n
     & isPerm(a, a_pre)
 
@@ -35,9 +35,9 @@ body1:
   j := i+1
   sourceline 20
   skip_loopinv
-     (\forall k; i+1<=k & k<=j -> read(%a, t) <= read(%a, k))
+     (\forall k; i+1<=k & k<=j -> read(a, t) <= read(a, k))
     &(\forall k; (\forall l; 
-        1<=k & k<=l & l<=i -> read(%a, i) <= read(%a, j)))
+        1<=k & k<=l & l<=i -> read(a, i) <= read(a, j)))
     & 1<=i & i<=n
     & j<=i+1 & j<=i+1
     & isPerm(a, a_pre)
