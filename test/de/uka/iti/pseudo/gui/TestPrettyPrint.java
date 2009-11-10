@@ -124,7 +124,8 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("f(3)", "{-3-}");
         testTerm("g(3,4)", "g[4, 3]");
         testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
-        testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
+        // No update rewriting at the moment, may come back later
+        // testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
     }
     
 

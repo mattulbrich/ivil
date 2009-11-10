@@ -11,6 +11,8 @@ import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
+import de.uka.iti.pseudo.proof.TestProofNode;
+import de.uka.iti.pseudo.proof.TestTermSelector;
 import de.uka.iti.pseudo.rule.meta.TestLoopInvariantProgramMetaFunction;
 import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
@@ -50,6 +52,8 @@ public class AllTests {
         suite.addTestSuite(TestTermUnification.class);
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
+        suite.addTestSuite(TestProofNode.class);
+        suite.addTestSuite(TestTermSelector.class);
         suite.addTestSuite(TestProgramTerm.class);
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTermInstantiator.class);
