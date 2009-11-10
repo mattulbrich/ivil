@@ -282,7 +282,7 @@ public class RuleApplicationFinder {
         int termNo = 0;
         for (Term t : branch) {
             if(mc.leftUnify(assumption.getTerm(), t)) {
-                ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo));
+                ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
                 matchAssumptions(assumptions, mc, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();
                 mc = mcCopy;

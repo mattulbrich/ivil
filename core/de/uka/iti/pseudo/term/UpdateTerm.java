@@ -12,15 +12,18 @@ import java.util.List;
 
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class UpdateTerm encapsulates the application of an update (a list of
  * assignments) to a term.
  * 
  * Subterms are the updated terms and the update values (in this order). Please
  * note that the update targets are not subterms!
- * 
- * The updates are stores as {@link AssignmentStatement} (like withing programs)
+ * <p>The subterms of an update term are:
+ * <ol>
+ * <li>First the updated term
+ * <li>Then all assigned values in order from left to right
+ * </ol>
+ * The updated <em>targets</em> are <b>not</b> subterms of an update term.
  */
 public class UpdateTerm extends Term {
     
@@ -36,7 +39,7 @@ public class UpdateTerm extends Term {
         super(prepareSubterms(term, update), term.getType());
         this.update = update;
     }
-
+    
     /*
      * prepare the subterms for the super class constructor.
      * First the updated term then all update values in order. 
@@ -98,7 +101,7 @@ public class UpdateTerm extends Term {
     }
 
     /**
-     * Gets the iummutable update object for this updated term
+     * Gets the immutable update object for this updated term
      * 
      * @return the update object
      */

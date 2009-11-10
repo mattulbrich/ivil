@@ -12,6 +12,7 @@ import de.uka.iti.pseudo.gui.TermComponent;
 import de.uka.iti.pseudo.proof.TermSelector;
 
 // TODO DOC
+// Is this drag and drop?
 
 public class TermSelectionTransfer extends TransferHandler {
 

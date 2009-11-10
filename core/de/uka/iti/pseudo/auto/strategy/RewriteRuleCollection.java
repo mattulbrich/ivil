@@ -253,36 +253,51 @@ public class RewriteRuleCollection {
     private RuleApplicationMaker findRuleApplication(
             RuleApplicationFinder finder, List<Term> terms, boolean side) {
         for (int termno = 0; termno < terms.size(); termno++) {
-            List<Term> subterms = SubtermCollector.collect(terms.get(termno));
-            for (int subtermno = 0; subtermno < subterms.size(); subtermno++) {
-                Term term = subterms.get(subtermno);
-                try {
-                    TermSelector selector = new TermSelector(side, termno,
-                            subtermno);
-                    List<Rule> ruleset = getRuleSet(term);
-                    if (ruleset != null && ruleset.size() > 0) {
-                        RuleApplicationMaker ram = finder.findOne(selector,
-                                ruleset);
-                        if (ram != null) {
-                            return ram;
-                        }
-                    }
-                    // try generic ones in the end
-                    ruleset = classificationMap.get("[generic]");
-                    if (ruleset != null && ruleset.size() > 0) {
-                        RuleApplicationMaker ram = finder.findOne(selector,
-                                ruleset);
-                        if (ram != null) {
-                            return ram;
-                        }
-                    }
-                } catch (ProofException e) {
-                    System.err.println("Error while finding rules for " + term);
-                    System.err.println("Continuing anyway");
-                    e.printStackTrace();
+            Term term = terms.get(termno);
+            TermSelector ts = new TermSelector(side, termno); // ok
+            RuleApplicationMaker result = findRuleApplication(finder, term, ts);
+            if(result != null)
+                return result;
+        }
+            return null;
+    }
+        
+    private RuleApplicationMaker findRuleApplication(
+            RuleApplicationFinder finder, Term term, TermSelector selector) {
+        
+        try {
+            List<Rule> ruleset = getRuleSet(term);
+            if (ruleset != null && ruleset.size() > 0) {
+                RuleApplicationMaker ram = finder.findOne(selector, ruleset);
+                if (ram != null) {
+                    return ram;
                 }
             }
+
+            // try generic ones in the end
+            ruleset = classificationMap.get("[generic]");
+            if (ruleset != null && ruleset.size() > 0) {
+                RuleApplicationMaker ram = finder.findOne(selector,
+                        ruleset);
+                if (ram != null) {
+                    return ram;
+                }
+            }
+        } catch (ProofException e) {
+            System.err.println("Error while finding rules for " + term);
+            System.err.println("Continuing anyway");
+            e.printStackTrace();
         }
+        
+        for (int i = 0; i < term.countSubterms(); i++) {
+            Term t = term.getSubterm(i);
+            TermSelector s = selector.selectSubterm(i);
+            RuleApplicationMaker ram = findRuleApplication(finder, t, s);
+            if (ram != null) {
+                return ram;
+            }
+        }
+        
         return null;
     }
 

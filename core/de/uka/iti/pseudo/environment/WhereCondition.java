@@ -27,6 +27,11 @@ public abstract class WhereCondition implements Mappable {
     //////////////////////////////////////
     // Static material
     
+    
+    /**
+     * The name under which plugins for this service have to
+     * be registered.
+     */
     public static final String SERVICE_NAME = "whereCondition";
 
     /**

@@ -27,7 +27,7 @@ public class StatementRecorder {
     }
 
     public void switchOffLine() {
-        setLine(-1);
+        setLine(0);
     }
 
     // without indention

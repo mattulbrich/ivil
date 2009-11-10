@@ -185,7 +185,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             termComp = (TermComponent) getComponent(offset + selector.getTermNo());
         }
         
-        termComp.markSubterm(selector.getSubtermNo(), type);
+        termComp.markSubterm(selector, type);
     }
 
     public void ruleApplicationSelected(RuleApplication ruleApplication) {

@@ -116,16 +116,33 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         }
     }
     
+<<<<<<< Updated upstream:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+=======
     // this needs to be the last test!
+>>>>>>> Stashed changes:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
     public void testPPPlugin() throws Exception {
         env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
         pp = new PrettyPrint(env);
-        
-        testTerm("f(3)", "{-3-}");
-        testTerm("g(3,4)", "g[4, 3]");
-        testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
-        testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
-    }
-    
+<<<<<<< Updated upstream:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
 
+=======
+        
+>>>>>>> Stashed changes:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+        testTerm("f(3)", "{-3-}");
+<<<<<<< Updated upstream:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+        testTerm("g(3,4)", "g[4, 3]");
+=======
+>>>>>>> Stashed changes:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+        testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
+<<<<<<< Updated upstream:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+=======
+        testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
+>>>>>>> Stashed changes:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+    }
+<<<<<<< Updated upstream:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
+
+
+=======
+    
+>>>>>>> Stashed changes:test/de/uka/iti/pseudo/gui/TestPrettyPrint.java
 }
