@@ -6,6 +6,8 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.statement.SkipStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestTermUnification extends TestCaseWithEnv {
     
@@ -135,6 +137,8 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(TermUnification.containsSchemaVariables(mt("{ %c := 0 }true")));
         assertTrue(TermUnification.containsSchemaVariables(mt("(\\forall %c; true)")));
         assertTrue(TermUnification.containsSchemaVariables(mt("[%a]")));
+        // from another one:
+        assertTrue(TermUnification.containsSchemaVariables(makeTerm("(\\forall i; %a > i)")));
     }
     
     // TODO Test binders!
@@ -146,4 +150,5 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(mt("{i1:=0}i1"), mc.instantiate(mt("{U}i1")));
         assertEquals(mt("{V}b2"), mc.instantiate(mt("{V}%a")));
     }
+    
 }

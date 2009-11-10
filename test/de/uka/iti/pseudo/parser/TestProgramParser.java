@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser;
 
+import java.io.File;
 import java.io.StringReader;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
@@ -19,6 +20,16 @@ public class TestProgramParser extends TestCaseWithEnv {
         return env;
     }
     
+    private void failEnv(String string) {
+        try {
+            Environment env = testEnv("program P   assert 1");
+            fail("Environment '" + string + "' should not load");
+        } catch (Exception e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        } 
+    }
+    
     public void testGoodProgram() throws Exception {
         Environment env = testEnv("program P " +
         		"assume true " +
@@ -28,29 +39,9 @@ public class TestProgramParser extends TestCaseWithEnv {
     }
     
     public void testBooleanStatements() throws Exception {
-        try {
-            Environment env = testEnv("program P   assert 1");
-            fail();
-        } catch (Exception e) {
-            if(VERBOSE)
-                e.printStackTrace();
-        }
-        
-        try {
-            Environment env = testEnv("program P   assume 1");
-            fail();
-        } catch (Exception e) {
-            if(VERBOSE)
-                e.printStackTrace();
-        }
-        
-        try {
-            Environment env = testEnv("program P   end 1");
-            fail();
-        } catch (Exception e) {
-            if(VERBOSE)
-                e.printStackTrace();
-        }
+        failEnv("program P   assert 1");
+        failEnv("program P   assume 1");
+        failEnv("program P   end 1");
         
         testEnv("program P  assume arb");
     }
@@ -60,12 +51,13 @@ public class TestProgramParser extends TestCaseWithEnv {
         
         testEnv("function int i assignable   program P  i := arb");
         
-        try {
-            Environment env = testEnv("function int i assignable   program P   i := true");
-            fail("illegal program: i is int, true is bool");
-        } catch (Exception e) {
-            if(VERBOSE)
-                e.printStackTrace();
-        }
+        // fail("illegal program: i is int, true is bool");
+        failEnv("function int i assignable   program P   i := true");
+    }
+    
+    public void testSchemaInPrograms() throws Exception {
+        failEnv("program P   assume %b");
+        failEnv("program P   goto 4, %b");
+        failEnv("program P   skip_loopvar %b, 4");
     }
 }

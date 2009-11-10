@@ -214,6 +214,8 @@ public class TermUnification implements Cloneable {
             }
         }
         public void visit(Binding binding) throws TermException {
+            // bugfix:
+            super.visit(binding);
             if(binding.getVariable() instanceof SchemaVariable)
                 throw new TermException("Unexpected schema variable in binding " + binding);
         }
