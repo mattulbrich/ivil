@@ -47,6 +47,11 @@ public class TermUnification implements Cloneable {
      */
     private AppendMap<String, Term> instantiation = new AppendMap<String, Term>();
     
+    /**
+     * The mapping from schema updates to their instantiations.
+     * <p> We use {@link AppendMap} here because we ne often need to clone
+     * for unification attempts.
+     */
     private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
     
     /**

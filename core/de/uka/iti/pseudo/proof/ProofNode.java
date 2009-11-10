@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
+import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -386,6 +387,7 @@ public class ProofNode {
                 
                 for (Term add : action.getAddSuccedent()) {
                     Term toAdd = inst.instantiate(add);
+                    toAdd = metaEval.evalutate(toAdd);
                     succedent.add(toAdd);
                     history.added(TermSelector.SUCCEDENT);
                 }

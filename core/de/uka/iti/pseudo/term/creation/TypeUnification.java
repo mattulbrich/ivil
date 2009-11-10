@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.util.AppendMap;
 
 /**
  * The Class TypeUnification is used to unify two types using Robinson's
@@ -45,8 +46,10 @@ public class TypeUnification implements Cloneable {
 
     /**
      * This mapping records the substitution.
+     * We use {@link AppendMap} to store the instantiation to be able to
+     * efficiently clone mappings.  
      */
-    private Map<String, Type> instantiation;
+    private AppendMap<String, Type> instantiation;
 
     /**
      * A visitor that replaces all type variables with variants. Since
@@ -76,7 +79,7 @@ public class TypeUnification implements Cloneable {
      * type variables to types.
      */
     public TypeUnification() {
-        instantiation = new HashMap<String, Type>();
+        instantiation = new AppendMap<String, Type>();
     }
 
     /**
@@ -86,8 +89,8 @@ public class TypeUnification implements Cloneable {
      * 
      * @param mapping from type variable names to types
      */
-    public TypeUnification(Map<String, Type> map) {
-        instantiation = new HashMap<String, Type>(map);
+    public TypeUnification(AppendMap<String, Type> map) {
+        instantiation = map.clone();
     }
     
     /**
@@ -165,8 +168,7 @@ public class TypeUnification implements Cloneable {
     public @NonNull Type leftUnify(@NonNull Type adaptingType,
             @NonNull Type fixType) throws UnificationException {
 
-        Map<String, Type> copy = new HashMap<String, Type>(
-                instantiation);
+        AppendMap<String, Type> copy = instantiation.clone();
 
         try {
             leftUnify0(adaptingType, fixType);
@@ -276,12 +278,11 @@ public class TypeUnification implements Cloneable {
      */
     public @NonNull Type unify(@NonNull Type type1, @NonNull Type type2)
             throws UnificationException {
-        Map<String, Type> copy = new HashMap<String, Type>(
-                instantiation);
+        AppendMap<String, Type> copy = instantiation.clone();
 
         try {
             unify0(type1, type2);
-            assert instantiate(type1).equals(instantiate(type2));
+            assert instantiate(type1).equals(instantiate(type2)) : type1 + " vs " + type2;
             return instantiate(type1);
         } catch (UnificationException e) {
             // restore old mapping

@@ -59,7 +59,7 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
     }
 
     public void visit(SchemaVariable schemaVariable) throws TermException {
-        throw new TermException("Top level term contains schema variable"
+        throw new TermException("Top level term contains schema variable "
                 + schemaVariable);
     }
 

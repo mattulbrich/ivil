@@ -11,8 +11,13 @@ package de.uka.iti.pseudo.util;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
+import nonnull.NonNull;
+
+import de.uka.iti.pseudo.term.Type;
 
 /**
  * The Class AppendMap is an implementation of the Map interface which performs
@@ -109,6 +114,18 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         this.head = null;
     }
     
+    /**
+     * create a map with initial content.
+     * Add all entries from <code>map</code> into this map.
+     * @param map a map of the same type
+     */
+    public AppendMap(@NonNull Map<K, V> map) {
+        this();
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            put(entry.getKey(), entry.getValue());
+        }
+    }
+
     public Set<Entry<K, V>> entrySet() {
         return new AbstractSet<Entry<K,V>>() {
             public Iterator<java.util.Map.Entry<K, V>> iterator() {
@@ -161,7 +178,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         if(containsKey(key)) {
             head = new LinkedEntry<K, V>(head);
             LinkedEntry<K, V> current = head;
-            while(current.key != key) {
+            while(!current.key.equals(key)) {
                 current.next = new LinkedEntry<K, V>(current.next);
                 current = current.next;
             }
