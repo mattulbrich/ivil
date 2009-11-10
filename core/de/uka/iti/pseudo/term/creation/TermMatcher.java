@@ -140,7 +140,7 @@ class TermMatcher extends DefaultTermVisitor {
      * Only an identical number of subterms can be matched.
      */
     private void matchSchemaProgram(SchemaProgramTerm sp, LiteralProgramTerm litPrg) throws TermException {
-        SchemaVariable sv = (SchemaVariable) sp.getSchemaVariable();
+        SchemaVariable sv = sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
         
         if(inst != null) {

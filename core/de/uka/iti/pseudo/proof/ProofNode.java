@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -399,6 +400,8 @@ public class ProofNode {
             return Util.listToArray(newNodes, ProofNode.class);
             
         } catch (TermException e) {
+            System.err.println("Failed rule application:");
+            Dump.dumpRuleApplication(ruleApp);
             throw new ProofException("Exception during application of rule " + rule.getName(), e);
         }
     }

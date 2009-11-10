@@ -14,7 +14,6 @@ import java.awt.Graphics;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
@@ -22,9 +21,7 @@ import java.util.RandomAccess;
 import javax.swing.Icon;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.proof.SequentHistory;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
  * This is a collection of static methods  
