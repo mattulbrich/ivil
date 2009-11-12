@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -14,6 +15,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
@@ -32,9 +34,14 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
 
-public class SequentComponent extends JPanel implements ProofNodeSelectionListener, PropertyChangeListener {
-    
+public class SequentComponent extends JPanel implements
+        ProofNodeSelectionListener, PropertyChangeListener, Scrollable {
+
     private static final long serialVersionUID = -3882151273674917147L;
+
+    private static final String SETTINGS_BACKGROUND = "pseudo.sequentview.background";
+    private static final String SETTINGS_BLOCK_INCREMENT = "pseudo.sequentview.scroll.blockIncrement";
+    private static final String SETTINGS_UNIT_INCREMENT = "pseudo.sequentview.scroll.unitIncrement";
     
     private static int SEP_LENGTH = 32;
     private static int SEP_WIDTH = 6;
@@ -88,8 +95,9 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                 h += prefd.height + GAP;
             }
             Insets insets = parent.getInsets();
-            return new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
+            Dimension result = new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
                     h-GAP + insets.top + insets.bottom);
+            return result;
         }
 
         public Dimension preferredLayoutSize(Container parent) {
@@ -101,8 +109,9 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
                 h += prefd.height + GAP;
             }
             Insets insets = parent.getInsets();
-            return new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
+            Dimension result = new Dimension(w + SEP_LENGTH / 2 + insets.left + insets.right,
                     h-GAP + insets.top + insets.bottom);
+            return result;
         }
 
     };
@@ -122,7 +131,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         prettyPrinter = proofCenter.getPrettyPrinter();
         prettyPrinter.addPropertyChangeListener(this);
         
-        setBackground(Settings.getInstance().getColor("pseudo.sequentview.background"));
+        setBackground(Settings.getInstance().getColor(SETTINGS_BACKGROUND));
     }
     
     private void setProofNode(ProofNode proofNode, boolean open) {
@@ -159,6 +168,7 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
         
         validate();
         repaint();
+        
     }
     
     public void proofNodeSelected(ProofNode node) {
@@ -248,4 +258,49 @@ public class SequentComponent extends JPanel implements ProofNodeSelectionListen
             }
         }  
     };
+
+
+    // -------
+    // Scrollable interface
+    
+    /*
+     * return the preferred size of the component if it is high enough.
+     * Stretch it to fit into the container if needed.
+     */
+    @Override 
+    public Dimension getPreferredScrollableViewportSize() {
+        // silently assume that!
+        assert getParent() != null;
+        
+        Dimension d = getPreferredSize();
+        return new Dimension(d.width, Math.max(getParent().getHeight(), d.height));
+    }
+
+    @Override
+    public int getScrollableBlockIncrement(Rectangle visibleRect,
+            int orientation, int direction) {
+        return Settings.getInstance().getInteger(SETTINGS_BLOCK_INCREMENT);
+    }
+    
+    @Override 
+    public int getScrollableUnitIncrement(Rectangle visibleRect,
+            int orientation, int direction) {
+        return Settings.getInstance().getInteger(SETTINGS_UNIT_INCREMENT);
+    }
+
+    /*
+     * Do vertical scrolling
+     */
+    @Override
+    public boolean getScrollableTracksViewportHeight() {
+        return false;
+    }
+
+    /*
+     * No horizontal scrolling!
+     */
+    @Override public boolean getScrollableTracksViewportWidth() {
+        return true;
+    }
+
 }

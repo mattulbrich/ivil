@@ -15,6 +15,7 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -119,7 +120,10 @@ public class MainWindow extends JFrame {
         {
             sequentComponent = new SequentComponent(proofCenter);
             sequentComponent.setBorder(new EmptyBorder(5,5,5,5));
-            Dockable dock = new DefaultDockable("sequentview", sequentComponent, "Sequent");
+            JScrollPane scroll = new JScrollPane(sequentComponent);
+            // make the background seamless
+            scroll.getViewport().setBackground(sequentComponent.getBackground());
+            Dockable dock = new DefaultDockable("sequentview", scroll, "Sequent");
             rightTabDock.addDockable(dock, new Position(0));
             proofCenter.addProofNodeSelectionListener(sequentComponent);
         }
