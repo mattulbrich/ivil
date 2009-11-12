@@ -171,6 +171,7 @@ public abstract class Term {
 	 * 
 	 * Please note that terms which are not equal may have the same 
 	 * string representation and therefore the same hash code.
+	 * These cases are rare, however.
 	 * 
 	 * @return the hash code for this 
 	 */

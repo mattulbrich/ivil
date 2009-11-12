@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,16 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.util.Pair;
-
 public class PluginManager {
     
     private PluginManager parentManager;
     
     private Map<String, Service> serviceMap = new HashMap<String, Service>();
     
-    class Service {
+    private static class Service {
         Class<?> type;
         Map<Object, Object> table = new HashMap<Object, Object>();
         List<Object> list = new LinkedList<Object>();

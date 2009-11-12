@@ -231,6 +231,20 @@ public class TermSelector {
         }
         return false;
     }
+    
+    /**
+     * The hash code is calculated from the path.
+     */
+    @Override public int hashCode() {
+        
+        int h = isAntecedent() ? -1 : 1;
+        h *= getDepth();
+        
+        for (int i = 0; i < selectorInfo.length; i++) {
+            h = ((h << 7) | selectorInfo[i]) % 16777213;
+        }
+        return h;
+    }
 
     /**
      * check whether the selection refers to the antecedent side of a sequent

@@ -112,4 +112,16 @@ public class Pair<E,F> {
 	public String toString() {
 	    return "Pair[" + fst() + "," + snd() + "]";
 	}
+	
+	/**
+     * {@inheritDoc}
+     * 
+     * The hash code of a pair is the exclusive or of the hashcode of the first
+     * and second component
+     */
+	@Override public int hashCode() {
+	    int h1 = fst() == null ? 0 : fst().hashCode();
+	    int h2 = snd() == null ? 0 : snd().hashCode();
+	    return h1 ^ h2;
+	}
 }

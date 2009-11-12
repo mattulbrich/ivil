@@ -43,8 +43,10 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Pair;
 
 
+// Class is final because thread is started in constructor which is evil 
+// for subclassing.
 @SuppressWarnings("serial") 
-public class SMTBackgroundAction extends BarAction implements
+public final class SMTBackgroundAction extends BarAction implements
         InitialisingAction, PropertyChangeListener, Observer, Runnable {
 
     /**

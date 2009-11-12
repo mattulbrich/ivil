@@ -89,14 +89,22 @@ public class Z3SMT implements DecisionProcedure {
     }
 
     private void dumpTmp(String challenge) {
+        Writer w = null;
         try {
             File tmp = File.createTempFile("pseudo", ".smt");
-            Writer w = new FileWriter(tmp);
+            w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();
             System.err.println("Challenge dumped to file " + tmp);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if(w != null)
+                try {
+                    w.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
         }
     }
 

@@ -9,7 +9,6 @@
 
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import nonnull.NonNull;
@@ -89,7 +88,7 @@ public class TypeUnification implements Cloneable {
      * 
      * @param mapping from type variable names to types
      */
-    public TypeUnification(AppendMap<String, Type> map) {
+    @Deprecated public TypeUnification(AppendMap<String, Type> map) {
         instantiation = map.clone();
     }
     
@@ -100,8 +99,13 @@ public class TypeUnification implements Cloneable {
      * @return a clone of this.
      */
     public TypeUnification clone() {
-        TypeUnification retval = new TypeUnification(instantiation);
-        return retval;
+        try {
+            TypeUnification retval = (TypeUnification) super.clone();
+            retval.instantiation = instantiation.clone();
+            return retval;
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
     }
 
     /**

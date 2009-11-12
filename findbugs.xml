@@ -1,0 +1,1850 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="1.3.9" sequence="0" timestamp="1256302882000" analysisTimestamp="1258031194847" release="">
+  <Project projectName="">
+    <Jar>/export/home/i12pc3/mattias/sync/eclipse/pseudo/pseudo.jar</Jar>
+    <SrcDir>/export/home/i12pc3/mattias/sync/eclipse/pseudo/gui</SrcDir>
+    <SrcDir>/export/home/i12pc3/mattias/sync/eclipse/pseudo/core</SrcDir>
+    <SrcDir>/export/home/i12pc3/mattias/sync/eclipse/pseudo/test</SrcDir>
+    <SuppressionFilter>
+      <LastVersion value="-1" relOp="NEQ"/>
+    </SuppressionFilter>
+  </Project>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.auto.SMTLibTranslator">
+      <SourceLine classname="de.uka.iti.pseudo.auto.SMTLibTranslator" sourcefile="SMTLibTranslator.java" sourcepath="de/uka/iti/pseudo/auto/SMTLibTranslator.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.SMTLibTranslator" name="includePreamble" signature="(Ljava/lang/Appendable;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.SMTLibTranslator" start="272" end="282" startBytecode="0" endBytecode="41" sourcefile="SMTLibTranslator.java" sourcepath="de/uka/iti/pseudo/auto/SMTLibTranslator.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/Reader;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.Reader" start="49" end="232" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.auto.SMTLibTranslator" start="275" end="275" startBytecode="24" endBytecode="24" sourcefile="SMTLibTranslator.java" sourcepath="de/uka/iti/pseudo/auto/SMTLibTranslator.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.auto.Z3$1">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.Z3$1" name="call" signature="()Lde/uka/iti/pseudo/util/Pair;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="26" end="57" startBytecode="0" endBytecode="104" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/Reader;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.Reader" start="49" end="232" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="38" end="38" startBytecode="55" endBytecode="55" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="41" end="41" startBytecode="82" endBytecode="82" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java" role="SOURCE_LINE_ANOTHER_INSTANCE"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.auto.Z3$1">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.Z3$1" name="call" signature="()Lde/uka/iti/pseudo/util/Pair;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="26" end="57" startBytecode="0" endBytecode="104" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/Reader;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.Reader" start="49" end="232" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="38" end="38" startBytecode="55" endBytecode="55" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3$1" start="41" end="41" startBytecode="82" endBytecode="82" sourcefile="Z3.java" sourcepath="de/uka/iti/pseudo/auto/Z3.java" role="SOURCE_LINE_ANOTHER_INSTANCE"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.auto.Z3SMT">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.Z3SMT" name="dumpTmp" signature="(Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="93" end="101" startBytecode="0" endBytecode="194" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java"/>
+    </Method>
+    <Class classname="java.io.Writer" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.Writer" sourcefile="Writer.java" sourcepath="java/io/Writer.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="94" end="94" startBytecode="13" endBytecode="13" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="95" end="95" startBytecode="17" endBytecode="17" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="98" end="98" startBytecode="54" endBytecode="54" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="99" end="99" startBytecode="55" endBytecode="55" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT" start="101" end="101" startBytecode="59" endBytecode="59" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{Writer x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.auto.Z3SMT$1">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT$1" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.Z3SMT$1" name="call" signature="()Lde/uka/iti/pseudo/util/Pair;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT$1" start="41" end="68" startBytecode="0" endBytecode="99" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/Reader;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.Reader" start="49" end="232" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT$1" start="50" end="50" startBytecode="40" endBytecode="40" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java"/>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3SMT$1" start="53" end="53" startBytecode="67" endBytecode="67" sourcefile="Z3SMT.java" sourcepath="de/uka/iti/pseudo/auto/Z3SMT.java" role="SOURCE_LINE_ANOTHER_INSTANCE"/>
+  </BugInstance>
+  <BugInstance type="RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE" priority="2" abbrev="RCN" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.auto.Z3Translator">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3Translator" sourcefile="Z3Translator.java" sourcepath="de/uka/iti/pseudo/auto/Z3Translator.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.auto.Z3Translator" name="visit" signature="(Lde/uka/iti/pseudo/term/Application;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.auto.Z3Translator" start="82" end="121" startBytecode="0" endBytecode="707" sourcefile="Z3Translator.java" sourcepath="de/uka/iti/pseudo/auto/Z3Translator.java"/>
+    </Method>
+    <LocalVariable name="trans" register="4" pc="121" role="LOCAL_VARIABLE_VALUE_OF"/>
+    <Method classname="java.util.Map" name="get" signature="(Ljava/lang/Object;)Ljava/lang/Object;" isStatic="false" role="METHOD_RETURN_VALUE_OF">
+      <SourceLine classname="java.util.Map" sourcefile="Map.java" sourcepath="java/util/Map.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.auto.Z3Translator" start="96" end="96" startBytecode="123" endBytecode="123" sourcefile="Z3Translator.java" sourcepath="de/uka/iti/pseudo/auto/Z3Translator.java" role="SOURCE_REDUNDANT_NULL_CHECK"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP" priority="2" abbrev="EI" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.environment.Binder">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.Binder" name="getArgumentTypes" signature="()[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="118" end="118" startBytecode="0" endBytecode="46" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.environment.Binder" name="argumentTypes" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="118" end="118" startBytecode="4" endBytecode="4" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.environment.Binder">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.Binder" name="&lt;init&gt;" signature="(Ljava/lang/String;Lde/uka/iti/pseudo/term/Type;Lde/uka/iti/pseudo/term/Type;[Lde/uka/iti/pseudo/term/Type;Lde/uka/iti/pseudo/parser/ASTLocatedElement;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="76" end="82" startBytecode="0" endBytecode="147" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.environment.Binder" name="argumentTypes" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Field>
+    <LocalVariable name="argumentTypes" register="4" pc="17" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="79" end="79" startBytecode="17" endBytecode="17" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.environment.Binder">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.Binder" name="toString" signature="()Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="141" end="146" startBytecode="0" endBytecode="262" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.environment.Binder" start="144" end="144" startBytecode="75" endBytecode="75" sourcefile="Binder.java" sourcepath="de/uka/iti/pseudo/environment/Binder.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP" priority="2" abbrev="EI" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.environment.Function">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.Function" name="getArgumentTypes" signature="()[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" start="124" end="124" startBytecode="0" endBytecode="46" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.environment.Function" name="argumentTypes" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.environment.Function" start="124" end="124" startBytecode="4" endBytecode="4" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.environment.Function">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.Function" name="&lt;init&gt;" signature="(Ljava/lang/String;Lde/uka/iti/pseudo/term/Type;[Lde/uka/iti/pseudo/term/Type;ZZLde/uka/iti/pseudo/parser/ASTLocatedElement;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" start="87" end="96" startBytecode="0" endBytecode="229" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.environment.Function" name="argumentTypes" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.Function" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+    </Field>
+    <LocalVariable name="argumentTypes" register="3" pc="16" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.Function" start="90" end="90" startBytecode="16" endBytecode="16" sourcefile="Function.java" sourcepath="de/uka/iti/pseudo/environment/Function.java"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <UserAnnotation designation="MUST_FIX" timestamp="1258031863487"/>
+    <Class classname="de.uka.iti.pseudo.environment.PluginManager">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.PluginManager" name="makeServiceTable" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="36" end="48" startBytecode="0" endBytecode="324" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="37" end="37" startBytecode="14" endBytecode="14" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="38" end="38" startBytecode="18" endBytecode="18" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="40" end="40" startBytecode="32" endBytecode="32" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.environment.PluginManager">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.environment.PluginManager" name="makeServiceTable" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="40" end="52" startBytecode="0" endBytecode="324" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="41" end="41" startBytecode="14" endBytecode="14" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="42" end="42" startBytecode="18" endBytecode="18" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager" start="44" end="44" startBytecode="32" endBytecode="32" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="SIC_INNER_SHOULD_BE_STATIC" priority="2" abbrev="SIC" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.environment.PluginManager$Service">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager$Service" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="SIC_INNER_SHOULD_BE_STATIC" priority="2" abbrev="SIC" category="PERFORMANCE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.environment.PluginManager$Service">
+      <SourceLine classname="de.uka.iti.pseudo.environment.PluginManager$Service" sourcefile="PluginManager.java" sourcepath="de/uka/iti/pseudo/environment/PluginManager.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="1" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.SequentComponent">
+      <SourceLine classname="de.uka.iti.pseudo.gui.SequentComponent" sourcefile="SequentComponent.java" sourcepath="de/uka/iti/pseudo/gui/SequentComponent.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.SequentComponent" name="termMouseListener" signature="Ljava/awt/event/MouseListener;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.SequentComponent" sourcefile="SequentComponent.java" sourcepath="de/uka/iti/pseudo/gui/SequentComponent.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/gui/SequentComponent$1;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.gui.SequentComponent$1" start="235" end="259" sourcefile="SequentComponent.java" sourcepath="de/uka/iti/pseudo/gui/SequentComponent.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.SequentComponent" start="235" end="235" startBytecode="24" endBytecode="24" sourcefile="SequentComponent.java" sourcepath="de/uka/iti/pseudo/gui/SequentComponent.java"/>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="1" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.TermComponent">
+      <SourceLine classname="de.uka.iti.pseudo.gui.TermComponent" sourcefile="TermComponent.java" sourcepath="de/uka/iti/pseudo/gui/TermComponent.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.TermComponent" name="attributeFactory" signature="Lde/uka/iti/pseudo/util/AnnotatedStringWithStyles$AttributeSetFactory;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.TermComponent" sourcefile="TermComponent.java" sourcepath="de/uka/iti/pseudo/gui/TermComponent.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/gui/TermComponent$4;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.gui.TermComponent$4" start="195" end="229" sourcefile="TermComponent.java" sourcepath="de/uka/iti/pseudo/gui/TermComponent.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.TermComponent" start="195" end="195" startBytecode="70" endBytecode="70" sourcefile="TermComponent.java" sourcepath="de/uka/iti/pseudo/gui/TermComponent.java"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction" sourcefile="LoadEditedProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadEditedProblemAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction" name="actionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction" start="32" end="55" startBytecode="0" endBytecode="36" sourcefile="LoadEditedProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadEditedProblemAction.java"/>
+    </Method>
+    <LocalVariable name="pc" register="4" pc="58" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction" start="51" end="51" startBytecode="56" endBytecode="56" sourcefile="LoadEditedProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadEditedProblemAction.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.TWO_STORES_MULTIPLE_LOADS" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="pc"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.gui.bar.LoadProblemAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProblemAction" sourcefile="LoadProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProblemAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.LoadProblemAction" name="actionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProblemAction" start="45" end="71" startBytecode="0" endBytecode="52" sourcefile="LoadProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProblemAction.java"/>
+    </Method>
+    <LocalVariable name="pc" register="5" pc="31" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProblemAction" start="50" end="50" startBytecode="29" endBytecode="29" sourcefile="LoadProblemAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProblemAction.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="pc"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.gui.bar.LoadProofAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" name="actionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="51" end="82" startBytecode="0" endBytecode="469" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="67" end="67" startBytecode="90" endBytecode="90" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="68" end="68" startBytecode="95" endBytecode="95" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="77" end="77" startBytecode="184" endBytecode="184" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="78" end="78" startBytecode="186" endBytecode="186" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="79" end="79" startBytecode="194" endBytecode="194" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="82" end="82" startBytecode="203" endBytecode="203" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="2" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.bar.LoadProofAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" name="proofImport" signature="Lde/uka/iti/pseudo/proof/serialisation/ProofImport;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/proof/serialisation/ProofXML;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.proof.serialisation.ProofXML" start="57" end="180" sourcefile="ProofXML.java" sourcepath="de/uka/iti/pseudo/proof/serialisation/ProofXML.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.LoadProofAction" start="33" end="33" startBytecode="25" endBytecode="25" sourcefile="LoadProofAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/LoadProofAction.java"/>
+  </BugInstance>
+  <BugInstance type="SC_START_IN_CTOR" priority="2" abbrev="SC" category="MT_CORRECTNESS">
+    <Class classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" start="120" end="132" startBytecode="0" endBytecode="213" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+    </Method>
+    <Method classname="java.lang.Thread" name="start" signature="()V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.Thread" start="594" end="601" startBytecode="0" endBytecode="90" sourcefile="Thread.java" sourcepath="java/lang/Thread.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" start="123" end="123" startBytecode="68" endBytecode="68" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+  </BugInstance>
+  <BugInstance type="SC_START_IN_CTOR" priority="2" abbrev="SC" category="MT_CORRECTNESS" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" start="120" end="132" startBytecode="0" endBytecode="213" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+    </Method>
+    <Method classname="java.lang.Thread" name="start" signature="()V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.Thread" start="594" end="601" startBytecode="0" endBytecode="90" sourcefile="Thread.java" sourcepath="java/lang/Thread.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" start="123" end="123" startBytecode="68" endBytecode="68" sourcefile="SMTBackgroundAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SMTBackgroundAction.java"/>
+  </BugInstance>
+  <BugInstance type="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" priority="2" abbrev="RV" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction" sourcefile="SaveAsEditorAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SaveAsEditorAction.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction" name="backupFile" signature="(Ljava/io/File;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction" start="78" end="87" startBytecode="0" endBytecode="208" sourcefile="SaveAsEditorAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SaveAsEditorAction.java"/>
+    </Method>
+    <Method classname="java.io.File" name="renameTo" signature="(Ljava/io/File;)Z" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.File" start="1223" end="1228" startBytecode="0" endBytecode="72" sourcefile="File.java" sourcepath="java/io/File.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction" start="82" end="82" startBytecode="56" endBytecode="56" sourcefile="SaveAsEditorAction.java" sourcepath="de/uka/iti/pseudo/gui/bar/SaveAsEditorAction.java"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" name="paint" signature="(Ljava/awt/Graphics;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" start="61" end="81" startBytecode="0" endBytecode="79" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    </Method>
+    <LocalVariable name="doc" register="6" pc="76" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" start="71" end="71" startBytecode="74" endBytecode="74" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="doc"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE" last="0" removedByChange="true">
+    <UserAnnotation designation="NOT_A_BUG" timestamp="1258032064531"/>
+    <Class classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" name="paint" signature="(Ljava/awt/Graphics;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" start="61" end="81" startBytecode="0" endBytecode="79" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    </Method>
+    <LocalVariable name="doc" register="6" pc="76" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" start="71" end="71" startBytecode="74" endBytecode="74" sourcefile="LineNrPane.java" sourcepath="de/uka/iti/pseudo/gui/editor/LineNrPane.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="doc"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.gui.editor.PFileEditor">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.editor.PFileEditor" name="readFileAsString" signature="(Ljava/io/File;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="305" end="313" startBytecode="0" endBytecode="197" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Method>
+    <Class classname="java.io.Reader" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.Reader" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="306" end="306" startBytecode="13" endBytecode="13" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="307" end="307" startBytecode="17" endBytecode="17" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="308" end="308" startBytecode="23" endBytecode="23" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="309" end="309" startBytecode="26" endBytecode="26" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{Reader x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="1" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.editor.PFileEditor">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.editor.PFileEditor" name="doclistener" signature="Ljavax/swing/event/DocumentListener;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/gui/editor/PFileEditor$1;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor$1" start="71" end="86" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor" start="71" end="71" startBytecode="13" endBytecode="13" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+  </BugInstance>
+  <BugInstance type="UW_UNCOND_WAIT" priority="2" abbrev="UW" category="MT_CORRECTNESS">
+    <Class classname="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread" name="run" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread" start="99" end="113" startBytecode="0" endBytecode="250" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread" start="104" end="104" startBytecode="31" endBytecode="31" sourcefile="PFileEditor.java" sourcepath="de/uka/iti/pseudo/gui/editor/PFileEditor.java"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.gui.source.BarHighlightPainter">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.BarHighlightPainter" sourcefile="BarHighlightPainter.java" sourcepath="de/uka/iti/pseudo/gui/source/BarHighlightPainter.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.gui.source.BarHighlightPainter" name="paint" signature="(Ljava/awt/Graphics;IILjava/awt/Shape;Ljavax/swing/text/JTextComponent;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.BarHighlightPainter" start="26" end="49" startBytecode="0" endBytecode="54" sourcefile="BarHighlightPainter.java" sourcepath="de/uka/iti/pseudo/gui/source/BarHighlightPainter.java"/>
+    </Method>
+    <LocalVariable name="alloc" register="6" pc="9" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.gui.source.BarHighlightPainter" start="26" end="26" startBytecode="7" endBytecode="7" sourcefile="BarHighlightPainter.java" sourcepath="de/uka/iti/pseudo/gui/source/BarHighlightPainter.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="alloc"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="2" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.source.ProgramPanel">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.ProgramPanel" sourcefile="ProgramPanel.java" sourcepath="de/uka/iti/pseudo/gui/source/ProgramPanel.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.source.ProgramPanel" name="selectionFindVisitor" signature="Lde/uka/iti/pseudo/term/TermVisitor;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.ProgramPanel" sourcefile="ProgramPanel.java" sourcepath="de/uka/iti/pseudo/gui/source/ProgramPanel.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/gui/source/ProgramPanel$1;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.ProgramPanel$1" start="85" end="92" sourcefile="ProgramPanel.java" sourcepath="de/uka/iti/pseudo/gui/source/ProgramPanel.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.source.ProgramPanel" start="85" end="85" startBytecode="18" endBytecode="18" sourcefile="ProgramPanel.java" sourcepath="de/uka/iti/pseudo/gui/source/ProgramPanel.java"/>
+  </BugInstance>
+  <BugInstance type="SE_BAD_FIELD_STORE" priority="2" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.gui.source.SourcePanel">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.SourcePanel" sourcefile="SourcePanel.java" sourcepath="de/uka/iti/pseudo/gui/source/SourcePanel.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.gui.source.SourcePanel" name="selectionFindVisitor" signature="Lde/uka/iti/pseudo/term/TermVisitor;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.SourcePanel" sourcefile="SourcePanel.java" sourcepath="de/uka/iti/pseudo/gui/source/SourcePanel.java"/>
+    </Field>
+    <Type descriptor="Lde/uka/iti/pseudo/gui/source/SourcePanel$1;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.gui.source.SourcePanel$1" start="114" end="124" sourcefile="SourcePanel.java" sourcepath="de/uka/iti/pseudo/gui/source/SourcePanel.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.gui.source.SourcePanel" start="114" end="114" startBytecode="18" endBytecode="18" sourcefile="SourcePanel.java" sourcepath="de/uka/iti/pseudo/gui/source/SourcePanel.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.parser.ParseException">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParseException" name="&lt;init&gt;" signature="(Lde/uka/iti/pseudo/parser/Token;[[I[Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="32" end="37" startBytecode="0" endBytecode="133" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.parser.ParseException" name="expectedTokenSequences" signature="[[I" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Field>
+    <LocalVariable name="expectedTokenSequencesVal" register="2" pc="29" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="35" end="35" startBytecode="29" endBytecode="29" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.parser.ParseException">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParseException" name="&lt;init&gt;" signature="(Lde/uka/iti/pseudo/parser/Token;[[I[Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="32" end="37" startBytecode="0" endBytecode="133" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.parser.ParseException" name="tokenImage" signature="[Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Field>
+    <LocalVariable name="tokenImageVal" register="3" pc="34" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="36" end="36" startBytecode="34" endBytecode="34" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.parser.ParseException">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParseException" name="getMessage" signature="()Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="98" end="134" startBytecode="0" endBytecode="721" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParseException" start="123" end="123" startBytecode="224" endBytecode="224" sourcefile="ParseException.java" sourcepath="de/uka/iti/pseudo/parser/ParseException.java"/>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="AddReplaces" signature="()Ljava/util/List;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="592" end="626" startBytecode="0" endBytecode="486" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ApplicationTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="990" end="1034" startBytecode="0" endBytecode="578" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="AsTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="792" end="803" startBytecode="0" endBytecode="190" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="Assignment" signature="()Lde/uka/iti/pseudo/parser/program/ASTAssignmentStatement;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1212" end="1239" startBytecode="0" endBytecode="387" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="BaseTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="809" end="841" startBytecode="0" endBytecode="372" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="BinderDeclaration" signature="()Lde/uka/iti/pseudo/parser/file/ASTBinderDeclaration;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="353" end="373" startBytecode="0" endBytecode="352" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="BinderDeclarationBlock" signature="()Lde/uka/iti/pseudo/parser/file/ASTBinderDeclarationBlock;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="330" end="346" startBytecode="0" endBytecode="262" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="BinderTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTBinderTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="901" end="940" startBytecode="0" endBytecode="560" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="File" signature="()Lde/uka/iti/pseudo/parser/file/ASTFile;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="65" end="122" startBytecode="0" endBytecode="691" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="FunctionDeclaration" signature="()Lde/uka/iti/pseudo/parser/file/ASTFunctionDeclaration;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="250" end="323" startBytecode="0" endBytecode="975" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="FunctionDeclarationBlock" signature="()Lde/uka/iti/pseudo/parser/file/ASTFunctionDeclarationBlock;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="229" end="245" startBytecode="0" endBytecode="262" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="Identifier" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1047" end="1048" startBytecode="0" endBytecode="71" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="IncludeDeclarationBlock" signature="()Lde/uka/iti/pseudo/parser/file/ASTIncludeDeclarationBlock;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="152" end="167" startBytecode="0" endBytecode="257" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="LabelStatement" signature="()Lde/uka/iti/pseudo/parser/program/ASTLabelStatement;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1126" end="1128" startBytecode="0" endBytecode="82" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="LocatedTerm" signature="(Z)Lde/uka/iti/pseudo/parser/file/ASTLocatedTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="549" end="583" startBytecode="0" endBytecode="465" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="NumberLiteral" signature="()Lde/uka/iti/pseudo/parser/term/ASTNumberLiteralTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1054" end="1055" startBytecode="0" endBytecode="71" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="OpIdentifier" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1040" end="1041" startBytecode="0" endBytecode="71" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="PluginsBlock" signature="()Lde/uka/iti/pseudo/parser/file/ASTPlugins;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="128" end="145" startBytecode="0" endBytecode="311" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ProgramDeclaration" signature="()Lde/uka/iti/pseudo/parser/file/ASTProgramDeclaration;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="379" end="392" startBytecode="0" endBytecode="271" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ProgramTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="847" end="863" startBytecode="0" endBytecode="236" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ReInit" signature="(Lde/uka/iti/pseudo/parser/ParserTokenManager;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1696" end="1702" startBytecode="0" endBytecode="195" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ReInit" signature="(Ljava/io/InputStream;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1654" end="1655" startBytecode="0" endBytecode="62" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ReInit" signature="(Ljava/io/InputStream;Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1657" end="1664" startBytecode="0" endBytecode="262" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="ReInit" signature="(Ljava/io/Reader;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1677" end="1684" startBytecode="0" endBytecode="215" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="RuleDeclaration" signature="()Lde/uka/iti/pseudo/parser/file/ASTRule;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="397" end="543" startBytecode="0" endBytecode="1809" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="SchemaVariable" signature="()Lde/uka/iti/pseudo/parser/term/ASTSchemaVariableTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1061" end="1062" startBytecode="0" endBytecode="71" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="SortDeclaration" signature="()Lde/uka/iti/pseudo/parser/file/ASTSortDeclaration;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="195" end="222" startBytecode="0" endBytecode="403" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="SortDeclarationBlock" signature="()Lde/uka/iti/pseudo/parser/file/ASTSortDeclarationBlock;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="174" end="189" startBytecode="0" endBytecode="253" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="SourceLineStatement" signature="()Lde/uka/iti/pseudo/parser/program/ASTSourceLineStatement;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1118" end="1120" startBytecode="0" endBytecode="93" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="Statement" signature="()Lde/uka/iti/pseudo/parser/program/ASTStatement;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1137" end="1204" startBytecode="0" endBytecode="898" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="StatementList" signature="()Ljava/util/List;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="1070" end="1112" startBytecode="0" endBytecode="463" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="Term" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="676" end="721" startBytecode="0" endBytecode="492" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="TypeRef" signature="()Lde/uka/iti/pseudo/parser/term/ASTType;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="946" end="982" startBytecode="0" endBytecode="453" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="UpdateTerm" signature="()Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="729" end="758" startBytecode="0" endBytecode="458" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="WhereClause" signature="(Lde/uka/iti/pseudo/parser/Token;)Lde/uka/iti/pseudo/parser/file/ASTWhereClause;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="633" end="667" startBytecode="0" endBytecode="523" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.Parser" name="parseFile" signature="(Ljava/io/File;)Lde/uka/iti/pseudo/parser/file/ASTFile;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="24" end="24" startBytecode="0" endBytecode="68" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Method>
+    <Class classname="java.io.Reader" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.Reader" sourcefile="Reader.java" sourcepath="java/io/Reader.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.parser.Parser" start="24" end="24" startBytecode="6" endBytecode="6" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <String value="{Reader x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="UUF_UNUSED_FIELD" priority="2" abbrev="UuF" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.parser.Parser">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.parser.Parser" name="jj_semLA" signature="Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.Parser" sourcefile="Parser.java" sourcepath="de/uka/iti/pseudo/parser/Parser.java"/>
+    </Field>
+  </BugInstance>
+  <BugInstance type="MS_OOI_PKGPROTECT" priority="2" abbrev="MS" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserConstants">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserConstants" sourcefile="ParserConstants.java" sourcepath="de/uka/iti/pseudo/parser/ParserConstants.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.parser.ParserConstants" name="tokenImage" signature="[Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserConstants" sourcefile="ParserConstants.java" sourcepath="de/uka/iti/pseudo/parser/ParserConstants.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParserConstants" start="70" end="70" startBytecode="413" endBytecode="413" sourcefile="ParserConstants.java" sourcepath="de/uka/iti/pseudo/parser/ParserConstants.java"/>
+  </BugInstance>
+  <BugInstance type="MS_PKGPROTECT" priority="2" abbrev="MS" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="jjnewLexState" signature="[I" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="1846" end="1846" startBytecode="863" endBytecode="863" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+  </BugInstance>
+  <BugInstance type="MS_PKGPROTECT" priority="2" abbrev="MS" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="jjstrLiteralImages" signature="[Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="1827" end="1827" startBytecode="492" endBytecode="492" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="ReInit" signature="(Lde/uka/iti/pseudo/parser/SimpleCharStream;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="1875" end="1879" startBytecode="0" endBytecode="95" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="ReInit" signature="(Lde/uka/iti/pseudo/parser/SimpleCharStream;I)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="1889" end="1891" startBytecode="0" endBytecode="80" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="SwitchTo" signature="(I)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="1894" end="1898" startBytecode="0" endBytecode="123" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="UPM_UNCALLED_PRIVATE_METHOD" priority="2" abbrev="UPM" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="jjCheckNAddStates" signature="(I)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="718" end="720" startBytecode="0" endBytecode="80" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="URF_UNREAD_FIELD" priority="2" abbrev="UrF" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.parser.ParserTokenManager">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.parser.ParserTokenManager" name="lengthOfMatch" signature="I" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.parser.ParserTokenManager" start="2032" end="2032" startBytecode="70" endBytecode="70" sourcefile="ParserTokenManager.java" sourcepath="de/uka/iti/pseudo/parser/ParserTokenManager.java"/>
+  </BugInstance>
+  <BugInstance type="NM_METHOD_NAMING_CONVENTION" priority="2" abbrev="Nm" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.parser.TokenMgrError">
+      <SourceLine classname="de.uka.iti.pseudo.parser.TokenMgrError" sourcefile="TokenMgrError.java" sourcepath="de/uka/iti/pseudo/parser/TokenMgrError.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.parser.TokenMgrError" name="LexicalError" signature="(ZIIILjava/lang/String;C)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.parser.TokenMgrError" start="98" end="98" startBytecode="0" endBytecode="234" sourcefile="TokenMgrError.java" sourcepath="de/uka/iti/pseudo/parser/TokenMgrError.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE" priority="2" abbrev="Se" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.proof.RulePriorityComparator">
+      <SourceLine classname="de.uka.iti.pseudo.proof.RulePriorityComparator" sourcefile="RulePriorityComparator.java" sourcepath="de/uka/iti/pseudo/proof/RulePriorityComparator.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.proof.TermSelector">
+      <SourceLine classname="de.uka.iti.pseudo.proof.TermSelector" sourcefile="TermSelector.java" sourcepath="de/uka/iti/pseudo/proof/TermSelector.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.proof.TermSelector" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.proof.TermSelector" start="217" end="232" startBytecode="0" endBytecode="217" sourcefile="TermSelector.java" sourcepath="de/uka/iti/pseudo/proof/TermSelector.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.proof.TermSelector">
+      <SourceLine classname="de.uka.iti.pseudo.proof.TermSelector" sourcefile="TermSelector.java" sourcepath="de/uka/iti/pseudo/proof/TermSelector.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.proof.TermSelector" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.proof.TermSelector" start="217" end="232" startBytecode="0" endBytecode="217" sourcefile="TermSelector.java" sourcepath="de/uka/iti/pseudo/proof/TermSelector.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.rule.WhereClause">
+      <SourceLine classname="de.uka.iti.pseudo.rule.WhereClause" sourcefile="WhereClause.java" sourcepath="de/uka/iti/pseudo/rule/WhereClause.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.rule.WhereClause" name="&lt;init&gt;" signature="(Lde/uka/iti/pseudo/environment/WhereCondition;[Lde/uka/iti/pseudo/term/Term;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.rule.WhereClause" start="22" end="27" startBytecode="0" endBytecode="100" sourcefile="WhereClause.java" sourcepath="de/uka/iti/pseudo/rule/WhereClause.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.rule.WhereClause" name="arguments" signature="[Lde/uka/iti/pseudo/term/Term;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.rule.WhereClause" sourcefile="WhereClause.java" sourcepath="de/uka/iti/pseudo/rule/WhereClause.java"/>
+    </Field>
+    <LocalVariable name="terms" register="2" pc="6" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.rule.WhereClause" start="23" end="23" startBytecode="6" endBytecode="6" sourcefile="WhereClause.java" sourcepath="de/uka/iti/pseudo/rule/WhereClause.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.Application">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Application" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" start="140" end="157" startBytecode="0" endBytecode="250" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.term.Application">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Application" name="toString" signature="(Z)Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" start="114" end="126" startBytecode="0" endBytecode="299" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.term.Application" start="120" end="120" startBytecode="82" endBytecode="82" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.Application">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Application" name="toString" signature="(Z)Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Application" start="114" end="126" startBytecode="0" endBytecode="299" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.term.Application" start="120" end="120" startBytecode="82" endBytecode="82" sourcefile="Application.java" sourcepath="de/uka/iti/pseudo/term/Application.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.Binding">
+      <SourceLine classname="de.uka.iti.pseudo.term.Binding" sourcefile="Binding.java" sourcepath="de/uka/iti/pseudo/term/Binding.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Binding" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Binding" start="194" end="217" startBytecode="0" endBytecode="300" sourcefile="Binding.java" sourcepath="de/uka/iti/pseudo/term/Binding.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.LiteralProgramTerm">
+      <SourceLine classname="de.uka.iti.pseudo.term.LiteralProgramTerm" sourcefile="LiteralProgramTerm.java" sourcepath="de/uka/iti/pseudo/term/LiteralProgramTerm.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.LiteralProgramTerm" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.LiteralProgramTerm" start="103" end="108" startBytecode="0" endBytecode="145" sourcefile="LiteralProgramTerm.java" sourcepath="de/uka/iti/pseudo/term/LiteralProgramTerm.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.SchemaProgramTerm">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaProgramTerm" sourcefile="SchemaProgramTerm.java" sourcepath="de/uka/iti/pseudo/term/SchemaProgramTerm.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.SchemaProgramTerm" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaProgramTerm" start="64" end="70" startBytecode="0" endBytecode="140" sourcefile="SchemaProgramTerm.java" sourcepath="de/uka/iti/pseudo/term/SchemaProgramTerm.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.SchemaUpdateTerm">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaUpdateTerm" sourcefile="SchemaUpdateTerm.java" sourcepath="de/uka/iti/pseudo/term/SchemaUpdateTerm.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.SchemaUpdateTerm" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaUpdateTerm" start="13" end="19" startBytecode="0" endBytecode="142" sourcefile="SchemaUpdateTerm.java" sourcepath="de/uka/iti/pseudo/term/SchemaUpdateTerm.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.SchemaVariable">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaVariable" sourcefile="SchemaVariable.java" sourcepath="de/uka/iti/pseudo/term/SchemaVariable.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.SchemaVariable" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.SchemaVariable" start="86" end="90" startBytecode="0" endBytecode="140" sourcefile="SchemaVariable.java" sourcepath="de/uka/iti/pseudo/term/SchemaVariable.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="MS_SHOULD_BE_FINAL" priority="1" abbrev="MS" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.term.Term">
+      <SourceLine classname="de.uka.iti.pseudo.term.Term" sourcefile="Term.java" sourcepath="de/uka/iti/pseudo/term/Term.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.term.Term" name="SHOW_TYPES" signature="Z" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.term.Term" sourcefile="Term.java" sourcepath="de/uka/iti/pseudo/term/Term.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.term.Term" start="37" end="37" startBytecode="29" endBytecode="29" sourcefile="Term.java" sourcepath="de/uka/iti/pseudo/term/Term.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP" priority="2" abbrev="EI" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.term.TypeApplication">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.TypeApplication" name="getArguments" signature="()[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="77" end="77" startBytecode="0" endBytecode="46" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.term.TypeApplication" name="typeParamters" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="77" end="77" startBytecode="4" endBytecode="4" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.term.TypeApplication">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.TypeApplication" name="&lt;init&gt;" signature="(Lde/uka/iti/pseudo/environment/Sort;[Lde/uka/iti/pseudo/term/Type;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="21" end="32" startBytecode="0" endBytecode="227" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.term.TypeApplication" name="typeParamters" signature="[Lde/uka/iti/pseudo/term/Type;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Field>
+    <LocalVariable name="typeParameters" register="2" pc="108" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="31" end="31" startBytecode="108" endBytecode="108" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.TypeApplication">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.TypeApplication" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="54" end="64" startBytecode="0" endBytecode="198" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.Update">
+      <SourceLine classname="de.uka.iti.pseudo.term.Update" sourcefile="Update.java" sourcepath="de/uka/iti/pseudo/term/Update.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Update" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Update" start="98" end="102" startBytecode="0" endBytecode="108" sourcefile="Update.java" sourcepath="de/uka/iti/pseudo/term/Update.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.Update">
+      <SourceLine classname="de.uka.iti.pseudo.term.Update" sourcefile="Update.java" sourcepath="de/uka/iti/pseudo/term/Update.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Update" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Update" start="98" end="102" startBytecode="0" endBytecode="108" sourcefile="Update.java" sourcepath="de/uka/iti/pseudo/term/Update.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.UpdateTerm">
+      <SourceLine classname="de.uka.iti.pseudo.term.UpdateTerm" sourcefile="UpdateTerm.java" sourcepath="de/uka/iti/pseudo/term/UpdateTerm.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.UpdateTerm" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.UpdateTerm" start="63" end="68" startBytecode="0" endBytecode="142" sourcefile="UpdateTerm.java" sourcepath="de/uka/iti/pseudo/term/UpdateTerm.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_NO_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.Variable">
+      <SourceLine classname="de.uka.iti.pseudo.term.Variable" sourcefile="Variable.java" sourcepath="de/uka/iti/pseudo/term/Variable.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.Variable" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.Variable" start="57" end="62" startBytecode="0" endBytecode="140" sourcefile="Variable.java" sourcepath="de/uka/iti/pseudo/term/Variable.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="URF_UNREAD_FIELD" priority="2" abbrev="UrF" category="PERFORMANCE">
+    <Class classname="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator" sourcefile="ProgramComparingTermInstantiator.java" sourcepath="de/uka/iti/pseudo/term/creation/ProgramComparingTermInstantiator.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator" name="env" signature="Lde/uka/iti/pseudo/environment/Environment;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator" sourcefile="ProgramComparingTermInstantiator.java" sourcepath="de/uka/iti/pseudo/term/creation/ProgramComparingTermInstantiator.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator" start="25" end="25" startBytecode="10" endBytecode="10" sourcefile="ProgramComparingTermInstantiator.java" sourcepath="de/uka/iti/pseudo/term/creation/ProgramComparingTermInstantiator.java"/>
+  </BugInstance>
+  <BugInstance type="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" priority="2" abbrev="RCN" category="CORRECTNESS">
+    <UserAnnotation designation="NOT_A_BUG" timestamp="1258031558137"/>
+    <Class classname="de.uka.iti.pseudo.term.creation.ShuntingYard">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.ShuntingYard" sourcefile="ShuntingYard.java" sourcepath="de/uka/iti/pseudo/term/creation/ShuntingYard.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.ShuntingYard" name="shuntingYard" signature="(Lde/uka/iti/pseudo/environment/Environment;Lde/uka/iti/pseudo/parser/term/ASTListTerm;)Lde/uka/iti/pseudo/parser/term/ASTTerm;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.ShuntingYard" start="135" end="195" startBytecode="0" endBytecode="829" sourcefile="ShuntingYard.java" sourcepath="de/uka/iti/pseudo/term/creation/ShuntingYard.java"/>
+    </Method>
+    <LocalVariable name="term" register="5" pc="378" role="LOCAL_VARIABLE_VALUE_OF"/>
+    <Method classname="java.util.Stack" name="pop" signature="()Ljava/lang/Object;" isStatic="false" role="METHOD_RETURN_VALUE_OF">
+      <SourceLine classname="java.util.Stack" start="65" end="70" startBytecode="0" endBytecode="54" sourcefile="Stack.java" sourcepath="java/util/Stack.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.ShuntingYard" start="191" end="191" startBytecode="369" endBytecode="369" sourcefile="ShuntingYard.java" sourcepath="de/uka/iti/pseudo/term/creation/ShuntingYard.java"/>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.ShuntingYard" start="193" end="193" startBytecode="380" endBytecode="380" sourcefile="ShuntingYard.java" sourcepath="de/uka/iti/pseudo/term/creation/ShuntingYard.java" role="SOURCE_REDUNDANT_NULL_CHECK"/>
+  </BugInstance>
+  <BugInstance type="CN_IDIOM_NO_SUPER_CALL" priority="2" abbrev="CN" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.creation.TermUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TermUnification" name="clone" signature="()Ljava/lang/Object;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" start="36" end="36" startBytecode="0" endBytecode="46" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="CN_IDIOM_NO_SUPER_CALL" priority="2" abbrev="CN" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.creation.TermUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TermUnification" name="clone" signature="()Ljava/lang/Object;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" start="36" end="36" startBytecode="0" endBytecode="46" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="URF_UNREAD_FIELD" priority="2" abbrev="UrF" category="PERFORMANCE" introducedByChange="true">
+    <UserAnnotation designation="NOT_A_BUG" timestamp="1258032056627"/>
+    <Class classname="de.uka.iti.pseudo.term.creation.TermUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Class>
+    <Field classname="de.uka.iti.pseudo.term.creation.TermUnification" name="env" signature="Lde/uka/iti/pseudo/environment/Environment;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.TermUnification" start="74" end="74" startBytecode="52" endBytecode="52" sourcefile="TermUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TermUnification.java"/>
+  </BugInstance>
+  <BugInstance type="BC_VACUOUS_INSTANCEOF" priority="2" abbrev="BC" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.term.creation.TypeUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TypeUnification" name="leftUnify0" signature="(Lde/uka/iti/pseudo/term/Type;Lde/uka/iti/pseudo/term/Type;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="193" end="238" startBytecode="0" endBytecode="121" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Method>
+    <Type descriptor="Lde/uka/iti/pseudo/term/TypeApplication;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="15" end="77" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Type>
+    <Type descriptor="Lde/uka/iti/pseudo/term/TypeApplication;" role="TYPE_EXPECTED">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="15" end="77" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="221" end="221" startBytecode="146" endBytecode="146" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+  </BugInstance>
+  <BugInstance type="BC_VACUOUS_INSTANCEOF" priority="2" abbrev="BC" category="STYLE">
+    <UserAnnotation designation="NOT_A_BUG" timestamp="1258032068916"/>
+    <Class classname="de.uka.iti.pseudo.term.creation.TypeUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TypeUnification" name="leftUnify0" signature="(Lde/uka/iti/pseudo/term/Type;Lde/uka/iti/pseudo/term/Type;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="197" end="242" startBytecode="0" endBytecode="121" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Method>
+    <Type descriptor="Lde/uka/iti/pseudo/term/TypeApplication;" role="TYPE_FOUND">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="15" end="77" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Type>
+    <Type descriptor="Lde/uka/iti/pseudo/term/TypeApplication;" role="TYPE_EXPECTED">
+      <SourceLine classname="de.uka.iti.pseudo.term.TypeApplication" start="15" end="77" sourcefile="TypeApplication.java" sourcepath="de/uka/iti/pseudo/term/TypeApplication.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="225" end="225" startBytecode="146" endBytecode="146" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+  </BugInstance>
+  <BugInstance type="CN_IDIOM_NO_SUPER_CALL" priority="2" abbrev="CN" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.creation.TypeUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TypeUnification" name="clone" signature="()Ljava/lang/Object;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="45" end="45" startBytecode="0" endBytecode="46" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="CN_IDIOM_NO_SUPER_CALL" priority="2" abbrev="CN" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.creation.TypeUnification">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.creation.TypeUnification" name="clone" signature="()Ljava/lang/Object;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.creation.TypeUnification" start="45" end="45" startBytecode="0" endBytecode="46" sourcefile="TypeUnification.java" sourcepath="de/uka/iti/pseudo/term/creation/TypeUnification.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssertStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssertStatement" sourcefile="AssertStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssertStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssertStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssertStatement" sourcefile="AssertStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssertStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssignmentStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssignmentStatement" sourcefile="AssignmentStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssignmentStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssignmentStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssignmentStatement" sourcefile="AssignmentStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssignmentStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssumeStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssumeStatement" sourcefile="AssumeStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssumeStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.AssumeStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.AssumeStatement" sourcefile="AssumeStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/AssumeStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.EndStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.EndStatement" sourcefile="EndStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/EndStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.EndStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.EndStatement" sourcefile="EndStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/EndStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.GotoStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.GotoStatement" sourcefile="GotoStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/GotoStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.GotoStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.GotoStatement" sourcefile="GotoStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/GotoStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.HavocStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.HavocStatement" sourcefile="HavocStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/HavocStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.HavocStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.HavocStatement" sourcefile="HavocStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/HavocStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.SkipStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.SkipStatement" sourcefile="SkipStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/SkipStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="HE_INHERITS_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.SkipStatement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.SkipStatement" sourcefile="SkipStatement.java" sourcepath="de/uka/iti/pseudo/term/statement/SkipStatement.java"/>
+    </Class>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.term.statement.Statement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.statement.Statement" name="&lt;init&gt;" signature="(I[Lde/uka/iti/pseudo/term/Term;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" start="17" end="21" startBytecode="0" endBytecode="88" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.term.statement.Statement" name="subTerms" signature="[Lde/uka/iti/pseudo/term/Term;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Field>
+    <LocalVariable name="subTerms" register="2" pc="6" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" start="18" end="18" startBytecode="6" endBytecode="6" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.term.statement.Statement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.statement.Statement" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" start="59" end="64" startBytecode="0" endBytecode="137" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="2" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.term.statement.Statement">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.term.statement.Statement" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.term.statement.Statement" start="59" end="64" startBytecode="0" endBytecode="137" sourcefile="Statement.java" sourcepath="de/uka/iti/pseudo/term/statement/Statement.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="JLM_JSR166_UTILCONCURRENT_MONITORENTER" priority="2" abbrev="JLM" category="MT_CORRECTNESS">
+    <Class classname="de.uka.iti.pseudo.util.DeferredObservable">
+      <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.DeferredObservable" name="ensureRunning" signature="()V" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" start="76" end="83" startBytecode="0" endBytecode="120" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+    </Method>
+    <Type descriptor="Ljava/util/concurrent/LinkedBlockingQueue;">
+      <SourceLine classname="java.util.concurrent.LinkedBlockingQueue" start="45" end="807" sourcefile="LinkedBlockingQueue.java" sourcepath="java/util/concurrent/LinkedBlockingQueue.java"/>
+    </Type>
+    <Field classname="de.uka.iti.pseudo.util.DeferredObservable" name="events" signature="Ljava/util/concurrent/BlockingQueue;" isStatic="true" role="FIELD_VALUE_OF">
+      <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" start="76" end="76" startBytecode="5" endBytecode="5" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+  </BugInstance>
+  <BugInstance type="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" priority="2" abbrev="RV" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.util.DeferredObservable">
+      <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.DeferredObservable" name="notifyObservers" signature="(Ljava/lang/Object;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" start="104" end="106" startBytecode="0" endBytecode="81" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+    </Method>
+    <Method classname="java.util.concurrent.BlockingQueue" name="offer" signature="(Ljava/lang/Object;)Z" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.util.concurrent.BlockingQueue" sourcefile="BlockingQueue.java" sourcepath="java/util/concurrent/BlockingQueue.java"/>
+    </Method>
+    <SourceLine classname="de.uka.iti.pseudo.util.DeferredObservable" start="105" end="105" startBytecode="15" endBytecode="15" sourcefile="DeferredObservable.java" sourcepath="de/uka/iti/pseudo/util/DeferredObservable.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.util.Pair">
+      <SourceLine classname="de.uka.iti.pseudo.util.Pair" sourcefile="Pair.java" sourcepath="de/uka/iti/pseudo/util/Pair.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.Pair" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.Pair" start="97" end="102" startBytecode="0" endBytecode="206" sourcefile="Pair.java" sourcepath="de/uka/iti/pseudo/util/Pair.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.util.Pair">
+      <SourceLine classname="de.uka.iti.pseudo.util.Pair" sourcefile="Pair.java" sourcepath="de/uka/iti/pseudo/util/Pair.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.Pair" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.Pair" start="97" end="102" startBytecode="0" endBytecode="206" sourcefile="Pair.java" sourcepath="de/uka/iti/pseudo/util/Pair.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP" priority="2" abbrev="EI" category="MALICIOUS_CODE">
+    <Class classname="de.uka.iti.pseudo.util.TermSelectionTransferable">
+      <SourceLine classname="de.uka.iti.pseudo.util.TermSelectionTransferable" sourcefile="TermSelectionTransferable.java" sourcepath="de/uka/iti/pseudo/util/TermSelectionTransferable.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.TermSelectionTransferable" name="getTransferDataFlavors" signature="()[Ljava/awt/datatransfer/DataFlavor;" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.TermSelectionTransferable" start="40" end="40" startBytecode="0" endBytecode="45" sourcefile="TermSelectionTransferable.java" sourcepath="de/uka/iti/pseudo/util/TermSelectionTransferable.java"/>
+    </Method>
+    <Field classname="de.uka.iti.pseudo.util.TermSelectionTransferable" name="FLAVOURS" signature="[Ljava/awt/datatransfer/DataFlavor;" isStatic="true">
+      <SourceLine classname="de.uka.iti.pseudo.util.TermSelectionTransferable" sourcefile="TermSelectionTransferable.java" sourcepath="de/uka/iti/pseudo/util/TermSelectionTransferable.java"/>
+    </Field>
+    <SourceLine classname="de.uka.iti.pseudo.util.TermSelectionTransferable" start="40" end="40" startBytecode="3" endBytecode="3" sourcefile="TermSelectionTransferable.java" sourcepath="de/uka/iti/pseudo/util/TermSelectionTransferable.java"/>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.util.Triple">
+      <SourceLine classname="de.uka.iti.pseudo.util.Triple" sourcefile="Triple.java" sourcepath="de/uka/iti/pseudo/util/Triple.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.Triple" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.Triple" start="116" end="122" startBytecode="0" endBytecode="239" sourcefile="Triple.java" sourcepath="de/uka/iti/pseudo/util/Triple.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="HE_EQUALS_USE_HASHCODE" priority="1" abbrev="HE" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.util.Triple">
+      <SourceLine classname="de.uka.iti.pseudo.util.Triple" sourcefile="Triple.java" sourcepath="de/uka/iti/pseudo/util/Triple.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.Triple" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.Triple" start="116" end="122" startBytecode="0" endBytecode="239" sourcefile="Triple.java" sourcepath="de/uka/iti/pseudo/util/Triple.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.util.settings.ColorResolver">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.ColorResolver" sourcefile="ColorResolver.java" sourcepath="de/uka/iti/pseudo/util/settings/ColorResolver.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.ColorResolver" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.ColorResolver" start="27" end="31" startBytecode="0" endBytecode="97" sourcefile="ColorResolver.java" sourcepath="de/uka/iti/pseudo/util/settings/ColorResolver.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.ColorResolver" start="30" end="30" startBytecode="33" endBytecode="33" sourcefile="ColorResolver.java" sourcepath="de/uka/iti/pseudo/util/settings/ColorResolver.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="EQ_DOESNT_OVERRIDE_EQUALS" priority="2" abbrev="Eq" category="STYLE">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="java.util.Hashtable" name="equals" signature="(Ljava/lang/Object;)Z" isStatic="false" role="METHOD_DID_YOU_MEAN_TO_OVERRIDE">
+      <SourceLine classname="java.util.Hashtable" start="736" end="765" startBytecode="0" endBytecode="308" sourcefile="Hashtable.java" sourcepath="java/util/Hashtable.java"/>
+    </Method>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="53" end="63" startBytecode="0" endBytecode="183" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="56" end="56" startBytecode="36" endBytecode="36" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="59" end="59" startBytecode="55" endBytecode="55" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="60" end="60" startBytecode="56" endBytecode="56" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="61" end="61" startBytecode="60" endBytecode="60" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="63" end="63" startBytecode="65" endBytecode="65" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <UserAnnotation designation="MUST_FIX" timestamp="1258031886888"/>
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="54" end="65" startBytecode="0" endBytecode="207" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="57" end="57" startBytecode="32" endBytecode="32" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="58" end="58" startBytecode="36" endBytecode="36" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="61" end="61" startBytecode="61" endBytecode="61" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="62" end="62" startBytecode="62" endBytecode="62" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="63" end="63" startBytecode="66" endBytecode="66" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="65" end="65" startBytecode="71" endBytecode="71" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="loadFromSystemDirectory" signature="(Ljava/lang/String;Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="254" end="262" startBytecode="0" endBytecode="161" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="259" end="259" startBytecode="39" endBytecode="39" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="loadFromSystemDirectory" signature="(Ljava/lang/String;Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="254" end="262" startBytecode="0" endBytecode="161" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="259" end="259" startBytecode="39" endBytecode="39" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="53" end="63" startBytecode="0" endBytecode="30" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/InputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.InputStream" start="28" end="350" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="56" end="56" startBytecode="36" endBytecode="36" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="53" end="63" startBytecode="0" endBytecode="30" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/InputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.InputStream" start="28" end="350" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="56" end="56" startBytecode="36" endBytecode="36" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="loadFromSystemDirectory" signature="(Ljava/lang/String;Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="254" end="262" startBytecode="0" endBytecode="22" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/InputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.InputStream" start="28" end="350" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="259" end="259" startBytecode="33" endBytecode="33" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE" last="0" removedByChange="true">
+    <Class classname="de.uka.iti.pseudo.util.settings.Settings">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Class>
+    <Method classname="de.uka.iti.pseudo.util.settings.Settings" name="loadFromSystemDirectory" signature="(Ljava/lang/String;Ljava/lang/String;)V" isStatic="false">
+      <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="254" end="262" startBytecode="0" endBytecode="22" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/InputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.InputStream" start="28" end="350" sourcefile="InputStream.java" sourcepath="java/io/InputStream.java"/>
+    </Type>
+    <SourceLine classname="de.uka.iti.pseudo.util.settings.Settings" start="259" end="259" startBytecode="33" endBytecode="33" sourcefile="Settings.java" sourcepath="de/uka/iti/pseudo/util/settings/Settings.java"/>
+  </BugInstance>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Fri, 23 Oct 2009 15:01:22 +0200" total_classes="387" referenced_classes="1009" total_bugs="118" total_size="15320" num_packages="25" vm_version="1.6.0-b105" cpu_seconds="93.11" clock_seconds="760.23" peak_mbytes="181.87" alloc_mbytes="762.12" gc_seconds="16.46" priority_2="110" priority_1="8">
+    <PackageStats package="de.uka.iti.pseudo.auto" total_bugs="5" total_types="8" total_size="418" priority_2="5">
+      <ClassStats class="de.uka.iti.pseudo.auto.DecisionProcedure" sourceFile="DecisionProcedure.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.DecisionProcedure$Result" sourceFile="DecisionProcedure.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.SMTLibTranslator" sourceFile="SMTLibTranslator.java" interface="false" size="163" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.Z3" sourceFile="Z3.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.Z3$1" sourceFile="Z3.java" interface="false" size="30" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.Z3SMT" sourceFile="Z3SMT.java" interface="false" size="34" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.Z3SMT$1" sourceFile="Z3SMT.java" interface="false" size="28" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.Z3Translator" sourceFile="Z3Translator.java" interface="false" size="131" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.auto.strategy" total_bugs="0" total_types="16" total_size="525">
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.BreakpointManager" sourceFile="BreakpointManager.java" interface="false" size="28" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.BreakpointStrategy" sourceFile="BreakpointStrategy.java" interface="false" size="94" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.CompoundStrategy" sourceFile="CompoundStrategy.java" interface="false" size="49" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.RewriteRuleCollection" sourceFile="RewriteRuleCollection.java" interface="false" size="93" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.SimplificationStrategy" sourceFile="SimplificationStrategy.java" interface="false" size="65" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.SimplificationStrategy$1" sourceFile="SimplificationStrategy.java" interface="false" size="5" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.SimplificationStrategy$2" sourceFile="SimplificationStrategy.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.SimplificationStrategy$SplitMode" sourceFile="SimplificationStrategy.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.Strategy" sourceFile="Strategy.java" interface="true" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyException" sourceFile="StrategyException.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyListComponent" sourceFile="StrategyListComponent.java" interface="false" size="57" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyListComponent$1" sourceFile="StrategyListComponent.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyListComponent$2" sourceFile="StrategyListComponent.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyListComponent$3" sourceFile="StrategyListComponent.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyListComponent$4" sourceFile="StrategyListComponent.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.auto.strategy.StrategyManager" sourceFile="StrategyManager.java" interface="false" size="50" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.environment" total_bugs="7" total_types="20" total_size="1144" priority_2="7">
+      <ClassStats class="de.uka.iti.pseudo.environment.Binder" sourceFile="Binder.java" interface="false" size="31" bugs="3" priority_2="3"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.Environment" sourceFile="Environment.java" interface="false" size="287" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentDefinitionVisitor" sourceFile="EnvironmentDefinitionVisitor.java" interface="false" size="77" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentException" sourceFile="EnvironmentException.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentMaker" sourceFile="EnvironmentMaker.java" interface="false" size="83" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentProgramMaker" sourceFile="EnvironmentProgramMaker.java" interface="false" size="100" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentRuleDefinitionVisitor" sourceFile="EnvironmentRuleDefinitionVisitor.java" interface="false" size="120" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.EnvironmentTypingResolver" sourceFile="EnvironmentTypingResolver.java" interface="false" size="57" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.FixOperator" sourceFile="FixOperator.java" interface="false" size="33" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.Function" sourceFile="Function.java" interface="false" size="44" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.Mappable" sourceFile="Mappable.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.MetaFunction" sourceFile="MetaFunction.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.NumberLiteral" sourceFile="NumberLiteral.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.PluginManager" sourceFile="PluginManager.java" interface="false" size="65" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.PluginManager$Service" sourceFile="PluginManager.java" interface="false" size="9" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.Program" sourceFile="Program.java" interface="false" size="59" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.ProgramChanger" sourceFile="ProgramChanger.java" interface="false" size="87" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.Sort" sourceFile="Sort.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.TypeVariableCollector" sourceFile="TypeVariableCollector.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.environment.WhereCondition" sourceFile="WhereCondition.java" interface="false" size="15" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.gui" total_bugs="2" total_types="42" total_size="1581" priority_1="2">
+      <ClassStats class="de.uka.iti.pseudo.gui.BracketMatchingTextArea" sourceFile="BracketMatchingTextArea.java" interface="false" size="125" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.BracketMatchingTextArea$1" sourceFile="BracketMatchingTextArea.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.BracketMatchingTextArea$2" sourceFile="BracketMatchingTextArea.java" interface="false" size="6" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.BracketMatchingTextArea$BorderPainter" sourceFile="BracketMatchingTextArea.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ExporterFileFilter" sourceFile="ExporterFileFilter.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.GoalList" sourceFile="GoalList.java" interface="false" size="27" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.GoalList$1" sourceFile="GoalList.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.GoalList$Model" sourceFile="GoalList.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.GoalList$Model$1" sourceFile="GoalList.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.GoalList$Renderer" sourceFile="GoalList.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.InteractiveRuleApplicationComponent" sourceFile="InteractiveRuleApplicationComponent.java" interface="false" size="97" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.InteractiveRuleApplicationComponent$1" sourceFile="InteractiveRuleApplicationComponent.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.InteractiveRuleApplicationPopup" sourceFile="InteractiveRuleApplicationComponent.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.Main" sourceFile="Main.java" interface="false" size="123" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.MainWindow" sourceFile="MainWindow.java" interface="false" size="98" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.MainWindow$1" sourceFile="MainWindow.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.MainWindow$2" sourceFile="MainWindow.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProgramComponent" sourceFile="ProgramComponent.java" interface="false" size="27" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofCenter" sourceFile="ProofCenter.java" interface="false" size="112" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofCenter$1" sourceFile="ProofCenter.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofCenter$2" sourceFile="ProofCenter.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponent" sourceFile="ProofComponent.java" interface="false" size="50" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponent$1" sourceFile="ProofComponent.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponent$Renderer" sourceFile="ProofComponent.java" interface="false" size="23" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponentModel" sourceFile="ProofComponentModel.java" interface="false" size="46" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponentModel$1" sourceFile="ProofComponentModel.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofComponentModel$ProofTreeNode" sourceFile="ProofComponentModel.java" interface="false" size="111" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.ProofNodeSelectionListener" sourceFile="ProofNodeSelectionListener.java" interface="true" size="3" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.RuleApplicationComponent" sourceFile="RuleApplicationComponent.java" interface="false" size="76" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.SequentComponent" sourceFile="SequentComponent.java" interface="false" size="112" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.SequentComponent$1" sourceFile="SequentComponent.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.SequentComponent$Layout" sourceFile="SequentComponent.java" interface="false" size="41" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.SequentComponent$Separator" sourceFile="SequentComponent.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.StartupWindow" sourceFile="StartupWindow.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.StateConstants" sourceFile="StateConstants.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TermComponent" sourceFile="TermComponent.java" interface="false" size="166" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TermComponent$1" sourceFile="TermComponent.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TermComponent$2" sourceFile="TermComponent.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TermComponent$3" sourceFile="TermComponent.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TermComponent$4" sourceFile="TermComponent.java" interface="false" size="25" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.TightHorizontalLayout" sourceFile="TightHorizontalLayout.java" interface="false" size="28" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.VerticalLayout" sourceFile="VerticalLayout.java" interface="false" size="38" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.gui.bar" total_bugs="6" total_types="27" total_size="924" priority_2="6">
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.AutoProofAction" sourceFile="AutoProofAction.java" interface="false" size="43" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.BarAction" sourceFile="BarAction.java" interface="false" size="27" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.BarManager" sourceFile="BarManager.java" interface="false" size="211" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.BarManager$InitialisingAction" sourceFile="BarManager.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.CloseAction" sourceFile="CloseAction.java" interface="false" size="50" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.CloseEditorAction" sourceFile="CloseEditorAction.java" interface="false" size="36" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.ExitAction" sourceFile="ExitAction.java" interface="false" size="25" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.LoadEditedProblemAction" sourceFile="LoadEditedProblemAction.java" interface="false" size="22" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.LoadProblemAction" sourceFile="LoadProblemAction.java" interface="false" size="31" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.LoadProofAction" sourceFile="LoadProofAction.java" interface="false" size="36" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.NewEditorAction" sourceFile="NewEditorAction.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.OpenCurrentInEditorAction" sourceFile="OpenCurrentInEditorAction.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.OpenEditorAction" sourceFile="OpenEditorAction.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PopupOpenErrorFile" sourceFile="PopupOpenErrorFile.java" interface="false" size="23" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PopupOpenErrorLine" sourceFile="PopupOpenErrorLine.java" interface="false" size="26" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PrettyPrintFixedRadioAction" sourceFile="PrettyPrintFixedRadioAction.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PrettyPrintPluginsRadioAction" sourceFile="PrettyPrintPluginsRadioAction.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PrettyPrintTypedRadioAction" sourceFile="PrettyPrintTypedRadioAction.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.PruneAction" sourceFile="PruneAction.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.SMTActivationAction" sourceFile="SMTActivationAction.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.SMTBackgroundAction" sourceFile="SMTBackgroundAction.java" interface="false" size="110" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.SaveAsEditorAction" sourceFile="SaveAsEditorAction.java" interface="false" size="46" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.SaveEditorAction" sourceFile="SaveEditorAction.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.SaveProofAction" sourceFile="SaveProofAction.java" interface="false" size="46" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.StateListener" sourceFile="StateListener.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.StateListener$StateChangeEvent" sourceFile="StateListener.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.bar.VerbosityAction" sourceFile="VerbosityAction.java" interface="false" size="24" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.gui.editor" total_bugs="4" total_types="13" total_size="420" priority_2="3" priority_1="1">
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.CurlyHighlightPainter" sourceFile="CurlyHighlightPainter.java" interface="false" size="32" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.LineNrBorder" sourceFile="LineNrBorder.java" interface="false" size="42" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.LineNrPane" sourceFile="LineNrPane.java" interface="false" size="29" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.LineNrPane$1" sourceFile="LineNrPane.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.LineNrPane$LineNr" sourceFile="LineNrPane.java" interface="false" size="17" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor" sourceFile="PFileEditor.java" interface="false" size="174" bugs="2" priority_2="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$1" sourceFile="PFileEditor.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$2" sourceFile="PFileEditor.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$3" sourceFile="PFileEditor.java" interface="false" size="36" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$4" sourceFile="PFileEditor.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$5" sourceFile="PFileEditor.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$6" sourceFile="PFileEditor.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.editor.PFileEditor$UpdateThread" sourceFile="PFileEditor.java" interface="false" size="29" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.gui.parameters" total_bugs="0" total_types="12" total_size="340">
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterPanel" sourceFile="ParameterPanel.java" interface="false" size="46" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterPanel$1" sourceFile="ParameterPanel.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterPanel$2" sourceFile="ParameterPanel.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterPanel$3" sourceFile="ParameterPanel.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet" sourceFile="ParameterSheet.java" interface="false" size="174" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet$1" sourceFile="ParameterSheet.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet$2" sourceFile="ParameterSheet.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet$3" sourceFile="ParameterSheet.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet$4" sourceFile="ParameterSheet.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterSheet$Parameter" sourceFile="ParameterSheet.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterTest" sourceFile="ParameterTest.java" interface="false" size="34" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.parameters.ParameterTest$MyEnum" sourceFile="ParameterTest.java" interface="false" size="10" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.gui.source" total_bugs="3" total_types="13" total_size="311" priority_2="3">
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BarHighlightPainter" sourceFile="BarHighlightPainter.java" interface="false" size="20" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakPointListener" sourceFile="BreakPointListener.java" interface="true" size="3" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakpointPane" sourceFile="BreakpointPane.java" interface="false" size="81" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakpointPane$1" sourceFile="BreakpointPane.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakpointPane$2" sourceFile="BreakpointPane.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakpointPane$3" sourceFile="BreakpointPane.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.BreakpointPane$BulletBorder" sourceFile="BreakpointPane.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.ChoosePanel" sourceFile="ChoosePanel.java" interface="false" size="50" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.ChoosePanel$1" sourceFile="ChoosePanel.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.ProgramPanel" sourceFile="ProgramPanel.java" interface="false" size="39" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.ProgramPanel$1" sourceFile="ProgramPanel.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.SourcePanel" sourceFile="SourcePanel.java" interface="false" size="51" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.gui.source.SourcePanel$1" sourceFile="SourcePanel.java" interface="false" size="11" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.parser" total_bugs="49" total_types="16" total_size="3080" priority_2="49">
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTDefaultVisitor" sourceFile="ASTDefaultVisitor.java" interface="false" size="142" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTElement" sourceFile="ASTElement.java" interface="false" size="59" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTLocatedElement" sourceFile="ASTLocatedElement.java" interface="true" size="5" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTLocatedElement$1" sourceFile="ASTLocatedElement.java" interface="false" size="5" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTVisitException" sourceFile="ASTVisitException.java" interface="false" size="30" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ASTVisitor" sourceFile="ASTVisitor.java" interface="true" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ParseException" sourceFile="ParseException.java" interface="false" size="78" bugs="3" priority_2="3"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.Parser" sourceFile="Parser.java" interface="false" size="1096" bugs="37" priority_2="37"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.Parser$1" sourceFile="Parser.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.Parser$JJCalls" sourceFile="Parser.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.Parser$LookaheadSuccess" sourceFile="Parser.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ParserConstants" sourceFile="ParserConstants.java" interface="true" size="66" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.ParserTokenManager" sourceFile="ParserTokenManager.java" interface="false" size="1276" bugs="7" priority_2="7"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.SimpleCharStream" sourceFile="SimpleCharStream.java" interface="false" size="247" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.Token" sourceFile="Token.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.TokenMgrError" sourceFile="TokenMgrError.java" interface="false" size="47" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.parser.file" total_bugs="0" total_types="25" total_size="435">
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTBinderDeclaration" sourceFile="ASTBinderDeclaration.java" interface="false" size="28" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTBinderDeclarationBlock" sourceFile="ASTBinderDeclarationBlock.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTDeclarationBlock" sourceFile="ASTDeclarationBlock.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTFile" sourceFile="ASTFile.java" interface="false" size="24" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTFileDefaultVisitor" sourceFile="ASTFileDefaultVisitor.java" interface="false" size="55" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTFileVisitor" sourceFile="ASTFileVisitor.java" interface="true" size="21" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration" sourceFile="ASTFunctionDeclaration.java" interface="false" size="41" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTFunctionDeclarationBlock" sourceFile="ASTFunctionDeclarationBlock.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTGoalAction" sourceFile="ASTGoalAction.java" interface="false" size="24" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock" sourceFile="ASTIncludeDeclarationBlock.java" interface="false" size="21" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTLocatedTerm" sourceFile="ASTLocatedTerm.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTPluginDeclaration" sourceFile="ASTPluginDeclaration.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTPlugins" sourceFile="ASTPlugins.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTProgramDeclaration" sourceFile="ASTProgramDeclaration.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRule" sourceFile="ASTRule.java" interface="false" size="21" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleAdd" sourceFile="ASTRuleAdd.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleAssume" sourceFile="ASTRuleAssume.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleElement" sourceFile="ASTRuleElement.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleFind" sourceFile="ASTRuleFind.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleRemove" sourceFile="ASTRuleRemove.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTRuleReplace" sourceFile="ASTRuleReplace.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTSortDeclaration" sourceFile="ASTSortDeclaration.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock" sourceFile="ASTSortDeclarationBlock.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.ASTWhereClause" sourceFile="ASTWhereClause.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.file.MatchingLocation" sourceFile="MatchingLocation.java" interface="false" size="13" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.parser.program" total_bugs="0" total_types="11" total_size="118">
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTAssertStatement" sourceFile="ASTAssertStatement.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTAssignmentStatement" sourceFile="ASTAssignmentStatement.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTAssumeStatement" sourceFile="ASTAssumeStatement.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTEndStatement" sourceFile="ASTEndStatement.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTGotoStatement" sourceFile="ASTGotoStatement.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTHavocStatement" sourceFile="ASTHavocStatement.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTLabelStatement" sourceFile="ASTLabelStatement.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTProgramVisitor" sourceFile="ASTProgramVisitor.java" interface="true" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTSkipStatement" sourceFile="ASTSkipStatement.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTSourceLineStatement" sourceFile="ASTSourceLineStatement.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.program.ASTStatement" sourceFile="ASTStatement.java" interface="false" size="14" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.parser.term" total_bugs="0" total_types="19" total_size="339">
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTApplicationTerm" sourceFile="ASTApplicationTerm.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTAsType" sourceFile="ASTAsType.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTBinderTerm" sourceFile="ASTBinderTerm.java" interface="false" size="29" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTDefaultVisitor" sourceFile="ASTDefaultVisitor.java" interface="false" size="40" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTFixTerm" sourceFile="ASTFixTerm.java" interface="false" size="22" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTHeadElement" sourceFile="ASTHeadElement.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTIdentifierTerm" sourceFile="ASTIdentifierTerm.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTListTerm" sourceFile="ASTListTerm.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm" sourceFile="ASTNumberLiteralTerm.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm" sourceFile="ASTOperatorIdentifierTerm.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTProgramTerm" sourceFile="ASTProgramTerm.java" interface="false" size="41" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTSchemaUpdateTerm" sourceFile="ASTSchemaUpdateTerm.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm" sourceFile="ASTSchemaVariableTerm.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTTerm" sourceFile="ASTTerm.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTTermVisitor" sourceFile="ASTTermVisitor.java" interface="true" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTType" sourceFile="ASTType.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTTypeApplication" sourceFile="ASTTypeApplication.java" interface="false" size="18" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTTypeVar" sourceFile="ASTTypeVar.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.parser.term.ASTUpdateTerm" sourceFile="ASTUpdateTerm.java" interface="false" size="10" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.prettyprint" total_bugs="0" total_types="5" total_size="489">
+      <ClassStats class="de.uka.iti.pseudo.prettyprint.PrettyPrint" sourceFile="PrettyPrint.java" interface="false" size="172" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.prettyprint.PrettyPrint$1" sourceFile="PrettyPrint.java" interface="false" size="6" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin" sourceFile="PrettyPrintPlugin.java" interface="false" size="40" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.prettyprint.PrettyPrintVisitor" sourceFile="PrettyPrintVisitor.java" interface="false" size="231" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.prettyprint.TermTag" sourceFile="TermTag.java" interface="false" size="40" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.proof" total_bugs="2" total_types="19" total_size="764" priority_2="1" priority_1="1">
+      <ClassStats class="de.uka.iti.pseudo.proof.FormatException" sourceFile="FormatException.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.ImmutableRuleApplication" sourceFile="ImmutableRuleApplication.java" interface="false" size="40" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.MutableRuleApplication" sourceFile="MutableRuleApplication.java" interface="false" size="56" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.Proof" sourceFile="Proof.java" interface="false" size="63" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.ProofException" sourceFile="ProofException.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.ProofNode" sourceFile="ProofNode.java" interface="false" size="184" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.ProofNode$1" sourceFile="ProofNode.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplication" sourceFile="RuleApplication.java" interface="true" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplicationFilter" sourceFile="RuleApplicationFilter.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplicationFinder" sourceFile="RuleApplicationFinder.java" interface="false" size="89" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplicationFinder$1" sourceFile="RuleApplicationFinder.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplicationFinder$EnoughException" sourceFile="RuleApplicationFinder.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RuleApplicationMaker" sourceFile="RuleApplicationMaker.java" interface="false" size="56" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.RulePriorityComparator" sourceFile="RulePriorityComparator.java" interface="false" size="10" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.SequentHistory" sourceFile="SequentHistory.java" interface="false" size="72" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.SequentHistory$Annotation" sourceFile="SequentHistory.java" interface="false" size="22" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.TermSelector" sourceFile="TermSelector.java" interface="false" size="115" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.TermSelector$1" sourceFile="TermSelector.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.TermSelector$ListView" sourceFile="TermSelector.java" interface="false" size="10" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.proof.serialisation" total_bugs="0" total_types="5" total_size="225">
+      <ClassStats class="de.uka.iti.pseudo.proof.serialisation.ProofExport" sourceFile="ProofExport.java" interface="true" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.serialisation.ProofImport" sourceFile="ProofImport.java" interface="true" size="3" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.serialisation.ProofXML" sourceFile="ProofXML.java" interface="false" size="72" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.serialisation.SAXHandler" sourceFile="ProofXML.java" interface="false" size="84" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.proof.serialisation.XMLWriter" sourceFile="XMLWriter.java" interface="false" size="62" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.rule" total_bugs="1" total_types="9" total_size="230" priority_2="1">
+      <ClassStats class="de.uka.iti.pseudo.rule.GoalAction" sourceFile="GoalAction.java" interface="false" size="51" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.GoalAction$Kind" sourceFile="GoalAction.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.LocatedTerm" sourceFile="LocatedTerm.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.LocatedTerm$1" sourceFile="LocatedTerm.java" interface="false" size="4" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.Rule" sourceFile="Rule.java" interface="false" size="61" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.RuleException" sourceFile="RuleException.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.RuleSchemaConsistencyChecker" sourceFile="RuleSchemaConsistencyChecker.java" interface="false" size="32" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.RuleTagConstants" sourceFile="RuleTagConstants.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.WhereClause" sourceFile="WhereClause.java" interface="false" size="25" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.rule.meta" total_bugs="0" total_types="17" total_size="495">
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction" sourceFile="IncPrgMetaFunction.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction" sourceFile="IntEvalMetaFunction.java" interface="false" size="56" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction" sourceFile="JmpPrgMetaFunction.java" interface="false" size="24" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction" sourceFile="LoopInvariantProgramModificationMetaFunction.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.LoopModifier" sourceFile="LoopInvariantProgramModificationMetaFunction.java" interface="false" size="112" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.MetaEvaluator" sourceFile="MetaEvaluator.java" interface="false" size="22" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.ResolveUniqueMetaFunction" sourceFile="ResolveUniqueMetaFunction.java" interface="false" size="36" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SaveVarMetaFunction" sourceFile="SaveVarMetaFunction.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SaveVarMetaFunction$TermReplacer" sourceFile="SaveVarMetaFunction.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SkolemMetaFunction" sourceFile="SkolemMetaFunction.java" interface="false" size="24" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SkolemMetaFunction$1" sourceFile="SkolemMetaFunction.java" interface="false" size="5" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.StatementAnalyser" sourceFile="LoopInvariantProgramModificationMetaFunction.java" interface="false" size="36" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SubstMetaFunction" sourceFile="SubstMetaFunction.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.SubstMetaFunction$TermReplacer" sourceFile="SubstMetaFunction.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction" sourceFile="UpdSimplMetaFunction.java" interface="false" size="59" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction$1" sourceFile="UpdSimplMetaFunction.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction$Visitor" sourceFile="UpdSimplMetaFunction.java" interface="false" size="28" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.rule.where" total_bugs="0" total_types="13" total_size="218">
+      <ClassStats class="de.uka.iti.pseudo.rule.where.AskDecisionProcedure" sourceFile="AskDecisionProcedure.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.CanEvaluateMeta" sourceFile="CanEvaluateMeta.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.CanEvaluateMeta$ProtectedRuleApplication" sourceFile="CanEvaluateMeta.java" interface="false" size="24" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.DifferentTypes" sourceFile="DifferentTypes.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.DistinctAssumeAndFind" sourceFile="DistinctAssumeAndFind.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.IntLiteral" sourceFile="IntLiteral.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.Interactive" sourceFile="Interactive.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.IsUnique" sourceFile="IsUnique.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.NotFreeIn" sourceFile="NotFreeIn.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.ProgramFree" sourceFile="ProgramFree.java" interface="false" size="16" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.ProgramFree$1" sourceFile="ProgramFree.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.TopLevel" sourceFile="TopLevel.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.rule.where.TopLevel$ToplevelVisitor" sourceFile="TopLevel.java" interface="false" size="28" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.term" total_bugs="14" total_types="20" total_size="571" priority_2="12" priority_1="2">
+      <ClassStats class="de.uka.iti.pseudo.term.Application" sourceFile="Application.java" interface="false" size="57" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.term.BindableIdentifier" sourceFile="BindableIdentifier.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Binding" sourceFile="Binding.java" interface="false" size="73" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.LiteralProgramTerm" sourceFile="LiteralProgramTerm.java" interface="false" size="34" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.ProgramTerm" sourceFile="ProgramTerm.java" interface="false" size="20" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.SchemaProgramTerm" sourceFile="SchemaProgramTerm.java" interface="false" size="25" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.SchemaUpdateTerm" sourceFile="SchemaUpdateTerm.java" interface="false" size="18" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.SchemaVariable" sourceFile="SchemaVariable.java" interface="false" size="24" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Sequent" sourceFile="Sequent.java" interface="false" size="31" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Term" sourceFile="Term.java" interface="false" size="43" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.TermException" sourceFile="TermException.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.TermVisitor" sourceFile="TermVisitor.java" interface="true" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Type" sourceFile="Type.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.TypeApplication" sourceFile="TypeApplication.java" interface="false" size="45" bugs="3" priority_2="3"/>
+      <ClassStats class="de.uka.iti.pseudo.term.TypeVariable" sourceFile="TypeVariable.java" interface="false" size="25" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.TypeVisitor" sourceFile="TypeVisitor.java" interface="true" size="3" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.UnificationException" sourceFile="UnificationException.java" interface="false" size="46" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Update" sourceFile="Update.java" interface="false" size="33" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.UpdateTerm" sourceFile="UpdateTerm.java" interface="false" size="32" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.Variable" sourceFile="Variable.java" interface="false" size="21" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.term.creation" total_bugs="5" total_types="26" total_size="1400" priority_2="5">
+      <ClassStats class="de.uka.iti.pseudo.term.creation.DefaultTermVisitor" sourceFile="DefaultTermVisitor.java" interface="false" size="29" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.DefaultTermVisitor$DepthTermVisitor" sourceFile="DefaultTermVisitor.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.DefaultTypeVisitor" sourceFile="DefaultTypeVisitor.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator" sourceFile="ProgramComparingTermInstantiator.java" interface="false" size="22" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.RebuildingTermVisitor" sourceFile="RebuildingTermVisitor.java" interface="false" size="99" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.SchemaCollectorVisitor" sourceFile="SchemaCollectorVisitor.java" interface="false" size="56" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.ShuntingYard" sourceFile="ShuntingYard.java" interface="false" size="57" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.SubtermCollector" sourceFile="SubtermCollector.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.SubtermReplacer" sourceFile="SubtermReplacer.java" interface="false" size="21" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermFactory" sourceFile="TermFactory.java" interface="false" size="25" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermInstantiator" sourceFile="TermInstantiator.java" interface="false" size="127" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermInstantiator$1" sourceFile="TermInstantiator.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermMaker" sourceFile="TermMaker.java" interface="false" size="252" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermMatcher" sourceFile="TermMatcher.java" interface="false" size="116" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermUnification" sourceFile="TermUnification.java" interface="false" size="66" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TermUnification$1" sourceFile="TermUnification.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor" sourceFile="ToplevelCheckVisitor.java" interface="false" size="30" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypeUnification" sourceFile="TypeUnification.java" interface="false" size="127" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypeUnification$1" sourceFile="TypeUnification.java" interface="false" size="5" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypeUnification$2" sourceFile="TypeUnification.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypeUnification$3" sourceFile="TypeUnification.java" interface="false" size="9" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.Typing" sourceFile="Typing.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypingContext" sourceFile="TypingContext.java" interface="false" size="34" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypingContext$1" sourceFile="TypingContext.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypingContext$SignatureVisitor" sourceFile="TypingContext.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.creation.TypingResolver" sourceFile="TypingResolver.java" interface="false" size="225" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.term.statement" total_bugs="9" total_types="10" total_size="168" priority_2="9">
+      <ClassStats class="de.uka.iti.pseudo.term.statement.AssertStatement" sourceFile="AssertStatement.java" interface="false" size="10" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.AssignmentStatement" sourceFile="AssignmentStatement.java" interface="false" size="26" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.AssumeStatement" sourceFile="AssumeStatement.java" interface="false" size="10" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.DefaultStatementVisitor" sourceFile="DefaultStatementVisitor.java" interface="false" size="22" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.EndStatement" sourceFile="EndStatement.java" interface="false" size="10" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.GotoStatement" sourceFile="GotoStatement.java" interface="false" size="9" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.HavocStatement" sourceFile="HavocStatement.java" interface="false" size="18" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.SkipStatement" sourceFile="SkipStatement.java" interface="false" size="14" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.Statement" sourceFile="Statement.java" interface="false" size="41" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.term.statement.StatementVisitor" sourceFile="StatementVisitor.java" interface="true" size="8" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.util" total_bugs="5" total_types="36" total_size="955" priority_2="3" priority_1="2">
+      <ClassStats class="de.uka.iti.pseudo.util.AnnotatedString" sourceFile="AnnotatedString.java" interface="false" size="67" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AnnotatedString$1" sourceFile="AnnotatedString.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AnnotatedString$Element" sourceFile="AnnotatedString.java" interface="false" size="23" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AnnotatedStringWithStyles" sourceFile="AnnotatedStringWithStyles.java" interface="false" size="59" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AnnotatedStringWithStyles$AttributeSetFactory" sourceFile="AnnotatedStringWithStyles.java" interface="true" size="2" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AppendMap" sourceFile="AppendMap.java" interface="false" size="45" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AppendMap$1" sourceFile="AppendMap.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AppendMap$1$1" sourceFile="AppendMap.java" interface="false" size="17" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.AppendMap$LinkedEntry" sourceFile="AppendMap.java" interface="false" size="30" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.CommandLine" sourceFile="CommandLine.java" interface="false" size="81" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.CommandLine$1" sourceFile="CommandLine.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.CommandLine$Option" sourceFile="CommandLine.java" interface="false" size="8" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.CommandLineException" sourceFile="CommandLineException.java" interface="false" size="13" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.DeferredObservable" sourceFile="DeferredObservable.java" interface="false" size="24" bugs="2" priority_2="2"/>
+      <ClassStats class="de.uka.iti.pseudo.util.DeferredObservable$1" sourceFile="DeferredObservable.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.DeferredObservable$DispatchThread" sourceFile="DeferredObservable.java" interface="false" size="19" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Dump" sourceFile="Dump.java" interface="false" size="14" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.ExceptionDialog" sourceFile="ExceptionDialog.java" interface="false" size="115" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.ExceptionDialog$1" sourceFile="ExceptionDialog.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.ExceptionDialog$2" sourceFile="ExceptionDialog.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.ExceptionDialog$StackTraceThrowable" sourceFile="ExceptionDialog.java" interface="false" size="12" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.GUIUtil" sourceFile="GUIUtil.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.LinearLookupMap" sourceFile="LinearLookupMap.java" interface="false" size="59" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.LinearLookupMap$1" sourceFile="LinearLookupMap.java" interface="false" size="1" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.LinearLookupMap$EntrySet" sourceFile="LinearLookupMap.java" interface="false" size="10" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.LinearLookupMap$EntrySet$Itr" sourceFile="LinearLookupMap.java" interface="false" size="15" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Pair" sourceFile="Pair.java" interface="false" size="21" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.util.PopupDisappearListener" sourceFile="PopupDisappearListener.java" interface="false" size="43" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.SelectList" sourceFile="SelectList.java" interface="false" size="30" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.TermSelectionTransfer" sourceFile="TermSelectionTransfer.java" interface="false" size="27" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.TermSelectionTransferable" sourceFile="TermSelectionTransferable.java" interface="false" size="24" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Triple" sourceFile="Triple.java" interface="false" size="25" bugs="1" priority_1="1"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Util" sourceFile="Util.java" interface="false" size="55" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Util$1" sourceFile="Util.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.Util$ReadOnlyArrayList" sourceFile="Util.java" interface="false" size="27" bugs="0"/>
+      <ClassStats class="de.uka.iti.pseudo.util.WindowMover" sourceFile="WindowMover.java" interface="false" size="43" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="de.uka.iti.pseudo.util.settings" total_bugs="6" total_types="2" total_size="134" priority_2="6">
+      <ClassStats class="de.uka.iti.pseudo.util.settings.ColorResolver" sourceFile="ColorResolver.java" interface="false" size="50" bugs="1" priority_2="1"/>
+      <ClassStats class="de.uka.iti.pseudo.util.settings.Settings" sourceFile="Settings.java" interface="false" size="84" bugs="5" priority_2="5"/>
+    </PackageStats>
+    <PackageStats package="nonnull" total_bugs="0" total_types="2" total_size="2">
+      <ClassStats class="nonnull.NonNull" sourceFile="NonNull.java" interface="true" size="1" bugs="0"/>
+      <ClassStats class="nonnull.Nullable" sourceFile="Nullable.java" interface="true" size="1" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="test" total_bugs="0" total_types="1" total_size="34">
+      <ClassStats class="test.HeapPrettyPrinter" sourceFile="HeapPrettyPrinter.java" interface="false" size="34" bugs="0"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.SAXBugCollectionHandler" totalMilliseconds="168" invocations="1" avgMicrosecondsPerInvocation="168902" maxMicrosecondsPerInvocation="168902" standardDeviationMircosecondsPerInvocation="0"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

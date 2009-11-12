@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -53,13 +54,14 @@ public class Settings extends Properties {
         super();
         try {
             defaults = new Properties();
-            defaults.load(getClass().getResourceAsStream(
-                    "Settings_default.properties"));
+            InputStream stream = getClass().getResourceAsStream("Settings_default.properties");
+            defaults.load(stream);
+            stream.close();
             defaults.putAll(System.getProperties());
         } catch (Exception ex) {
             ex.printStackTrace();
             defaults = null;
-        }
+        } 
     }
 
     public static Settings getInstance() {
@@ -256,7 +258,13 @@ public class Settings extends Properties {
             File f = new File(dir, fileName);
             if(f.canRead()) {
 //            logger.fine("Load settings from system directory: " + f);
-                defaults.load(new FileInputStream(f));
+                FileInputStream fileInputStream = new FileInputStream(f);
+                
+                try {
+                    defaults.load(fileInputStream);
+                } finally {
+                    fileInputStream.close();
+                }
             }
         }
     }

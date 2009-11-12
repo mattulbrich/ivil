@@ -10,8 +10,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextPane;
-import javax.swing.text.Document;
 
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 
@@ -56,6 +54,7 @@ class LineNrPane extends JPanel {
 		linenr.setPreferredSize(new Dimension(40,30));
 	}
 
+	@SuppressWarnings("serial") 
 	private class LineNr extends JComponent {
 		public void paint(Graphics g) {
 			super.paint(g);
@@ -68,7 +67,7 @@ class LineNrPane extends JPanel {
 			int end = (viewPosition.y + pane.getHeight()) / fontHeight; // end pos in doc
 
 			// translate offsets to lines
-			Document doc = pane.getDocument();
+			//Document doc = pane.getDocument();
 
 			int offset = viewPosition.y % fontHeight;
 			//System.out.println(viewPosition + " " + start + " " + end);

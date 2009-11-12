@@ -12,7 +12,7 @@ public class TestApplication extends TestCaseWithEnv {
         Application two = new Application(env.getNumberLiteral("2"), Environment.getIntType());
         
         try {
-            Application eq = new Application(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
+            new Application(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
             fail("should fail");
         } catch (TermException e) {
             // should fail
