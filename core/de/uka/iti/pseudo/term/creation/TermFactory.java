@@ -9,6 +9,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
 
+// TODO throw term exception if f == null instead of NPE
 /**
  * TermFactory is a collection of static methods to faciliate the
  * construction of terms. They are merely convenience methods 
@@ -39,6 +40,16 @@ public class TermFactory {
         Function f = env.getFunction("$gt");
         return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
+    
+    public Term gte(Term t1, Term t2) throws TermException {
+        Function f = env.getFunction("$gte");
+        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+    }
+    
+    public Term lt(Term t1, Term t2) throws TermException {
+        Function f = env.getFunction("$lt");
+        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+    }
 
     public Term cons(Function constantSymbol) throws TermException {
         return new Application(constantSymbol, constantSymbol.getResultType(), new Term[0]);
@@ -53,5 +64,8 @@ public class TermFactory {
         Function f = env.getFunction("$impl");
         return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
+
+
+    
 
 }

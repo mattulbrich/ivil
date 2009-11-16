@@ -40,7 +40,7 @@ public class Application extends Term {
      * @throws TermException
      *             if the type check fails.
      */
-    public Application(Function funct, Type type, Term[] subterms)
+    public Application(@NonNull Function funct, @NonNull Type type, Term[] subterms)
             throws TermException {
         super(subterms, type);
         this.function = funct;

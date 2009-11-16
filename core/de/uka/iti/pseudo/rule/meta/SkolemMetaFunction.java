@@ -32,7 +32,13 @@ public class SkolemMetaFunction extends MetaFunction {
         String name = ruleApp.getProperties().get(property);
         if(name == null) {
             if(ruleApp.hasMutableProperties()) {
-                name = env.createNewFunctionName("sk");
+                String prefix = "sk";
+                if (application.getSubterm(0) instanceof Application) {
+                    // try to use function symbol name to skolemise
+                    Function innerFunct = ((Application) application.getSubterm(0)).getFunction();
+                    prefix = innerFunct.getName();
+                }
+                name = env.createNewFunctionName(prefix);
                 ruleApp.getProperties().put(property, name);
             } else {
                 throw new TermException("There is no skolemisation stored for " + application);

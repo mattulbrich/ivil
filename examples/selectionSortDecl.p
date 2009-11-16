@@ -81,4 +81,10 @@ rule length_swap
 rule isPerm_swap
   find isPerm(swap(%a, %i, %j), %b)
   replace isPerm(%a, %b)
+  tags derived
+
+rule isPerm_refl
+  find isPerm(%a, %a)
+  replace true
+  tags derived
   

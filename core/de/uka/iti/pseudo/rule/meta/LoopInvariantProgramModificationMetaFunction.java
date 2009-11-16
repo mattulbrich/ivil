@@ -1,9 +1,8 @@
 package de.uka.iti.pseudo.rule.meta;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -29,6 +28,7 @@ import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
 
 /**
@@ -109,6 +109,12 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
         Term invariant = application.getSubterm(1);
         Term variant = application.getSubterm(2);
         
+        Application zero = new Application(env.getNumberLiteral("0"), Environment.getIntType());
+        
+        // "0" as variant means no variant.
+        if(zero.equals(variant))
+            variant = null;
+        
         // use an external object so that no state is stored in the meta
         // function
         LoopModifier modifier = new LoopModifier(programTerm, invariant, variant, env);
@@ -124,18 +130,15 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
         
 class LoopModifier {
 
-    Set<Function> modifiedAssignables = new HashSet<Function>();
-    Map<Function, Function> atPreSymbols = new HashMap<Function, Function>();
-    private List<Function> otherAssignables;
-    private Function varAtPre;
-    
+    private Set<Function> modifiedAssignables = new HashSet<Function>();
+    private Term varAtPre;
     private LiteralProgramTerm programTerm;
+
     private Term invariant;
     private Term variant;
     private Environment env;
     private TermFactory tf;
     private ProgramChanger programChanger;
-    private Term atPreEqualities;
     private Program originalProgram;
 
     public LoopModifier(LiteralProgramTerm programTerm, Term invariant,
@@ -148,31 +151,28 @@ class LoopModifier {
         this.tf = new TermFactory(env);
     }
 
-    Term apply() throws TermException, EnvironmentException {
+    // package default to unit test it.
+    LiteralProgramTerm apply() throws TermException, EnvironmentException {
         collectAssignables();
         
-        otherAssignables = env.getAllAssignables();
-        otherAssignables.removeAll(modifiedAssignables);
-
         Program program = programTerm.getProgram();
         int index = programTerm.getProgramIndex();
-        // FIXME this wont work in general. Need environment to propose a name for me. 
+        
         programChanger = new ProgramChanger(program, env);
         
-        makeAtPreSymbols();
-        makeAtPreEqualities();
+        makeVarAtPreSymbol();
 
         index = insertProofObligations(index);
+        removeSkip(index);
         insertAssumptions(index);
 
-        Program newProgram = programChanger.makeProgram(program.getName() + "'");
+        String name = env.createNewProgramName(program.getName());
+        Program newProgram = programChanger.makeProgram(name);
         env.addProgram(newProgram);
         
         LiteralProgramTerm newProgramTerm = new LiteralProgramTerm(index, programTerm.isTerminating(), newProgram);
         
-        Term result = tf.impl(atPreEqualities, newProgramTerm);
-        
-        return result;
+        return newProgramTerm;
         
     }
 
@@ -238,53 +238,39 @@ class LoopModifier {
         
     }
 
-    private void insertAssumptions(int index) throws TermException {
-        int index0 = index;
-        int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
-        for (Function f : modifiedAssignables) {
-            programChanger.insertAt(index, new HavocStatement(sourceLineNumber, tf.cons(f)));
-            index ++;
-        }
-        
-        programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, invariant));
-        index ++;
-        
-    }
-
-    private void makeAtPreSymbols() throws TermException {
-        for (Function f : otherAssignables) {
-            String newname = env.createNewFunctionName(f.getName() + "AtPre");
-            Function atpre = new Function(newname, f.getResultType(), new Type[0], 
+    /*
+     * create a new symbol for the variant in prestate only if there is a
+     * variant (variant != null) and a term has not yet been set from outside
+     * (e.g. during testing).
+     */
+    private void makeVarAtPreSymbol() throws TermException {
+        if(varAtPre == null && variant != null) {
+            String newname = env.createNewFunctionName("varAtPre");
+            Function varAtPreSym = new Function(newname, Environment.getIntType(), new Type[0],
                     false, false, ASTLocatedElement.BUILTIN);
             try {
-                env.addFunction(atpre);
+                env.addFunction(varAtPreSym);
+                varAtPre = new Application(varAtPreSym, varAtPreSym.getResultType());
             } catch (EnvironmentException e) {
                 throw new TermException(e);
             }
-            atPreSymbols.put(f, atpre);
         }
-        
-        // XXX variant
-        
-        assert otherAssignables.size() == atPreSymbols.size(); 
     }
-
+    
     private int insertProofObligations(int index) throws TermException {
         int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
         
-        programChanger.insertAt(index, new AssertStatement(sourceLineNumber, invariant));
+        AssertStatement assertion = new AssertStatement(sourceLineNumber, invariant);
+        programChanger.insertAt(index, assertion, "Continuation preserves invariant");
         index ++;
         
-// XXX variant
-//        if(!variant.equals(tf.number(0))) {
-//            Term varGt0 = tf.gt(variant, tf.number(0));
-//            Term varLtVar0 = tf.gt(variant, variant);
-//            programChanger.insertAt(index, new AssertStatement(tf.and(varGt0, varLtVar0)));
-//            index++;
-//        }
-        
-        programChanger.insertAt(index, new AssertStatement(sourceLineNumber, atPreEqualities));
-        index ++;
+        if(variant != null) {
+            Term varGt0 = tf.gte(variant, tf.number(0));
+            Term varLtVar0 = tf.lt(variant, varAtPre);
+            assertion = new AssertStatement(sourceLineNumber, tf.and(varGt0, varLtVar0));
+            programChanger.insertAt(index, assertion, "Continuation reduces variant");
+            index++;
+        }
         
         programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
         index ++;
@@ -292,19 +278,45 @@ class LoopModifier {
         return index;
     }
 
-    private void makeAtPreEqualities() throws TermException {
-        atPreEqualities = null;
-        for (Function ass : otherAssignables) {
-            Term eq = tf.eq(tf.cons(ass), tf.cons(atPreSymbols.get(ass)));
-            
-            if(atPreEqualities == null) {
-                atPreEqualities = eq;
-            } else {
-                atPreEqualities = tf.and(atPreEqualities, eq);
-            }
+    private void insertAssumptions(int index) throws TermException {
+        int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
+        
+        for (Function f : modifiedAssignables) {
+            programChanger.insertAt(index, new HavocStatement(sourceLineNumber, tf.cons(f)));
+            index ++;
         }
-        if(atPreEqualities == null)
-            atPreEqualities = Environment.getTrue();
+        
+        if(variant != null) {
+            programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, tf.eq(varAtPre, variant)));
+            index ++;
+        }
+        
+        programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, invariant));
+        index ++;
+        
+    }
+    
+    /*
+     * if the original statement was a skip it ought to be removed so that
+     * the invariant is not applied again and again.
+     */
+    private void removeSkip(int index) throws TermException {
+        Statement statementAt = programChanger.getStatementAt(index);
+        if(statementAt instanceof SkipStatement) {
+            programChanger.deleteAt(index);
+        }
+    }
+
+    public Set<Function> getModifiedAssignables() {
+        return Collections.unmodifiableSet(modifiedAssignables);
+    }
+
+    public void setVarAtPre(Term varAtPre) {
+        this.varAtPre = varAtPre;
+    }
+
+    public Term getVarAtPre() {
+        return varAtPre;
     }
 
 }

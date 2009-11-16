@@ -241,6 +241,27 @@ public class ProgramChanger {
         statements.remove(index);
         statementAnnotations.remove(index);
     }
+    
+    /**
+     * Reads a statement from the statement list
+     * 
+     * @param index
+     *            the index into the statement list
+     * 
+     * @return the statement at index
+     * 
+     *  @throws IndexOutOfBoundsException
+     *             if the index is negative or beyond the end of the statement
+     *             list.
+     */
+    public Statement getStatementAt(int index) {
+        if (index < 0 || index >= statements.size())
+            throw new IndexOutOfBoundsException(
+                    "Index outside the program boundaries");
+        
+        return statements.get(index);
+    }
+
 
     /**
      * Given the modified statement list and annotations, create a new program.
@@ -313,6 +334,7 @@ public class ProgramChanger {
             if (val >= index) {
                 if (newTargets == null) {
                     newTargets = new Term[orgTargets.size()];
+                    orgTargets.toArray(newTargets);
                 }
                 newTargets[i] = fromInt(val + offset);
             }
@@ -353,4 +375,5 @@ public class ProgramChanger {
         }
         throw new TermException("The term " + term + " is not a number literal");
     }
+
 }
