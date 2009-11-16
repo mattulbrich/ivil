@@ -75,13 +75,25 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         
         assertEqualProgs(progResult.getProgram(), env.getProgram("Q_after_without_var"));
     }
+    
+    // Program with loop directly to the skip
+    public void testBug1() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env.getProgram("Bug1"));
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        
+        LiteralProgramTerm progResult = loopMod.apply();
+        
+        assertEqualProgs(progResult.getProgram(), env.getProgram("Bug1_after"));
+    }
 
 
     private void assertEqualProgs(Program p1, Program p2) {
         try {
             List<Statement> s1 = p1.getStatements();
             List<Statement> s2 = p2.getStatements();
-            assertEquals(s1.size(), s2.size());
+            assertEquals("Lengths do not match.", s1.size(), s2.size());
             for (int i = 0; i < s1.size(); i++) {
                 System.out.println("P1: " + s1.get(i));
                 System.out.println("P2: " + s2.get(i));

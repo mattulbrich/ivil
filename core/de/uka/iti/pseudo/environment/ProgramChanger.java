@@ -80,7 +80,7 @@ public class ProgramChanger {
      * Insert a statement.
      * 
      * The statement is inserted <i>before</i> the statement at
-     * <code>index</code>. All existing gotos targeting to index or above are
+     * <code>index</code>. All existing gotos targeting <b>above</b> index are
      * incremented.
      * 
      * <p>
@@ -138,7 +138,7 @@ public class ProgramChanger {
         if (statement == null)
             throw new NullPointerException();
 
-        updateGotoStatements(index, +1);
+        updateGotoStatements(index + 1, +1);
         statements.add(index, statement);
         statementAnnotations.add(index, annotation);
     }

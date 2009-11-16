@@ -9,13 +9,13 @@ public class TestProgramChanger extends TestCaseWithEnv {
     private Environment locEnv;
     
     public TestProgramChanger() throws Exception {
-        locEnv = makeEnv("include \"$int.p\" " +
-                "program P1 " +
-                "assert 0>0 ; \"Statement 0\" " +
-                "assert 1>0 ; \"Statement 1\" " +
-                "assert 2>0 ; \"Statement 2\" " +
-                "assert 3>0 ; \"Statement 3\" " +
-        "assert 4>0 ; \"Statement 4\" ");
+        locEnv = makeEnv("include \"$int.p\" " 
+                + "program P1 "
+                + "assert 0>0 ; \"Statement 0\" "
+                + "assert 1>0 ; \"Statement 1\" "
+                + "assert 2>0 ; \"Statement 2\" "
+                + "assert 3>0 ; \"Statement 3\" "
+                + "assert 4>0 ; \"Statement 4\" ");
             
     }
 
@@ -89,12 +89,30 @@ public class TestProgramChanger extends TestCaseWithEnv {
         pc.deleteAt(3);
         Program Q1 = pc.makeProgram("Q1");
         
-        Q1.dump();
+        //Q1.dump();
         
         assertEquals(Q.countStatements(), Q1.countStatements());
         for (int i = 0; i < Q.countStatements(); i++) {
             assertEquals(Q.getStatement(i), Q1.getStatement(i));
         }
+    }
+    
+    // from a bug
+    public void testUpdateInsert() throws Exception {
+        Environment env = makeEnv("include \"$int.p\" " +
+                "program Q " +
+                "skip " +
+                "goto 0 ");
+        
+        Program Q = env.getProgram("Q");
+        ProgramChanger pc = new ProgramChanger(Q, env);
+        pc.insertAt(0, new SkipStatement());
+        Program Q1 = pc.makeProgram("Q1");
+        
+        // Q1.dump();
+        
+        assertEquals(3, Q1.countStatements());
+        assertEquals("goto 0", Q1.getStatement(2).toString());
     }
     
     
