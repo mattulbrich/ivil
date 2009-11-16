@@ -343,6 +343,8 @@ public class ProofCenter {
             // select first child goal
             next = children.get(0);
         }
+        
+        // TODO fire this only in non-automatic mode.
         fireSelectedProofNode(next);
     }
     

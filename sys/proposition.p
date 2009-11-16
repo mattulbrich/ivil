@@ -101,6 +101,7 @@ rule and_right
     replace  %a 
   samegoal
     replace  %b 
+  tags rewrite "split"
 
 rule and_left
   find  %a & %b  |-
@@ -147,6 +148,7 @@ rule or_left
   find  %a | %b  |-
   samegoal replace  %a 
   samegoal replace  %b 
+  tags rewrite "split"
 
 rule or_true_l
   find  true | %a 

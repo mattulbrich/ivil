@@ -29,7 +29,6 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
 
 /**
  * A RewriteRuleCollection allows to find applicable rewrite rules for a goal in

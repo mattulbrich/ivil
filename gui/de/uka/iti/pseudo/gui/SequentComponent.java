@@ -241,7 +241,7 @@ public class SequentComponent extends JPanel implements
                 try {
                     TermComponent tc = (TermComponent) e.getSource();
                     TermSelector termSelector = tc.getTermAt(e.getPoint());
-                    System.out.println("Mouse selected: " + termSelector);
+                    // System.out.println("Mouse selected: " + termSelector);
                     
                     if(termSelector == null)
                         return;
