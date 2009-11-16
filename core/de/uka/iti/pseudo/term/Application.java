@@ -111,13 +111,20 @@ public class Application extends Term {
 
     @Override
     public String toString(boolean typed) {
-        String retval = function.getName();
+        StringBuilder retval = new StringBuilder();
+        retval.append(function.getName());
         if (countSubterms() > 0) {
-            retval += "(" + Util.commatize(getSubterms()) + ")";
+            retval.append("(");
+            for (int i = 0; i < countSubterms(); i++) {
+                if(i > 0)
+                    retval.append(",");
+                retval.append(getSubterm(i).toString(typed));
+            }
+            retval.append(")");
         }
         if (typed)
-            retval += " as " + getType();
-        return retval;
+            retval.append(" as ").append(getType());
+        return retval.toString();
     }
     
     @Override

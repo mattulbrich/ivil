@@ -5,15 +5,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
@@ -32,7 +37,8 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     private boolean obeyProgramBreakpoints = true;
     private boolean obeySourceBreakpoints = true;
     private boolean stopAtSkip = false;
-    private boolean stopAtLoop = true;
+    private boolean stopAtLoop = false;
+    private boolean stopAtJumpBack = true;
 
     private Proof proof;
 
@@ -77,6 +83,21 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         }
         
         //
+        // check for backward jumping
+        if(stopAtJumpBack) {
+            Statement s = progTerm.getStatement();
+            if (s instanceof GotoStatement) {
+                GotoStatement gotoStm = (GotoStatement) s;
+                int currentIndex = progTerm.getProgramIndex();
+                for (Term target : gotoStm.getSubterms()) {
+                    int index = toInt(target);
+                    if(index <= currentIndex)
+                        return true;
+                }
+            }
+        }
+        
+        //
         // check for unwanted looping
         if(stopAtLoop) {
             if(seenProgramTerms.contains(progTerm))
@@ -111,6 +132,24 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         }
         
         return false;
+    }
+
+    /**
+     * Make integer from term.
+     * 
+     * @throws TermException
+     *             if the term is not a number literal
+     */
+    private int toInt(Term term) {
+        if (term instanceof Application) {
+            Application appl = (Application) term;
+            Function f = appl.getFunction();
+            if (f instanceof NumberLiteral) {
+                NumberLiteral literal = (NumberLiteral) f;
+                return literal.getValue().intValue();
+            }
+        }
+        throw new RuntimeException("The term " + term + " is not a number literal");
     }
 
     public BreakpointManager getBreakpointManager() {
@@ -162,6 +201,16 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     public void setStopAtLoop(boolean stopAtLoop) {
         this.stopAtLoop = stopAtLoop;
     }
+    
+    // due to ParameterSheet, we need get instead of is
+    public boolean getStopAtJumpBack() {
+        return stopAtJumpBack;
+    }
+
+    public void setStopAtJumpBack(boolean stopAtJumpBack) {
+        this.stopAtJumpBack = stopAtJumpBack;
+    }
+
 
     
     @Override 

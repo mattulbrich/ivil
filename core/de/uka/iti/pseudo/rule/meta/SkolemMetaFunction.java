@@ -4,6 +4,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
+import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -32,13 +33,7 @@ public class SkolemMetaFunction extends MetaFunction {
         String name = ruleApp.getProperties().get(property);
         if(name == null) {
             if(ruleApp.hasMutableProperties()) {
-                String prefix = "sk";
-                if (application.getSubterm(0) instanceof Application) {
-                    // try to use function symbol name to skolemise
-                    Function innerFunct = ((Application) application.getSubterm(0)).getFunction();
-                    prefix = innerFunct.getName();
-                }
-                name = env.createNewFunctionName(prefix);
+                name = calcSkolemName(application, env);
                 ruleApp.getProperties().put(property, name);
             } else {
                 throw new TermException("There is no skolemisation stored for " + application);
@@ -58,6 +53,17 @@ public class SkolemMetaFunction extends MetaFunction {
         }
         
         return new Application(newFunction, application.getType());
+    }
+
+    private String calcSkolemName(Application application, Environment env) {
+        String prefix = "sk";
+        if (application.getSubterm(0) instanceof Application) {
+            // try to use function symbol name to skolemise
+            Function innerFunct = ((Application) application.getSubterm(0)).getFunction();
+            if(!(innerFunct instanceof NumberLiteral))
+                prefix = innerFunct.getName();
+        }
+        return env.createNewFunctionName(prefix);
     }
 
 }

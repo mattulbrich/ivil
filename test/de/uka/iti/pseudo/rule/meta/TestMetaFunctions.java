@@ -41,11 +41,18 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     public void testSkolemDifferent() throws Exception {
         Term t = makeTerm("$$skolem(1)");
         Term result = eval.evalutate(t);
-        Term t2 = makeTerm("$$skolem(true)");
+        Term t2 = makeTerm("$$skolem(2)");
         Term result2 = eval.evalutate(t2);
         
         assertEquals(makeTerm("sk as int"), result);
-        assertEquals(makeTerm("sk1 as bool"), result2);
+        assertEquals(makeTerm("sk1 as int"), result2);
+    }
+    
+    public void testSkolemNames() throws Exception {
+        Term t = makeTerm("$$skolem(i1)");
+        Term result = eval.evalutate(t);
+        
+        assertEquals("i11 as int", result.toString(true));
     }
     
     public void testSkolemReplay() throws Exception {

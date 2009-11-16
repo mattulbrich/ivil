@@ -302,9 +302,12 @@ rule auto_loop_invariant_update
   samegoal "inv initially valid" replace {U}%inv
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
-  tags
-    display "invariant in {%a}: {explain %a}"
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
 
+(*
+ * Update simplification
+ *)
 rule update_simplification
   find {U}%t
   where canEval $$updSimpl({U}%t)
