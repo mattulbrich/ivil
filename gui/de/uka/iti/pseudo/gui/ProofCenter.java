@@ -315,13 +315,19 @@ public class ProofCenter {
      * remaining goal of the entire sequent if there is any or the root node if
      * the proof is closed.
      * 
+     * <p>
+     * The method returns the next open goal. If the application created open
+     * nodes, the first one will be returned. If the applicatioin closed the
+     * branch, the first open goal will be returned. If the whole tree is
+     * closed, the root is returned - though not an open goal.
+     * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
      * 
      * @throws ProofException
      *             if the application fails.
      */
-    public void apply(RuleApplication ruleApp) throws ProofException {
+    public ProofNode apply(RuleApplication ruleApp) throws ProofException {
         ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
         
         proof.apply(ruleApp, env);
@@ -344,8 +350,7 @@ public class ProofCenter {
             next = children.get(0);
         }
         
-        // TODO fire this only in non-automatic mode.
-        fireSelectedProofNode(next);
+        return next;
     }
     
     /**

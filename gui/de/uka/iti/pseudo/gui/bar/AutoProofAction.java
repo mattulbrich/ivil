@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
 // TODO Documentation needed
@@ -54,6 +55,11 @@ public class AutoProofAction extends BarAction
                 RuleApplication ruleAppl = strategy.findRuleApplication();
 
                 if(ruleAppl == null || shouldStop) {
+                    ProofNode currentNode = getProofCenter().getCurrentProofNode();
+                    if(currentNode == null || currentNode.getChildren() != null) {
+                        ProofNode first = getProofCenter().getProof().getGoal(0);
+                        getProofCenter().fireSelectedProofNode(first);
+                    }
                     return;
                 }
 

@@ -70,3 +70,19 @@ program Q_after_without_var
      c := 0
      goto start
      d := 0
+     
+     
+program Bug1
+  loop:
+     skip
+     a := 0
+     goto loop
+     
+program Bug1_after
+  loop:
+     assert inv
+     end true
+     havoc a
+     assume inv
+     a := 0
+     goto loop

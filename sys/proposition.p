@@ -43,11 +43,13 @@ rule true_left
   find  true  |-
   remove
   tags rewrite "concrete"
+       verbosity "8"
 
 rule false_right
   find |-  false 
   remove
   tags rewrite "concrete"
+       verbosity "8"
 
 
 (*
@@ -75,19 +77,19 @@ rule replace_known_right
 rule cut
   where
     interact  %inst as bool 
-  samegoal "Assume true for %c"
+  samegoal "Assume true for {%c}"
     add     %inst  |-
-  samegoal "Assume false for %c"
+  samegoal "Assume false for {%c}"
     add |-  %inst 
 
 rule cutOnThat
   find  %c 
   where
     toplevel
-  samegoal "Assume true for %c"
+  samegoal "Assume true for {%c}"
     replace  true 
     add  %c  |-
-  samegoal "Assume false for %c"
+  samegoal "Assume false for {%c}"
     replace  false 
     add |-  %c 
 
@@ -113,26 +115,31 @@ rule and_true_l
   find  true & %a 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule and_false_l
   find  false & %a 
   replace  false 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule and_true_r
   find  %a & true 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule and_false_r
   find  %a & false 
   replace  false 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule and_idempotent
   find  %a & %a 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 (*
  *  stuff with or
@@ -154,26 +161,31 @@ rule or_true_l
   find  true | %a 
   replace  true 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule or_false_l
   find  false | %a 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule or_true_r
   find  %a | true 
   replace  true 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule or_false_r
   find  %a | false 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule or_idempotent
   find  %a | %a 
   replace  %a 
   tags rewrite "concrete"
+       verbosity "8"
 
 (*
  *  stuff with impl
@@ -196,26 +208,31 @@ rule impl_false_l
   find  false -> %b 
   replace  true 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule impl_false_r
   find  %b -> false 
   replace  !%b 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule impl_true_l
   find  true -> %b 
   replace  %b 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule impl_true_r
   find  %b -> true 
   replace  true 
   tags rewrite "concrete"
+       verbosity "8"
 
 rule impl_idempotent
   find  %b -> %b 
   replace  %b 
   tags rewrite "concrete"
+       verbosity "8"
 
 (*
  *  stuff with not

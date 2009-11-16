@@ -419,7 +419,7 @@ public class ProofNode {
         if(annotation == null)
             return rule.getName();
         else
-            return inst.replaceInString(annotation);
+            return annotation;
     }
 
     /*

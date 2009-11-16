@@ -40,6 +40,9 @@ plugin
     # check whether a variable appears free in a term
     whereCondition : "de.uka.iti.pseudo.rule.where.NotFreeIn"
 
+    # check whether a variable appears free in a term
+    whereCondition : "de.uka.iti.pseudo.rule.where.NoFreeVars"
+
     # check whether two terms have different types
     whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypes"
 

@@ -147,7 +147,7 @@ public class SequentComponent extends JPanel implements
         for (Term t : sequent.getAntecedent()) {
             TermSelector termSelector = new TermSelector(TermSelector.ANTECEDENT, i);
             Annotation annotation = history.select(termSelector);
-            TermComponent termComp = new TermComponent(t, annotation, open, env, termSelector, prettyPrinter);
+            TermComponent termComp = new TermComponent(t, annotation, open, proofCenter, termSelector);
             termComp.addMouseListener(termMouseListener);
             termComp.setToolTipText("<html><a href=\"p3\">sdfsfd");
             add(termComp);
@@ -160,7 +160,7 @@ public class SequentComponent extends JPanel implements
         for (Term t : sequent.getSuccedent()) {
             TermSelector termSelector = new TermSelector(TermSelector.SUCCEDENT, i);
             Annotation annotation = history.select(termSelector);
-            TermComponent termComp = new TermComponent(t, annotation, open, env, termSelector, prettyPrinter);
+            TermComponent termComp = new TermComponent(t, annotation, open, proofCenter, termSelector);
             termComp.addMouseListener(termMouseListener);
             add(termComp);
             i++;

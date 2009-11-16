@@ -51,6 +51,19 @@ rule cond_false
   tags rewrite "concrete"
        verbosity "8"
 
+rule cut_cond
+  find cond(%c, %a, %b)
+  where 
+    toplevel
+  where
+    noFreeVars(%c)
+  samegoal
+    add %c |-
+    replace %a
+  samegoal
+    add |- %c
+    replace %b
+
 (*
  * Equality
  *)

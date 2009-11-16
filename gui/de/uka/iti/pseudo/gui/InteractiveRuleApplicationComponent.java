@@ -33,6 +33,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
@@ -158,7 +159,9 @@ public class InteractiveRuleApplicationComponent extends
                     app.getSchemaVariableMapping().put(varname, term);
                 }
                 putClientProperty("finished", true);
-                proofCenter.apply(app);
+                ProofNode next = proofCenter.apply(app);
+                proofCenter.fireSelectedProofNode(next);
+                
             } catch (Exception ex) {
                 ex.printStackTrace();
                 if(component != null) {

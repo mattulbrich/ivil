@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -35,6 +34,7 @@ public class Z3SMT implements DecisionProcedure {
         }
         
         final String challenge = builder.toString();
+        System.out.println(challenge);
         
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
             public Pair<Result, String> call() throws Exception {
@@ -81,6 +81,8 @@ public class Z3SMT implements DecisionProcedure {
             return Pair.make(Result.UNKNOWN, "Call to Z3 has timed out");
         } catch(Exception ex) {
             dumpTmp(challenge);
+            // may get lost!
+            ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
         } finally {
             if(t != null)

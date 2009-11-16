@@ -21,6 +21,8 @@ loop1:
   skip_loopinv
      (\forall k; (\forall l; 
         1<=k & k<=l & l<=i -> read(a, k) <= read(a, l)))
+    & (\forall k; (\forall l;
+        1<=k & k<i & i <= l & l<=n -> read(a, k) <= read(a,l)))
     & 1<=i & i<=n
     & isPerm(a, a_pre)
     & length(a) = n
@@ -41,6 +43,8 @@ loop2:
      (\forall k; i<=k & k<j -> read(a, t) <= read(a, k))
     & (\forall k; (\forall l; 
         1<=k & k<=l & l<=i -> read(a, k) <= read(a, l)))
+    & (\forall k; (\forall l;
+        1<=k & k<i & i <= l & l<=n -> read(a, k) <= read(a,l)))
     & 1<=i & i<n
     & i+1<=j & j<=n+1
     & i<=t & t<=n

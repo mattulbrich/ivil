@@ -48,9 +48,9 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      * Collects all categories taken into account in this strategy.
      */
     private final static String[] REWRITE_CATEGORIES = {
+        "updSimpl",
         "close",
         "concrete",
-        "updSimpl",
         "prop simp",
         "fol simp",
     };

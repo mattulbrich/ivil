@@ -36,13 +36,20 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.bar.VerbosityAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
+import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
@@ -125,6 +132,8 @@ public class TermComponent extends JTextPane {
      */
     private PrettyPrint prettyPrinter;
 
+    private int verbosityLevel;
+
     // TODO DOC
     /**
      * Instantiates a new term component.
@@ -142,13 +151,13 @@ public class TermComponent extends JTextPane {
      *            the pretty printer to print the term in this component
      */
     public TermComponent(@NonNull Term t, Annotation history, boolean open,
-            @NonNull Environment env, @NonNull TermSelector termSelector,
-            PrettyPrint prettyPrinter) {
-        this.env = env;
+            @NonNull ProofCenter proofCenter, @NonNull TermSelector termSelector) {
+        this.env = proofCenter.getEnvironment();
         this.term = t;
         this.history = history;
         this.termSelector = termSelector;
-        this.prettyPrinter = prettyPrinter;
+        this.prettyPrinter = proofCenter.getPrettyPrinter();
+        this.verbosityLevel = (Integer)proofCenter.getProperty(ProofComponent.VERBOSITY_PROPERTY);
         this.annotatedString = prettyPrinter.print(t);
         this.open = open;
 
@@ -307,13 +316,19 @@ public class TermComponent extends JTextPane {
         sb.append("<dt>History:</dt><dd><ol>");
         int len = 0;
         while (h != null && len < 60) {
-            sb.append("<li>").append(h.getText());
             ProofNode creatingProofNode = h.getCreatingProofNode();
-            if (creatingProofNode != null)
-                sb.append(" - ").append(creatingProofNode.getSummaryString());
-            sb.append("</li>\n");
+            if(creatingProofNode == null || shouldShow(creatingProofNode)) {
+                String text = h.getText();
+                
+                if(creatingProofNode != null)
+                    text = instantiateString(creatingProofNode.getAppliedRuleApp(), text);
+                
+                sb.append("<li>").append(text);
+                
+                sb.append("</li>\n");
+                len++;
+            }
             h = h.getParentAnnotation();
-            len++;
         }
         sb.append("</ol>\n");
         if(len == 60)
@@ -325,6 +340,48 @@ public class TermComponent extends JTextPane {
         return sb.toString();
     }
     
+    /**
+     * check whether verbosity makes us show this node:
+     * - verbosity of node <= set verbosity
+     * 
+     * @see ProofComponentModel#shouldShow(ProofNode)
+     */
+    private boolean shouldShow(ProofNode node) {
+        RuleApplication ruleApp = node.getAppliedRuleApp();
+        
+        if(ruleApp == null)
+            return true;
+        
+        // not here
+        // if(node.getChildren() == null)
+        //     return true;
+        
+        Rule rule = ruleApp.getRule();
+        String string = rule.getProperty(RuleTagConstants.KEY_VERBOSITY);
+        int value;
+        try {
+            value = Integer.parseInt(string);
+        } catch (NumberFormatException e) {
+            return true;
+        }
+        
+        return value <= verbosityLevel;
+    }
+    
+    /*
+     * instantiate the schema variables in a string.
+     * @see ProofComponentModel
+     * 
+     */
+    private String instantiateString(RuleApplication ruleApp, String string) {
+        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+        Map<String, Update> updateMapping = ruleApp.getSchemaUpdateMapping();
+        TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
+        
+        return termInst.replaceInString(string, prettyPrinter);
+    }
+
     /**
      * Gets the termselector for a subterm at a certain point in the component
      * 

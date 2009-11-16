@@ -137,15 +137,17 @@ public class TermInstantiator extends RebuildingTermVisitor {
     }
     
     private String extractExplanation(Term term) {
+        String ret = null;
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
             int index = prog.getProgramIndex();
-            return prog.getProgram().getTextAnnotation(index);
+            ret = prog.getProgram().getTextAnnotation(index);
         }
-        return null;
+        return ret == null ? "" : ret;
     }
 
     private boolean typesInstantiated;
+    
     private TypeVisitor typeInstantiator = new DefaultTypeVisitor() {
         public Type visit(TypeVariable typeVariable) throws TermException {
             Type t = typeMap.get(typeVariable.getVariableName());
