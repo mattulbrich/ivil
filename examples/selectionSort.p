@@ -11,7 +11,7 @@ function
 
 program P source "selectionSort.algo"
   assume n = length(a) & n >= 1
-  assume a_pre = a
+  assume a = a_pre
 
   sourceline 13
   i := 1

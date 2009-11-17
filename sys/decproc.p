@@ -25,5 +25,5 @@ rule auto_smt_close
   closegoal
   tags 
     decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
-    timeout "1000"
+    timeout "2000"
   

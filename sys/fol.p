@@ -57,10 +57,10 @@ rule cut_cond
     toplevel
   where
     noFreeVars(%c)
-  samegoal
+  samegoal "Assume true for {%c}"
     add %c |-
     replace %a
-  samegoal
+  samegoal "Assume false for {%c}"
     add |- %c
     replace %b
 

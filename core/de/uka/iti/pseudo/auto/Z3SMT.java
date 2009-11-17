@@ -7,10 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -25,6 +21,8 @@ public class Z3SMT implements DecisionProcedure {
 
     public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException, IOException {
 
+        System.out.println("Z3 for " + sequent);
+        
         StringBuilder builder = new StringBuilder();
         SMTLibTranslator trans = new SMTLibTranslator(env);
         try {
@@ -34,22 +32,32 @@ public class Z3SMT implements DecisionProcedure {
         }
         
         final String challenge = builder.toString();
-        // System.out.println(challenge);
-        
-        Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
-            public Pair<Result, String> call() throws Exception {
+        // System.err.println(challenge);
+
+        try {
             Runtime rt = Runtime.getRuntime();
+
             Process process = rt.exec("z3 -in -smt");
-            
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);
             w.close();
-            
-            process.waitFor();
-            
+
+            //System.err.println("Wait for " + process);
+
+            TimeoutThread timeoutThread = new TimeoutThread(timeout, process);
+            timeoutThread.start();
+
+            int errorVal = process.waitFor();
+            //System.err.println("Finished waiting: " + errorVal);
+
+            if(timeoutThread.hasKilled) {
+                //System.err.println("Timed out");
+                return Pair.make(Result.UNKNOWN, "Z3 timed out");
+            }
+
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
-            
+
             r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             StringBuilder msg = new StringBuilder();
             String line = r.readLine();
@@ -57,36 +65,25 @@ public class Z3SMT implements DecisionProcedure {
                 msg.append(line).append("\n");
                 line = r.readLine();
             }
-            
+
+            Pair<Result, String> result;
             if("unsat".equals(answerLine)) {
-                return Pair.make(Result.VALID, msg.toString());
+                result = Pair.make(Result.VALID, msg.toString());
             } else if("sat".equals(answerLine)) {
-                return Pair.make(Result.NOT_VALID, msg.toString());
+                result = Pair.make(Result.NOT_VALID, msg.toString());
             } else if("unknown".equals(answerLine)){
-                return Pair.make(Result.UNKNOWN, msg.toString());
+                result =  Pair.make(Result.UNKNOWN, msg.toString());
             } else
                 throw new ProofException("Z3 returned an error message: " + msg);
             
-        }};
-        
-        
-        FutureTask<Pair<Result, String>> ft = new FutureTask<Pair<Result, String>>(callable);
-        Thread t = new Thread(ft, "Z3");
-        t.start();
-        
-        try {
-            return ft.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException ex) {
-            //ex.printStackTrace();
-            return Pair.make(Result.UNKNOWN, "Call to Z3 has timed out");
+            //System.err.println("Result: " + result);
+            return result;
+
         } catch(Exception ex) {
             dumpTmp(challenge);
             // may get lost!
             ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
-        } finally {
-            if(t != null)
-                t.interrupt();
         }
     }
 
@@ -107,6 +104,35 @@ public class Z3SMT implements DecisionProcedure {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+        }
+    }
+    
+    private static class TimeoutThread extends Thread {
+        
+        private Process process;
+        private long timeout;
+        
+        private boolean hasKilled = false; 
+
+        public TimeoutThread(long timeout, Process process) {
+            this.timeout = timeout;
+            this.process = process;
+        }
+
+        @Override 
+        public void run() {
+            try {
+                Thread.sleep(timeout);
+                try {
+                    process.exitValue();
+                } catch(IllegalThreadStateException ex) {
+                    // was still running.
+                    process.destroy();
+                    hasKilled = true;
+                }
+                
+            } catch(InterruptedException ex) {
+            }
         }
     }
 

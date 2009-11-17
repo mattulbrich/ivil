@@ -77,9 +77,9 @@ rule replace_known_right
 rule cut
   where
     interact  %inst as bool 
-  samegoal "Assume true for {%c}"
+  samegoal "Assume true for {%inst}"
     add     %inst  |-
-  samegoal "Assume false for {%c}"
+  samegoal "Assume false for {%inst}"
     add |-  %inst 
 
 rule cutOnThat
@@ -110,6 +110,7 @@ rule and_left
   samegoal replace  %a 
            add  %b  |-
   tags rewrite "prop simp"
+       verbosity "5"
 
 rule and_true_l
   find  true & %a 
