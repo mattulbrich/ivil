@@ -9,6 +9,7 @@ import java.io.IOException;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -38,7 +39,8 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
         {
             sourceComponent = new BreakpointPane(breakpointManager, showLinenumbers);
             sourceComponent.setForeground(foregroundColor);
-            add(sourceComponent, BorderLayout.CENTER);
+            JScrollPane scroll = new JScrollPane(sourceComponent);
+            add(scroll, BorderLayout.CENTER);
         }
         {
             selectionBox = new JComboBox();

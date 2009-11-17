@@ -140,7 +140,7 @@ public class SequentComponent extends JPanel implements
         
         Sequent sequent = proofNode.getSequent();
         SequentHistory history = proofNode.getSequentHistory();
-        
+
         this.removeAll();
         
         int i = 0;
@@ -149,7 +149,6 @@ public class SequentComponent extends JPanel implements
             Annotation annotation = history.select(termSelector);
             TermComponent termComp = new TermComponent(t, annotation, open, proofCenter, termSelector);
             termComp.addMouseListener(termMouseListener);
-            termComp.setToolTipText("<html><a href=\"p3\">sdfsfd");
             add(termComp);
             i++;
         }
@@ -165,10 +164,15 @@ public class SequentComponent extends JPanel implements
             add(termComp);
             i++;
         }
-        
-        validate();
+
+        revalidate();
         repaint();
         
+    }
+    
+    @Override public void scrollRectToVisible(Rectangle rect) {
+        // We deliberately ignore scrolls which are initiated by the term components
+        // inside (or rather their carets)
     }
     
     public void proofNodeSelected(ProofNode node) {
@@ -273,7 +277,8 @@ public class SequentComponent extends JPanel implements
         assert getParent() != null;
         
         Dimension d = getPreferredSize();
-        return new Dimension(d.width, Math.max(getParent().getHeight(), d.height));
+        //return new Dimension(d.width, Math.max(getParent().getHeight(), d.height));
+        return d;
     }
 
     @Override

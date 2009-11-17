@@ -58,14 +58,15 @@ public class Proof extends Observable {
             openGoals.remove(goalno);
             openGoals.addAll(goalno, goal.getChildren());
 
+            fireNodeChanged(goal);
+            
         } finally {
             lock.unlock();
         }
         
-        fireNodeChanged(goal);
     }
     
-    public synchronized void prune(ProofNode proofNode) {
+    public void prune(ProofNode proofNode) {
 
         lock.lock();
         try {
@@ -76,12 +77,13 @@ public class Proof extends Observable {
 
             openGoals.clear();
             root.collectOpenGoals(openGoals);
+            
+            fireNodeChanged(proofNode);
 
         } finally {
             lock.unlock();
         }
 
-        fireNodeChanged(proofNode);
     }
     
     public Proof(@NonNull Term initialProblem) throws TermException {
@@ -108,6 +110,15 @@ public class Proof extends Observable {
         changedSinceSave = true;
         setChanged();
         notifyObservers(proofNode);
+    }
+    
+    /**
+     * notify all observers without argument: They should renew
+     * their view on the proof.
+     */
+    @Override public void notifyObservers() {
+        setChanged();
+        super.notifyObservers();
     }
 
     public List<ProofNode> getOpenGoals() {

@@ -23,6 +23,8 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 public class ProgramPanel extends ChoosePanel {
 
+    private static final long serialVersionUID = 310718223333L;
+
     private static final Color PROGRAM_COLOR = Settings.getInstance().getColor(
             "pseudo.program.boogiecolor");
 

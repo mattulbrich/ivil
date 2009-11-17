@@ -48,6 +48,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     private int verbosity;
 
     private PrettyPrint prettyPrint;
+
+    private ProofCenter proofCenter;
     
     public class ProofTreeNode implements TreeNode {
         
@@ -242,35 +244,49 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         
     }
 
-    public ProofComponentModel(ProofNode root, PrettyPrint pp) {
+    public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
         // we cannot do this in one call, since this would give a comp. error
         super(null);
         setRoot(new ProofTreeNode(null, root, false));
         
-        this.prettyPrint = pp;
+        this.proofCenter = proofCenter;
+        this.prettyPrint = proofCenter.getPrettyPrinter();
     }
 
     /**
      * the observation is likely to appear outside the AWT thread
      */
     public void update(final Observable proof, final Object arg) {
+        
+        // no update while in automatic proof
+        if((Boolean)proofCenter.getProperty(ProofCenter.PROPERTY_ONGOING_PROOF)) {
+            return;
+        }
+        
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ProofNode proofNode = (ProofNode) arg;
                 // assert proofNode.getAppliedRuleApp() != null;
                 
-                TreePath proofNodePath = getPath(proofNode);
-                
-                // in case the node is no longer seen we do not need to update
-                // anything anyway.
-                if (proofNodePath == null)
-                    return;
-                
-                TreePath path = proofNodePath.getParentPath();
-                ProofTreeNode ptn =  (ProofTreeNode) path.getLastPathComponent();
+                TreePath proofNodePath;
+                if (proofNode == null) {
+                    // null as argument reflects multiple changes or untracable.
+                    proofNodePath = new TreePath(root);
+                } else {
+                    TreePath p = getPath(proofNode);
+
+                    // in case the node is no longer seen we do not need to
+                    // update anything anyway.
+                    if (p == null)
+                        return;
+                    
+                    proofNodePath = p.getParentPath();
+                }
+
+                ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
                 ptn.invalidate();
 
-                TreeModelEvent event = new TreeModelEvent(proof, path);
+                TreeModelEvent event = new TreeModelEvent(proof, proofNodePath);
                 for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
                     listener.treeStructureChanged(event);
                 }

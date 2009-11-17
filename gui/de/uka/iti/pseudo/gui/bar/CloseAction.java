@@ -47,11 +47,11 @@ public class CloseAction extends BarAction
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if(proofCenter != null)
-            proofCenter.getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+            proofCenter.addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean)evt.getOldValue());
+        setEnabled(!(Boolean)evt.getNewValue());
     }
 
     public void actionPerformed(ActionEvent e) {

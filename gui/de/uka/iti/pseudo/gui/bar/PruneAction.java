@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import de.uka.iti.pseudo.gui.MainWindow;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 
@@ -18,7 +18,7 @@ public class PruneAction extends BarAction implements PropertyChangeListener {
     }
     
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -30,7 +30,7 @@ public class PruneAction extends BarAction implements PropertyChangeListener {
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean)evt.getOldValue());
+        setEnabled(!(Boolean)evt.getNewValue());
     }
 
 }

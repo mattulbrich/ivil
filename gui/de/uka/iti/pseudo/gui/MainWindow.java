@@ -15,7 +15,6 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -53,10 +52,8 @@ public class MainWindow extends JFrame {
      * indicator for property changes on mainwindow that 
      * window is initialised now.
      */
-    public static final String INITIALISED = "pseudo.initialised";
+    // public static final String INITIALISED = "pseudo.initialised";
     
-    public static final String IN_PROOF = "pseudo.ongoing_proof";
-
     private ProofCenter proofCenter;
 
     private SequentComponent sequentComponent;
@@ -163,15 +160,15 @@ public class MainWindow extends JFrame {
         {
             ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addProofNodeSelectionListener(panel);
-            JScrollPane scroll = new JScrollPane(panel);
-            Dockable dock = new DefaultDockable("program", scroll, "Program");
+            //JScrollPane scroll = new JScrollPane(panel);
+            Dockable dock = new DefaultDockable("program", panel, "Program");
             bottomTabDock.addDockable(dock, new Position(0));
         }
         {
             SourcePanel panel = new SourcePanel(proofCenter);
             proofCenter.addProofNodeSelectionListener(panel);
-            JScrollPane scroll = new JScrollPane(panel);
-            Dockable dock = new DefaultDockable("source", scroll, "Sources");
+            //JScrollPane scroll = new JScrollPane(panel);
+            Dockable dock = new DefaultDockable("source", panel, "Sources");
             bottomTabDock.addDockable(dock, new Position(1));
         }
         {
@@ -224,8 +221,4 @@ public class MainWindow extends JFrame {
         return barManager;
     }
 
-    public void firePropertyChange(String property, boolean value) {
-        firePropertyChange(property, !value, value);
-    }
-    
 }

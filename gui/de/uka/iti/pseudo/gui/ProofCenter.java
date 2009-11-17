@@ -17,8 +17,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.SwingUtilities;
 
@@ -64,6 +62,8 @@ import de.uka.iti.pseudo.term.Sequent;
  * work with general properties on the proof process. 
  */
 public class ProofCenter {
+    
+    public static final String PROPERTY_ONGOING_PROOF = "pseudo.ongoing_proof";
     
     /**
      * The main window.
@@ -151,14 +151,14 @@ public class ProofCenter {
         
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
+
+        firePropertyChange(PROPERTY_ONGOING_PROOF, false);
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
-        
-        mainWindow.firePropertyChange(MainWindow.INITIALISED, true);
     }
 
     /*

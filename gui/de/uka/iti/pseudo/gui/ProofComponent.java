@@ -88,9 +88,10 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
      * @param proofCenter to be displayed
      */
     public ProofComponent(@NonNull ProofCenter proofCenter) {
+        
         // this.proof = proof;
         Proof proof = proofCenter.getProof();
-        proofModel = new ProofComponentModel(proof.getRoot(), proofCenter.getPrettyPrinter());
+        proofModel = new ProofComponentModel(proof.getRoot(), proofCenter);
         proof.addObserver(proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());

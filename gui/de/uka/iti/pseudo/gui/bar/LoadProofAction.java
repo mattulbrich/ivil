@@ -10,10 +10,8 @@ import java.util.List;
 import javax.swing.JFileChooser;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.MainWindow;
-import de.uka.iti.pseudo.gui.StateConstants;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
@@ -42,12 +40,11 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
     }
 
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(
-                MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean) evt.getOldValue());
+        setEnabled(!(Boolean)evt.getNewValue());
     }
 
     public void actionPerformed(ActionEvent e) {

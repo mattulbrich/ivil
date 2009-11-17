@@ -138,7 +138,7 @@ public final class SMTBackgroundAction extends BarAction implements
      * rule to apply, and the solver to use.
      */
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
         proof = getProofCenter().getProof();
         proof.addObserver(this);
         env = getProofCenter().getEnvironment();
@@ -199,7 +199,7 @@ public final class SMTBackgroundAction extends BarAction implements
      * switch the button off when in proof elsewhere
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean) evt.getOldValue() && solver != null);
+        setEnabled(!(Boolean)evt.getNewValue() && solver != null);
     }
     
     /* 
@@ -208,6 +208,12 @@ public final class SMTBackgroundAction extends BarAction implements
      * - set jobs to all newly open goals
      */
     public void update(Observable o, Object arg) {
+        
+        // no update while in automatic proof
+        if((Boolean)getProofCenter().getProperty(ProofCenter.PROPERTY_ONGOING_PROOF)) {
+            return;
+        }
+        
         Iterator<ProofNode> it = provableNodes.iterator();
         while(it.hasNext()) {
             if(!proof.getOpenGoals().contains(it.next()))
