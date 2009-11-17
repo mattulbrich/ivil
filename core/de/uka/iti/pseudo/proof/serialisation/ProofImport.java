@@ -29,6 +29,9 @@ public interface ProofImport {
      * If the import fails, it may have already have changed the proof, that is
      * ok.
      * 
+     * The proof is locked for the present thread, no interfering of any other
+     * thread is possible.
+     * 
      * @param is
      *            the inputstream from which the data should be retrieved
      * @param proof

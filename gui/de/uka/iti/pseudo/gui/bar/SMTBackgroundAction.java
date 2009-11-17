@@ -164,24 +164,35 @@ public final class SMTBackgroundAction extends BarAction implements
      */
     public void actionPerformed(ActionEvent actionEvt) {
         ProofCenter proofCenter = getProofCenter();
-        
+
         // synchronise it with lock so that the thread does not tamper with provable nodes
-        synchronized (proof) {
-            List<ProofNode> openGoals = proof.getOpenGoals();
-            for (int index = 0; index < openGoals.size(); index++) {
-                MutableRuleApplication ra = new MutableRuleApplication();
-                ra.setGoalNumber(index);
-                ra.setRule(closeRule);
-                try {
-                    proofCenter.apply(ra);
-                } catch(ProofException ex) {
-                  // this is ok - the goal may not be closeable.  
-                } catch (Exception e) {
-                    ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+        if(proof.getLock().tryLock()) {
+            try {
+                List<ProofNode> openGoals = proof.getOpenGoals();
+                for (int index = 0; index < openGoals.size(); index++) {
+                    MutableRuleApplication ra = new MutableRuleApplication();
+                    ra.setGoalNumber(index);
+                    ra.setRule(closeRule);
+                    try {
+                        ProofNode next = proofCenter.apply(ra);
+                        
+                        // not on a leave --> goto a leave
+                        if(proofCenter.getCurrentProofNode().getChildren() != null)
+                            proofCenter.fireSelectedProofNode(next);
+                        
+                    } catch(ProofException ex) {
+                        // this is ok - the goal may be not closable.  
+                    } catch (Exception e) {
+                        ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                    }
                 }
+            } finally {
+                proof.getLock().unlock();
             }
+        } else {
+            System.err.println("Proof is currently locked by another thread");
         }
-        
+
     }
     
     /* 

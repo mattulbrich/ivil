@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.SwingUtilities;
 
@@ -317,7 +319,7 @@ public class ProofCenter {
      * 
      * <p>
      * The method returns the next open goal. If the application created open
-     * nodes, the first one will be returned. If the applicatioin closed the
+     * nodes, the first one will be returned. If the application closed the
      * branch, the first open goal will be returned. If the whole tree is
      * closed, the root is returned - though not an open goal.
      * 
@@ -330,7 +332,15 @@ public class ProofCenter {
     public ProofNode apply(RuleApplication ruleApp) throws ProofException {
         ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
         
-        proof.apply(ruleApp, env);
+        if(proof.getLock().tryLock()) {
+            try {
+                proof.apply(ruleApp, env);
+            } finally {
+                proof.getLock().unlock();
+            }
+        } else {
+            throw new ProofException("The proof is currently locked by another thread");
+        }
         
         // next to select is first child (or self if no children)
         List<ProofNode> children = parent.getChildren();
