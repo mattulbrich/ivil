@@ -211,8 +211,15 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         this.stopAtJumpBack = stopAtJumpBack;
     }
 
-
     
+    /**
+     * Decide whether a rule application is to be applied or not.
+     * 
+     * We extract the program term and check whether it is at a 
+     * breakpoint using {@link #hasBreakpoint(LiteralProgramTerm)}.
+     * 
+     * @return <code>false</code> iff at a breakpoint 
+     */
     @Override 
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
         int goal = ruleApp.getGoalNumber();
@@ -240,6 +247,20 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         }
         
         return true;
+    }
+
+    /*
+     * invoked before an automated proof starts.
+     */
+    @Override public void beginSearch() throws StrategyException {
+        // we are not stateful, nothing to calculate
+    }
+
+    /*
+     * invoked after an automated proof finishes.
+     */
+    @Override public void endSearch() throws StrategyException {
+        // we are not stateful, nothing to forget
     }
 
 }

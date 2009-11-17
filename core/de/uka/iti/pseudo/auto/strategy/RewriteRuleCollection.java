@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.UpdateTerm;
 
 /**
  * A RewriteRuleCollection allows to find applicable rewrite rules for a goal in
@@ -56,23 +57,26 @@ public class RewriteRuleCollection {
     /**
      * The map from toplevel symbols to applicable rules
      */
-    Map<String, List<Rule>> classificationMap;
+    private Map<String, List<Rule>> classificationMap;
 
     /**
      * The environment the rules come from
      */
-    Environment env;
+    private Environment env;
 
     /**
      * The category for which we collect rules
      */
-    String category;
+    private String category;
 
     /**
      * The number of rules in this collection
      */
     private int size;
 
+    /**
+     * A filter which filters all found applications.
+     */
     private RuleApplicationFilter applicationFilter;
 
     /**
@@ -234,6 +238,10 @@ public class RewriteRuleCollection {
         if (term instanceof Application) {
             Application app = (Application) term;
             return app.getFunction().getName();
+        }
+        
+        if (term instanceof UpdateTerm) {
+            return "[updated]";
         }
 
         if (term instanceof ProgramTerm) {

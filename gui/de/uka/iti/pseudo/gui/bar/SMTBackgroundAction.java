@@ -176,7 +176,7 @@ public final class SMTBackgroundAction extends BarAction implements
                     try {
                         ProofNode next = proofCenter.apply(ra);
                         
-                        // not on a leave --> goto a leave
+                        // not on a leave --> goto a leaf
                         if(proofCenter.getCurrentProofNode().getChildren() != null)
                             proofCenter.fireSelectedProofNode(next);
                         
@@ -190,7 +190,7 @@ public final class SMTBackgroundAction extends BarAction implements
                 proof.getLock().unlock();
             }
         } else {
-            System.err.println("Proof is currently locked by another thread");
+            System.err.println("Proof is currently locked by an other thread");
         }
 
     }

@@ -34,7 +34,7 @@ public class Z3SMT implements DecisionProcedure {
         }
         
         final String challenge = builder.toString();
-        System.out.println(challenge);
+        // System.out.println(challenge);
         
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
             public Pair<Result, String> call() throws Exception {
