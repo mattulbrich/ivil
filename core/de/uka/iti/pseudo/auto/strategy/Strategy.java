@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
+// TODO: Auto-generated Javadoc
 /**
  * A Strategy can for a given proof provide the system with a rule application
  * to apply next.
@@ -25,6 +26,16 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  * Strategy objects are created using reflection and, therefore, implementing
  * classes need to provide a default constructor.
  * 
+ * The possible sequences of method calls on a strategy can be described using a
+ * regular expression:
+ * <pre>
+ *  init ( beginSearch findRuleApplication<sup>*</sup> endSearch )<sup>*</sup> 
+ * </pre>
+ * 
+ * It is ensured by locking that after a call to {@link #beginSearch()} the proof
+ * is only changed by the current strategy. <b>Please note:</b> Since other
+ * strategies may also be invoked (e.g. combined in a {@link CompoundStrategy}),
+ * the strategy should be able to cope with unexpected changes.
  */
 public interface Strategy {
 
@@ -67,6 +78,33 @@ public interface Strategy {
      */
     void init(@NonNull Proof proof, @NonNull Environment env,
             @NonNull StrategyManager strategyManager) throws StrategyException;
+
+    /**
+     * Indicate the beginning of an automatic search using this strategy.
+     * 
+     * This method is invoked on the strategy to indicate that - if necessary -
+     * state dependent information should be recalculated.
+     * 
+     * It is ensured that this method is called only after init has been called.
+     * After a call to {@link #init(Proof, Environment, StrategyManager)} 
+     * or {@link #endSearch()} this method is called before 
+     * {@link #findRuleApplication()} is called again.
+     * 
+     * @throws StrategyException
+     *             if the strategy fails
+     */
+    void beginSearch() throws StrategyException;
+
+    /**
+     * Indicate the end of an automatic search using this strategy.
+     * 
+     * This method is invoked on the strategy to indicate that - if necessary or desired -
+     * state dependent information can be invalidated, possible freeing memory.
+     * 
+     * @throws StrategyException
+     *             if the strategy fails
+     */
+   void endSearch() throws StrategyException;
 
     /**
      * Provides a user readable name for this strategy.

@@ -1,14 +1,13 @@
 package de.uka.iti.pseudo.rule;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -85,6 +84,17 @@ public class Rule {
      */
     public String getProperty(String string) {
         return properties.get(string);
+    }
+
+    /**
+     * Gets a collection which contains the names of all defined properties for this
+     * rule. The entries to this collections are different from null and can be used
+     * as keys to {@link #getProperty(String)}.
+     *  
+     * @return an unmodifiable collection of strings.
+     */
+    public Collection<String> getDefinedProperties() {
+    	return properties.keySet();
     }
 
     /**

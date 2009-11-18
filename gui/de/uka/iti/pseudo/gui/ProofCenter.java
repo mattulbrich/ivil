@@ -63,6 +63,8 @@ import de.uka.iti.pseudo.term.Sequent;
  */
 public class ProofCenter {
     
+    public static final String PROPERTY_ONGOING_PROOF = "pseudo.ongoing_proof";
+    
     /**
      * The main window.
      */
@@ -149,14 +151,14 @@ public class ProofCenter {
         
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
+
+        firePropertyChange(PROPERTY_ONGOING_PROOF, false);
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
-        
-        mainWindow.firePropertyChange(MainWindow.INITIALISED, true);
     }
 
     /*
@@ -315,16 +317,30 @@ public class ProofCenter {
      * remaining goal of the entire sequent if there is any or the root node if
      * the proof is closed.
      * 
+     * <p>
+     * The method returns the next open goal. If the application created open
+     * nodes, the first one will be returned. If the application closed the
+     * branch, the first open goal will be returned. If the whole tree is
+     * closed, the root is returned - though not an open goal.
+     * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
      * 
      * @throws ProofException
      *             if the application fails.
      */
-    public void apply(RuleApplication ruleApp) throws ProofException {
+    public ProofNode apply(RuleApplication ruleApp) throws ProofException {
         ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
         
-        proof.apply(ruleApp, env);
+        if(proof.getLock().tryLock()) {
+            try {
+                proof.apply(ruleApp, env);
+            } finally {
+                proof.getLock().unlock();
+            }
+        } else {
+            throw new ProofException("The proof is currently locked by another thread");
+        }
         
         // next to select is first child (or self if no children)
         List<ProofNode> children = parent.getChildren();
@@ -343,7 +359,8 @@ public class ProofCenter {
             // select first child goal
             next = children.get(0);
         }
-        fireSelectedProofNode(next);
+        
+        return next;
     }
     
     /**

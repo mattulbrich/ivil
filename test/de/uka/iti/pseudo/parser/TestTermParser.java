@@ -20,7 +20,8 @@ public class TestTermParser extends TestCaseWithEnv {
     private void testTerm(String term, String expected, boolean typed)
             throws Exception {
         Term t = makeTerm(term);
-        assertEquals(expected, t.toString(typed));
+        String actual = t.toString(typed);
+        assertEquals(expected, actual);
     }
 
     private void testTerm(String term, boolean typed) throws Exception {

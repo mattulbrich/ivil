@@ -17,12 +17,8 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.UpdateTerm;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
-// TODO: Auto-generated Javadoc
 /**
  * The {@link WhereCondition} TopLevel ensures that a term is not within the
  * reach of an update.

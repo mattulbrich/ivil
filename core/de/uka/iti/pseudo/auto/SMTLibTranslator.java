@@ -3,9 +3,7 @@ package de.uka.iti.pseudo.auto;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +51,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     private static final List<String> PREDICATES = Util.readOnlyArrayList(new String[] {
         "true", "false", "and", "or", "implies", "iff", "not", "<", ">", "<=", ">=", "="
     });
+
+
     
 //         private Map<Term, String> unknownMap = new HashMap<Term, String>();
     private Map<String,String> translationMap = new HashMap<String, String>();
@@ -67,6 +67,12 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     String result;
     
     boolean resultType;
+
+    /**
+     * the "cond" function from the environment must be
+     * treated separately. This may be null
+     */
+    private Function condFunction;
     
     private static boolean FORMULA = true;
     private static boolean TERM = false;
@@ -75,6 +81,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         for (int i = 0; i < BUILTIN_FUNCTIONS.length; i += 2) {
             translationMap.put(BUILTIN_FUNCTIONS[i], BUILTIN_FUNCTIONS[i+1]);
         }
+        
+        condFunction = env.getFunction("cond");
     }
     
     public String translate(Term term) throws TermException {
@@ -115,6 +123,19 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         Function function = application.getFunction();
         String name = function.getName();
         String translation = translationMap.get(name);
+        
+        if(function == condFunction) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("(ite ");
+            application.getSubterm(0).visit(this);
+            sb.append(resultAs(FORMULA)).append(" ");
+            application.getSubterm(1).visit(this);
+            sb.append(resultAs(TERM)).append(" ");
+            application.getSubterm(2).visit(this);
+            sb.append(resultAs(TERM)).append(")");
+            result = sb.toString();
+            return;
+        }
         
         if(translation == null && function instanceof NumberLiteral) {
             translation = function.getName();

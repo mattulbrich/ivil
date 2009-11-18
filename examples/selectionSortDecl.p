@@ -72,13 +72,23 @@ rule read_swap
   replace cond(%i=%k, read(%a, %j), 
             cond(%j=%k, read(%a, %i), read(%a, %k)))
   tags derived
+       rewrite "fol simp"
 
 rule length_swap
   find length(swap(%a, %i, %j))
   replace length(%a)
   tags derived
+       rewrite "fol simp"
 
 rule isPerm_swap
   find isPerm(swap(%a, %i, %j), %b)
   replace isPerm(%a, %b)
-  
+  tags derived
+       rewrite "fol simp"
+
+rule isPerm_refl
+  assume %a = %b |-
+  find isPerm(%a, %b)
+  replace true
+  tags derived
+       rewrite "fol simp"  

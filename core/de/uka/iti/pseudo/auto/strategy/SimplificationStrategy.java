@@ -8,7 +8,9 @@
  */
 package de.uka.iti.pseudo.auto.strategy;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -40,7 +42,7 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      * (symbolic execution first)
      * </ol>
      */
-    public enum SplitMode {
+    public static enum SplitMode {
         SPLIT, DONT_SPLIT, SPLIT_NO_PROGRAMS
     };
     
@@ -48,9 +50,9 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      * Collects all categories taken into account in this strategy.
      */
     private final static String[] REWRITE_CATEGORIES = {
+        "updSimpl",
         "close",
         "concrete",
-        "updSimpl",
         "prop simp",
         "fol simp",
     };
@@ -60,7 +62,7 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      * others to allow to install a filter on the collection.
      */
     private final static String SPLIT_CATEGORY = "split";
-    
+
     /**
      * Use this {@link TermVisitor} to detect programs in an term.
      * @see #accepts(RuleApplication)
@@ -77,6 +79,13 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      * afterwards.
      */
     private Proof proof;
+    
+    
+    /**
+     * store for all categories those proof node which did not match and do not
+     * try to match again.
+     */
+    private Set<ProofNode>[] noMatchNodes;
     
     /**
      * The currently active split mode.
@@ -118,10 +127,19 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
         
         assert ruleCollections != null;
         
-        for (int i = 0; i < ruleCollections.length; i++) {
-            RuleApplicationMaker ruleApplication = ruleCollections[i].findRuleApplication(proof, goalNo);
+        for (int collNo = 0; collNo < ruleCollections.length; collNo++) {
+            ProofNode goal = proof.getGoal(goalNo);
+            
+            // this node has already been checked: no matches
+            if(noMatchNodes[collNo].contains(goal))
+                continue;
+            
+            RuleApplicationMaker ruleApplication = ruleCollections[collNo].findRuleApplication(proof, goalNo);
             if(ruleApplication != null)
                 return ruleApplication;
+
+            // no result: no match. Remember for the next time.
+            noMatchNodes[collNo].add(goal);
         }
 
         return null;
@@ -149,6 +167,12 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
             ruleCollections[REWRITE_CATEGORIES.length].setApplicationFilter(this);
         } catch (RuleException e) {
             throw new StrategyException("Cannot initialise SimplificationStrategy", e);
+        }
+        
+        // set up the noMatchNodes array
+        noMatchNodes = new Set[ruleCollections.length];
+        for (int i = 0; i < noMatchNodes.length; i++) {
+            noMatchNodes[i] = new HashSet<ProofNode>();
         }
     }
     
@@ -195,7 +219,24 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
         throw new Error("Unreachable");
     }
     
-    
+    /*
+     * invoked before an automated proof starts.
+     * Nothing to do here.
+     */
+    @Override public void beginSearch() throws StrategyException {
+        // nothing to setup - the noMatch will fill automatically
+    }
+
+    /*
+     * invoked after an automated proof finishes: forget everything about
+     * possible unmatching proofnodes: frees memory.
+     */
+    @Override public void endSearch() throws StrategyException {
+        for (Set<ProofNode> set : noMatchNodes) {
+            set.clear();
+        }
+    }
+
     //
     // getter and setter
     //

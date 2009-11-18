@@ -8,8 +8,11 @@ import javax.swing.Icon;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.MainWindow;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
 // TODO Documentation needed
@@ -29,7 +32,7 @@ public class AutoProofAction extends BarAction
     }
     
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -38,7 +41,7 @@ public class AutoProofAction extends BarAction
         
         if(thread == null) {
             thread = new Thread(this, "Autoproving");
-            getProofCenter().getMainWindow().firePropertyChange(MainWindow.IN_PROOF, true);
+            getProofCenter().firePropertyChange(ProofCenter.PROPERTY_ONGOING_PROOF, true);
             shouldStop = false;
             thread.start();
         } else {
@@ -47,6 +50,7 @@ public class AutoProofAction extends BarAction
     }
 
     public void run() {
+        Proof proof = getProofCenter().getProof();
         try {
             Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
             
@@ -54,6 +58,12 @@ public class AutoProofAction extends BarAction
                 RuleApplication ruleAppl = strategy.findRuleApplication();
 
                 if(ruleAppl == null || shouldStop) {
+                    // we should stop: select an open goal
+                    ProofNode currentNode = getProofCenter().getCurrentProofNode();
+                    if(currentNode == null || currentNode.getChildren() != null) {
+                        ProofNode first = proof.getGoal(0);
+                        getProofCenter().fireSelectedProofNode(first);
+                    }
                     return;
                 }
 
@@ -70,7 +80,9 @@ public class AutoProofAction extends BarAction
             e.printStackTrace();
         } finally {
             thread = null;
-            getProofCenter().getMainWindow().firePropertyChange(MainWindow.IN_PROOF, false);
+            getProofCenter().firePropertyChange(ProofCenter.PROPERTY_ONGOING_PROOF, false);
+            // some listeners are switched off, they might want to update now.
+            proof.notifyObservers();
         }
     }
 

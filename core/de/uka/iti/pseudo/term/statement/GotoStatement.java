@@ -8,6 +8,10 @@ public class GotoStatement extends Statement {
 
     public GotoStatement(int sourceLineNumber, Term[] targets) throws TermException {
         super(sourceLineNumber, targets);
+        
+        for (int i = 0; i < targets.length; i++) {
+            assert targets[i] != null;
+        }
     }
 
     public String toString(boolean typed) {

@@ -25,6 +25,7 @@ public class Z3 implements DecisionProcedure, Callable<String> {
         public Pair<Result, String> call() throws Exception {
             Runtime rt = Runtime.getRuntime();
             Process process = rt.exec("z3 -in -z3");
+            BufferedReader r;
             
             Writer w = new OutputStreamWriter(process.getOutputStream());
             
@@ -35,8 +36,9 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             
             process.waitFor();
             
-            BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
+            r.close();
             
             r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             StringBuilder msg = new StringBuilder();
@@ -45,6 +47,7 @@ public class Z3 implements DecisionProcedure, Callable<String> {
                 msg.append(line);
                 line = r.readLine();
             }
+            r.close();
             
 //            System.err.println("Z3 answers: " + msg);
             if("unsat".equals(answerLine)) {

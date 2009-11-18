@@ -11,3 +11,4 @@
 
 :assumption
   (distinct termFalse termTrue)
+

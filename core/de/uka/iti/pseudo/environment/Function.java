@@ -67,7 +67,9 @@ public class Function {
     private ASTLocatedElement declaration;
 
     /**
-     * Instantiates a new function symbol object
+     * Instantiates a new function symbol object.
+     * Unly function symbol without parameters can be assignable.
+     * A function symbol cannot be both unique and assignable.
      * 
      * @param name
      *            an identifier (possibly beginning with $)
@@ -93,6 +95,7 @@ public class Function {
         this.assignable = assignable;
         
         assert !assignable || getArity() == 0;
+        assert !unique || !assignable;
     }
 
     /**
@@ -175,6 +178,17 @@ public class Function {
      */
 	public int getArity() {
 		return argumentTypes.length;
+	}
+	
+	/*
+	 * We use the hash code of the name as our hash code.
+	 * This guarantees identical hash codes of the runs.
+	 * 
+	 * (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override public int hashCode() {
+	    return name.hashCode();
 	}
 
 }

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -28,7 +29,6 @@ import javax.swing.Icon;
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
@@ -43,8 +43,16 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Pair;
 
 
+// Class is final because thread is started in constructor which is evil 
+// for subclassing.
+/**
+ * This is the action which is on the SMT button.
+ * 
+ * <ul>
+ * <li><b>Pressing it</b> locks the proof, 
+ */
 @SuppressWarnings("serial") 
-public class SMTBackgroundAction extends BarAction implements
+public final class SMTBackgroundAction extends BarAction implements
         InitialisingAction, PropertyChangeListener, Observer, Runnable {
 
     /**
@@ -68,9 +76,11 @@ public class SMTBackgroundAction extends BarAction implements
     
     /**
      * Cache to remember solvability of sequents.
+     * 
+     * We use a weak hash map to allow freeing if space is needed.
      */
     private Map<Sequent, Boolean> sequentStatus =
-        Collections.synchronizedMap(new HashMap<Sequent, Boolean>());
+        Collections.synchronizedMap(new WeakHashMap<Sequent, Boolean>());
     
     /**
      * The synchronised blocking queue of proof nodes to be investigated.
@@ -136,7 +146,7 @@ public class SMTBackgroundAction extends BarAction implements
      * rule to apply, and the solver to use.
      */
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
         proof = getProofCenter().getProof();
         proof.addObserver(this);
         env = getProofCenter().getEnvironment();
@@ -162,31 +172,46 @@ public class SMTBackgroundAction extends BarAction implements
      */
     public void actionPerformed(ActionEvent actionEvt) {
         ProofCenter proofCenter = getProofCenter();
-        
-        // synchronise it with lock so that the thread does not tamper with provable nodes
-        synchronized (proof) {
-            List<ProofNode> openGoals = proof.getOpenGoals();
-            for (int index = 0; index < openGoals.size(); index++) {
-                MutableRuleApplication ra = new MutableRuleApplication();
-                ra.setGoalNumber(index);
-                ra.setRule(closeRule);
-                try {
-                    proofCenter.apply(ra);
-                } catch(ProofException ex) {
-                  // this is ok - the goal may not be closeable.  
-                } catch (Exception e) {
-                    ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+
+        // synchronise it with lock so that threads do not tamper with provable nodes
+        if(proof.getLock().tryLock()) {
+            try {
+                int countGoals =  proof.getOpenGoals().size();
+                // bugfix: do it backward, otherwise solving goal 0 and
+                // incrementing would not do the second original goal which has
+                // become the new 0
+                for (int index = countGoals - 1; index >= 0; index--) {
+                    MutableRuleApplication ra = new MutableRuleApplication();
+                    ra.setGoalNumber(index);
+                    ra.setRule(closeRule);
+                    try {
+                        ProofNode next = proofCenter.apply(ra);
+                        
+                        // not on a leave --> goto a leaf
+                        if(proofCenter.getCurrentProofNode().getChildren() != null)
+                            proofCenter.fireSelectedProofNode(next);
+                        
+                    } catch(ProofException ex) {
+                        System.err.println(ex);
+                        // this is ok - the goal may be not closable.  
+                    } catch (Exception e) {
+                        ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                    }
                 }
+            } finally {
+                proof.getLock().unlock();
             }
+        } else {
+            System.err.println("Proof is currently locked by an other thread");
         }
-        
+
     }
     
     /* 
      * switch the button off when in proof elsewhere
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean) evt.getOldValue() && solver != null);
+        setEnabled(!(Boolean)evt.getNewValue() && solver != null);
     }
     
     /* 
@@ -195,6 +220,12 @@ public class SMTBackgroundAction extends BarAction implements
      * - set jobs to all newly open goals
      */
     public void update(Observable o, Object arg) {
+        
+        // no update while in automatic proof
+        if((Boolean)getProofCenter().getProperty(ProofCenter.PROPERTY_ONGOING_PROOF)) {
+            return;
+        }
+        
         Iterator<ProofNode> it = provableNodes.iterator();
         while(it.hasNext()) {
             if(!proof.getOpenGoals().contains(it.next()))
@@ -236,19 +267,18 @@ public class SMTBackgroundAction extends BarAction implements
                         provableNodes.add(pn);
                         setFlashing(true);
                     }
-                }
-                
-                try {
-                    Pair<Result, String> result = solver.solve(sequent, env, timeout);
-                    boolean proveable = result.fst() == Result.VALID;
-                    sequentStatus.put(sequent, proveable);
-                    if(proveable) {
-                        provableNodes.add(pn);
-                        setFlashing(true);
+                } else {
+                    try {
+                        Pair<Result, String> result = solver.solve(sequent, env, timeout);
+                        boolean proveable = result.fst() == Result.VALID;
+                        sequentStatus.put(sequent, proveable);
+                        if(proveable) {
+                            provableNodes.add(pn);
+                            setFlashing(true);
+                        }
+                    } catch (Exception ex) {
+                        ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                     }
-                } catch (Exception ex) {
-                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                    ex.printStackTrace();
                 }
                 
             }

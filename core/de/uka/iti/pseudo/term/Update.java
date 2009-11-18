@@ -102,4 +102,12 @@ public class Update {
         return false;
     }
     
+    /**
+     * The hash code of an update is the hash code the assignments array seen as
+     * a list.
+     */
+    public int hashCode() {
+        return Util.readOnlyArrayList(assignments).hashCode();
+    }
+    
 }

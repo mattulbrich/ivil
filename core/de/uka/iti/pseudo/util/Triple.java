@@ -132,4 +132,17 @@ public class Triple<E,F,G> {
 	public String toString() {
 	    return "Triple[" + fst() + "," + snd() + "," + trd() + "]";
 	}
+	
+	/**
+     * {@inheritDoc}
+     * 
+     * The hash code of a triple is the exclusive or of the hashcode of the first,
+     * second, and third component.
+     */
+    @Override public int hashCode() {
+        int h1 = fst() == null ? 0 : fst().hashCode();
+        int h2 = snd() == null ? 0 : snd().hashCode();
+        int h3 = trd() == null ? 0 : trd().hashCode();
+        return h1 ^ h2 ^ h3;
+    }
 }

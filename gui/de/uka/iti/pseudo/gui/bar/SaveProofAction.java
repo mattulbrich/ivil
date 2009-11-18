@@ -16,9 +16,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -28,6 +25,7 @@ import javax.swing.filechooser.FileFilter;
 import de.uka.iti.pseudo.gui.ExporterFileFilter;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
@@ -54,7 +52,7 @@ public class SaveProofAction extends BarAction
      * Add myself as a listener to IN_PROOF messages. 
      */
     public void initialised() {
-        getProofCenter().getMainWindow().addPropertyChangeListener(MainWindow.IN_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
     }
     
     /*
@@ -62,7 +60,7 @@ public class SaveProofAction extends BarAction
      * ourselves directly.
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled((Boolean)evt.getOldValue());
+        setEnabled(!(Boolean)evt.getNewValue());
     }
     
     /*

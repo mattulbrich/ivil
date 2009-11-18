@@ -9,7 +9,6 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
@@ -171,10 +170,14 @@ public class TermUnification implements Cloneable {
      * @see java.lang.Object#clone()
      */
     public TermUnification clone() {
-        TermUnification retval = new TermUnification(env);
-        retval.instantiation.putAll(instantiation);
-        retval.typeUnification = typeUnification.clone();
-        return retval;
+        try {
+            TermUnification retval = (TermUnification) super.clone();
+            retval.instantiation = instantiation.clone();
+            retval.typeUnification = typeUnification.clone();
+            return retval;
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
     }
 
     /**

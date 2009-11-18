@@ -55,6 +55,9 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
     }
 
     private class Model implements ListModel, Observer {
+        
+        private Object[] openGoals = new Object[0];
+        private int countGoals;
 
         /** Listeners. */
         protected EventListenerList listenerList = new EventListenerList();
@@ -67,17 +70,22 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         }
         
         public Object getElementAt(int index) {
-            return proof.getGoal(index);
+            return openGoals[index];
         }
 
         public int getSize() {
-            return proof.getOpenGoals().size();
+            return countGoals;
         }
 
         public void update(final Observable o, Object arg) {
+            assert o == proof;
+            // Make a copy of the open goals so that unfortunate scheduling
+            // does no harm afterwards
+            openGoals = proof.getOpenGoals().toArray(openGoals);
+            countGoals = openGoals.length;
+            
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    assert o == proof;
                     ListDataEvent event = new ListDataEvent(GoalList.this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
                     for (ListDataListener listener : listenerList.getListeners(ListDataListener.class)) {
                         listener.contentsChanged(event);
@@ -102,8 +110,8 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         // the goal list does not bother about ruleApplications
     }
 
-    protected ProofCenter getProofCenter() {
-        return null;
-    }
+//    protected ProofCenter getProofCenter() {
+//        return null;
+//    }
 
 }

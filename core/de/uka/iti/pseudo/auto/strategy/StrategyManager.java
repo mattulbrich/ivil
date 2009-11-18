@@ -10,6 +10,7 @@ package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -44,7 +45,8 @@ public class StrategyManager {
      * The registered strategies as map from their implementing class to the
      * actual strategy.
      */
-    private Map<Class<? extends Strategy>, Strategy> registeredStrategies = new HashMap<Class<? extends Strategy>, Strategy>();
+    private Map<Class<? extends Strategy>, Strategy> registeredStrategies = 
+        new LinkedHashMap<Class<? extends Strategy>, Strategy>();
 
     /**
      * The currently selected strategy. This is not null as long the

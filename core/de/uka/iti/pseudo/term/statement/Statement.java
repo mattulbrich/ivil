@@ -63,6 +63,12 @@ public abstract class Statement {
         }
         return false;
     }
+    
+    @Override public int hashCode() {
+        int h = getClass().hashCode();
+        h ^= Util.readOnlyArrayList(subTerms).hashCode();
+        return h;
+    }
 
     public abstract void visit(StatementVisitor visitor) throws TermException;
 

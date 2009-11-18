@@ -40,7 +40,7 @@ public class Application extends Term {
      * @throws TermException
      *             if the type check fails.
      */
-    public Application(Function funct, Type type, Term[] subterms)
+    public Application(@NonNull Function funct, @NonNull Type type, Term[] subterms)
             throws TermException {
         super(subterms, type);
         this.function = funct;
@@ -111,19 +111,20 @@ public class Application extends Term {
 
     @Override
     public String toString(boolean typed) {
-        String retval = function.getName();
+        StringBuilder retval = new StringBuilder();
+        retval.append(function.getName());
         if (countSubterms() > 0) {
-            retval += "(";
+            retval.append("(");
             for (int i = 0; i < countSubterms(); i++) {
-                retval += getSubterm(i).toString(typed);
-                if (i != countSubterms() - 1)
-                    retval += ",";
+                if(i > 0)
+                    retval.append(",");
+                retval.append(getSubterm(i).toString(typed));
             }
-            retval += ")";
+            retval.append(")");
         }
         if (typed)
-            retval += " as " + getType();
-        return retval;
+            retval.append(" as ").append(getType());
+        return retval.toString();
     }
     
     @Override

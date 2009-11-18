@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -23,6 +25,11 @@ public class Proof extends Observable {
     
     protected ProofNode root;
     
+    /**
+     * The locking mechanism to ensure synchronisation on the proof
+     */
+    private Lock lock = new ReentrantLock();
+    
     protected List<ProofNode> openGoals = new LinkedList<ProofNode>();
 
     private boolean changedSinceSave;
@@ -33,34 +40,50 @@ public class Proof extends Observable {
         apply(ruleApp, env, null);
     }
     
-    public synchronized void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {
+    public void apply(@NonNull RuleApplication ruleApp, Environment env, Properties whereClauseProperties) throws ProofException {
+        ProofNode goal;
         
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, updateMap, env);
-        
-        int goalno = extractGoalNo(ruleApp);
-        ProofNode goal = openGoals.get(goalno);
-        
-        goal.apply(ruleApp, inst, env, whereClauseProperties);
-        
-        openGoals.remove(goalno);
-        openGoals.addAll(goalno, goal.getChildren());
+        lock.lock();
+        try {
+            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+            Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
+            TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, updateMap, env);
 
-        fireNodeChanged(goal);  
+            int goalno = extractGoalNo(ruleApp);
+            goal = openGoals.get(goalno);
+
+            goal.apply(ruleApp, inst, env, whereClauseProperties);
+
+            openGoals.remove(goalno);
+            openGoals.addAll(goalno, goal.getChildren());
+
+            fireNodeChanged(goal);
+            
+        } finally {
+            lock.unlock();
+        }
+        
     }
     
-    public synchronized void prune(ProofNode proofNode) {
-        if(proofNode.getProof() != this)
-            throw new IllegalArgumentException("The proof node does not belong to me");
-        
-        proofNode.prune();
-        
-        openGoals.clear();
-        root.collectOpenGoals(openGoals);
-        
-        fireNodeChanged(proofNode);
+    public void prune(ProofNode proofNode) {
+
+        lock.lock();
+        try {
+            if(proofNode.getProof() != this)
+                throw new IllegalArgumentException("The proof node does not belong to me");
+
+            proofNode.prune();
+
+            openGoals.clear();
+            root.collectOpenGoals(openGoals);
+            
+            fireNodeChanged(proofNode);
+
+        } finally {
+            lock.unlock();
+        }
+
     }
     
     public Proof(@NonNull Term initialProblem) throws TermException {
@@ -88,6 +111,15 @@ public class Proof extends Observable {
         setChanged();
         notifyObservers(proofNode);
     }
+    
+    /**
+     * notify all observers without argument: They should renew
+     * their view on the proof.
+     */
+    @Override public void notifyObservers() {
+        setChanged();
+        super.notifyObservers();
+    }
 
     public List<ProofNode> getOpenGoals() {
         return Collections.unmodifiableList(openGoals);
@@ -112,6 +144,13 @@ public class Proof extends Observable {
     int makeFreshNumber() {
         proofNodeCounter ++;
         return proofNodeCounter;
+    }
+
+    /**
+     * @return the lock
+     */
+    public Lock getLock() {
+        return lock;
     }
 
     

@@ -58,4 +58,11 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         
     }
     
+    public void testCond() throws Exception {
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+    
+        assertEquals("(ite (= extra.b1..Bool termTrue) extra.b1..Bool extra.b2..Bool)", trans.translate(makeTerm("cond(b1, b1, b2)")));
+        assertEquals("(ite (> 5 4) 3 2)", trans.translate(makeTerm("cond(5>4, 3, 2)")));
+    }
+    
 }

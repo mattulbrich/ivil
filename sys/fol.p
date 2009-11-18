@@ -16,7 +16,8 @@ include
 
 rule forall_right
   find  |-  (\forall %x as 'a; %b) 
-  replace  $$subst(%x, $$skolem(%x), %b) 
+  replace  $$subst(%x, $$skolem(%x), %b)
+  tags rewrite "fol simp"
 
 rule exists_right
   find  |-  (\exists %x as 'a; %b) 
@@ -32,7 +33,8 @@ rule forall_left
 
 rule exists_left
   find   (\exists %x as 'a; %b)  |-
-  replace  $$subst(%x, $$skolem(%x), %b) 
+  replace  $$subst(%x, $$skolem(%x), %b)
+  tags rewrite "fol simp"
 
 (*
  * Conditionals
@@ -48,6 +50,19 @@ rule cond_false
   replace  %b
   tags rewrite "concrete"
        verbosity "8"
+
+rule cut_cond
+  find cond(%c, %a, %b)
+  where 
+    toplevel
+  where
+    noFreeVars(%c)
+  samegoal "Assume true for {%c}"
+    add %c |-
+    replace %a
+  samegoal "Assume false for {%c}"
+    add |- %c
+    replace %b
 
 (*
  * Equality

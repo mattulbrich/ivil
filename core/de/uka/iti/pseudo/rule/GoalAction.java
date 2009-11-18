@@ -138,18 +138,18 @@ public class GoalAction {
 
         // CLOSE implies empty
         if(this.kind == Kind.CLOSE && (!addAntecendent.isEmpty() || !addSuccendent.isEmpty() || replaceWith != null))
-            throw new RuleException("closeGoal actions may not contain add/replace elements");
+            throw new RuleException("closeGoal actions must not contain add/replace elements");
         
         // no replace in NEW
         if(this.kind == Kind.NEW && replaceWith != null)
-            throw new RuleException("newgoal actions may not contain replace elements");
+            throw new RuleException("newgoal actions must not contain replace elements");
         
         // remove only in COPY and not with BOTH
         if(this.kind != Kind.COPY && remove)
-            throw new RuleException("remove may only used in samegoal actions");
+            throw new RuleException("remove must only used in samegoal actions");
         
         if(remove && replaceWith != null)
-            throw new RuleException("a goal may not have both remove and replace");
+            throw new RuleException("a goal must not have both remove and replace");
         
         this.name = name;
         this.replaceWith = replaceWith;

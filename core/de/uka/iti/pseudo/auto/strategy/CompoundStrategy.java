@@ -153,5 +153,27 @@ public class CompoundStrategy implements Strategy {
         all.remove(this);
         return all;
     }
+    
+    /**
+     * {@inheritDoc}
+     * 
+     * This method call is delegated to all inscribed strategies.
+     */
+    @Override public void beginSearch() throws StrategyException {
+        for (Strategy strategy : getStrategies()) {
+            strategy.beginSearch();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * This method call is delegated to all inscribed strategies.
+     */
+    @Override public void endSearch() throws StrategyException {
+        for (Strategy strategy : getStrategies()) {
+            strategy.endSearch();
+        }
+    }
 
 }

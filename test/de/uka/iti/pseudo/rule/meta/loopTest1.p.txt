@@ -1,13 +1,18 @@
-include "$base.p"
+include 
+  "$base.p"
+  "$int.p"
 
 function
   int a assignable
   int b assignable
   int c assignable
   int d assignable
+  
+  int var
+  int varAtPre
+  bool inv
 
 (* a modifies analysis of [0;P] ought to yield {c,a} *)
-
 program P
   S: goto A, S2
   S2: goto B, S3
@@ -23,3 +28,61 @@ program P
   D: d := 0
      end true
      goto S 
+
+(* application of invariant rule on [2;Q] with inv and var should yield [5;Q']
+ * with Q' equivalent to Q_after *)
+program Q
+     a := 0
+  start:
+     b := 0     
+     skip # <---  (skip is removed)
+     c := 0  
+     goto start
+     d := 0
+     
+     
+program Q_after
+     a := 0
+  start:
+     b := 0
+     assert inv ; "Continuation preserves invariant"
+     assert var >= 0 & var < varAtPre ; "Continuation reduces variant"
+     end true
+     #  C U T  H E R E
+     havoc b
+     havoc c
+     assume varAtPre = var
+     assume inv
+     c := 0
+     goto start
+     d := 0
+     
+program Q_after_without_var
+     a := 0
+  start:
+     b := 0
+     assert inv ; "Continuation preserves invariant"
+     end true
+     #  C U T  H E R E
+     havoc b
+     havoc c
+     assume inv
+     c := 0
+     goto start
+     d := 0
+     
+     
+program Bug1
+  loop:
+     skip
+     a := 0
+     goto loop
+     
+program Bug1_after
+  loop:
+     assert inv
+     end true
+     havoc a
+     assume inv
+     a := 0
+     goto loop

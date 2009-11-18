@@ -78,36 +78,36 @@ rule tprg_goto2
 rule prg_assert
   find  [%a : assert %b]
   samegoal replace %b & $$incPrg(%a)
-  tags display "|> assert {%b}"
+  tags display "|> assert {%b}: {explain %a}"
 
 rule tprg_assert
   find  [[%a : assert %b]]
   samegoal replace %b & $$incPrg(%a)
-  tags display "|> assert {%b}"
+  tags display "|> assert {%b}: {explain %a}"
 
 
 rule prg_assume
   find [%a : assume %b]
   samegoal replace %b -> $$incPrg(%a)
-  tags display "|> assume {%b}"
+  tags display "|> assume {%b}: {explain %a}"
 
 rule tprg_assume
   find [[%a : assume %b]]
   samegoal replace %b -> $$incPrg(%a)
-  tags display "|> assume {%b}"
+  tags display "|> assume {%b}: {explain %a}"
 
 
 rule prg_end
   find [%a : end %b]
   samegoal replace %b
   tags rewrite "symbex"
-       display "|> end {%b}"
+       display "|> end {%b}: {explain %a}"
 
 rule tprg_end
   find [[%a : end %b]]
   samegoal replace %b
   tags rewrite "symbex"
-       display "|> end {%b}"
+       display "|> end {%b}: {explain %a}"
 
 
 rule prg_assignment
@@ -126,12 +126,12 @@ rule tprg_assignment
 rule prg_havoc
   find [%a : havoc %v]
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
-  tags display "|> havoc {%v}"
+  tags display "|> havoc {%v}: {explain %a}"
 
 rule tprg_havoc
   find [[%a : havoc %v]]
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
-  tags display "|> havoc {%v}"
+  tags display "|> havoc {%v}: {explain %a}"
 
 (*
  * Rules for automation
@@ -179,39 +179,39 @@ rule autot_goto2_upd
 
 rule auto_assert
   find |- [%a : assert %b]
-  samegoal  "assert {%b}"
+  samegoal  "assert {%b}: {explain %a}"
     replace %b 
   samegoal "continue program"
     replace $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assert {%b}"
+       display "|> assert {%b}: {explain %a}"
 
 rule autot_assert
   find |- [[%a : assert %b]]
-  samegoal "assert {%b}"
+  samegoal "assert {%b}: {explain %a}"
     replace %b 
   samegoal "continue program"
     replace $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assert {%b}"
+       display "|> assert {%b}: {explain %a}"
 
 rule auto_assert_upd
   find |- {U} [%a : assert %b]
-  samegoal "assert {%b}"
+  samegoal "assert {%b}: {explain %a}"
     replace {U} %b 
   samegoal "continue program"
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assert {%b}"
+       display "|> assert {%b}: {explain %a}"
 
 rule autot_assert_upd
   find |- {U} [[%a : assert %b]]
-  samegoal "assert {%b}"
+  samegoal "assert {%b}: {explain %a}"
     replace {U} %b 
   samegoal "continue program"
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assert {%b}"
+       display "|> assert {%b}: {explain %a}"
 
 
 rule auto_assume
@@ -220,7 +220,7 @@ rule auto_assume
     replace $$incPrg(%a)
     add %b |-
   tags rewrite "symbex"
-       display "|> assume {%b}"
+       display "|> assume {%b}: {explain %a}"
 
 rule autot_assume
   find |- [%a : assume %b]
@@ -228,7 +228,7 @@ rule autot_assume
     replace $$incPrg(%a)
     add %b |-
   tags rewrite "symbex"
-       display "|> assume {%b}"
+       display "|> assume {%b}: {explain %a}"
 
 rule auto_assume_upd
   find |- {U} [%a : assume %b]
@@ -236,7 +236,7 @@ rule auto_assume_upd
     replace {U} $$incPrg(%a)
     add {U} %b |-
   tags rewrite "symbex"
-       display "|> assume {%b}"
+       display "|> assume {%b}: {explain %a}"
 
 rule autot_assume_upd
   find |- {U} [%a : assume %b]
@@ -244,32 +244,32 @@ rule autot_assume_upd
     replace {U} $$incPrg(%a)
     add {U} %b |-
   tags rewrite "symbex"
-       display "|> assume {%b}"
+       display "|> assume {%b}: {explain %a}"
 
 
 rule auto_havoc
   find |- [%a : havoc %v]
   samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
-       display "|> havoc {%v}"
+       display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc
   find |- [%a : havoc %v]
   samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
-       display "|> havoc {%v}"
+       display "|> havoc {%v}: {explain %a}"
 
 rule auto_havoc_upd
   find |- {U} [%a : havoc %v]
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
-       display "|> havoc {%v}"
+       display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc_upd
   find |- {U} [%a : havoc %v]
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
-       display "|> havoc {%v}"
+       display "|> havoc {%v}: {explain %a}"
 
 (*
  * loop invariant rules
@@ -284,7 +284,7 @@ rule loop_invariant
   samegoal "run with cut program" 
     replace $$loopInvPrgMod(%a, %inv, 0)
   tags
-    display "invariant in {%a}"
+    display "invariant in {%a}: {explain %a}"
 
 rule loop_invariant_update
   find |- {U}[%a]
@@ -294,7 +294,7 @@ rule loop_invariant_update
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
   tags
-    display "invariant in {%a}"
+    display "invariant in {%a}: {explain %a}"
 
 
 rule auto_loop_invariant_update
@@ -302,9 +302,12 @@ rule auto_loop_invariant_update
   samegoal "inv initially valid" replace {U}%inv
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
-  tags
-    display "invariant in {%a}: {explain %a}"
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
 
+(*
+ * Update simplification
+ *)
 rule update_simplification
   find {U}%t
   where canEval $$updSimpl({U}%t)

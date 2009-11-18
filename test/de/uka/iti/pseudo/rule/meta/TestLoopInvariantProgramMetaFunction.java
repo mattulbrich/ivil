@@ -1,13 +1,20 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Set;
+
+import junit.framework.AssertionFailedError;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
 
@@ -16,26 +23,86 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         ASTFile ast = fp.parseFile(new InputStreamReader(getClass().getResourceAsStream(resource)), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
         Environment env = em.getEnvironment();
-        if(VERBOSE)
-            env.dump();
+//        if(VERBOSE)
+//            env.dump();
         return env;
     }
     
     
     public void testCollectAssignables() throws Exception {
-        
-        Environment env = testEnv("loopTest1.p.txt");
+        env = testEnv("loopTest1.p.txt");
         
         LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env.getProgram("P"));
         
-        LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), makeTerm("0"), env);
+        LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), null, env);
         
         loopMod.collectAssignables();
         
-        assertEquals(2, loopMod.modifiedAssignables.size());
-        assertTrue(loopMod.modifiedAssignables.contains(env.getFunction("a")));
-        assertTrue(loopMod.modifiedAssignables.contains(env.getFunction("c")));
+        Set<Function> modifiedAssignables = loopMod.getModifiedAssignables();
+        assertEquals(2, modifiedAssignables.size());
+        assertTrue(modifiedAssignables.contains(env.getFunction("a")));
+        assertTrue(modifiedAssignables.contains(env.getFunction("c")));
     }
     
+    public void testVarAtPreCreation() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env.getProgram("P"));
+        LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), makeTerm("var"), env);
+        loopMod.apply();
+        
+        assertEquals("varAtPre1 as int", loopMod.getVarAtPre().toString(true));
+    }
     
+    public void testInvariantRule() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        
+        LiteralProgramTerm prog = new LiteralProgramTerm(2, false, env.getProgram("Q"));
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), makeTerm("var"), env);
+        loopMod.setVarAtPre(makeTerm("varAtPre"));
+        
+        LiteralProgramTerm progResult = loopMod.apply();
+        
+        assertEqualProgs(progResult.getProgram(), env.getProgram("Q_after"));
+    }
+    
+    public void testInvariantRuleWithoutVar() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        
+        LiteralProgramTerm prog = new LiteralProgramTerm(2, false, env.getProgram("Q"));
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        
+        LiteralProgramTerm progResult = loopMod.apply();
+        
+        assertEqualProgs(progResult.getProgram(), env.getProgram("Q_after_without_var"));
+    }
+    
+    // Program with loop directly to the skip
+    public void testBug1() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env.getProgram("Bug1"));
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        
+        LiteralProgramTerm progResult = loopMod.apply();
+        
+        assertEqualProgs(progResult.getProgram(), env.getProgram("Bug1_after"));
+    }
+
+
+    private void assertEqualProgs(Program p1, Program p2) {
+        try {
+            List<Statement> s1 = p1.getStatements();
+            List<Statement> s2 = p2.getStatements();
+            assertEquals("Lengths do not match.", s1.size(), s2.size());
+            for (int i = 0; i < s1.size(); i++) {
+                System.out.println("P1: " + s1.get(i));
+                System.out.println("P2: " + s2.get(i));
+                assertEquals(s1.get(i), s2.get(i));
+            }
+        } catch (AssertionFailedError e) {
+            p1.dump();
+            p2.dump();
+            throw e;
+        }
+    }
 }

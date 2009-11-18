@@ -10,6 +10,8 @@ package de.uka.iti.pseudo.environment;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -232,6 +234,25 @@ public class Environment {
         
         return program;
     }
+    
+    
+    /**
+     * Gets a program name which starts with the given prefix and which has not
+     * yet been bound in the environment.
+     * 
+     * A number of 0 or more ticks (') are appended to make the name unique.
+     * 
+     * @param prefix
+     *            the prefix of the name to return.
+     * 
+     * @return the fresh program name
+     */
+    public String createNewProgramName(String prefix) {
+        while(getProgram(prefix) != null)
+            prefix += "'";
+        
+        return prefix;
+    }
 
     /**
      * gets a collection containing all programs of this environment and all
@@ -327,6 +348,17 @@ public class Environment {
             sort = parentEnvironment.getSort(name);
         return sort;
     }
+    
+    /**
+     * get the list of all sorts defined in this environment. Sors visible
+     * in this environment but defined in a parent environment are ignored.
+     * 
+     * @return an unmodifiable collection of sorts
+     */
+	public Collection<Sort> getLocalSorts() {
+		return sortMap.values();
+	}
+
 
     /**
      * Gets the int type which is alway present.
@@ -404,6 +436,16 @@ public class Environment {
             function = parentEnvironment.getFunction(name);
         return function;
     }
+    
+    /**
+     * get the list of all functions defined in this environment. Functions visible
+     * in this environment but defined in a parent environment are ignored.
+     * 
+     * @return an unmodifiable collection of functions
+     */
+	public Collection<Function> getLocalFunctions() {
+		return functionMap.values();
+	}
 
     /**
      * Gets a number literal. It is dynamically added to the top level
@@ -782,6 +824,16 @@ public class Environment {
         }
         retval.addAll(rules);
         return retval;
+    }
+    
+    /**
+     * get the list of all rules defined in this environment. Rules visible
+     * in this environment but defined in a parent environment are ignored.
+     * 
+     * @return an unmodifiable list of rules
+     */
+    public List<Rule> getLocalRules() {
+    	return Collections.unmodifiableList(rules);
     }
     
     //
