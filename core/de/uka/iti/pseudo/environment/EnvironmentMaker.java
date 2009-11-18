@@ -27,7 +27,6 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
-import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -192,8 +191,10 @@ public class EnvironmentMaker {
                 String filename = Util.stripQuotes(token.image);
                 File file = mkFile(astFile.getFileName(), filename);
                 
-                if(env.hasParentResource(file.getPath()))
+                if(env.hasParentResource(file.getPath())) {
+                	System.err.println("WARNING: cyclicly including environments, involving: " + file);
                     continue;
+                }
                 
                 try {
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
@@ -262,7 +263,8 @@ public class EnvironmentMaker {
         if (filename.charAt(0) == '$') {
             ret = new File(SYS_DIR, filename.substring(1));
         } else {
-            ret = new File(new File(toplevel).getParentFile(), filename);
+            File parentFile = new File(toplevel).getParentFile();
+			ret = new File(parentFile, filename);
         }
         return ret;
     }
