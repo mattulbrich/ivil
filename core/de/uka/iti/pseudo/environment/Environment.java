@@ -42,7 +42,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
  * <li>programs
  * </ul>
  * 
- * Every enviroment has a parent environment which it extends. 
+ * Every environment has a parent environment which it extends. 
  * Lookups that it cannot resolve are delegated to that parent.
  * 
  * There is exactly one environment {@link #BUILT_IN_ENV} which does have

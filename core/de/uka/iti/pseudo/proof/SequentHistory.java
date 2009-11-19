@@ -89,9 +89,9 @@ public class SequentHistory {
         /**
          * get the proof node which gave raise to this annotation 
          * 
-         * @return a non-null proof node
+         * @return a proof node or null if there is no such node
          */
-        public @NonNull ProofNode getCreatingProofNode() {
+        public @Nullable ProofNode getCreatingProofNode() {
             return creatingProofNode;
         }
         
