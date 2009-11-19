@@ -188,7 +188,7 @@ rule auto_assert
 
 rule autot_assert
   find |- [[%a : assert %b]]
-  samegoal "assert {%b}: {explain %a}"
+  samegoal "{explainOrQuote %a}"
     replace %b 
   samegoal "continue program"
     replace $$incPrg(%a)
@@ -197,7 +197,7 @@ rule autot_assert
 
 rule auto_assert_upd
   find |- {U} [%a : assert %b]
-  samegoal "assert {%b}: {explain %a}"
+  samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "continue program"
     replace {U} $$incPrg(%a)
@@ -206,7 +206,7 @@ rule auto_assert_upd
 
 rule autot_assert_upd
   find |- {U} [[%a : assert %b]]
-  samegoal "assert {%b}: {explain %a}"
+  samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "continue program"
     replace {U} $$incPrg(%a)
@@ -320,19 +320,37 @@ rule loop_invariant_update_t
   tags
     display "invariant in {%a}: {explain %a}"
 
-
+rule auto_loop_invariant
+  find |- [%a : skip_loopinv %inv]
+  samegoal "inv initially valid" 
+    replace %inv
+  samegoal "run with cut program" 
+    replace $$loopInvPrgMod(%a, %inv, 0)
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
 
 rule auto_loop_invariant_update
   find |- {U}[%a : skip_loopinv %inv]
-  samegoal "inv initially valid" replace {U}%inv
+  samegoal "inv initially valid"
+    replace {U}%inv
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
 
+rule autot_loop_invariant
+  find |- [[%a : skip_loopinv %inv, %var]]
+  samegoal "inv initially valid" 
+    replace %inv
+  samegoal "run with cut program" 
+    replace $$loopInvPrgMod(%a, %inv, %var)
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
+
 rule autot_loop_invariant_update
   find |- {U}[[%a : skip_loopinv %inv, %var]]
-  samegoal "inv initially valid" replace {U}%inv
+  samegoal "inv initially valid" 
+    replace {U}%inv
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"

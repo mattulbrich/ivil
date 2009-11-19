@@ -99,9 +99,9 @@ rule cutOnThat
 
 rule and_right
   find |-  %a & %b 
-  samegoal
+  samegoal "Conj1: {%a}"
     replace  %a 
-  samegoal
+  samegoal "Conj2: {%b}"
     replace  %b 
   tags rewrite "split"
 
@@ -110,7 +110,7 @@ rule and_left
   samegoal replace  %a 
            add  %b  |-
   tags rewrite "prop simp"
-       verbosity "5"
+       verbosity "6"
 
 rule and_true_l
   find  true & %a 
@@ -151,11 +151,14 @@ rule or_right
   samegoal replace  %a 
            add |-  %b 
   tags rewrite "prop simp"
+       verbosity "6"
 
 rule or_left
   find  %a | %b  |-
-  samegoal replace  %a 
-  samegoal replace  %b 
+  samegoal "Disj1: {%a}"
+    replace  %a 
+  samegoal "Disj1: {%b}"
+    replace  %b 
   tags rewrite "split"
 
 rule or_true_l
@@ -196,13 +199,14 @@ rule impl_right
   samegoal replace  %b 
            add  %a  |-
   tags rewrite "prop simp"
+       verbosity "6"
 
 rule impl_left
   find  %a -> %b  |-
-  samegoal "show %a"
+  samegoal "show {%a}"
     remove
     add |-  %a 
-  samegoal "use %b"
+  samegoal "use {%b}"
     replace  %b 
 
 rule impl_false_l

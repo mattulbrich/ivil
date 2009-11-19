@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 // TODO DOC
 public class TermInstantiator extends RebuildingTermVisitor {
@@ -69,6 +70,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
         return replaceInString(string, null);
     }
     
+    // TODO DOC
     /**
      * Replace schema variables in a string.
      * 
@@ -114,9 +116,17 @@ public class TermInstantiator extends RebuildingTermVisitor {
                             display = pp.print(t).toString();
                         }
                     }
+                    
                 } else if(lookup.startsWith("explain %")) {
                     // retrieve explanation, overread "explain "
                     display = extractExplanation(termMap.get(lookup.substring(8)));
+                    
+                } else if(lookup.startsWith("explainOrQuote %")) {
+                    // retrieve explanation, overread "explain "
+                    Term term = termMap.get(lookup.substring(15));
+                    display = extractExplanation(term);
+                    if(display.length() == 0)
+                        display = quoteStatement(term, pp);
                 }
                 
                 retval.append(display);
@@ -136,7 +146,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
         return retval.toString();
     }
     
-    private String extractExplanation(Term term) {
+    private @NonNull String extractExplanation(Term term) {
         String ret = null;
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
@@ -145,6 +155,20 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
         return ret == null ? "" : ret;
     }
+    
+    private @NonNull String quoteStatement(Term term, PrettyPrint pp) {
+        String ret = null;
+        if (term instanceof LiteralProgramTerm) {
+            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+            Statement stm = prog.getStatement();
+            if(pp == null)
+                ret = stm.toString();
+            else
+                ret = pp.print(stm).toString();
+        }
+        return ret == null ? "" : ret;
+    }
+
 
     private boolean typesInstantiated;
     
