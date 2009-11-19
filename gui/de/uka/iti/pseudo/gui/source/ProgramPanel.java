@@ -53,13 +53,16 @@ public class ProgramPanel extends ChoosePanel {
         Program p = (Program) object;
         StringBuilder sb = new StringBuilder();
         List<Statement> statements = p.getStatements();
+        List<String> annotations = p.getTextAnnotations();
         for (int i = 0; i < statements.size(); i++) {
             Statement statement = statements.get(i);
+            String annotation = annotations.get(i);
             int sourceline = statement.getSourceLineNumber();
             String linestring = sourceline > 0 ? Integer.toString(sourceline)
                     : "";
-            sb.append(String.format("%3d|%3s: %s\n", i, linestring,
-                    prettyPrinter.print(statement).toString()));
+            sb.append(String.format("%3d|%3s: %s%s\n", i, linestring,
+                    prettyPrinter.print(statement).toString(),
+                    annotation == null ? "" : " ; " + annotation));
         }
         return sb.toString();
     }
