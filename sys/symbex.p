@@ -223,7 +223,7 @@ rule auto_assume
        display "|> assume {%b}: {explain %a}"
 
 rule autot_assume
-  find |- [%a : assume %b]
+  find |- [[%a : assume %b]]
   samegoal 
     replace $$incPrg(%a)
     add %b |-
@@ -231,7 +231,7 @@ rule autot_assume
        display "|> assume {%b}: {explain %a}"
 
 rule auto_assume_upd
-  find |- {U} [%a : assume %b]
+  find |- {U} [[%a : assume %b]]
   samegoal 
     replace {U} $$incPrg(%a)
     add {U} %b |-
@@ -239,7 +239,7 @@ rule auto_assume_upd
        display "|> assume {%b}: {explain %a}"
 
 rule autot_assume_upd
-  find |- {U} [%a : assume %b]
+  find |- {U} [[%a : assume %b]]
   samegoal 
     replace {U} $$incPrg(%a)
     add {U} %b |-
@@ -254,7 +254,7 @@ rule auto_havoc
        display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc
-  find |- [%a : havoc %v]
+  find |- [[%a : havoc %v]]
   samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
@@ -266,7 +266,7 @@ rule auto_havoc_upd
        display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc_upd
-  find |- {U} [%a : havoc %v]
+  find |- {U} [[%a : havoc %v]]
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
@@ -296,12 +296,45 @@ rule loop_invariant_update
   tags
     display "invariant in {%a}: {explain %a}"
 
+rule loop_invariant_t
+  find |- [[%a]]
+  where
+    interact %inv
+  where
+    interact %var
+  samegoal "inv initially valid"
+    replace %inv
+  samegoal "run with cut program" 
+    replace $$loopInvPrgMod(%a, %inv, %var)
+  tags
+    display "invariant in {%a}: {explain %a}"
+
+rule loop_invariant_update_t
+  find |- {U}[[%a]]
+  where
+    interact %inv
+  where
+    interact %var  samegoal "inv initially valid" replace {U}%inv
+  samegoal "run with cut program" 
+    replace {U}$$loopInvPrgMod(%a, %inv, %var)
+  tags
+    display "invariant in {%a}: {explain %a}"
+
+
 
 rule auto_loop_invariant_update
   find |- {U}[%a : skip_loopinv %inv]
   samegoal "inv initially valid" replace {U}%inv
   samegoal "run with cut program" 
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
+
+rule autot_loop_invariant_update
+  find |- {U}[[%a : skip_loopinv %inv, %var]]
+  samegoal "inv initially valid" replace {U}%inv
+  samegoal "run with cut program" 
+    replace {U}$$loopInvPrgMod(%a, %inv, %var)
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
 

@@ -9,7 +9,6 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ServiceLoader;

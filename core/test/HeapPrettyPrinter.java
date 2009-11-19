@@ -8,6 +8,9 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 
+// TODO DOC
+// TODO Move this to pseudo.bytecode
+
 public class HeapPrettyPrinter extends PrettyPrintPlugin {
 
     @Override public void prettyPrintTerm(Application application) throws TermException {

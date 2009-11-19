@@ -40,8 +40,8 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static final File SYS_DIR = 
-        new File(Settings.getInstance().getProperty("pseudo.sysDir", "./sys"));
+    private static final String SYS_DIR = 
+        Settings.getInstance().getProperty("pseudo.sysDir", "./sys");
 
     /**
      * The environment that is being built.
@@ -189,25 +189,25 @@ public class EnvironmentMaker {
         for (ASTIncludeDeclarationBlock block : includes) {
             for (Token token : block.getIncludeStrings()) {
                 String filename = Util.stripQuotes(token.image);
-                File file = mkFile(astFile.getFileName(), filename);
-                
-                if(env.hasParentResource(file.getPath())) {
-                	System.err.println("WARNING: cyclicly including environments, involving: " + file);
-                    continue;
-                }
-                
                 try {
+                	File file = mkFile(astFile.getFileName(), filename);
+
+                	if(env.hasParentResource(file.getPath())) {
+                		System.err.println("WARNING: cyclicly including environments, involving: " + file);
+                		continue;
+                	}
+                
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
                             parser, file, env.getParent());
                     Environment innerEnv = includeMaker.getEnvironment();
                     innerEnv.setFixed();
                     env.setParent(innerEnv);
                 } catch (FileNotFoundException e) {
-                    throw new ASTVisitException("Cannot include " + file
+                    throw new ASTVisitException("Cannot include " + filename
                             + " (not found)", block, e);
                 } catch (ParseException e) {
                     throw new ASTVisitException("Error while parsing file "
-                            + file, block, e);
+                            + filename, block, e);
                 } catch (EnvironmentException e) {
                     throw new ASTVisitException(block, e);
                 }
@@ -253,20 +253,28 @@ public class EnvironmentMaker {
         return problemTerm;
     }
 
-
-    /*
-     * Make file name for an include. Leading $ is replaced by the system
-     * directory.
-     */
-    private File mkFile(String toplevel, String filename) {
+	/*
+	 * Make file name for an include. Files with a leading $ are searched for in
+	 * the system directories. This key is then seen as a path.
+	 */
+    private File mkFile(String toplevel, String filename) throws FileNotFoundException {
         File ret;
         if (filename.charAt(0) == '$') {
-            ret = new File(SYS_DIR, filename.substring(1));
+        	filename = filename.substring(1);
+        	String[] paths = SYS_DIR.split(File.pathSeparator);
+        	for (String path : paths) {
+				ret = new File(path, filename);
+				if(ret.exists())
+					return ret;
+        	}
+        	throw new FileNotFoundException(filename + " not found in any system directory");
         } else {
             File parentFile = new File(toplevel).getParentFile();
 			ret = new File(parentFile, filename);
+			return ret;
         }
-        return ret;
     }
+    
+    
 
 }

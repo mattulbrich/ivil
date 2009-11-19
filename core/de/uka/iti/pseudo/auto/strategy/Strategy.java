@@ -14,7 +14,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
-// TODO: Auto-generated Javadoc
 /**
  * A Strategy can for a given proof provide the system with a rule application
  * to apply next.
