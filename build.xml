@@ -81,6 +81,7 @@
         <attribute name="Implementation-Version" value="0.0"/>
         <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
+        <attribute name="SplashScreen-Image" value="de/uka/iti/pseudo/gui/img/logo.png"/>
       </manifest>
     </jar>
   </target>

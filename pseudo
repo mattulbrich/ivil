@@ -11,12 +11,24 @@ BYTECODE=$HOME/eclipse/pseudo.bytecode
 
 SYS_DIR=$BASE/sys:$BYTECODE/sys
 
+#
+# Logging
+OPTIONS=
 if [ -r $BASE/logging.properties ]
 then
-  LOG_OPT="-Djava.util.logging.config.file=$BASE/logging.properties"
+  OPTIONS="-Djava.util.logging.config.file=$BASE/logging.properties $OPTIONS"
 fi
 
-java -ea $LOG_OPT \
+
+#
+# debugging
+if [ "$1" == "-D" ]
+then
+  shift $ARGV
+  OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1234 $OPTIONS"
+fi
+
+java -ea $OPTIONS \
   -Dpseudo.baseDir=$BASE \
   -Dpseudo.sysDir=$SYS_DIR \
   -jar $BASE/pseudo.jar "$@"

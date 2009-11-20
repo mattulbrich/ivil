@@ -35,6 +35,6 @@ public class StartupWindow extends JFrame {
     }
     
     private Icon makeImage() {
-        return BarManager.makeIcon(getClass().getResource("img/pseudo.png"));
+        return BarManager.makeIcon(getClass().getResource("img/logo.png"));
     }
 }
