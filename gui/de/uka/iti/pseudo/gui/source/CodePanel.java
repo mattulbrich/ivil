@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -16,8 +18,13 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.ProofNodeSelectionListener;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
-public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionListener {
+public abstract class CodePanel extends JPanel implements ProofNodeSelectionListener {
 
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
@@ -25,9 +32,16 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
     private ProofCenter proofCenter;
     private BreakpointManager breakpointManager;
     private Object displayedResource;
-
+    private List<LiteralProgramTerm> foundProgramTerms = new ArrayList<LiteralProgramTerm>();
     
-    public ChoosePanel(ProofCenter proofCenter, boolean showLinenumbers, 
+    private TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+        public void visit(LiteralProgramTerm progTerm) throws TermException {
+            foundProgramTerms.add(progTerm);
+        }
+    };
+    
+    
+    public CodePanel(ProofCenter proofCenter, boolean showLinenumbers, 
             Color foregroundColor) throws IOException {
         this.proofCenter = proofCenter;
         this.breakpointManager = proofCenter.getBreakpointManager();
@@ -50,7 +64,7 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
                 }
             });
             add(selectionBox, BorderLayout.NORTH);
-            selectionBox.setModel(updatePrograms());
+            selectionBox.setModel(getAllResources());
             selectSource();
             numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size(); 
         }
@@ -59,17 +73,49 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
     private void selectSource() {
         displayedResource = selectionBox.getSelectedItem();
         sourceComponent.setText(makeContent(displayedResource));
+        // manually scroll to top
+        sourceComponent.setLocation(0, 0);
         sourceComponent.setBreakPointResource(displayedResource);
     }
     
     public void proofNodeSelected(ProofNode node) {
         int now = proofCenter.getEnvironment().getAllPrograms().size();
         if(now != numberOfKnownPrograms) {
-            selectionBox.setModel(updatePrograms());
-            selectSource();
+            selectionBox.setModel(getAllResources());
             numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }
+        
+        recalcProgramTerms(node);
+        
+        Object resource = chooseResource();
+        if(resource != null && resource != displayedResource) {
+            selectionBox.setSelectedItem(resource);
+            // this assertion ensures that the resource was in the list
+            assert getDisplayedResource() == resource;
+        }
+        
+        getSourceComponent().removeHighlights();
+        addHighlights();
     }
+    
+    private void recalcProgramTerms(ProofNode node) {
+
+        foundProgramTerms.clear();
+        try {
+            for (Term t : node.getSequent().getAntecedent()) {
+                t.visit(programFindVisitor);
+            }
+
+            for (Term t : node.getSequent().getSuccedent()) {
+                t.visit(programFindVisitor);
+            }
+        } catch (TermException e) {
+            // never thrown
+            throw new Error(e);
+        }
+
+    }
+
 
     public void ruleApplicationSelected(RuleApplication ruleApplication) {
         // do nothing
@@ -77,7 +123,11 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
 
     abstract protected String makeContent(Object reference);
 
-    abstract protected ComboBoxModel updatePrograms();
+    abstract protected ComboBoxModel getAllResources();
+    
+    abstract protected Object chooseResource();
+    
+    abstract protected void addHighlights();
 
     protected ProofCenter getProofCenter() {
         return proofCenter;
@@ -90,4 +140,9 @@ public abstract class ChoosePanel extends JPanel implements ProofNodeSelectionLi
     public Object getDisplayedResource() {
         return displayedResource;
     }
+    
+    public List<LiteralProgramTerm> getFoundProgramTerms() {
+        return foundProgramTerms;
+    }
+    
 }

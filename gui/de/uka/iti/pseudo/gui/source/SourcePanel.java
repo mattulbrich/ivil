@@ -2,7 +2,6 @@ package de.uka.iti.pseudo.gui.source;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,20 +12,13 @@ import javax.swing.DefaultComboBoxModel;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.ProofNodeSelectionListener;
-import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.TermVisitor;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-public class SourcePanel extends ChoosePanel implements
-        ProofNodeSelectionListener {
+public class SourcePanel extends CodePanel {
 
     private static final Color SOURCE_COLOR = Settings.getInstance()
             .getColor("pseudo.program.sourcecolor");
@@ -36,7 +28,7 @@ public class SourcePanel extends ChoosePanel implements
     }
 
     @Override
-    protected ComboBoxModel updatePrograms() {
+    protected ComboBoxModel getAllResources() {
         Environment env = getProofCenter().getEnvironment();
         Collection<Program> programs = env.getAllPrograms();
 
@@ -60,67 +52,39 @@ public class SourcePanel extends ChoosePanel implements
         if(!(reference instanceof File) || reference == null)
             return null;
         
-        FileReader reader = null;
         try {
-            StringBuilder result = new StringBuilder();
-            
-            reader = new FileReader((File)reference);
-            char[] buffer = new char[2048];
-
-            int read = reader.read(buffer);
-            while (read > 0) {
-                result.append(buffer, 0, read);
-                read = reader.read(buffer);
-            }
-
-            return result.toString();
-
+            return Util.readFileAsString((File)reference);
         } catch (IOException e) {
             ExceptionDialog.showExceptionDialog(getProofCenter()
                     .getMainWindow(), e);
-            return "";
-
-        } finally {
-            if (reader != null)
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                }
+            return null;
         }
 
     }
     
-    @Override 
-    public void proofNodeSelected(ProofNode node) {
-        super.proofNodeSelected(node);
-        
-        getSourceComponent().removeHighlights();
-        
-        try {
-            for (Term t : node.getSequent().getAntecedent()) {
-                t.visit(selectionFindVisitor);
-            }
-            
-            for (Term t : node.getSequent().getSuccedent()) {
-                t.visit(selectionFindVisitor);
-            }
-        } catch (TermException e) {
-            // never thrown
-            throw new Error(e);
-        }
-
-    }
-    
-    private TermVisitor selectionFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-        public void visit(LiteralProgramTerm progTerm) {
-
+    @Override protected void addHighlights() {
+        for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
             File source = progTerm.getProgram().getSourceFile();
-            if (source != null && source.equals(getDisplayedResource())) {
-                int index = progTerm.getStatement().getSourceLineNumber();
-                if (index > 0)
-                    getSourceComponent().addHighlight(index - 1);
-                
+            Object displayedResource = getDisplayedResource();
+            if (source != null && source.equals(displayedResource)) {
+                int sourceLine = progTerm.getStatement().getSourceLineNumber();
+                if (sourceLine > 0) {
+                    // line numbers start at 1 in code and at 0 in component.
+                    getSourceComponent().addHighlight(sourceLine - 1);
+                }
             }
-        }};
+        }
+    }
+
+    @Override protected Object chooseResource() {
+        for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
+            File source = progTerm.getProgram().getSourceFile();
+            // TODO is this sane? Better check for entries in choice box.
+            if (source != null && source.canRead()) {
+                return source;
+            }
+        }
+        return null;
+    }
 
 }

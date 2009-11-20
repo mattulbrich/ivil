@@ -231,7 +231,7 @@ rule autot_assume
        display "|> assume {%b}: {explain %a}"
 
 rule auto_assume_upd
-  find |- {U} [[%a : assume %b]]
+  find |- {U} [%a : assume %b]
   samegoal 
     replace {U} $$incPrg(%a)
     add {U} %b |-

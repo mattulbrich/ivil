@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -31,6 +32,7 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Caret;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
@@ -38,6 +40,7 @@ import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
+import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -70,6 +73,8 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         super();
         this.breakpointManager = breakpointManager;
         init(showLineNumbers);
+        Caret newCaret = new NotScrollingCaret();
+        setCaret(newCaret);
     }
     
 
@@ -153,6 +158,11 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             int begin = getLineStartOffset(line);
             Object tag = getHighlighter().addHighlight(begin, begin, BAR_PAINTER);
             lineHighlights.add(tag);
+            
+            // make this line visible
+            Rectangle point = modelToView(begin);
+            if(point != null)
+                scrollRectToVisible(point);
             repaint();
         } catch (BadLocationException e) {
             throw new Error(e);

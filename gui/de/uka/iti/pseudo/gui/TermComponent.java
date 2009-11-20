@@ -51,6 +51,7 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
@@ -167,6 +168,7 @@ public class TermComponent extends JTextPane {
         // Set display properties
         setEditable(false);
         setBorder(BORDER);
+        setCaret(new NotScrollingCaret());
         annotatedString.appendToDocument(getDocument(), attributeFactory);
         setDragEnabled(true);
         setTransferHandler(new TermSelectionTransfer());

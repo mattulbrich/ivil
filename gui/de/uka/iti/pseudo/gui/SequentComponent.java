@@ -170,10 +170,10 @@ public class SequentComponent extends JPanel implements
         
     }
     
-    @Override public void scrollRectToVisible(Rectangle rect) {
-        // We deliberately ignore scrolls which are initiated by the term components
-        // inside (or rather their carets)
-    }
+//    @Override public void scrollRectToVisible(Rectangle rect) {
+//        // We deliberately ignore scrolls which are initiated by the term components
+//        // inside (or rather their carets)
+//    }
     
     public void proofNodeSelected(ProofNode node) {
         

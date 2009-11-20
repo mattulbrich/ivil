@@ -11,6 +11,9 @@ package de.uka.iti.pseudo.util;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -315,5 +318,41 @@ public class Util {
         }
         return true;
     }
+    
+    /**
+     * Read a file into a string.
+     * 
+     * A buffer in the length of the file is created, the entire content read in
+     * one go and the result used to create a String object.
+     * 
+     * The default character encoding is used to decode the string.
+     * 
+     * This only works for files whose size is less than {@value Integer#MAX_VALUE}.
+     * 
+     * TODO Does this really always work? Possibly add a loop!
+     * 
+     * @param file
+     *            the file to be read, must be readable
+     * 
+     * @return a string holding the content of the file.
+     * 
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static @NonNull String readFileAsString(@NonNull File file) throws java.io.IOException{
+        long length = file.length();
+        byte[] buffer = new byte[(int)length];
+        FileInputStream f = null;
+        try {
+            f = new FileInputStream(file);
+            int count = f.read(buffer);
+            assert count == length;
+            return new String(buffer);
+        } finally {
+            if(f != null)
+                f.close();
+        }
+    }
+
 
 }
