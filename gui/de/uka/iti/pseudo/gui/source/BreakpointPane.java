@@ -98,7 +98,8 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
 
         addMouseListener(new MouseAdapter() {
            public void mouseClicked(MouseEvent e) {
-               if(SwingUtilities.isRightMouseButton(e)) {
+               // if(SwingUtilities.isRightMouseButton(e)) {
+               if(e.isPopupTrigger()) {
                    showPopup(e);
                }
            }

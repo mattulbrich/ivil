@@ -4,17 +4,18 @@ import java.awt.Component;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -43,13 +44,16 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     /*
      * some UI constants
      */
-    private ProofComponentModel proofModel;
     private static final Icon GREEN_ICON = mkIcon("img/green.png");
     private static final Icon GREY_ICON = mkIcon("img/grey.png");
+
+    private static final String POPUP_BAR_PROPERTY = "proofComponent.popup";
 
     
     private final Font italicFont = getFont().deriveFont(Font.ITALIC);
     private final Font boldFont = getFont().deriveFont(Font.BOLD);
+    
+    private ProofComponentModel proofModel;
     
     @SuppressWarnings("serial") 
     private class Renderer extends DefaultTreeCellRenderer {
@@ -88,8 +92,9 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
      * create a new proof component which shows the given proof.
      * 
      * @param proofCenter to be displayed
+     * @throws IOException if the bar manager fails to build the popup menu
      */
-    public ProofComponent(@NonNull ProofCenter proofCenter) {
+    public ProofComponent(@NonNull ProofCenter proofCenter) throws IOException {
         
         // this.proof = proof;
         Proof proof = proofCenter.getProof();
@@ -98,6 +103,8 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
         setModel(proofModel);
         setCellRenderer(new Renderer());
         addListeners(proofCenter);
+        JPopupMenu popup = proofCenter.getBarManager().makePopup(POPUP_BAR_PROPERTY);
+        addMouseListener(new TreePopupMouseListener(this, popup));
     }
 
 
@@ -112,6 +119,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
                         repaint();
                     }
                 });
+        
     }
 
 

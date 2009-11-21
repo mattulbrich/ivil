@@ -81,6 +81,14 @@ public class MainWindow extends JFrame {
     }
 
     void makeGUI() throws IOException {
+
+        // setup the bar manager
+        URL resource = getClass().getResource("bar/menu.properties");
+        if(resource == null)
+            throw new IOException("resource bar/menu.properties not found");
+        barManager = new BarManager(null, resource);
+        barManager.putProperty(BarAction.CENTER, proofCenter);
+        barManager.putProperty(BarAction.PARENT_FRAME, this);
         
         // Create the split dock.
         SplitDock topDock = new SplitDock();
@@ -177,12 +185,6 @@ public class MainWindow extends JFrame {
             leftTabDock.addDockable(dock, new Position(3));
         }
         {
-            URL resource = getClass().getResource("bar/menu.properties");
-            if(resource == null)
-                throw new IOException("resource bar/menu.properties not found");
-            barManager = new BarManager(null, resource);
-            barManager.putProperty(BarAction.CENTER, proofCenter);
-            barManager.putProperty(BarAction.PARENT_FRAME, this);
             setJMenuBar(barManager.makeMenubar());
             getContentPane().add(barManager.makeToolbar(), BorderLayout.NORTH);
         }
