@@ -76,8 +76,6 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         Caret newCaret = new NotScrollingCaret();
         setCaret(newCaret);
     }
-    
-
 
     private void init(boolean showLineNumbers) {
         {
@@ -96,19 +94,31 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         setFont(FONT);
         setEditable(false);
 
+        
         addMouseListener(new MouseAdapter() {
-           public void mouseClicked(MouseEvent e) {
-               // if(SwingUtilities.isRightMouseButton(e)) {
-               if(e.isPopupTrigger()) {
-                   showPopup(e);
-               }
-           }
-        });
+			public void mouseClicked(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showPopup(e);
+				}
+			}
+
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showPopup(e);
+				}
+			}
+			
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showPopup(e);
+				}
+			}
+		});
         
         this.breakpointManager.addObserver(this);
     }
     
-    protected void showPopup(MouseEvent e) {
+    private void showPopup(MouseEvent e) {
         
         if(breakPointResource == null)
             return;

@@ -34,6 +34,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -637,16 +638,19 @@ public class BarManager {
             throw new IOException("cannot create Action instance of " + className, e);
         }
     }
-    
-    /**
-     * Convenience mehtod to create an icon.
-     * 
-     * @param resource
-     *            the resource to load from
-     * 
-     * @return a freshly created icon
-     */
-    public static Icon makeIcon(@NonNull URL resource) {
+
+	/**
+	 * Convenience method to create an icon.
+	 * 
+	 * If the argument is null or the resource cannot be loaded, a bogus icon is
+	 * returned.
+	 * 
+	 * @param resource
+	 *            the resource to load from
+	 * 
+	 * @return a freshly created icon
+	 */
+    public static @NonNull Icon makeIcon(@Nullable URL resource) {
         try {
             if(resource != null)
                 return new ImageIcon(resource);
@@ -661,10 +665,10 @@ public class BarManager {
     /**
      * Clear the cache of actions.
      */
-    @Deprecated
-    public void clearCache() {
-        actionCache.clear();
-    }
+//    @Deprecated
+//    public void clearCache() {
+//        actionCache.clear();
+//    }
 
     /**
      * Put property into the map of properties to be provided to the actions.
