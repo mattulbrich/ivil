@@ -43,12 +43,11 @@ public class VerbosityAction extends BarAction
         ProofCenter pc = getProofCenter();
         pc.addPropertyChangeListener(TREE_VERBOSITY, this);
 
-        pc.firePropertyChange(TREE_VERBOSITY, 5);
+        pc.firePropertyChange(TREE_VERBOSITY, DEFAULT_VERBOSITY);
     }
 
     @Override public void propertyChange(PropertyChangeEvent evt) {
-        putValue(Action.NAME, "Verbosity in Tree");
-        // + evt.getNewValue();                + ")");
+        putValue(Action.NAME, "Verbosity in Tree (now: " + evt.getNewValue() + ")");
     }
 
 }

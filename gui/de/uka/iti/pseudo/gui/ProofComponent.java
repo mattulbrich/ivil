@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.Util;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * A proof component is a specialised JTree which is used to visualise proof trees.
@@ -36,7 +37,8 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     private static final long serialVersionUID = 6352175425195393727L;
 
     public static final String VERBOSITY_PROPERTY = "tree-verbosity";
-    public static final int DEFAULT_VERBOSITY = 5;
+    public static final int DEFAULT_VERBOSITY = 
+        Settings.getInstance().getInteger("pseudo.prooftree.defaultverbosity");
     
     /*
      * some UI constants
@@ -99,15 +101,17 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
     }
 
 
-    private void addListeners(ProofCenter proofCenter) {
-        proofCenter.addPropertyChangeListener(VERBOSITY_PROPERTY, new PropertyChangeListener() {
-            @Override public void propertyChange(PropertyChangeEvent evt) {
+    private void addListeners(final ProofCenter proofCenter) {
+        proofCenter.addPropertyChangeListener(VERBOSITY_PROPERTY,
+                new PropertyChangeListener() {
+                    @Override public void propertyChange(PropertyChangeEvent evt) {
+                        ProofNode currentProofNode = getSelectedProofNode();
                         proofModel.setVerbosity((Integer) evt.getNewValue());
+                        if(currentProofNode != null)
+                            setSelectionPath(proofModel.getPath(currentProofNode));
                         repaint();
                     }
                 });
-        
-        
     }
 
 

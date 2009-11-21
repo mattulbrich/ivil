@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
@@ -50,6 +52,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     private PrettyPrint prettyPrint;
 
     private ProofCenter proofCenter;
+
+    private BlockingQueue<ProofNode> updateQueue = new LinkedBlockingQueue<ProofNode>();
     
     public class ProofTreeNode implements TreeNode {
         
@@ -243,6 +247,29 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         }
         
     }
+    
+    private Runnable treeUpdateRunnable = new Runnable() {
+        public void run() {
+            ProofNode proofNode = updateQueue.poll();
+            while(proofNode != null) {
+                TreePath p = getPath(proofNode);
+
+                // in case the node is no longer seen we do not need to
+                // update anything anyway.
+                if (p != null) {
+
+                    TreePath proofNodePath = p.getParentPath();
+                    ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
+                    ptn.invalidate();
+
+                    TreeModelEvent event = new TreeModelEvent(proofNode, proofNodePath);
+                    for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+                        listener.treeStructureChanged(event);
+                    }
+                }
+                proofNode = updateQueue.poll();
+            }
+        }};
 
     public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
         // we cannot do this in one call, since this would give a comp. error
@@ -254,45 +281,28 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     }
 
     /**
-     * the observation is likely to appear outside the AWT thread
+     * the observation is likely to appear outside the AWT thread.
+     * arg == null implies that an automatic proof has ended.
      */
     public void update(final Observable proof, final Object arg) {
+        ProofNode proofNode = (ProofNode) arg;
+        
+        if(proofNode != null)
+            updateQueue.add(proofNode);
         
         // no update while in automatic proof
-        if((Boolean)proofCenter.getProperty(ProofCenter.PROPERTY_ONGOING_PROOF)) {
-            return;
+        // this is done by the call with arg==null after the run.
+        if((Boolean)proofCenter.getProperty(ProofCenter.PROPERTY_ONGOING_PROOF) == false) {
+            SwingUtilities.invokeLater(treeUpdateRunnable);
         }
-        
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                ProofNode proofNode = (ProofNode) arg;
-                // assert proofNode.getAppliedRuleApp() != null;
-                
-                TreePath proofNodePath;
-                if (proofNode == null) {
-                    // null as argument reflects multiple changes or untracable.
-                    proofNodePath = new TreePath(root);
-                } else {
-                    TreePath p = getPath(proofNode);
-
-                    // in case the node is no longer seen we do not need to
-                    // update anything anyway.
-                    if (p == null)
-                        return;
-                    
-                    proofNodePath = p.getParentPath();
-                }
-
-                ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
-                ptn.invalidate();
-
-                TreeModelEvent event = new TreeModelEvent(proof, proofNodePath);
-                for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-                    listener.treeStructureChanged(event);
-                }
-            }});
     }
     
+    /**
+     * retrieve the proof node from a tree path object.
+     * 
+     * @param path a path into this model
+     * @return the proof stored at this path
+     */
     public ProofNode getProofNode(TreePath path) {
         ProofTreeNode treeNode = (ProofTreeNode) path.getLastPathComponent();
         return treeNode.proofNode;
