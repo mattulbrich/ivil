@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -51,8 +52,17 @@ public class AutoProofAction extends BarAction
 
     public void run() {
         Proof proof = getProofCenter().getProof();
+        Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
+        
+        if (!proof.getLock().tryLock()) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(),
+                    "Proof locked by another thread");
+            return;
+        }
+        
         try {
-            Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
+            
+            strategy.beginSearch();
             
             while(true) {
                 RuleApplication ruleAppl = strategy.findRuleApplication();
@@ -64,11 +74,13 @@ public class AutoProofAction extends BarAction
                         ProofNode first = proof.getGoal(0);
                         getProofCenter().fireSelectedProofNode(first);
                     }
+                    // endSearch is called in finally
                     return;
                 }
 
                 try {
                     getProofCenter().apply(ruleAppl);
+                    strategy.notifyRuleApplication(ruleAppl);
                 } catch (ProofException e) {
                     System.err.println("Error while applying rule " + ruleAppl.getRule().getName() + 
                             " on " + ruleAppl.getFindSelector() + " on goal " +
@@ -76,10 +88,13 @@ public class AutoProofAction extends BarAction
                     throw e;
                 }
             }
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
         } finally {
+            strategy.endSearch();
             thread = null;
+            proof.getLock().unlock();
             getProofCenter().firePropertyChange(ProofCenter.PROPERTY_ONGOING_PROOF, false);
             // some listeners are switched off, they might want to update now.
             proof.notifyObservers();

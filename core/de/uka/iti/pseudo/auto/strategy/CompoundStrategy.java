@@ -24,7 +24,7 @@ import de.uka.iti.pseudo.util.Util;
  * strategies to be considered are stored in an array ({@link #strategies})
  * which can be configured (e.g. by the UI)
  */
-public class CompoundStrategy implements Strategy {
+public class CompoundStrategy extends AbstractStrategy {
     
     /**
      * The {@link #strategies} are initialised to an array
@@ -33,11 +33,6 @@ public class CompoundStrategy implements Strategy {
     private static final Class<?>[] ORIGINAL_STRATEGIES = {
             SimplificationStrategy.class, BreakpointStrategy.class };
 
-    /**
-     * The proof object (currently not needed)
-     */
-    private Proof proof;
-    
     /**
      * The strategy manager is needed to query all possible instances for
      * {@link #strategies}.
@@ -50,7 +45,16 @@ public class CompoundStrategy implements Strategy {
     private Strategy strategies[];
     
     /**
+     * If all my strategies are {@link AbstractStrategy}s themselves,
+     * we can apply better algorithms. 
+     */
+    private boolean allAbstractStrategy;
+    
+    /**
      * To find an application, query one strategy after the other.
+     * 
+     * If all children are {@link AbstractStrategy} themselves,
+     * we can rely on the no-matching remembering of the superclass.
      * 
      * @return the first rule application found, or null if no strategy returns
      *         an application.
@@ -58,12 +62,16 @@ public class CompoundStrategy implements Strategy {
     public RuleApplication findRuleApplication()
             throws StrategyException {
         
-        for (Strategy strategy : strategies) {
-            RuleApplication ra = strategy.findRuleApplication();
-            if(ra != null)
-                return ra;
+        if(allAbstractStrategy) {
+            return super.findRuleApplication();
+        } else {
+            for (Strategy strategy : strategies) {
+                RuleApplication ra = strategy.findRuleApplication();
+                if(ra != null)
+                    return ra;
+            }
+            return null;
         }
-        return null;
     }
 
     /**
@@ -71,12 +79,14 @@ public class CompoundStrategy implements Strategy {
      */
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
-        this.proof = proof;
+        super.init(proof, env, strategyManager);
         this.strategyManager = strategyManager;
         
+        allAbstractStrategy = true;
         strategies = new Strategy[ORIGINAL_STRATEGIES.length];
         for (int i = 0; i < strategies.length; i++) {
             strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)ORIGINAL_STRATEGIES[i]);
+            allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
         }
         
         assert strategiesError() == null : strategiesError();
@@ -118,7 +128,7 @@ public class CompoundStrategy implements Strategy {
     }
 
     /**
-     * Sets the strategies.
+     * Sets the strategies. The given list is cloned to an array.
      * 
      * @param strategies
      *            the new strategies
@@ -129,11 +139,25 @@ public class CompoundStrategy implements Strategy {
         this.strategies = new Strategy[strategies.size()];
         strategies.toArray(this.strategies);
         
+        // find out whether there are non implementors or whether all use the
+        // default implementation
+        allAbstractStrategy = true;
+        for (Strategy strategy : strategies) {
+            if(!(strategy instanceof AbstractStrategy)) {
+                allAbstractStrategy = false;
+                break;
+            }
+        }
+        
         String error = strategiesError();
         if(error != null)
             throw new RuntimeException(error);
     }
     
+    
+    /**
+     * The name of this strategy
+     */
     @Override 
     public String toString() {
         return "Compound Strategy";
@@ -160,6 +184,7 @@ public class CompoundStrategy implements Strategy {
      * This method call is delegated to all inscribed strategies.
      */
     @Override public void beginSearch() throws StrategyException {
+        super.beginSearch();
         for (Strategy strategy : getStrategies()) {
             strategy.beginSearch();
         }
@@ -170,10 +195,29 @@ public class CompoundStrategy implements Strategy {
      * 
      * This method call is delegated to all inscribed strategies.
      */
-    @Override public void endSearch() throws StrategyException {
+    @Override public void endSearch() {
+        super.endSearch();
         for (Strategy strategy : getStrategies()) {
             strategy.endSearch();
         }
+    }
+
+    /**
+     * delegate the search to all child strategies.
+     * 
+     * This method is only called if {@link #allAbstractStrategy} is set,
+     * therefore if all children can be converted to {@link AbstractStrategy}.
+     */
+    @Override protected RuleApplication findRuleApplication(int goalIndex)
+            throws StrategyException {
+        for (Strategy strategy : strategies) {
+            assert strategy instanceof AbstractStrategy : "We have ensured this by allAbstractStrategy";
+            AbstractStrategy absStrategy = (AbstractStrategy) strategy;
+            RuleApplication ra = absStrategy.findRuleApplication(goalIndex);
+            if(ra != null)
+                return ra;
+        }
+        return null;
     }
 
 }

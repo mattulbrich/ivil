@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+  <title>Linear Indices in Terms</title>
+  <meta name="GENERATOR" content="Quanta Plus">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+
+<h1>Linear Indices in Terms</h1>
+
+There are two concepts to address an indirect subterm of a term:
+
+<h3>TermSelector</h3>
+
+One can use a subterm selector navigate through the tree of the term.
+<code>[1.2]</code> for instance stands for the third subterm
+(2, starting at 0) in the second subterm (1) the term. <code>[]</code>
+stands for term itself.
+
+<p>
+SubtermSelectors can be wrapped in a TermSelector which selects a term from 
+a sequent. <code>S.3.[1.2]</code> would select the above subterm from
+the fourth (3) term of the succedent (S) of the sequent.
+
+<h3>Linear Indices</h3>
+
+This can sometimes be tedious, therefore linearisation of the indices
+is supported. All indirect subterms are then enumerated in a 
+prefix-tree-visitation manner. 
+
+<h2>Example</h2>
+
+<table>
+  <THEAD>
+    <tr>
+      <th>Term</th>
+      <th>TermSelector</th>
+      <th>Linear index</th>
+   </tr>
+  </THEAD>
+  <tbody>
+    <tr>
+      <td>f(g(x,y), z)</td>
+      <td>[]</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>g(x,y)</td>
+      <td>[0]</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>x</td>
+      <td>[0.0]</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>y</td>
+      <td>[0.1]</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>z</td>
+      <td>[1]</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

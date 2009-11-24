@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
-public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
+public class BreakpointStrategy extends AbstractStrategy implements RuleApplicationFilter {
     
     private BreakpointManager breakPointManager = new BreakpointManager();
     
@@ -40,8 +40,6 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     private boolean stopAtLoop = false;
     private boolean stopAtJumpBack = true;
 
-    private Proof proof;
-
     private RewriteRuleCollection ruleCollection;
     
     private Set<LiteralProgramTerm> seenProgramTerms = new HashSet<LiteralProgramTerm>();
@@ -49,8 +47,7 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     @Override 
     public void init(Proof proof, Environment env, StrategyManager strategyManager)
             throws StrategyException {
-        this.proof = proof;
-        
+        super.init(proof, env, strategyManager);
         try {
             ruleCollection = new RewriteRuleCollection(env.getAllRules(), REWRITE_CATEGORY, env);
             ruleCollection.setApplicationFilter(this);
@@ -60,17 +57,9 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     }
 
     @Override 
-    public RuleApplication findRuleApplication() {
-        int countGoals = proof.getOpenGoals().size();
-        
-        for (int i = 0; i < countGoals; i++) {
-            RuleApplication ra = ruleCollection.findRuleApplication(proof, i);
-            if (ra != null) {
-                return ra;
-            }
-        }
-        
-        return null;
+    public RuleApplication findRuleApplication(int goalNumber) {
+        RuleApplication ra = ruleCollection.findRuleApplication(getProof(), goalNumber);
+        return ra;
     }
     
     private boolean hasBreakpoint(LiteralProgramTerm progTerm) {
@@ -223,7 +212,7 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
     @Override 
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
         int goal = ruleApp.getGoalNumber();
-        Sequent sequent = proof.getGoal(goal).getSequent();
+        Sequent sequent = getProof().getGoal(goal).getSequent();
         Term find;
         try {
             find = ruleApp.getFindSelector().selectSubterm(sequent);
@@ -248,19 +237,4 @@ public class BreakpointStrategy implements Strategy, RuleApplicationFilter {
         
         return true;
     }
-
-    /*
-     * invoked before an automated proof starts.
-     */
-    @Override public void beginSearch() throws StrategyException {
-        // we are not stateful, nothing to calculate
-    }
-
-    /*
-     * invoked after an automated proof finishes.
-     */
-    @Override public void endSearch() throws StrategyException {
-        // we are not stateful, nothing to forget
-    }
-
 }
