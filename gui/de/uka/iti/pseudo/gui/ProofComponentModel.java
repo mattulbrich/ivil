@@ -45,6 +45,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     
     private static final long serialVersionUID = -6525872309302128760L;
     
+    private static final String CONTINUATION_LABEL = "...";
+    
     private final static Vector<ProofTreeNode> EMPTY_VECTOR = new Vector<ProofTreeNode>();
     
     private int verbosity;
@@ -56,8 +58,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     private BlockingQueue<ProofNode> updateQueue = new LinkedBlockingQueue<ProofNode>();
     
     public class ProofTreeNode implements TreeNode {
-        
-        private ProofNode proofNode;
+
+    	private ProofNode proofNode;
         private Vector<ProofTreeNode> children;
         private ProofTreeNode parent;
         private String label;
@@ -107,22 +109,30 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 return;
             
             children = new Vector<ProofTreeNode>();
-            List<ProofNode> nodeChildren = proofNode.getChildren();
             ProofNode node = proofNode;
             
-            if(shouldShow(node))
-                children.add(new ProofTreeNode(this, node, true));
-            
-            while(nodeChildren != null && nodeChildren.size() == 1) {
-                node = nodeChildren.get(0);
-                nodeChildren = node.getChildren();
+            while(node != null) {
+                
                 if(shouldShow(node))
-                    children.add(new ProofTreeNode(this, node, true));
-            }
+                	children.add(new ProofTreeNode(this, node, true));
+                
+                List<ProofNode> nodeChildren = node.getChildren();
             
-            if(nodeChildren != null) {
-                for (ProofNode pn : nodeChildren) {
-                    children.add(new ProofTreeNode(this, pn, false));
+                if(nodeChildren == null) {
+                	// closed goal
+                	node = null;
+                } else if(nodeChildren.size() == 1) {
+                	// exactly one successor ... serial next
+                	node = nodeChildren.get(0);
+                } else {
+                	node = null;
+                	for (ProofNode pn : nodeChildren) {
+                		if(node == null && CONTINUATION_LABEL.equals(getBranchLabel(pn))) {
+                			node = pn;
+                		} else {
+                			children.add(new ProofTreeNode(this, pn, false));
+                		}
+                	}
                 }
             }
         }
@@ -172,7 +182,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         public String getLabel() {
             if(label == null) {
                 if(!isLeaf()) {
-                    label = getBranchLabel();
+                    label = getBranchLabel(proofNode);
                 } else {
                     RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
                     if(appliedRuleApp != null) {
@@ -209,13 +219,13 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
          * and the index of the branch. If no name is set on the cases, use
          * "branch" + index 
          */
-        private String getBranchLabel() {
-            ProofNode parent = proofNode.getParent();
+		private String getBranchLabel(ProofNode node) {
+			ProofNode parent = node.getParent();
             
             if(parent == null)
                 return "";
             
-            int index = parent.getChildren().indexOf(proofNode);
+            int index = parent.getChildren().indexOf(node);
             assert index != -1;
             
             RuleApplication appliedRuleApp = parent.getAppliedRuleApp();
@@ -232,7 +242,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 return "branch" + (index + 1);
             else
                 return instantiateString(appliedRuleApp, actionName);
-        }
+		}
+        
 
         /*
          * instantiate the schema variables in a string.

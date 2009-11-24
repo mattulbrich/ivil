@@ -181,7 +181,7 @@ rule auto_assert
   find |- [%a : assert %b]
   samegoal  "assert {%b}: {explain %a}"
     replace %b 
-  samegoal "continue program"
+  samegoal "..."
     replace $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
@@ -190,7 +190,7 @@ rule autot_assert
   find |- [[%a : assert %b]]
   samegoal "{explainOrQuote %a}"
     replace %b 
-  samegoal "continue program"
+  samegoal "..."
     replace $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
@@ -199,7 +199,7 @@ rule auto_assert_upd
   find |- {U} [%a : assert %b]
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
-  samegoal "continue program"
+  samegoal "..."
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
@@ -208,7 +208,7 @@ rule autot_assert_upd
   find |- {U} [[%a : assert %b]]
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
-  samegoal "continue program"
+  samegoal "..."
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
