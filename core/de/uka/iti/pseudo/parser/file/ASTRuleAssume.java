@@ -23,9 +23,7 @@ public class ASTRuleAssume extends ASTRuleElement {
         v.visit(this);
     }
 
-    private ASTLocatedTerm getLocatedTerm() {
-        return (ASTLocatedTerm) getChildren().get(0);
-    }
-    
-    
+//    private ASTLocatedTerm getLocatedTerm() {
+//        return (ASTLocatedTerm) getChildren().get(0);
+//    }
 }

@@ -23,10 +23,8 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
@@ -44,10 +42,6 @@ import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
  * information about subterms in the resulting string.
  * 
  * Parentheses are introduced only where necessary. This is done using
- * 
- *
- * <p>IMPORTANT! Keep the order in this visitor synchronized with the related 
- * visitors {@link SubtermCollector}
  */
 class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     

@@ -9,12 +9,13 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
 
 /**
  * The Class TermSelector is used to select a subterm from a sequent. It
@@ -42,6 +43,8 @@ import de.uka.iti.pseudo.term.creation.SubtermCollector;
  * and no term has more than 127 subterms. This is also checked by assertions.
  */
 public class TermSelector {
+    
+    private static final SubtermSelector EMPTY_SUBTERMSELECTOR = new SubtermSelector();
 
     /**
      * The Constant ANTECEDENT is equivalent to true
@@ -59,23 +62,20 @@ public class TermSelector {
     private boolean inAntecedent;
 
     /**
-     * The path includes also the term number
-     * and always has a length > 0.
+     * the number of the selected term on its side.
      */
-    private byte[] selectorInfo;
+    private byte termNumber;
+    
     
     /**
-     * Helper class which allows to access the path as an unmodifiable list.
+     * If a subterm of the term is selected, then this field contains
+     * the path to it.
+     * 
+     * Note that an empty subterm selector can also refer to the top
+     * level term as the 0th subterm.
      */
-    private class ListView extends AbstractList<Integer> {
-        @Override public Integer get(int index) {
-            return (int)selectorInfo[index + 1];
-        }
-        @Override public int size() {
-            return selectorInfo.length - 1;
-        }
-    }
-
+    private @NonNull SubtermSelector subtermSelector;
+    
     /**
      * Instantiates a new term selector from path informations
      * 
@@ -87,18 +87,14 @@ public class TermSelector {
      *            the path to the subterm in the given term
      */
     public TermSelector(boolean inAntecedent, int termNo, int... path) {
-        this.inAntecedent = inAntecedent;
-        
         assert termNo >= 0 && termNo <= Byte.MAX_VALUE;
-
-        this.selectorInfo = new byte[path.length + 1];
         
-        for (int i = 0; i < path.length; i++) {
-            assert path[i] >= 0 && path[i] <= Byte.MAX_VALUE;
-            this.selectorInfo[i+1] = (byte) path[i];
-        }
-        
-        this.selectorInfo[0] = (byte) termNo;
+        this.inAntecedent = inAntecedent;
+        this.termNumber = (byte) termNo;
+        if(path != null)
+            this.subtermSelector = new SubtermSelector(path);
+        else
+            this.subtermSelector = EMPTY_SUBTERMSELECTOR;
     }
 
     /**
@@ -116,14 +112,10 @@ public class TermSelector {
      */
     public TermSelector(TermSelector termSelector, int subtermNo) {
         this.inAntecedent = termSelector.inAntecedent;
+        this.termNumber = termSelector.termNumber;
+        this.subtermSelector = new SubtermSelector(termSelector.subtermSelector, subtermNo);
         
         assert subtermNo >= 0 && subtermNo <= Byte.MAX_VALUE;
-
-        selectorInfo = new byte[termSelector.selectorInfo.length + 1];
-        for (int i = 0; i < termSelector.selectorInfo.length; i++) {
-            this.selectorInfo[i] = termSelector.selectorInfo[i];
-        }
-        selectorInfo[selectorInfo.length-1] = (byte) subtermNo;
     }
 
     /**
@@ -145,38 +137,42 @@ public class TermSelector {
      */
     public TermSelector(String descr) throws FormatException {
         
-        if(descr.startsWith(".") || descr.endsWith("."))
+        if (descr.startsWith(".") || descr.endsWith("."))
             throw new FormatException("TermSelector", "Illegal character at start/end: .", descr);
         
-        String[] sect = descr.split("\\.");
+        String[] sect = descr.split("\\.", 3);
+        
+        if (sect.length < 2) {
+            throw new FormatException("TermSelector", "Term selector needs at least 2 parts:", descr);
+        }
 
         if ("A".equals(sect[0])) {
             inAntecedent = true;
         } else if ("S".equals(sect[0])) {
             inAntecedent = false;
         } else
-            throw new FormatException("TermSelector", "unknown first part: "
-                    + sect[0], descr);
+            throw new FormatException("TermSelector", "unknown first part: " + sect[0], descr);
 
-        selectorInfo = new byte[sect.length - 1];
-        
-        if(selectorInfo.length < 1) {
-            throw new FormatException("TermSelector", "insufficient information, top level formula needed", descr);
+        if (sect[1].length() == 0) {
+            throw new FormatException("TermSelector", "empty term number", descr);
         }
-
-        for (int i = 0; i < selectorInfo.length; i++) {
-            try {
-                if(sect[i+1].length() == 0)
-                    throw new FormatException("TermSelector", "empty part", descr);
-                selectorInfo[i] = Byte.parseByte(sect[i+1]);
-                if (selectorInfo[i] < 0)
-                    throw new FormatException("TermSelector", "negative: "
-                            + sect[i+1], descr);
-            } catch (NumberFormatException e) {
-                throw new FormatException("TermSelector", "not a number: "
-                        + sect[i+1], descr);
+         
+        try {
+            termNumber = Byte.parseByte(sect[1]);
+            if (termNumber < 0) {
+                throw new FormatException("TermSelector", "negative: "
+                        + sect[1], descr);
             }
+        } catch (NumberFormatException e) {
+            throw new FormatException("TermSelector", "not a number: "
+                    + sect[1], descr);
         }
+        
+        if (sect.length == 3)
+            subtermSelector = new SubtermSelector(sect[2]);
+        else
+            subtermSelector = EMPTY_SUBTERMSELECTOR;
+
     }
 
     /**
@@ -187,22 +183,24 @@ public class TermSelector {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(inAntecedent ? "A" : "S");
-        for (byte p : selectorInfo) {
-            sb.append(".").append(p);
+        sb.append(inAntecedent ? "A." : "S.");
+        sb.append(termNumber);
+        String st = subtermSelector.toString();
+        if(st.length() > 0) {
+            sb.append(".").append(st);
         }
         return sb.toString();
     }
     
     /**
      * Gets the depth of this selector.
-     * The depth is the number of term selections needed to find the desired term.
+     * The depth is the number of sub term selections needed to find the desired term.
      * It is the length of the path plus one (for selecting the top level term)
      * 
-     * @return a number >= 1
+     * @return a number >= 0
      */
     public int getDepth() {
-        return selectorInfo.length;
+        return subtermSelector.getDepth();
     }
 
     /**
@@ -222,12 +220,7 @@ public class TermSelector {
             if(getDepth() != getDepth())
                 return false;
             
-            for (int i = 0; i < selectorInfo.length; i++) {
-                if(selectorInfo[i] != ts.selectorInfo[i])
-                    return false;
-            }
-            
-            return true;
+            return subtermSelector.equals(ts.subtermSelector);
         }
         return false;
     }
@@ -238,11 +231,8 @@ public class TermSelector {
     @Override public int hashCode() {
         
         int h = isAntecedent() ? -1 : 1;
-        h *= getDepth();
-        
-        for (int i = 0; i < selectorInfo.length; i++) {
-            h = ((h << 7) | selectorInfo[i]) % 16777213;
-        }
+        h *= termNumber;
+        h ^= subtermSelector.hashCode();
         return h;
     }
 
@@ -270,7 +260,7 @@ public class TermSelector {
      * @return true, if the subterm number is equal to 0
      */
     public boolean isToplevel() {
-        return getDepth() == 1;
+        return getDepth() == 0;
     }
 
     /**
@@ -294,7 +284,7 @@ public class TermSelector {
      * @return the number of the term (starting at 0)
      */
     public int getTermNo() {
-        return selectorInfo[0];
+        return termNumber;
     }
     
     /**
@@ -302,50 +292,8 @@ public class TermSelector {
      * 
      * @return the path to the selected subterm as unmodifiable list.
      */
-    public List<Integer> getPath() {
-        return new ListView();
-    }
-    
-    
-    /**
-     * Gets the linear index of a subterm.
-     * 
-     * If enumerating all subterms in an infix tree visiting fashion, this index
-     * would result in the selected term. SubtermCollector provides such a
-     * linear list for instance.
-     * 
-     * Sequent side and term number are ignored here, only the path is taken into
-     * consideration
-     * 
-     * @param term
-     *            the term to select in
-     * 
-     * @return the linear index
-     * @see SubtermCollector
-     */
-    public int getLinearIndex(@NonNull Term term) {
-        int result = 0;
-        
-        for (int i = 1; i < selectorInfo.length; i++) {
-            int v = selectorInfo[i];
-            for(int j = 0; j < v; j++) {
-                result += countAllSubterms(term.getSubterm(j));
-            }
-            result ++;
-            term = term.getSubterm(v);
-        }
-        return result;
-    }
-    
-    /* needed fot getLinearIndex */
-    private int countAllSubterms(Term term) {
-        // count myself as well
-        int result = 1;
-        for (int i = 0; i < term.countSubterms(); i++) {
-            result += countAllSubterms(term.getSubterm(i));
-        }
-        
-        return result;
+    public @NonNull List<Integer> getPath() {
+        return subtermSelector.getPath();
     }
     
     
@@ -364,7 +312,7 @@ public class TermSelector {
      * @throws ProofException
      *             if the selection cannot be applied to the sequent.
      */
-    public Term selectTopterm(@NonNull Sequent sequent) throws ProofException {
+    public @NonNull Term selectTopterm(@NonNull Sequent sequent) throws ProofException {
         List<Term> terms;
         if (isAntecedent()) {
             terms = sequent.getAntecedent();
@@ -398,41 +346,12 @@ public class TermSelector {
      * @throws ProofException
      *             if the selection cannot be applied to the sequent.
      */
-    public Term selectSubterm(@NonNull Sequent sequent) throws ProofException {
+    public @NonNull Term selectSubterm(@NonNull Sequent sequent) throws ProofException {
         Term term = selectTopterm(sequent);
-        return selectSubterm(term);
-    }
-    
-    
-    /**
-     * Apply the term selector to a term to select a particular subterm.
-     * 
-     * <p>This method does not take antecedent/succedent or term number into account.
-     * It only returns the subterm denoted by the selection path within the term.
-     * <p>
-     * The selection can fail, if an index (either term index or a subterm index)
-     * are out of range.
-     * 
-     * @param term
-     *            the term to select from
-     * 
-     * @return the subterm of term selected by the path 
-     * 
-     * @throws ProofException
-     *             if the selection cannot be applied to the term.
-     */
-    public Term selectSubterm(@NonNull Term term) throws ProofException {
-
-        for (int i = 1; i < selectorInfo.length; i++) {
-            byte subtermNo = selectorInfo[i];
-            if(subtermNo >= term.countSubterms())
-                throw new ProofException("Cannot select " + subtermNo + " in "
-                        + term + " for " + this);
-
-            term = term.getSubterm(subtermNo);
-        }
-
-        return term;
+        return subtermSelector.selectSubterm(term);
     }
 
+    public SubtermSelector getSubtermSelector() {
+        return subtermSelector;
+    }
 }

@@ -9,8 +9,6 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
         Term org = TermMaker.makeAndTypeTerm("{ i1 := 0 } (i1+1)", env);
         Term two = TermMaker.makeAndTypeTerm("2", env);
         
-        System.out.println(SubtermCollector.collect(org));
-        
         Term result = SubtermReplacer.replace(org, 4, two);
         Term expected = TermMaker.makeAndTypeTerm("{ i1 := 2 } (i1+1)", env);
         assertEquals(expected, result);
@@ -38,8 +36,6 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
     public void testBinding() throws Exception {
         Term org = makeTerm("(\\forall n; n > 0) -> [ 1; P]");
         Term two = TermMaker.makeAndTypeTerm("true", env);
-        
-        System.out.println(SubtermCollector.collect(org));
         
         Term result = SubtermReplacer.replace(org, 5, two);
         Term expected = makeTerm("(\\forall n; n > 0) -> true");

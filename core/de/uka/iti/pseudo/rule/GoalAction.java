@@ -124,7 +124,7 @@ public class GoalAction {
      * @throws RuleException the rule exception
      */
     public GoalAction(@NonNull String kindString, @Nullable String name, 
-            boolean remove, Term replaceWith, List<Term> addAntecendent, 
+            boolean remove, @Nullable Term replaceWith, List<Term> addAntecendent, 
             List<Term> addSuccendent) throws RuleException {
         
         if (kindString.equals("closegoal")) {
