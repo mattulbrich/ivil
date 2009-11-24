@@ -9,6 +9,7 @@
 package de.uka.iti.pseudo.term.creation;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -17,12 +18,9 @@ import de.uka.iti.pseudo.term.TermException;
  * The SubtermReplacer visitor is used to replace one particular subterm in a
  * term.
  * 
- * The term to be substituted is indicated via its subterm number.
- * Therefore the orderings of {@link SubtermCollector} and SubtermReplacer must
- * be identical ensuring that subterms have are addressed correctly.
- * 
- * A convenience method is provided to allow to specify the subterm to be replaced
- * by a {@link TermSelector}.
+ * The term to be substituted is either referred to by a {@link TermSelector} or
+ * by an index into the list of enumerated subterms of the term. Internally the
+ * latter is used to find the term to replace.
  */
 public class SubtermReplacer extends RebuildingTermVisitor {
     
@@ -97,7 +95,7 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *             for instance if the new term cannot be typed or construction
      *             fails otherwise.
      */
-    public static Term replace(Term term, TermSelector sel, Term replaceWith) throws TermException {
+    public static Term replace(Term term, SubtermSelector sel, Term replaceWith) throws TermException {
         return replace(term, sel.getLinearIndex(term), replaceWith);
     }
     

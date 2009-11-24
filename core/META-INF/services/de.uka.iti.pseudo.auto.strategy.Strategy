@@ -1,6 +1,7 @@
 
 de.uka.iti.pseudo.auto.strategy.BreakpointStrategy
 de.uka.iti.pseudo.auto.strategy.SimplificationStrategy
+de.uka.iti.pseudo.auto.strategy.SMTStrategy
 
 # !!! must be the last
 de.uka.iti.pseudo.auto.strategy.CompoundStrategy

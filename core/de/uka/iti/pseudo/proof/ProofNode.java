@@ -434,7 +434,7 @@ public class ProofNode {
         Term newTerm;
 
         if (!sel.isToplevel()) {
-            newTerm = SubtermReplacer.replace(oldTerm, sel, replaceWith);
+            newTerm = SubtermReplacer.replace(oldTerm, sel.getSubtermSelector(), replaceWith);
         } else {
             newTerm = replaceWith;
         }

@@ -199,7 +199,7 @@ public class SequentComponent extends JPanel implements
             termComp = (TermComponent) getComponent(offset + selector.getTermNo());
         }
         
-        termComp.markSubterm(selector, type);
+        termComp.markSubterm(selector.getSubtermSelector(), type);
     }
 
     public void ruleApplicationSelected(RuleApplication ruleApplication) {

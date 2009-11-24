@@ -36,11 +36,11 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.bar.VerbosityAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.Rule;
@@ -428,7 +428,7 @@ public class TermComponent extends JTextPane {
         return characterIndex;
     }
 
-    public void markSubterm(TermSelector selector, int type) {
+    public void markSubterm(SubtermSelector selector, int type) {
         if (type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();
         }

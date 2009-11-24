@@ -28,13 +28,19 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  * The possible sequences of method calls on a strategy can be described using a
  * regular expression:
  * <pre>
- *  init ( beginSearch findRuleApplication<sup>*</sup> endSearch )<sup>*</sup> 
+ *  init 
+ *   ( 
+ *     beginSearch 
+ *     ( findRuleApplication<sup>?</sup> notifyRuleApplication )<sup>*</sup> 
+ *     endSearch
+ *   )<sup>*</sup> 
  * </pre>
  * 
  * It is ensured by locking that after a call to {@link #beginSearch()} the proof
  * is only changed by the current strategy. <b>Please note:</b> Since other
  * strategies may also be invoked (e.g. combined in a {@link CompoundStrategy}),
- * the strategy should be able to cope with unexpected changes.
+ * the strategy should be able to cope with unexpected changes. Every strategy is
+ * notified about every application then, however.
  */
 public interface Strategy {
 
@@ -93,6 +99,19 @@ public interface Strategy {
      *             if the strategy fails
      */
     void beginSearch() throws StrategyException;
+    
+    /**
+     * Indicate that a rule application has been applied to the proof. The
+     * notification is provided regardless of the strategy that came with it.
+     * The notification happens <b>after</b> the application has already been
+     * applied to the proof object.
+     * 
+     * @param ruleApp
+     *            the ruleApplication that has been applied to
+     * @throws StrategyException
+     */
+    void notifyRuleApplication(RuleApplication ruleApp)
+            throws StrategyException;
 
     /**
      * Indicate the end of an automatic search using this strategy.
@@ -103,7 +122,7 @@ public interface Strategy {
      * @throws StrategyException
      *             if the strategy fails
      */
-   void endSearch() throws StrategyException;
+   void endSearch();
 
     /**
      * Provides a user readable name for this strategy.

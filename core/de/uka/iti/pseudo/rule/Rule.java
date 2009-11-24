@@ -120,7 +120,7 @@ public class Rule {
      * 
      * @return the assumptions as list
      */
-    public List<LocatedTerm> getAssumptions() {
+    public @NonNull List<LocatedTerm> getAssumptions() {
         return Util.readOnlyArrayList(assumptions);
     }
 
@@ -138,7 +138,7 @@ public class Rule {
      * 
      * @return the where clauses as list
      */
-    public List<WhereClause> getWhereClauses() {
+    public @NonNull List<WhereClause> getWhereClauses() {
         return Util.readOnlyArrayList(whereClauses);
     }
 
@@ -193,6 +193,9 @@ public class Rule {
      * Check rule. raise an exception if the elements are not valid for a rule.
      */
     private void checkRule() throws RuleException {
+        if(getGoalActions().size() == 0)
+            throw new RuleException("Rule has no goal action");
+
         // XXX rule checking!!
         // closegoal is empty, newgoal has no replace : checked in GoalAction
         // remove only if find is top level
@@ -204,11 +207,8 @@ public class Rule {
             }
             
             if(goalAction.getReplaceWith() != null && getFindClause() == null)
-                throw new RuleException("Find-less rules may not have a replace claus");
+                throw new RuleException("Find-less rules must not have a replace clause");
         }
-        
-        if(getGoalActions().size() == 0)
-            throw new RuleException("Rule has no goal action");
         
         // schema variables to always have same type:
         RuleSchemaConsistencyChecker.check(this);

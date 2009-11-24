@@ -103,13 +103,16 @@ public class Sequent {
     }
     
     /**
-     * A sequent is represented as a string as two comma separated lists of term strings
-     * separated by <code>|-</code>. The antecedent appears on the left of the separator and the succedent
-     * on the right, like in
+     * A sequent is represented as a string as two comma separated lists of term
+     * strings separated by <code>|-</code>. The antecedent appears on the
+     * left of the separator and the succedent on the right, like in
+     * 
      * <pre>
      *    ante1, ante2, ..., anteN |- succ1, succ2, ..., succM
      * </pre>
-     * Both, antecedent and succedent may be the empty list and the string therefore empty.  
+     * 
+     * Both, antecedent and succedent may be the empty list and the string
+     * therefore empty.
      */    
     @Override 
     public String toString() {
@@ -122,6 +125,29 @@ public class Sequent {
             sb.append(" ").append(t);
         }
         return sb.toString();
+    }
+    
+    /**
+     * A sequent is equal to another object if it is a sequent, too, and the
+     * terms in antecedent and succedent are pairwise equal.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        
+        if (obj instanceof Sequent) {
+            Sequent other = (Sequent) obj;
+            return Arrays.equals(antecedent, other.antecedent) &&
+            Arrays.equals(succedent, other.succedent);
+        }
+        return false;
+    }
+    
+    /**
+     * The hash code of a sequent is calculated by the hash code of
+     * the terms in antecedent and succedent. 
+     */
+    @Override public int hashCode() {
+        return Arrays.hashCode(antecedent) + 31 * Arrays.hashCode(succedent);
     }
     
 }

@@ -1,12 +1,15 @@
 package de.uka.iti.pseudo.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.SubtermCollector;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
 
@@ -76,7 +79,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     
     public void testAnnotations3() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("1 + (2 + 3)", env);
-        //                           01234567890
+        // 01234567890
         AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
         assertEquals(0, as.getBeginAt(0));
@@ -105,14 +108,25 @@ public class TestPrettyPrint extends TestCaseWithEnv {
 
     private void testOrderEqual(String string) throws Exception {
         Term t = TermMaker.makeAndTypeTerm(string, env);
-        List<Term> subterms = SubtermCollector.collect(t);
         AnnotatedString<TermTag> astring = PrettyPrint.print(env, t);
         List<TermTag> annotations = astring.getAllAttributes();
         
-        assertEquals(subterms.size(), annotations.size());
+        SubtermCollector sc = new SubtermCollector();
+        t.visit(sc);
+        
+        assertEquals(sc.subtermsInOrder.size(), annotations.size());
         for (TermTag termTag : annotations) {
             int pos = termTag.getTotalPos();
-            assertEquals(subterms.get(pos), termTag.getTerm());
+            assertEquals(sc.subtermsInOrder.get(pos), termTag.getTerm());
+        }
+    }
+    
+    private class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
+        private List<Term> subtermsInOrder = new ArrayList<Term>();
+
+        protected void defaultVisitTerm(Term term) throws TermException {
+            subtermsInOrder.add(term);
+            super.defaultVisitTerm(term);
         }
     }
     

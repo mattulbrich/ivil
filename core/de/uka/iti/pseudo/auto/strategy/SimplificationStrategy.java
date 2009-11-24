@@ -31,7 +31,7 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 /**
  * The Class SimplificationStrategy.
  */
-public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
+public class SimplificationStrategy extends AbstractStrategy implements RuleApplicationFilter {
     
     /**
      * SplitMode lists all possibilities to handle splitting:
@@ -74,14 +74,6 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
     };
     
     /**
-     * The proof upon which we work. set in
-     * {@link #init(Proof, Environment, StrategyManager)}, never changed
-     * afterwards.
-     */
-    private Proof proof;
-    
-    
-    /**
      * store for all categories those proof node which did not match and do not
      * try to match again.
      */
@@ -98,45 +90,25 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
      */
     private RewriteRuleCollection ruleCollections[];
     
-    /**
-     * Try all {@link RewriteRuleCollection}s to find a rule application.
-     * Return the first found rule application.
-     * 
-     * @return the first found rule application, null if none found.
-     */
-    public RuleApplication findRuleApplication() {
-        
-        assert proof != null;
-        
-        List<ProofNode> openGoals = proof.getOpenGoals();
-        for (int i = 0; i < openGoals.size(); i++) {
-            RuleApplicationMaker ram = findRuleApplication(i);
-            if(ram != null) {
-                ram.setGoalNumber(i);
-                return ram;
-            }
-        }
-        
-        return null;
-    }
-
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    private RuleApplicationMaker findRuleApplication(int goalNo) {
+    protected RuleApplicationMaker findRuleApplication(int goalNo) {
         
         assert ruleCollections != null;
         
         for (int collNo = 0; collNo < ruleCollections.length; collNo++) {
-            ProofNode goal = proof.getGoal(goalNo);
+            ProofNode goal = getProof().getGoal(goalNo);
             
             // this node has already been checked: no matches
             if(noMatchNodes[collNo].contains(goal))
                 continue;
             
-            RuleApplicationMaker ruleApplication = ruleCollections[collNo].findRuleApplication(proof, goalNo);
-            if(ruleApplication != null)
+            RuleApplicationMaker ruleApplication = ruleCollections[collNo].findRuleApplication(getProof(), goalNo);
+            if(ruleApplication != null) {
+                ruleApplication.setGoalNumber(goalNo);
                 return ruleApplication;
+            }
 
             // no result: no match. Remember for the next time.
             noMatchNodes[collNo].add(goal);
@@ -148,8 +120,7 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
     @Override 
     public void init(@NonNull Proof proof, @NonNull Environment env, @NonNull StrategyManager strategyManager)
             throws StrategyException {
-        
-        this.proof = proof;
+        super.init(proof, env, strategyManager);
         
         ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length + 1];
         List<Rule> allRules = env.getAllRules();
@@ -201,7 +172,7 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
         case SPLIT_NO_PROGRAMS:
             // allow only if no programs on the sequent
             try {
-                Sequent seq = proof.getGoal(ruleApp.getGoalNumber())
+                Sequent seq = getProof().getGoal(ruleApp.getGoalNumber())
                         .getSequent();
                 for (Term t : seq.getAntecedent()) {
                     t.visit(PROGRAM_DETECTOR);
@@ -220,18 +191,10 @@ public class SimplificationStrategy implements Strategy, RuleApplicationFilter {
     }
     
     /*
-     * invoked before an automated proof starts.
-     * Nothing to do here.
-     */
-    @Override public void beginSearch() throws StrategyException {
-        // nothing to setup - the noMatch will fill automatically
-    }
-
-    /*
      * invoked after an automated proof finishes: forget everything about
      * possible unmatching proofnodes: frees memory.
      */
-    @Override public void endSearch() throws StrategyException {
+    @Override public void endSearch()  {
         for (Set<ProofNode> set : noMatchNodes) {
             set.clear();
         }
