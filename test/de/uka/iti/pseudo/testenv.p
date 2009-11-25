@@ -46,6 +46,7 @@ function
 	int f('a)
 	int g('a, 'b)
         'a id('a)
+
 	poly('a, 'b) P('a, 'b)
 	'a Q(poly('a,'a))
 
