@@ -28,7 +28,16 @@ then
   OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1234 $OPTIONS"
 fi
 
+#
+# Profiling (not together with -D)
+if [ "$1" = "-J" ]
+then
+  shift $ARGV
+  OPTIONS="-Xrunhprof:cpu=samples,depth=10,thread=y $OPTIONS"
+fi
+
 java -ea $OPTIONS \
   -Dpseudo.baseDir=$BASE \
   -Dpseudo.sysDir=$SYS_DIR \
+  -Xmx300M \
   -jar $BASE/pseudo.jar "$@"

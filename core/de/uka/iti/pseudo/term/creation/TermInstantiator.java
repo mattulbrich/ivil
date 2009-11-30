@@ -29,7 +29,9 @@ import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
-// TODO DOC
+// TODO DOC DOC
+
+// Instantiation is not applied on the instantiated terms or types.
 public class TermInstantiator extends RebuildingTermVisitor {
 
     private Map<String, Term> termMap;
@@ -183,6 +185,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
             }
         }
     };
+    
+    public Type instantiate(Type type) throws TermException {
+        return modifyType(type);
+    }
     
     @Override
     protected Type modifyType(Type type) throws TermException {

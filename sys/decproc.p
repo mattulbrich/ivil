@@ -26,4 +26,5 @@ rule auto_smt_close
   tags 
     decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
     timeout "2000"
+    autoonly
   

@@ -5,7 +5,6 @@ import de.uka.iti.pseudo.environment.Environment;
 
 public class TestApplication extends TestCaseWithEnv {
 
-    
     // due to a bug
     public void testCreateApplicationWithTypes() throws Exception {
         Application arb = new Application(env.getFunction("arb"), new TypeVariable("a"));

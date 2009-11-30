@@ -192,7 +192,7 @@ rule or_idempotent
        verbosity "8"
 
 (*
- *  stuff with impl
+ * stuff with impl
  *)
 rule impl_right
   find |-  %a -> %b 
@@ -208,6 +208,7 @@ rule impl_left
     add |-  %a 
   samegoal "use {%b}"
     replace  %b 
+  tags rewrite "split"
 
 rule impl_false_l
   find  false -> %b 
@@ -284,3 +285,7 @@ rule equiv_to_eq
   replace %a = %b
   tags rewrite "prop simp"
        verbosity "8"
+
+rule eq_to_imp
+  find %a = %b
+  replace (%a -> %b) & (%b -> %a)
