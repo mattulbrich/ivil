@@ -10,9 +10,10 @@
 package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ParseException;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
 public class TestTermParser extends TestCaseWithEnv {
@@ -125,6 +126,14 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("%i + 1", "$plus(%i as int,1 as int) as int", true);
         
         testTerm("(\\forall %i; %i > 5)", "(\\forall %i;$gt(%i,5))", false);
+    }
+    
+    public void testConstVsVar() throws Exception {
+        Term t = makeTerm("(\\forall i1; i1>0)");
+        Term st = new SubtermSelector(0,0).selectSubterm(t);
+        
+        assertEquals(Variable.class, st.getClass());
+        assertEquals(new Variable("i1", Environment.getIntType()), st);
     }
     
 }

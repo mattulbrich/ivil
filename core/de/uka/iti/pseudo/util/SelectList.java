@@ -58,7 +58,6 @@ public class SelectList<E> extends AbstractList<E> {
 		this.list = list;
 	}
 	
-	// 
 	/**
      * create a new Sublist with elements of a certain class. This is a
      * convenience wrapper for the constructor call, but significantly shorter
@@ -98,12 +97,12 @@ public class SelectList<E> extends AbstractList<E> {
 	 * create the selection list as the sublist of list which holds 
 	 * all elements which are of type E. 
 	 */
-    @SuppressWarnings("unchecked") 
+    // @SuppressWarnings("unchecked") 
     private void blowUp() {
         internalList = new LinkedList<E>();
         for (Object obj : list) {
             if(clss.isInstance(obj))
-                internalList.add((E) obj);
+                internalList.add(clss.cast(obj));
         }
     }
 	

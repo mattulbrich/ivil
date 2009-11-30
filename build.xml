@@ -31,6 +31,12 @@
       </classpath>
       <compilerarg value="-Xlint"/>
     </javac>
+    <javac srcdir="justify" destdir="classes" debug="${compile.debug}">
+      <classpath>
+      	<pathelement path="classes" />
+      </classpath>
+      <compilerarg value="-Xlint"/>
+    </javac>
   </target>
 	
   <target name="nonnull" depends="build" description="patches the class files with r/t checks" if="compile.nonnullchecks">
@@ -104,6 +110,15 @@
     </javac>
   </target>
 
+  <target name="copy-test" depends="init">
+    <copy todir="classes-test">
+      <fileset dir="test">
+        <include name="**/*.p" />
+        <include name="**/*.txt" />
+      </fileset>
+    </copy>
+  </target>
+
   <target name="nonnull-test" depends="build-test" description="patches the class files with r/t checks" if="compile.nonnullchecks">
     <java classname="nonnull.NonNullPatch">
       <arg value="classes-test"/>
@@ -114,7 +129,7 @@
   </target>
 
 	
-  <target name="test" depends="build-test" description="run junit tests">
+  <target name="test" depends="build-test, nonnull-test, nonnull, copy-test" description="run junit tests">
     <junit printsummary="yes" fork="yes" haltonfailure="yes">
       <classpath>
         <pathelement path="classes"/>

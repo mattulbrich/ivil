@@ -247,7 +247,7 @@ class LoopModifier {
         if(varAtPre == null && variant != null) {
             String newname = env.createNewFunctionName("varAtPre");
             Function varAtPreSym = new Function(newname, Environment.getIntType(), new Type[0],
-                    false, false, ASTLocatedElement.BUILTIN);
+                    false, false, ASTLocatedElement.CREATED);
             try {
                 env.addFunction(varAtPreSym);
                 varAtPre = new Application(varAtPreSym, varAtPreSym.getResultType());

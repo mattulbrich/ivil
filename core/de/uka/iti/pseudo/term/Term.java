@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.term;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.NonNullElements;
 
 import de.uka.iti.pseudo.util.Util;
 
@@ -57,7 +58,7 @@ public abstract class Term {
 	 * @param subterms the subterms
 	 * @param type the type of the term
 	 */
-	protected Term(@NonNull Term[] subterms, @NonNull Type type) {
+	protected Term(@NonNull @NonNullElements Term[] subterms, @NonNull Type type) {
 		
 		assert subterms != null;
 		assert type != null;

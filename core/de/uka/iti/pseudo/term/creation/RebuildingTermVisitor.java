@@ -261,6 +261,5 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         }
         return newAssignments;
     }
-    
 
 }

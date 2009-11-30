@@ -19,12 +19,12 @@ function
   array('a) swap(array('a), int, int)
 
   bool isPerm(array('a), array('a))
-  bool isPermN(array(int), int)
+  bool isPermN(array(int))
   bool isSorted(array(int))
   int count(array('a), 'a)
 
 (*
- * definitions
+ * definitions ... axioms
  *)
 
 rule read_write
@@ -44,16 +44,17 @@ rule inDom_def
   replace 1 <= %i & %i <= length(%a)
 
 rule isPermN_def
-  find isPermN(%p, %n)
+  find isPermN(%p)
   replace (\forall i; inDom(%p, i) -> 
       (\exists j; inDom(%p, j) & read(%p, i) = j))
 
 rule isPerm_def
   find isPerm(%a, %b)
   replace length(%a) = length(%b) 
-    & (\exists p; isPermN(p,length(%a))
+    & (\exists p; isPermN(p) & length(p) = length(%a)
        & (\forall i; inDom(p, i) ->
             (\exists j; inDom(p, j) & read(%a, i) = read(%b, read(p, j)))))
+
 rule id_def
   find read(id, %i)
   replace %i
@@ -67,6 +68,7 @@ rule isSorted_def
  * derived simplification rules
  *)
 
+#proven
 rule read_swap
   find read(swap(%a, %i, %j), %k)
   replace cond(%i=%k, read(%a, %j), 
@@ -74,11 +76,35 @@ rule read_swap
   tags derived
        rewrite "fol simp"
 
+#proven
 rule length_swap
   find length(swap(%a, %i, %j))
   replace length(%a)
   tags derived
        rewrite "fol simp"
+
+# proven
+rule inDom_swap
+  find inDom(swap(%a, %i, %j), %k)
+  replace inDom(%a, %k)
+  tags derived
+       rewrite "fol simp"
+
+rule copy_left
+  find %b |-
+  add %b |-
+
+# proven
+rule isPermN_read_preserves_inDom
+  assume isPermN(%x) |-
+  find |- inDom(%x, read(%x,%i))
+  replace inDom(%x, %i)
+  tags derived
+
+rule isPermN_swap
+  find |- isPermN(swap(%a, %i, %j))
+  replace isPermN(%a) & inDom(%a, %i) & inDom(%a, %j)
+  tags derived
 
 rule isPerm_swap
   find isPerm(swap(%a, %i, %j), %b)
@@ -90,5 +116,11 @@ rule isPerm_refl
   assume %a = %b |-
   find isPerm(%a, %b)
   replace true
-  tags derived
+  tags # derived
        rewrite "fol simp"  
+
+
+problem
+
+(\forall x; isPermN(x) -> (\forall i; inDom(x,i) -> inDom(x,read(x,i))))
+

@@ -111,32 +111,34 @@ public class Environment {
      *            the name of the resource where we have elements from
      * @param parentEnvironment
      *            the parent environment to use as fall back facility.
+     * @throws EnvironmentException
+     *             if the parent environment has not been fixed yet.
      */
     public Environment(@NonNull String resourceName,
-            @NonNull Environment parentEnvironment) {
+            @NonNull Environment parentEnvironment) throws EnvironmentException {
         this.resourceName = resourceName;
         this.parentEnvironment = parentEnvironment;
-        assert parentEnvironment.isFixed();
+        
+        if(!parentEnvironment.isFixed())
+            throw new EnvironmentException("An environment which is parent to another environment needs to be fixed");
     }
 
     /**
-     * Adds the built ins. They are:
+     * Adds the built ins. These are those entities that would raise exceptions in the 
+     * very core libraries if they were absend. 
+     * 
+     * They are:
      * <ul>
      * <li>Types int and bool
-     * <li>The $interaction marker function symbol
-     * <li>All defined {@link MetaFunction}s
+     * <li>the constants true and false
      * </ul>
      */
     private void addBuiltIns() {
         try {
             addSort(new Sort("int", 0, ASTLocatedElement.BUILTIN));
             addSort(new Sort("bool", 0, ASTLocatedElement.BUILTIN));
-            addFunction(new Function("$interaction", new TypeVariable("arb"), new Type[0], false, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("true", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
             addFunction(new Function("false", getBoolType(), new Type[0], true, false, ASTLocatedElement.BUILTIN));
-//            for (MetaFunction metaFunction : MetaFunction.SERVICES) {
-//                addFunction(metaFunction);
-//            }
         } catch (EnvironmentException e) {
             throw new Error("Fatal during creation of interal elements", e);
         }
@@ -358,6 +360,33 @@ public class Environment {
 	public Collection<Sort> getLocalSorts() {
 		return sortMap.values();
 	}
+	
+	/**
+     * Gets a sort name which starts with the given prefix and which has not yet
+     * been bound in the environment.
+     * 
+     * If <code>prefix</code> is no longer available as name, the smallest
+     * natural number (starting at 1) will be appended which results in a name
+     * which is not used for sort.
+     * 
+     * @param prefix
+     *            the prefix of the name to return.
+     * 
+     * @return the fresh sort name
+     */
+    public @NonNull String createNewSortName(@NonNull String prefix) {
+        String newName = prefix;
+        int counter = 1;
+        boolean exists = getSort(newName) != null;
+        while(exists) {
+            newName = prefix + counter;
+            counter ++;
+            exists = getSort(newName) != null;
+        }
+        
+        return newName;
+    }
+
 
 
     /**

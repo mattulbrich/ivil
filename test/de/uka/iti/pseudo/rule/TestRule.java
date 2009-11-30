@@ -64,4 +64,24 @@ public class TestRule extends TestCaseWithEnv {
 
     }
 
+    
+    public void test2() throws Exception {
+        
+        LocatedTerm find = new LocatedTerm(makeTerm("true"), MatchingLocation.BOTH);
+        GoalAction removeAction = new GoalAction("samegoal", "", true, null, Collections.<Term>emptyList(), Collections.<Term>emptyList());
+        GoalAction replaceAction = new GoalAction("samegoal", "", false, makeTerm("true"), Collections.<Term>emptyList(), Collections.<Term>emptyList());
+        
+        try {
+            Rule rule = new Rule("test", Collections.<LocatedTerm> emptyList(),
+                    find, Collections.<WhereClause> emptyList(), Arrays
+                            .asList(replaceAction, removeAction), Collections
+                            .<String, String> emptyMap(),
+                    ASTLocatedElement.BUILTIN);
+            rule.dump();
+            fail("Should fail: no find but remove");
+        } catch (RuleException e) {
+            if(VERBOSE)
+                System.out.println(e);
+        }
+    }
 }

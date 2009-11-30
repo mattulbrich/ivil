@@ -366,7 +366,7 @@ public class TermMaker extends ASTDefaultVisitor {
      * but given to statements when creating them.
      */
     private int sourceLineNumber;
-
+    
     /**
      * create a new TermMaker
      * 
@@ -457,6 +457,7 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
 
+    // FIXME XXX If in range of a binder, variable wins.
     public void visit(ASTIdentifierTerm identifierTerm)
             throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;

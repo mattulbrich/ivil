@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.environment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import nonnull.NonNull;
@@ -52,6 +54,12 @@ public class EnvironmentMaker {
      * The problem term possibly found in the {@link ASTFile}
      */
     private @Nullable Term problemTerm;
+    
+    /**
+     * remember the list of included files. This is not stored in the
+     * environment can only be retrieved here. 
+     */
+    private List<String> importedFilenames = new ArrayList<String>();
 
     /**
      * The parser to use to parse include files
@@ -128,8 +136,12 @@ public class EnvironmentMaker {
             @NonNull ASTFile astFile, @NonNull String name,
             @NonNull Environment parent) throws ASTVisitException {
         this.parser = parser;
-        this.env = new Environment(name, parent);
-
+        
+        try {
+            this.env = new Environment(name, parent);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(e);
+        }
         
         doIncludes(astFile);
         // first includes, then plugins!
@@ -189,6 +201,7 @@ public class EnvironmentMaker {
         for (ASTIncludeDeclarationBlock block : includes) {
             for (Token token : block.getIncludeStrings()) {
                 String filename = Util.stripQuotes(token.image);
+                importedFilenames.add(filename);
                 try {
                 	File file = mkFile(astFile.getFileName(), filename);
 
@@ -273,6 +286,18 @@ public class EnvironmentMaker {
 			ret = new File(parentFile, filename);
 			return ret;
         }
+    }
+
+    /**
+     * Get a list containing all filenames that have been included directly into this
+     * environment.
+     * 
+     * It contains the strings verbatim, not resolved file names
+     *  
+     * @return an immutable view on the list of included filenames.
+     */
+    public List<String> getImportedFilenames() {
+        return Collections.unmodifiableList(importedFilenames);
     }
     
     

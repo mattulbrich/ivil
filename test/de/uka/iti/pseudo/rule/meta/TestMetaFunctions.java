@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -10,7 +11,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     MetaEvaluator eval;
     
     protected void setUp() throws Exception {
-        env = loadEnv();
+        env = new Environment("wrapped_for_skolem", DEFAULT_ENV);
         ra = new MutableRuleApplication();
         eval = new MetaEvaluator(ra, env);
     }
