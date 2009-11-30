@@ -1,5 +1,8 @@
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -13,8 +16,11 @@ import de.uka.iti.pseudo.util.Pair;
 
 public class AskDecisionProcedure extends WhereCondition {
 
+	private DecisionProcedure decisionProcedure;
     
-    
+	private Map<Sequent, DecisionProcedure.Result> cache =
+		new WeakHashMap<Sequent, DecisionProcedure.Result>();
+
 
     public AskDecisionProcedure() {
         super("askDecisionProcedure");
@@ -33,15 +39,21 @@ public class AskDecisionProcedure extends WhereCondition {
             throw new RuleException("The rule does not define a propery 'decisionProcedure' which is must");
         
         try {
-            // TODO cache results!
-            DecisionProcedure decisionProcedure = 
-                (DecisionProcedure) Class.forName(decisionProcClass).newInstance();
+        	if(decisionProcedure == null)
+        		decisionProcedure = 
+        			(DecisionProcedure) Class.forName(decisionProcClass).newInstance();
             
             long timeout = Long.parseLong(timeoutString);
             
-            Pair<DecisionProcedure.Result, String> res = decisionProcedure.solve(sequent, env, timeout);
+            System.out.println("Solve " + sequent);
+            DecisionProcedure.Result res = cache.get(sequent);
+            if(res == null) {
+            	System.out.println(" ... cache miss");
+            	res = decisionProcedure.solve(sequent, env, timeout).fst();
+            	cache.put(sequent, res);
+            }
             
-            return res.fst() == DecisionProcedure.Result.VALID; 
+            return res == DecisionProcedure.Result.VALID; 
             
         } catch (Exception e) {
             throw new RuleException("Error while creating or calling the decision procedure", e);

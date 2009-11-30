@@ -21,7 +21,7 @@ public class Z3SMT implements DecisionProcedure {
 
     public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException, IOException {
 
-        System.out.println("Z3 for " + sequent);
+        // System.out.println("Z3 for " + sequent);
         
         StringBuilder builder = new StringBuilder();
         SMTLibTranslator trans = new SMTLibTranslator(env);
@@ -42,16 +42,16 @@ public class Z3SMT implements DecisionProcedure {
             w.write(challenge);
             w.close();
 
-            //System.err.println("Wait for " + process);
+            // System.err.println("Wait for " + process);
 
             TimeoutThread timeoutThread = new TimeoutThread(timeout, process);
             timeoutThread.start();
 
             int errorVal = process.waitFor();
-            //System.err.println("Finished waiting: " + errorVal);
+            // System.err.println("Finished waiting: " + errorVal);
 
             if(timeoutThread.hasKilled) {
-                //System.err.println("Timed out");
+                // System.err.println("Timed out");
                 return Pair.make(Result.UNKNOWN, "Z3 timed out");
             }
 
@@ -76,7 +76,7 @@ public class Z3SMT implements DecisionProcedure {
             } else
                 throw new ProofException("Z3 returned an error message: " + msg);
             
-            //System.err.println("Result: " + result);
+            // System.err.println("Result: " + result);
             return result;
 
         } catch(Exception ex) {

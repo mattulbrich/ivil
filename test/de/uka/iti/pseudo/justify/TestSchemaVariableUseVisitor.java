@@ -20,11 +20,6 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 		SchemaVariableUseVisitor svtuv = new SchemaVariableUseVisitor();
 		t.visit(svtuv);
 		
-		// Schema vars used as bindings: [%x]
-		Set<SchemaVariable> binds = svtuv.getSchemaVarsUsedInBindings();
-		assertEquals(svInt("%x"), binds.iterator().next());
-		assertEquals(1, binds.size());
-
 		// Schema vars to seen bindables
 		Map<SchemaVariable, Set<BindableIdentifier>> map = svtuv.getSeenBindablesMap();
 		System.out.println(map);
