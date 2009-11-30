@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import com.sun.xml.internal.fastinfoset.sax.Properties;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
@@ -36,9 +34,16 @@ public class EnvironmentExporter {
 		pw.println();
 	}
 
-	public void exportIncludesFrom(Environment env) {
-		pw.println("# TODO includes");
-		pw.println();
+	public void exportIncludes(List<String> includes) {
+	    if(includes.size() > 0) {
+	        pw.println("include");
+	        for (String string : includes) {
+                pw.print("  \"");
+                pw.print(string);
+                pw.println("\"");
+            }
+	        pw.println();
+	    }
 	}
 
 	public void exportDefinitionsFrom(Environment env) {
@@ -58,7 +63,7 @@ public class EnvironmentExporter {
 	}
 
 	private void exportFunction(Function fct) {
-		pw.print("function " + fct.getName());
+		pw.print("function " + fct.getResultType() + " " + fct.getName());
 		if(fct.getArity() > 0) {
 			pw.print("(" + Util.join(fct.getArgumentTypes(), ", ") + ")");
 		}
@@ -83,9 +88,9 @@ public class EnvironmentExporter {
 	}
 
 	private void exportSort(Sort sort) {
-		pw.println("sort " + sort.getName());
+		pw.print("sort " + sort.getName());
 		if(sort.getArity() > 0) {
-			pw.println("('t0");
+			pw.print("('t0");
 			for (int i = 1; i < sort.getArity(); i++) {
 				pw.print(", t" + i);
 			}
@@ -99,7 +104,7 @@ public class EnvironmentExporter {
         
 		LocatedTerm findClause = r.getFindClause();
         if(findClause != null) {
-            pw.print("  find " + findClause);
+            pw.println("  find " + findClause);
         }
         
         List<LocatedTerm> assumptions = r.getAssumptions();
@@ -138,7 +143,7 @@ public class EnvironmentExporter {
 			pw.println("  closegoal");
 			break;
 		case COPY:
-			pw.println("  copygoal");
+			pw.println("  samegoal");
 			break;
 		case NEW:
 			pw.println("  newgoal");
@@ -152,20 +157,27 @@ public class EnvironmentExporter {
 		
 		Term replaceWith = ga.getReplaceWith();
 		if(replaceWith != null)
-            System.out.println("    replace " + replaceWith);
+            pw.println("    replace " + replaceWith);
 
         for (Term t : ga.getAddAntecedent()) {
-            System.out.println("    add " + t + " |-");
+            pw.println("    add " + t + " |-");
         }
         
         for (Term t : ga.getAddSuccedent()) {
-            System.out.println("    add |- " +t);
+            pw.println("    add |- " + t);
         }
 	}
 
 	public void exportProblem(Term formula) throws TermException {
 		if(!Environment.getBoolType().equals(formula.getType()))
 			throw new TermException("Only boolean formulas can be exported as problems");
+		
+		pw.println("problem");
+		pw.println("  " + formula);
 	}
+
+    public void close() {
+        pw.close();
+    }
 
 }

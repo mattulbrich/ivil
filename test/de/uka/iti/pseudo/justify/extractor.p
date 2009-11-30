@@ -113,13 +113,20 @@ rule rename_schemas
   tags extract "true = (\forall x; (\forall x1 as sk; x=x1)) -> false -> false"
 
 
+rule rename_schemas2
+  find (\forall x; x=%x)
+  replace true
+  tags extract "true = (\forall x as sk; x=x1(x))) -> false -> false"
+
+(*
 function bool f(int)
 #see TestSchemaVariableUseVisitor
 rule skolemize
   find (\forall c; (\forall %x; f(%x) & %a & %b & %d) & %a) & %c & %d | (\exists %e; true)
   replace true
   tags extract "true = (\forall c; (\forall x; f(x) & a(c) & b(c,x) & d) & a(c)) & c & d | (\exists e; true) -> false -> false"  
-           
+*)
+         
 # TODO    
 rule no_newgoal
   find true
