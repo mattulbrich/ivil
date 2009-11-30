@@ -78,4 +78,12 @@ public final class RuleTagConstants {
      * component.
      */
     public static final String KEY_VERBOSITY = "verbosity";
+
+    /**
+     * KEY_DERIVED_RULE does not an need argument.
+     * 
+     * It marks a rule to be inferrable by the rules preceeding it (plus
+     * includes)
+     */
+    public static final String KEY_DERIVED_RULE = "derived";
 }

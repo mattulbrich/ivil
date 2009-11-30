@@ -186,7 +186,6 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 } else {
                     RuleApplication appliedRuleApp = proofNode.getAppliedRuleApp();
                     if(appliedRuleApp != null) {
-                        // TODO possible instantiate a text.
                         label = getApplicationLabel();
                         // label = appliedRuleApp.getRule().getName();
                     } else {

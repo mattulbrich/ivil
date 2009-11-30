@@ -13,18 +13,50 @@ import java.util.HashSet;
 import java.util.Set;
 
 import nonnull.NonNull;
-
+import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
 /**
  * The Class TypeVariableCollector provides the method {@link #collect(Type)} to
  * collect all appearing type variables into a set.
+ * 
+ * The method {@link #collect(Term)} applies collect to the types of all
+ * subterms.
  */
 public class TypeVariableCollector implements TypeVisitor {
+    
+    private TermVisitor typeVariableTermVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+        protected void defaultVisitTerm(Term term) throws TermException {
+            super.defaultVisitTerm(term);
+            term.getType().visit(TypeVariableCollector.this);
+        }
+        public void visit(Binding binding) throws TermException {
+            super.visit(binding);
+            binding.getVariableType().visit(TypeVariableCollector.this);
+        }
+    };
+    
+    /** 
+     * Collect type variables in a term. All (indirect) subterms are visited and all
+     * type variables are collected.
+     */
+    public static @NonNull Set<TypeVariable> collect(@NonNull Term term) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            term.visit(tvc.typeVariableTermVisitor);
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
+        }
+        return tvc.typeVariables;
+    }
 
     /**
      * Collect type variables in a type.

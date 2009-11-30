@@ -232,7 +232,6 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         boolean hasRemove = !SelectList.select(ASTRuleRemove.class, 
                 arg.getChildren()).isEmpty();
 
-        
         try {
             resultingGoalAction = new GoalAction(kind, name, hasRemove, replaceWith, addAntecendent, addSuccendent);
         } catch (RuleException e) {

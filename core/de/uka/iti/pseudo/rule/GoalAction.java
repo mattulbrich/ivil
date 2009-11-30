@@ -116,8 +116,7 @@ public class GoalAction {
      * 
      * @param kindString the kind of the token
      * @param name the name of the the action (optional) 
-     * @param remove should the original term be removed
-     * @param replaceWith the replacement for the original term
+     * @param replaceWith the replacement for the original term, null if the original term is to be removed
      * @param addAntecendent the terms to be added to antecendent
      * @param addSuccendent the terms to be added to succendent
      * 

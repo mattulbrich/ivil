@@ -276,7 +276,7 @@ public class ProgramChanger {
      */
     public Program makeProgram(String name) throws EnvironmentException {
         Program p = new Program(name, sourceFile, statements,
-                statementAnnotations, ASTLocatedElement.BUILTIN);
+                statementAnnotations, ASTLocatedElement.CREATED);
         return p;
     }
 

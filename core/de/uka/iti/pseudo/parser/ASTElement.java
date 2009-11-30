@@ -129,7 +129,7 @@ public abstract class ASTElement implements ASTLocatedElement {
     }
 
     /**
-     * Gets the file name or resoure name
+     * Gets the file name or resource name
      * 
      * @return the file name to set
      */

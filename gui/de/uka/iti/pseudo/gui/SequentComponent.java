@@ -251,7 +251,7 @@ public class SequentComponent extends JPanel implements
                         return;
                     
                     Sequent sequent = proofNode.getSequent();
-                    List<RuleApplication> ruleApps = proofCenter.getApplicableRules(sequent, termSelector);
+                    List<RuleApplication> ruleApps = proofCenter.getApplicableRules(termSelector);
 
                     new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 
                             e.getLocationOnScreen()).setVisible(true);

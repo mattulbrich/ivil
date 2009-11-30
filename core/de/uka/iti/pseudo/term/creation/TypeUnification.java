@@ -56,7 +56,7 @@ public class TypeUnification implements Cloneable {
      */
     private final static TypeVisitor VARIANT_VISITOR = new DefaultTypeVisitor() {
         public Type visit(TypeVariable typeVariable) {
-            return new TypeVariable("#" + typeVariable.getVariableName());
+            return new TypeVariable(TypeVariable.VARIANT_PREFIX + typeVariable.getVariableName());
         };
     };
 

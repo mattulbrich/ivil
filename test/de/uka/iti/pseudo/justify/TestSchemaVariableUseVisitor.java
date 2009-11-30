@@ -12,6 +12,7 @@ import de.uka.iti.pseudo.term.TermException;
 
 public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 
+    // see extractor.p
 	public void testCollection() throws Exception {
 		
 		Term t = makeTerm("(\\forall c; (\\forall %x; %x>0 & %a & %b & %d) & %a) & %c & %d " +
@@ -21,7 +22,7 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 		t.visit(svtuv);
 		
 		// Schema vars used as bindings: [%x]
-		Set<SchemaVariable> binds = svtuv.getSchemaVarsUsedInBindings();
+		Set<BindableIdentifier> binds = svtuv.getBoundIdentifiers();
 		assertEquals(svInt("%x"), binds.iterator().next());
 		assertEquals(1, binds.size());
 

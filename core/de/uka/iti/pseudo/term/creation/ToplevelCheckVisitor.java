@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -31,6 +32,8 @@ import de.uka.iti.pseudo.term.Variable;
  * <ul>
  * <li>it is of boolean type
  * <li>no schema variable is present as subterm
+ * <li>no schema update is present
+ * <li>no schema program term is present
  * <li>no schema variable is bound in a binding
  * <li>no meta function appears
  * <li>no free variable occur
@@ -62,6 +65,11 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         throw new TermException("Top level term contains schema variable "
                 + schemaVariable);
     }
+    
+    public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
+        throw new TermException("Top level term contains schema update in "
+                + schemaUpdateTerm);
+    }
 
     public void visit(Binding binding) throws TermException {
         if (binding.hasSchemaVariable())
@@ -87,5 +95,7 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         
         super.visit(application);
     }
+    
+
 
 }

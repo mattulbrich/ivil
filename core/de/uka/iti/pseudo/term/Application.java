@@ -103,7 +103,8 @@ public class Application extends Term {
                     .makeVariant(getType()));
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
-                    + " cannot be typed.\nFunction symbol: " + function
+                    + " cannot be typed.\nFunction symbol: " + function 
+                    + "\nResult type: " + getType()
                     + "\nTypes of subterms:\n" + Util.listTypes(getSubterms()), e);
         }
 

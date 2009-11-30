@@ -281,22 +281,25 @@ public class ProofCenter {
     }
     
     /**
-     * Gets the List of possible rule applications for a certain term within a
-     * sequent. The term is given by its selector 
+     * Gets the List of possible rule applications for a term within the
+     * currently selected proof node. The term is given by its selector.
      * 
-     * TODO DOC
+     * <P>
+     * A list of all possible rule applications which match against a rule which
+     * is not marked automatic-only.
      * 
-     * @param sequent
-     *            the sequent on which the term appeared.
      * @param termSelector
      *            the reference of the selected term.
-     * @return 
-     * @throws ProofException 
+     *            
+     * @return a list of rule applications that match the selected term
+     * 
+     * @throws ProofException
      */
-    public List<RuleApplication> getApplicableRules(Sequent sequent, TermSelector termSelector) throws ProofException {
+    public @NonNull List<RuleApplication> getApplicableRules(
+            @NonNull TermSelector termSelector) throws ProofException {
 
         int goalNo = proof.getOpenGoals().indexOf(currentProofNode);
-        if(goalNo == -1) {
+        if (goalNo == -1) {
             // current sequent is not a goal.
             return Collections.emptyList();
         }

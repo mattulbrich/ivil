@@ -68,7 +68,7 @@ public class Function {
 
     /**
      * Instantiates a new function symbol object.
-     * Unly function symbol without parameters can be assignable.
+     * Only function symbol without parameters can be assignable.
      * A function symbol cannot be both unique and assignable.
      * 
      * @param name
