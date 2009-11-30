@@ -117,15 +117,10 @@ public class RuleProblemExtractor {
     private void solemizeTypes(Term t) throws EnvironmentException, TermException {
         Set<TypeVariable> typeVars = TypeVariableCollector.collect(t);
         for (TypeVariable typeVar : typeVars) {
-            String name = typeVar.getVariableName();
-            // not-letter type vars get an "sk" type naem.
-            if(!Character.isLetter(name.charAt(0))) {
-                name = "sk";
-            }
-            name = env.createNewSortName(name);
+        	// Type variables become types beginning with skolem
+            String name = env.createNewSortName("skolem");
             Sort sort = new Sort(name, 0, ASTLocatedElement.CREATED);
             env.addSort(sort);
-//            introducedSorts.add(sort);
             mapTypeVars.put(typeVar.getVariableName(), new TypeApplication(sort));
         }
         
@@ -210,7 +205,6 @@ public class RuleProblemExtractor {
         name = env.createNewFunctionName(name);
         Function f = new Function(name, instType, argTypes, false, false, ASTLocatedElement.CREATED);
         env.addFunction(f);
-//        introducedFunctions.add(f);
         
         //
         // build skolemisation (application)

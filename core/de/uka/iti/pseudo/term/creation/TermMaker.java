@@ -612,8 +612,6 @@ public class TermMaker extends ASTDefaultVisitor {
         resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
 
-    // we only support matchable statements: source is no such statement.
-    
     public void visit(ASTAssertStatement arg) throws ASTVisitException {
         arg.getTerm().visit(this);
         try {
@@ -665,7 +663,6 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
 
-    // TODO parameters to the skip statement
     public void visit(ASTSkipStatement arg) throws ASTVisitException {
         List<ASTTerm> subterms = SelectList.select(ASTTerm.class, arg.getChildren());
         Term[] arguments = new Term[subterms.size()];
