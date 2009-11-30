@@ -44,6 +44,7 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
                 extractTerm = makeTerm(extract);
             } catch(Exception ex) {
                 env.dump();
+                System.out.println(result);
                 throw ex;
             }
             

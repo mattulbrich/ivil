@@ -2,16 +2,23 @@ package de.uka.iti.pseudo.justify;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.SchemaCollectorVisitor;
+import de.uka.iti.pseudo.term.Variable;
+import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.CommandLineException;
 
@@ -28,6 +35,9 @@ public class RuleJustification {
 	private String rulenameToFind;
 	private File file;
 	private String targetDir;
+    private Environment env;
+    private TermFactory tf;
+    private List<String> imports;
 
 	public RuleJustification(String file, String rule, String targetDir) {
 		this.rulenameToFind = rule;
@@ -35,60 +45,110 @@ public class RuleJustification {
 		this.targetDir = targetDir;
 	}
 	
-	private void generateObligations() throws ParseException, ASTVisitException, IOException, TermException {
-		EnvironmentMaker em = new EnvironmentMaker(new Parser(), file);
-		Environment env = em.getEnvironment();
+	public void generateObligations() throws ParseException, ASTVisitException, IOException, TermException, EnvironmentException, RuleException {
+	    EnvironmentMaker em = new EnvironmentMaker(new Parser(), file);
+	    imports = em.getImportedFilenames();
+        env = em.getEnvironment();
+        tf = new TermFactory(env);
 		
 		for (Rule rule : env.getLocalRules()) {
 			if(rulenameToFind == null || rulenameToFind.equals(rule.getName())) {
-				makeProofObligation(env, rule);
+			    if(rule.getProperty(RuleTagConstants.KEY_DERIVED_RULE) != null) {
+			        makeProofObligation(rule);
+			    }
 			}
 		}
 	}
 
-	private void makeProofObligation(Environment env, Rule rule) throws IOException, TermException {
-		File in = new File(env.getResourceName());
-		File out = new File(targetDir, in.getName() + "_" + rule.getName() + ".p");
-		
-		EnvironmentExporter eex = new EnvironmentExporter(out);
-		eex.exportIncludesFrom(env);
-		eex.exportDefinitionsFrom(env);
-		
-		for (Rule r : env.getLocalRules()) {
-			if(r == rule)
-				break;
-			
-			eex.exportRule(r);
-		}
-		
-		eex.exportProblem(extractProblemFrom(rule));
-		
-	}
+	private void makeProofObligation(Rule rule)
+            throws IOException, TermException, EnvironmentException, RuleException {
+        File in = new File(env.getResourceName());
+        File out = new File(targetDir, in.getName() + "_" + rule.getName() + ".p");
 
-	// We only support rewrite at the moment.
-	// no where clauses are supported
-	private Term extractProblemFrom(Rule rule) {
-		SchemaCollectorVisitor scv = new SchemaCollectorVisitor();
-		scv.collect(rule);
-		scv.getSchemaVariables();
-		// XXX XXX XXX
-		return null;
-	}
+        EnvironmentExporter eex = new EnvironmentExporter(out);
+        eex.exportIncludes(imports);
+        eex.exportDefinitionsFrom(env);
 
-	/**
+        for (Rule r : env.getLocalRules()) {
+            if (r == rule)
+                break;
+
+            eex.exportRule(r);
+        }
+
+        env.setFixed();
+        Environment wrapEnv = new Environment("wrapping_for_justification", env);
+        RuleProblemExtractor rpe = new RuleProblemExtractor(rule, wrapEnv);
+        Term instantiatedProblem = rpe.extractProblem();
+
+        eex.exportDefinitionsFrom(wrapEnv);
+        
+        eex.exportProblem(instantiatedProblem);
+        eex.close();
+    }
+
+//		LocatedTerm findClause = rule.getFindClause();
+//		
+//        if (findClause == null || findClause.getMatchingLocation() != MatchingLocation.BOTH) {
+//            throw new EnvironmentException("We only support rewrite rules at the moment");
+//        }
+//        
+//        if (!rule.getAssumptions().isEmpty()) {
+//            throw new EnvironmentException("We only support rewrite rules at the moment");
+//        }
+//        
+//        List<GoalAction> goals = rule.getGoalActions();
+//        if (goals.size() != 1) {
+//            throw new EnvironmentException("We only support rewrite rules at the moment");
+//        }
+//        
+//        GoalAction goal = goals.get(0);
+//        if(goal.getKind() != Kind.COPY) {
+//            throw new EnvironmentException("We only support rewrite rules at the moment");
+//        }
+//        
+//        if(!goal.getAddAntecedent().isEmpty() || !goal.getAddSuccedent().isEmpty() || goal.getReplaceWith() == null) {
+//            throw new EnvironmentException("We only support rewrite rules at the moment");
+//        }
+//        
+//        Term find = findClause.getTerm();
+//        Term replaceWith = goal.getReplaceWith();
+//            
+//        SchemaVarToVarVisitor svv = new SchemaVarToVarVisitor();
+//        find.visit(svv);
+//        Term findVar = svv.getResultingTerm();
+//        
+//        replaceWith.visit(svv);
+//        Term replaceWithVar = svv.getResultingTerm();
+//
+//        return universalClosure(svv.getVariables(), tf.eq(findVar, replaceWithVar));
+//        
+//	}
+
+	private Term universalClosure(Collection<Variable> variables, Term term) throws TermException {
+	    for (Variable variable : variables) {
+            term = tf.forall(variable, term);
+        }
+	    return term;
+    }
+
+    /**
 	 * @param args
 	 * @throws CommandLineException
 	 * @throws IOException 
 	 * @throws ASTVisitException 
 	 * @throws ParseException 
 	 * @throws TermException 
+	 * @throws EnvironmentException 
+     * @throws RuleException 
 	 */
-	public static void main(String[] args) throws CommandLineException, ParseException, ASTVisitException, IOException, TermException {
+	public static void main(String[] args) throws CommandLineException, ParseException, ASTVisitException, IOException, TermException, EnvironmentException, RuleException {
 		CommandLine commandLine = makeCommandLine();
 		commandLine.parse(args);
 
-		if (commandLine.isSet(CMDLINE_HELP)) {
+		if (commandLine.isSet(CMDLINE_HELP) || args.length == 0) {
 			commandLine.printUsage(System.out);
+			System.out.println("<files>  .p file to scan");
 			System.exit(0);
 		}
 		
