@@ -37,14 +37,13 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
-import de.uka.iti.pseudo.util.SelectList;
 
 
 // TODO DOC
 public class TypingResolver extends ASTDefaultVisitor {
     
     private Environment env;
-    private Map<String, Type> boundVariables = new HashMap<String, Type>();
+    private Map<String, Type> boundVariablesTypes = new HashMap<String, Type>();
     private TypingContext typingContext;
     private Type resultingType;
     
@@ -152,9 +151,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         if(!var.startsWith("%")) {
             varType = typingContext.newTypeVariable();
-            boundVariables.put(var, varType);
+            boundVariablesTypes.put(var, varType);
             super.visit(binderTerm);
-            boundVariables.remove(var);
+            boundVariablesTypes.remove(var);
         } else {
             varType = new TypeVariable(var);
             super.visit(binderTerm);
@@ -244,8 +243,11 @@ public class TypingResolver extends ASTDefaultVisitor {
             throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;
         Function funcSymbol = env.getFunction(name);
+        Type tv = boundVariablesTypes.get(name);
         
-        if(funcSymbol != null) {
+        if(tv != null) {
+        	identifierTerm.setTyping(new Typing(tv, typingContext));
+        } else if(funcSymbol != null) {
             int arity = funcSymbol.getArgumentTypes().length;
             Type result = funcSymbol.getResultType();
 
@@ -261,12 +263,7 @@ public class TypingResolver extends ASTDefaultVisitor {
 						"\n" + e.getDetailedMessage(), identifierTerm);
 			}
         } else {
-            Type tv = boundVariables.get(name);
-
-            if(tv == null)
-                throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
-
-            identifierTerm.setTyping(new Typing(tv, typingContext));
+        	throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
         }
 
     }

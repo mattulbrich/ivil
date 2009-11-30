@@ -23,4 +23,6 @@ public abstract class BindableIdentifier extends Term {
         super(type);
     }
 
+	public abstract String getName();
+
 }

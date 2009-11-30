@@ -10,6 +10,7 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.Stack;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -368,6 +369,13 @@ public class TermMaker extends ASTDefaultVisitor {
     private int sourceLineNumber;
     
     /**
+     * For the resolution of identifiers it is crucial to keep track of all
+     * bound variable names.
+     */
+	private Stack<String> boundIdentifiers =
+		new Stack<String>();
+    
+    /**
      * create a new TermMaker
      * 
      * @param env
@@ -431,7 +439,9 @@ public class TermMaker extends ASTDefaultVisitor {
                 boundId = new Variable(variableName, variableType);
             }
 
+            boundIdentifiers.push(boundId.getName());
             Term[] subterms = collectSubterms(binderTerm);
+            boundIdentifiers.pop();
 
 
             resultTerm = new Binding(binder, binderTerm.getTyping().getType(),
@@ -457,19 +467,23 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
 
-    // FIXME XXX If in range of a binder, variable wins.
     public void visit(ASTIdentifierTerm identifierTerm)
             throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;
-        Function funcSymbol = env.getFunction(name);
+        
         Type type = identifierTerm.getTyping().getType();
 
         try {
-            if (funcSymbol != null) {
-                resultTerm = new Application(funcSymbol, type);
-            } else {
-                resultTerm = new Variable(name, type);
-            }
+        	if(boundIdentifiers.contains(name)) {
+        		resultTerm = new Variable(name, type);
+        	} else {
+        		Function funcSymbol = env.getFunction(name);
+        		if (funcSymbol != null) {
+        			resultTerm = new Application(funcSymbol, type);
+        		} else {
+        			throw new TermException("Unknown symbol: " + identifierTerm);
+        		}
+        	}
         } catch (TermException e) {
             throw new ASTVisitException(identifierTerm, e);
         }
