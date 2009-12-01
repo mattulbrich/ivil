@@ -25,6 +25,12 @@ public class SMTStrategy extends AbstractStrategy {
         super.init(proof, env, strategyManager);
         this.env = env;
         this.closeRule = env.getRule(CLOSE_RULE_NAME);
+        
+        // bug BOOKEY-25
+        // decision procedure rule was not defined 
+        if(closeRule == null)
+            return;
+        
         try {
             String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
             solver = (DecisionProcedure) Class.forName(className).newInstance();
@@ -38,6 +44,8 @@ public class SMTStrategy extends AbstractStrategy {
 
     @Override protected RuleApplication findRuleApplication(int goalIndex)
             throws StrategyException {
+        
+        // retire if no solver found
         if(solver == null)
             return null;
 
