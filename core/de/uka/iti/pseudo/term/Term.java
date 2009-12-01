@@ -11,7 +11,7 @@ package de.uka.iti.pseudo.term;
 import java.util.List;
 
 import nonnull.NonNull;
-import nonnull.NonNullElements;
+import nonnull.DeepNonNull;
 
 import de.uka.iti.pseudo.util.Util;
 
@@ -58,7 +58,7 @@ public abstract class Term {
 	 * @param subterms the subterms
 	 * @param type the type of the term
 	 */
-	protected Term(@NonNull @NonNullElements Term[] subterms, @NonNull Type type) {
+	protected Term(@DeepNonNull Term[] subterms, @NonNull Type type) {
 		
 		assert subterms != null;
 		assert type != null;
@@ -107,7 +107,7 @@ public abstract class Term {
      *             <code>idx &gt;= countSubterms()</code>
      * @see #countSubterms()
      */
-	public Term getSubterm(int idx) {
+	public @NonNull Term getSubterm(int idx) {
 		return subterms[idx];
 	}
 	
@@ -116,7 +116,7 @@ public abstract class Term {
 	 * 
 	 * @return the subterms as list
 	 */
-	public List<Term> getSubterms() {
+	public @DeepNonNull List<Term> getSubterms() {
 		return Util.readOnlyArrayList(subterms);
 	}
 	

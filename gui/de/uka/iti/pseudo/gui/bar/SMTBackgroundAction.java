@@ -25,6 +25,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.Icon;
+import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
@@ -55,6 +56,12 @@ import de.uka.iti.pseudo.util.Pair;
 public final class SMTBackgroundAction extends BarAction implements
         InitialisingAction, PropertyChangeListener, Observer, Runnable {
 
+    /**
+     * The property on ProofCenter that will be used to store the
+     * activation.
+     */
+    public static final String SMT_BACKGROUND_PROPERTY = "pseudo.smt.background";
+    
     /**
      * The rule to be called to close goals with
      */
@@ -146,10 +153,16 @@ public final class SMTBackgroundAction extends BarAction implements
      * rule to apply, and the solver to use.
      */
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
-        proof = getProofCenter().getProof();
+        ProofCenter proofCenter = getProofCenter();
+        
+        proof = proofCenter.getProof();
         proof.addObserver(this);
-        env = getProofCenter().getEnvironment();
+        env = proofCenter.getEnvironment();
+        
+        proofCenter.addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        
+        proofCenter.addPropertyChangeListener(SMT_BACKGROUND_PROPERTY, this);
+        setBackgroundActive((Boolean)proofCenter.getProperty(SMT_BACKGROUND_PROPERTY));
         
         closeRule = env.getRule(CLOSE_RULE_NAME);
         if(closeRule != null) {
@@ -165,6 +178,7 @@ public final class SMTBackgroundAction extends BarAction implements
         }
         
         setEnabled(closeRule != null);
+        
     }
 
     /* 
@@ -209,9 +223,34 @@ public final class SMTBackgroundAction extends BarAction implements
     
     /* 
      * switch the button off when in proof elsewhere
+     * according to the settings, activate or deactivate the background thread
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        setEnabled(!(Boolean)evt.getNewValue() && solver != null);
+        if(ProofCenter.PROPERTY_ONGOING_PROOF.equals(evt.getPropertyName())) {
+            setEnabled(!(Boolean)evt.getNewValue() && solver != null);
+        } else 
+            
+        if (SMT_BACKGROUND_PROPERTY.equals(evt.getPropertyName())) {
+            setBackgroundActive((Boolean)evt.getNewValue());
+        } else 
+        
+        {       
+            assert false : "Case distinction failed";
+        }
+    }
+
+    /*
+     * Sets the background thread active or not.
+     */
+    private void setBackgroundActive(boolean act) {
+        synchronized (lock) {
+            this.backgroundActive = act;
+            if(backgroundActive) {
+                jobs.clear();
+                jobs.addAll(proof.getOpenGoals());
+                lock.notify();
+            }
+        }
     }
     
     /* 
@@ -278,6 +317,10 @@ public final class SMTBackgroundAction extends BarAction implements
                         }
                     } catch (Exception ex) {
                         ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                        JOptionPane.showMessageDialog(getParentFrame(), 
+                                "'Background SMT' will be switched off to stop repeating " +
+                                "failures. You can reenable it in the settings menu");
+                        getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
                     }
                 }
                 
@@ -287,19 +330,4 @@ public final class SMTBackgroundAction extends BarAction implements
         }
     }
 
-    /**
-     * Sets the background thread active or not.
-     * 
-     * @param active
-     *            the new background active
-     */
-    public void setBackgroundActive(boolean active) {
-        synchronized (lock) {
-            this.backgroundActive = active;
-            if(active)
-                lock.notify();
-        }
-            
-    }
-    
 }
