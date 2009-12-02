@@ -145,7 +145,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 resultingTerm = new Binding(binding.getBinder(), modifiedType,
                         (BindableIdentifier)bindingReplacement, args);
             } else if(!modifiedType.equals(binding.getType()) ||
-                    bindingReplacement.equals(binding.getVariable())) {
+                    !bindingReplacement.equals(binding.getVariable())) {
                 args = Util.listToArray(binding.getSubterms(), Term.class);
                 resultingTerm = new Binding(binding.getBinder(), modifiedType,
                         (BindableIdentifier)bindingReplacement, args);

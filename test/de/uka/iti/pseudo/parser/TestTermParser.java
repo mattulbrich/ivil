@@ -44,6 +44,10 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("(\\forall %x; %x = 5)", "(\\forall %x as int;$eq(%x as int,5 as int) as bool) as bool", true);
         
         testTermFail("(\\forall %x as bool; %x as int > 5)"); 
+        
+        // type correct?
+        testTerm("(\\forall %x as int; %x=%x)", 
+                "(\\forall %x as int;$eq(%x as int,%x as int) as bool) as bool", true);
     }
 
     public void testNumbers() throws Exception {
