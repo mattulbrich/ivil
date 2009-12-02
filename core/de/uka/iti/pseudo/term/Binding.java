@@ -105,8 +105,12 @@ public class Binding extends Term {
         return variable.getType();
     }
 
-    // TODO
-    public BindableIdentifier getVariable() {
+    /**
+     * Gets the bound indentifier which is either a variable or a schema variable
+     * 
+     * @return the bound identifier
+     */
+    public @NonNull BindableIdentifier getVariable() {
         return variable;
     }
 

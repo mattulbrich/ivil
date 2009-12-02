@@ -240,7 +240,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             printer.setStyle("variable");
             printer.append(binding.getVariableName());
             if (pp.isTyped())
-                printer.append(" as ").append(binding.getType().toString());
+                printer.append(" as ").append(binding.getVariableType().toString());
             printer.resetPreviousStyle();
             int i = 0;
             for (Term t : binding.getSubterms()) {

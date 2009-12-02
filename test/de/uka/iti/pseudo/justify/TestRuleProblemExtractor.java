@@ -24,53 +24,97 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             throw new Error(e);
         }
     }
+
+    private Environment startEnv;
     
-    public void testRuleExtracts() throws Exception {
-        
-        Environment startEnv = loadEnv();
-        
-        for (Rule rule : startEnv.getAllRules()) {
-            String extract = rule.getProperty("extract");
-            
-            if(extract == null)
-                continue;
-            
-            env = new Environment("wrap", startEnv);
-            RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
-            Term result = rpe.extractProblem();
-            
-            Term expectedTerm;
-            try {
-                expectedTerm = makeTerm(extract);
-            } catch(Exception ex) {
-                env.dump();
-                System.out.println(result);
-                throw ex;
-            }
-            {PrettyPrint pp = new PrettyPrint(env);
-            System.out.println(pp.print(expectedTerm));
-            System.out.println(pp.print(result));}
-            
-            if(!result.equals(expectedTerm)) {
-                rule.dump();
-                
-                System.out.println(expectedTerm);
-                System.out.println(result);
-                
-                PrettyPrint pp = new PrettyPrint(env);
-                System.out.println(pp.print(expectedTerm));
-                System.out.println(pp.print(result));
-                
-                pp.setTyped(true);               
-                System.out.println(pp.print(expectedTerm));
-                System.out.println(pp.print(result));
-            }
-            
-            assertEquals(expectedTerm, result);
-            
-            if(VERBOSE)
-                System.out.println("Passed: " + rule.getName());
+    public TestRuleProblemExtractor() {
+        startEnv = loadEnv(); 
+    }
+    
+    public void test_extract_both() throws Exception {
+        testRule("extract_both");
+    }
+    
+    public void test_extract_left() throws Exception {
+        testRule("extract_left");
+    }
+    
+    public void test_extract_right() throws Exception {
+        testRule("extract_right");
+    }
+    
+    public void test_extract_findless() throws Exception {
+        testRule("extract_findless");
+    }
+    
+    public void test_extract_findless_assume_less() throws Exception {
+        testRule("extract_findless_assume_less");
+    }
+    
+    public void test_rename_schemas() throws Exception {
+        testRule("rename_schemas");
+    }
+
+    public void test_rename_schemas2() throws Exception {
+        testRule("rename_schemas2");
+    }
+
+    public void test_rename_schema3() throws Exception {
+        testRule("rename_schema3");
+    }
+
+    public void test_rename_schema4() throws Exception {
+        testRule("rename_schema4");
+    }
+
+    public void test_rename_schema5() throws Exception {
+        testRule("rename_schema5");
+    }
+
+    public void test_skolemize() throws Exception {
+        testRule("skolemize");
+    }
+                    
+    private void testRule(String name) throws Exception {
+
+        Rule rule = startEnv.getRule(name);
+        if(rule == null)
+            fail("Unknown rule " + name);
+
+        String expected = rule.getProperty("expectedTranslation");
+        if(expected == null)
+            fail("Rule " + name + " has no expectedTranslation");
+
+        env = new Environment("wrap", startEnv);
+        RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
+        Term result = rpe.extractProblem();
+
+        Term expectedTerm;
+        try {
+            expectedTerm = makeTerm(expected);
+        } catch(Exception ex) {
+            env.dump();
+            System.out.println(result);
+            throw ex;
         }
-        
+
+        if(!result.equals(expectedTerm)) {
+            env.dump();
+            rule.dump();
+
+            System.out.println(expectedTerm);
+            System.out.println(result);
+
+            PrettyPrint pp = new PrettyPrint(env);
+            System.out.println(pp.print(expectedTerm));
+            System.out.println(pp.print(result));
+
+            pp.setTyped(true);               
+            System.out.println(pp.print(expectedTerm));
+            System.out.println(pp.print(result));
+        }
+
+        assertEquals(expectedTerm, result);
     }
 }
+

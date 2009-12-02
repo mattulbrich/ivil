@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -33,7 +34,6 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-
 
 // http://www.cs.chalmers.se/~philipp/publications/lfm.pdf
 // p. 13
@@ -51,14 +51,14 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  */
 
 public class RuleProblemExtractor {
-    
+
     private static final Term FALSE = Environment.getFalse();
     private static final Term TRUE = Environment.getTrue();
 
     private Rule rule;
-    
+
     private Term context;
-    
+
     private TermFactory tf;
 
     private Environment env;
@@ -67,7 +67,20 @@ public class RuleProblemExtractor {
 
     private Map<String, Type> mapTypeVars = new HashMap<String, Type>();
 
-    private TermInstantiator termInst = new TermInstantiator(mapVars, mapTypeVars, Collections.<String,Update>emptyMap());
+    private TermInstantiator termInst = new TermInstantiator(mapVars,
+            mapTypeVars, Collections.<String, Update> emptyMap());
+
+    private Set<String> usedNames = new HashSet<String>();
+
+    private class VariableCollector extends DefaultTermVisitor.DepthTermVisitor {
+        public void visit(Variable variable) throws TermException {
+            usedNames.add(variable.getName());
+        }
+        public void visit(Binding binding) throws TermException {
+            super.visit(binding);
+            binding.getVariable().visit(this);
+        }
+    }
 
     public RuleProblemExtractor(Rule rule, Environment env) {
         super();
@@ -75,78 +88,192 @@ public class RuleProblemExtractor {
         this.env = env;
         this.tf = new TermFactory(env);
     }
-    
-    public Term extractProblem() throws TermException, RuleException, EnvironmentException {
-        
+
+    public Term extractProblem() throws TermException, RuleException,
+            EnvironmentException {
+
         makeContext();
 
         //
         // formulate rule as a term with schema vars.
         Term problem0;
-        if(isRewrite())
+        if (isRewrite())
             problem0 = extractRewriteProblem();
         else
             problem0 = extractLocatedProblem();
-        
+
         //
         // collect info on schema variables
-        SchemaVariableUseVisitor svuv = new SchemaVariableUseVisitor(); 
+        SchemaVariableUseVisitor svuv = new SchemaVariableUseVisitor();
         problem0.visit(svuv);
-        
+
         //
         // skolem types.
         mapTypeVars.clear();
         solemizeTypes(problem0);
-        
+
+        //
+        // extract used names
+        VariableCollector vc = new VariableCollector();
+        problem0.visit(vc);
+        for (Function f : env.getAllFunctions()) {
+            usedNames.add(f.getName());
+        }
+
         //
         // bound schema variables to variables.
         mapVars.clear();
         mapAllBoundSchemaVars(problem0, svuv.getBoundIdentifiers());
-        
+
         //
         // then skolemize the remainder with according arity.
         mapRemainingSchemaVars(problem0, svuv.getSeenBindablesMap());
-        
+
         //
         // instantiate
         Term problem = termInst.instantiate(problem0);
-        
+
         return problem;
     }
-    
-    private void solemizeTypes(Term t) throws EnvironmentException, TermException {
+
+    /**
+     * Check whether rule is a rewrite rule: The matching location of
+     * {@link Rule#getFindClause()} must be {@link MatchingLocation#BOTH}.
+     * 
+     * @return true iff the rule is a rewrite rule
+     */
+    private boolean isRewrite() {
+        LocatedTerm find = rule.getFindClause();
+        return find != null
+                && find.getMatchingLocation() == MatchingLocation.BOTH;
+    }
+
+    private Term extractLocatedProblem() throws RuleException, TermException {
+
+        LocatedTerm findClause = rule.getFindClause();
+
+        // having no find is not assuming anything --> empty sequence --> false
+        if (findClause == null)
+            findClause = new LocatedTerm(FALSE, MatchingLocation.SUCCEDENT);
+
+        boolean findInAntecedent = findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT;
+        Term findTerm = findClause.getTerm();
+
+        Term result = TRUE;
+        List<GoalAction> actions = rule.getGoalActions();
+        for (GoalAction action : actions) {
+
+            if (action.getKind() != Kind.COPY)
+                throw new RuleException(
+                        "ProblemExtraction works only for copy goals at the moment");
+
+            Term add = FALSE;
+            for (Term t : action.getAddAntecedent()) {
+                add = disj(add, tf.not(t));
+            }
+            for (Term t : action.getAddSuccedent()) {
+                add = disj(add, t);
+
+            }
+            Term replace = action.getReplaceWith();
+
+            // copy original term if not remove
+            if (replace == null && !action.isRemoveOriginalTerm())
+                replace = findTerm;
+
+            if (replace != null) {
+                if (findInAntecedent) {
+                    add = disj(add, tf.not(replace));
+                } else {
+                    add = disj(add, replace);
+                }
+            }
+
+            result = conj(result, add);
+        }
+
+        Term findAndContext = context;
+        if (findInAntecedent) {
+            findAndContext = disj(findAndContext, tf.not(findTerm));
+        } else {
+            findAndContext = disj(findAndContext, findTerm);
+        }
+
+        result = tf.impl(result, findAndContext);
+        return result;
+    }
+
+    /**
+     * Given a rewrite rule, extract the verification condition from it. The
+     * resulting term will still contain all original schema variables and type
+     * variables, which must be skolemised later.
+     * 
+     * <p>
+     * The resulting term looks like:
+     * 
+     * <pre>
+     *     ( replace1 = find -&gt; OR(adds1))
+     *   &amp; ...
+     *   &amp; (  replacek = find -&gt; OR(addsk))
+     *   -&gt;  context
+     * </pre>
+     * 
+     * in which the context has already been precalculated.
+     * 
+     * @return the meaning formula of the rule, with schema variables
+     */
+    private Term extractRewriteProblem() throws TermException, RuleException {
+
+        assert context != null : "Context must have been processed earlier";
+
+        Term find = rule.getFindClause().getTerm();
+        Term result = TRUE;
+
+        List<GoalAction> actions = rule.getGoalActions();
+        for (GoalAction action : actions) {
+
+            if (action.getKind() != Kind.COPY)
+                throw new RuleException(
+                        "ProblemExtraction works only for copy goals at the moment");
+
+            Term add = FALSE;
+            for (Term t : action.getAddAntecedent()) {
+                add = disj(add, tf.not(t));
+            }
+            for (Term t : action.getAddSuccedent()) {
+                add = disj(add, t);
+            }
+
+            Term replace = action.getReplaceWith();
+            if (replace == null)
+                replace = find;
+
+            Term eq = tf.eq(replace, find);
+            Term imp = tf.impl(eq, add);
+            result = conj(result, imp);
+        }
+
+        result = tf.impl(result, context);
+
+        return result;
+    }
+
+    private void solemizeTypes(Term t) throws EnvironmentException,
+            TermException {
         Set<TypeVariable> typeVars = TypeVariableCollector.collect(t);
         for (TypeVariable typeVar : typeVars) {
-        	// Type variables become types beginning with skolem
+            // Type variables become types beginning with skolem
             String name = env.createNewSortName("skolem");
             Sort sort = new Sort(name, 0, ASTLocatedElement.CREATED);
             env.addSort(sort);
-            mapTypeVars.put(typeVar.getVariableName(), new TypeApplication(sort));
+            mapTypeVars.put(typeVar.getVariableName(),
+                    new TypeApplication(sort));
         }
-        
+
     }
-    
-    private static class VariableCollector extends DefaultTermVisitor.DepthTermVisitor {
-        private Set<String> variableNames = new HashSet<String>();
-        public void visit(Variable variable) throws TermException {
-            variableNames.add(variable.getName());
-        }
-        public String freshName(String prefix) {
-            String newName = prefix;
-            int counter = 1;
-            while(variableNames.contains(newName)) {
-                newName = prefix + counter;
-                counter ++;
-            }
-            // mark the new name as used now also.
-            variableNames.add(newName);
-            return newName;
-        }
-    }
-    
-    private void mapAllBoundSchemaVars(Term term, Set<BindableIdentifier> boundIdentifiers) throws TermException {
-        VariableCollector vc = new VariableCollector();
-        term.visit(vc);
+
+    private void mapAllBoundSchemaVars(Term term,
+            Set<BindableIdentifier> boundIdentifiers) throws TermException {
         for (BindableIdentifier boundvar : boundIdentifiers) {
             if (boundvar instanceof SchemaVariable) {
                 SchemaVariable schemaVar = (SchemaVariable) boundvar;
@@ -154,163 +281,82 @@ public class RuleProblemExtractor {
                 // remove leading %
                 String prefix = schemaName.substring(1);
                 // new name is unique
-                String newname = vc.freshName(prefix);
+                String newname = freshName(prefix);
                 Type instType = termInst.instantiate(schemaVar.getType());
-                
+
                 assert TypeVariableCollector.collect(instType).isEmpty() : "Ensure no free type var in instantiation";
                 mapVars.put(schemaName, new Variable(newname, instType));
             }
         }
     }
 
+    private String freshName(String prefix) {
+        String newName = prefix;
+        int counter = 1;
+        while (usedNames.contains(newName)) {
+            newName = prefix + counter;
+            counter++;
+        }
+        // mark the new name as used now also.
+        usedNames.add(newName);
+        return newName;
+    }
+
     private void mapRemainingSchemaVars(Term term,
             Map<SchemaVariable, Set<BindableIdentifier>> seenBindablesMap)
             throws TermException, EnvironmentException {
-        for (Map.Entry<SchemaVariable, Set<BindableIdentifier>> entry : seenBindablesMap.entrySet()) {
+        for (Map.Entry<SchemaVariable, Set<BindableIdentifier>> entry : seenBindablesMap
+                .entrySet()) {
             SchemaVariable sv = entry.getKey();
             // not yet mapped
-            if(!mapVars.containsKey(sv.getName())) {
+            if (!mapVars.containsKey(sv.getName())) {
                 Set<BindableIdentifier> deps = entry.getValue();
                 skolemizeSchemaVar(sv, deps);
             }
         }
     }
 
-    
-
     private void skolemizeSchemaVar(SchemaVariable sv,
-            Set<BindableIdentifier> dependencies) throws TermException, EnvironmentException {
+            Set<BindableIdentifier> dependencies) throws TermException,
+            EnvironmentException {
         Type[] argTypes = new Type[dependencies.size()];
         Term[] argTerms = new Term[dependencies.size()];
-        
+
         Type instType = termInst.instantiate(sv.getType());
-        
+
         //
         // make argument array
         int i = 0;
         for (BindableIdentifier dep : dependencies) {
             argTypes[i] = dep.getType();
             if (dep instanceof SchemaVariable) {
-                SchemaVariable schema = (SchemaVariable)dep;
+                SchemaVariable schema = (SchemaVariable) dep;
                 argTerms[i] = mapVars.get(schema.getName());
             } else {
                 argTerms[i] = termInst.instantiate(dep);
             }
             i++;
         }
-        
+
         //
         // make new symbol, stripping leading %
         String name = sv.getName().substring(1);
-        name = env.createNewFunctionName(name);
-        Function f = new Function(name, instType, argTypes, false, false, ASTLocatedElement.CREATED);
+        name = freshName(name);
+        Function f = new Function(name, instType, argTypes, false, false,
+                ASTLocatedElement.CREATED);
         env.addFunction(f);
-        
+
         //
         // build skolemisation (application)
         Term sk = new Application(f, instType, argTerms);
         assert TypeVariableCollector.collect(sk).isEmpty() : "Ensure no free type variables in skolemisation";
-        
+
         mapVars.put(sv.getName(), sk);
     }
 
-    private Term extractLocatedProblem() throws RuleException, TermException {
-        
-        LocatedTerm findClause = rule.getFindClause();
-        
-        // having no find is not assuming anything --> empty sequence --> false
-        if(findClause == null)
-            findClause = new LocatedTerm(FALSE, MatchingLocation.SUCCEDENT);
-        
-        boolean findInAntecedent = findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT;
-        Term findTerm = findClause.getTerm();
-        
-        Term result = TRUE;
-        List<GoalAction> actions = rule.getGoalActions();
-        for (GoalAction action : actions) {
-            
-            if(action.getKind() != Kind.COPY)
-                throw new RuleException("ProblemExtraction works only for copy goals at the moment");
-            
-            Term add = FALSE;
-            for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
-            }
-            for (Term t : action.getAddSuccedent()) {
-                add = disj(add, t);
-            
-            }
-            Term replace = action.getReplaceWith();
-            
-            // copy original term if not remove
-            if(replace == null && !action.isRemoveOriginalTerm())
-                replace = findTerm;
-
-            if(replace != null) {
-                if(findInAntecedent) {
-                    add = disj(add, tf.not(replace));
-                } else {
-                    add = disj(add, replace);
-                }
-            }
-            
-            result = conj(result, add);
-        }
-        
-        Term findAndContext = context;
-        if(findInAntecedent) {
-            findAndContext = disj(findAndContext, tf.not(findTerm));
-        } else {
-            findAndContext = disj(findAndContext, findTerm);
-        }
-        
-        result = tf.impl(result, findAndContext);
-        return result;
-    }
-
-    private Term extractRewriteProblem() throws TermException, RuleException {
-        
-        assert context != null;
-        
-        Term find = rule.getFindClause().getTerm();
-        Term result = TRUE;
-        
-        List<GoalAction> actions = rule.getGoalActions();
-        for (GoalAction action : actions) {
-            
-            if(action.getKind() != Kind.COPY)
-                throw new RuleException("ProblemExtraction works only for copy goals at the moment");
-            
-            Term add = FALSE;
-            for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
-            }
-            for (Term t : action.getAddSuccedent()) {
-                add = disj(add, t);
-            }
-            
-            if(add == null)
-                add = Environment.getFalse();
-            
-            Term replace = action.getReplaceWith();
-            if(replace == null)
-                replace = find;
-                
-            Term eq = tf.eq(replace, find);
-            Term imp = tf.impl(eq, add);
-            result = conj(result, imp);
-        }
-        
-        result = tf.impl(result, context);
-        
-        return result;
-    }
-
-    
-
     private void makeContext() throws TermException, RuleException {
         context = FALSE;
-        
+
         List<LocatedTerm> assumptions = rule.getAssumptions();
         for (LocatedTerm assume : assumptions) {
             switch (assume.getMatchingLocation()) {
@@ -325,29 +371,23 @@ public class RuleProblemExtractor {
             }
         }
     }
-    
-    
+
     private Term conj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if(t1 == TRUE)
+        if (t1 == TRUE)
             return t2;
-        else if(t2 == TRUE)
+        else if (t2 == TRUE)
             return t1;
         else
             return tf.and(t1, t2);
     }
-    
+
     private Term disj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if(t1 == FALSE)
+        if (t1 == FALSE)
             return t2;
-        else if(t2 == FALSE)
+        else if (t2 == FALSE)
             return t1;
         else
             return tf.or(t1, t2);
-    }
-
-    private boolean isRewrite() {
-        LocatedTerm find = rule.getFindClause();
-        return find != null && find.getMatchingLocation() == MatchingLocation.BOTH;
     }
 
 }

@@ -16,16 +16,11 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 	public void testCollection() throws Exception {
 		
 		Term t = makeTerm("(\\forall c; (\\forall %x; %x>0 & %a & %b & %d) & %a) & %c & %d " +
-				"| (\\exists e; true)");
+				"| (\\exists %e; true)");
 		
 		SchemaVariableUseVisitor svtuv = new SchemaVariableUseVisitor();
 		t.visit(svtuv);
 		
-		// Schema vars used as bindings: [%x]
-		Set<BindableIdentifier> binds = svtuv.getBoundIdentifiers();
-		assertEquals(svInt("%x"), binds.iterator().next());
-		assertEquals(1, binds.size());
-
 		// Schema vars to seen bindables
 		Map<SchemaVariable, Set<BindableIdentifier>> map = svtuv.getSeenBindablesMap();
 		System.out.println(map);
@@ -37,9 +32,9 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 		assertEquals("[%x, c]", map.get(svInt("%x")).toString());
 		
 		// collect all bound variables
-		assertEquals("[%x, c, e]", svtuv.getBoundIdentifiers().toString());
+		assertEquals("[%e, %x, c]", svtuv.getBoundIdentifiers().toString());
 	}
-
+	
 	private SchemaVariable sv(String string) throws TermException {
 		return new SchemaVariable(string, Environment.getBoolType());
 	}

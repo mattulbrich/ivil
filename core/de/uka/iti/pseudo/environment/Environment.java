@@ -467,6 +467,27 @@ public class Environment {
     }
     
     /**
+     * gets a collection containing all function symbols of this environment and
+     * all parenting environments.
+     * 
+     * <p>
+     * The result is a freshly created collection which you may modify.
+     * 
+     * @return a freshly created list of all function symbols
+     */
+    public @NonNull List<Function> getAllFunctions() {
+        List<Function> functions;
+
+        if (parentEnvironment == null)
+            functions = new ArrayList<Function>();
+        else
+            functions = parentEnvironment.getAllFunctions();
+
+        functions.addAll(functionMap.values());
+        return functions;
+    }
+    
+    /**
      * get the list of all functions defined in this environment. Functions visible
      * in this environment but defined in a parent environment are ignored.
      * 
