@@ -1,5 +1,6 @@
 include 
   "selectionSortDecl.p"
+  "$unicode.p"
 
 function
   array(int) a assignable

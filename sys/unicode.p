@@ -1,0 +1,3 @@
+plugin
+  prettyPrinter : "test.UnicodePrettyPrinter"
+

@@ -13,8 +13,6 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.Update;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 /**
@@ -94,7 +92,15 @@ public abstract class PrettyPrintPlugin {
         printer.resetPreviousStyle();
     }
     
-    public Environment getEnvironment() {
+    protected boolean isPrintingFix() {
+        return prettyPrinter.isPrintingFix();
+    }
+    
+    protected boolean isTyped() {
+        return prettyPrinter.isTyped();
+    }
+    
+    protected Environment getEnvironment() {
         return prettyPrinter.getEnvironment();
     }
 
