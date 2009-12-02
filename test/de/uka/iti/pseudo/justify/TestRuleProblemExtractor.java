@@ -39,31 +39,37 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
             Term result = rpe.extractProblem();
             
-            Term extractTerm;
+            Term expectedTerm;
             try {
-                extractTerm = makeTerm(extract);
+                expectedTerm = makeTerm(extract);
             } catch(Exception ex) {
                 env.dump();
                 System.out.println(result);
                 throw ex;
             }
+            {PrettyPrint pp = new PrettyPrint(env);
+            System.out.println(pp.print(expectedTerm));
+            System.out.println(pp.print(result));}
             
-            if(!result.equals(extractTerm)) {
+            if(!result.equals(expectedTerm)) {
                 rule.dump();
                 
-                System.out.println(extractTerm);
+                System.out.println(expectedTerm);
                 System.out.println(result);
                 
                 PrettyPrint pp = new PrettyPrint(env);
-                System.out.println(pp.print(extractTerm));
+                System.out.println(pp.print(expectedTerm));
                 System.out.println(pp.print(result));
                 
                 pp.setTyped(true);               
-                System.out.println(pp.print(extractTerm));
+                System.out.println(pp.print(expectedTerm));
                 System.out.println(pp.print(result));
             }
             
-            assertEquals(result, extractTerm);
+            assertEquals(expectedTerm, result);
+            
+            if(VERBOSE)
+                System.out.println("Passed: " + rule.getName());
         }
         
     }

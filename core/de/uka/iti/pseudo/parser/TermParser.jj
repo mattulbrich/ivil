@@ -3,6 +3,16 @@
 // This file contains partial parser definition for terms only
 //
 
+// a greedy term ... read the wohle stream
+// needed for parsing terms
+ASTTerm TermEOF():
+{ 
+  ASTTerm term;
+}
+{
+	term=Term() <EOF>
+	{ return term; }
+}
 
 ASTTerm Term():
 { 

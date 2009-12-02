@@ -26,8 +26,8 @@ rule extract_both
     # no change
     add add_left2 |-
     
-  tags extract "(((_replace as alpha) = _find -> (!add_left | add_right))
-                &((_find as alpha) = _find -> !add_left2))
+  tags extract "(((_replace as skolem) = _find -> (!add_left | add_right))
+                &((_find as skolem) = _find -> !add_left2))
                 -> (!assume_left | assume_right)"
     
 rule extract_left
@@ -110,13 +110,13 @@ rule extract_findless_assume_less
 rule rename_schemas
   find (\forall x; (\forall %x; x=%x))
   replace true
-  tags extract "true = (\forall x; (\forall x1 as sk; x=x1)) -> false -> false"
+  tags extract "true = (\forall x; (\forall x1 as skolem; x=x1)) -> false -> false"
 
 
 rule rename_schemas2
   find (\forall x; x=%x)
   replace true
-  tags extract "true = (\forall x as sk; x=x1(x))) -> false -> false"
+  tags extract "true = (\forall x as skolem; x=x1(x)) -> false -> false"
 
 (*
 function bool f(int)

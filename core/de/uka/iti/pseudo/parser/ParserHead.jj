@@ -47,7 +47,7 @@ public class Parser {
     public ASTTerm parseTerm(Reader reader, String filename) throws ParseException
     {  
         ReInit(reader);
-        ASTTerm term = Term();
+        ASTTerm term = TermEOF();
         term.setFilename(filename);
         return term;
     }
