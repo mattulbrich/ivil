@@ -11,6 +11,7 @@ function
   int t assignable
 
 program P source "selectionSort.algo"
+  sourceline 8
   assume n = length(a) & n >= 1
   assume a = a_pre
 
@@ -88,11 +89,12 @@ final2:
 final1: 
   assume i = (n - 1) + 1
 
-  sourceline 21
+  sourceline 29
   assert (\forall i; 1<=i & i<=n & 1<=i+1 & i+1<=n -> read(a, i) < read(a, i+1))
+    ; "for all applicable i: a[i] <= a[i+1]"
   
-  sourceline 22
-  assert isPerm(a, a_pre)
+  sourceline 30
+  assert isPerm(a, a_pre) ; "a is a permutation of original a"
 
 problem
   [ 0 ; P ]
