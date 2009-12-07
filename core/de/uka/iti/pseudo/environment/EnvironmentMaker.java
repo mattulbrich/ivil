@@ -43,7 +43,7 @@ public class EnvironmentMaker {
      * the directory where to search for system include files.
      */
     private static final String SYS_DIR = 
-        Settings.getInstance().getProperty("pseudo.sysDir", "./sys");
+        Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
 
     /**
      * The environment that is being built.

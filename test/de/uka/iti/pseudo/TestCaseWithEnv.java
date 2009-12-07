@@ -55,7 +55,7 @@ public class TestCaseWithEnv extends TestCase {
             env.setFixed();
             return env;
         } catch (Exception e) {
-            throw new Error(e);
+            throw new RuntimeException(e);
         }
     }
 

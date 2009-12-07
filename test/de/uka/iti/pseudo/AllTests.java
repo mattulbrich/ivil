@@ -31,6 +31,7 @@ import de.uka.iti.pseudo.term.creation.TestTermUnification;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestUtil;
+import de.uka.iti.pseudo.util.settings.TestSettings;
 
 public class AllTests {
     
@@ -71,6 +72,7 @@ public class AllTests {
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);
+        suite.addTestSuite(TestSettings.class);
         //$JUnit-END$
         return suite;
     }

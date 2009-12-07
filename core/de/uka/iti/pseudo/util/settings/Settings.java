@@ -17,13 +17,14 @@ import java.util.Properties;
  * Only they provide a little more getter-methods.
  * 
  * If a property is looked up, the order is the following:
+ * 
+ * Defaults are read from the file <code>Settings_default.properties
  * <ol>
- * <li>the settings made on the command line
- * <li>the settings file "jatc.properties" in the system directory.
+ * <li>the settings stored in the Settings_default.properties" file in the
+ * resources
  * <li>the settings returned by System.getProperty (includes all -D...=...
  * commandline options!)
- * <li>the settings stored in the Settings_default.properites" file in the
- * resources
+ * <li>the settings loaded/set by the program.
  * </ol>
  * 
  * Settings are used for settings on a per-user level. Other info should be
@@ -36,11 +37,12 @@ import java.util.Properties;
  * This is a singleton.
  * 
  * @author mattze
- * 
  */
 public class Settings extends Properties {
 
     private static final long serialVersionUID = -3915457392249145054L;
+    
+    public static final String SETTINGS_PROPERTIES_FILE_KEY = "";
 
     private Map<String, Object> cache = new HashMap<String, Object>();
 
@@ -48,7 +50,7 @@ public class Settings extends Properties {
 
     /**
      * create the settings object. Load the defaults from the defaults file, add
-     * the system properties and load from the system directory file.
+     * load from the system directory file and the system properties.
      */
     private Settings() {
         super();
@@ -109,14 +111,19 @@ public class Settings extends Properties {
     }
 
     /**
-     * lookup an integer value in the properties. Accepts different bases.
+     * Lookup an integer value in the properties.
+     * 
+     * <p>
+     * The number can be specified as decimal constant, octal or hexadecimal. It
+     * accepts the same input as {@link Integer#decode(String)}, see there for
+     * details.
      * 
      * @see Integer#decode(String)
      * @param key
-     *            key to look up
+     *                key to look up
      * @return integer value of the key's value
      * @throws NumberFormatException
-     *             if the value does not represent an integer
+     *                 if the value does not represent an integer
      */
     public int getInteger(String key) throws NumberFormatException {
         String value = getProperty(key);
@@ -126,12 +133,21 @@ public class Settings extends Properties {
     }
 
     /**
-     * same as super class but throw {@link NoSuchElementException} if the key
-     * is not present.
+     * Searches for the property with the specified key in this property list.
+     * If the key is not found in this property list, the default property list,
+     * and its defaults, recursively, are then checked. The method throws a
+     * {@link NoSuchElementException} if the key is not present in any property
+     * list.
      * 
      * @see java.util.Properties#getProperty(java.lang.String)
+     *  
+     * @param key
+     *                the property key.
+     *                
+     * @return the value in this property list with the specified key value.
+     * 
      * @throws NoSuchElementException
-     *             if key has not been defined
+     *                 if key has not been defined
      */
     public String getProperty(String key) throws NoSuchElementException {
         if (!containsKey(key) && !defaults.containsKey(key))
@@ -146,6 +162,67 @@ public class Settings extends Properties {
         } catch (NoSuchElementException e) {
             return defaultValue;
         }
+    }
+    
+    public String getExpandedProperty(String key) {
+        return expandString(getProperty(key));
+    }
+    
+    public String getExpandedProperty(String key, String defaultValue) {
+        try {
+            String value = getProperty(key);
+            return expandString(value);
+        } catch (NoSuchElementException e) {
+            return defaultValue;
+        }
+    }
+
+    private String expandString(String value) {
+        StringBuilder result = new StringBuilder();
+        int keyStart = -1;
+        
+        for(int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            switch (c) {
+            case '$':
+                if(i < value.length() - 1 && value.charAt(i+1) == '{' && keyStart == -1) {
+                    keyStart = i + 2;
+                    i++;
+                } else {
+                    if(keyStart == -1) {
+                        result.append(c);
+                    }
+                }
+                break;
+                
+            case '}':
+                if(keyStart == -1) {
+                    result.append(c);
+                } else {
+                    String key = value.substring(keyStart, i);
+                    String expansion;
+                    try {
+                        expansion = getProperty(key);
+                    } catch(NoSuchElementException ex) {
+                        // log
+                        System.err.println("Cannot expand ${" + key + "}, no such key defined");
+                        expansion = "";
+                    }
+                    
+                    result.append(expansion);
+                    keyStart = -1;
+                }
+                break;
+
+            default:
+                if(keyStart == -1) {
+                    result.append(c);
+                }
+                break;
+            }
+        }
+        
+        return result.toString();
     }
 
     // / @todo DOC
@@ -252,20 +329,50 @@ public class Settings extends Properties {
      * @throws IOException
      *             file not found or reading error
      */
-    public void loadFromSystemDirectory(String directoryKey, String fileName) throws IOException {
-        String dir = getProperty(directoryKey);
-        if(dir != null) {
-            File f = new File(dir, fileName);
-            if(f.canRead()) {
-//            logger.fine("Load settings from system directory: " + f);
-                FileInputStream fileInputStream = new FileInputStream(f);
-                
-                try {
-                    defaults.load(fileInputStream);
-                } finally {
-                    fileInputStream.close();
-                }
-            }
+//    public void loadFromSystemDirectory(String directoryKey, String fileName) throws IOException {
+//        String dir = getProperty(directoryKey);
+//        if(dir != null) {
+//            File f = new File(dir, fileName);
+//            if(f.canRead()) {
+////            logger.fine("Load settings from system directory: " + f);
+//                FileInputStream fileInputStream = new FileInputStream(f);
+//                
+//                try {
+//                    defaults.load(fileInputStream);
+//                } finally {
+//                    if(fileInputStream != null)
+//                        fileInputStream.close();
+//                }
+//            }
+//        }
+//    }
+
+    /**
+     * Load properties from a file into the settings.
+     * 
+     * <p>
+     * The filename is obtained by querying the settings for the argument key.
+     * 
+     * @throws IOException
+     *                 if something goes wrong while reading properties or
+     *                 resolving names.
+     */
+    public void loadKeyAsFile(String propertiesFileKey) throws IOException {
+        String fileName;
+        try {
+            fileName = getExpandedProperty(propertiesFileKey);
+        } catch (NoSuchElementException e) {
+            IOException ex = new IOException("No properties file defined for key " + propertiesFileKey);
+            ex.initCause(e);
+            throw ex;
+        }
+        
+        FileInputStream fileInputStream = new FileInputStream(fileName);
+        try {
+            load(fileInputStream);
+        } finally {
+            if(fileInputStream != null)
+                fileInputStream.close();
         }
     }
 
