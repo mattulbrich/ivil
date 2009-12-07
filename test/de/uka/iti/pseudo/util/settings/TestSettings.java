@@ -1,10 +1,10 @@
 package de.uka.iti.pseudo.util.settings;
 
+import java.awt.Color;
 import java.util.NoSuchElementException;
 
-import de.uka.iti.pseudo.gui.Main;
-
 import junit.framework.TestCase;
+import de.uka.iti.pseudo.gui.Main;
 
 public class TestSettings extends TestCase {
     
@@ -33,7 +33,7 @@ public class TestSettings extends TestCase {
         assertEquals("${rec}", s.getExpandedProperty("rec"));
     }
     
-    public void testGetPropertyString() {
+    public void testGetPropertyString() throws Exception {
         
         s.put("abc", "value");
         
@@ -46,8 +46,7 @@ public class TestSettings extends TestCase {
         }
     }
     
-    
-    public void testGetInteger() {
+    public void testGetInteger() throws Exception {
      
         s.put("i1", "123");
         s.put("i2", "0x42");
@@ -57,9 +56,26 @@ public class TestSettings extends TestCase {
         assertEquals(0x42, s.getInteger("i2"));
         
         try {
-            assertEquals(0, s.getInteger("i3"));  
+            s.getInteger("i3");  
             fail("No number: should have failed");
         } catch(NumberFormatException ex) {
+        }
+        
+    }
+    
+    public void testGetColor() throws Exception {
+        
+        s.put("c1", "#010203");
+        s.put("c2", "sandy brown");
+        s.put("c3", "certainly_undefined_color_name");
+        
+        assertEquals(new Color(0x010203), s.getColor("c1"));
+        assertEquals(new Color(244, 164, 96), s.getColor("c2"));
+        
+        try {
+            s.getColor("c3");  
+            fail("No color: should have failed");
+        } catch(IllegalArgumentException ex) {
         }
     }
 }

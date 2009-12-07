@@ -23,7 +23,7 @@ public class SMTActivationAction extends BarAction implements InitialisingAction
     }
     
     public void initialised() {
-        boolean selected = Settings.getInstance().getBoolean("pseudo.smt.background");
+        boolean selected = Settings.getInstance().getBoolean("pseudo.smt.background", false);
         
         proofCenter = getProofCenter();
         proofCenter.addPropertyChangeListener(SMTBackgroundAction.SMT_BACKGROUND_PROPERTY, this);

@@ -19,8 +19,8 @@ public class ProgramPanel extends CodePanel {
 
     private static final long serialVersionUID = 310718223333L;
 
-    private static final Color PROGRAM_COLOR = Settings.getInstance().getColor(
-            "pseudo.program.boogiecolor");
+    private static final Color PROGRAM_COLOR = 
+        Settings.getInstance().getColor("pseudo.program.boogiecolor", Color.BLACK);
 
     private PrettyPrint prettyPrinter;
 

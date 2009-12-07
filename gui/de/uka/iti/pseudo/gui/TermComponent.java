@@ -69,21 +69,30 @@ public class TermComponent extends JTextPane {
     /**
      * some UI constants
      */
-    private static final Font FONT = S.getFont("pseudo.termcomponent.font");
+    private static final Font FONT = S.getFont("pseudo.termcomponent.font", null);
     
     // the highlight color should be bright
-    private static final Color HIGHLIGHT_COLOR = S.getColor("pseudo.termcomponent.highlightcolor");
+    private static final Color HIGHLIGHT_COLOR = 
+        S.getColor("pseudo.termcomponent.highlightcolor", Color.orange);
 
     // the modality background should be rather unnoticed
-    private static final Color MODALITY_BACKGROUND = S.getColor("pseudo.termcomponent.modalitybackground");
+    private static final Color MODALITY_BACKGROUND = 
+        S.getColor("pseudo.termcomponent.modalitybackground", Color.cyan.brighter());
     
     // border color needs to match background of sequent view
-    private static final Color BORDER_COLOR = S.getColor("pseudo.termcomponent.bordercolor");
+    private static final Color BORDER_COLOR =
+        S.getColor("pseudo.termcomponent.bordercolor", Color.darkGray);
+    
+    // variables should be noticed
+    protected static final Color VARIABLE_FOREGROUND =
+        S.getColor("pseudo.termcomponent.variableforeground", Color.magenta);
 
     // empty border
     private static final Border BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BORDER_COLOR), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
+
+    
 
     // darker and a lighter color for marking
     private HighlightPainter[] MARKINGS = {
@@ -215,8 +224,11 @@ public class TermComponent extends JTextPane {
                 return cached;
 
             MutableAttributeSet retval = new SimpleAttributeSet();
-            StyleConstants.setFontFamily(retval, FONT.getFamily());
-            StyleConstants.setFontSize(retval, FONT.getSize());
+            if(FONT != null) {
+                StyleConstants.setFontFamily(retval, FONT.getFamily());
+                StyleConstants.setFontSize(retval, FONT.getSize());
+            }
+                
 
             if (descr.contains("closed"))
 //                StyleConstants.setForeground(retval, BORDER_COLOR);
@@ -232,7 +244,7 @@ public class TermComponent extends JTextPane {
                 StyleConstants.setBold(retval, true);
 
             if (descr.contains("variable"))
-                StyleConstants.setForeground(retval, Color.magenta);
+                StyleConstants.setForeground(retval, VARIABLE_FOREGROUND);
             // StyleConstants.setItalic(retval, true);
 
             attributeCache.put(descr, retval);

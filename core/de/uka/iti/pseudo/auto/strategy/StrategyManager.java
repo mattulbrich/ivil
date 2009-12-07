@@ -17,6 +17,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.util.settings.Settings;
+import de.uka.iti.pseudo.util.settings.SettingsException;
 
 /**
  * A StrategyManager is essentially a collection of all applicable strategies
@@ -24,7 +25,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * 
  * It has got one distinguished selected strategy which can be set and
  * retrieved. The initially selected strategy is retrieved by querying
- * {@link Settings} for the key {@value StrategyManager#DEFAULT_STRATEGY_KEY}.
+ * {@link TestSettings} for the key {@value StrategyManager#DEFAULT_STRATEGY_KEY}.
  * 
  * New Strategies can be registered by their class. There can only be one
  * strategy per implementation (per manager).
@@ -37,9 +38,9 @@ public class StrategyManager {
      */
     private static final String DEFAULT_STRATEGY_KEY = "pseudo.auto.defaultStrategy";
     
-    private static final String DEFAULT_STRATEGY_CLASSNAME =
-        Settings.getInstance().getProperty(DEFAULT_STRATEGY_KEY);
-
+    private static final String DEFAULT_STRATEGY_CLASSNAME = 
+        Settings.getInstance().getProperty(DEFAULT_STRATEGY_KEY, "");
+    
     /**
      * The registered strategies as map from their implementing class to the
      * actual strategy.

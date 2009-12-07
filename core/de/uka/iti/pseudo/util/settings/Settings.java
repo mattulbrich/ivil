@@ -2,19 +2,21 @@ package de.uka.iti.pseudo.util.settings;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 
+import nonnull.NonNull;
+
 /**
  * Settings are "pimped {@link Properties}".
  * 
- * Only they provide a little more getter-methods.
+ * Only they provide typed getter-methods.
  * 
  * If a property is looked up, the order is the following:
  * 
@@ -38,13 +40,11 @@ import java.util.Properties;
  * 
  * @author mattze
  */
-public class Settings extends Properties {
-
-    private static final long serialVersionUID = -3915457392249145054L;
-    
-    public static final String SETTINGS_PROPERTIES_FILE_KEY = "";
+public class Settings {
 
     private Map<String, Object> cache = new HashMap<String, Object>();
+    
+    private Properties contents;
 
     private static Settings theInstance = new Settings();
 
@@ -55,14 +55,14 @@ public class Settings extends Properties {
     private Settings() {
         super();
         try {
-            defaults = new Properties();
+            contents = new Properties();
             InputStream stream = getClass().getResourceAsStream("Settings_default.properties");
-            defaults.load(stream);
+            contents.load(stream);
             stream.close();
-            defaults.putAll(System.getProperties());
+            contents.putAll(System.getProperties());
         } catch (Exception ex) {
             ex.printStackTrace();
-            defaults = null;
+            contents = null;
         } 
     }
 
@@ -70,21 +70,27 @@ public class Settings extends Properties {
         return theInstance;
     }
 
-    /*
-     * put is overwritten to allow logging!
-     */
-    public synchronized Object put(Object key, Object value) {
+    public synchronized Object put(String key, String value) {
 //        if (logger.isLoggable(Level.CONFIG))
 //            logger.config("Settings updated: " + key + " -> " + value);
-        return super.put(key, value);
+        return contents.put(key, value);
     }
 
     /*
-     * check whether a key is present in the cache and if the valuei is of class
-     * clss.
+     * check the cache and return a cached element if there is one
      */
-    private boolean hasCache(String key, Class<?> clss) {
-        return cache.containsKey(key) && clss.isInstance(cache.get(key));
+    private <T> T getCached(String key, Class<T> clss) {
+        Object cached = cache.get(key);
+        if(clss.isInstance(cache.get(key))) {
+            return clss.cast(cached);
+        } else {
+            return null;
+        }
+    }
+    
+    private void putCache(String key, Object value) {
+        assert value != null;
+        cache.put(key, value);
     }
 
     /**
@@ -94,20 +100,24 @@ public class Settings extends Properties {
      * @param key
      *            key for the classname
      * @return new instance of the class of that class name
-     * @throws InstantiationException
-     *             instantiation fails
-     * @throws IllegalAccessException
-     *             instantiation fails
-     * @throws ClassNotFoundException
-     *             instantiation fails
+     * @throws SettingsException instantiation failed
      */
-    public Object createInstance(String key) throws InstantiationException,
-            IllegalAccessException, ClassNotFoundException {
-        String value = getProperty(key);
-        if (value == null)
-            throw new NoSuchElementException();
-        Class<?> clss = Class.forName(value);
-        return clss.newInstance();
+    public Object createInstance(String key) throws SettingsException {
+        try {
+            Class<?> clss = getCached(key, Class.class);
+            if(clss == null) {
+                String value = getProperty(key);
+                clss = Class.forName(value);
+                putCache(key, clss);
+            }
+            return clss.newInstance();
+        } catch (ClassNotFoundException e) {
+            throw new SettingsException("Cannot create class for key " + key, e);
+        } catch (InstantiationException e) {
+            throw new SettingsException("Cannot create class for key " + key, e);
+        } catch (IllegalAccessException e) {
+            throw new SettingsException("Cannot create class for key " + key, e);
+        }
     }
 
     /**
@@ -122,25 +132,38 @@ public class Settings extends Properties {
      * @param key
      *                key to look up
      * @return integer value of the key's value
-     * @throws NumberFormatException
-     *                 if the value does not represent an integer
+     * 
+     * @throws SettingsException
+     *                 if the value does not represent an integer or
+     *                 if the key has not been defined in these settings.
      */
-    public int getInteger(String key) throws NumberFormatException {
+    public int getInteger(String key) throws SettingsException {
         String value = getProperty(key);
-        if (value == null)
-            throw new NoSuchElementException();
-        return Integer.decode(getProperty(key));
+        try {
+            return Integer.decode(value);
+        } catch (NumberFormatException e) {
+            throw new SettingsException("Cannot create integer for key " + key, e);
+        }
     }
+    
+    public int getInteger(String key, int defaultValue) {
+        try {
+            return getInteger(key);
+        } catch (SettingsException e) {
+            // log
+            System.err.println("Falling back to default value");
+            e.printStackTrace();
+            return defaultValue;
+        }
+    }
+
 
     /**
      * Searches for the property with the specified key in this property list.
-     * If the key is not found in this property list, the default property list,
-     * and its defaults, recursively, are then checked. The method throws a
-     * {@link NoSuchElementException} if the key is not present in any property
+     * The method throws a
+     * {@link SettingsException} if the key is not present in any property
      * list.
      * 
-     * @see java.util.Properties#getProperty(java.lang.String)
-     *  
      * @param key
      *                the property key.
      *                
@@ -149,22 +172,39 @@ public class Settings extends Properties {
      * @throws NoSuchElementException
      *                 if key has not been defined
      */
-    public String getProperty(String key) throws NoSuchElementException {
-        if (!containsKey(key) && !defaults.containsKey(key))
-            throw new NoSuchElementException();
-        return super.getProperty(key);
+    public String getProperty(@NonNull String key) throws SettingsException {
+        if (!contents.containsKey(key))
+            throw new SettingsException("No value for key " + key);
+        
+        return contents.getProperty(key);
     }
     
-    // TODO
+    /**
+     * Searches for the property with the specified key in this property list.
+     * The method returns a default value if the key is not present
+     * 
+     * @param key
+     *                the property key.
+     * @param defaultValue
+     *                the default value to return if the key is not present.
+     *                
+     * @return the value in this property list with the specified key value.
+     * 
+     * @throws NoSuchElementException
+     *                 if key has not been defined
+     */
     public String getProperty(String key, String defaultValue) {
         try {
             return getProperty(key);
-        } catch (NoSuchElementException e) {
+        } catch (SettingsException e) {
+            // log
+            System.err.println("Falling back to default value");
+            e.printStackTrace();
             return defaultValue;
         }
     }
     
-    public String getExpandedProperty(String key) {
+    public String getExpandedProperty(String key) throws SettingsException {
         return expandString(getProperty(key));
     }
     
@@ -172,11 +212,17 @@ public class Settings extends Properties {
         try {
             String value = getProperty(key);
             return expandString(value);
-        } catch (NoSuchElementException e) {
+        } catch (SettingsException e) {
+            System.err.println("Falling back to default value");
+            e.printStackTrace();
             return defaultValue;
         }
     }
 
+    /*
+     * replace every occurrence of "${xyz}" by the value stored for xyz.
+     * Do not recurse, because this might go on infinitely.
+     */
     private String expandString(String value) {
         StringBuilder result = new StringBuilder();
         int keyStart = -1;
@@ -203,7 +249,7 @@ public class Settings extends Properties {
                     String expansion;
                     try {
                         expansion = getProperty(key);
-                    } catch(NoSuchElementException ex) {
+                    } catch(SettingsException ex) {
                         // log
                         System.err.println("Cannot expand ${" + key + "}, no such key defined");
                         expansion = "";
@@ -226,7 +272,7 @@ public class Settings extends Properties {
     }
 
     // / @todo DOC
-    public String[] getStrings(String key) {
+    public String[] getStrings(String key) throws SettingsException {
         String value = getProperty(key);
         return value.split(", *");
     }
@@ -238,8 +284,8 @@ public class Settings extends Properties {
      * @param key the key to lookup
      * @return true iff key stored and has the value "true"
      */
-    public boolean getBoolean(String key) {
-        return getBoolean(key, false);
+    public boolean getBoolean(String key) throws SettingsException {
+        return "true".equalsIgnoreCase(getProperty(key));
     }
     
     /**
@@ -250,19 +296,27 @@ public class Settings extends Properties {
      * @param defValue the default value to return if the
      * key is not defined
      * @return true iff key stored and has the value "true"
+     * @throws SettingsException 
      */
-    public boolean getBoolean(String key, boolean defValue) {
-        String value = getProperty(key);
-        if(value == null)
-            return defValue;
-        else
-            return value.equalsIgnoreCase("true");
+    public boolean getBoolean(String key, boolean defaultValue)  {
+            try {
+                return getBoolean(key);
+            } catch (SettingsException e) {
+                // log
+                System.err.println("Falling back to default value");
+                e.printStackTrace();
+                return defaultValue;
+            }
     }
 
     // @todo DOC throws!
-    public double getDouble(String key) {
+    public double getDouble(String key) throws SettingsException {
         String value = getProperty(key);
-        return Double.parseDouble(value);
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new SettingsException("Cannot create double value for key " + key, e);
+        }
     }
 
     /**
@@ -271,18 +325,46 @@ public class Settings extends Properties {
      * @param key
      *            key to look up
      * @return a Color object
-     * @throws NoSuchElementException
-     *             if there is no value for key.
+     * @throws SettingsException 
      */
-    public Color getColor(String key) {
-
-        if (!hasCache(key, Color.class)) {
-            cache.put(key, ColorResolver.getInstance()
-                    .resolve(getProperty(key)));
+    public @NonNull Color getColor(@NonNull String key) throws SettingsException {
+        Color color = getCached(key, Color.class);
+        if(color == null) {
+            String prop = getProperty(key);
+            color= ColorResolver.getInstance().resolve(prop);
+            if(color == null) {
+                throw new SettingsException(prop + " does not describe a valid color in key " + key);
+            }
+            putCache(key, color);
         }
 
-        return (Color) cache.get(key);
+        return color;
     }
+    
+    
+    /**
+     * Use the {@link ColorResolver} to resolve a color name or id.
+     * 
+     * Return a default value in case the lookup fails.
+     * 
+     * @param key
+     *                key to look up
+     * @param defaultColor
+     *                return this value if the lookup fails.
+     * 
+     * @return a Color object
+     */
+    public Color getColor(String key, Color defaultColor) {
+        try {
+            return getColor(key);
+        } catch(SettingsException e) {
+            // log
+            System.err.println("Falling back to default value");
+            e.printStackTrace();
+            return defaultColor;
+        }
+    }
+
 
     /**
      * get a Font object for a key.
@@ -292,21 +374,64 @@ public class Settings extends Properties {
      * Styles are: PLAIN, BOLD, ITALIC, BOLD+ITALIC. (not ITALIC+BOLD)
      * 
      * @param key
-     *            key to look up
+     *                key to look up
+     *                
      * @return a Font object
-     * @throws NoSuchElementException
-     *             if there is no value for key.
+     * 
+     * @throws SettingsException 
+     *                 if there is no value for key or
+     *                 if the font size is not correctly defined or
+     *                 if the style string is illegal or
+     *                 if the descriptor does not have exactly 3 parts.
      */
-    public Font getFont(String key) {
-        if (!hasCache(key, Font.class)) {
+    public @NonNull Font getFont(@NonNull String key) throws SettingsException {
+        Font font = getCached(key, Font.class);
+        if(font == null) {
             String[] strings = getStrings(key);
-            String fontname = strings[0];
-            int style = decodeStyle(strings[1]);
-            int size = Integer.decode(strings[2]);
-            cache.put(key, new Font(fontname, style, size));
+            try {
+                if(strings.length != 3)
+                    throw new IllegalArgumentException("Font descriptions must have exactly 3 parts");
+                
+                String fontname = strings[0];
+                int style = decodeStyle(strings[1]);
+                int size = Integer.decode(strings[2]);
+                if(size <= 0)
+                    throw new NumberFormatException("Negative font size: " + size);
+                font = new Font(fontname, style, size);
+                putCache(key, font);
+            } catch (RuntimeException e) {
+                throw new SettingsException("Cannot create font for key " + key, e);
+            }
         }
 
-        return (Font) cache.get(key);
+        return font;
+    }
+    
+    /**
+     * get a Font object for a key. Return a default font if the indicated
+     * key is missing or the description is invalid.
+     * 
+     * "Fontname, style, size" is the format. "Arial, PLAIN, 12" for instance.
+     * 
+     * Styles are: PLAIN, BOLD, ITALIC, BOLD+ITALIC. (not ITALIC+BOLD)
+     * 
+     * @param key
+     *            key to look up
+     * @param defaultFont
+     *            the font object to return in case of an invalid description
+     *            or an error.
+     *            
+     * @return a Font object
+     */
+    public Font getFont(String key, Font defaultFont) {
+        try {
+            return getFont(key);
+        } catch(SettingsException ex) {
+            // log
+            System.err.println("Falling back to default value");
+            ex.printStackTrace();
+            return defaultFont;
+        }
     }
 
     private int decodeStyle(String string) {
@@ -361,7 +486,7 @@ public class Settings extends Properties {
         String fileName;
         try {
             fileName = getExpandedProperty(propertiesFileKey);
-        } catch (NoSuchElementException e) {
+        } catch (SettingsException e) {
             IOException ex = new IOException("No properties file defined for key " + propertiesFileKey);
             ex.initCause(e);
             throw ex;
@@ -369,11 +494,20 @@ public class Settings extends Properties {
         
         FileInputStream fileInputStream = new FileInputStream(fileName);
         try {
-            load(fileInputStream);
+            contents.load(fileInputStream);
         } finally {
             if(fileInputStream != null)
                 fileInputStream.close();
         }
     }
 
+    public void clear() {
+        contents.clear();
+    }
+
+    public void putAll(Properties properties) {
+        contents.putAll(properties);
+    }
+
+   
 }

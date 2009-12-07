@@ -1,18 +1,29 @@
 package de.uka.iti.pseudo.util.settings;
 
 import java.awt.Color;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.UIManager;
 
 /**
- * Singleton to be used to resolve color names to Color objects.
+ * A class with a singleton object to be used to resolve color names to Color objects.
  * 
- * Color names are read from a colors.properties file.
+ * <p>It allows to convert strings to {@link Color} objects.
+ * Colors can either be specified as hexadecimal (or decimal) constants, as names or
+ * as references to colors defined by the UI. 
+ * 
+ * <p>The color names are read from a <code>colors.properties</code> resource in 
+ * this directory. Color objects that have been queried once are cached, so that no
+ * unnecessary memory is spent on color objects. 
+ * 
+ * TODO Use weak references (though WeakHashMap is not adequate). 
  * 
  * @author mattze
- * 
  */
 
 public class ColorResolver {
@@ -21,8 +32,8 @@ public class ColorResolver {
 
     private static ColorResolver defaultInstance;
 
-    private HashMap<String, Integer> lookuptable;
-    private HashMap<Integer, Color> cache;
+    private Map<String, Integer> lookuptable;
+    private Map<Integer, Color> cache;
 
     private ColorResolver() throws IOException {
         lookuptable = new HashMap<String, Integer>();
@@ -31,7 +42,9 @@ public class ColorResolver {
     }
 
     /**
-     * get the instance of the colorresolver.
+     * Get the instance of the ColorResolver.
+     * 
+     * Try tp create if not yet created.
      * 
      * @return the color resolver, null if resource is unavailable.
      */

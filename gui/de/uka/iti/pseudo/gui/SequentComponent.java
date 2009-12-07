@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.gui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -131,7 +132,7 @@ public class SequentComponent extends JPanel implements
         prettyPrinter = proofCenter.getPrettyPrinter();
         prettyPrinter.addPropertyChangeListener(this);
         
-        setBackground(Settings.getInstance().getColor(SETTINGS_BACKGROUND));
+        setBackground(Settings.getInstance().getColor(SETTINGS_BACKGROUND, Color.WHITE));
     }
     
     private void setProofNode(ProofNode proofNode, boolean open) {
@@ -284,13 +285,13 @@ public class SequentComponent extends JPanel implements
     @Override
     public int getScrollableBlockIncrement(Rectangle visibleRect,
             int orientation, int direction) {
-        return Settings.getInstance().getInteger(SETTINGS_BLOCK_INCREMENT);
+        return Settings.getInstance().getInteger(SETTINGS_BLOCK_INCREMENT, 20);
     }
     
     @Override 
     public int getScrollableUnitIncrement(Rectangle visibleRect,
             int orientation, int direction) {
-        return Settings.getInstance().getInteger(SETTINGS_UNIT_INCREMENT);
+        return Settings.getInstance().getInteger(SETTINGS_UNIT_INCREMENT, 10);
     }
 
     /*

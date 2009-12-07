@@ -39,7 +39,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
 
     public static final String VERBOSITY_PROPERTY = "tree-verbosity";
     public static final int DEFAULT_VERBOSITY = 
-        Settings.getInstance().getInteger("pseudo.prooftree.defaultverbosity");
+        Settings.getInstance().getInteger("pseudo.prooftree.defaultverbosity", 10);
     
     /*
      * some UI constants

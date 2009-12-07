@@ -74,7 +74,7 @@ public class Main {
         loadProperties();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
         
-        BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
+        BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY, ".");
     }
 
     

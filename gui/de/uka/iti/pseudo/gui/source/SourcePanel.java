@@ -18,10 +18,11 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
+@SuppressWarnings("serial") 
 public class SourcePanel extends CodePanel {
 
-    private static final Color SOURCE_COLOR = Settings.getInstance()
-            .getColor("pseudo.program.sourcecolor");
+    private static final Color SOURCE_COLOR = 
+        Settings.getInstance().getColor("pseudo.program.sourcecolor", Color.BLACK);
 
     public SourcePanel(ProofCenter proofCenter) throws IOException {
         super(proofCenter, true, SOURCE_COLOR);

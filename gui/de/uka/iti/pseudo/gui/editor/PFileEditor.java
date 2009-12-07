@@ -153,7 +153,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             editor = new BracketMatchingTextArea();
             editor.setLineWrap(false);
-            editor.setFont(Settings.getInstance().getFont("pseudo.editor.font"));
+            editor.setFont(Settings.getInstance().getFont("pseudo.editor.font", editor.getFont()));
             editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
             // TODO make this configurable
