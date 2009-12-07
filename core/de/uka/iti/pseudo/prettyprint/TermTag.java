@@ -9,6 +9,7 @@
 package de.uka.iti.pseudo.prettyprint;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -114,6 +115,33 @@ public class TermTag {
         }
         else
             ts = topLevel;
+        
+        return ts;
+    }
+    
+    /**
+     * retrieve the subterm selector information for this tag.
+     * 
+     * <p>
+     * This is done using the local term number and the parent tag information.
+     * All subterm numbers from the root of the the tag tree are appended to the
+     * given selector
+     * 
+     * @return a subterm selector which has the path to this tag as end of its path
+     */
+    public SubtermSelector getSubtermSelector() {
+        SubtermSelector ts;
+        
+        if(parentTag != null) {
+            ts = parentTag.getSubtermSelector();
+            if(ts != null) {
+                ts = new SubtermSelector(ts, subTermNo);
+            } else {
+                ts = new SubtermSelector(subTermNo);
+            }
+        } else {
+            ts = null;
+        }
         
         return ts;
     }

@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.environment;
 
 import java.io.File;
@@ -12,9 +20,15 @@ import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO
+// TODO: Auto-generated Javadoc
+/**
+ * The Class Program captures a sequence of statements and 
+ */
 public class Program {
     
+    /**
+     * The Constant OUT_OF_BOUNDS_STATEMENT.
+     */
     private static final Statement OUT_OF_BOUNDS_STATEMENT;
     static {
         try {
@@ -26,14 +40,49 @@ public class Program {
         }
     }
     
+    /**
+     * The name.
+     */
     private String name;
+    
+    /**
+     * The source file.
+     */
     private File sourceFile;
+    
+    /**
+     * The declaration.
+     */
     private ASTLocatedElement declaration;
     
+    /**
+     * The statements.
+     */
     private Statement[] statements;
+    
+    /**
+     * The statement annotations.
+     */
     private String[] statementAnnotations;
 
     
+    /**
+     * Instantiates a new program.
+     * 
+     * @param name
+     *                the name
+     * @param sourceFile
+     *                the source file
+     * @param statements
+     *                the statements
+     * @param statementAnnotations
+     *                the statement annotations
+     * @param declaration
+     *                the declaration
+     * 
+     * @throws EnvironmentException
+     *                 the environment exception
+     */
     public Program(@NonNull String name, 
             @Nullable File sourceFile,
             List<Statement> statements,
@@ -49,6 +98,14 @@ public class Program {
         assert Util.notNullArray(this.statements);
     }
     
+    /**
+     * Gets the statement.
+     * 
+     * @param i
+     *                the i
+     * 
+     * @return the statement
+     */
     public Statement getStatement(int i) {
         if(i < 0)
             throw new IndexOutOfBoundsException();
@@ -59,6 +116,14 @@ public class Program {
         return statements[i];
     }
     
+    /**
+     * Gets the text annotation.
+     * 
+     * @param i
+     *                the i
+     * 
+     * @return the text annotation
+     */
     public String getTextAnnotation(int i) {
         if(i < 0)
             throw new IndexOutOfBoundsException();
@@ -70,14 +135,27 @@ public class Program {
     }
 
 
+    /**
+     * Count statements.
+     * 
+     * @return the int
+     */
     public int countStatements() {
         return statements.length;
     }
 
+    /**
+     * Gets the declaration.
+     * 
+     * @return the declaration
+     */
     public ASTLocatedElement getDeclaration() {
         return declaration;
     }
 
+    /**
+     * Dump.
+     */
     public void dump() {
         System.out.println("    Statements");
         for (int i = 0; i < statements.length; i++) {
@@ -88,22 +166,45 @@ public class Program {
         }
     }
     
+    /**
+     * Gets the name.
+     * 
+     * @return the name
+     */
     public String getName() {
         return name;
     }
     
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override public String toString() {
         return name;
     }
 
+    /**
+     * Gets the statements.
+     * 
+     * @return the statements
+     */
     public List<Statement> getStatements() {
         return Util.readOnlyArrayList(statements);
     }
     
+    /**
+     * Gets the text annotations.
+     * 
+     * @return the text annotations
+     */
     public List<String> getTextAnnotations() {
         return Util.readOnlyArrayList(statementAnnotations);
     }
 
+    /**
+     * Gets the source file.
+     * 
+     * @return the source file
+     */
     public File getSourceFile() {
         return sourceFile;
     }

@@ -66,7 +66,6 @@ public class TermSelector {
      */
     private byte termNumber;
     
-    
     /**
      * If a subterm of the term is selected, then this field contains
      * the path to it.

@@ -52,6 +52,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO in some future: syntax highlighting
@@ -156,6 +157,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             editor.setFont(Settings.getInstance().getFont("pseudo.editor.font", editor.getFont()));
             editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
+            editor.setCaret(new NotScrollingCaret());
             // TODO make this configurable
             editor.getDocument().addDocumentListener(doclistener);
             try {

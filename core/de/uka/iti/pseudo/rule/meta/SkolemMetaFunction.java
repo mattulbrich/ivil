@@ -27,9 +27,9 @@ public class SkolemMetaFunction extends MetaFunction {
     
     private static final String SKOLEM_NAME_PROPERTY = "skolemName";
     
-    private static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
+    public static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
         public String getLocation() { return "SKOLEMISED"; }};
-
+        
     public SkolemMetaFunction() {
         super(TypeVariable.ALPHA, "$$skolem", TypeVariable.ALPHA);
     }

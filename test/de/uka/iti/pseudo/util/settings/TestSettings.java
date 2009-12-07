@@ -1,7 +1,6 @@
 package de.uka.iti.pseudo.util.settings;
 
 import java.awt.Color;
-import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.gui.Main;
@@ -12,7 +11,6 @@ public class TestSettings extends TestCase {
     
     @Override protected void setUp() throws Exception {
         s = Settings.getInstance();
-        s.clear();
     }
     
     public void testSysDir() throws Exception {
@@ -42,7 +40,7 @@ public class TestSettings extends TestCase {
         try {
             s.getProperty("certainly_undefined_key");
             fail("Undefined key: should have failed");
-        } catch(NoSuchElementException ex) {
+        } catch(SettingsException ex) {
         }
     }
     
@@ -58,7 +56,7 @@ public class TestSettings extends TestCase {
         try {
             s.getInteger("i3");  
             fail("No number: should have failed");
-        } catch(NumberFormatException ex) {
+        } catch(SettingsException ex) {
         }
         
     }
@@ -75,7 +73,7 @@ public class TestSettings extends TestCase {
         try {
             s.getColor("c3");  
             fail("No color: should have failed");
-        } catch(IllegalArgumentException ex) {
+        } catch(SettingsException ex) {
         }
     }
 }

@@ -16,7 +16,6 @@ public class SubstMetaFunction extends MetaFunction {
 
     public SubstMetaFunction() {
         super(ALPHA, "$$subst", BETA, BETA, ALPHA );
-        // TODO Auto-generated constructor stub
     }
 
     @Override 

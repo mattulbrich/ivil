@@ -18,14 +18,18 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -52,6 +56,7 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
@@ -73,31 +78,41 @@ public class TermComponent extends JTextPane {
     
     // the highlight color should be bright
     private static final Color HIGHLIGHT_COLOR = 
-        S.getColor("pseudo.termcomponent.highlightcolor", Color.orange);
+        S.getColor("pseudo.termcomponent.highlightcolor", Color.ORANGE);
 
     // the modality background should be rather unnoticed
     private static final Color MODALITY_BACKGROUND = 
-        S.getColor("pseudo.termcomponent.modalitybackground", Color.cyan.brighter());
+        S.getColor("pseudo.termcomponent.modalitybackground", Color.CYAN.brighter());
     
     // border color needs to match background of sequent view
     private static final Color BORDER_COLOR =
-        S.getColor("pseudo.termcomponent.bordercolor", Color.darkGray);
+        S.getColor("pseudo.termcomponent.bordercolor", Color.DARK_GRAY);
     
     // variables should be noticed
-    protected static final Color VARIABLE_FOREGROUND =
-        S.getColor("pseudo.termcomponent.variableforeground", Color.magenta);
+    private static final Color VARIABLE_FOREGROUND =
+        S.getColor("pseudo.termcomponent.variableforeground", Color.MAGENTA);
+    
+    // marking for an assumption
+    private static final Color LIGHT_MARKING_COLOR = 
+        S.getColor("pseudo.termcomponent.assumptionforeground", Color.LIGHT_GRAY);
+
+    // marking for a find clause
+    private static final Color DARK_MARKING_COLOR = 
+        S.getColor("pseudo.termcomponent.findforeground", Color.LIGHT_GRAY);
 
     // empty border
     private static final Border BORDER = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(BORDER_COLOR), BorderFactory
                     .createEmptyBorder(5, 5, 5, 5));
 
-    
+    // the property for the bar manager to describe my popup menu
+    private static final String POPUP_PROPERTY = "termComponent.popup";
+
 
     // darker and a lighter color for marking
     private HighlightPainter[] MARKINGS = {
-            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x9999FF)),
-            new DefaultHighlighter.DefaultHighlightPainter(new Color(0x99CCFF)) };
+            new DefaultHighlighter.DefaultHighlightPainter(DARK_MARKING_COLOR),
+            new DefaultHighlighter.DefaultHighlightPainter(LIGHT_MARKING_COLOR) };
 
     /**
      * The term displayed
@@ -144,34 +159,57 @@ public class TermComponent extends JTextPane {
 
     private int verbosityLevel;
 
+    private ProofCenter proofCenter;
+    
+    /**
+     * the popup menu to do things locally
+     */
+    private PopupMenuListener popupMenuListener = new PopupMenuListener() {
+
+        @Override public void popupMenuCanceled(PopupMenuEvent e) {
+        }
+
+        @Override public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+        }
+
+        @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            proofCenter.firePropertyChange("termComponent.popup.selectedTerm", 
+                    Pair.make(term, mouseSelection));
+            System.out.println(mouseSelection);
+        }
+    };
+
     // TODO DOC
     /**
      * Instantiates a new term component.
      * 
      * @param t
-     *            the term to display
-     * @param history 
+     *                the term to display
+     * @param history
      * @param open
      * @param env
-     *            the environment to use for pretty printing
+     *                the environment to use for pretty printing
      * @param termSelector
-     *            selector object describing the position of the displayed term
-     *            in its sequent
+     *                selector object describing the position of the displayed
+     *                term in its sequent
      * @param prettyPrinter
-     *            the pretty printer to print the term in this component
+     *                the pretty printer to print the term in this component
      */
     public TermComponent(@NonNull Term t, Annotation history, boolean open,
-            @NonNull ProofCenter proofCenter, @NonNull TermSelector termSelector) {
+            @NonNull ProofCenter proofCenter, @NonNull TermSelector termSelector)  {
         this.env = proofCenter.getEnvironment();
         this.term = t;
         this.history = history;
         this.termSelector = termSelector;
+        this.proofCenter = proofCenter;
         this.prettyPrinter = proofCenter.getPrettyPrinter();
         this.verbosityLevel = (Integer)proofCenter.getProperty(ProofComponent.VERBOSITY_PROPERTY);
         this.annotatedString = prettyPrinter.print(t);
         this.open = open;
 
         assert history != null;
+        // must be toplevel
+        assert termSelector.getSubtermSelector().getDepth() == 0;
         
         //
         // Set display properties
@@ -208,6 +246,17 @@ public class TermComponent extends JTextPane {
         } catch (BadLocationException e) {
             // may not happen even if document is empty
             throw new Error(e);
+        }
+        
+        //
+        // add popup
+        try {
+            JPopupMenu popupMenu = proofCenter.getBarManager().makePopup(POPUP_PROPERTY);
+            setComponentPopupMenu(popupMenu);
+            popupMenu.addPopupMenuListener(popupMenuListener);
+        } catch (IOException ex) {
+            System.err.println("Disabling popup menu in term component");
+            ex.printStackTrace();
         }
     }
 

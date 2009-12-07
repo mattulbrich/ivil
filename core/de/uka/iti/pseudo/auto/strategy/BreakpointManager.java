@@ -10,9 +10,7 @@ import java.util.TreeSet;
 
 import nonnull.NonNull;
 
-// FIXME these are mock values
-// XXX ARE THEY?
-// TODO DOC
+// TODO DOC!
 
 public class BreakpointManager extends Observable {
     
