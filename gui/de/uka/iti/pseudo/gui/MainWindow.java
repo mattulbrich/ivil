@@ -60,8 +60,6 @@ public class MainWindow extends JFrame {
 
     private GoalList goalList;
     
-    private ProgramComponent programComponent;
-
     private ProofComponent proofComponent;
 
     private RuleApplicationComponent ruleApplicationComponent;

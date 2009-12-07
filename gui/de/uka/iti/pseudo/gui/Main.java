@@ -11,7 +11,6 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
-import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
@@ -23,6 +22,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 
@@ -50,7 +50,7 @@ public class Main {
 
     private static StartupWindow startupWindow;
     
-    public static final String PROPERTIES_FILENAME = "pseudo.properties";
+    public static final String PROPERTIES_FILE_KEY = "pseudo.settingsFile";
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
     public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
@@ -75,10 +75,6 @@ public class Main {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
         
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY);
-        if(!settings.containsKey(SYSTEM_DIRECTORY_KEY)) {
-            String sysDir = BASE_DIRECTORY + File.separator + "sys";
-            settings.setProperty(SYSTEM_DIRECTORY_KEY, sysDir);
-        }
     }
 
     
@@ -235,11 +231,10 @@ public class Main {
     private static void loadProperties() {
         try {
             settings = Settings.getInstance();
-            settings.loadFromSystemDirectory(BASE_DIRECTORY_KEY, PROPERTIES_FILENAME);
+            settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
             settings.putAll(System.getProperties());
         } catch (IOException e) {
-            System.err.println("Cannot read file " + BASE_DIRECTORY_KEY +
-                    File.pathSeparator + PROPERTIES_FILENAME + ", continue");
+            System.err.println("Cannot read properties file, continuing anyway ...");
             e.printStackTrace();
         }
     }
