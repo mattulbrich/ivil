@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="genSrc"/>
 	<classpathentry kind="src" path="core"/>
-	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="cmd"/>
 	<classpathentry kind="src" path="gui"/>
-	<classpathentry kind="src" path="justify"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/nonnull.jar"/>
 	<classpathentry kind="lib" path="lib/javadocking.jar" sourcepath="/export/home/i12pc3/mattias/local/lib/java/javadocking/src">
 		<attributes>

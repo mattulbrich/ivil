@@ -31,7 +31,7 @@
       </classpath>
       <compilerarg value="-Xlint"/>
     </javac>
-    <javac srcdir="justify" destdir="classes" debug="${compile.debug}">
+    <javac srcdir="cmd" destdir="classes" debug="${compile.debug}">
       <classpath>
       	<pathelement path="classes" />
       </classpath>
