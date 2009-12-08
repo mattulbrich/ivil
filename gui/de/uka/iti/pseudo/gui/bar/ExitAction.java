@@ -11,13 +11,14 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
 public class ExitAction extends BarAction implements PropertyChangeListener {
 
     public ExitAction() {
-        super("Exit", BarManager.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
+        super("Exit", GUIUtil.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
         putValue(ACTION_COMMAND_KEY, "exit");
         putValue(SHORT_DESCRIPTION, "closes all open windows of the program and exits");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
@@ -25,7 +26,7 @@ public class ExitAction extends BarAction implements PropertyChangeListener {
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

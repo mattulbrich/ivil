@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -374,7 +375,7 @@ public class BarManager {
                 val = properties.getProperty(element + ".icon");
                 if(val != null) {
                     String location = packagePrefix.replace('.', '/') + val;
-                    button.setIcon(makeIcon(ClassLoader.getSystemResource(location)));
+                    button.setIcon(GUIUtil.makeIcon(ClassLoader.getSystemResource(location)));
                 }
                 
                 val = properties.getProperty(element + ".tooltip");
@@ -549,7 +550,7 @@ public class BarManager {
                 val = properties.getProperty(property + ".icon");
                 if(val != null) {
                     String location = packagePrefix.replace('.', '/') + val;
-                    menuItem.setIcon(makeIcon(ClassLoader.getSystemResource(location)));
+                    menuItem.setIcon(GUIUtil.makeIcon(ClassLoader.getSystemResource(location)));
                 }
                 
                 val = properties.getProperty(property + ".tooltip");
@@ -639,29 +640,6 @@ public class BarManager {
         }
     }
 
-	/**
-	 * Convenience method to create an icon.
-	 * 
-	 * If the argument is null or the resource cannot be loaded, a bogus icon is
-	 * returned.
-	 * 
-	 * @param resource
-	 *            the resource to load from
-	 * 
-	 * @return a freshly created icon
-	 */
-    public static @NonNull Icon makeIcon(@Nullable URL resource) {
-        try {
-            if(resource != null)
-                return new ImageIcon(resource);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        System.err.println("Cannot load icon " + resource + ", continuing anyway ...");
-        return Util.UNKNOWN_ICON;
-    }
-    
     /**
      * Clear the cache of actions.
      */

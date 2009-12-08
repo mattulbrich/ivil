@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -40,6 +41,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
 import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
@@ -107,11 +109,6 @@ public class InteractiveRuleApplicationComponent extends
         return applications;
     }
     
-    public void ruleApplicationSelected(RuleApplication ruleApp) {
-        this.setRuleApplication(ruleApp);
-        invalidate();
-    }
-    
     /*
      * This method is called when a new value in the rule application
      * list is selected.
@@ -124,7 +121,7 @@ public class InteractiveRuleApplicationComponent extends
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
-            proofCenter.fireSelectedRuleApplication(ruleApp);
+            proofCenter.firePropertyChange(ProofCenter.SELECTED_RULEAPPLICATION, ruleApp);
         }
     }
     
@@ -168,6 +165,7 @@ public class InteractiveRuleApplicationComponent extends
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
                 } else {
+                    System.err.println("We do not have a component to feed back to ...");
                     // TODO give feedback somewhere else
                 }
             }
@@ -175,13 +173,27 @@ public class InteractiveRuleApplicationComponent extends
     }
     
     private String htmlize(String message) {
-        message = message.replace("&", "&amp;");
-        message = message.replace("<", "&lt;");
-        message = message.replace("\n", "<br>");
+        message = GUIUtil.htmlentities(message).replace("\n", "<br>");
         return "<html><pre>" + message + "</pre>";
     }
     
-    @Override protected void setInstantiations(RuleApplication app) {
+    /*
+     * Super class reacts only to proof node selections, we react to 
+     * rule application selection also. 
+     */
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        super.propertyChange(evt);
+        
+        if(ProofCenter.SELECTED_RULEAPPLICATION.equals(evt.getPropertyName())) {
+            RuleApplication ruleApp = (RuleApplication) evt.getNewValue();
+            this.setRuleApplication(ruleApp);
+            invalidate();
+        }
+    }
+    
+    @Override 
+    protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
         
         for(Map.Entry<String, String> entry : app.getProperties().entrySet()) {
@@ -228,7 +240,8 @@ class InteractiveRuleApplicationPopup extends JWindow {
         super(proofCenter.getMainWindow());
         
         RuleApplicationComponent rac = new InteractiveRuleApplicationComponent(proofCenter, ruleApps);
-        proofCenter.addProofNodeSelectionListener(rac);
+        proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, rac);
+        proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, rac);
         
         JScrollPane sp = new JScrollPane(rac);
         

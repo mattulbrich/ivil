@@ -302,7 +302,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         
         // no update while in automatic proof
         // this is done by the call with arg==null after the run.
-        if((Boolean)proofCenter.getProperty(ProofCenter.PROPERTY_ONGOING_PROOF) == false) {
+        if((Boolean)proofCenter.getProperty(ProofCenter.ONGOING_PROOF) == false) {
             SwingUtilities.invokeLater(treeUpdateRunnable);
         }
     }

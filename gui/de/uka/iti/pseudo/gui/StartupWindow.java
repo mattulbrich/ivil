@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 
 import de.uka.iti.pseudo.gui.bar.BarAction;
 import de.uka.iti.pseudo.gui.bar.BarManager;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 public class StartupWindow extends JFrame {
@@ -35,6 +36,6 @@ public class StartupWindow extends JFrame {
     }
     
     private Icon makeImage() {
-        return BarManager.makeIcon(getClass().getResource("img/logo.png"));
+        return GUIUtil.makeIcon(getClass().getResource("img/logo.png"));
     }
 }

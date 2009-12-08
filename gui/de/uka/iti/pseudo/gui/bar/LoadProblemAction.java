@@ -15,6 +15,7 @@ import javax.swing.KeyStroke;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This is the action to load a problem file.
@@ -25,14 +26,14 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 public class LoadProblemAction extends BarAction implements PropertyChangeListener {
 
     public LoadProblemAction() {
-        super("Load problem ...", BarManager.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
+        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
         putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

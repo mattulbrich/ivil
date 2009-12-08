@@ -20,9 +20,9 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO: Auto-generated Javadoc
 // TODO Documentation needed
@@ -37,7 +37,7 @@ public class CloseAction extends BarAction
     implements WindowListener, PropertyChangeListener {
 
     public CloseAction() {
-        super("Close", BarManager.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
+        super("Close", GUIUtil.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
         putValue(ACTION_COMMAND_KEY, "close");
         putValue(SHORT_DESCRIPTION, "closes the current window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
@@ -47,7 +47,7 @@ public class CloseAction extends BarAction
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if(proofCenter != null)
-            proofCenter.addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+            proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

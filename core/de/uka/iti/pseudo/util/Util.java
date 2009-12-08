@@ -31,28 +31,6 @@ import de.uka.iti.pseudo.term.Term;
  */
 public class Util {
 
-    /**
-     * An icon which can be used instead an image if the image cannot be loaded.
-     * <p>When drawn it shows the string "??".
-     */
-    public static final Icon UNKNOWN_ICON = new Icon() {
-
-        public int getIconHeight() {
-            return 16;
-        }
-
-        public int getIconWidth() {
-            return 16;
-        }
-
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-            g.setColor(Color.red);
-            g.drawString("??", x, y + 16);
-        }
-
-    };
-
-	
 	/**
      * join a list of objects into a string, separated by ", "
      * 

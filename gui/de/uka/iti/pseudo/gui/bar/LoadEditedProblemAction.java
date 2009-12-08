@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This is the action to load a problem file.
@@ -22,7 +23,7 @@ public class LoadEditedProblemAction extends BarAction {
     private JFileChooser fileChooser;
 
     public LoadEditedProblemAction() {
-        super("Load problem ...", BarManager.makeIcon(LoadEditedProblemAction.class.getResource("img/link_go.png")));
+        super("Load problem ...", GUIUtil.makeIcon(LoadEditedProblemAction.class.getResource("img/link_go.png")));
         putValue(ACTION_COMMAND_KEY, "loadEditedProb");
         putValue(SHORT_DESCRIPTION, "open the currently edited problem in a new prover window");
     }

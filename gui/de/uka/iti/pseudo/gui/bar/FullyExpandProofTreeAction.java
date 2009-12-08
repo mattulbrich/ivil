@@ -6,13 +6,14 @@ import javax.swing.Icon;
 import javax.swing.tree.TreeModel;
 
 import de.uka.iti.pseudo.gui.ProofComponent;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 
 @SuppressWarnings("serial") 
 public class FullyExpandProofTreeAction extends BarAction {
     
     private static Icon plusIcon = 
-        BarManager.makeIcon(AutoProofAction.class.getResource("img/bullet_toggle_2plus.png"));
+        GUIUtil.makeIcon(AutoProofAction.class.getResource("img/bullet_toggle_2plus.png"));
     
     public FullyExpandProofTreeAction() {
         super("Fully expand the proof tree", plusIcon);

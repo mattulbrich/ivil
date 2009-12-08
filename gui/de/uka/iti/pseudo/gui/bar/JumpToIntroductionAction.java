@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.meta.SkolemMetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * GUI Action to jump to the node which introduces a symbol.
@@ -47,7 +48,7 @@ public class JumpToIntroductionAction
 
     public JumpToIntroductionAction() {
         putValue(NAME, "Jump to introduction");
-        putValue(SMALL_ICON, BarManager.makeIcon(JumpToIntroductionAction.class.getResource("img/arrow_up.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(JumpToIntroductionAction.class.getResource("img/arrow_up.png")));
         putValue(SHORT_DESCRIPTION, "Jump to the introcution of this symbol.");
     }
 
@@ -72,7 +73,7 @@ public class JumpToIntroductionAction
         
         TermTag selectedTermTag = (TermTag) evt.getNewValue();
         boolean inAuto = Boolean.TRUE.equals(
-                getProofCenter().getProperty(ProofCenter.PROPERTY_ONGOING_PROOF));
+                getProofCenter().getProperty(ProofCenter.ONGOING_PROOF));
         
         String skolemName = extractSkolemName(selectedTermTag);
         if(skolemName == null) {

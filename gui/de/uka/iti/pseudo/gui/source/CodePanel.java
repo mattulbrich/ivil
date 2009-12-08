@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +17,6 @@ import javax.swing.JScrollPane;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.ProofNodeSelectionListener;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
@@ -24,7 +25,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
-public abstract class CodePanel extends JPanel implements ProofNodeSelectionListener {
+public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
@@ -39,7 +40,6 @@ public abstract class CodePanel extends JPanel implements ProofNodeSelectionList
             foundProgramTerms.add(progTerm);
         }
     };
-    
     
     public CodePanel(ProofCenter proofCenter, boolean showLinenumbers, 
             Color foregroundColor) throws IOException {
@@ -78,7 +78,16 @@ public abstract class CodePanel extends JPanel implements ProofNodeSelectionList
         sourceComponent.setBreakPointResource(displayedResource);
     }
     
-    public void proofNodeSelected(ProofNode node) {
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            ProofNode node = (ProofNode) evt.getNewValue();
+            proofNodeSelected(node);
+        }
+        
+    }
+    
+    private void proofNodeSelected(ProofNode node) {
         int now = proofCenter.getEnvironment().getAllPrograms().size();
         if(now != numberOfKnownPrograms) {
             selectionBox.setModel(getAllResources());
@@ -114,11 +123,6 @@ public abstract class CodePanel extends JPanel implements ProofNodeSelectionList
             throw new Error(e);
         }
 
-    }
-
-
-    public void ruleApplicationSelected(RuleApplication ruleApplication) {
-        // do nothing
     }
 
     abstract protected String makeContent(Object reference);

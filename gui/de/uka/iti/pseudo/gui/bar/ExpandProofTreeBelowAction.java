@@ -5,12 +5,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.Icon;
 
 import de.uka.iti.pseudo.gui.ProofComponent;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 @SuppressWarnings("serial") 
 public class ExpandProofTreeBelowAction extends BarAction {
     
     private static Icon plusIcon = 
-        BarManager.makeIcon(AutoProofAction.class.getResource("img/bullet_toggle_plus.png"));
+        GUIUtil.makeIcon(AutoProofAction.class.getResource("img/bullet_toggle_plus.png"));
     
     public ExpandProofTreeBelowAction() {
         super("Expand the proof tree below", plusIcon);

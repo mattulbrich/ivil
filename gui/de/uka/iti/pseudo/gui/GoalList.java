@@ -1,6 +1,8 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -16,12 +18,10 @@ import javax.swing.event.ListDataListener;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.TermSelector;
 
 //TODO DOC
 
-public class GoalList extends JList implements ProofNodeSelectionListener {
+public class GoalList extends JList implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4802864505685652999L;
     private Proof proof;
@@ -94,10 +94,14 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         }
         
     }
-
-    public void proofNodeSelected(ProofNode node) {
-        clearSelection();
-        setSelectedValue(node, true);
+    
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            ProofNode node = (ProofNode) evt.getNewValue();
+            clearSelection();
+            setSelectedValue(node, true);
+        }
     }
 
     /* we are sure we only have proofnodes */
@@ -105,13 +109,4 @@ public class GoalList extends JList implements ProofNodeSelectionListener {
         ProofNode selectedValue = (ProofNode) getSelectedValue();
         return selectedValue;
     }
-
-    public void ruleApplicationSelected(RuleApplication ruleApplication) {
-        // the goal list does not bother about ruleApplications
-    }
-
-//    protected ProofCenter getProofCenter() {
-//        return null;
-//    }
-
 }

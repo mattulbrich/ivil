@@ -19,16 +19,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
 
-import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Util;
 
+@SuppressWarnings("serial") 
 public class StrategyListComponent extends JPanel implements PropertyChangeListener {
 
-    private static final Icon ADD = BarManager.makeIcon(StrategyListComponent.class.getResource("add.png"));
-    private static final Icon ARROW_DOWN = BarManager.makeIcon(StrategyListComponent.class.getResource("arrow_down.png"));
-    private static final Icon ARROW_UP = BarManager.makeIcon(StrategyListComponent.class.getResource("arrow_up.png"));
-    private static final Icon DELETE = BarManager.makeIcon(StrategyListComponent.class.getResource("delete.png"));
+    private static final Icon ADD = GUIUtil.makeIcon(StrategyListComponent.class.getResource("add.png"));
+    private static final Icon ARROW_DOWN = GUIUtil.makeIcon(StrategyListComponent.class.getResource("arrow_down.png"));
+    private static final Icon ARROW_UP = GUIUtil.makeIcon(StrategyListComponent.class.getResource("arrow_up.png"));
+    private static final Icon DELETE = GUIUtil.makeIcon(StrategyListComponent.class.getResource("delete.png"));
     private CompoundStrategy compoundStrategy;
     
     public StrategyListComponent() {

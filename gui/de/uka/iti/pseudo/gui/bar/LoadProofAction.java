@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 
@@ -32,7 +33,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
     private ProofImport proofImport = new ProofXML();
 
     public LoadProofAction() {
-        super("Load proof ...", BarManager.makeIcon(LoadProofAction.class
+        super("Load proof ...", GUIUtil.makeIcon(LoadProofAction.class
                 .getResource("img/page.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(SHORT_DESCRIPTION,
@@ -40,7 +41,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
     }
 
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

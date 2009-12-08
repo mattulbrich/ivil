@@ -8,6 +8,7 @@ import java.io.File;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -15,7 +16,7 @@ public class SaveEditorAction extends SaveAsEditorAction {
     
     public SaveEditorAction() {
         putValue(NAME, "Save");
-        putValue(SMALL_ICON, BarManager.makeIcon(SaveEditorAction.class.getResource("img/disk.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(SaveEditorAction.class.getResource("img/disk.png")));
         putValue(ACTION_COMMAND_KEY, "save");
         putValue(SHORT_DESCRIPTION, "save the currently edited file");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));

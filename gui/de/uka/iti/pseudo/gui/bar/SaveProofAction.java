@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.gui.bar.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This action is used to save a proof to a file. A dialog window pops up and
@@ -42,7 +43,7 @@ public class SaveProofAction extends BarAction
     implements PropertyChangeListener, InitialisingAction {
     
     public SaveProofAction() {
-        super("Save proof ...", BarManager.makeIcon(SaveProofAction.class.getResource("img/page_save.png")));
+        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("img/page_save.png")));
         putValue(ACTION_COMMAND_KEY, "saveProb");
         putValue(SHORT_DESCRIPTION, "save a proof to the currently active problem");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
@@ -52,7 +53,7 @@ public class SaveProofAction extends BarAction
      * Add myself as a listener to IN_PROOF messages. 
      */
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     /*

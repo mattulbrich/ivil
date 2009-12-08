@@ -7,18 +7,19 @@ import java.beans.PropertyChangeListener;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
 public class PruneAction extends BarAction implements PropertyChangeListener {
     
     public PruneAction() {
-        super("Prune", BarManager.makeIcon(PruneAction.class.getResource("img/cut.png")));
+        super("Prune", GUIUtil.makeIcon(PruneAction.class.getResource("img/cut.png")));
         putValue(SHORT_DESCRIPTION, "Cut the current proof at the selected node");
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void actionPerformed(ActionEvent e) {

@@ -128,15 +128,20 @@ public class MainWindow extends JFrame {
             scroll.getViewport().setBackground(sequentComponent.getBackground());
             Dockable dock = new DefaultDockable("sequentview", scroll, "Sequent");
             rightTabDock.addDockable(dock, new Position(0));
-            proofCenter.addProofNodeSelectionListener(sequentComponent);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, sequentComponent);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, sequentComponent);
         }
         {
             goalList = new GoalList(proofCenter.getProof(), proofCenter.getEnvironment());
-            proofCenter.addProofNodeSelectionListener(goalList);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, goalList);
             goalList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
-                    if(!e.getValueIsAdjusting())
-                        proofCenter.fireSelectedProofNode(goalList.getSelectedProofNode());
+                    if(!e.getValueIsAdjusting()) {
+                        ProofNode proofNode = goalList.getSelectedProofNode();
+                        if(proofNode != null) {
+                            proofCenter.fireSelectedProofNode(proofNode);
+                        }
+                    }
                 }});
             JScrollPane scroll = new JScrollPane(goalList);
             Dockable dock = new DefaultDockable("goallist", scroll, "Goal list");
@@ -144,7 +149,7 @@ public class MainWindow extends JFrame {
         }
         {
             proofComponent = new ProofComponent(proofCenter);
-            proofCenter.addProofNodeSelectionListener(proofComponent);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, proofComponent);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
                     ProofNode selectedProofNode = proofComponent.getSelectedProofNode();
@@ -158,22 +163,20 @@ public class MainWindow extends JFrame {
         }
         {
             ruleApplicationComponent = new RuleApplicationComponent(proofCenter);
-            proofCenter.addProofNodeSelectionListener(ruleApplicationComponent);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, ruleApplicationComponent);
             JScrollPane scroll = new JScrollPane(ruleApplicationComponent);
             Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");
             leftTabDock.addDockable(dock, new Position(2));
         }
         {
             ProgramPanel panel = new ProgramPanel(proofCenter);
-            proofCenter.addProofNodeSelectionListener(panel);
-            //JScrollPane scroll = new JScrollPane(panel);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("program", panel, "Program");
             bottomTabDock.addDockable(dock, new Position(0));
         }
         {
             SourcePanel panel = new SourcePanel(proofCenter);
-            proofCenter.addProofNodeSelectionListener(panel);
-            //JScrollPane scroll = new JScrollPane(panel);
+            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("source", panel, "Sources");
             bottomTabDock.addDockable(dock, new Position(1));
         }

@@ -14,14 +14,15 @@ import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
 public class AutoProofAction extends BarAction 
     implements Runnable, PropertyChangeListener, InitialisingAction {
 
-    private static Icon goIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
-    private static Icon stopIcon = BarManager.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
+    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
+    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     
     private Thread thread = null;
     private boolean shouldStop;
@@ -32,7 +33,7 @@ public class AutoProofAction extends BarAction
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -41,7 +42,7 @@ public class AutoProofAction extends BarAction
         
         if(thread == null) {
             thread = new Thread(this, "Autoproving");
-            getProofCenter().firePropertyChange(ProofCenter.PROPERTY_ONGOING_PROOF, true);
+            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
             shouldStop = false;
             thread.start();
         } else {
@@ -94,7 +95,7 @@ public class AutoProofAction extends BarAction
             strategy.endSearch();
             thread = null;
             proof.getLock().unlock();
-            getProofCenter().firePropertyChange(ProofCenter.PROPERTY_ONGOING_PROOF, false);
+            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             // some listeners are switched off, they might want to update now.
             proof.notifyObservers();
         }

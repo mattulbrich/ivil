@@ -1,6 +1,15 @@
 package de.uka.iti.pseudo.util;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.net.URL;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 public class GUIUtil {
 
@@ -36,5 +45,53 @@ public class GUIUtil {
         message = message.replace("\"", "&quot;");
         return message;
     }
+    
+    /**
+     * An icon which can be used instead an image if the image cannot be loaded.
+     * <p>When drawn it shows the string "??".
+     */
+    public static final Icon UNKNOWN_ICON = new Icon() {
+
+        public int getIconHeight() {
+            return 16;
+        }
+
+        public int getIconWidth() {
+            return 16;
+        }
+
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            g.setColor(Color.red);
+            g.drawString("??", x, y + 16);
+        }
+
+    };
+
+    
+    /**
+     * Convenience method to create an icon.
+     * 
+     * If the argument is null or the resource cannot be loaded, a bogus icon is
+     * returned.
+     * 
+     * @param resource
+     *                the resource to load from
+     * 
+     * @return a freshly created icon
+     */
+    public static @NonNull Icon makeIcon(@Nullable URL resource) {
+        try {
+            if (resource != null)
+                return new ImageIcon(resource);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.err.println("Cannot load icon " + resource
+                + ", continuing anyway ...");
+        return UNKNOWN_ICON;
+    }
+    
+    
 
 }

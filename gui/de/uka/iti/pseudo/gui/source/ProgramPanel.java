@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.gui.source;
 
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;

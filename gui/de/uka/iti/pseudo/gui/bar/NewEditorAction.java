@@ -17,6 +17,7 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 
 /**
@@ -28,7 +29,7 @@ public class NewEditorAction extends BarAction {
 
     public NewEditorAction() {
         putValue(NAME, "New");
-        putValue(SMALL_ICON, BarManager.makeIcon(NewEditorAction.class.getResource("img/page_white_text_new.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(NewEditorAction.class.getResource("img/page_white_text_new.png")));
         putValue(ACTION_COMMAND_KEY, "new");
         putValue(SHORT_DESCRIPTION, "Create and edit a new problem file");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));

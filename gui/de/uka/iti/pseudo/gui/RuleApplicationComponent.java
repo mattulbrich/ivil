@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,8 @@ import de.uka.iti.pseudo.util.Triple;
 
 // TODO DOC
 
-public class RuleApplicationComponent extends JPanel implements ProofNodeSelectionListener {
+@SuppressWarnings("serial") 
+public class RuleApplicationComponent extends JPanel implements PropertyChangeListener {
     
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
@@ -84,11 +87,6 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         }
     }
 
-    public void ruleApplicationSelected(RuleApplication ruleApp) {
-        // do nothing ...
-        // the interactive subclass does however react to this
-    }
-    
     private void displayRuleApp(RuleApplication app) {
         if(app == null) {
             ruleText.setText("");
@@ -123,10 +121,18 @@ public class RuleApplicationComponent extends JPanel implements ProofNodeSelecti
         PrettyPrint pp = proofCenter.getPrettyPrinter();
         ruleText.setText(pp.print(rule));
     }
-
-    public void proofNodeSelected(ProofNode node) {
-        RuleApplication ruleApp = node.getAppliedRuleApp();
-        setRuleApplication(ruleApp);
+    
+    /*
+     * This class only reacts to "select proof node" events. The interactive
+     * subclass also reacts to rule application setting.
+     */  
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            ProofNode node = (ProofNode) evt.getNewValue();
+            RuleApplication ruleApp = node.getAppliedRuleApp();
+            setRuleApplication(ruleApp);
+        }
     }
 
     protected void setRuleApplication(RuleApplication ruleApplication) {

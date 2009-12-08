@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -33,7 +34,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * 
  * @see ProofComponentModel
  */
-public class ProofComponent extends JTree implements ProofNodeSelectionListener {
+public class ProofComponent extends JTree implements PropertyChangeListener {
 
     private static final long serialVersionUID = 6352175425195393727L;
 
@@ -125,10 +126,7 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
 
     private static Icon mkIcon(String string) {
         URL resource = ProofComponent.class.getResource(string);
-        if (resource != null)
-            return new ImageIcon(resource);
-        else
-            return Util.UNKNOWN_ICON;
+        return GUIUtil.makeIcon(resource);
     }
     
     /**
@@ -145,21 +143,13 @@ public class ProofComponent extends JTree implements ProofNodeSelectionListener 
             return null;
     }
     
-    /*
-     * methods from the ProofNodeSelectionListener interface
-     */
-    public void proofNodeSelected(ProofNode node) {
-        setSelectionPath(proofModel.getPath(node));
-        repaint();
-    }
-
-    public void ruleApplicationSelected(RuleApplication ruleApplication) {
-        // we do not care about rule applications.
-    }
-
-
-    protected ProofCenter getProofCenter() {
-        return null;
+    @Override 
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            ProofNode node = (ProofNode) evt.getNewValue();
+            setSelectionPath(proofModel.getPath(node));
+            repaint();
+        }
     }
 
 }

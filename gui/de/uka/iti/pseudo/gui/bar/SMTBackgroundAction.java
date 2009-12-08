@@ -41,6 +41,7 @@ import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.where.AskDecisionProcedure;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Pair;
 
 
@@ -140,8 +141,8 @@ public final class SMTBackgroundAction extends BarAction implements
         thread.start();
         
         // make images and set the non-flashing one
-        noflashImg = BarManager.makeIcon(getClass().getResource("img/smt.gif"));
-        flashImg = BarManager.makeIcon(getClass().getResource("img/smt_flash.gif"));
+        noflashImg = GUIUtil.makeIcon(getClass().getResource("img/smt.gif"));
+        flashImg = GUIUtil.makeIcon(getClass().getResource("img/smt_flash.gif"));
         setFlashing(false);
         
         // we will set us enabled after initialisation
@@ -159,7 +160,7 @@ public final class SMTBackgroundAction extends BarAction implements
         proof.addObserver(this);
         env = proofCenter.getEnvironment();
         
-        proofCenter.addPropertyChangeListener(ProofCenter.PROPERTY_ONGOING_PROOF, this);
+        proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
         
         proofCenter.addPropertyChangeListener(SMT_BACKGROUND_PROPERTY, this);
         setBackgroundActive((Boolean)proofCenter.getProperty(SMT_BACKGROUND_PROPERTY));
@@ -226,7 +227,7 @@ public final class SMTBackgroundAction extends BarAction implements
      * according to the settings, activate or deactivate the background thread
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        if(ProofCenter.PROPERTY_ONGOING_PROOF.equals(evt.getPropertyName())) {
+        if(ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             setEnabled(!(Boolean)evt.getNewValue() && solver != null);
         } else 
             
@@ -261,7 +262,7 @@ public final class SMTBackgroundAction extends BarAction implements
     public void update(Observable o, Object arg) {
         
         // no update while in automatic proof
-        if((Boolean)getProofCenter().getProperty(ProofCenter.PROPERTY_ONGOING_PROOF)) {
+        if((Boolean)getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)) {
             return;
         }
         

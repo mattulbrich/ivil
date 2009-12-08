@@ -36,7 +36,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 // TODO DOC
 
 public class SequentComponent extends JPanel implements
-        ProofNodeSelectionListener, PropertyChangeListener, Scrollable {
+        PropertyChangeListener, Scrollable {
 
     private static final long serialVersionUID = -3882151273674917147L;
 
@@ -171,18 +171,7 @@ public class SequentComponent extends JPanel implements
         
     }
     
-//    @Override public void scrollRectToVisible(Rectangle rect) {
-//        // We deliberately ignore scrolls which are initiated by the term components
-//        // inside (or rather their carets)
-//    }
     
-    public void proofNodeSelected(ProofNode node) {
-        
-        setProofNode(node, node.getChildren() == null);
-        RuleApplication ruleApp = node.getAppliedRuleApp();
-        if(ruleApp != null)
-            ruleApplicationSelected(ruleApp);
-    }
 
     public void markTerm(TermSelector selector, int type) {
         
@@ -203,7 +192,7 @@ public class SequentComponent extends JPanel implements
         termComp.markSubterm(selector.getSubtermSelector(), type);
     }
 
-    public void ruleApplicationSelected(RuleApplication ruleApplication) {
+    private void ruleApplicationSelected(RuleApplication ruleApplication) {
         //
         // clear all previous markings on the term components
         for (int i = 0; i < getComponentCount(); i++) {
@@ -225,11 +214,22 @@ public class SequentComponent extends JPanel implements
             markTerm(sel, 1);
         }
     }
-
+    
     public void propertyChange(PropertyChangeEvent evt) {
-        // property on the pretty printer has changed --> remake the term components
-        if(proofNode != null && !evt.getPropertyName().equals(PrettyPrint.INITIALSTYLE_PROPERTY))
+        if(evt.getSource() == prettyPrinter) {
             setProofNode(proofNode, open);
+            
+        } else if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            ProofNode node = (ProofNode) evt.getNewValue();
+            setProofNode(node, node.getChildren() == null);
+            RuleApplication ruleApp = node.getAppliedRuleApp();
+            if(ruleApp != null)
+                ruleApplicationSelected(ruleApp);
+            
+        } else if(ProofCenter.SELECTED_RULEAPPLICATION.equals(evt.getPropertyName())) {
+            RuleApplication ruleApp = (RuleApplication) evt.getNewValue();
+            ruleApplicationSelected(ruleApp);
+        }
     }
     
     protected ProofCenter getProofCenter() {

@@ -39,6 +39,7 @@ import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
+import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -63,7 +64,7 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
     private static final Color HIGHLIGHT_COLOR = 
         SETTINGS.getColor("pseudo.program.highlightcolor", Color.ORANGE);
     
-    private static final Icon BULLET_ICON = BarManager.makeIcon(
+    private static final Icon BULLET_ICON = GUIUtil.makeIcon(
             BulletBorder.class.getResource("/de/uka/iti/pseudo/gui/img/bullet_blue.png"));
     private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);
     

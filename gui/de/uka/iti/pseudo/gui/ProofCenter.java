@@ -14,11 +14,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
@@ -63,7 +60,14 @@ import de.uka.iti.pseudo.term.Sequent;
  */
 public class ProofCenter {
     
-    public static final String PROPERTY_ONGOING_PROOF = "pseudo.ongoing_proof";
+    /**
+     * 
+     */
+    public static final String ONGOING_PROOF = "pseudo.ongoing_proof";
+    
+    public static final String SELECTED_PROOFNODE = "pseudo.selectedProofNode";
+    
+    public static final String SELECTED_RULEAPPLICATION = "pseudo.selectedRuleApplication";
     
     /**
      * The main window.
@@ -93,20 +97,15 @@ public class ProofCenter {
     private List<Rule> rulesSortedForInteraction;
     
     /**
-     * the list of registered {@link ProofNodeSelectionListener}.
-     */
-    private List<ProofNodeSelectionListener> listeners = new LinkedList<ProofNodeSelectionListener>();
-    
-    /**
      * for synchronisation: Is this center currently firing a message? 
      * If so, do not start another firing.
      */
-    private boolean isFiring = false;
+//    private boolean isFiring = false;
     
     /**
      * The currently selected proof node.
      */
-    private ProofNode currentProofNode;
+//    private ProofNode currentProofNode;
 
     /**
      * the system pretty printer used by components, 
@@ -152,7 +151,7 @@ public class ProofCenter {
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
 
-        firePropertyChange(PROPERTY_ONGOING_PROOF, false);
+        firePropertyChange(ONGOING_PROOF, false);
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
@@ -207,24 +206,24 @@ public class ProofCenter {
         return mainWindow;
     }
     
-    /**
-     * Registers a proof node selection listener.
-     * 
-     * @param l the listener
-     */
-    public void addProofNodeSelectionListener(ProofNodeSelectionListener l) {
-        listeners.add(l);
-    }
-    
-    /**
-     * Unregisters a proof node selection listener.
-     * 
-     * @param l the listener
-     */
-    public void removeProofNodeSelectionListener(ProofNodeSelectionListener l) {
-        listeners.remove(l);
-    }
-    
+//    /**
+//     * Registers a proof node selection listener.
+//     * 
+//     * @param l the listener
+//     */
+//    public void addProofNodeSelectionListener(ProofNodeSelectionListener l) {
+//        listeners.add(l);
+//    }
+//    
+//    /**
+//     * Unregisters a proof node selection listener.
+//     * 
+//     * @param l the listener
+//     */
+//    public void removeProofNodeSelectionListener(ProofNodeSelectionListener l) {
+//        listeners.remove(l);
+//    }
+//    
     /**
      * Indicate that a proof node has been selected.
      * 
@@ -238,47 +237,36 @@ public class ProofCenter {
      * @param node
      *            the node to be selected
      */
-    public void fireSelectedProofNode(final ProofNode node) {
-        if(!isFiring) {
-            isFiring = true;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    for (ProofNodeSelectionListener l : listeners) {
-                        l.proofNodeSelected(node);
-                    }
-                    currentProofNode = node;
-                    isFiring = false;
-                }
-            });
-        }
+    public void fireSelectedProofNode(@NonNull ProofNode node) {
+        firePropertyChange(SELECTED_PROOFNODE, node);
     }
-    
-    /**
-     * Indicate that a rule application has been selected.
-     * 
-     * All registered proof node selection listeners are informed of this
-     * selection. The notification is ensured to be run on the swing event queue
-     * thread. It may or may not have already been executed when this method
-     * returns.
-     * 
-     * @see ProofNodeSelectionListener#ruleApplicationSelected(RuleApplication)
-     * 
-     * @param ruleApplication
-     *            the rule application to be selected
-     */
-    public void fireSelectedRuleApplication(final RuleApplication ruleApplication) {
-        if(!isFiring) {
-            isFiring = true;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    for (ProofNodeSelectionListener l : listeners) {
-                        l.ruleApplicationSelected(ruleApplication);
-                    }
-                    isFiring = false;
-                }
-            });
-        }
-    }
+//    
+//    /**
+//     * Indicate that a rule application has been selected.
+//     * 
+//     * All registered proof node selection listeners are informed of this
+//     * selection. The notification is ensured to be run on the swing event queue
+//     * thread. It may or may not have already been executed when this method
+//     * returns.
+//     * 
+//     * @see ProofNodeSelectionListener#ruleApplicationSelected(RuleApplication)
+//     * 
+//     * @param ruleApplication
+//     *            the rule application to be selected
+//     */
+//    public void fireSelectedRuleApplication(final RuleApplication ruleApplication) {
+//        if(!isFiring) {
+//            isFiring = true;
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
+//                    for (ProofNodeSelectionListener l : listeners) {
+//                        l.ruleApplicationSelected(ruleApplication);
+//                    }
+//                    isFiring = false;
+//                }
+//            });
+//        }
+//    }
     
     /**
      * Gets the List of possible rule applications for a term within the
@@ -298,7 +286,7 @@ public class ProofCenter {
     public @NonNull List<RuleApplication> getApplicableRules(
             @NonNull TermSelector termSelector) throws ProofException {
 
-        int goalNo = proof.getOpenGoals().indexOf(currentProofNode);
+        int goalNo = proof.getOpenGoals().indexOf(getCurrentProofNode());
         if (goalNo == -1) {
             // current sequent is not a goal.
             return Collections.emptyList();
@@ -387,7 +375,8 @@ public class ProofCenter {
      * @return the currently selected proof node
      */
     public ProofNode getCurrentProofNode() {
-        return currentProofNode;
+        Object currentPN = getProperty(SELECTED_PROOFNODE);
+        return (currentPN instanceof ProofNode) ? (ProofNode)currentPN : null;   
     }
 
     /**
