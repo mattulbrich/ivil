@@ -5,6 +5,7 @@ package de.uka.iti.pseudo.util;
  *
  * @see CommandLine
  */
+@SuppressWarnings("serial") 
 public class CommandLineException extends Exception {
 
     public CommandLineException() {
