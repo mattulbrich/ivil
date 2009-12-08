@@ -1,3 +1,11 @@
+/*
+ * This file is part of PSEUDO
+ * Copyright (C) 2009 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT for details.
+ */
 package de.uka.iti.pseudo.gui.bar;
 
 import java.awt.event.ActionEvent;
@@ -8,10 +16,13 @@ import java.io.IOException;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
-//TODO Documentation needed
+
+/**
+ * GUI Action open a new editor with an empty document.
+ */
+
 @SuppressWarnings("serial") 
 public class NewEditorAction extends BarAction {
 

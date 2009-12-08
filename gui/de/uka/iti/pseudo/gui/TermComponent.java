@@ -39,7 +39,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -56,7 +55,6 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
-import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
@@ -66,6 +64,9 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * The Class TermComponent is used to show terms, it allows highlighting.
  */
 public class TermComponent extends JTextPane {
+
+    public static final String TERM_COMPONENT_SELECTED_TAG =
+        "termComponent.popup.selectedTermTag";
 
     private static Settings S = Settings.getInstance();
     
@@ -131,25 +132,36 @@ public class TermComponent extends JTextPane {
     private TermSelector termSelector;
 
     /**
-     * The environment in which term lives
+     * The proofCenter to which this term belongs
      */
-    private Environment env;
+    private ProofCenter proofCenter;
 
     /**
-     * The annotated string containing the pretty printed term
+     * The annotated string containing the pretty printed term.
      */
     private AnnotatedStringWithStyles<TermTag> annotatedString;
 
     /**
-     * The highlight object as returned by the highlighter
+     * The highlight object as returned by the highlighter.
+     * Used to highlight the mouse-selected subterm.
      */
     private Object theHighlight;
 
-    // TODO DOC
+    /**
+     * the collection of highlighting objects. Used to mark find and assume
+     * instances.
+     */
     private List<Object> marks = new ArrayList<Object>();
 
+    /**
+     * true if the currently presented proof node to which the component belongs
+     * is open. It is used for creating the styles. Closed nodes are italic.
+     */
     private boolean open;
 
+    /**
+     * The history for the presented term
+     */
     private @NonNull Annotation history;
 
     /**
@@ -157,9 +169,8 @@ public class TermComponent extends JTextPane {
      */
     private PrettyPrint prettyPrinter;
 
+    // not needed in the future
     private int verbosityLevel;
-
-    private ProofCenter proofCenter;
     
     /**
      * the popup menu to do things locally
@@ -173,8 +184,8 @@ public class TermComponent extends JTextPane {
         }
 
         @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            proofCenter.firePropertyChange("termComponent.popup.selectedTerm", 
-                    Pair.make(term, mouseSelection));
+            proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, 
+                    mouseSelection);
             System.out.println(mouseSelection);
         }
     };
@@ -197,7 +208,6 @@ public class TermComponent extends JTextPane {
      */
     public TermComponent(@NonNull Term t, Annotation history, boolean open,
             @NonNull ProofCenter proofCenter, @NonNull TermSelector termSelector)  {
-        this.env = proofCenter.getEnvironment();
         this.term = t;
         this.history = history;
         this.termSelector = termSelector;
@@ -260,8 +270,17 @@ public class TermComponent extends JTextPane {
         }
     }
 
-    private static Map<String, AttributeSet> attributeCache = new HashMap<String, AttributeSet>();
-    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory = new AnnotatedStringWithStyles.AttributeSetFactory() {
+    /*
+     * store created attribute sets in a cache.
+     */
+    private static Map<String, AttributeSet> attributeCache = 
+        new HashMap<String, AttributeSet>();
+    
+    /*
+     * This is used by AnnotatedStringWithStyles to construct styles. 
+     */
+    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory = 
+        new AnnotatedStringWithStyles.AttributeSetFactory() {
         public AttributeSet makeStyle(String descr) {
 
             if (!open)

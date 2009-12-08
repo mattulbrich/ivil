@@ -25,7 +25,7 @@ import de.uka.iti.pseudo.term.Variable;
 // TODO Documentation needed
 public class SkolemMetaFunction extends MetaFunction {
     
-    private static final String SKOLEM_NAME_PROPERTY = "skolemName";
+    public static final String SKOLEM_NAME_PROPERTY = "skolemName";
     
     public static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
         public String getLocation() { return "SKOLEMISED"; }};
