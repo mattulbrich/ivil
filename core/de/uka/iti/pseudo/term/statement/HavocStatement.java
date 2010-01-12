@@ -6,8 +6,29 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
+/**
+ * Captures a <code>havoc</code> statement whose semantics is to set a variable
+ * to an arbitrary value.
+ * 
+ * <p>
+ * A <tt>havoc</tt> statement takes exactly one argument which must be an
+ * assignable or in the context of a rule, a schema variable (later to be
+ * instantiated by an assignable).
+ */
 public class HavocStatement extends Statement {
-    
+
+    /**
+     * Instantiates a new havoc statement.
+     * 
+     * @param sourceLineNumber
+     *            the source line number
+     * @param parameter
+     *            the assignable function to havoc
+     * 
+     * @throws TermException
+     *             thrown if {@code parameter} is neither assignable nor a
+     *             schema variable.
+     */
     public HavocStatement(int sourceLineNumber, Term parameter) throws TermException {
         super(sourceLineNumber, parameter);
         
@@ -17,15 +38,14 @@ public class HavocStatement extends Statement {
                 if(!f.isAssignable())
                     throw new TermException("can havoc only an assignable function: " + parameter);
             } else {
-                throw new TermException("can havoc only an assignables or schema variables: " + parameter);   
+                throw new TermException("can havoc only assignables or schema variables: " + parameter);   
             }
         }
         
     }
 
     public String toString(boolean typed) {
-        return 
-            "havoc " + getSubterms().get(0).toString(typed);
+        return "havoc " + getSubterms().get(0).toString(typed);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {

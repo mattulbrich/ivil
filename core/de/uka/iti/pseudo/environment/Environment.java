@@ -398,7 +398,7 @@ public class Environment {
         try {
             return new TypeApplication(BUILT_IN_ENV.getSort("int"));
         } catch (TermException e) {
-            // "int" is presend since builtin
+            // "int" is present since builtin
             throw new Error(e);
         }
     }

@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.TestProgramTerm;
+import de.uka.iti.pseudo.term.TestStatements;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
@@ -57,6 +58,7 @@ public class AllTests {
         suite.addTestSuite(TestTermUnification.class);
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
+        suite.addTestSuite(TestStatements.class);
         suite.addTestSuite(TestProofNode.class);
         suite.addTestSuite(TestRule.class);
         suite.addTestSuite(TestGoalAction.class);

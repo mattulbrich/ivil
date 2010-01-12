@@ -8,9 +8,6 @@
  */
 package de.uka.iti.pseudo.util;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,8 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
 
-import javax.swing.Icon;
-
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Term;
 
@@ -32,7 +28,7 @@ import de.uka.iti.pseudo.term.Term;
 public class Util {
 
 	/**
-     * join a list of objects into a string, separated by ", "
+     * Join a list of objects into a string, separated by ", "
      * 
      * @param list
      *            some list
@@ -42,6 +38,29 @@ public class Util {
 	public static String commatize(@NonNull List<?> list) {
 	    return join(list, ", ");
 	}
+
+    /**
+     * Join a list of terms into a string, separated by ", ".
+     * 
+     * Use the method {@link Term#toString(boolean)} to print terms.
+     * 
+     * @param list
+     *            a list of terms
+     * @param typed
+     *            a flag to decide whether types are to be printed or not.
+     * 
+     * @return the concatenated string, separated by commas
+     */
+    public static String commatize(@DeepNonNull List<Term> list, boolean typed) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<Term> it = list.iterator();
+        while(it.hasNext()) {
+            sb.append(it.next().toString(typed));
+            if(it.hasNext())
+                sb.append(", ");
+        }
+        return sb.toString();
+    }
 	
 	/**
      * Join a collection of objects into a string, 
