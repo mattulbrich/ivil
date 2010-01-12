@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.rule.TestRule;
 import de.uka.iti.pseudo.rule.meta.TestLoopInvariantProgramMetaFunction;
 import de.uka.iti.pseudo.rule.meta.TestMetaFunctions;
 import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
+import de.uka.iti.pseudo.rule.meta.TestUpdSimplification;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.TestProgramTerm;
@@ -50,6 +51,7 @@ public class AllTests {
         suite.addTestSuite(TestRuleParsing.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);
+        suite.addTestSuite(TestUpdSimplification.class);
         suite.addTestSuite(TestLoopInvariantProgramMetaFunction.class);
         suite.addTestSuite(TestPrettyPrint.class);
         suite.addTestSuite(TestAnnotatedString.class);

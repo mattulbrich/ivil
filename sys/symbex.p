@@ -25,8 +25,11 @@ plugin
   # the loop invariant program changements
   metaFunction : "de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction"
 
-  # the general update simplifier
+  # the general single-step update simplifier
   metaFunction : "de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction"
+
+  # the general deep update simplifier
+  metaFunction : "de.uka.iti.pseudo.rule.meta.DeepUpdSimplMetaFunction"
 
   # check whether a term does not contain modalities
   whereCondition : "de.uka.iti.pseudo.rule.where.ProgramFree"
@@ -363,5 +366,12 @@ rule update_simplification
   find {U}%t
   where canEval $$updSimpl({U}%t)
   samegoal replace $$updSimpl({U}%t)
+  tags rewrite "updSimpl"
+       verbosity "10"
+
+rule deep_update_simplification
+  find {U}%t
+  where canEval $$deepUpdSimpl({U}%t)
+  samegoal replace $$deepUpdSimpl({U}%t)
   tags rewrite "updSimpl"
        verbosity "10"
