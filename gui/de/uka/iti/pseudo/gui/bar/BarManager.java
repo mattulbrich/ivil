@@ -19,8 +19,6 @@ import java.util.Properties;
 import java.util.Map.Entry;
 
 import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -34,9 +32,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 import nonnull.NonNull;
-import nonnull.Nullable;
 import de.uka.iti.pseudo.util.GUIUtil;
-import de.uka.iti.pseudo.util.Util;
 
 /**
  * The Class BarManager is a pretty generic framework to allow menu bars and

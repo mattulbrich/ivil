@@ -24,8 +24,6 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.GUIUtil;
 
-// TODO: Auto-generated Javadoc
-// TODO Documentation needed
 /**
  * This GUI action is for closing a window.
  * 
@@ -63,9 +61,17 @@ public class CloseAction extends BarAction
             tryClose();
     }
 
+    /**
+     * Extract the change state from either the {@link ProofCenter} or the
+     * {@link PFileEditor} that we currently are in.
+     */
     private void tryClose() {
         ProofCenter proofCenter = getProofCenter();
         PFileEditor editor = getEditor();
+        
+        assert proofCenter != null || editor != null : 
+            "There must be a window to close";
+        
         boolean changed = false;
         if(proofCenter != null) {
             changed = proofCenter.getProof().hasUnsafedChanges();

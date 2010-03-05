@@ -19,15 +19,71 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 /**
- * The Class PluginManager.
+ * The PluginManager is the is the management unit at which plugins can be
+ * registered and from which they can be retrieved.
+ * 
+ * A plugin can be registered for a particular <i>service</i>. A service has got
+ * a name and a class associated. An implementation of a service needs to extend
+ * (or implement) that associated class.
+ * 
+ * A plugin manager may (or may not) hold a reference to a parent manager. It
+ * includes the results of that parent manager (if set) to answer requests.
+ * 
+ * <p>
+ * Plugins can be registereed using the {@link #register(String, String)} method
+ * which expects a service name and a (complete) class name that can be used
+ * with {@link Class#forName(String)}. The list of all plugins for a particular
+ * type can be retrieved using {@link #getPlugins(String, Class)}, or if the
+ * plugins of the parent manger should not be included by
+ * {@link #getLocalPlugins(String, Class)}. The class to be taken has to be
+ * added explicitly to avoid unexpected class cast exception at later points
+ * where they would be difficult to trace.
+ * 
+ * <p>
+ * If a service implements the {@link Mappable} interface, which provides a key
+ * via the method {@link Mappable#getKey()}, any implementation is also added to
+ * hash table under that key from which it can be retrieved using the method
+ * {@link #getPlugin(String, Class, Object)}.
+ * 
+ * <h2>Configuration file</h2>
+ * 
+ * The resource <code>PluginManager.properties</code> is parsed to learn about
+ * the services to be provided. This properties file contains lines of the form:
+ * 
+ * <pre>
+ *    serviceName : org.foo.bar.ClassName
+ * </pre>
+ * 
+ * in which a service of name <code>serviceName</code> and with an associated
+ * class <code>org.foo.bar.ClassName</code> is described. That class must be be
+ * accessible at runtime.
+ * 
+ * <h2>Sample scenario</h2>
+ * 
+ * <pre>
+ *   PluginManager.properties:
+ *     prettyPrinter : org.foo.bar.PrettyPrinter
+ *     comparator : java.lang.Comparator
+ *     
+ *   PluginManager pm = new PluginManager(null);  // no parent manager
+ *   pm.register("comparator", new Comparator() { ... });
+ *   
+ *   PrettyPrinter pp;
+ *   // ...
+ *   pm.register("prettyPrinter", pp);
+ * </pre>
+ * 
  */
 public class PluginManager {
 
     /**
      * The parent plugin manager upon which this manager relies. May be null.
      */
-    private PluginManager parentManager;
+    private @Nullable PluginManager parentManager;
 
     /**
      * Mapping names of services to service structure instances.
@@ -52,7 +108,7 @@ public class PluginManager {
         Map<Object, Object> table = new HashMap<Object, Object>();
 
         /**
-         * The list.
+         * The list holding all registered plugins for that service.
          */
         List<Object> list = new LinkedList<Object>();
     }
@@ -60,8 +116,7 @@ public class PluginManager {
     /**
      * Instantiates a new plugin manager with a given parent reference.
      * 
-     * The configuration is read from resource
-     * <code>PluginManager.properties</code>.
+     * The configuration is read from the resource <code>PluginManager.properties</code>.
      * 
      * @param parentManager
      *            the parent manager to set
@@ -112,14 +167,14 @@ public class PluginManager {
      * @param serviceName
      *            the name of the service to register with.
      * @param implementation
-     *            the name of the implementating class (the plugin
+     *            the name of the implementing class (the plugin
      *            implementation)
      * 
      * @throws EnvironmentException
      *             if no creating an instance of the class fails or if the class
      *             does not have the needed type
      */
-    public void register(String serviceName, String implementation)
+    public void register(@NonNull String serviceName, @NonNull String implementation)
             throws EnvironmentException {
 
         Service service = serviceMap.get(serviceName);
@@ -146,40 +201,55 @@ public class PluginManager {
             service.table.put(mappable.getKey(), instance);
         }
     }
- // TODO: Auto-generated Javadoc
+
     /**
-     * Gets the plugins.
+     * Gets a list of all plugins for a service.
+     * 
+     * If a parent manger is set, the call is also delegated to that manager and
+     * the results combined.
      * 
      * @param serviceName
      *            the service name
      * @param serviceClass
      *            the service class
      * 
-     * @return the plugins
+     * @return a freshly create and mutuable list of plugins.
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             <ul>
+     *             <li>if the service name is not a service known to the
+     *             configuration
+     *             <li>If the service class and the type of the service do not
+     *             coincide
+     *             </ul>
      */
-    public <T> List<T> getPlugins(String serviceName, Class<T> serviceClass)
+    public @NonNull <T> List<T> getPlugins(@NonNull String serviceName, @NonNull Class<T> serviceClass)
             throws EnvironmentException {
         return getPlugins0(serviceName, serviceClass, new ArrayList<T>());
     }
 
     /**
-     * Gets the local plugins.
+     * Gets a list of all local plugins for a service.
+     * 
+     * The call is not delegated to a potentially set parent manger.
      * 
      * @param serviceName
      *            the service name
      * @param serviceClass
      *            the service class
      * 
-     * @return the local plugins
+     * @return an immutable list of plugins of type service classe
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             <ul>
+     *             <li>if the service name is not a service known to the
+     *             configuration
+     *             <li>If the service class and the type of the service do not
+     *             coincide
+     *             </ul>
      */
-    @SuppressWarnings("unchecked") public <T> List<T> getLocalPlugins(
-            String serviceName, Class<T> serviceClass)
+    @SuppressWarnings("unchecked") public @NonNull <T> List<T> getLocalPlugins(
+            @NonNull String serviceName, @NonNull Class<T> serviceClass)
             throws EnvironmentException {
         Service service = serviceMap.get(serviceName);
         if (service == null)
@@ -193,20 +263,9 @@ public class PluginManager {
         return (List<T>) Collections.unmodifiableList(service.list);
     }
 
-    /**
-     * Gets the plugins0.
-     * 
-     * @param serviceName
-     *            the service name
-     * @param serviceClass
-     *            the service class
-     * @param arrayList
-     *            the array list
-     * 
-     * @return the plugins0
-     * 
-     * @throws EnvironmentException
-     *             the environment exception
+    /*
+     * Aggregating method to recursively collect all plugins into an existing
+     * ArrayList
      */
     private <T> List<T> getPlugins0(String serviceName, Class<T> serviceClass,
             ArrayList<T> arrayList) throws EnvironmentException {
@@ -219,23 +278,37 @@ public class PluginManager {
     }
 
     /**
-     * Gets the plugin.
+     * Gets a particular plugin by key.
+     * 
+     * If no plugin is registered under that key and there is a parent manager,
+     * the call is delegated to that manager. If that call returns
+     * <code>null</code>, null is returned, otherwise the first found plugin is
+     * returned.
      * 
      * @param serviceName
      *            the service name
      * @param serviceClass
      *            the service class
      * @param key
-     *            the key
+     *            the key of the plugin to retrieve
      * 
-     * @return the plugin
+     * @return the found plugin or null
      * 
      * @throws EnvironmentException
-     *             the environment exception
+     *             <ul>
+     *             <li>if the service name is not a service known to the
+     *             configuration
+     *             <li>If the service class and the type of the service do not
+     *             coincide
+     *             </ul>
      */
-    @SuppressWarnings("unchecked")// The content of the maps is checked!
-    public <T> T getPlugin(String serviceName, Class<T> serviceClass, Object key)
+    @SuppressWarnings("unchecked")
+    // The content of the maps is checked!
+    public @Nullable
+    <T> T getPlugin(@NonNull String serviceName,
+            @NonNull Class<T> serviceClass, @NonNull Object key)
             throws EnvironmentException {
+        
         Service service = serviceMap.get(serviceName);
         if (service == null)
             throw new EnvironmentException("Unknown service: " + serviceName);

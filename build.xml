@@ -24,20 +24,20 @@
       	<pathelement path="classes" />
       </classpath>
     </javac>
-    <javac srcdir="gui" destdir="classes" debug="${compile.debug}">
-      <classpath>
-        <pathelement path="lib/javadocking.jar" />
-      	<pathelement path="classes" />
-      </classpath>
-      <compilerarg value="-Xlint"/>
-    </javac>
     <javac srcdir="cmd" destdir="classes" debug="${compile.debug}">
       <classpath>
       	<pathelement path="classes" />
       </classpath>
       <compilerarg value="-Xlint"/>
     </javac>
-  </target>
+     <javac srcdir="gui" destdir="classes" debug="${compile.debug}">
+      <classpath>
+        <pathelement path="lib/javadocking.jar" />
+      	<pathelement path="classes" />
+      </classpath>
+      <compilerarg value="-Xlint"/>
+    </javac>
+ </target>
 	
   <target name="nonnull" depends="build" description="patches the class files with r/t checks" if="compile.nonnullchecks">
     <java classname="nonnull.NonNullPatch">
@@ -168,5 +168,16 @@
       <fileset dir="examples" includes="*.p~*"/>
     </delete>
   </target>
+
+  <target name="copyright" description="Update copyright notes in java files">
+    <taskdef name="copyright" classname="CopyrightTask" classpath="lib"> </taskdef>
+    <copyright file="LICENSE">
+      <fileset dir="core" includes="**/*.java"/>
+      <fileset dir="test" includes="**/*.java"/>
+      <fileset dir="gui" includes="**/*.java"/>
+      <fileset dir="cmd" includes="**/*.java"/>
+    </copyright>
+  </target>
+
 
 </project>

@@ -369,9 +369,9 @@ rule update_simplification
   tags rewrite "updSimpl"
        verbosity "10"
 
-rule deep_update_simplification
+(*rule deep_update_simplification
   find {U}%t
   where canEval $$deepUpdSimpl({U}%t)
   samegoal replace $$deepUpdSimpl({U}%t)
   tags rewrite "updSimpl"
-       verbosity "10"
+       verbosity "10"*)
