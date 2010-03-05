@@ -171,7 +171,7 @@
 
   <target name="copyright" description="Update copyright notes in java files">
     <taskdef name="copyright" classname="CopyrightTask" classpath="lib"> </taskdef>
-    <copyright file="LICENSE">
+    <copyright file="LICENSE.header">
       <fileset dir="core" includes="**/*.java"/>
       <fileset dir="test" includes="**/*.java"/>
       <fileset dir="gui" includes="**/*.java"/>

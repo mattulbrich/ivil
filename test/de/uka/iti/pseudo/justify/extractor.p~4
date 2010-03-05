@@ -1,0 +1,70 @@
+# Used for testing rule -> problem
+
+function
+  bool assume_left
+  bool assume_right
+  bool add_left
+  bool add_right
+  bool add_left2
+  
+  'a _find
+  'a _replace
+
+rule extract_both
+  assume assume_left |-
+  assume |- assume_right
+  find _find
+  samegoal
+    replace _replace
+    add add_left |-
+    add |- add_right
+    
+  samegoal
+    # remove
+    add add_left2 |-
+    
+  tags extractww "("
+    
+    
+rule extract_left
+  assume assume_left |-
+  assume |- assume_right
+  find _find |-
+  samegoal
+    replace _replace
+    add add_left |-
+    add |- add_right
+  samegoal
+    # remove
+    add add_left2 |-
+  
+  tags extract "((replace | add_left | !add_right) & (add_left2)) -> (find | assume_left | assume_right)"
+    
+    
+rule extract_right
+  assume assume_left |-
+  assume |- assume_right
+  find |- `find`
+  samegoal
+    replace `replace`
+    add add_left |-
+    add |- add_right
+  samegoal
+    # remove
+    add add_left2 |-
+
+
+rule extract_findless
+  assume assume_left |-
+  assume |- assume_right
+  samegoal
+    add add_left |-
+    add |- add_right
+  samegoal
+    add add_left2 |-
+
+    
+rule no_newgoal
+  find true
+  newgoal
+    add true |-

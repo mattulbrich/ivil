@@ -1,9 +1,10 @@
 /*
- * NonNull Runtime Checking for Methods
+ * This file is part of PSEUDO
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
  * 
- * 2009 by Mattias Ulbrich
- * 
- * published under GPL.
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
  */
 
 package nonnull;
