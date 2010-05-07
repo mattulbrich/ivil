@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
 
-<project name="PseudoHybris" default="nonnull" basedir=".">
+<project name="ivil - Interactive verification on intermediate language" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
   <property name="compile.nonnullchecks" value="remove this line to switchoff" />
@@ -77,7 +77,7 @@
   </target>
 
   <target name="jar" depends="build, nonnull" description="creates the jar file">
-    <jar jarfile="pseudo.jar" basedir="classes">
+    <jar jarfile="ivil.jar" basedir="classes">
       <manifest>
         <!-- Who is building this jar? -->
         <attribute name="Built-By" value="${user.name}"/>
@@ -93,11 +93,11 @@
   </target>
 
   <target name="dist" depends="jar" description="package the software to deliver it">
-    <zip destfile="pseudo.zip" >
+    <zip destfile="ivil.zip" >
       <fileset dir="." includes="examples/**" />
       <fileset dir="." includes="sys/**" />
       <fileset dir="." includes="lib/javadocking.jar" />
-      <fileset dir="." includes="pseudo.jar" />
+      <fileset dir="." includes="ivil.jar" />
     </zip>
   </target>
 

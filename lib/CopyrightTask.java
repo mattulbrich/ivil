@@ -128,12 +128,20 @@ public class CopyrightTask extends Task {
         }
     }
 
+    /*
+     * (One might speed this up by not inserting into the string builder
+     * but appending to a previously open filewriter at once)
+     */
     private void processFile(File f) throws IOException {
 
         StringBuilder content = textFromFile(f);
-
+        
         if (content.charAt(0) == '/' && content.charAt(1) == '*') {
             int commentEnd = content.indexOf("*/", 2);
+            if(commentEnd == -1) {
+                System.err.println("Leading comment not closed in file " + f + " (ignored)");
+                return;
+            }
             content.replace(0, commentEnd + 2, licenseText);
         } else {
             content.insert(0, "\n").insert(0, licenseText);

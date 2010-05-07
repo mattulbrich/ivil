@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -12,7 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import de.uka.iti.pseudo.gui.ProofCenter;
+//import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.CommandLineException;
 import de.uka.iti.pseudo.util.settings.Settings;

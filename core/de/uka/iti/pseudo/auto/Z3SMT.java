@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -98,7 +100,7 @@ public class Z3SMT implements DecisionProcedure {
     private void dumpTmp(String challenge) {
         Writer w = null;
         try {
-            File tmp = File.createTempFile("pseudo", ".smt");
+            File tmp = File.createTempFile("ivil", ".smt");
             w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();

@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -25,7 +27,7 @@ public class StartupWindow extends JFrame {
     private BarManager barManager;
     
     public StartupWindow() throws IOException {
-        super("Pseudo");
+        super("ivil");
         makeGUI();
     }
 

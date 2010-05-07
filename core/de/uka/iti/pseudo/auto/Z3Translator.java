@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -234,7 +236,7 @@ public class Z3Translator extends DefaultTermVisitor {
         translate(sequent);
         
         PrintWriter pw = new PrintWriter(stream);
-        pw.println("; created by pseudo " + new Date());
+        pw.println("; created by ivil " + new Date());
         
         for (String type : types) {
             pw.println(type);

@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -421,7 +423,7 @@ public class PFileEditor extends JFrame implements ActionListener {
 
     private void updateTitle() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Pseudo - Editor");
+        sb.append("ivil - Editor");
         if(editedFile != null)
             sb.append(" [" + editedFile + "]");
         else

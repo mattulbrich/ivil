@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -31,7 +33,7 @@ import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.CommandLineException;
 
 /**
- * For a pseudo file containing rules create a proof obligation for every rule
+ * For a ivil file containing rules create a proof obligation for every rule
  * which has been tagged as derived.
  */
 public class RuleJustification {

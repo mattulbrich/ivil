@@ -1,5 +1,7 @@
 /*
- * This file is part of PSEUDO
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
  * 
@@ -225,7 +227,7 @@ public class Main {
             else
 
                 fileChooser[index].setFileFilter(new FileNameExtensionFilter(
-                        "PSEUDO files", "p"));
+                        "ivil files", "p"));
         }
         return fileChooser[index];
     }

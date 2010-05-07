@@ -1,5 +1,5 @@
 /*
- * This is an example for PSEUDO
+ * This is an example for ivil
  *
  */
 
