@@ -40,8 +40,6 @@ import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO: Auto-generated Javadoc
-// TODO DOC
 /**
  * This class is used to extract program asts from a file AST and to turn them
  * into program definitions.
@@ -218,7 +216,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     }
 
     /**
-     * labeled statements are to be 
+     * map labels to their position in the program.
+     * Complain if the label has already been defined. 
      */
     public void visit(ASTLabelStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
@@ -228,6 +227,10 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         labelMap.put(label, rawStatements.size());
     }
     
+    /**
+     * The entry point for a program declaration.
+     * Clear all storing structures, visit children and store resulting program.
+     */
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         
         rawStatements.clear();

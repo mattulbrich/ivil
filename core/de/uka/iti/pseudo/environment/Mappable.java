@@ -10,19 +10,21 @@
  */
 package de.uka.iti.pseudo.environment;
 
+import nonnull.NonNull;
+
 /**
  * Any class implementing this interface allows to store instances in a map
  * indexed by a key. The retrieval can then be done by the key which is usually
  * faster.
  */
 public interface Mappable {
-    
+
     /**
-     * Gets the key under which this object can be retrieved from a map.
-     * It must be unique for different objects.
+     * Gets the key under which this object can be retrieved from a map. It must
+     * be unique amongst different objects which can end up in the same map.
      * 
      * @return a nonnull reference
      */
-    public Object getKey();
+    public @NonNull Object getKey();
     
 }

@@ -39,6 +39,8 @@ import de.uka.iti.pseudo.term.statement.Statement;
  * <p>
  * The provided environment may be enriched by new definitions of integer
  * literals.
+ * 
+ * @see Program
  */
 public class ProgramChanger {
 

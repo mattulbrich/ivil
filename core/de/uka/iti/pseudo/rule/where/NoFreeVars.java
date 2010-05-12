@@ -42,8 +42,9 @@ public class NoFreeVars extends WhereCondition {
 
     @Override public void checkSyntax(Term[] arguments) throws RuleException {
         if (arguments.length != 1)
-            throw new RuleException("notFreeIn expects exactly 1 arguments");
+            throw new RuleException("noFreeVars expects exactly 1 arguments");
 
+        // XXX Is this correct? Why is that needed?
         if (!(arguments[0] instanceof SchemaVariable))
             throw new RuleException(
                     "notFreeIn expects (schema) varible as first argument");

@@ -11,31 +11,35 @@
 package de.uka.iti.pseudo.environment;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.statement.EndStatement;
+import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class Program captures a sequence of statements and 
+ * The Class Program is an immutable data class capturing a sequence of
+ * statements and its text annotations.
+ * 
+ * @see ProgramChanger
  */
 public class Program {
-    
+
     /**
-     * The Constant OUT_OF_BOUNDS_STATEMENT.
+     * The Constant OUT_OF_BOUNDS_STATEMENT is used when an index ouside the
+     * bounds of the program indices is used.
+     * It is an <code>assume false</code> statement
      */
     private static final Statement OUT_OF_BOUNDS_STATEMENT;
     static {
         try {
             // this statement is not associated with a line number (therefore -1)
-            OUT_OF_BOUNDS_STATEMENT = new EndStatement(-1, Environment.getTrue());
+            OUT_OF_BOUNDS_STATEMENT = new AssumeStatement(-1, Environment.getFalse());
         } catch (TermException e) {
             // this cannot happen
             throw new Error(e);
@@ -43,53 +47,59 @@ public class Program {
     }
     
     /**
-     * The name.
+     * The unique name of this program
      */
     private String name;
     
     /**
-     * The source file.
+     * The source file associated to this program.
+     * This may be null.
      */
-    private File sourceFile;
+    private @Nullable File sourceFile;
     
     /**
-     * The declaration.
+     * A reference to the declaration in the original AST.
      */
-    private ASTLocatedElement declaration;
+    private @NonNull ASTLocatedElement declaration;
     
     /**
-     * The statements.
+     * The sequence of statements as array
      */
-    private Statement[] statements;
+    private @DeepNonNull Statement[] statements;
     
     /**
-     * The statement annotations.
+     * The statement annotations stored in an array of the same length.
+     * Entries may be null, however.
      */
     private String[] statementAnnotations;
-
     
+    //@ invariant statements.length == statementAnnotations.length;
+
     /**
-     * Instantiates a new program.
+     * Create a new program object.
+     * 
+     * The number of statements and the number of statement annotations must be
+     * equal.
      * 
      * @param name
-     *                the name
+     *            name of the object
      * @param sourceFile
-     *                the source file
+     *            reference to the source file
      * @param statements
-     *                the statements
+     *            the sequence of statements statements
      * @param statementAnnotations
-     *                the statement annotations
+     *            the sequence of statement annotations
      * @param declaration
-     *                the declaration
+     *            the reference to the source declaration
      * 
      * @throws EnvironmentException
-     *                 the environment exception
+     *             if the parameters do not specify a program 
      */
     public Program(@NonNull String name, 
             @Nullable File sourceFile,
             List<Statement> statements,
             List<String> statementAnnotations,
-            ASTLocatedElement declaration) throws EnvironmentException {
+            @NonNull ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
         this.statementAnnotations = Util.listToArray(statementAnnotations, String.class);
         this.declaration = declaration;
@@ -99,16 +109,22 @@ public class Program {
         assert statementAnnotations.size() == statements.size();
         assert Util.notNullArray(this.statements);
     }
-    
+
     /**
-     * Gets the statement.
+     * Gets the statement at an index. The first statement carries index 0.
+     * 
+     * If the index is negative, an index-out-of-bounds exception is thrown. If
+     * the index is above or equal to the number of statements, the constant
+     * {@link #OUT_OF_BOUNDS_STATEMENT} is returned.
      * 
      * @param i
-     *                the i
+     *            index to retrieve statement for.
      * 
-     * @return the statement
+     * @return the statement at position i.
+     * @throws IndexOutOfBoundsException
+     *             if <code>i &lt; 0 </code>
      */
-    public Statement getStatement(int i) {
+    public @NonNull Statement getStatement(int i) {
         if(i < 0)
             throw new IndexOutOfBoundsException();
         
@@ -117,16 +133,24 @@ public class Program {
         
         return statements[i];
     }
-    
+
     /**
-     * Gets the text annotation.
+     * Gets the text annotation for a statement at an index. The first statement
+     * carries index 0.
+     * 
+     * If the index is negative, an index-out-of-bounds exception is thrown. If
+     * the index is above or equal to the number of statements,
+     * <code>null</code> is returned.
      * 
      * @param i
-     *                the i
+     *            index to retrieve statement for.
      * 
-     * @return the text annotation
+     * @return the annotation for the statement at position i, may be null.
+     * 
+     * @throws IndexOutOfBoundsException
+     *             if <code>i &lt; 0 </code>
      */
-    public String getTextAnnotation(int i) {
+    public @Nullable String getTextAnnotation(int i) {
         if(i < 0)
             throw new IndexOutOfBoundsException();
         
@@ -138,25 +162,74 @@ public class Program {
 
 
     /**
-     * Count statements.
+     * Count the statements in this program.
      * 
-     * @return the int
+     * This query method always returns the same number for this object.
+     * 
+     * @return the number of statements (greater or equal 0)
      */
     public int countStatements() {
         return statements.length;
     }
 
     /**
-     * Gets the declaration.
+     * Gets the reference to the AST declaration.
      * 
-     * @return the declaration
+     * @return the declaration reference
      */
-    public ASTLocatedElement getDeclaration() {
+    public @NonNull ASTLocatedElement getDeclaration() {
         return declaration;
+    }
+    
+    /**
+     * Gets the name of this program
+     * 
+     * @return the name of the program
+     */
+    public @NonNull String getName() {
+        return name;
+    }
+    
+    /* 
+     * returns the name.
+     * 
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override public String toString() {
+        return name;
     }
 
     /**
-     * Dump.
+     * Gets the sequence of statements as an unmodifiable list.
+     * 
+     * @return an unmodifiable list of statements.
+     */
+    public List<Statement> getStatements() {
+        return Util.readOnlyArrayList(statements);
+    }
+    
+    /**
+     * Gets the sequence of text annotations as an unmodifiable list.
+     * 
+     * @return an unmodifiable list of text annotations
+     */
+    public List<String> getTextAnnotations() {
+        return Util.readOnlyArrayList(statementAnnotations);
+    }
+
+    /**
+     * Gets the reference to the source file if set. If non set, return
+     * <code>null</code>.
+     * 
+     * @return the reference to the source file, may be null
+     */
+    public @Nullable File getSourceFile() {
+        return sourceFile;
+    }
+    
+    /**
+     * Dump this program to stdout. For debug purposes.
      */
     public void dump() {
         System.out.println("    Statements");
@@ -166,49 +239,6 @@ public class Program {
                 System.out.print("; \"" + statementAnnotations[i] + "\"");
             System.out.println();
         }
-    }
-    
-    /**
-     * Gets the name.
-     * 
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override public String toString() {
-        return name;
-    }
-
-    /**
-     * Gets the statements.
-     * 
-     * @return the statements
-     */
-    public List<Statement> getStatements() {
-        return Util.readOnlyArrayList(statements);
-    }
-    
-    /**
-     * Gets the text annotations.
-     * 
-     * @return the text annotations
-     */
-    public List<String> getTextAnnotations() {
-        return Util.readOnlyArrayList(statementAnnotations);
-    }
-
-    /**
-     * Gets the source file.
-     * 
-     * @return the source file
-     */
-    public File getSourceFile() {
-        return sourceFile;
     }
 
 }
