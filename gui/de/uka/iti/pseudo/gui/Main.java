@@ -12,7 +12,11 @@ package de.uka.iti.pseudo.gui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -148,6 +152,32 @@ public class Main {
         
         if(PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
             System.exit(0);
+    }
+
+    public static ProofCenter openProverFromURL(URL url)
+            throws FileNotFoundException, ParseException, ASTVisitException,
+            TermException, IOException, StrategyException, EnvironmentException {
+
+        File tempFile = File.createTempFile("ivil", ".p");
+        tempFile.deleteOnExit();
+        OutputStream os = null;
+        InputStream is = null;
+        try {
+            os = new FileOutputStream(tempFile);
+            is = url.openStream();
+            byte buffer[] = new byte[1024];
+            int read;
+            while ((read = is.read(buffer)) >= 0) {
+                os.write(buffer, 0, read);
+            }
+        } finally {
+            if (os != null)
+                os.close();
+            if (is != null)
+                is.close();
+        }
+
+        return openProver(tempFile);
     }
 
     public static ProofCenter openProver(File file)

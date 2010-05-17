@@ -372,8 +372,12 @@ public class BarManager {
                 
                 val = properties.getProperty(element + ".icon");
                 if(val != null) {
-                    String location = packagePrefix.replace('.', '/') + val;
-                    button.setIcon(GUIUtil.makeIcon(ClassLoader.getSystemResource(location)));
+                    String location = "/" + packagePrefix.replace('.', '/') + val;
+                    URL systemResource = BarManager.class.getResource(location);
+                    if(systemResource == null)
+                        System.err.println("Warning: Unknown icon resource " + location);
+                    button.setIcon(GUIUtil.makeIcon(systemResource));
+                    System.err.println(packagePrefix + "|" +  val + "|" + location);
                 }
                 
                 val = properties.getProperty(element + ".tooltip");

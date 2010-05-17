@@ -15,7 +15,6 @@ import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -71,8 +70,7 @@ public class Settings {
             stream.close();
             contents.putAll(System.getProperties());
         } catch (Exception ex) {
-            ex.printStackTrace();
-            contents = null;
+            throw new RuntimeException("Cannot initialise Settings", ex);
         } 
     }
 
