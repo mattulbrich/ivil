@@ -12,11 +12,9 @@ package de.uka.iti.pseudo.gui;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
+import java.security.AccessControlException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -158,26 +156,21 @@ public class Main {
             throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
 
-        File tempFile = File.createTempFile("ivil", ".p");
-        tempFile.deleteOnExit();
-        OutputStream os = null;
-        InputStream is = null;
-        try {
-            os = new FileOutputStream(tempFile);
-            is = url.openStream();
-            byte buffer[] = new byte[1024];
-            int read;
-            while ((read = is.read(buffer)) >= 0) {
-                os.write(buffer, 0, read);
-            }
-        } finally {
-            if (os != null)
-                os.close();
-            if (is != null)
-                is.close();
-        }
+        Parser fp = new Parser();
 
-        return openProver(tempFile);
+        EnvironmentMaker em = new EnvironmentMaker(fp, url);
+        Environment env = em.getEnvironment();
+        Term problemTerm = em.getProblemTerm();
+
+        if (problemTerm == null)
+            throw new EnvironmentException(
+                    "Cannot load an environment without problem");
+
+        Proof proof = new Proof(problemTerm);
+        ProofCenter proofCenter = new ProofCenter(proof, env);
+        showProofCenter(proofCenter);
+        return proofCenter;
+        
     }
 
     public static ProofCenter openProver(File file)
@@ -191,7 +184,7 @@ public class Main {
 
         if (problemTerm == null)
             throw new EnvironmentException(
-                    "Cannot load an environment without problem");
+                    "An environment without problem cannot be loaded");
 
         Proof proof = new Proof(problemTerm);
         ProofCenter proofCenter = new ProofCenter(proof, env);
@@ -271,8 +264,13 @@ public class Main {
     private static void loadProperties() {
         try {
             settings = Settings.getInstance();
-            settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
-            settings.putAll(System.getProperties());
+            try {
+                settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
+                settings.putAll(System.getProperties());
+            } catch (AccessControlException e) {
+                // If run as web start, this is not allowed, so ignoremus.
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             System.err.println("Cannot read properties file, continuing anyway ...");
             e.printStackTrace();

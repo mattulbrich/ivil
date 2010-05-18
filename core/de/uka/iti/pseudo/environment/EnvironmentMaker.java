@@ -13,6 +13,9 @@ package de.uka.iti.pseudo.environment;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,16 +84,43 @@ public class EnvironmentMaker {
      *            the file to parse, its name is used as name for the
      *            environment
      * 
-     * @throws FileNotFoundException
-     *             the file to parse does not exist
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
      *             some error happened during ast traversal.
+     * @throws IOException
+     *             if the URL/file cannot be read successfully.
+     * @throws MalformedURLException
      */
     public EnvironmentMaker(Parser parser, File file)
-    throws FileNotFoundException, ParseException, ASTVisitException {
-        this(parser, file, Environment.BUILT_IN_ENV);
+    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+        this(parser, file.toURI().toURL(), Environment.BUILT_IN_ENV);
+    }
+    
+    /**
+     * Instantiates a new environment maker.
+     * 
+     * The file is parsed and the environment created automatically. The
+     * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
+     * as parent.
+     * 
+     * @param parser
+     *            the parser to use for include instructions
+     * @param url
+     *            the url to parse, its name is used as name for the
+     *            environment
+     * 
+     * @throws ParseException
+     *             some parse error appeared
+     * @throws ASTVisitException
+     *             some error happened during ast traversal.
+     * @throws IOException
+     *             if the URL/file cannot be read successfully.
+     * @throws MalformedURLException
+     */
+    public EnvironmentMaker(Parser parser, URL url)
+    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+        this(parser, url, Environment.BUILT_IN_ENV);
     }
 
     /**
@@ -100,22 +130,22 @@ public class EnvironmentMaker {
      * 
      * @param parser
      *            the parser to use for include instructions
-     * @param file
-     *            the file to parse, its name is used as name for the
+     * @param res
+     *            the url to parse, its name is used as name for the
      *            environment
      * @param parent
      *            the parent environment to rely upon
      * 
-     * @throws FileNotFoundException
-     *             the file to parse does not exist
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
      *             some error happened during ast traversal.
+     * @throws IOException 
+     *             if the URL/file cannot be read successfully.
      */
-    private EnvironmentMaker(Parser parser, File file, Environment parent)
-    throws FileNotFoundException, ASTVisitException, ParseException {
-        this(parser, parser.parseFile(file), file.getPath(), parent);
+    private EnvironmentMaker(Parser parser, URL res, Environment parent)
+    throws ASTVisitException, ParseException, IOException {
+        this(parser, parser.parseURL(res), res.getPath(), parent);
 
     }
 
@@ -205,15 +235,15 @@ public class EnvironmentMaker {
                 String filename = Util.stripQuotes(token.image);
                 importedFilenames.add(filename);
                 try {
-                	File file = mkFile(astFile.getFileName(), filename);
+                    URL res = mkFile(astFile.getFileName(), filename);
 
-                	if(env.hasParentResource(file.getPath())) {
-                		System.err.println("WARNING: cyclicly including environments, involving: " + file);
-                		continue;
-                	}
-                
+                    if(env.hasParentResource(res.getPath())) {
+                        // System.err.println("WARNING: cyclicly including environments, involving: " + file);
+                        continue;
+                    }
+
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
-                            parser, file, env.getParent());
+                            parser, res, env.getParent());
                     Environment innerEnv = includeMaker.getEnvironment();
                     innerEnv.setFixed();
                     env.setParent(innerEnv);
@@ -224,6 +254,8 @@ public class EnvironmentMaker {
                     throw new ASTVisitException("Error while parsing file "
                             + filename, block, e);
                 } catch (EnvironmentException e) {
+                    throw new ASTVisitException(block, e);
+                } catch (IOException e) {
                     throw new ASTVisitException(block, e);
                 }
             }
@@ -268,25 +300,39 @@ public class EnvironmentMaker {
         return problemTerm;
     }
 
-	/*
-	 * Make file name for an include. Files with a leading $ are searched for in
-	 * the system directories. This key is then seen as a path.
-	 */
-    private File mkFile(String toplevel, String filename) throws FileNotFoundException {
-        File ret;
+    /*
+     * Make file name for an include. Files with a leading $ are searched for in
+     * the system directories.
+     * The paths in SYS_DIR are then searched for the file.
+     * If not found, a resource of that name is searched for.
+     */
+    private URL mkFile(String toplevel, String filename) throws IOException {
+        
         if (filename.charAt(0) == '$') {
-        	filename = filename.substring(1);
-        	String[] paths = SYS_DIR.split(File.pathSeparator);
-        	for (String path : paths) {
-				ret = new File(path, filename);
-				if(ret.exists())
-					return ret;
-        	}
-        	throw new FileNotFoundException(filename + " not found in any system directory");
+            filename = filename.substring(1);
+            
+            // search in SYS_DIR
+            String[] paths = SYS_DIR.split(File.pathSeparator);
+            for (String path : paths) {
+                File file = new File(path, filename);
+                if(file.exists()) {
+                    URL url = file.toURI().toURL();
+                    return url;
+                }
+            }
+            
+            // then as resource
+            URL resource = getClass().getResource("/sys/" + filename);
+            if(resource != null)
+                return resource;
+
+            // then fail
+            throw new FileNotFoundException(filename + " not found in any system directory");
         } else {
             File parentFile = new File(toplevel).getParentFile();
-			ret = new File(parentFile, filename);
-			return ret;
+            File file = new File(parentFile, filename);
+            URL url = file.toURI().toURL();
+            return url;
         }
     }
 

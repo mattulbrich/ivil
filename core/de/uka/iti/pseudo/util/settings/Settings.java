@@ -15,6 +15,7 @@ import java.awt.Font;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -68,7 +69,12 @@ public class Settings {
             InputStream stream = getClass().getResourceAsStream("Settings_default.properties");
             contents.load(stream);
             stream.close();
-            contents.putAll(System.getProperties());
+            try {
+                contents.putAll(System.getProperties());
+            } catch (AccessControlException e) {
+                // If run as web start, this is not allowed, so ignoremus.
+                e.printStackTrace();
+            }
         } catch (Exception ex) {
             throw new RuntimeException("Cannot initialise Settings", ex);
         } 
