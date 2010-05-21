@@ -145,7 +145,7 @@ public class EnvironmentMaker {
      */
     private EnvironmentMaker(Parser parser, URL res, Environment parent)
     throws ASTVisitException, ParseException, IOException {
-        this(parser, parser.parseURL(res), res.getPath(), parent);
+        this(parser, parser.parseURL(res), res.toExternalForm(), parent);
 
     }
 
@@ -237,16 +237,17 @@ public class EnvironmentMaker {
                 try {
                     URL res = mkFile(astFile.getFileName(), filename);
 
-                    if(env.hasParentResource(res.getPath())) {
+                    if(env.hasParentResource(res.toExternalForm())) {
                         // System.err.println("WARNING: cyclicly including environments, involving: " + file);
                         continue;
                     }
-
+                    
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
                             parser, res, env.getParent());
                     Environment innerEnv = includeMaker.getEnvironment();
                     innerEnv.setFixed();
                     env.setParent(innerEnv);
+                    // env.dumpResourceHierarchy();
                 } catch (FileNotFoundException e) {
                     throw new ASTVisitException("Cannot include " + filename
                             + " (not found)", block, e);
@@ -329,9 +330,8 @@ public class EnvironmentMaker {
             // then fail
             throw new FileNotFoundException(filename + " not found in any system directory");
         } else {
-            File parentFile = new File(toplevel).getParentFile();
-            File file = new File(parentFile, filename);
-            URL url = file.toURI().toURL();
+            URL topURL = new URL(toplevel);
+            URL url = new URL(topURL, filename);
             return url;
         }
     }
@@ -348,6 +348,4 @@ public class EnvironmentMaker {
         return Collections.unmodifiableList(importedFilenames);
     }
     
-    
-
 }

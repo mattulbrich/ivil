@@ -10,7 +10,7 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 import nonnull.DeepNonNull;
@@ -55,7 +55,7 @@ public class Program {
      * The source file associated to this program.
      * This may be null.
      */
-    private @Nullable File sourceFile;
+    private @Nullable URL sourceFile;
     
     /**
      * A reference to the declaration in the original AST.
@@ -96,7 +96,7 @@ public class Program {
      *             if the parameters do not specify a program 
      */
     public Program(@NonNull String name, 
-            @Nullable File sourceFile,
+            @Nullable URL sourceFile,
             List<Statement> statements,
             List<String> statementAnnotations,
             @NonNull ASTLocatedElement declaration) throws EnvironmentException {
@@ -224,7 +224,7 @@ public class Program {
      * 
      * @return the reference to the source file, may be null
      */
-    public @Nullable File getSourceFile() {
+    public @Nullable URL getSourceFile() {
         return sourceFile;
     }
     

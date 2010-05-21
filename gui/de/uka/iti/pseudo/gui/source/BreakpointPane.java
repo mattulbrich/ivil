@@ -39,7 +39,6 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
-import de.uka.iti.pseudo.gui.bar.BarManager;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
@@ -183,7 +182,10 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
                 scrollRectToVisible(point);
             repaint();
         } catch (BadLocationException e) {
-            throw new Error(e);
+            // throw new Error(e);
+            System.err.println("Illegal line number " + line
+                    + " referenced for " + getBreakPointResource());
+            e.printStackTrace();
         }
     }
     

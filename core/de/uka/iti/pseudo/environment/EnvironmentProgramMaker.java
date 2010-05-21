@@ -11,13 +11,14 @@
 package de.uka.iti.pseudo.environment;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -251,16 +252,20 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
             
             Token sourceAST = arg.getSource();
             
-            File sourceFile = null;
+            URL sourceResource = null;
             if (sourceAST != null) {
                 String sourceFilename = Util.stripQuotes(sourceAST.image);
-                File res = new File(env.getResourceName()).getParentFile();
-                sourceFile = new File(res, sourceFilename);
+                URL res = new URL(env.getResourceName());
+                // TODO support absolute file names as well? Like:
+                // if(name.startsWith("/")) name = "file://" + name;
+                sourceResource = new URL(res, sourceFilename);
             }
                 
-            Program program = new Program(name, sourceFile, statements, statementAnnotations, arg);
+            Program program = new Program(name, sourceResource, statements, statementAnnotations, arg);
             env.addProgram(program);
         } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
+        } catch (MalformedURLException e) {
             throw new ASTVisitException(arg, e);
         }
     }

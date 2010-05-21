@@ -55,6 +55,8 @@ public abstract class ASTElement implements ASTLocatedElement {
     /**
      * Sets the filename for this element.
      * 
+     * <p>Spread the filename to all children (and, hence, their children)
+     * 
      * @param fileName the filename or resource name
      */
     public void setFilename(String fileName) {

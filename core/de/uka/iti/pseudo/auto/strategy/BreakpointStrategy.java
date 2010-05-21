@@ -10,7 +10,7 @@
  */
 package de.uka.iti.pseudo.auto.strategy;
 
-import java.io.File;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -119,7 +119,7 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
         
         // we store in differs whether the statement in front of the current 
         // has a different source line number. only then the breakpoint is hit.
-        File sourceFile = program.getSourceFile();
+        URL sourceFile = program.getSourceFile();
         if(sourceFile != null && obeySourceBreakpoints) {
             int sourceline = progTerm.getStatement().getSourceLineNumber();
             boolean differs = number == 0

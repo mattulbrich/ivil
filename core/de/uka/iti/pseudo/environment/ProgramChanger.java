@@ -10,14 +10,13 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import java.io.File;
 import java.math.BigInteger;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -62,7 +61,7 @@ public class ProgramChanger {
     /**
      * The referenced source file.
      */
-    private File sourceFile;
+    private URL sourceFile;
 
     /**
      * Instantiates a new program changer.

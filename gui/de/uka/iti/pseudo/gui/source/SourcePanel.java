@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.gui.source;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,12 +46,9 @@ public class SourcePanel extends CodePanel {
 
         Set<Object> sourceFilenames = new HashSet<Object>();
         for (Program program : programs) {
-            File sourceFile = program.getSourceFile();
+            URL sourceFile = program.getSourceFile();
             if (sourceFile != null) {
-                if(sourceFile.canRead())
-                    sourceFilenames.add(sourceFile);
-                else
-                    sourceFilenames.add(sourceFile + " - cannot be read");
+                sourceFilenames.add(sourceFile);
             }
         }
 
@@ -60,11 +58,11 @@ public class SourcePanel extends CodePanel {
     @Override
     protected String makeContent(Object reference) {
         
-        if(!(reference instanceof File) || reference == null)
+        if(!(reference instanceof URL) || reference == null)
             return null;
         
         try {
-            return Util.readFileAsString((File)reference);
+            return Util.readURLAsString((URL)reference);
         } catch (IOException e) {
             ExceptionDialog.showExceptionDialog(getProofCenter()
                     .getMainWindow(), e);
@@ -75,7 +73,7 @@ public class SourcePanel extends CodePanel {
     
     @Override protected void addHighlights() {
         for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
-            File source = progTerm.getProgram().getSourceFile();
+            URL source = progTerm.getProgram().getSourceFile();
             Object displayedResource = getDisplayedResource();
             if (source != null && source.equals(displayedResource)) {
                 int sourceLine = progTerm.getStatement().getSourceLineNumber();
@@ -89,9 +87,9 @@ public class SourcePanel extends CodePanel {
 
     @Override protected Object chooseResource() {
         for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
-            File source = progTerm.getProgram().getSourceFile();
-            // TODO is this sane? Better check for entries in choice box.
-            if (source != null && source.canRead()) {
+            URL source = progTerm.getProgram().getSourceFile();
+            // TODO check whether URL can be read
+            if (source != null) {
                 return source;
             }
         }

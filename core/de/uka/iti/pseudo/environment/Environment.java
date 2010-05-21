@@ -921,6 +921,20 @@ public class Environment {
         
         return pluginManager;
     }
+    
+    
+    /**
+     * Debug dump resource inheritance hierarchiy to stdout.
+     */
+    public void dumpResourceHierarchy() {
+        
+        System.out.println(resourceName);
+        
+        if (parentEnvironment != null) {
+            System.out.print(" extending ");
+            parentEnvironment.dumpResourceHierarchy();
+        }
+    }
 
     /**
      * Debug dump to stdout.

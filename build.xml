@@ -4,7 +4,9 @@
 <project name="ivil - Interactive verification on intermediate language" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
+<!--
   <property name="compile.nonnullchecks" value="remove this line to switchoff" />
+-->
  
   <target name="init">
     <mkdir dir="classes"/>
@@ -39,7 +41,9 @@
     </javac>
  </target>
 	
-  <target name="nonnull" depends="build" description="patches the class files with r/t checks" if="compile.nonnullchecks">
+  <target name="nonnull" depends="build" 
+	  description="patches the class files with r/t checks" 
+	  if="compile.nonnullchecks">
     <java classname="nonnull.NonNullPatch">
       <arg value="classes"/>
       <classpath>
@@ -76,14 +80,16 @@
     </copy>
   </target>
 
-  <target name="jar" depends="build" description="creates the jar file">
+  <target name="jar" depends="build, nonnull" 
+	  description="creates the jar file">
     <jar jarfile="ivil.jar" basedir="classes">
       <manifest>
         <!-- Who is building this jar? -->
         <attribute name="Built-By" value="${user.name}"/>
         <!-- Information about the program itself -->
         <attribute name="Implementation-Vendor" value="ITI, Universitaet Karlsruhe"/>
-        <attribute name="Implementation-Title" value="Pseudo/BooKeY"/>
+        <attribute name="Implementation-Title" 
+		   value="ivil - Interactive Verification on Intermediate Language"/>
         <attribute name="Implementation-Version" value="0.0"/>
         <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
@@ -98,15 +104,38 @@
 
   <target name="dist" depends="jar" description="package the software to deliver it">
     <zip destfile="ivil.zip" >
-      <fileset dir="." includes="examples/**" />
-      <fileset dir="." includes="sys/**" />
+      <fileset dir="." includes="examples/**" excludes="**/*~*" />
+      <fileset dir="." includes="sys/**" excludes="**/*~*" />
       <fileset dir="." includes="lib/javadocking.jar" />
+      <fileset dir="." includes="lib/nonnull.jar" />
       <fileset dir="." includes="ivil.jar" />
     </zip>
   </target>
 
-  <target name="build-test" depends="build" description="build test cases">
-    <javac srcdir="test" destdir="classes-test" debug="${compile.debug}" sourcepath="test">
+  <target name="srcdist" depends="jar" 
+	  description="package the sources to deliver them">
+    <zip destfile="ivil-src.zip" >
+      <fileset dir="." includes="examples/**" excludes="**/*~*" />
+      <fileset dir="." includes="sys/**" excludes="**/*~*" />
+      <fileset dir="." includes="lib/**" />
+      <fileset dir="." includes="core/**" />
+      <fileset dir="." includes="gui/**" />
+      <fileset dir="." includes="test/**" />
+      <fileset dir="." includes="cmd/**" />
+      <fileset dir="." includes="doc/**" />
+      <fileset dir=".">
+	<include name="LICENSE.TXT" />
+	<include name="LICENSE.header" />
+	<include name="build.xml" />
+	<include name=".classpath" />
+      </fileset>
+    </zip>
+  </target>
+
+  <target name="build-test" depends="build" 
+	  description="build test cases">
+    <javac srcdir="test" destdir="classes-test" 
+	   debug="${compile.debug}" sourcepath="test">
       <classpath>
         <pathelement location="lib/junit.jar" />
       	<pathelement path="classes" />
@@ -123,7 +152,9 @@
     </copy>
   </target>
 
-  <target name="nonnull-test" depends="build-test" description="patches the class files with r/t checks" if="compile.nonnullchecks">
+  <target name="nonnull-test" depends="build-test" 
+	  description="patches the class files with r/t checks" 
+	  if="compile.nonnullchecks">
     <java classname="nonnull.NonNullPatch">
       <arg value="classes-test"/>
       <classpath>
@@ -131,9 +162,10 @@
       </classpath>
     </java> 
   </target>
-
 	
-  <target name="test" depends="build-test, nonnull-test, nonnull, copy-test" description="run junit tests">
+  <target name="test" 
+	  depends="build-test, nonnull-test, nonnull, copy-test" 
+	  description="run junit tests">
     <junit printsummary="yes" fork="yes" haltonfailure="yes">
       <classpath>
         <pathelement path="classes"/>
@@ -166,15 +198,17 @@
     <delete dir="genSrc" />
   </target>
 
-  <target name="clean-bak" description="Remove the backup files containing ~">
+  <target name="clean-bak" 
+	  description="Remove the backup files containing ~">
     <delete>
       <fileset dir="sys" includes="*.p~*"/>
       <fileset dir="examples" includes="*.p~*"/>
     </delete>
   </target>
 
-  <target name="copyright" description="Update copyright notes in java files">
-    <taskdef name="copyright" classname="CopyrightTask" classpath="lib"> </taskdef>
+  <target name="copyright" 
+	  description="Update copyright notes in java files">
+    <taskdef name="copyright" classname="CopyrightTask" classpath="lib" />
     <copyright file="LICENSE.header">
       <fileset dir="core" includes="**/*.java"/>
       <fileset dir="test" includes="**/*.java"/>

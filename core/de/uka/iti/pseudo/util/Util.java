@@ -13,6 +13,9 @@ package de.uka.iti.pseudo.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -353,5 +356,43 @@ public class Util {
         }
     }
 
+    /**
+     * Read the content behind a URL into a string.
+     * 
+     * A buffer in the content length of the content of the url is created, the
+     * entire content read in one go and the result used to create a String
+     * object.
+     * 
+     * The default character encoding is used to decode the string.
+     * 
+     * This only works for resources whose size is less than
+     * {@value Integer#MAX_VALUE}.
+     * 
+     * TODO Does this really always work? Possibly add a loop!
+     * 
+     * @param url
+     *            the url to be read, must be readable
+     * 
+     * @return a string holding the content of the url.
+     * 
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static String readURLAsString(URL url) throws IOException {
+        URLConnection conn = url.openConnection();
+        
+        long length = conn.getContentLength();
+        byte[] buffer = new byte[(int)length];
+        InputStream f = null;
+        try {
+            f = conn.getInputStream();
+            int count = f.read(buffer);
+            assert count == length;
+            return new String(buffer);
+        } finally {
+            if(f != null)
+                f.close();
+        }
+    }
 
 }
