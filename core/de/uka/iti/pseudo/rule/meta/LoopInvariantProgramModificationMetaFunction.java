@@ -204,10 +204,17 @@ class LoopModifier {
      */
     private boolean collectAssignables0(Stack<Integer> stack) {
         int size = stack.size();
+        int programSize = originalProgram.countStatements();
         
         assert size >= 1;
+        assert size <= programSize;
         
         int peek = stack.peek();
+        
+        // if the index is beyond the upper bound, it will never come back
+        if(peek >= programSize) {
+            return false;
+        }
         
         // checks only if not at the beginning
         if(size > 1) {
