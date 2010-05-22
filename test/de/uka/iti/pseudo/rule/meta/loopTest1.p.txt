@@ -86,3 +86,7 @@ program Bug1_after
      assume inv
      a := 0
      goto loop
+     
+program Bug_termination
+     a := 0
+     b := 0

@@ -97,7 +97,19 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         
         assertEqualProgs(progResult.getProgram(), env.getProgram("Bug1_after"));
     }
+    
+    public void testBugTermination() throws Exception {
+        env = testEnv("loopTest1.p.txt");
 
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env
+                .getProgram("Bug_termination"));
+        
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        loopMod.apply();
+        
+        // just ensure that this terminates ...
+        // ... was a bug when the end of the sequence was reached.
+    }
 
     private void assertEqualProgs(Program p1, Program p2) {
         try {
