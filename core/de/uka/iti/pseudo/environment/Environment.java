@@ -11,6 +11,8 @@
 package de.uka.iti.pseudo.environment;
 
 import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,7 +32,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
-import de.uka.iti.pseudo.term.TypeVariable;
 
 /**
  * The Class Environment captures all defined entities for a proof
@@ -65,7 +66,7 @@ public class Environment {
     }
 
     /**
-     * The resource name from which this environment is from
+     * The resource from which this environment has been read from
      */
     private String resourceName;
 
@@ -103,14 +104,16 @@ public class Environment {
      * Instantiates a new environment which only contains the built ins.
      */
     private Environment() {
-        this.resourceName = "built-in";
+        this.resourceName = "system:built-in";
     }
 
     /**
-     * Instantiates a new environment with a given name and parent
+     * Instantiates a new environment with a given name and parent.
+     * 
+     * The second parameter must be a valid URL string.
      * 
      * @param resourceName
-     *            the name of the resource where we have elements from
+     *            the url of the resource where we have elements from
      * @param parentEnvironment
      *            the parent environment to use as fall back facility.
      * @throws EnvironmentException
@@ -120,7 +123,14 @@ public class Environment {
             @NonNull Environment parentEnvironment) throws EnvironmentException {
         this.resourceName = resourceName;
         this.parentEnvironment = parentEnvironment;
-        
+      
+        // to find errors in the usage of resourceName
+        try {
+            new URL(resourceName);
+        } catch (MalformedURLException e) {
+            throw new EnvironmentException(e);
+        }
+
         if(!parentEnvironment.isFixed())
             throw new EnvironmentException("An environment which is parent to another environment needs to be fixed");
     }

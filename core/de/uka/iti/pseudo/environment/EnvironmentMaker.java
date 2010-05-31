@@ -156,8 +156,8 @@ public class EnvironmentMaker {
      *            the parser to use for include instructions
      * @param astFile
      *            the ast structure to traverse
-     * @param name
-     *            the name of the environment
+     * @param resource
+     *            the url to store in the environment
      * @param parent
      *            the parent environment to rely upon
      * 
@@ -165,12 +165,12 @@ public class EnvironmentMaker {
      *             some error happened during ast traversal.
      */
     private EnvironmentMaker(@NonNull Parser parser,
-            @NonNull ASTFile astFile, @NonNull String name,
+            @NonNull ASTFile astFile, @NonNull String resource,
             @NonNull Environment parent) throws ASTVisitException {
         this.parser = parser;
         
         try {
-            this.env = new Environment(name, parent);
+            this.env = new Environment(resource, parent);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(e);
         }

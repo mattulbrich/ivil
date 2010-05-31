@@ -13,9 +13,9 @@ package de.uka.iti.pseudo.gui.bar;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -30,10 +30,19 @@ public class OpenCurrentInEditorAction extends BarAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        
-        File file = new File(getProofCenter().getEnvironment().getResourceName());
+        try {        
+            URL url = new URL(getProofCenter().getEnvironment().getResourceName());
 
-        try {
+            if(!"file".equals(url.getProtocol())) {
+                ExceptionDialog.showExceptionDialog(getParentFrame(), 
+                        "Only local files can be opened in an editor frame." +
+                        "Copy the file to your file system and relaunch the " +
+                "system.");
+                return;
+            }
+
+            File file = new File(url.getPath());
+
             Main.openEditor(file);
         } catch (IOException e1) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), e1);

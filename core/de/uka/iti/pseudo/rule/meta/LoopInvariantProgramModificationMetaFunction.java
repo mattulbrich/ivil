@@ -163,7 +163,7 @@ class LoopModifier {
 
     // package default to unit test it.
     LiteralProgramTerm apply() throws TermException, EnvironmentException {
-        collectAssignables();
+         collectAssignables();
         
         Program program = programTerm.getProgram();
         int index = programTerm.getProgramIndex();
@@ -207,7 +207,7 @@ class LoopModifier {
         int programSize = originalProgram.countStatements();
         
         assert size >= 1;
-        assert size <= programSize;
+        assert size <= programSize + 1;
         
         int peek = stack.peek();
         

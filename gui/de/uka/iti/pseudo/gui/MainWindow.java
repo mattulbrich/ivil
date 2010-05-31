@@ -76,7 +76,7 @@ public class MainWindow extends JFrame {
      * @throws IOException if the barmanager fails to find needed resources
      */
     public MainWindow(ProofCenter proofCenter, String resourceName) throws IOException {
-        super("Pseudo - " + resourceName);
+        super("ivil - " + resourceName);
         this.proofCenter = proofCenter;
     }
 
