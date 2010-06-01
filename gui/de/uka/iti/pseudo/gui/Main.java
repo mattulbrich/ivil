@@ -35,6 +35,7 @@ import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 
@@ -66,8 +67,9 @@ public class Main {
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
     public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
-    
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
+    
+    private static final String VERSION_PATH = "/META-INF/VERSION";
 
     private static final List<ProofCenter> PROOF_CENTERS = new LinkedList<ProofCenter>();
     private static final List<PFileEditor> EDITORS = new LinkedList<PFileEditor>();
@@ -92,6 +94,8 @@ public class Main {
     
     public static void main(String[] args) throws Exception {
         
+        printVersion();
+        
         CommandLine commandLine = makeCommandLine();
         commandLine.parse(args);
         
@@ -115,6 +119,18 @@ public class Main {
                 openProver(file);
             }
         }
+    }
+    
+    private static void printVersion() {
+        String version = "<unknown version>";
+        try {
+            URL resource = Main.class.getResource(VERSION_PATH);
+            if (resource != null)
+                version = Util.readURLAsString(resource);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("This is ivil - " + version);
     }
     
 

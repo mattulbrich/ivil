@@ -12,9 +12,13 @@
     <mkdir dir="classes"/>
     <mkdir dir="classes-test"/>
     <mkdir dir="genSrc"/> 
+    <tstamp> 
+      <format property="NOW" pattern="yyyy-MM-dd kk:mm" locale="en,UK"/>
+    </tstamp>
     <uptodate property="javacc.notRequired" targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
       <srcfiles dir="core/de/uka/iti/pseudo/parser/" includes="*.jj"/>
     </uptodate>
+    <echo file="classes/META-INF/VERSION" append="false">0.1 - ${NOW}</echo>
   </target>
 	
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
