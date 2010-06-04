@@ -9,7 +9,7 @@
 -->
  
   <target name="init">
-    <mkdir dir="classes"/>
+    <mkdir dir="classes/META-INF"/>
     <mkdir dir="classes-test"/>
     <mkdir dir="genSrc"/> 
     <tstamp> 
