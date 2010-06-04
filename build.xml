@@ -67,6 +67,7 @@
       <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
       <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
     </exec>
+    <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
   </target>
 	
   <target name="copy" depends="init">
