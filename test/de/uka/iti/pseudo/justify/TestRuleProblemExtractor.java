@@ -26,7 +26,8 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             Parser fp = new Parser(TestRuleProblemExtractor.class.getResourceAsStream("extractor.p"));
             ASTFile f = fp.File();
             f.setFilename("*test_internal*");
-            EnvironmentMaker em = new EnvironmentMaker(fp, f, "*test_internal*");
+            de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
+            EnvironmentMaker em = new EnvironmentMaker(fp, f, "none:*test_internal*");
             Environment environment = em.getEnvironment();
             environment.setFixed();
             return environment;
@@ -95,7 +96,7 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         if(expected == null)
             fail("Rule " + name + " has no expectedTranslation");
 
-        env = new Environment("wrap", startEnv);
+        env = new Environment("none:wrap", startEnv);
         RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
         Term result = rpe.extractProblem();
 

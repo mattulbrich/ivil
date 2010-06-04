@@ -9,6 +9,7 @@
  
 options {
    STATIC=false;
+   // FORCE_LA_CHECK=true;
 }
 
 PARSER_BEGIN(Parser)
@@ -77,6 +78,11 @@ public class Parser {
         throw new ParseException(token, expected, tokenImage);
     }
     
+    public static void main(String args[]) throws Exception {
+        Parser p = new Parser();
+        p.parseFile(new File(args[0]));
+    }
+    
 }
 
 PARSER_END(Parser)
@@ -100,6 +106,9 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 // Finally a rule is needed to mop up all the other characters in the comment.
 < COMMENT >  SKIP : {  < ~[] > }
 
+// We may want to use a keyword as identifier. Then we have to protect it using `.
+// `closegoal + 1` refers to the identifier with the term "closegoal + 1" in which
+// closegoal is (e.g.) a variable name.
 < DEFAULT > SKIP : {  "`" : PROTECTED }
 < PROTECTED > SKIP : { "`" : DEFAULT } 
 
@@ -179,7 +188,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
 | < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
-| < SCHEMALABEL_IDENTIFIER: "&" <IDENTIFIER> >
+// | < LABEL_IDENTIFIER: "&" <IDENTIFIER> >
 | < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
 | < META_IDENTIFIER: "$$" <IDENTIFIER> >
 | < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^","@",".",":"] )+ >

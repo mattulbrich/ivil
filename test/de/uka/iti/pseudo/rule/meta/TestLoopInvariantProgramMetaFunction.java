@@ -31,7 +31,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     private Environment testEnv(String resource) throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new InputStreamReader(getClass().getResourceAsStream(resource)), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
 //        if(VERBOSE)
 //            env.dump();

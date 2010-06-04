@@ -23,7 +23,8 @@ public class TestProgramParser extends TestCaseWithEnv {
     private Environment testEnv(String string) throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " + string), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
+        de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         if(VERBOSE)
             env.dump();

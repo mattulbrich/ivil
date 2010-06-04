@@ -119,7 +119,8 @@ public class TestCaseWithEnv extends TestCase {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" "
                 + string), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "test");
+        de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         return env;
     }

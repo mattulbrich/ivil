@@ -19,6 +19,7 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
+import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
@@ -39,7 +40,7 @@ public class Program {
     static {
         try {
             // this statement is not associated with a line number (therefore -1)
-            OUT_OF_BOUNDS_STATEMENT = new AssumeStatement(-1, Environment.getFalse());
+            OUT_OF_BOUNDS_STATEMENT = new EndStatement(-1, Environment.getTrue());
         } catch (TermException e) {
             // this cannot happen
             throw new Error(e);

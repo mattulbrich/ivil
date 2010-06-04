@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 /**
  * The Class Environment captures all defined entities for a proof
@@ -63,6 +64,8 @@ public class Environment {
     static {
         BUILT_IN_ENV.addBuiltIns();
         BUILT_IN_ENV.setFixed();
+        // needed for the dummy-url "none:built-in"
+        Handler.registerNoneHandler();
     }
 
     /**
@@ -104,7 +107,7 @@ public class Environment {
      * Instantiates a new environment which only contains the built ins.
      */
     private Environment() {
-        this.resourceName = "system:built-in";
+        this.resourceName = "none:built-in";
     }
 
     /**
@@ -128,7 +131,7 @@ public class Environment {
         try {
             new URL(resourceName);
         } catch (MalformedURLException e) {
-            throw new EnvironmentException(e);
+            throw new EnvironmentException("Resource must be a URL", e);
         }
 
         if(!parentEnvironment.isFixed())

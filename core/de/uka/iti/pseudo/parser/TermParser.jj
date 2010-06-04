@@ -10,6 +10,7 @@ ASTTerm TermEOF():
   ASTTerm term;
 }
 {
+        { token_source.SwitchTo(PROTECTED); }
 	term=Term() <EOF>
 	{ return term; }
 }
@@ -17,10 +18,10 @@ ASTTerm TermEOF():
 ASTTerm Term():
 { 
   ASTTerm term;
-  List<ASTTerm> list = new ArrayList<ASTTerm>(); 
+  List<ASTTerm> list = new ArrayList<ASTTerm>();
+  int depth = 0; 
 }
 {
-
         ( term=OpIdentifier() { list.add(term); } )*
         term=UpdateTerm() { list.add(term); }
         (
@@ -32,7 +33,18 @@ ASTTerm Term():
         return new ASTListTerm(list);
      else
         return list.get(0);
-   }
+   }/*
+   ( LOOKAHEAD(2) 
+     (    OpIdentifier() 
+       | "||" | "as" TypeRef() | ":=" | ProgramTerm()
+       | <BINDER_IDENTIFIER> 
+       | ( "(" | "{" ) { depth ++; }
+       | ( ")" | "}" ) { depth --; }
+       | ","
+     ) {
+          // somthing
+       }
+   )+*/
 }
 
 ASTTerm UpdateTerm():

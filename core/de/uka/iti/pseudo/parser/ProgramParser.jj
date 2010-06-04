@@ -80,19 +80,48 @@ ASTAssignmentStatement Assignment():
 	":=" term=Term()
 	{ return new ASTAssignmentStatement(target, term); }
 }
+
+/*
+// In case we want to distinguish between goto labels and identifiers use this
+// with goto statements and lables
+List<ASTTerm> GotoTargetList():
+{
+    List<ASTTerm> targets = new LinkedList<ASTTerm>();
+    ASTTerm target;
+    Token t;
+}
+{
+    ( target = SchemaVariable()
+    | target = NumberLiteral()
+    | t=<LABEL_IDENTIFIER> 
+        { target=new ASTIdentifierTerm(t); }
+    )
+    { targets.add(target); }
+    
+    ( "," 
+        ( target = SchemaVariable()
+        | target = NumberLiteral()
+        | t=<LABEL_IDENTIFIER> 
+            { target=new ASTIdentifierTerm(t); }
+        )
+        { targets.add(target); }
+    )?
+    { return targets; }
+}
+*/
 	
 List<ASTTerm> Statement_TermList():
 {
-    List<ASTTerm> targets = new LinkedList<ASTTerm>();
+    List<ASTTerm> terms = new LinkedList<ASTTerm>();
     ASTTerm t;
 }
 {
     (t=Term())
-    { targets.add(t); }
+    { terms.add(t); }
     
     ( "," 
       (t=Term())
-        { targets.add(t); }
+        { terms.add(t); }
     )?
-    { return targets; }
+    { return terms; }
 }
