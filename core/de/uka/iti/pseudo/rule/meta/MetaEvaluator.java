@@ -74,6 +74,7 @@ public class MetaEvaluator extends RebuildingTermVisitor {
         super.visit(application);
         
         // take subterm replacement into consideration
+        // but we know it always is of type Application
         if(resultingTerm != null)
            application = (Application) resultingTerm;
     

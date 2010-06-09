@@ -45,7 +45,7 @@ public class DeepUpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
         public void visit(UpdateTerm updateTerm) throws TermException {
             Term applied = applyUpdate(updateTerm);
             
-            if(applied == updateTerm) {
+            if(applied == null) {
                 // nothing to be changed ... return null
                 resultingTerm = null;
             } else {

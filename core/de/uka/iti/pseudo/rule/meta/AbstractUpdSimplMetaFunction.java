@@ -32,9 +32,12 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
 /**
- * The Class UpdSimplMetaFunction handles updates in front of terms.
+ * The Class AbstractUpdSimplMetaFunction handles updates in front of terms.
  * 
- * <p>In contrast to the KeY system, simplifications are single steps.
+ * <p>In contrast to the KeY system, simplifications are single steps 
+ * (used in {@link UpdSimplMetaFunction}). However, the class 
+ * {@link DeepUpdSimplMetaFunction} allows us to consider the entire 
+ * simplification as one step. 
  * 
  * <p>The following simplifications are built in (let x be an 
  * assignable symbol, v a variable)
@@ -60,7 +63,20 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         super(TypeVariable.ALPHA, name, TypeVariable.ALPHA);
     }
 
-    // may return null
+    /**
+     * Apply an update to a term. Do a single simplification step as described
+     * in the class description.
+     * 
+     * <p>
+     * Uses a visitor of class {@link Visitor} to visit the term and returns an
+     * according term.
+     * 
+     * @param updTerm
+     *            the updated term to simplify
+     * @return a simplified term in which one step of update simplification has
+     *         been performed. <code>null</code> if the term cannot be simplified.
+     * @throws TermException
+     */
     protected static Term applyUpdate(UpdateTerm updTerm) throws TermException {
         Term updatedTerm = updTerm.getSubterm(0);
         Update update = updTerm.getUpdate();
@@ -130,7 +146,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         
         return new Binding(b, type, bi, args);
     }
-    
+
     /**
      * Combine two consecutive updates.
      * 
@@ -139,7 +155,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
      * @param updTerm
      *            the update term (the inner one)
      * 
-     * @return the term
+     * @return the originally updated term prefixed with a combined update.
      * 
      * @throws TermException
      *             the term exception
@@ -178,6 +194,10 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
     /*
      * The visitor is used to do the case distinction and to handle
      * update erasure in front of variables.
+     * 
+     * In particular, it does not implement the visitor method for
+     * program terms. Hence, resulTerm is null if the update is applied
+     * to a program term.
      */
     private static class Visitor extends DefaultTermVisitor {
         
@@ -209,7 +229,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         public void visit(UpdateTerm updateTerm) throws TermException {
             resultTerm = combineUpdate(update, updateTerm);
         }
-
+        
         protected void defaultVisitTerm(Term term) throws TermException {
             // Do nothing by default
         }
