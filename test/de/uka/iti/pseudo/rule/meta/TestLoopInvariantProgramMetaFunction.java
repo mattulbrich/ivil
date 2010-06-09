@@ -66,7 +66,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testInvariantRule() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = new LiteralProgramTerm(2, false, env.getProgram("Q"));
+        LiteralProgramTerm prog = new LiteralProgramTerm(5, false, env.getProgram("Q"));
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), makeTerm("var"), env);
         loopMod.setVarAtPre(makeTerm("varAtPre"));
         
@@ -78,7 +78,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testInvariantRuleWithoutVar() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = new LiteralProgramTerm(2, false, env.getProgram("Q"));
+        LiteralProgramTerm prog = new LiteralProgramTerm(5, false, env.getProgram("Q"));
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
         
         LiteralProgramTerm progResult = loopMod.apply();

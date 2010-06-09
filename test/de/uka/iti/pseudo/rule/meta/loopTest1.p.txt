@@ -7,6 +7,7 @@ function
   int b assignable
   int c assignable
   int d assignable
+  int e assignable
   
   int var
   int varAtPre
@@ -34,42 +35,56 @@ program P
 program Q
      a := 0
   start:
-     b := 0     
+     b := 0
+     assert true (* cover execution of all statements in this test *)
+     assume true 
+     havoc d
      skip # <---  (skip is removed)
      c := 0  
-     goto start
-     d := 0
+     goto start, cont
+  cont:
+     e := 0
      
      
 program Q_after
      a := 0
   start:
      b := 0
+     assert true
+     assume true
+     havoc d
      assert inv ; "Continuation preserves invariant"
      assert var >= 0 & var < varAtPre ; "Continuation reduces variant"
      end true
      #  C U T  H E R E
+     havoc d
      havoc b
      havoc c
      assume varAtPre = var
      assume inv
      c := 0
-     goto start
-     d := 0
+     goto start, cont
+  cont:
+     e := 0
      
 program Q_after_without_var
      a := 0
   start:
      b := 0
+     assert true
+     assume true
+     havoc d
      assert inv ; "Continuation preserves invariant"
      end true
      #  C U T  H E R E
+     havoc d
      havoc b
      havoc c
      assume inv
      c := 0
-     goto start
-     d := 0
+     goto start, cont
+   cont:
+     e := 0
      
      
 program Bug1
