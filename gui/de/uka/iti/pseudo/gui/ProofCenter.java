@@ -355,7 +355,7 @@ public class ProofCenter {
         
         return next;
     }
-    
+
     /**
      * Prune a proof.
      * 
@@ -365,8 +365,10 @@ public class ProofCenter {
      * 
      * @param proofNode
      *            the node in the proof to prune.
+     * @throws ProofException
+     *             if the node is not part of this proof.
      */
-    public void prune(ProofNode proofNode) {
+    public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
         fireSelectedProofNode(proofNode);
     }

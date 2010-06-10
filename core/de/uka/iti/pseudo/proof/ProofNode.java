@@ -297,7 +297,7 @@ public class ProofNode {
      * node.  
      * 
      * <p>This method is only package visible and should only be called from within
-     * {@link Proof#apply(RuleApplication, Environment, Properties)} which is a
+     * {@link Proof#apply(RuleApplication, Environment)} which is a
      * synchronised method.
      * 
      * @param ruleApp
@@ -307,7 +307,7 @@ public class ProofNode {
      * @throws ProofException
      */
     void apply(RuleApplication ruleApp, TermInstantiator inst, 
-            Environment env, Properties whereClauseProperties)
+            Environment env/*, Properties whereClauseProperties*/)
             throws ProofException {
         
         if(appliedRuleApp != null)
