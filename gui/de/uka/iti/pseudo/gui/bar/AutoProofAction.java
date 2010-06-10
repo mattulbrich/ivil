@@ -106,7 +106,7 @@ public class AutoProofAction extends BarAction
             thread = null;
             proof.getLock().unlock();
             getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-            // some listeners are switched off, they might want to update now.
+            // some listeners have been switched off, they might want to update now.
             proof.notifyObservers();
         }
     }

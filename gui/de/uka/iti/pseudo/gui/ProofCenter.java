@@ -316,6 +316,11 @@ public class ProofCenter {
      * branch, the first open goal will be returned. If the whole tree is
      * closed, the root is returned - though not an open goal.
      * 
+     * <p>
+     * If the proof is currently locked by another thread, this implementation
+     * not wait for the lock but throws an exception. The UI has to ensure that
+     * this method is not invoked while the lock is held.
+     * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
      * 
@@ -355,7 +360,7 @@ public class ProofCenter {
         
         return next;
     }
-    
+
     /**
      * Prune a proof.
      * 
@@ -365,8 +370,10 @@ public class ProofCenter {
      * 
      * @param proofNode
      *            the node in the proof to prune.
+     * @throws ProofException
+     *             if the node is not part of this proof.
      */
-    public void prune(ProofNode proofNode) {
+    public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
         fireSelectedProofNode(proofNode);
     }

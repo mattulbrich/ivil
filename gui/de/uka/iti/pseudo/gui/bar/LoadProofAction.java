@@ -22,6 +22,7 @@ import javax.swing.JFileChooser;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
@@ -94,7 +95,11 @@ import de.uka.iti.pseudo.util.GUIUtil;
                 }
 
             } catch (Exception ex) {
-                origProof.prune(origProof.getRoot());
+                try {
+                    origProof.prune(origProof.getRoot());
+                } catch (ProofException ex2) {
+                    ex2.printStackTrace();
+                }
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } finally {
                 origProof.getLock().unlock();

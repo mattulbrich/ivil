@@ -16,7 +16,9 @@ import java.beans.PropertyChangeListener;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
@@ -37,7 +39,11 @@ public class PruneAction extends BarAction implements PropertyChangeListener {
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
         Proof proof = getProofCenter().getProof();
         
-        proof.prune(proofNode);
+        try {
+            proof.prune(proofNode);
+        } catch (ProofException ex) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+        }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

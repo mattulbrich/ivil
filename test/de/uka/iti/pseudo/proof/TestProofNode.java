@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.rule.Rule;
@@ -64,5 +65,72 @@ public class TestProofNode extends TestCaseWithEnv {
         Term result = p.getGoal(0).getSequent().getAntecedent().get(1);
         
         assertEquals(makeTerm("3>0"), result);
+    }
+    
+    public void testPrune() throws Exception {
+        Term term = makeTerm("$and(b1, b2)");
+        Proof p = new Proof(term);
+        ProofNode orgRoot = p.getRoot();
+        Rule rule = env.getRule("and_right");
+        Term pattern = rule.getFindClause().getTerm();
+        
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setFindSelector(new TermSelector("S.0"));
+        app.getTermUnification().leftUnify(pattern, term);
+        
+        p.apply(app, env);
+        p.prune(orgRoot);
+     
+        assertEquals(null, orgRoot.getChildren());
+    }
+    
+    public void testPruneClosed() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        ProofNode orgRoot = p.getRoot();
+        Rule rule = env.getRule("close_true_right");
+        
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setFindSelector(new TermSelector("S.0"));
+        
+        p.apply(app, env);
+        assertEquals(Collections.emptyList(), orgRoot.getChildren());
+        
+        p.prune(orgRoot);
+        assertEquals(null, orgRoot.getChildren());
+    }
+    
+    public void testPruneWrongProof() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        Proof p2 = new Proof(term);
+        
+        try {
+            p.prune(p2.getRoot());
+            fail("Should have failed: Wrong proof for node");
+        } catch (ProofException e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
+    }
+    
+    public void testIllegalGoalNumber() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        Rule rule = env.getRule("close_true_right");
+        
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setGoalNumber(1);
+        app.setFindSelector(new TermSelector("S.0"));
+        
+        try {
+            p.apply(app, env);
+        } catch (ProofException e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
     }
 }
