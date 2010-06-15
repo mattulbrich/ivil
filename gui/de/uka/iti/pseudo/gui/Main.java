@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
+import de.uka.iti.pseudo.util.settings.SettingsException;
 
 
 /**
@@ -280,15 +281,13 @@ public class Main {
     private static void loadProperties() {
         try {
             settings = Settings.getInstance();
-            try {
-                settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
-                settings.putAll(System.getProperties());
-            } catch (AccessControlException e) {
-                // If run as web start, this is not allowed, so ignoremus.
-                e.printStackTrace();
-            }
+            settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
+            settings.putAll(System.getProperties());
+        } catch (FileNotFoundException e) {
+            System.err.println("Cannot read property file, continuing anyway ...");
+            // no stacktrace here
         } catch (IOException e) {
-            System.err.println("Cannot read properties file, continuing anyway ...");
+            System.err.println("Error reading property file, continuing anyway ...");
             e.printStackTrace();
         }
     }
