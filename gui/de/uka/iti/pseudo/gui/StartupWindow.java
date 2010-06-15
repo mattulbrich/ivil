@@ -18,8 +18,8 @@ import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import de.uka.iti.pseudo.gui.bar.BarAction;
-import de.uka.iti.pseudo.gui.bar.BarManager;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed

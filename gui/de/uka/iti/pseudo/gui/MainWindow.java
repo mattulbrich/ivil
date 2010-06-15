@@ -32,9 +32,9 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
-import de.uka.iti.pseudo.gui.bar.BarAction;
-import de.uka.iti.pseudo.gui.bar.BarManager;
-import de.uka.iti.pseudo.gui.bar.CloseAction;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.CloseAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
 import de.uka.iti.pseudo.gui.source.ProgramPanel;
 import de.uka.iti.pseudo.gui.source.SourcePanel;
@@ -83,9 +83,9 @@ public class MainWindow extends JFrame {
     void makeGUI() throws IOException {
 
         // setup the bar manager
-        URL resource = getClass().getResource("bar/menu.properties");
+        URL resource = getClass().getResource("actions/menu.properties");
         if(resource == null)
-            throw new IOException("resource bar/menu.properties not found");
+            throw new IOException("resource actions/menu.properties not found");
         barManager = new BarManager(null, resource);
         barManager.putProperty(BarAction.CENTER, proofCenter);
         barManager.putProperty(BarAction.PARENT_FRAME, this);
@@ -98,7 +98,8 @@ public class MainWindow extends JFrame {
         // Create the dockings
         TabDock leftTabDock = new TabDock();
         TabDock rightTabDock = new TabDock();
-        TabDock bottomTabDock = new TabDock();
+        TabDock sourceTabDock = new TabDock();
+        TabDock programTabDock = new TabDock();
         {
             // Create the dock model for the docks.
             FloatDockModel dockModel = new FloatDockModel();
@@ -109,11 +110,19 @@ public class MainWindow extends JFrame {
             
             // create compound dock for right and bottom
             SplitDock rbSplitDock = new SplitDock();
+
+            // create compound dock for source and program
+            SplitDock psSplitDock = new SplitDock();
             
             // Add the child docks to the split dock at the left and right.
             rbSplitDock.addChildDock(rightTabDock, new Position(Position.CENTER));
-            rbSplitDock.addChildDock(bottomTabDock, new Position(Position.BOTTOM));
+            rbSplitDock.addChildDock(psSplitDock, new Position(Position.BOTTOM));
             rbSplitDock.setDividerLocation(300);
+            
+            
+            psSplitDock.addChildDock(programTabDock, new Position(Position.LEFT));
+            psSplitDock.addChildDock(sourceTabDock, new Position(Position.RIGHT));
+            psSplitDock.setDividerLocation(300);
             
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
             topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
@@ -174,13 +183,13 @@ public class MainWindow extends JFrame {
             ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("program", panel, "Program");
-            bottomTabDock.addDockable(dock, new Position(0));
+            programTabDock.addDockable(dock, new Position(0));
         }
         {
             SourcePanel panel = new SourcePanel(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("source", panel, "Sources");
-            bottomTabDock.addDockable(dock, new Position(1));
+            sourceTabDock.addDockable(dock, new Position(0));
         }
         {
             ParameterPanel settings = new ParameterPanel(proofCenter);

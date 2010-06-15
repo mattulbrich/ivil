@@ -25,7 +25,7 @@ import de.uka.iti.pseudo.auto.strategy.BreakpointStrategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.bar.BarManager;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;

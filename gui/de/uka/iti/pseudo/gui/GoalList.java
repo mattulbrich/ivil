@@ -35,11 +35,9 @@ public class GoalList extends JList implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4802864505685652999L;
     private Proof proof;
-    private Environment env;
     
     public GoalList(Proof proof, Environment env) {
         this.proof = proof;
-        this.env = env;
         Model model = new Model();
         setModel(model);
         proof.addObserver(model);
