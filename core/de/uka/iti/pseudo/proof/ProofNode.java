@@ -307,7 +307,7 @@ public class ProofNode {
      * @throws ProofException
      */
     void apply(RuleApplication ruleApp, TermInstantiator inst, 
-            Environment env/*, Properties whereClauseProperties*/)
+            Environment env)
             throws ProofException {
         
         if(appliedRuleApp != null)
@@ -321,6 +321,10 @@ public class ProofNode {
 
         children = doActions(ruleApp, inst, env, rule);
 
+        // TODO Copy the rule app in the beginning
+        // Move this wrapping to the top of method
+        // BUT leave the assignment here.
+        
         if(!(ruleApp instanceof ImmutableRuleApplication))
             this.appliedRuleApp = new ImmutableRuleApplication(ruleApp);
         else

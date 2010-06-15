@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import nonnull.NonNull;
@@ -69,12 +68,7 @@ public class Settings {
             InputStream stream = getClass().getResourceAsStream("Settings_default.properties");
             contents.load(stream);
             stream.close();
-            try {
-                contents.putAll(System.getProperties());
-            } catch (AccessControlException e) {
-                // If run as web start, this is not allowed, so ignoremus.
-                e.printStackTrace();
-            }
+            contents.putAll(System.getProperties());
         } catch (Exception ex) {
             throw new RuntimeException("Cannot initialise Settings", ex);
         } 
