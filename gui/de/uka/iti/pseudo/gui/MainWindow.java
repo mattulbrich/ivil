@@ -11,6 +11,9 @@
 package de.uka.iti.pseudo.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.net.URL;
@@ -50,6 +53,29 @@ import de.uka.iti.pseudo.proof.ProofNode;
 @SuppressWarnings("serial") 
 public class MainWindow extends JFrame {
     
+	static private class TopDockResizeListener implements ComponentListener{
+
+		@Override
+		public void componentHidden(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentMoved(ComponentEvent e) {
+		}
+
+		@Override
+		public void componentResized(ComponentEvent e) {
+			SplitDock topDock = (SplitDock) e.getComponent();
+			if(200!=topDock.getDividerLocation())
+				topDock.setDividerLocation(200);
+		}
+
+		@Override
+		public void componentShown(ComponentEvent e) {
+		}
+		
+	}
+	
     /**
      * indicator for property changes on mainwindow that 
      * window is initialised now.
@@ -95,6 +121,7 @@ public class MainWindow extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(topDock, BorderLayout.CENTER);
         
+        
         // Create the dockings
         TabDock leftTabDock = new TabDock();
         TabDock rightTabDock = new TabDock();
@@ -123,10 +150,11 @@ public class MainWindow extends JFrame {
             psSplitDock.addChildDock(programTabDock, new Position(Position.LEFT));
             psSplitDock.addChildDock(sourceTabDock, new Position(Position.RIGHT));
             psSplitDock.setDividerLocation(300);
-            
+
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
             topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
             topDock.setDividerLocation(200);
+            topDock.addComponentListener(new TopDockResizeListener());
             
             // Add the root dock to the dock model.
             dockModel.addRootDock("splitDock", topDock, this);
