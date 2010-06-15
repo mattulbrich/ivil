@@ -189,6 +189,7 @@
     <javadoc destdir="javadoc" linksource="yes">
       <sourcepath>
         <pathelement location="core"/>
+        <pathelement location="gui"/>
       </sourcepath>
 <!--      <fileset dir="core">
         <include name="**/*.java"/>

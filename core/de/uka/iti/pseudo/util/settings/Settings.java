@@ -183,7 +183,7 @@ public class Settings {
      *                
      * @return the value in this property list with the specified key value.
      * 
-     * @throws NoSuchElementException
+     * @throws SettingsException
      *                 if key has not been defined
      */
     public String getProperty(@NonNull String key) throws SettingsException {
@@ -203,16 +203,13 @@ public class Settings {
      *                the default value to return if the key is not present.
      *                
      * @return the value in this property list with the specified key value.
-     * 
-     * @throws NoSuchElementException
-     *                 if key has not been defined
      */
     public String getProperty(String key, String defaultValue) {
         try {
             return getProperty(key);
         } catch (SettingsException e) {
             // log
-            System.err.println("Falling back to default value");
+            // System.err.println("Falling back to default value");
             e.printStackTrace();
             return defaultValue;
         }
