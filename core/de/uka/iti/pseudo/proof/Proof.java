@@ -72,6 +72,7 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  * children has changed recently.
  * <li>Or with an argument of <code>null</code> indicating the some nodes on the
  * tree may have changed.</li>
+ * </ol>
  */
 public class Proof extends Observable {
 

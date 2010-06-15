@@ -230,6 +230,4 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         this.splitMode = splitMode;
     }
 
-
-
 }

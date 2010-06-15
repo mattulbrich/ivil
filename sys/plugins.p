@@ -1,5 +1,7 @@
 #
-# This file is part of PSEUDO
+# This file is part of This file is part of
+#    ivil - Interactive Verification on Intermediate Language
+#
 # Copyright (C) 2009 Universitaet Karlsruhe, Germany
 #    written by Mattias Ulbrich
 #
@@ -8,7 +10,7 @@
 #
 
 (*
- * This file contains the basic plugins for PSEUDO:
+ * This file contains the basic plugins for ivil:
  *  - where conditions for propositional parts
  *  - where conditions for first order parts
  *  - basic meta functions 

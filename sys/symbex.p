@@ -1,5 +1,7 @@
 #
-# This file is part of PSEUDO
+# This file is part of This file is part of
+#    ivil - Interactive Verification on Intermediate Language
+#
 # Copyright (C) 2009 Universitaet Karlsruhe, Germany
 #    written by Mattias Ulbrich
 #
@@ -362,12 +364,14 @@ rule autot_loop_invariant_update
 (*
  * Update simplification
  *)
+(*
 rule update_simplification
   find {U}%t
   where canEval $$updSimpl({U}%t)
   samegoal replace $$updSimpl({U}%t)
   tags rewrite "updSimpl"
        verbosity "10"
+*)
 
 rule deep_update_simplification
   find {U}%t
