@@ -20,8 +20,19 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.util.LinearLookupMap;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO DOC
-
+/**
+ * The Class ImmutableRuleApplication is the canonical unmodifiable
+ * implementation of the interface {@link RuleApplication}.
+ * 
+ * <p>
+ * All values given to the constructor cannot be changed afterwards. The list of
+ * assume selectors is copied into a new array to enforce this. The lookup maps
+ * are stored in {@link LinearLookupMap}s which are space optimised
+ * implementation of the {@link Map} interface. Their lookup time is bad (O(n))
+ * but this does not matter because typical maps are rather short.
+ * 
+ * @author mattias ulbrich
+ */
 public class ImmutableRuleApplication implements RuleApplication {
 
     private Rule rule;
@@ -77,7 +88,6 @@ public class ImmutableRuleApplication implements RuleApplication {
     public Map<String, Type> getTypeVariableMapping() {
         return typeVariableMap;
     }
-    
 
     public boolean hasMutableProperties() {
         return false;

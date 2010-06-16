@@ -84,7 +84,7 @@ public class LinearLookupMap<K, V> implements Map<K, V> {
 
     public boolean containsValue(Object value) {
         for (int i = 0; i < values.length; i++) {
-            if(values[i].equals(value))
+            if(Util.equalOrNull(values[i], value))
                 return true;
         }
         return false;

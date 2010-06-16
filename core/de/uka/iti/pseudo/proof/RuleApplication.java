@@ -26,7 +26,6 @@ import de.uka.iti.pseudo.term.Update;
  * application, i.e., it records
  * <ol>
  * <li>which {@link Rule} is to be applied
- * <li>
  * <li>to which open goal of a {@link Proof} (see {@link Proof#getGoal(int)})
  * <li>It provides a {@link TermSelector} indicating the <i>find</i> clause of
  * the rule,
@@ -41,7 +40,7 @@ import de.uka.iti.pseudo.term.Update;
  * then copied to an unmodifiable instance when using the application, however.
  * 
  * <p>
- * The classe {@link ImmutableRuleApplication} is the implementation that cannot
+ * The class {@link ImmutableRuleApplication} is the implementation that cannot
  * be changed after creation.
  */
 public interface RuleApplication {

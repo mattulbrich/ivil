@@ -42,6 +42,7 @@ import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TestTermUnification;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
+import de.uka.iti.pseudo.util.TestLinearLookupMap;
 import de.uka.iti.pseudo.util.TestUtil;
 import de.uka.iti.pseudo.util.settings.TestSettings;
 
@@ -87,6 +88,7 @@ public class AllTests {
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);
         suite.addTestSuite(TestSettings.class);
+        suite.addTestSuite(TestLinearLookupMap.class);
         //$JUnit-END$
         return suite;
     }
