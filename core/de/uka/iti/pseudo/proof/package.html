@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head></head>
+<body>
+  This package contains the classes {@link de.uka.iti.pseudo.proof.Proof} and {@link de.uka.iti.pseudo.ProofNode}
+  that are used to represent proof trees. {@link de.uka.iti.pseudo.proof.RuleApplication}s are used to denote
+  applications of rules in certain situations.
+  
+  <p>
+  This package has some package private methods which are, e.g. shared between <tt>Proof</tt> and 
+  <tt>ProofNode</tt>. The publicly available interface is available from Proof rather than from ProofNode.
+  The latter has only public getter methods, no setter methods.
+  
+  <p>Proof is thread-safe because of a locking mechanism (see {@link de.uka.iti.pseudo.proof.Proof}).
+  
+  <p>RuleApplication can be immutable or mutable. An immutable copy is made when a rule application is
+  to be stored in a proof node.
+</body>
+</html>
