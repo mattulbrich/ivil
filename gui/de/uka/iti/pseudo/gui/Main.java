@@ -120,8 +120,17 @@ public class Main {
             }
         }
         
-        //write back settings
-        settings.storeFileByKey(PROPERTIES_FILE_KEY);
+        // write back settings at the end of the program
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                System.out.println("Writing back properties ...");
+                try {
+                    settings.storeFileByKey(PROPERTIES_FILE_KEY);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
     
     private static void printVersion() {
