@@ -53,28 +53,28 @@ import de.uka.iti.pseudo.proof.ProofNode;
 @SuppressWarnings("serial") 
 public class MainWindow extends JFrame {
     
-	static private class TopDockResizeListener implements ComponentListener{
+    static private class TopDockResizeListener implements ComponentListener{
 
-		@Override
-		public void componentHidden(ComponentEvent e) {
-		}
+        @Override
+        public void componentHidden(ComponentEvent e) {
+        }
 
-		@Override
-		public void componentMoved(ComponentEvent e) {
-		}
+        @Override
+        public void componentMoved(ComponentEvent e) {
+        }
 
-		@Override
-		public void componentResized(ComponentEvent e) {
-			SplitDock topDock = (SplitDock) e.getComponent();
-			if(200!=topDock.getDividerLocation())
-				topDock.setDividerLocation(200);
-		}
+        @Override
+        public void componentResized(ComponentEvent e) {
+            SplitDock topDock = (SplitDock) e.getComponent();
+            if(200!=topDock.getDividerLocation())
+                topDock.setDividerLocation(200);
+        }
 
-		@Override
-		public void componentShown(ComponentEvent e) {
-		}
-		
-	}
+        @Override
+        public void componentShown(ComponentEvent e) {
+        }
+
+    }
 	
     /**
      * indicator for property changes on mainwindow that 
@@ -154,7 +154,8 @@ public class MainWindow extends JFrame {
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
             topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
             topDock.setDividerLocation(200);
-            topDock.addComponentListener(new TopDockResizeListener());
+            topDock.addDockingListener(new ResizeWeightAdaptation(0));
+            // topDock.addComponentListener(new TopDockResizeListener());
             
             // Add the root dock to the dock model.
             dockModel.addRootDock("splitDock", topDock, this);
