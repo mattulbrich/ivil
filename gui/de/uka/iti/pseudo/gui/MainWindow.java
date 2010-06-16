@@ -151,10 +151,10 @@ public class MainWindow extends JFrame {
             psSplitDock.addChildDock(sourceTabDock, new Position(Position.RIGHT));
             psSplitDock.setDividerLocation(300);
 
+            topDock.addDockingListener(new ResizeWeightAdaptation(0));
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
             topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
-            topDock.setDividerLocation(200);
-            topDock.addDockingListener(new ResizeWeightAdaptation(0));
+            topDock.setDividerLocation(200);            
             // topDock.addComponentListener(new TopDockResizeListener());
             
             // Add the root dock to the dock model.
