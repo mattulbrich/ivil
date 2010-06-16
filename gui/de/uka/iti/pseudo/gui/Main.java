@@ -91,7 +91,6 @@ public class Main {
         
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY, ".");
     }
-
     
     public static void main(String[] args) throws Exception {
         
@@ -120,6 +119,9 @@ public class Main {
                 openProver(file);
             }
         }
+        
+        //write back settings
+        settings.storeFileByKey(PROPERTIES_FILE_KEY);
     }
     
     private static void printVersion() {

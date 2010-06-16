@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.util.settings;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
@@ -503,6 +504,35 @@ public class Settings {
         } finally {
             if(fileInputStream != null)
                 fileInputStream.close();
+        }
+    }
+    
+    /**
+     * Stores settings into a file.
+     * 
+     * <p>
+     * The filename is obtained by querying the settings for the argument key.
+     * 
+     * @throws IOException
+     *                 if something goes wrong while writing properties or
+     *                 resolving names.
+     */
+    public void storeFileByKey(String propertiesFileKey) throws IOException {
+        String fileName;
+        try {
+            fileName = getExpandedProperty(propertiesFileKey);
+        } catch (SettingsException e) {
+            IOException ex = new IOException("No properties file defined for key " + propertiesFileKey);
+            ex.initCause(e);
+            throw ex;
+        }
+        
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+        try {
+            contents.store(fileOutputStream, "Settings from last session.");
+        } finally {
+            if(fileOutputStream != null)
+                fileOutputStream.close();
         }
     }
 
