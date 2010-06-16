@@ -33,9 +33,9 @@ public class StartupWindow extends JFrame {
 
     private void makeGUI() throws IOException {
         {
-            URL resource = getClass().getResource("bar/menu.properties");
+            URL resource = getClass().getResource("actions/menu.properties");
             if(resource == null)
-                throw new IOException("resource bar/menu.properties not found");
+                throw new IOException("resource actions/menu.properties not found");
             barManager = new BarManager(null, resource);
             barManager.putProperty(BarAction.PARENT_FRAME, this);
             setJMenuBar(barManager.makeMenubar("menubar.startup"));
