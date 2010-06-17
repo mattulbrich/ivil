@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -439,7 +440,7 @@ public class ParameterSheet extends JPanel {
                     + "_parameters.properties";
             propertyResource = objectClass.getResource(resource);
             if (propertyResource == null)
-                throw new IOException("Cannot find resource " + resource);
+                throw new FileNotFoundException("Cannot find resource " + resource);
         }
 
         InputStream instream = propertyResource.openStream();

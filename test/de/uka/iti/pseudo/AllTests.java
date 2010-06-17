@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
+import de.uka.iti.pseudo.gui.parameters.TestParameterSheet;
 import de.uka.iti.pseudo.justify.TestRuleProblemExtractor;
 import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
@@ -89,6 +90,7 @@ public class AllTests {
         suite.addTestSuite(TestZ3Translator.class);
         suite.addTestSuite(TestSettings.class);
         suite.addTestSuite(TestLinearLookupMap.class);
+        suite.addTestSuite(TestParameterSheet.class);
         //$JUnit-END$
         return suite;
     }

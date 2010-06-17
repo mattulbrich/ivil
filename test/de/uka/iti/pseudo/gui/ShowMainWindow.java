@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.proof.Proof;
 
 public class ShowMainWindow {
 
+    // outdated
     public static void main(String[] args) throws Exception {
         
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);

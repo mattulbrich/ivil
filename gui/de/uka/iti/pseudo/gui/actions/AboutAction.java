@@ -35,7 +35,7 @@ import de.uka.iti.pseudo.util.Util;
 public class AboutAction extends BarAction {
 
     private static final String VERSION_PATH = "/META-INF/VERSION";
-    private static final String LOGO_PATH = "../img/logo.png";
+    private static final String LOGO_PATH = "/de/uka/iti/pseudo/gui/img/logo.png";
 
     @Override
     public void actionPerformed(ActionEvent e) {

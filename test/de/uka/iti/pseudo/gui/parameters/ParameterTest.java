@@ -15,7 +15,7 @@ public class ParameterTest {
 
     enum MyEnum { V1, V2, V3 };
     
-    int intVal;
+    int intVal = 42;
     boolean boolVal = true;
     String stringVal = "lalalle";
     
@@ -36,7 +36,7 @@ public class ParameterTest {
 
     public void setBoolVal(boolean boolVal) {
         this.boolVal = boolVal;
-        System.err.println("set intval " + boolVal);
+        System.err.println("set boolval " + boolVal);
     }
 
     public String getStringVal() {
@@ -45,7 +45,7 @@ public class ParameterTest {
 
     public void setStringVal(String stringVal) {
         this.stringVal = stringVal;
-        System.err.println("set intval " + stringVal);
+        System.err.println("set stringval " + stringVal);
     }
 
     public MyEnum getEnumVal() {
@@ -54,7 +54,7 @@ public class ParameterTest {
 
     public void setEnumVal(MyEnum enumVal) {
         this.enumVal = enumVal;
-        System.err.println("set intval " + enumVal);
+        System.err.println("set enum " + enumVal);
     }
     
 }
