@@ -35,6 +35,7 @@ public class RuleApplicationMaker implements RuleApplication {
     private Map<String, String> properties = new HashMap<String, String>();
     
     public RuleApplicationMaker(Environment env) {
+        // TODO Perhaps set this to null here?
         termUnification = new TermUnification(env);
     }
 

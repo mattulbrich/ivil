@@ -43,7 +43,7 @@ public class TermUnification implements Cloneable {
     
     /**
      * The mapping from schema variables to their term instantiations.
-     * <p> We use {@link AppendMap} here because we ne often need to clone
+     * <p> We use {@link AppendMap} here because we often need to clone
      * for unification attempts.
      */
     private AppendMap<String, Term> instantiation = new AppendMap<String, Term>();
@@ -61,7 +61,7 @@ public class TermUnification implements Cloneable {
     private TermMatcher termMatcher;
     
     /**
-     * The environment too lookup things
+     * The environment to look things up
      */
     private Environment env;
 
@@ -103,12 +103,17 @@ public class TermUnification implements Cloneable {
         }
         
     }
-    
+
     /**
      * Adds an instantiation to the mapping.
      * 
-     * The schema variable may not already have been instantiated nor may the
-     * instantiation contain schema variables.
+     * The schema variable must not already have been instantiated and the
+     * instantiation must not contain schema variables.
+     * 
+     * <p>
+     * <i>The latter condition is not mandatory and merely included because
+     * this is the case needed in this application. Removing it would require
+     * attention because of possible circularities.</i>
      * 
      * @param sv
      *            the schema variable to instantiate
@@ -116,7 +121,8 @@ public class TermUnification implements Cloneable {
      *            the schema-free term to instantiate
      * 
      * @throws TermException
-     *             if sv is already instantiated or term contains schema variables.
+     *             if sv is already instantiated or term contains schema
+     *             variables.
      */
     public void addInstantiation(@NonNull SchemaVariable sv, @NonNull Term term) throws TermException {
         if(instantiation.get(sv.getName()) != null)
@@ -127,8 +133,21 @@ public class TermUnification implements Cloneable {
         instantiation.put(sv.getName(), term);
     }
     
-    public void addUpdateInstantiation(String schemaIdentifier,
-            Update update) throws TermException {
+    /**
+     * Adds an update instantiation to the mapping.
+     * 
+     * The schema update must not already have been instantiated.
+     * 
+     * @param schemaIdentifier
+     *            the schema update to instantiate
+     * @param update
+     *            the update to instantiate
+     * 
+     * @throws TermException
+     *             if sv is already instantiated or term contains schema variables.
+     */
+    public void addUpdateInstantiation(@NonNull String schemaIdentifier,
+            @NonNull Update update) throws TermException {
         if(instantiation.get(schemaIdentifier) != null)
             throw new TermException("SchemaUpdate " + schemaIdentifier + " already instantiated");
         

@@ -35,6 +35,8 @@ import de.uka.iti.pseudo.term.Term;
  * <p>
  * We silently assume that no term has more than 127 subterms. This is also
  * checked by assertions.
+ * 
+ * @see TermSelector
  */
 public class SubtermSelector {
 

@@ -33,7 +33,7 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 		
 		// Schema vars to seen bindables
 		Map<SchemaVariable, Set<BindableIdentifier>> map = svtuv.getSeenBindablesMap();
-		System.out.println(map);
+		// System.out.println(map);
 		assertEquals(5, map.size());
 		assertEquals("[c]",     map.get(sv("%a")).toString());
 		assertEquals("[%x, c]", map.get(sv("%b")).toString());

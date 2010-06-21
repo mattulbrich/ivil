@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 public class TestProofNode extends TestCaseWithEnv {
     
@@ -132,5 +133,42 @@ public class TestProofNode extends TestCaseWithEnv {
             if(VERBOSE)
                 e.printStackTrace();
         }
+    }
+    
+    public void testApplyTwice() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        Rule rule = env.getRule("close_true_right");
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setGoalNumber(0);
+        app.setFindSelector(new TermSelector("S.0"));
+        p.apply(app, env);
+        
+        try {
+            p.getRoot().apply(app, env);
+            fail("should have failed: applied twice to a proof node");
+        } catch (ProofException e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
+    }
+    
+    public void testRemovingRule() throws Exception {
+        Term term = makeTerm("true");
+        Proof p = new Proof(term);
+        Rule rule = env.getRule("remove_right");
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setGoalNumber(0);
+        app.setFindSelector(new TermSelector("S.0"));
+        app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
+        
+        p.apply(app, env);
+        
+        Sequent s = p.getGoal(0).getSequent();
+        
+        assertEquals(0, s.getAntecedent().size());
+        assertEquals(0, s.getSuccedent().size());
     }
 }

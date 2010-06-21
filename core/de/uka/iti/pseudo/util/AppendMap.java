@@ -19,8 +19,6 @@ import java.util.Set;
 
 import nonnull.NonNull;
 
-import de.uka.iti.pseudo.term.Type;
-
 /**
  * The Class AppendMap is an implementation of the Map interface which performs
  * well in a scenario in which

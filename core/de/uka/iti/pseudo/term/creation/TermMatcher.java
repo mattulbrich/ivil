@@ -35,6 +35,8 @@ import de.uka.iti.pseudo.term.statement.Statement;
  * 
  * Only left unification is supported, i.e. schema entities may appear only on
  * the left hand side and will be matched accordingly.
+ * 
+ * @see TermUnification
  */
 class TermMatcher extends DefaultTermVisitor {
 

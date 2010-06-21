@@ -117,8 +117,8 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
             List<Statement> s2 = p2.getStatements();
             assertEquals("Lengths do not match.", s1.size(), s2.size());
             for (int i = 0; i < s1.size(); i++) {
-                System.out.println("P1: " + s1.get(i));
-                System.out.println("P2: " + s2.get(i));
+                // System.out.println("P1: " + s1.get(i));
+                // System.out.println("P2: " + s2.get(i));
                 assertEquals(s1.get(i), s2.get(i));
             }
         } catch (AssertionFailedError e) {

@@ -10,12 +10,9 @@
  */
 package de.uka.iti.pseudo.proof;
 
-import java.util.AbstractList;
-import java.util.Arrays;
 import java.util.List;
 
 import nonnull.NonNull;
-import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 
@@ -43,6 +40,8 @@ import de.uka.iti.pseudo.term.Term;
  * <p>
  * We silently assume that any side of any sequent has less than 128 formulas
  * and no term has more than 127 subterms. This is also checked by assertions.
+ * 
+ * @see SubtermSelector
  */
 public class TermSelector {
     
@@ -249,7 +248,7 @@ public class TermSelector {
     /**
      * check whether the selection refers to the succedent side of a sequent
      * 
-     * @return true, if the selection is on the succedent soide
+     * @return true, if the selection is on the succedent side
      */
     public boolean isSuccedent() {
         return !inAntecedent;

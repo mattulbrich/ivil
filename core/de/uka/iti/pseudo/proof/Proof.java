@@ -163,16 +163,10 @@ public class Proof extends Observable {
         lock.lock();
         
         try {
-            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-            Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-            TermInstantiator inst = new ProgramComparingTermInstantiator(
-                    schemaMap, typeMap, updateMap, env);
-
             int goalno = extractGoalNo(ruleApp);
             goal = openGoals.get(goalno);
 
-            goal.apply(ruleApp, inst, env);
+            goal.apply(ruleApp, env);
 
             openGoals.remove(goalno);
             openGoals.addAll(goalno, goal.getChildren());

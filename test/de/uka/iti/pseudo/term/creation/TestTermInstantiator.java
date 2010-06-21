@@ -56,8 +56,8 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         Term orig = makeTerm("{ %c := %d+1}true");
         termmap.put("%c", makeTerm("i1"));
         termmap.put("%d", makeTerm("22"));
-        System.out.println("{ i1 := $plus(22,1) }true");
-        System.out.println(inst.instantiate(orig));
+        // System.out.println("{ i1 := $plus(22,1) }true");
+        // System.out.println(inst.instantiate(orig));
         assertEquals(makeTerm("{ i1 := $plus(22,1) }true"), inst.instantiate(orig));
     }
 

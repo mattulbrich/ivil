@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import nonnull.NonNull;
@@ -29,6 +30,9 @@ import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
@@ -91,7 +95,7 @@ public class ProofNode {
      * The applied rule.
      * This is set iff children have been calculated
      */
-    private RuleApplication appliedRuleApp;
+    private ImmutableRuleApplication appliedRuleApp;
     
     /*@ invariant appliedRule == null <==> children == null; @*/  
     
@@ -306,12 +310,25 @@ public class ProofNode {
      * @param whereClauseProperties
      * @throws ProofException
      */
-    void apply(RuleApplication ruleApp, TermInstantiator inst, 
-            Environment env)
-            throws ProofException {
+    void apply(RuleApplication ruleApp, Environment env) throws ProofException {
         
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
+        
+        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
+        TermInstantiator inst = new ProgramComparingTermInstantiator(
+                schemaMap, typeMap, updateMap, env);
+        
+        // capture the current state of the rule application in an
+        // immutable copy. No need to copy if already immutable.
+        ImmutableRuleApplication immRuleApp; 
+        if(ruleApp instanceof ImmutableRuleApplication) {
+            immRuleApp = (ImmutableRuleApplication) ruleApp; 
+        } else {
+            immRuleApp = new ImmutableRuleApplication(ruleApp);
+        }
         
         Rule rule = ruleApp.getRule();
 
@@ -321,16 +338,7 @@ public class ProofNode {
 
         children = doActions(ruleApp, inst, env, rule);
 
-        // TODO Copy the rule app in the beginning
-        // Move this wrapping to the top of method
-        // BUT leave the assignment here.
-        
-        if(!(ruleApp instanceof ImmutableRuleApplication))
-            this.appliedRuleApp = new ImmutableRuleApplication(ruleApp);
-        else
-            this.appliedRuleApp = ruleApp;
-        
-
+        this.appliedRuleApp = immRuleApp;
     }
 
     /*

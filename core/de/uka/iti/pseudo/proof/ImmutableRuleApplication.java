@@ -13,6 +13,8 @@ package de.uka.iti.pseudo.proof;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
@@ -23,6 +25,9 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * The Class ImmutableRuleApplication is the canonical unmodifiable
  * implementation of the interface {@link RuleApplication}.
+ * 
+ * <p>Its only constructor accepts another {@link RuleApplication} object and
+ * creates a 'snapshot' of its values.
  * 
  * <p>
  * All values given to the constructor cannot be changed afterwards. The list of
@@ -44,7 +49,7 @@ public class ImmutableRuleApplication implements RuleApplication {
     private Map<String,String> properties;
     private Map<String,Type> typeVariableMap;
     
-    public ImmutableRuleApplication(RuleApplication ruleApp) {
+    public ImmutableRuleApplication(@NonNull RuleApplication ruleApp) {
         rule = ruleApp.getRule();
         goalNumber = ruleApp.getGoalNumber();
         findSelector = ruleApp.getFindSelector();
