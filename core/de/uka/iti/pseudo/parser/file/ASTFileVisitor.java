@@ -33,6 +33,8 @@ public interface ASTFileVisitor {
 	public void visit(ASTFunctionDeclaration functionDeclaration) throws ASTVisitException;
 
 	public void visit(ASTFunctionDeclarationBlock functionDeclarationBlock) throws ASTVisitException;
+	
+	public void visit(ASTAxiomDeclaration astAxiomDeclaration) throws ASTVisitException;
 
 	public void visit(ASTRule rule) throws ASTVisitException;
 

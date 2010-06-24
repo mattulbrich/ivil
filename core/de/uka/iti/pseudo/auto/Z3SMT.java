@@ -74,6 +74,7 @@ public class Z3SMT implements DecisionProcedure {
             while(line != null) {
                 msg.append(line).append("\n");
                 line = r.readLine();
+                // System.err.println(line);
             }
 
             Pair<Result, String> result;

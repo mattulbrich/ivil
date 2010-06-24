@@ -5,6 +5,13 @@ include
 function
 	int t
 	int ass assignable
+
+axiom axiom1
+  true
+
+axiom axiom2
+  false -> false
+  tags tautology "yes"
         
 rule rule_Test1
         find 1 

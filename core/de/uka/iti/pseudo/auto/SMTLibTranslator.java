@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -84,6 +87,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      */
     private Function condFunction;
     
+    private Collection<Axiom> allAxioms;
+    
     private static boolean FORMULA = true;
     private static boolean TERM = false;
     
@@ -93,6 +98,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         }
         
         condFunction = env.getFunction("cond");
+        allAxioms = env.getAllAxioms();
     }
     
     public String translate(Term term) throws TermException {
@@ -117,6 +123,16 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         sb.append(")");
         String result = sb.toString();
         return result;
+    }
+    
+    private List<String> translateAxioms() throws TermException {
+        List<String> ret = new ArrayList<String>();
+        for (Axiom ax : allAxioms) {
+            Term term = ax.getTerm();
+            term.visit(this);
+            ret.add(resultAs(FORMULA));
+        } 
+        return ret;
     }
 
     // TODO variables
@@ -287,6 +303,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         extrafuncs.clear();
         extrasorts.clear();
         
+        List<String> axioms = translateAxioms();
+        
         String translation = translate(sequent);
         
         builder.append("; created by pseudo " + new Date());
@@ -295,6 +313,9 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         includePreamble(builder);
         builder.append(":extrasorts (" + Util.join(extrasorts, "\n   ") + ")\n\n");
         builder.append(":extrafuns (" + Util.join(extrafuncs, "\n   ") + ")\n\n");
+        for (String ax : axioms) {
+            builder.append(":assumption (" + indent(ax) + ")\n");
+        }
         builder.append(":assumption (" + indent(translation) + ")\n");
         
     }
