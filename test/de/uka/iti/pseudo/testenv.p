@@ -47,10 +47,16 @@ function
 	
 	int f('a)
 	int g('a, 'b)
+        bool bf('a) 
         'a id('a)
 
 	poly('a, 'b) P('a, 'b)
 	'a Q(poly('a,'a))
+	
+(* a remove rule to test rule application *)
+rule remove_right
+    find |- %a
+    remove
 
 (* for tests with programs *)
 
