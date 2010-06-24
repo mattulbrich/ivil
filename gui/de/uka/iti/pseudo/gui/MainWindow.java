@@ -148,7 +148,7 @@ public class MainWindow extends JFrame {
             
             psSplitDock.addChildDock(programTabDock, new Position(Position.LEFT));
             psSplitDock.addChildDock(sourceTabDock, new Position(Position.RIGHT));
-            psSplitDock.setDividerLocation(300);
+            psSplitDock.setDividerLocation(350);
 
             topDock.addDockingListener(new ResizeWeightAdaptation(0));
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
