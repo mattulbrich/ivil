@@ -200,7 +200,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     
     private void addErrorHighlighting() {
         Parser p = new Parser(new StringReader(editor.getText()));
-        String filename = editedFile == null ? "<unnamed>" : editedFile.getPath();
+        String filename = editedFile == null ? "none:unnamed" : "file:"+editedFile.getPath();
         try {
             ASTFile file = p.File();
             file.setFilename(filename);
