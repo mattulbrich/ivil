@@ -208,6 +208,14 @@ public class MainWindow extends JFrame {
             leftTabDock.addDockable(dock, new Position(2));
         }
         {
+            ParameterPanel settings = new ParameterPanel(proofCenter);
+            Dockable dock = new DefaultDockable("settings", settings, "Settings");
+            leftTabDock.addDockable(dock, new Position(3));
+
+            //show the proof tree
+            leftTabDock.setSelectedDockable(leftTabDock.getDockable(1));
+        }
+        {
             ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("program", panel, "Program");
@@ -218,11 +226,6 @@ public class MainWindow extends JFrame {
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
             Dockable dock = new DefaultDockable("source", panel, "Sources");
             sourceTabDock.addDockable(dock, new Position(0));
-        }
-        {
-            ParameterPanel settings = new ParameterPanel(proofCenter);
-            Dockable dock = new DefaultDockable("settings", settings, "Settings");
-            leftTabDock.addDockable(dock, new Position(3));
         }
         {
             setJMenuBar(barManager.makeMenubar());
