@@ -240,6 +240,7 @@ public class ProofCenter {
      *            the node to be selected
      */
     public void fireSelectedProofNode(@NonNull ProofNode node) {
+        // FIXME Consider firePropertySet here
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
 //    
@@ -460,9 +461,12 @@ public class ProofCenter {
     /**
      * Notify all registered listeners that a property's value has changed.
      * 
-     * @see PropertyChangeSupport#fireIndexedPropertyChange(String, int, Object,
-     *      Object)
-     *      
+     * <p>
+     * Please not that an event is only triggered if the new value differs from
+     * the originally set value.
+     * 
+     * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
+     * 
      * @param propertyName
      *            name of the property
      * @param newValue
@@ -472,6 +476,26 @@ public class ProofCenter {
         Object oldValue = generalProperties.get(propertyName);
         generalProperties.put(propertyName, newValue);
         changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
+    /**
+     * Notify all registered listeners that a property's value has been set.
+     * 
+     * <p>
+     * Please note that an event is triggered even if no <b>new</b> value is set
+     * but rather the old value repeated. Setting a value of <code>null</code>
+     * however, does not trigger an event.
+     * 
+     * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
+     * 
+     * @param propertyName
+     *            name of the property
+     * @param newValue
+     *            value after the change.
+     */
+    public void firePropertySet(String propertyName, Object newValue) {
+        generalProperties.put(propertyName, newValue);
+        changeSupport.firePropertyChange(propertyName, null, newValue);
     }
     
     /**
