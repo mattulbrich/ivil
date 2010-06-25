@@ -7,8 +7,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -45,11 +45,13 @@ public class ReloadProblemAction extends BarAction implements
     }
     
     public void actionPerformed(ActionEvent e) {
-    	
-    	// TODO replace hard coded reload location by a preferences version;
-    	//   check if there is a most recent file
-        if(true) {
-            File selectedFile = new File("examples/fakultaet.p");
+    	//get recent files
+    	Preferences prefs = Preferences.userNodeForPackage( Main.class );
+        String recent[] = prefs.get("recent files", "").split("\n");
+
+        //open if there are recent files
+        if(!recent[0].equals("")) {
+            File selectedFile = new File(recent[0]);
             try {
                 Main.openProver(selectedFile);
             } catch(IOException ex) {

@@ -17,6 +17,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,7 +58,16 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                ProofCenter pc = Main.openProver(selectedFile);
+                Main.openProver(selectedFile);
+                
+            	//file was loaded successfully, so add it to recent files
+            	Preferences prefs = Preferences.userNodeForPackage( Main.class );
+            	if(prefs.get("recent files", "").equals(""))
+            		prefs.put("recent files", fileChooser.getSelectedFile().getPath());
+            	else
+            		prefs.put("recent files", prefs.get("recent files", "") 
+            				+ "\n" + fileChooser.getSelectedFile().getPath());
+                
             } catch(IOException ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
@@ -76,7 +86,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                     
                 }
                     
-            }            
+            }
         }
     }
 
