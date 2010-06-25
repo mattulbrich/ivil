@@ -17,6 +17,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -26,6 +30,7 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * This is the action to load a problem file.
@@ -58,6 +63,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
             File selectedFile = fileChooser.getSelectedFile();
             try {
                 ProofCenter pc = Main.openProver(selectedFile);
+                addToRecentFiles(selectedFile);
             } catch(IOException ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
@@ -78,6 +84,18 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                     
             }            
         }
+    }
+
+    private void addToRecentFiles(File selectedFile) {
+        Preferences prefs = Preferences.userNodeForPackage( Main.class );
+        String recent[] = prefs.get("recent files", "").split("\n");
+        List<String> recentList = new LinkedList<String>(Util.readOnlyArrayList(recent));
+        recentList.add(0, selectedFile.getAbsolutePath());
+        while(recentList.size() > 10)
+            recentList.remove(recentList.size() - 1);
+
+        String newVal = Util.join((Collection<?>)recentList, "\n");
+        prefs.put("recent files", newVal);
     }
 
 }

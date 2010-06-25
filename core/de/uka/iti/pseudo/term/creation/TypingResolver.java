@@ -42,6 +42,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTTypevarBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
@@ -228,6 +229,26 @@ public class TypingResolver extends ASTDefaultVisitor {
                 throw e;
             }
         }
+    }
+    
+    @Override
+    public void visit(ASTTypevarBinderTerm typevarBinderTerm)
+            throws ASTVisitException {
+        
+        super.visit(typevarBinderTerm);
+        
+        ASTTerm subterm = typevarBinderTerm.getTerm();
+        TypeVariable tv = new TypeVariable(typevarBinderTerm.getTypeVarToken().image.substring(1));
+        
+        try {
+            typingContext.solveConstraintWithoutTV(tv, subterm.getTyping().getRawType(), Environment.getBoolType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException(
+                    "Type inference failed for type quantifier\n"
+                            + e.getDetailedMessage(), typevarBinderTerm, e);
+        }
+        
+        typevarBinderTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
     }
 
     @Override

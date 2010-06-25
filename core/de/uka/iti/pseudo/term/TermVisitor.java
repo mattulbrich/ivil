@@ -34,4 +34,6 @@ public interface TermVisitor {
 
     void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException;
 
+    void visit(TypeVariableBinding typeVariableBinding) throws TermException;
+
 }

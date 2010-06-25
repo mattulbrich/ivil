@@ -162,4 +162,17 @@ public class TypingContext {
         }
     }
 
+    public void solveConstraintWithoutTV(TypeVariable tv, Type formal, Type actual) throws UnificationException {
+        Type oldInst = unify.instantiate(tv);
+   //     unify.forgetTypeVariable(tv);
+        solveConstraint(formal, actual);
+        
+        Type newInst = unify.instantiate(tv);
+        if(!newInst.equals(tv)) {
+            throw new UnificationException("Bound type variable instatiated in type quantification", tv, newInst);
+        }
+        
+        unify.leftUnify(tv, oldInst);
+    }
+
 }

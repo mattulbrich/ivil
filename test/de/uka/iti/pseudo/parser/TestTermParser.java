@@ -11,12 +11,17 @@
 
 package de.uka.iti.pseudo.parser;
 
+import java.io.StringReader;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.term.creation.TypingContext;
+import de.uka.iti.pseudo.term.creation.TypingResolver;
 
 public class TestTermParser extends TestCaseWithEnv {
 
@@ -51,7 +56,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("(\\forall %x as int; %x=%x)", 
                 "(\\forall %x as int;$eq(%x as int,%x as int) as bool) as bool", true);
     }
-
+    
     public void testNumbers() throws Exception {
         testTerm("5", "5 as int", true);
     }
@@ -63,6 +68,27 @@ public class TestTermParser extends TestCaseWithEnv {
                 "$eq(P(arb as int,0 as int) as poly(int,int),P(0 as int,arb as int) as poly(int,int)) as bool", true);
         testTerm("Q(P(arb, arb))", "Q(P(arb as '2,arb as '2) as poly('2,'2)) as '2",true);
     }
+    
+    public void testTyvarBinder() throws Exception {
+        testTerm("(\\T_all 'a; true)", false);
+        
+        // 'a must not be bound in matrix
+        testTermFail("(\\T_all 'a; true as 'a)");
+        testTermFail("(\\T_all 'a; bf(3 as 'a))");
+        
+        Parser parser = new Parser();
+        ASTTerm ast = parser.parseTerm(new StringReader("(\\T_all 'a; bf(3 as 'a))"), "none:test");
+        TypingResolver tr = new TypingResolver(env, new TypingContext());
+        ast.visit(tr);
+        System.out.println(tr.getTypingContext());
+        
+        testTerm("$or((\\T_all 'a; bf(3 as 'a)),(\\T_all 'a; bf(true as 'a)))",
+                "$or((\\T_all 'a; bf(3 as bool) as bool) as bool,(\\T_all 'a; bf(true as 'a) as bool) as bool) as bool", true);
+        
+        testTerm("$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as 'a) as bool) as bool",
+                 "$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as int) as bool) as bool", true);
+    }
+
 
     public void testOccurCheck() throws Exception {
         try {
@@ -70,6 +96,8 @@ public class TestTermParser extends TestCaseWithEnv {
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         } 
+        
+        testTermFail("(arb as 'a) as set('a)");
     }
 
     public void testAs() throws Exception {

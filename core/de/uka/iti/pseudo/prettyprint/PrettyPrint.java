@@ -189,6 +189,8 @@ public class PrettyPrint {
                 printer.resetPreviousStyle();
         } catch (TermException e) {
             // not thrown in this code
+            // FIXME ... I did receive a call however!
+            e.printStackTrace();
             throw new Error(e);
         }
 

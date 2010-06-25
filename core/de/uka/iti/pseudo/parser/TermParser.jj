@@ -3,7 +3,7 @@
 // This file contains partial parser definition for terms only
 //
 
-// a greedy term ... read the wohle stream
+// a greedy term ... read the whole stream
 // needed for parsing terms
 ASTTerm TermEOF():
 { 
@@ -33,18 +33,7 @@ ASTTerm Term():
         return new ASTListTerm(list);
      else
         return list.get(0);
-   }/*
-   ( LOOKAHEAD(2) 
-     (    OpIdentifier() 
-       | "||" | "as" TypeRef() | ":=" | ProgramTerm()
-       | <BINDER_IDENTIFIER> 
-       | ( "(" | "{" ) { depth ++; }
-       | ( ")" | "}" ) { depth --; }
-       | ","
-     ) {
-          // somthing
-       }
-   )+*/
+   }
 }
 
 ASTTerm UpdateTerm():
@@ -99,6 +88,7 @@ ASTTerm BaseTerm():
 }
 {
         ( LOOKAHEAD(2) "(" term=BinderTerm() ")"
+        | LOOKAHEAD(2) "(" term=TypevarBinderTerm() ")"
         | "(" term=Term() ")"
         | term=ApplicationTerm()
         | term=SchemaVariable()
@@ -151,6 +141,25 @@ ASTBinderTerm BinderTerm():
         ( ";" t=Term() { subterms.add(t); } )+
    { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
 }
+
+ASTTypevarBinderTerm TypevarBinderTerm():
+{
+  Token binderToken;
+  Token tyvarToken;
+  ASTTerm t;
+  List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
+}
+{
+        // this might be generalised later ... if ever needed ?!
+        ( binderToken = <ALL_TY> | binderToken = <EX_TY> )
+        
+        tyvarToken=<TYVAR_IDENTIFIER>
+
+        ";" t=Term()
+        
+   { return new ASTTypevarBinderTerm(binderToken, tyvarToken, t); }
+}
+
 
 ASTType TypeRef():
 {

@@ -151,6 +151,7 @@
   <target name="copy-test" depends="init">
     <copy todir="classes-test">
       <fileset dir="test">
+        <include name="**/*.properties" />
         <include name="**/*.p" />
         <include name="**/*.txt" />
       </fileset>

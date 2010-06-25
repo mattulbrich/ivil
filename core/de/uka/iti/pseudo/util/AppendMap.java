@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -24,7 +23,7 @@ import nonnull.NonNull;
  * well in a scenario in which
  * <ol>
  * <li>The number of entries to the map is rather small (&lt; 10)
- * <li>The values for keys are seldomly changed.
+ * <li>The values for keys are seldom changed.
  * <li>Snapshooting (i.e. calls to clone()) should be cheap
  * </ol>
  * 
@@ -41,6 +40,12 @@ import nonnull.NonNull;
  * 
  */
 public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
+    
+    /**
+     * Indicator object for a removed key.
+     * Instead of copying the complete data, this indicator is used in the chain.
+     */
+    private static final Object REMOVED = new Object();
     
     /**
      * The Class LinkedEntry provides the means to implement the singly-linked list of entries
@@ -85,7 +90,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         }
 
         /**
-         * this entry implementation does not support pubilc setting of values.
+         * this entry implementation does not support public setting of values.
          * It might corrupt the data.
          */
         public V setValue(V value) {
@@ -145,7 +150,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
                     }
 
                     public void remove() {
-                        throw new UnsupportedOperationException();
+                         throw new UnsupportedOperationException();
                     }
                 };
             }
@@ -194,6 +199,39 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
             return null;            
         }
     };
+    
+    public V remove(Object key) {
+        
+        if(key == null)
+            throw new NullPointerException("this map does not support null keys");
+        
+        if(containsKey(key)) {
+            
+            if(head.key.equals(key)) {
+                V value = head.value;
+                head = head.next;
+                size --;
+                return value;
+            } else {            
+                head = new LinkedEntry<K, V>(head);
+                LinkedEntry<K, V> current = head;
+                while(!current.next.key.equals(key)) {
+                    current.next = new LinkedEntry<K, V>(current.next);
+                    current = current.next;
+                }
+            
+                assert current != null;
+
+                V value = current.next.value;
+            
+                current.next = current.next.next;
+                size --;
+                return value;
+            }
+        } else {
+            return null;
+        }
+    }
     
     @SuppressWarnings("unchecked") 
     public AppendMap<K,V> clone() {

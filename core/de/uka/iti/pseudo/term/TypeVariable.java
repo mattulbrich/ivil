@@ -73,9 +73,6 @@ public class TypeVariable extends Type {
     }
 
     /**
-     * {@inheritDoc}
-     * 
-     * <p>
      * A type variable is rendered to a string by prepending a prime ' to its
      * name.
      */

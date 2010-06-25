@@ -72,16 +72,18 @@ public class TermTag {
      * 
      * @return the term tag
      * 
-     * @throws TermException
+     * 
+     */
+    /*@throws TermException
      *             if the index is not within the bounds of subterms
      */
     public TermTag derive(int index) throws TermException {
         Term subterm;
-        try {
+//        try {
             subterm = term.getSubterm(index);
-        } catch (IndexOutOfBoundsException e) {
-            throw new TermException(e);
-        }
+//        } catch (IndexOutOfBoundsException e) {
+//            throw new TermException(e);
+//        }
         
         TermTag result = new TermTag(subterm);
         result.parentTag = this;

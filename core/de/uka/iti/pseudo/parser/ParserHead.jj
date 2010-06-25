@@ -169,6 +169,10 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < AS: "as" >
 | < SEP: "|-" >
 
+// type variable binders
+| < ALL_TY: "\\T_all" >
+| < EX_TY: "\\T_ex" >
+
 // Programs
 | < ASSUME: "assume" >
 | < ASSERT: "assert" >

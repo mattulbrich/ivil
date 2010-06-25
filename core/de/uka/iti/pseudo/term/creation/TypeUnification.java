@@ -83,16 +83,16 @@ public class TypeUnification implements Cloneable {
         instantiation = new AppendMap<String, Type>();
     }
 
-    /**
-     * create a new type unification with the given initial mapping.
-     * 
-     * It is not checked if the mapping is valid (for instance acyclic)
-     * 
-     * @param mapping from type variable names to types
-     */
-    @Deprecated public TypeUnification(AppendMap<String, Type> map) {
-        instantiation = map.clone();
-    }
+//    /**
+//     * create a new type unification with the given initial mapping.
+//     * 
+//     * It is not checked if the mapping is valid (for instance acyclic)
+//     * 
+//     * @param mapping from type variable names to types
+//     */
+//    @Deprecated public TypeUnification(AppendMap<String, Type> map) {
+//        instantiation = map.clone();
+//    }
     
     /**
      * create a copy of this type unification object which has a copy of
@@ -182,8 +182,8 @@ public class TypeUnification implements Cloneable {
             return fixType;
         } catch (UnificationException e) {
             // restore old mapping
-            e.addDetail("Cannot left-unify '" + adaptingType + "' and '"
-                    + fixType + "'");
+            e.addDetail("Cannot left-unify \"" + adaptingType + "\" and \""
+                    + fixType + "\"");
             instantiation = copy;
             throw e;
         }
@@ -292,8 +292,8 @@ public class TypeUnification implements Cloneable {
             return instantiate(type1);
         } catch (UnificationException e) {
             // restore old mapping
-            e.addDetail("Cannot unify '" + type1 + "' and '"
-                            + type2 + "'");
+            e.addDetail("Cannot unify \"" + type1 + "\" and \""
+                            + type2 + "\"");
             instantiation = copy;
             throw e;
         }
@@ -360,23 +360,41 @@ public class TypeUnification implements Cloneable {
     /*
      * Adds a mapping.
      * 
-     * We have to update all existing mappings afterwards. Since no loops (occur
-     * check!) are allowed, we apply it to everything (including tv).
+     * We have to update all existing mappings afterwards. We apply the new assignment
+     * to all instantiations but to the one to type.
      * 
      * @param tv the tv
      * 
      * @param type the type
      */
-    private void addMapping(TypeVariable tv, Type type) {
+    private void addMapping(final TypeVariable tv, final Type type) {
 
-        assert instantiation.get(tv.getVariableName()) == null;
-        assert !occursIn(tv, type);
+        String variableName = tv.getVariableName();
+        assert instantiation.get(variableName) == null;
 
-        instantiation.put(tv.getVariableName(), type);
+        instantiation.put(variableName, type);
+        
+        TypeVisitor tvInst = new DefaultTypeVisitor() {
+            public Type visit(TypeVariable typeVariable) {
+                if(typeVariable.equals(tv)) {
+                    return type;
+                } else {
+                    return typeVariable;
+                }
+            };
+        };
         
         // check whether this is needed or not: it is :)
         for (String t : instantiation.keySet()) {
-            instantiation.put(t, instantiate(instantiation.get(t)));
+            if(!variableName.equals(t)) {
+                Type res;
+                try {
+                    res = instantiation.get(t).visit(tvInst);
+                } catch (TermException e) {
+                    throw new Error(e);
+                }
+                instantiation.put(t, res);
+            }
         }
 
     }
@@ -413,5 +431,5 @@ public class TypeUnification implements Cloneable {
         // possibly wrap in Collections.unmodifiable?
         return instantiation;
     }
-
+    
 }
