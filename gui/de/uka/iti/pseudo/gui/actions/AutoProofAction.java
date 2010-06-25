@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.gui.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import javax.swing.Icon;
 
@@ -88,9 +89,16 @@ public class AutoProofAction extends BarAction
                 if(ruleAppl == null || shouldStop) {
                     // we should stop: select an open goal
                     ProofNode currentNode = getProofCenter().getCurrentProofNode();
+                    List<ProofNode> openGoals = proof.getOpenGoals();
                     if(currentNode == null || currentNode.getChildren() != null) {
-                        ProofNode first = proof.getGoal(0);
-                        getProofCenter().fireSelectedProofNode(first);
+                        ProofNode selected;
+                        // bugfix for bug #1001
+                        if (openGoals.size() > 0) {
+                            selected = openGoals.get(0);
+                        } else {
+                            selected = proof.getRoot();
+                        }
+                        getProofCenter().fireSelectedProofNode(selected);
                     }
                     // endSearch is called in finally
                     return;
