@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -195,6 +197,9 @@ public class Main {
         Proof proof = new Proof(problemTerm);
         ProofCenter proofCenter = new ProofCenter(proof, env);
         showProofCenter(proofCenter);
+        
+        addToRecentProblems(url);
+        
         return proofCenter;
         
     }
@@ -215,7 +220,39 @@ public class Main {
         Proof proof = new Proof(problemTerm);
         ProofCenter proofCenter = new ProofCenter(proof, env);
         showProofCenter(proofCenter);
+        
+        addToRecentProblems(file.toURI().toURL());
+        
         return proofCenter;
+    }
+
+    /**
+     * adds a problem's URL to recent files; should be called after successfully
+     * loading a problem. adding an url twice will remove the older duplicate;
+     * if more then 10 entries are in the recent list, the oldest one will perish
+     * 
+     * @param url
+     *            location of the problem file
+     */
+    private static void addToRecentProblems(URL url) {
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        String recent[] = prefs.get("recent problems", "").split("\n");
+        List<String> newRecent = new ArrayList<String>(recent.length+1);
+        String toAdd= url.toString();
+        newRecent.add(toAdd);
+        
+        for(String p : recent){
+            if(!toAdd.equals(p))
+                newRecent.add(p);
+        }
+        
+        StringBuilder next = new StringBuilder(2*10);
+        for(int i = 0; i < 10 && i < newRecent.size(); i++){
+            if(i>0){next.append("\n");}
+            next.append(newRecent.get(i));
+        }
+        
+        prefs.put("recent problems", next.toString());
     }
     
     private static void showProofCenter(ProofCenter proofCenter) {

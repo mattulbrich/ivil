@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
@@ -16,6 +17,7 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This allows for reloading of the problem. If no problem was loaded yet, the
@@ -43,36 +45,21 @@ public class ReloadProblemAction extends BarAction implements
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
-    
-    public void actionPerformed(ActionEvent e) {
-    	//get recent files
-    	Preferences prefs = Preferences.userNodeForPackage( Main.class );
-        String recent[] = prefs.get("recent files", "").split("\n");
 
-        //open if there are recent files
-        if(!recent[0].equals("")) {
-            File selectedFile = new File(recent[0]);
+    public void actionPerformed(ActionEvent e) {
+        // get recent files
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        String recent[] = prefs.get("recent problems", "").split("\n");
+
+        // open if there are recent files
+        if (!recent[0].equals("")) {
             try {
-                Main.openProver(selectedFile);
-            } catch(IOException ex) {
+                URL url = new URL(recent[0]);
+                Main.openProverFromURL(url);
+            } catch (Exception ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-            } catch(Exception ex) {
-                ex.printStackTrace();
-                int res = JOptionPane.showConfirmDialog(getParentFrame(), "'" + selectedFile + 
-                        "' cannot be loaded. Do you want to open an editor to analyse?",
-                        "Error in File",
-                        JOptionPane.YES_NO_OPTION);
-                
-                if(res == JOptionPane.YES_OPTION) {
-                    try {
-                        Main.openEditor(selectedFile);
-                    } catch (IOException e1) {
-                        ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
-                    }
-                    
-                }
-                    
-            }            
+            }
+
         }
     }
 }
