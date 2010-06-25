@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.environment;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
@@ -82,6 +83,21 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
     public void visit(ASTRule arg) throws ASTVisitException {
         super.visit(arg);
+        
+        // reset context for next rule / program / problem
+        typingResolver = new TypingResolver(env, new TypingContext()); 
+        currentFindRawType = null;
+    }
+    
+    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
+        super.visit(arg);
+        
+        try {
+            TypingContext typingContext = typingResolver.getTypingContext();
+            typingContext.solveConstraint(arg.getTerm().getTyping().getRawType(), Environment.getBoolType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Axioms must habe type boolean.", arg, e);
+        }
         
         // reset context for next rule / program / problem
         typingResolver = new TypingResolver(env, new TypingContext()); 

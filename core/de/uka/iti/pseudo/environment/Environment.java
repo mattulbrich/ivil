@@ -43,6 +43,7 @@ import de.uka.iti.pseudo.util.protocol.none.Handler;
  * <li>binders
  * <li>fix operators
  * <li>rules
+ * <li>axioms
  * <li>programs
  * </ul>
  * 
@@ -90,6 +91,7 @@ public class Environment {
     private Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
     private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
+    private Map<String, Axiom> axiomMap = new HashMap<String, Axiom>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
@@ -908,10 +910,42 @@ public class Environment {
     }
     
     //
-    // ---------- Handling plugins ----------
+    // ---------- Handling axioms ----------
     //
     
+    // TODO DOC
+    public void addAxiom(@NonNull Axiom axiom) throws EnvironmentException {
+        if (isFixed())
+            throw new EnvironmentException(
+                    "cannot add to this environment, it has been fixed already");
+        
+        String name = axiom.getName();
+        Axiom existing = getAxiom(name);
+        if(existing != null) {
+            throw new EnvironmentException("Axiom " + name
+                    + " has already been defined at "
+                    + existing.getDeclaration().getLocation());
+        }
+        
+        axiomMap.put(name, axiom);
+    }
     
+    // TODO DOC
+    public @Nullable Axiom getAxiom(@NonNull String name) {
+        Axiom axiom = axiomMap.get(name);
+        if (axiom == null && parentEnvironment != null)
+            axiom = parentEnvironment.getAxiom(name);
+        return axiom;        
+    }
+    
+    public Collection<Axiom> getAllAxioms() {
+        return axiomMap.values();
+    }
+    
+    //
+    // ---------- Handling plugins ----------
+    //
+
     /**
      * Retrieve the plugin manager. If it has not yet been created, create it.
      * However, if this environment is already closed, do not create the manager but

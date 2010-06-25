@@ -17,8 +17,10 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
@@ -38,6 +40,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -77,6 +80,39 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         resultingTerm = TermMaker.makeTerm(arg, env);
     }
 
+    /*
+     * axioms are similar to rules ... so handle them here
+     */
+    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
+        
+        
+        String name = arg.getName().image;
+        
+        super.visit(arg);
+        Term term = resultingTerm;
+        Map<String, String> properties = new HashMap<String, String>();
+        {
+            for (Pair<Token, Token> prop : arg.getProperties()) {
+                Token token = prop.snd();
+                String value;
+                if(token != null)
+                    value = Util.stripQuotes(token.image);
+                else
+                    value = "";
+                
+                properties.put(prop.fst().image, value);
+            }
+        }
+        
+        try {
+            Axiom axiom = new Axiom(name, term, properties, arg);
+            env.addAxiom(axiom);
+        } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
+        }
+        
+        
+    }
     
     /*
      * collect all information for a rule definition and define it in env.

@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.parser;
 
+import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -240,6 +241,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     public void visit(ASTFunctionDeclarationBlock arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+    
+    public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
 

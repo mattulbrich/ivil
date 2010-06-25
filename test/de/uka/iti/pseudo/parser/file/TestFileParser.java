@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.rule.Rule;
 
 public class TestFileParser extends TestCase {
 
@@ -85,6 +86,21 @@ public class TestFileParser extends TestCase {
         assertEnvFail("rule something find 1 newgoal replace true");
         
         Environment e = testEnv("rule something find 1 samegoal replace %a");
+    }
+    
+    public void testAxioms() throws Exception {
+        Environment e = testEnv("axiom axiom1 true axiom axiom2 false->false");
+        
+        assertEnvFail("axiom schemas %a");
+        assertEnvFail("sort S function S const axiom notbool const");
+    }
+    
+    // assumed bug.
+    public void testProperties() throws Exception {
+        Environment e = testEnv("rule two_props closegoal tags Tag1 \"value1\" Tag2");
+        Rule rule = e.getRule("two_props");
+        assertEquals("value1", rule.getProperty("Tag1"));
+        assertEquals("", rule.getProperty("Tag2"));
     }
     
     // due to problems with cuts

@@ -36,10 +36,8 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
-import de.uka.iti.pseudo.gui.editor.CurlyHighlightPainter;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
@@ -50,7 +48,6 @@ import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
 import de.uka.iti.pseudo.util.Triple;
@@ -250,7 +247,7 @@ class InteractiveRuleApplicationPopup extends JWindow {
         super(proofCenter.getMainWindow());
         
         RuleApplicationComponent rac = new InteractiveRuleApplicationComponent(proofCenter, ruleApps);
-        proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, rac);
+        // proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, rac);
         proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, rac);
         
         JScrollPane sp = new JScrollPane(rac);

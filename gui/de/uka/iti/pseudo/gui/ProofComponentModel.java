@@ -23,6 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -65,7 +66,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         private Vector<ProofTreeNode> children;
         private ProofTreeNode parent;
         private String label;
-
+        
         public ProofTreeNode(ProofTreeNode parent, ProofNode proofNode, boolean leaf) {
             this.parent = parent;
             this.proofNode = proofNode;
@@ -150,6 +151,10 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                 return true;
             
             if(node.getChildren() == null)
+                return true;
+            
+            // Always show the root formula
+            if(proofCenter.getProof().getRoot() == node)
                 return true;
             
             Rule rule = ruleApp.getRule();

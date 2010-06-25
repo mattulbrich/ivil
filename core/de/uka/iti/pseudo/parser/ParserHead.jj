@@ -128,6 +128,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 // file parser, only in DEFAULT mode
   < ADD: "add" >
 | < ASSIGNABLE: "assignable" >
+| < AXIOM: "axiom" >
 // assume is listed below
 | < BINDER: "binder" >
 | < CLOSE: "closegoal" >

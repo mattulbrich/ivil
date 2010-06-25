@@ -20,6 +20,7 @@ ASTFile File():
         | block=FunctionDeclarationBlock()
         | block=BinderDeclarationBlock()
         | block=RuleDeclaration()
+        | block=AxiomDeclaration()
         | block=ProgramDeclaration()
         )   { blocks.add(block); }
        )*
@@ -166,6 +167,26 @@ ASTProgramDeclaration ProgramDeclaration():
    ( "source" source=<STRING> )?
    statements=StatementList()
      { return new ASTProgramDeclaration(first, name, source, statements); } 
+}
+
+ASTAxiomDeclaration AxiomDeclaration():
+{
+  Token name, first, t, v=null;
+  ASTTerm term;
+  List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
+}
+{
+  first="axiom"   name=<IDENTIFIER>  term = Term()
+    
+  ( "tags" 
+    ( 
+      t=<IDENTIFIER> ( v=<STRING> )?
+        { properties.add(new Pair<Token, Token>(t, v));
+          v = null; } 
+    )+
+  )?
+  
+  { return new ASTAxiomDeclaration(first, name, term, properties); }
 }
 
 ASTRule RuleDeclaration():
