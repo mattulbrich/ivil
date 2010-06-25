@@ -38,8 +38,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * The Class BarManager is a pretty generic framework to allow menu bars and
- * tool bars to be configured via a <code>.properties</code> file declaring
- * all actions whose classes will then be loaded.
+ * tool bars to be configured via a <code>.properties</code> file declaring all
+ * actions whose classes will then be loaded.
  * 
  * <h2>The actions</h2>
  * 
@@ -55,8 +55,9 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * 
  * <h2>The configuration</h2>
  * 
- * Configuration has to be provided in a <code>.properties</code> file with
- * the following special keys: <table border=1 cellspacing=5>
+ * Configuration has to be provided in a <code>.properties</code> file with the
+ * following special keys:
+ * <table border=1 cellspacing=5>
  * <tr>
  * <td><code>menubar</code></td>
  * <td>Key for the menubar</td>
@@ -72,8 +73,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * <td>menu (as appearing in menubar)</td>
  * <td>Key for a menu</td>
  * <td>Listing all keys for menu items in the menu in proper order. You may use
- * <code>SEPARATOR</code> to create a separating line between entries. An
- * entry for the subkey <code>.text</code> defines the title of the menu</td>
+ * <code>SEPARATOR</code> to create a separating line between entries. An entry
+ * for the subkey <code>.text</code> defines the title of the menu</td>
  * </tr>
  * <tr>
  * <td>item (as appearing in a menu/toolbar)</td>
@@ -111,8 +112,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * <td>command string</td>
  * <td>create a button or menu item with the given command set as command. You
  * can use subkeys <code>.text</code>, <code>.icon</code> and
- * <code>.tooltip</code> to set the text for the button/menu or the resource
- * for the image.</td>
+ * <code>.tooltip</code> to set the text for the button/menu or the resource for
+ * the image.</td>
  * </tr>
  * <tr>
  * <td><code>TODO</code></td>
@@ -126,6 +127,12 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * <td>M/-</td>
  * <td>key</td>
  * <td>create a submenu and create it using the specified key</td>
+ * </tr>
+ * <tr>
+ * <td><code>COMPONENT</code></td>
+ * <td>M/T</td>
+ * <td>class name</td>
+ * <td>create an instance of the specified class which must extend {@link JComponent}</td>
  * </tr>
  * </table>
  * 
@@ -170,6 +177,13 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * jframe.setJMenuBar(barManager.makeMenubar());
  * </pre>
  * 
+ * <h2>Properties</h2>
+ * 
+ * A BarManger is equipped with a properties mechanism. You can use the method
+ * {@link #putProperty(String, Object)} to set a property (an arbitrary object).
+ * These values will be transmitted to all created user specified actions and
+ * components. <i>Please note: Properties set/changed after the creation of an
+ * action are not retransmitted to the component.</i>
  */
 public class BarManager {
     
@@ -389,6 +403,9 @@ public class BarManager {
                 
                 result = button;
                 
+            } else if(args[0].equals("COMPONENT")) {
+                result = makeComponent(args[1]);
+                
             } else if(args[0].equals("TODO")){
                 JButton button = new JButton(value.substring(5));
                 button.setEnabled(false);
@@ -495,7 +512,7 @@ public class BarManager {
     
     /*
      * Make menu item:
-     * ACTION, TOGGLE_ACTION, TODO, SUBMENU, RADIO_ACTION, COMMAND
+     * ACTION, TOGGLE_ACTION, TODO, SUBMENU, RADIO_ACTION, COMMAND, COMPONENT
      */
     private JComponent makeMenuItem(String property) throws IOException {
         
@@ -563,7 +580,10 @@ public class BarManager {
                     menuItem.addActionListener(actionListener);
 
                 result = menuItem;
-
+            } else if(args[0].equals("COMPONENT")) {
+                
+                result = makeComponent(args[1]);
+                
             } else if(args[0].equals("TODO")){
                 JMenuItem menuItem = new JMenuItem(value.substring(5));
                 menuItem.setEnabled(false);
@@ -641,6 +661,47 @@ public class BarManager {
             throw new IOException("cannot create Action instance of " + className, e);
         }
     }
+    
+    /**
+     * Get a component object for a class name.
+     * 
+     * <p>
+     * The object is created and has the properties set as client properties.
+     * 
+     * <p>
+     * Every time this method is called, a new component is created.
+     * 
+     * @param className
+     *            the class name
+     * 
+     * @return the freshly created component
+     * 
+     * @throws IOException
+     *             wrapping any exception
+     */
+    private @NonNull JComponent makeComponent(@NonNull String className) throws IOException {
+        if(!className.contains("."))
+            className = packagePrefix + className;
+        
+        try {
+            Class<?> clss = Class.forName(className);
+
+            JComponent comp = (JComponent) clss.newInstance();
+            
+            for (Entry<String, Object> entry : defaultActionProperties.entrySet()) {
+                comp.putClientProperty(entry.getKey(), entry.getValue());
+            }
+            
+            // TODO perhaps needed one day: Pass to the component the
+            // configuration items of this object (XY=COMPONENT hello,
+            // XY.color=green), set property color to green or so
+
+            return comp;
+        } catch (Exception e) {
+            throw new IOException("cannot create JComponent instance of " + className, e);
+        }
+    }
+
 
     /**
      * Clear the cache of actions.

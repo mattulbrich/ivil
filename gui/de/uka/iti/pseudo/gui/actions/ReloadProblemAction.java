@@ -1,13 +1,3 @@
-/*
- * This file is part of
- *    ivil - Interactive Verification on Intermediate Language
- *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
- * See LICENSE.TXT (distributed with this file) for details.
- */
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
@@ -19,7 +9,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -29,18 +18,22 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
- * This is the action to load a problem file.
- * 
- * It is embedded into the menu.
+ * This allows for reloading of the problem. If no problem was loaded yet, the
+ * most recent problem will be loaded instead.
+ * @author felden@ira.uka.de
+ *
  */
-@SuppressWarnings("serial") 
-public class LoadProblemAction extends BarAction implements PropertyChangeListener {
 
-    public LoadProblemAction() {
-        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
-        putValue(ACTION_COMMAND_KEY, "loadProb");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-        putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
+public class ReloadProblemAction extends BarAction implements
+		PropertyChangeListener {
+	
+	private static final long serialVersionUID = 8652614246864976171L;
+
+	public ReloadProblemAction() {
+        super("Reload problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_green_text.png")));
+        putValue(ACTION_COMMAND_KEY, "reloadProb");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+        putValue(SHORT_DESCRIPTION, "reload the last problem file into a new window");
     }
     
     public void initialised() {
@@ -52,22 +45,15 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
     }
     
     public void actionPerformed(ActionEvent e) {
-        
-        JFileChooser fileChooser = Main.makeFileChooser(Main.PROBLEM_FILE);
-        int result = fileChooser.showOpenDialog(getParentFrame());
-        if(result == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
+    	//get recent files
+    	Preferences prefs = Preferences.userNodeForPackage( Main.class );
+        String recent[] = prefs.get("recent files", "").split("\n");
+
+        //open if there are recent files
+        if(!recent[0].equals("")) {
+            File selectedFile = new File(recent[0]);
             try {
                 Main.openProver(selectedFile);
-                
-            	//file was loaded successfully, so add it to recent files
-            	Preferences prefs = Preferences.userNodeForPackage( Main.class );
-            	if(prefs.get("recent files", "").equals(""))
-            		prefs.put("recent files", fileChooser.getSelectedFile().getPath());
-            	else
-            		prefs.put("recent files", prefs.get("recent files", "") 
-            				+ "\n" + fileChooser.getSelectedFile().getPath());
-                
             } catch(IOException ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
@@ -86,8 +72,7 @@ public class LoadProblemAction extends BarAction implements PropertyChangeListen
                     
                 }
                     
-            }
+            }            
         }
     }
-
 }

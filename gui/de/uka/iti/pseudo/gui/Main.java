@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.security.AccessControlException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -37,7 +36,6 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
-import de.uka.iti.pseudo.util.settings.SettingsException;
 
 
 /**
