@@ -1,4 +1,0 @@
-include "$rascal.p"
-  "$symbex.p"
-  "$decproc.p"
-  
