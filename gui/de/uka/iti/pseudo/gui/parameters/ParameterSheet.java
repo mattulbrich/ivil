@@ -342,9 +342,14 @@ public class ParameterSheet extends JPanel {
         List<Parameter> parameters = makeParameters();
 
         if (parameters == null || parameters.size() == 0) {
-            JLabel empty = new JLabel("No properties to edit");
-            empty.setFont(empty.getFont().deriveFont(Font.ITALIC));
-            add(empty);
+            if(properties.containsKey("description")){
+                setLayout(new VerticalLayout());
+                addPreamble();
+            } else {
+                JLabel empty = new JLabel("No properties to edit");
+                empty.setFont(empty.getFont().deriveFont(Font.ITALIC));
+                add(empty);
+            }
         } else {
             setLayout(new VerticalLayout());
             addPreamble();
