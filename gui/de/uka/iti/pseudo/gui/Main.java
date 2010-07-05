@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -22,6 +21,8 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import nonnull.NonNull;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
@@ -77,8 +78,14 @@ public class Main {
     
     public static final int PROBLEM_FILE = 0;
     public static final int PROOF_FILE = 1;
+
+    /**
+     * the number of recent files which are stored in the preferences and shown
+     * in the menu.
+     */
+    private static final int NUMBER_OF_RECENT_FILES = 10;
+
     private static JFileChooser fileChooser[] = new JFileChooser[2];
-    
     
     /*
      * - setup the settings from default resource, file and command line.
@@ -119,18 +126,6 @@ public class Main {
                 openProver(file);
             }
         }
-        
-        // write back settings at the end of the program
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                System.out.println("Writing back properties ...");
-                try {
-                    settings.storeFileByKey(PROPERTIES_FILE_KEY);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
     
     private static void printVersion() {
@@ -234,21 +229,23 @@ public class Main {
      * @param url
      *            location of the problem file
      */
-    private static void addToRecentProblems(URL url) {
+    private static void addToRecentProblems(@NonNull URL url) {
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String recent[] = prefs.get("recent problems", "").split("\n");
         List<String> newRecent = new ArrayList<String>(recent.length+1);
-        String toAdd= url.toString();
+        String toAdd = url.toString();
         newRecent.add(toAdd);
-        
-        for(String p : recent){
-            if(!toAdd.equals(p))
+
+        for (String p : recent) {
+            if (!toAdd.equals(p))
                 newRecent.add(p);
         }
-        
-        StringBuilder next = new StringBuilder(2*10);
-        for(int i = 0; i < 10 && i < newRecent.size(); i++){
-            if(i>0){next.append("\n");}
+
+        StringBuilder next = new StringBuilder(2 * 10);
+        for (int i = 0; i < NUMBER_OF_RECENT_FILES && i < newRecent.size(); i++) {
+            if (i > 0) {
+                next.append("\n");
+            }
             next.append(newRecent.get(i));
         }
         

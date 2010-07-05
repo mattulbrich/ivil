@@ -50,7 +50,6 @@ public class AutoProofAction extends BarAction
     public void actionPerformed(ActionEvent e) {
 
         // TODO synchronization!
-        
         if(thread == null) {
             thread = new Thread(this, "Autoproving");
             getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);

@@ -506,35 +506,6 @@ public class Settings {
                 fileInputStream.close();
         }
     }
-    
-    /**
-     * Stores settings into a file.
-     * 
-     * <p>
-     * The filename is obtained by querying the settings for the argument key.
-     * 
-     * @throws IOException
-     *                 if something goes wrong while writing properties or
-     *                 resolving names.
-     */
-    public void storeFileByKey(String propertiesFileKey) throws IOException {
-        String fileName;
-        try {
-            fileName = getExpandedProperty(propertiesFileKey);
-        } catch (SettingsException e) {
-            IOException ex = new IOException("No properties file defined for key " + propertiesFileKey);
-            ex.initCause(e);
-            throw ex;
-        }
-        
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-        try {
-            contents.store(fileOutputStream, "Settings from last session.");
-        } finally {
-            if(fileOutputStream != null)
-                fileOutputStream.close();
-        }
-    }
 
     public void clear() {
         contents.clear();
