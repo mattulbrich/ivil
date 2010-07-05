@@ -1,31 +1,32 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.util.Date;
 import java.util.prefs.Preferences;
 
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
-// FIXME FOR DEMONSTRATION PURPOSES ONLY ... WILL BE CHANGED
+// TODO DOC
 
+@SuppressWarnings("serial")
 public class RecentProblemsMenu extends JMenu implements MenuListener {
 
     static public class LoadProblem extends BarAction implements
@@ -38,7 +39,7 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
          */
         public LoadProblem(String location) {
             //use only the last part of the URL in the menu
-            super(location.split("/")[location.split("/").length-1]);
+            super(location.substring(location.lastIndexOf('/') + 1));
             this.location = location;
             putValue(SHORT_DESCRIPTION, "Load the problem at " + location);
         }
