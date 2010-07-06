@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.auto;
 
+import java.util.Collections;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.term.Term;
 
@@ -73,6 +75,12 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
     
         assertEquals("(ite (= extra.b1..Bool termTrue) extra.b1..Bool extra.b2..Bool)", trans.translate(makeTerm("cond(b1, b1, b2)")));
         assertEquals("(ite (> 5 4) 3 2)", trans.translate(makeTerm("cond(5>4, 3, 2)")));
+    }
+    
+    public void testSorts() throws Exception {
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+        assertEquals("extra.arb..poly_int_poly_int_int__", trans.translate(makeTerm("arb as poly(int, poly(int,int))")));
+        assertTrue(trans.extrasorts.equals(Collections.singleton("poly_int_poly_int_int__")));
     }
     
 }

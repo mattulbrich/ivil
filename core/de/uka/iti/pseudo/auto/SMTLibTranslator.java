@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -42,12 +44,26 @@ import de.uka.iti.pseudo.util.Util;
  * The Class SMTLibTranslator translates a term / formula / sequent to its
  * corresponding SMTLib counterpart.
  * 
- * {@linkplain http://goedel.cs.uiowa.edu/smtlib/}
+ * <p>
+ * The translation assumes that certain names have their intended meaning. For
+ * instance, <code>$add</code> should be the addition of integers as defined by
+ * the rules in <code>$int.p</code>.
+ * 
+ * <p>
+ * Ivil does not distinguish between boolean terms and formulas. The translation
+ * has to, however. Therefore, a mechnism is used which lazily translates a
+ * formula to a term (or vice versa) only if needed.
+ * 
+ * <p>
+ * <a href="http://goedel.cs.uiowa.edu/smtlib/">Page of SMT-LIB</a>
  * 
  * @author mattias ulbrich
  */
 public class SMTLibTranslator extends DefaultTermVisitor {
     
+    /**
+     * Mapping of built-in functions to built-in smtlib function symbols.
+     */
     private static final String[] BUILTIN_FUNCTIONS = {
         "false", "false",
         "true", "true",
@@ -68,37 +84,76 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         "$mult", "*"
     };
     
+    /**
+     * These symbols are predicates and, hence, result in a FORMULA rather than
+     * in a TERM.
+     */
     private static final List<String> PREDICATES = Util.readOnlyArrayList(new String[] {
         "true", "false", "and", "or", "implies", "iff", "not", "<", ">", "<=", ">=", "="
     });
 
-
-    
-//         private Map<Term, String> unknownMap = new HashMap<Term, String>();
+    /**
+     * map storing how function symbols are mapped to SMT counterparts.
+     */
     private Map<String,String> translationMap = new HashMap<String, String>();
     
+    /**
+     * counter used to create new distinct symbols (its increment on creation)
+     */
     private int unknownCounter = 0;
     
-    /**
-     * these storages can be read by test cases
+    /*
+     * these storages can be read by test cases, therefore package readable
      */
-    Set<String> extrasorts = new HashSet<String>();
-    Set<String> extrafuncs = new HashSet<String>();
-    String result;
+    /**
+     * a set of definitions of user created sorts.
+     */
+    /* package */ Set<String> extrasorts = new HashSet<String>();
     
-    boolean resultType;
+    /**
+     * a set of definitions of user created function symbols.
+     */
+    /* package */ Set<String> extrafuncs = new HashSet<String>();
+    private String result;
+
+    
+    /**
+     * A constant denoting that the current resulting entity is a FORMULA.
+     * @see #TERM
+     */
+    private static boolean FORMULA = true;
+    
+    /**
+     * A constant denoting that the current resulting entity is a TERM.
+     * @see #FORMULA
+     */
+    private static boolean TERM = false;
+    
+    /**
+     * The type (formula or term) of the currently hold result.
+     * @see #FORMULA
+     * @see #TERM
+     */
+    private boolean resultType;
 
     /**
      * the "cond" function from the environment must be
-     * treated separately. This may be null
+     * treated separately. This may be null if the function is not defined.
      */
     private Function condFunction;
     
+    /**
+     * All axioms as they are extracted from the environment
+     */
     private Collection<Axiom> allAxioms;
     
-    private static boolean FORMULA = true;
-    private static boolean TERM = false;
     
+    /**
+     * Instantiates a new SMT-lib translator.
+     * 
+     * @param env
+     *            the environment to use.
+     */
     public SMTLibTranslator(Environment env) {
         for (int i = 0; i < BUILTIN_FUNCTIONS.length; i += 2) {
             translationMap.put(BUILTIN_FUNCTIONS[i], BUILTIN_FUNCTIONS[i+1]);
@@ -107,12 +162,47 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         condFunction = env.getFunction("cond");
         allAxioms = env.getAllAxioms();
     }
-    
+
+    /**
+     * Translate a term to its smt-lib counterpart.
+     * 
+     * <p>
+     * Possibly, sort and constant definitions are written to the apropriate
+     * storages.
+     * 
+     * @param term
+     *            the term to translate
+     * 
+     * @return the string representing the translation
+     * 
+     * @throws TermException
+     *             if the translation fails for whatever reason
+     */
     public String translate(Term term) throws TermException {
         term.visit(this);
         return result;
     }
-    
+
+    /**
+     * Translate a sequent to its smt-lib counterpart, i.e., a formula.
+     * 
+     * <p>
+     * Possibly, sort and constant definitions are written to the apropriate
+     * storages.
+     * 
+     * <p>
+     * The resulting formula is a conjunction of all formulas on the sequent's
+     * lhs (positive) and all formulas of the rhs (negative).
+     * For the empty sequent <code>"(and true)"</code> is returned.
+     * 
+     * @param sequent
+     * the sequent to translate
+     * 
+     * @return the string representing the translation
+     * 
+     * @throws TermException
+     *             if the translation fails for whatever reason
+     */
     public String translate(Sequent sequent) throws TermException {
         StringBuilder sb = new StringBuilder();
         sb.append("(and true "); 
@@ -131,7 +221,65 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         String result = sb.toString();
         return result;
     }
-    
+
+    /**
+     * Export a sequent to an output stream.
+     * 
+     * <p>
+     * It will translate the sequent, add all axioms from the environment and
+     * write everything to the output stream. If new sorts and/or symbols are
+     * created, they get declared, too.
+     * 
+     * @param sequent
+     *            the sequent to export
+     * 
+     * @param builder
+     *            the stream to output to
+     * 
+     * @throws TermException
+     *             if the translation fails
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public void export(@NonNull Sequent sequent, @NonNull Appendable builder)
+            throws TermException, IOException {
+
+        extrafuncs.clear();
+        extrasorts.clear();
+        
+        List<String> axioms = translateAxioms();
+        
+        String translation = translate(sequent);
+        
+        builder.append("; created by ivil " + new Date());
+        builder.append("\n(benchmark ivil_verification\n");
+        builder.append(":logic AUFLIA\n\n");
+        includePreamble(builder);
+        builder.append(":extrasorts (" + Util.join(extrasorts, "\n   ") + ")\n\n");
+        builder.append(":extrafuns (" + Util.join(extrafuncs, "\n   ") + ")\n\n");
+        for (String ax : axioms) {
+            builder.append(":assumption (" + indent(ax) + ")\n");
+        }
+        builder.append(":assumption (" + indent(translation) + ")\n)");
+    }
+
+    private void includePreamble(Appendable pw) throws IOException {
+        InputStream stream = getClass().getResourceAsStream("preamble.smt");
+        if(stream == null)
+            throw new IOException("Resource preamble.smt not found");
+        Reader r = new InputStreamReader(stream);
+        char[] buffer = new char[1024];
+        int read = r.read(buffer);
+        while(read != -1) {
+            pw.append(new String(buffer, 0, read));
+            read = r.read(buffer);
+        }
+    }
+
+
+    /**
+     * translate all axioms to strings and return the list of strings.
+     */
     private List<String> translateAxioms() throws TermException {
         List<String> ret = new ArrayList<String>();
         for (Axiom ax : allAxioms) {
@@ -142,7 +290,11 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         return ret;
     }
 
-    // TODO variables
+    /*
+     * by default replace by a new unknown symbol.
+     * 
+     * TODO cache replacement results => use same symbol for identical terms
+     */
     protected void defaultVisitTerm(Term term) throws TermException {
         String name = "unknown" + unknownCounter;
         unknownCounter++;
@@ -232,8 +384,10 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             return result;
         
         if(type == FORMULA) {
+            // from term to formula
             return "(= " + result + " termTrue" + ")";
         } else {
+            // from formula to term
             return "(ite " + result + " termTrue termFalse)";
         }
     }
@@ -305,38 +459,4 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         return sb.toString();
     }
     
-    public void export(Sequent sequent, Appendable builder) throws TermException, IOException {
-        
-        extrafuncs.clear();
-        extrasorts.clear();
-        
-        List<String> axioms = translateAxioms();
-        
-        String translation = translate(sequent);
-        
-        builder.append("; created by ivil " + new Date());
-        builder.append("\n(benchmark ivil_verification\n");
-        builder.append(":logic AUFLIA\n\n");
-        includePreamble(builder);
-        builder.append(":extrasorts (" + Util.join(extrasorts, "\n   ") + ")\n\n");
-        builder.append(":extrafuns (" + Util.join(extrafuncs, "\n   ") + ")\n\n");
-        for (String ax : axioms) {
-            builder.append(":assumption (" + indent(ax) + ")\n");
-        }
-        builder.append(":assumption (" + indent(translation) + ")\n)");
-    }
-
-    private void includePreamble(Appendable pw) throws IOException {
-        InputStream stream = getClass().getResourceAsStream("preamble.smt");
-        if(stream == null)
-            throw new IOException("Resource preamble.smt not found");
-        Reader r = new InputStreamReader(stream);
-        char[] buffer = new char[1024];
-        int read = r.read(buffer);
-        while(read != -1) {
-            pw.append(new String(buffer, 0, read));
-            read = r.read(buffer);
-        }
-    }
-
 }
