@@ -21,6 +21,7 @@ import javax.swing.JFileChooser;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -36,7 +37,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  */
 
 @SuppressWarnings("serial") public class LoadProofAction extends BarAction
-        implements PropertyChangeListener {
+        implements InitialisingAction, PropertyChangeListener {
 
     private JFileChooser fileChooser;
 

@@ -24,6 +24,7 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -33,7 +34,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * It is embedded into the menu.
  */
 @SuppressWarnings("serial") 
-public class LoadProblemAction extends BarAction implements PropertyChangeListener {
+public class LoadProblemAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
     public LoadProblemAction() {
         super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));

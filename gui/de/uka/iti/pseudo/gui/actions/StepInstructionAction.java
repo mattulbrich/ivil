@@ -24,7 +24,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 // Find a unified framework for automated rule application
 // @see AutoProofAction
 
-public class StepInstructionAction extends BarAction implements InitialisingAction{
+public class StepInstructionAction extends BarAction implements InitialisingAction {
     
     Strategy symbexStrategy;
 
