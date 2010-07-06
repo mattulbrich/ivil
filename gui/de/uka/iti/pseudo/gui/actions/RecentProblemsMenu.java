@@ -65,7 +65,6 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
 
     public RecentProblemsMenu() {
         super("Recent problems ...");
-        add(new JMenuItem("empty"));
         addMenuListener(this);
     }
 
@@ -81,9 +80,13 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
     public void menuSelected(MenuEvent e) {
         removeAll();
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
-        String recent[] = prefs.get("recent problems", "").split("\n");
-        for (int i = 0; i < recent.length; i++)
-            add(new JMenuItem(new LoadProblem(recent[i])));
+        String allProblems = prefs.get("recent problems", "");
+        
+        if(!allProblems.equals("")){
+            String recent[] = allProblems.split("\n");
+            for (int i = 0; i < recent.length; i++)
+                add(new JMenuItem(new LoadProblem(recent[i])));
+        }
     }
 
 }

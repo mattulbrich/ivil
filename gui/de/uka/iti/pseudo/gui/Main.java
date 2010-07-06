@@ -241,7 +241,7 @@ public class Main {
                 newRecent.add(p);
         }
 
-        StringBuilder next = new StringBuilder(2 * 10);
+        StringBuilder next = new StringBuilder(2 * NUMBER_OF_RECENT_FILES);
         for (int i = 0; i < NUMBER_OF_RECENT_FILES && i < newRecent.size(); i++) {
             if (i > 0) {
                 next.append("\n");
