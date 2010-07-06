@@ -37,7 +37,9 @@ public class ExitAction extends BarAction implements InitialisingAction, Propert
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+        ProofCenter proofCenter = getProofCenter();
+        if(proofCenter != null)
+            proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
