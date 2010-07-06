@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -39,6 +38,14 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.util.Util;
 
+/**
+ * The Class SMTLibTranslator translates a term / formula / sequent to its
+ * corresponding SMTLib counterpart.
+ * 
+ * {@linkplain http://goedel.cs.uiowa.edu/smtlib/}
+ * 
+ * @author mattias ulbrich
+ */
 public class SMTLibTranslator extends DefaultTermVisitor {
     
     private static final String[] BUILTIN_FUNCTIONS = {
@@ -307,8 +314,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         
         String translation = translate(sequent);
         
-        builder.append("; created by pseudo " + new Date());
-        builder.append("\n(benchmark pseudo_verification\n");
+        builder.append("; created by ivil " + new Date());
+        builder.append("\n(benchmark ivil_verification\n");
         builder.append(":logic AUFLIA\n\n");
         includePreamble(builder);
         builder.append(":extrasorts (" + Util.join(extrasorts, "\n   ") + ")\n\n");
@@ -316,8 +323,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         for (String ax : axioms) {
             builder.append(":assumption (" + indent(ax) + ")\n");
         }
-        builder.append(":assumption (" + indent(translation) + ")\n");
-        
+        builder.append(":assumption (" + indent(translation) + ")\n)");
     }
 
     private void includePreamble(Appendable pw) throws IOException {

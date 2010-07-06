@@ -23,6 +23,7 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -34,7 +35,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  */
 @SuppressWarnings("serial") 
 public class CloseAction extends BarAction 
-    implements WindowListener, PropertyChangeListener {
+    implements InitialisingAction, WindowListener, PropertyChangeListener {
 
     public CloseAction() {
         super("Close", GUIUtil.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));

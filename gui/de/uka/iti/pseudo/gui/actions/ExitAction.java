@@ -21,11 +21,12 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
-public class ExitAction extends BarAction implements PropertyChangeListener {
+public class ExitAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
     public ExitAction() {
         super("Exit", GUIUtil.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
@@ -36,7 +37,9 @@ public class ExitAction extends BarAction implements PropertyChangeListener {
     }
     
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+        ProofCenter proofCenter = getProofCenter();
+        if(proofCenter != null)
+            proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

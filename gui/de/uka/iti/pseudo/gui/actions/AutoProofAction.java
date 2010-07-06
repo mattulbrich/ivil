@@ -14,8 +14,11 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -30,7 +33,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 // TODO Documentation needed
 @SuppressWarnings("serial") 
 public class AutoProofAction extends BarAction 
-    implements Runnable, PropertyChangeListener, InitialisingAction {
+    implements Runnable, PropertyChangeListener, InitialisingAction, Observer {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
@@ -45,6 +48,7 @@ public class AutoProofAction extends BarAction
     
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+        getProofCenter().getProof().addObserver(this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -128,6 +132,12 @@ public class AutoProofAction extends BarAction
 
     public void propertyChange(PropertyChangeEvent evt) {
         setIcon(((Boolean)evt.getNewValue()) ? stopIcon : goIcon);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Proof proof = (Proof) o;
+        setEnabled(proof.hasOpenGoals());        
     }
 
 }

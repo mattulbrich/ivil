@@ -86,7 +86,7 @@ public class Z3SMT implements DecisionProcedure {
                 result =  Pair.make(Result.UNKNOWN, msg.toString());
             } else
                 throw new ProofException("Z3 returned an error message: " + msg);
-            
+
             // System.err.println("Result: " + result);
             return result;
 
