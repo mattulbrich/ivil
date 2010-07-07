@@ -1,0 +1,16 @@
+
+# Pseudo code for fakultaet.p
+
+var n : int
+var c : int
+
+pre : n > 0
+
+c := 1
+
+while(n > 0) do
+  c := c * n
+  n := n - 1
+end
+
+post : c = fak(n_pre)
