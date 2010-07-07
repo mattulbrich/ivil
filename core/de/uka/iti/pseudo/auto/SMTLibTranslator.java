@@ -433,6 +433,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     }
         
     
+    @SuppressWarnings("fallthrough")
     public static String indent(String string) {
 
         StringBuilder sb = new StringBuilder();

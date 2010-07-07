@@ -17,6 +17,8 @@ package de.uka.iti.pseudo.rule;
  * This happens for instance in class Rule itsself (or its composing things) 
  * or in where conditions.
  */
+
+@SuppressWarnings("serial")
 public class RuleException extends Exception {
 
     public RuleException() {

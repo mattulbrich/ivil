@@ -119,6 +119,7 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override 
     public void init(@NonNull Proof proof, @NonNull Environment env, @NonNull StrategyManager strategyManager)
             throws StrategyException {

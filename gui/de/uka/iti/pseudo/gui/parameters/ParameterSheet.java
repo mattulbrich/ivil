@@ -254,11 +254,15 @@ public class ParameterSheet extends JPanel {
      * @throws ClassCastException
      *             may be thrown by reflections
      */
+    @SuppressWarnings("unchecked")
     public <T> ParameterSheet(T object) throws SecurityException,
             IllegalArgumentException, IOException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException,
             ClassCastException, InstantiationException, ClassNotFoundException {
-        this((Class<T>) object.getClass(), object);
+        // this is not correct, but type erasure makes us formulate it this way :(
+        // it should read:  (this is safe, however)
+        //   this((Class<S extends T>)object.getClass(), (S)object);
+        this((Class<T>)object.getClass(), object);
     }
 
     /**
@@ -290,7 +294,7 @@ public class ParameterSheet extends JPanel {
      * @throws ClassCastException
      *             may be thrown by reflections
      */
-    public <T> ParameterSheet(Class<T> clss, T object) throws IOException,
+    public <T> ParameterSheet(Class<? super T> clss, T object) throws IOException,
             SecurityException, NoSuchMethodException, IllegalArgumentException,
             IllegalAccessException, InvocationTargetException,
             ClassCastException, InstantiationException, ClassNotFoundException {
@@ -329,7 +333,7 @@ public class ParameterSheet extends JPanel {
      * @throws ClassCastException
      *             may be thrown by reflections
      */
-    public <T> ParameterSheet(Class<T> clss, URL propertyResource, T object)
+    public <T> ParameterSheet(Class<? super T> clss, URL propertyResource, T object)
             throws IOException, SecurityException, NoSuchMethodException,
             IllegalArgumentException, IllegalAccessException,
             InvocationTargetException, ClassCastException,
@@ -337,6 +341,8 @@ public class ParameterSheet extends JPanel {
 
         this.objectClass = clss;
         this.object = object;
+        
+        assert objectClass.isInstance(object);
 
         properties = loadProperties(propertyResource);
         List<Parameter> parameters = makeParameters();

@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * Shows an About Box ... eventually
  */
+@SuppressWarnings("serial")
 public class AboutAction extends BarAction {
 
     private static final String VERSION_PATH = "/META-INF/VERSION";

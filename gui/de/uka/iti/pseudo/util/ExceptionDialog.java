@@ -50,6 +50,9 @@ import javax.swing.UIManager;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
+
+// TODO DOC
+@SuppressWarnings("serial")
 public class ExceptionDialog extends JDialog {
   
   private Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
@@ -193,6 +196,7 @@ public class ExceptionDialog extends JDialog {
     dlg.dispose();
   }
   
+  // test cases
   public static void main(String[] args) {
     showExceptionDialog(new JFrame(), new NullPointerException("Some more eleborate error message"));
     showExceptionDialog(new JFrame(), "some other error");
@@ -218,7 +222,8 @@ public class ExceptionDialog extends JDialog {
     this.message = message;
   }
   
-  private static class StackTraceThrowable extends Throwable {
+  @SuppressWarnings("serial")
+private static class StackTraceThrowable extends Throwable {
     
     public StackTraceThrowable(String message) {
       super(message);

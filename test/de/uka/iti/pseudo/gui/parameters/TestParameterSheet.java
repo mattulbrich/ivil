@@ -21,7 +21,8 @@ public class TestParameterSheet extends TestCaseWithEnv {
     
     public void testNoProperties() throws Exception {
         try {
-            ParameterSheet ps = new ParameterSheet(Object.class, new Object());
+            // typing test also
+            ParameterSheet ps = new ParameterSheet(Object.class, "Hello");
             fail("Should have failed");
         } catch (FileNotFoundException e) {
             if(VERBOSE)

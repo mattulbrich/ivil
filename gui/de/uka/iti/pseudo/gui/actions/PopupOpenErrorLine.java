@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
+@SuppressWarnings("serial")
 public class PopupOpenErrorLine extends BarAction implements InitialisingAction, PropertyChangeListener{
 
     private int errorLine;

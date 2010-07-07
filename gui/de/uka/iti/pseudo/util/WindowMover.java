@@ -21,6 +21,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.event.MouseInputListener;
 
+@SuppressWarnings("serial")
 public class WindowMover extends AbstractBorder implements MouseInputListener {
     
     private static final int HEIGHT = 14;

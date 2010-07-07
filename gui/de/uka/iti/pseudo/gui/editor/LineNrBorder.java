@@ -23,6 +23,7 @@ import javax.swing.border.EmptyBorder;
 
 // TODO DOC
 
+@SuppressWarnings("serial")
 public class LineNrBorder extends EmptyBorder {
 
     private Color color;
@@ -38,7 +39,7 @@ public class LineNrBorder extends EmptyBorder {
         JTextArea ta = new JTextArea();
         ta.setBorder(new LineNrBorder(Color.lightGray));
         f.add(ta);
-        f.show();
+        f.setVisible(true);
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 

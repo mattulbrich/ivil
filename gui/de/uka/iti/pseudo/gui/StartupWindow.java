@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
+@SuppressWarnings("serial")
 public class StartupWindow extends JFrame {
     private BarManager barManager;
     
