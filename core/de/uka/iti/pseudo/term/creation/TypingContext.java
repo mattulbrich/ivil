@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -30,12 +29,14 @@ import de.uka.iti.pseudo.term.UnificationException;
  * {@link #solveConstraint(Type, Type)} which are bidirectional unification
  * problems.
  * 
+ * @author mattias ulbrich
+ * 
  * @see TypingResolver
  * @see TypeUnification
  */
-public class TypingContext {
+public class TypingContext extends TypeUnification {
     
-	/**
+    /**
      * This visitor replaces every type variable with a fresh type variables.
      * Occurences of the same type variable are replaces by the same fresh
      * symbol.
@@ -63,24 +64,6 @@ public class TypingContext {
     private int counter = 0;
     
     /**
-     * The unificator used in the background
-     */
-    private TypeUnification unify = new TypeUnification();
-
-    /**
-     * Use the substitution that has been gathered during constraint solving
-     * and apply it to a type.
-     * 
-     * @param type
-     *            some type
-     * 
-     * @return the result of the application of the substitution to the type
-     */
-    public Type instantiate(Type type) {
-    	return unify.instantiate(type);
-    }
-
-    /**
      * Solve a constraint.
      * 
      * This is infact a try to unify two type expressions.
@@ -92,7 +75,7 @@ public class TypingContext {
      */
     public void solveConstraint(Type formal, Type actual) throws UnificationException {
     	
-    	unify.unify(formal, actual);
+    	unify(formal, actual);
     	
     }
 
@@ -117,27 +100,35 @@ public class TypingContext {
      * 
      * If you have one function
      * <code>'a f('b,'a)<code> and constants <code>'a a</code> and <code>'b b</code>, then 
+     * makeNewSignature creates the new variants:
+     * <pre>
+     *  '1 f('2,'1)
+     *  '3 a
+     *  '4 b
+     * </pre>
+     * and <code>f(a,b)</code> can be unified.
      * 
-     * TODO: Auto-generated Javadoc not finished
+     * <p>The result is presented in one array, in which the first element is the result of
+     * the translation of resultType and the remainder of argumentTypes. 
      * 
-     * @param resultType the result type
+     * @param resultType the result type of an expression
      * @param argumentTypes the argument types
      * 
-     * @return the type[]
+     * @return an array containg variants of resulttype and argument types.
      */
     public Type[] makeNewSignature(Type resultType, Type[] argumentTypes) {
         try {
-			Type[] retval = new Type[argumentTypes.length + 1];
-			TypeVisitor sv = new SignatureVisitor();
-			retval[0] = resultType.visit(sv);
-			for (int i = 0; i < argumentTypes.length; i++) {
-			    retval[i+1] = argumentTypes[i].visit(sv); 
-			}
-			return retval;
-		} catch (TermException e) {
-			// never thrown in this code
-			throw new Error(e);
-		}
+            Type[] retval = new Type[argumentTypes.length + 1];
+            TypeVisitor sv = new SignatureVisitor();
+            retval[0] = resultType.visit(sv);
+            for (int i = 0; i < argumentTypes.length; i++) {
+                retval[i+1] = argumentTypes[i].visit(sv); 
+            }
+            return retval;
+        } catch (TermException e) {
+            // never thrown in this code
+            throw new Error(e);
+        }
     }
     
     /**
@@ -161,18 +152,5 @@ public class TypingContext {
             throw new Error(e);
         }
     }
-
-    public void solveConstraintWithoutTV(TypeVariable tv, Type formal, Type actual) throws UnificationException {
-        Type oldInst = unify.instantiate(tv);
-   //     unify.forgetTypeVariable(tv);
-        solveConstraint(formal, actual);
-        
-        Type newInst = unify.instantiate(tv);
-        if(!newInst.equals(tv)) {
-            throw new UnificationException("Bound type variable instatiated in type quantification", tv, newInst);
-        }
-        
-        unify.leftUnify(tv, oldInst);
-    }
-
+    
 }

@@ -52,7 +52,7 @@ public class TypeVariable extends Type {
     public final static TypeVariable BETA = new TypeVariable("b");
     
     /**
-     * The prefix used to indicate that a type variable cannot be instantiated.
+     * The prefix used to distinguish a type variable from its variant.
      * @see TypeUnification
      */
     public static final String VARIANT_PREFIX = "#";

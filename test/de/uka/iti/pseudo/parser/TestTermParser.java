@@ -69,25 +69,25 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("Q(P(arb, arb))", "Q(P(arb as '2,arb as '2) as poly('2,'2)) as '2",true);
     }
     
-    public void testTyvarBinder() throws Exception {
-        testTerm("(\\T_all 'a; true)", false);
-        
-        // 'a must not be bound in matrix
-        testTermFail("(\\T_all 'a; true as 'a)");
-        testTermFail("(\\T_all 'a; bf(3 as 'a))");
-        
-        Parser parser = new Parser();
-        ASTTerm ast = parser.parseTerm(new StringReader("(\\T_all 'a; bf(3 as 'a))"), "none:test");
-        TypingResolver tr = new TypingResolver(env, new TypingContext());
-        ast.visit(tr);
-        System.out.println(tr.getTypingContext());
-        
-        testTerm("$or((\\T_all 'a; bf(3 as 'a)),(\\T_all 'a; bf(true as 'a)))",
-                "$or((\\T_all 'a; bf(3 as bool) as bool) as bool,(\\T_all 'a; bf(true as 'a) as bool) as bool) as bool", true);
-        
-        testTerm("$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as 'a) as bool) as bool",
-                 "$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as int) as bool) as bool", true);
-    }
+//    public void testTyvarBinder() throws Exception {
+//        testTerm("(\\T_all 'a; true)", false);
+//        
+//        // 'a must not be bound in matrix
+//        testTermFail("(\\T_all 'a; true as 'a)");
+//        testTermFail("(\\T_all 'a; bf(3 as 'a))");
+//        
+//        Parser parser = new Parser();
+//        ASTTerm ast = parser.parseTerm(new StringReader("(\\T_all 'a; bf(3 as 'a))"), "none:test");
+//        TypingResolver tr = new TypingResolver(env, new TypingContext());
+//        ast.visit(tr);
+//        System.out.println(tr.getTypingContext());
+//        
+//        testTerm("$or((\\T_all 'a; bf(3 as 'a)),(\\T_all 'a; bf(true as 'a)))",
+//                "$or((\\T_all 'a; bf(3 as bool) as bool) as bool,(\\T_all 'a; bf(true as 'a) as bool) as bool) as bool", true);
+//        
+//        testTerm("$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as 'a) as bool) as bool",
+//                 "$or((\\T_all 'a; bf(arb as 'a) as bool),bf(3 as int) as bool) as bool", true);
+//    }
 
 
     public void testOccurCheck() throws Exception {
