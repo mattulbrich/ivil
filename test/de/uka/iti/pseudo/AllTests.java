@@ -45,6 +45,7 @@ import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestAppendMap;
 import de.uka.iti.pseudo.util.TestLinearLookupMap;
+import de.uka.iti.pseudo.util.TestRewindMap;
 import de.uka.iti.pseudo.util.TestUtil;
 import de.uka.iti.pseudo.util.settings.TestSettings;
 
@@ -87,6 +88,7 @@ public class AllTests {
         suite.addTestSuite(TestTermReplacer.class);
         suite.addTestSuite(TestUtil.class);
         suite.addTestSuite(TestAppendMap.class);
+        suite.addTestSuite(TestRewindMap.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);

@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -20,6 +19,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.RewindMap;
 
 /**
  * The Class TestCaseWithEnv provides infrastructure for test cases which need
@@ -123,6 +123,18 @@ public class TestCaseWithEnv extends TestCase {
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         return env;
+    }
+    
+    /**
+     * Defbug output. Print to stderr is only performed if {@link #VERBOSE} is
+     * set to true.
+     * 
+     * @param message
+     *            message to print
+     */
+    public static void out(Object message) {
+        if(VERBOSE)
+            System.err.println(message);
     }
 
 }
