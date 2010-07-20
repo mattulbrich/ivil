@@ -10,7 +10,6 @@
  */
 package de.uka.iti.pseudo.environment;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,6 +25,8 @@ import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceLineStatement;
@@ -268,6 +269,15 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
         } catch (MalformedURLException e) {
             throw new ASTVisitException(arg, e);
         }
+    }
+
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration property) throws ASTVisitException {
     }
 
 }

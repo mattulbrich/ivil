@@ -56,10 +56,12 @@ binder
 rule plus_zero
   find %a + 0
   replace %a 
+  tags rewrite "fol simp"
 
 rule zero_plus
   find 0 + %a
   replace %a 
+  tags rewrite "fol simp"
 
 rule plus_assoc1
   find %a + (%b + %c)

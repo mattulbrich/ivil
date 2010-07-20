@@ -119,6 +119,7 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override 
     public void init(@NonNull Proof proof, @NonNull Environment env, @NonNull StrategyManager strategyManager)
             throws StrategyException {
@@ -147,6 +148,10 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         for (int i = 0; i < noMatchNodes.length; i++) {
             noMatchNodes[i] = new HashSet<ProofNode>();
         }
+        
+        // check if env asks us to change split mode
+        if(env.hasProperty(this.getClass().getName() + ".splitMode"))
+            setSplitMode(SplitMode.valueOf(env.getProperty(this.getClass().getName() + ".splitMode")));
     }
     
     

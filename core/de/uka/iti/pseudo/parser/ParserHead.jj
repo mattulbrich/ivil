@@ -142,6 +142,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < PREFIX: "prefix" >
 | < PROBLEM: "problem" >
 | < PROGRAM: "program" >
+| < PROPERTIES: "properties" >
 | < REMOVE: "remove" >
 | < REPLACE: "replace" >
 | < RULE: "rule" >

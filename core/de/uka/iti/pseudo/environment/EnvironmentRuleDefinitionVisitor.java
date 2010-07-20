@@ -17,13 +17,14 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTGoalAction;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
@@ -40,7 +41,6 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TermUnification;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -312,6 +312,14 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
      */
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         // do nothing
+    }
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
     }
     
 }

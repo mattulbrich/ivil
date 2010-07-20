@@ -79,16 +79,39 @@ public class CompoundStrategy extends AbstractStrategy {
     /**
      * Initialise the strategy. Create the initial {@link #strategies}. 
      */
+    @SuppressWarnings("unchecked")
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
         this.strategyManager = strategyManager;
         
+        //look for strategy list in env
+        String desiredStrategies = null;
+        if(env.hasProperty(this.getClass().getName() + ".strategies"))
+            desiredStrategies = env.getProperty(this.getClass().getName() + ".strategies");
+        
         allAbstractStrategy = true;
-        strategies = new Strategy[ORIGINAL_STRATEGIES.length];
-        for (int i = 0; i < strategies.length; i++) {
-            strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)ORIGINAL_STRATEGIES[i]);
-            allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
+        if(null == desiredStrategies)
+        {
+            strategies = new Strategy[ORIGINAL_STRATEGIES.length];
+            for (int i = 0; i < strategies.length; i++) {
+                strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)ORIGINAL_STRATEGIES[i]);
+                allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
+            }
+        }
+        else
+        {
+            String[] s = desiredStrategies.split(",");
+            strategies = new Strategy[s.length];
+            for (int i = 0; i < strategies.length; i++) {
+                try {
+                    strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName(s[i]));
+                } catch (ClassNotFoundException e) {
+                    System.err.printf("{} does not name a proper class\n", s[i]);
+                    e.printStackTrace();
+                }
+                allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
+            }
         }
         
         assert strategiesError() == null : strategiesError();

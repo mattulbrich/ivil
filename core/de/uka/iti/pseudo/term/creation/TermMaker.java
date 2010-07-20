@@ -27,6 +27,8 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
@@ -700,6 +702,14 @@ public class TermMaker extends ASTDefaultVisitor {
      */
     public void visit(ASTLabelStatement arg) throws ASTVisitException {
         arg.getChildren().get(0).visit(this);
+    }
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
     }
 
 }

@@ -23,6 +23,8 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
@@ -420,6 +422,14 @@ public class TypingResolver extends ASTDefaultVisitor {
         } catch (UnificationException e) {
             throw new ASTVisitException("Cannot infer types in an assignment", arg, e);
         }
+    }
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
     }
 
 }

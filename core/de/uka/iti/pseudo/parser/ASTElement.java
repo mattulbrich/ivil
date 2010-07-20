@@ -41,7 +41,7 @@ public abstract class ASTElement implements ASTLocatedElement {
     private ASTElement parent = null;
 
     /**
-     * The "accept" method of the visitor pattern. Any extending class wil call
+     * The "accept" method of the visitor pattern. Any extending class will call
      * the appropriate visit method of the ASTVisitor
      * 
      * @param v

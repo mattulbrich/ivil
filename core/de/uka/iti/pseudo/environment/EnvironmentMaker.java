@@ -40,7 +40,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class EnvironmentMaker traverses an {@link ASTFile} to extract
- * information about sors, functions, binders, fix operators, etc. etc.
+ * information about sorts, functions, binders, fix operators, etc. etc.
  */
 public class EnvironmentMaker {
 
