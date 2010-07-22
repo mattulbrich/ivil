@@ -62,7 +62,7 @@ public class GoalList extends JList implements PropertyChangeListener {
         }
     }
 
-    private class Model implements ListModel, Observer {
+    private class Model implements ListModel, Observer{
         
         private Object[] openGoals = new Object[0];
         private int countGoals;
@@ -100,11 +100,10 @@ public class GoalList extends JList implements PropertyChangeListener {
                     }
                 }});
         }
-        
     }
     
     @Override 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent evt) {        
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
             if(getSelectedValue() != node) {

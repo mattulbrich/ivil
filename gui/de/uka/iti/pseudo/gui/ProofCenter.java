@@ -462,7 +462,7 @@ public class ProofCenter {
      * Notify all registered listeners that a property's value has changed.
      * 
      * <p>
-     * Please not that an event is only triggered if the new value differs from
+     * Please note that an event is only triggered if the new value differs from
      * the originally set value.
      * 
      * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
