@@ -97,7 +97,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
             } catch (Exception ex) {
                 try {
-                    origProof.prune(origProof.getRoot());
+                    getProofCenter().prune(getProofCenter().getProof().getRoot());
                 } catch (ProofException ex2) {
                     ex2.printStackTrace();
                 }
