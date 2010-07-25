@@ -377,8 +377,13 @@ public class ProofCenter {
     public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
 
-        // TODO the following call is pointless as it wont change the selected
-        // proofNode
+        // fire a null node as the pruned node is allways allready selected
+        try {
+        fireSelectedProofNode(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // nothing really bad, but should not happen
+        }
         fireSelectedProofNode(proofNode);
     }
 

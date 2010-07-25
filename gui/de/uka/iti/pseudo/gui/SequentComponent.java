@@ -229,6 +229,11 @@ public class SequentComponent extends JPanel implements
             
         } else if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
+
+            // null can be sent if the selected node changed
+            if (null == node)
+                return;
+
             setProofNode(node, node.getChildren() == null);
             RuleApplication ruleApp = node.getAppliedRuleApp();
             if(ruleApp != null)

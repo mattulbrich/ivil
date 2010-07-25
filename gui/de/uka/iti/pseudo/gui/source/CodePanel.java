@@ -93,6 +93,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     public void propertyChange(PropertyChangeEvent evt) {
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
+            // null can be sent if the selected node changed
+            if (null == node)
+                return;
             proofNodeSelected(node);
         }
         
