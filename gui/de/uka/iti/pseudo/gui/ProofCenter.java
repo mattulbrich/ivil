@@ -376,6 +376,9 @@ public class ProofCenter {
      */
     public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
+
+        // TODO the following call is pointless as it wont change the selected
+        // proofNode
         fireSelectedProofNode(proofNode);
     }
 

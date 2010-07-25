@@ -19,7 +19,6 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.util.settings.Settings;
-import de.uka.iti.pseudo.util.settings.SettingsException;
 
 /**
  * A StrategyManager is essentially a collection of all applicable strategies

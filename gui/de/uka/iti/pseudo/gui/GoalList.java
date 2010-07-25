@@ -1,9 +1,9 @@
-/*
+/**
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ *    written by Mattias Ulbrich and Timm Felden
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -35,7 +35,7 @@ public class GoalList extends JList implements PropertyChangeListener {
 
     private static final long serialVersionUID = 4802864505685652999L;
     private Proof proof;
-    
+
     public GoalList(Proof proof, Environment env) {
         this.proof = proof;
         Model model = new Model();
@@ -43,40 +43,42 @@ public class GoalList extends JList implements PropertyChangeListener {
         proof.addObserver(model);
         setCellRenderer(new Renderer());
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // display initial goals
+        model.update(proof, null);
     }
-    
-    @SuppressWarnings("serial") 
+
+    @SuppressWarnings("serial")
     private static class Renderer extends DefaultListCellRenderer {
-        public Component getListCellRendererComponent(
-                JList list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus) {
+        public Component getListCellRendererComponent(JList list, Object value,
+                int index, boolean isSelected, boolean cellHasFocus) {
             if (value instanceof ProofNode) {
                 ProofNode proofNode = (ProofNode) value;
-                return super.getListCellRendererComponent(list, proofNode.getSummaryString(), index, isSelected, cellHasFocus);
+                return super.getListCellRendererComponent(list, proofNode
+                        .getSummaryString(), index, isSelected, cellHasFocus);
             } else {
-                return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                return super.getListCellRendererComponent(list, value, index,
+                        isSelected, cellHasFocus);
             }
         }
     }
 
-    private class Model implements ListModel, Observer{
-        
+    private class Model implements ListModel, Observer {
+
         private Object[] openGoals = new Object[0];
         private int countGoals;
 
         /** Listeners. */
         protected EventListenerList listenerList = new EventListenerList();
-        
+
         public void addListDataListener(ListDataListener l) {
             listenerList.add(ListDataListener.class, l);
         }
+
         public void removeListDataListener(ListDataListener l) {
             listenerList.remove(ListDataListener.class, l);
         }
-        
+
         public Object getElementAt(int index) {
             return openGoals[index];
         }
@@ -87,26 +89,30 @@ public class GoalList extends JList implements PropertyChangeListener {
 
         public void update(final Observable o, Object arg) {
             assert o == proof;
+
             // Make a copy of the open goals so that unfortunate scheduling
             // does no harm afterwards
-            openGoals = proof.getOpenGoals().toArray(openGoals);
+            openGoals = proof.getOpenGoals().toArray();
             countGoals = openGoals.length;
-            
+
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    ListDataEvent event = new ListDataEvent(GoalList.this, ListDataEvent.CONTENTS_CHANGED, 0, getSize());
-                    for (ListDataListener listener : listenerList.getListeners(ListDataListener.class)) {
+                    ListDataEvent event = new ListDataEvent(GoalList.this,
+                            ListDataEvent.CONTENTS_CHANGED, 0, getSize());
+                    for (ListDataListener listener : listenerList
+                            .getListeners(ListDataListener.class)) {
                         listener.contentsChanged(event);
                     }
-                }});
+                }
+            });
         }
     }
-    
-    @Override 
-    public void propertyChange(PropertyChangeEvent evt) {        
-        if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
-            if(getSelectedValue() != node) {
+            if (getSelectedValue() != node) {
                 clearSelection();
                 setSelectedValue(node, true);
             }

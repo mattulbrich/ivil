@@ -36,6 +36,8 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
+    private static final long serialVersionUID = -1207856898178542463L;
+
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
     private JComboBox selectionBox;

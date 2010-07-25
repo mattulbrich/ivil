@@ -24,6 +24,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 public class StartupWindow extends JFrame {
+    private static final long serialVersionUID = -250971288261688572L;
+    
     private BarManager barManager;
     
     public StartupWindow() throws IOException {

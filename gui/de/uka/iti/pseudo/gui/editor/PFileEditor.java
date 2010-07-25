@@ -326,6 +326,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
     
     // from http://www.java2s.com/Code/Java/Swing-JFC/AddingUndoandRedotoaTextComponent.htm
+    @SuppressWarnings("serial")
     private static void installUndoManager(JTextComponent textcomp) {
         final UndoManager undo = new UndoManager();
         Document doc = textcomp.getDocument();

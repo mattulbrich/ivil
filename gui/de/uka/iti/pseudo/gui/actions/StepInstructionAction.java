@@ -26,6 +26,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
 public class StepInstructionAction extends BarAction implements InitialisingAction {
     
+    private static final long serialVersionUID = 5535387689071989365L;
+
     Strategy symbexStrategy;
 
 

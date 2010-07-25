@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -35,7 +34,6 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Util;
 
@@ -289,8 +287,20 @@ public class ProofNode {
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
+        if (null != children)
+            for (ProofNode c : children)
+                c.childPrune();
         children = null;
         appliedRuleApp = null;
+    }
+
+    private void childPrune() {
+        if (null != children)
+            for (ProofNode c : children)
+                c.prune();
+        children = null;
+        appliedRuleApp = null;
+        parent = null;
     }
 
     /**

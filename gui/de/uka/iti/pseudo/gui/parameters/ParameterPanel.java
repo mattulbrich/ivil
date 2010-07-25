@@ -29,6 +29,8 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
 
 public class ParameterPanel extends JPanel {
 
+    private static final long serialVersionUID = -8785480731800659193L;
+    
     private ProofCenter proofCenter;
     private JComboBox activeStrategySelector;
     private JComboBox paramSelector;
@@ -39,6 +41,7 @@ public class ParameterPanel extends JPanel {
         init();
     }
 
+    @SuppressWarnings("serial")
     private void init() {
         final StrategyManager strategyManager = proofCenter.getStrategyManager();
         setLayout(new VerticalLayout());
@@ -100,6 +103,7 @@ public class ParameterPanel extends JPanel {
     /*
      * Make a new titled panel using the BorderFactory
      */
+    @SuppressWarnings("unused")
     private JPanel makeTitledPanel(String title) {
         JPanel result = new JPanel(new VerticalLayout());
         result.setBorder(BorderFactory.createTitledBorder(title));

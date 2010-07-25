@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.proof;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import nonnull.NonNull;
@@ -45,7 +46,7 @@ public class SequentHistory {
         /**
          * The proof node due to which the change has been made.
          */
-        private ProofNode creatingProofNode;
+        private WeakReference<ProofNode> creatingProofNode;
         
         /**
          * The parent annotation. The one with which the formula was previously tagged.
@@ -65,7 +66,8 @@ public class SequentHistory {
         public Annotation(String text, ProofNode creatingProofNode,
                 Annotation parentAnnotation) {
             this.text = text;
-            this.creatingProofNode = creatingProofNode;
+            this.creatingProofNode = new WeakReference<ProofNode>(
+                    creatingProofNode);
             this.parentAnnotation = parentAnnotation;
         }
         
@@ -94,7 +96,7 @@ public class SequentHistory {
          * @return a proof node or null if there is no such node
          */
         public @Nullable ProofNode getCreatingProofNode() {
-            return creatingProofNode;
+            return creatingProofNode.get();
         }
         
         /**
@@ -128,7 +130,7 @@ public class SequentHistory {
     /**
      * The creating proof node.
      */
-    private ProofNode creatingProofNode;
+    private WeakReference<ProofNode> creatingProofNode;
     
     /**
      * The fixed.
@@ -158,7 +160,7 @@ public class SequentHistory {
     public SequentHistory(String ruleAppText, Annotation reasonAnnotation, ProofNode creatingProofNode) {
         this.ruleAppText = ruleAppText;
         this.reasonAnnotation = reasonAnnotation;
-        this.creatingProofNode = creatingProofNode;
+        this.creatingProofNode = new WeakReference<ProofNode>(creatingProofNode);
         this.antecedent = new ArrayList<Annotation>();
         this.succedent = new ArrayList<Annotation>();
     }
@@ -263,7 +265,8 @@ public class SequentHistory {
     public void added(boolean side) {
         checkNotFixed();
         
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
+        Annotation ann = new Annotation(ruleAppText, creatingProofNode.get(),
+                reasonAnnotation);
         
         if(side == TermSelector.ANTECEDENT) {
             antecedent.add(ann);
@@ -299,7 +302,8 @@ public class SequentHistory {
     public void replaced(TermSelector selector) {
         checkNotFixed();
         
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
+        Annotation ann = new Annotation(ruleAppText, creatingProofNode.get(),
+                reasonAnnotation);
         
         if(selector.isAntecedent())
             antecedent.set(selector.getTermNo(), ann);

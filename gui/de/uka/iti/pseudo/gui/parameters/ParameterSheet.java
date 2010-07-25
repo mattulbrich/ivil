@@ -254,6 +254,7 @@ public class ParameterSheet extends JPanel {
      * @throws ClassCastException
      *             may be thrown by reflections
      */
+    @SuppressWarnings("unchecked")
     public <T> ParameterSheet(T object) throws SecurityException,
             IllegalArgumentException, IOException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException,

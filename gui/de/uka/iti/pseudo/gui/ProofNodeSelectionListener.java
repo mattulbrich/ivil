@@ -10,8 +10,8 @@
  */
 package de.uka.iti.pseudo.gui;
 
-import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
+//import de.uka.iti.pseudo.proof.ProofNode;
+//import de.uka.iti.pseudo.proof.RuleApplication;
 
 ////TODO DOC
 //public interface ProofNodeSelectionListener {

@@ -237,7 +237,6 @@ public class InteractiveRuleApplicationComponent extends
  * into a {@link JWindow} which can then be shown as a popup.  
  */
 
-@SuppressWarnings("serial") 
 class InteractiveRuleApplicationPopup extends JWindow {
 
     private static final long serialVersionUID = 251617174624191216L;

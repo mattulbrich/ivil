@@ -30,7 +30,6 @@ import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -130,13 +129,12 @@ public class SequentComponent extends JPanel implements
     private Separator separator = new Separator();
     private ProofNode proofNode;
     private boolean open;
-    private Environment env;
     private ProofCenter proofCenter;
     private PrettyPrint prettyPrinter;
 
 
     public SequentComponent(@NonNull ProofCenter proofCenter) {
-        this.env = proofCenter.getEnvironment();
+        proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
         this.setLayout(new Layout());
         prettyPrinter = proofCenter.getPrettyPrinter();
@@ -261,7 +259,6 @@ public class SequentComponent extends JPanel implements
                     if(termSelector == null)
                         return;
                     
-                    Sequent sequent = proofNode.getSequent();
                     List<RuleApplication> ruleApps = proofCenter.getApplicableRules(termSelector);
 
                     new InteractiveRuleApplicationPopup(proofCenter, ruleApps, 
