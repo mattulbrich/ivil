@@ -18,6 +18,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -380,10 +381,12 @@ public class ProofNode {
                 case COPY:
                     antecedent.addAll(sequent.getAntecedent());
                     succedent.addAll(sequent.getSuccedent());
-                    history = new SequentHistory(sequentHistory, ruleAppText, reasonAnnotation, this);
+                    history = new SequentHistory(sequentHistory, ruleAppText,
+                            reasonAnnotation, this);
                     break;
                 default:
-                    history = new SequentHistory(ruleAppText, reasonAnnotation, this);
+                    history = new SequentHistory(ruleAppText, reasonAnnotation,
+                            this);
                 break;
                 }
                 
