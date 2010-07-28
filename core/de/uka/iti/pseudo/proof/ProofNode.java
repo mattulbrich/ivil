@@ -287,20 +287,8 @@ public class ProofNode {
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
-        if (null != children)
-            for (ProofNode c : children)
-                c.childPrune();
         children = null;
         appliedRuleApp = null;
-    }
-
-    private void childPrune() {
-        if (null != children)
-            for (ProofNode c : children)
-                c.prune();
-        children = null;
-        appliedRuleApp = null;
-        parent = null;
     }
 
     /**
