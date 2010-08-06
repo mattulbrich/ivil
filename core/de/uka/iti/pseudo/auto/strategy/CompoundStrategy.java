@@ -85,10 +85,8 @@ public class CompoundStrategy extends AbstractStrategy {
         super.init(proof, env, strategyManager);
         this.strategyManager = strategyManager;
         
-        //look for strategy list in env
-        String desiredStrategies = null;
-        if(env.hasProperty(this.getClass().getName() + ".strategies"))
-            desiredStrategies = env.getProperty(this.getClass().getName() + ".strategies");
+        // look for strategy list in env
+        String desiredStrategies = env.getProperty(this.getClass().getName() + ".strategies");
         
         allAbstractStrategy = true;
         if(null == desiredStrategies)
