@@ -35,6 +35,8 @@ import de.uka.iti.pseudo.util.Util;
 @SuppressWarnings("serial")
 public class AboutAction extends BarAction {
 
+    private static final long serialVersionUID = -6434986871638617270L;
+    
     private static final String VERSION_PATH = "/META-INF/VERSION";
     private static final String LOGO_PATH = "/de/uka/iti/pseudo/gui/img/logo.png";
 

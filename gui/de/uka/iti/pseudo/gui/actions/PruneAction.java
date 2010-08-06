@@ -16,7 +16,6 @@ import java.beans.PropertyChangeListener;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
-import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -38,10 +37,9 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     public void actionPerformed(ActionEvent e) {
         System.err.println(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
-        Proof proof = getProofCenter().getProof();
         
         try {
-            proof.prune(proofNode);
+            getProofCenter().prune(proofNode);
         } catch (ProofException ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         }

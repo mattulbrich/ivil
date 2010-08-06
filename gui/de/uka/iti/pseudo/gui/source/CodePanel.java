@@ -36,6 +36,8 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
+    private static final long serialVersionUID = -1207856898178542463L;
+
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
     private JComboBox selectionBox;
@@ -91,6 +93,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     public void propertyChange(PropertyChangeEvent evt) {
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
+            // null can be sent if the selected node changed
+            if (null == node)
+                return;
             proofNodeSelected(node);
         }
         

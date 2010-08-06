@@ -33,6 +33,7 @@ import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
  *         Copyright (c) 2004<br>
  * @version 1.0<br>
  */
+@SuppressWarnings("serial")
 @Deprecated
 class LineNrPane extends JPanel {
 	// for this simple experiment, we keep the pane + scrollpane as members.
@@ -64,7 +65,6 @@ class LineNrPane extends JPanel {
 		linenr.setPreferredSize(new Dimension(40,30));
 	}
 
-	@SuppressWarnings("serial") 
 	private class LineNr extends JComponent {
 		public void paint(Graphics g) {
 			super.paint(g);

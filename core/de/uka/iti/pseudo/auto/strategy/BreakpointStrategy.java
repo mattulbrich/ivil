@@ -32,15 +32,16 @@ import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
-public class BreakpointStrategy extends AbstractStrategy implements RuleApplicationFilter {
-    
+public class BreakpointStrategy extends AbstractStrategy implements
+        RuleApplicationFilter {
+
     private BreakpointManager breakPointManager = new BreakpointManager();
-    
+
     /**
      * The set of rules which we do consult
      */
     private static final String REWRITE_CATEGORY = "symbex";
-    
+
     /*
      * The configurable properties
      */
@@ -51,85 +52,118 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
     private boolean stopAtJumpBack = true;
 
     private RewriteRuleCollection ruleCollection;
-    
+
     private Set<LiteralProgramTerm> seenProgramTerms = new HashSet<LiteralProgramTerm>();
-    
-    @Override 
-    public void init(Proof proof, Environment env, StrategyManager strategyManager)
-            throws StrategyException {
+
+    @Override
+    public void init(Proof proof, Environment env,
+            StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
         try {
-            ruleCollection = new RewriteRuleCollection(env.getAllRules(), REWRITE_CATEGORY, env);
+            ruleCollection = new RewriteRuleCollection(env.getAllRules(),
+                    REWRITE_CATEGORY, env);
             ruleCollection.setApplicationFilter(this);
         } catch (RuleException e) {
-            throw new StrategyException("Cannot initialise BreakpointStrategy", e);
+            throw new StrategyException("Cannot initialise BreakpointStrategy",
+                    e);
+        }
+
+        // obey settings in env
+        {
+            String name;
+
+            name = this.getClass().getName() + ".obeyProgramBreakpoints";
+            if (env.hasProperty(name))
+                obeyProgramBreakpoints = Boolean.parseBoolean(env
+                        .getProperty(name));
+
+            name = this.getClass().getName() + ".obeySourceBreakpoints";
+            if (env.hasProperty(name))
+                obeySourceBreakpoints = Boolean.parseBoolean(env
+                        .getProperty(name));
+
+            name = this.getClass().getName() + ".stopAtSkip";
+            if (env.hasProperty(name))
+                stopAtSkip = Boolean.parseBoolean(env.getProperty(name));
+
+            name = this.getClass().getName() + ".stopAtLoop";
+            if (env.hasProperty(name))
+                stopAtLoop = Boolean.parseBoolean(env.getProperty(name));
+
+            name = this.getClass().getName() + ".stopAtJumpBack";
+            if (env.hasProperty(name))
+                stopAtJumpBack = Boolean.parseBoolean(env.getProperty(name));
         }
     }
 
-    @Override 
+    @Override
     public RuleApplication findRuleApplication(int goalNumber) {
-        RuleApplication ra = ruleCollection.findRuleApplication(getProof(), goalNumber);
+        RuleApplication ra = ruleCollection.findRuleApplication(getProof(),
+                goalNumber);
         return ra;
     }
-    
+
     private boolean hasBreakpoint(LiteralProgramTerm progTerm) {
         //
         // check for stop at skip
-        if(stopAtSkip) {
+        if (stopAtSkip) {
             Statement s = progTerm.getStatement();
-            if(s instanceof SkipStatement)
+            if (s instanceof SkipStatement)
                 return true;
         }
-        
+
         //
         // check for backward jumping
-        if(stopAtJumpBack) {
+        if (stopAtJumpBack) {
             Statement s = progTerm.getStatement();
             if (s instanceof GotoStatement) {
                 GotoStatement gotoStm = (GotoStatement) s;
                 int currentIndex = progTerm.getProgramIndex();
                 for (Term target : gotoStm.getSubterms()) {
                     int index = toInt(target);
-                    if(index <= currentIndex)
+                    if (index <= currentIndex)
                         return true;
                 }
             }
         }
-        
+
         //
         // check for unwanted looping
-        if(stopAtLoop) {
-            if(seenProgramTerms.contains(progTerm))
+        if (stopAtLoop) {
+            if (seenProgramTerms.contains(progTerm))
                 return true;
         }
         seenProgramTerms.add(progTerm);
-        
+
         Program program = progTerm.getProgram();
         int number = progTerm.getProgramIndex();
 
         //
         // check for program breakpoint
-        if(obeyProgramBreakpoints) {
-            if(breakPointManager.hasBreakpoint(program, number))
+        if (obeyProgramBreakpoints) {
+            if (breakPointManager.hasBreakpoint(program, number))
                 return true;
         }
 
         //
         // check for source breakpoint:
-        
-        // we store in differs whether the statement in front of the current 
+
+        // we store in differs whether the statement in front of the current
         // has a different source line number. only then the breakpoint is hit.
         URL sourceFile = program.getSourceFile();
-        if(sourceFile != null && obeySourceBreakpoints) {
+        if (sourceFile != null && obeySourceBreakpoints) {
             int sourceline = progTerm.getStatement().getSourceLineNumber();
             boolean differs = number == 0
                     || program.getStatement(number - 1).getSourceLineNumber() != sourceline;
-            
-            // bugfix: this "-1" is needed because line numbers actually start at 1
-            if(differs && breakPointManager.hasBreakpoint(sourceFile, sourceline - 1))
+
+            // bugfix: this "-1" is needed because line numbers actually start
+            // at 1
+            if (differs
+                    && breakPointManager.hasBreakpoint(sourceFile,
+                            sourceline - 1))
                 return true;
         }
-        
+
         return false;
     }
 
@@ -148,14 +182,15 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
                 return literal.getValue().intValue();
             }
         }
-        throw new RuntimeException("The term " + term + " is not a number literal");
+        throw new RuntimeException("The term " + term
+                + " is not a number literal");
     }
 
     public BreakpointManager getBreakpointManager() {
-        return breakPointManager;   
+        return breakPointManager;
     }
-   
-    @Override 
+
+    @Override
     public String toString() {
         return "Breakpoint Strategy";
     }
@@ -163,8 +198,7 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
     //
     // getter and setter
     //
-    
-    
+
     // due to ParameterSheet, we need get instead of is
     public boolean getObeyProgramBreakpoints() {
         return obeyProgramBreakpoints;
@@ -182,16 +216,16 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
     public void setObeySourceBreakpoints(boolean obeySourceBreakpoints) {
         this.obeySourceBreakpoints = obeySourceBreakpoints;
     }
-    
+
     // due to ParameterSheet, we need get instead of is
     public boolean getStopAtSkip() {
         return stopAtSkip;
     }
-    
+
     public void setStopAtSkip(boolean stopAtSkip) {
         this.stopAtSkip = stopAtSkip;
     }
-    
+
     // due to ParameterSheet, we need get instead of is
     public boolean getStopAtLoop() {
         return stopAtLoop;
@@ -200,7 +234,7 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
     public void setStopAtLoop(boolean stopAtLoop) {
         this.stopAtLoop = stopAtLoop;
     }
-    
+
     // due to ParameterSheet, we need get instead of is
     public boolean getStopAtJumpBack() {
         return stopAtJumpBack;
@@ -210,16 +244,15 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
         this.stopAtJumpBack = stopAtJumpBack;
     }
 
-    
     /**
      * Decide whether a rule application is to be applied or not.
      * 
-     * We extract the program term and check whether it is at a 
-     * breakpoint using {@link #hasBreakpoint(LiteralProgramTerm)}.
+     * We extract the program term and check whether it is at a breakpoint using
+     * {@link #hasBreakpoint(LiteralProgramTerm)}.
      * 
-     * @return <code>false</code> iff at a breakpoint 
+     * @return <code>false</code> iff at a breakpoint
      */
-    @Override 
+    @Override
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
         int goal = ruleApp.getGoalNumber();
         Sequent sequent = getProof().getGoal(goal).getSequent();
@@ -229,12 +262,12 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
         } catch (ProofException e) {
             throw new RuleException(e);
         }
-        
+
         // updated program term ==> go for the wrapped program
         if (!(find instanceof LiteralProgramTerm)) {
             find = find.getSubterm(0);
         }
-        
+
         if (find instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
             if (hasBreakpoint(progTerm))
@@ -244,7 +277,7 @@ public class BreakpointStrategy extends AbstractStrategy implements RuleApplicat
                     "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
                             + ruleApp.getRule().getName());
         }
-        
+
         return true;
     }
 }

@@ -22,6 +22,8 @@ import de.uka.iti.pseudo.gui.editor.PFileEditor;
 // TODO Documentation needed
 public abstract class BarAction extends AbstractAction {
 
+    private static final long serialVersionUID = -7639080330502488139L;
+    
     public static final String CENTER = "barmanager.center";
     public static final String PARENT_FRAME = "barmanager.parentframe";
     public static final String EDITOR_FRAME = "barmanager.editorframe";

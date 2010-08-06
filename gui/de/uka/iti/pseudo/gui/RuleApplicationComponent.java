@@ -140,6 +140,10 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
     public void propertyChange(PropertyChangeEvent evt) {
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
+            // null can be sent if the selected node changed
+            if (null == node)
+                return;
+
             RuleApplication ruleApp = node.getAppliedRuleApp();
             setRuleApplication(ruleApp);
         }

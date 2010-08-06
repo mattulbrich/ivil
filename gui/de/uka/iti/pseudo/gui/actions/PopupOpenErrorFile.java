@@ -18,7 +18,6 @@ import java.io.IOException;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
 @SuppressWarnings("serial") 

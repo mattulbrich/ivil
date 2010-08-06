@@ -12,9 +12,6 @@ package de.uka.iti.pseudo.gui.actions;
 
 import java.util.EventObject;
 
-import javax.swing.Action;
-import javax.swing.Icon;
-
 // TODO Documentation needed
 public interface StateListener {
     

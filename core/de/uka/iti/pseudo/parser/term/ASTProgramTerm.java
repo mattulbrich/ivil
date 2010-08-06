@@ -11,7 +11,6 @@
 package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
-import java.util.List;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;

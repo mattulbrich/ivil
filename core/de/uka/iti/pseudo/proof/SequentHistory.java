@@ -16,6 +16,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
+
 /**
  * The Class SequentHistory provides a mean to gather information on how a
  * particular formula in a proof node has evolved.
@@ -35,23 +36,24 @@ public class SequentHistory {
      * step in a proof.
      */
     public static class Annotation {
-        
+
         /**
          * Either the name of a rule or an instantiation of the
          * {@value RuleTagConstants#KEY_DISPLAY} property of a rule.
          */
         private String text;
-        
+
         /**
          * The proof node due to which the change has been made.
          */
         private ProofNode creatingProofNode;
-        
+
         /**
-         * The parent annotation. The one with which the formula was previously tagged.
+         * The parent annotation. The one with which the formula was previously
+         * tagged.
          */
         private Annotation parentAnnotation;
-        
+
         /**
          * Instantiates a new annotation.
          * 
@@ -68,7 +70,7 @@ public class SequentHistory {
             this.creatingProofNode = creatingProofNode;
             this.parentAnnotation = parentAnnotation;
         }
-        
+
         /**
          * Instantiates a new annotation without parent and w/o proof node
          * 
@@ -78,68 +80,72 @@ public class SequentHistory {
         public Annotation(String text) {
             this.text = text;
         }
-        
+
         /**
          * get the text that comes along with this annotation
          * 
          * @return the description, not null
          */
-        public @NonNull String getText() {
+        public @NonNull
+        String getText() {
             return text;
         }
-        
+
         /**
-         * get the proof node which gave raise to this annotation 
+         * get the proof node which gave raise to this annotation
          * 
          * @return a proof node or null if there is no such node
          */
-        public @Nullable ProofNode getCreatingProofNode() {
+        public @Nullable
+        ProofNode getCreatingProofNode() {
             return creatingProofNode;
         }
-        
+
         /**
-         * get the parent annotation for this annotation.
-         * This may be null if the annotation is toplevel
+         * get the parent annotation for this annotation. This may be null if
+         * the annotation is toplevel
          * 
          * @return the parent annotation or null
          */
-        public @Nullable Annotation getParentAnnotation() {
+        public @Nullable
+        Annotation getParentAnnotation() {
             return parentAnnotation;
         }
-        
+
         public String toString() {
-            return "Annotation[text=" + text + "; proofNode = " + creatingProofNode + "]";
+            return "Annotation[text=" + text + "; proofNode = "
+                    + creatingProofNode + "]";
         }
     }
-    
- // TODO: Auto-generated Javadoc
+
+    // TODO: Auto-generated Javadoc
     // XXX: HOW THE HECK DOES THIS WORK?!?!?
 
     /**
      * The text of the rule application which has been made
      */
     private String ruleAppText;
-    
+
     /**
      * The annotation which is reason for the last change.
      */
     private Annotation reasonAnnotation;
-    
+
     /**
      * The creating proof node.
      */
     private ProofNode creatingProofNode;
-    
+
     /**
      * The fixed.
      */
     private boolean fixed;
-    
+
     /**
      * The antecedent.
      */
-    private ArrayList<Annotation> antecedent; 
-    
+    private ArrayList<Annotation> antecedent;
+
     /**
      * The succedent.
      */
@@ -155,7 +161,8 @@ public class SequentHistory {
      * @param creatingProofNode
      *            the creating proof node
      */
-    public SequentHistory(String ruleAppText, Annotation reasonAnnotation, ProofNode creatingProofNode) {
+    public SequentHistory(String ruleAppText, Annotation reasonAnnotation,
+            ProofNode creatingProofNode) {
         this.ruleAppText = ruleAppText;
         this.reasonAnnotation = reasonAnnotation;
         this.creatingProofNode = creatingProofNode;
@@ -175,7 +182,8 @@ public class SequentHistory {
      * @param proofNode
      *            the proof node
      */
-    public SequentHistory(SequentHistory sequentHistory, String ruleAppText, Annotation reasonAnnotation, ProofNode proofNode) {
+    public SequentHistory(SequentHistory sequentHistory, String ruleAppText,
+            Annotation reasonAnnotation, ProofNode proofNode) {
         this(ruleAppText, reasonAnnotation, proofNode);
         antecedent.addAll(sequentHistory.antecedent);
         succedent.addAll(sequentHistory.succedent);
@@ -195,13 +203,13 @@ public class SequentHistory {
         for (int i = 0; i < len; i++) {
             antecedent.add(initialAnnotation);
         }
-        
+
         this.succedent = new ArrayList<Annotation>();
         len = sequent.getSuccedent().size();
         for (int i = 0; i < len; i++) {
             succedent.add(initialAnnotation);
         }
-        
+
         fix();
     }
 
@@ -216,13 +224,14 @@ public class SequentHistory {
         antecedent.trimToSize();
         succedent.trimToSize();
     }
-    
+
     /**
      * Check not fixed.
      */
     private void checkNotFixed() {
-        if(fixed)
-            throw new IllegalStateException("must not change a fixed SequentHistory");
+        if (fixed)
+            throw new IllegalStateException(
+                    "must not change a fixed SequentHistory");
     }
 
     /**
@@ -234,8 +243,8 @@ public class SequentHistory {
      * @return true, if successful
      */
     public boolean sizesAgreeWith(Sequent sequent) {
-        return antecedent.size() == sequent.getAntecedent().size() &&
-            succedent.size() == sequent.getSuccedent().size();
+        return antecedent.size() == sequent.getAntecedent().size()
+                && succedent.size() == sequent.getSuccedent().size();
     }
 
     /**
@@ -246,8 +255,8 @@ public class SequentHistory {
      */
     public void removed(TermSelector selector) {
         checkNotFixed();
-        
-        if(selector.isAntecedent()) {
+
+        if (selector.isAntecedent()) {
             antecedent.remove(selector.getTermNo());
         } else {
             succedent.remove(selector.getTermNo());
@@ -262,15 +271,16 @@ public class SequentHistory {
      */
     public void added(boolean side) {
         checkNotFixed();
-        
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
-        
-        if(side == TermSelector.ANTECEDENT) {
+
+        Annotation ann = new Annotation(ruleAppText, creatingProofNode,
+                reasonAnnotation);
+
+        if (side == TermSelector.ANTECEDENT) {
             antecedent.add(ann);
         } else {
             succedent.add(ann);
         }
-        
+
     }
 
     /**
@@ -282,9 +292,9 @@ public class SequentHistory {
      * @return the annotation
      */
     public Annotation select(TermSelector selector) {
-        if(selector == null)
+        if (selector == null)
             return null;
-        else if(selector.isAntecedent())
+        else if (selector.isAntecedent())
             return antecedent.get(selector.getTermNo());
         else
             return succedent.get(selector.getTermNo());
@@ -298,13 +308,14 @@ public class SequentHistory {
      */
     public void replaced(TermSelector selector) {
         checkNotFixed();
-        
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
-        
-        if(selector.isAntecedent())
+
+        Annotation ann = new Annotation(ruleAppText, creatingProofNode,
+                reasonAnnotation);
+
+        if (selector.isAntecedent())
             antecedent.set(selector.getTermNo(), ann);
         else
             succedent.set(selector.getTermNo(), ann);
     }
-    
+
 }

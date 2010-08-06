@@ -27,6 +27,8 @@ import de.uka.iti.pseudo.proof.TermSelector;
 @SuppressWarnings("serial")
 public class TermSelectionTransfer extends TransferHandler {
 
+    private static final long serialVersionUID = -1292983185215324664L;
+
     public int getSourceActions(JComponent c) {
         return COPY;
     }

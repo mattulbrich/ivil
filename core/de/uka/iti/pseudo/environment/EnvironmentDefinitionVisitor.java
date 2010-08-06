@@ -18,6 +18,8 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.file.ASTBinderDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFunctionDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.term.Type;
@@ -172,5 +174,16 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
     public void visitDefaultType(ASTType arg) throws ASTVisitException {
         resultingTypeRef = TermMaker.makeType(arg, env);
     }
-    
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+        for(ASTElement child : plugins.getChildren())
+            child.visit(this);
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration property) throws ASTVisitException {
+        String value = property.getValue();
+        env.addProperty(property.getName(), value.substring(1, value.length()-1));
+    }
 }

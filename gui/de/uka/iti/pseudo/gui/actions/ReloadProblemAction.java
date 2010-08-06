@@ -5,19 +5,15 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
-import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This allows for reloading of the problem. If no problem was loaded yet, the

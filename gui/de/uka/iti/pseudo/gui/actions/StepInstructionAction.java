@@ -27,6 +27,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
 @SuppressWarnings("serial")
 public class StepInstructionAction extends BarAction implements InitialisingAction {
     
+    private static final long serialVersionUID = 5535387689071989365L;
+
     Strategy symbexStrategy;
 
 

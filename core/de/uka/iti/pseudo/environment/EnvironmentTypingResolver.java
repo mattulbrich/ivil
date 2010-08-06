@@ -17,11 +17,12 @@ import de.uka.iti.pseudo.parser.file.ASTAxiomDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -149,6 +150,14 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
                 throw new ASTVisitException("Located term must have boolean type", arg, e);
             }
         }
+    }
+
+    @Override
+    public void visit(ASTProperties plugins) throws ASTVisitException {
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
     }
     
 }

@@ -16,9 +16,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;

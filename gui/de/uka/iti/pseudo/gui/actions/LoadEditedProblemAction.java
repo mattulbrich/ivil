@@ -13,11 +13,9 @@ package de.uka.iti.pseudo.gui.actions;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
@@ -29,8 +27,6 @@ import de.uka.iti.pseudo.util.GUIUtil;
  */
 @SuppressWarnings("serial") 
 public class LoadEditedProblemAction extends BarAction {
-
-    private JFileChooser fileChooser;
 
     public LoadEditedProblemAction() {
         super("Load problem ...", GUIUtil.makeIcon(LoadEditedProblemAction.class.getResource("img/link_go.png")));
@@ -59,7 +55,7 @@ public class LoadEditedProblemAction extends BarAction {
         }
 
         try {
-            ProofCenter pc = Main.openProver(file);
+            Main.openProver(file);
         } catch(Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } 

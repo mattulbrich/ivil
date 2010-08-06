@@ -24,6 +24,8 @@ import javax.swing.event.MouseInputListener;
 @SuppressWarnings("serial")
 public class WindowMover extends AbstractBorder implements MouseInputListener {
     
+    private static final long serialVersionUID = 600989019991147038L;
+
     private static final int HEIGHT = 14;
     private Insets insets;
     private Point lastPoint;

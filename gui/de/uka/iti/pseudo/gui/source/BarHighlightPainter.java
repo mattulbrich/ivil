@@ -33,7 +33,6 @@ public class BarHighlightPainter implements HighlightPainter {
 
     public void paint(Graphics g, int offs0, int offs1, Shape bounds,
             JTextComponent c) {
-        Rectangle alloc = bounds.getBounds();
         g = g.create();
         try {
             

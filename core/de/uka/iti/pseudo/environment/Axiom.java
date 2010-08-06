@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;

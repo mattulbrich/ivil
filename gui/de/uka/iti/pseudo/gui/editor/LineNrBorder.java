@@ -26,6 +26,8 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 public class LineNrBorder extends EmptyBorder {
 
+    private static final long serialVersionUID = 1461567609517301384L;
+
     private Color color;
     private Font font;
 
@@ -34,6 +36,7 @@ public class LineNrBorder extends EmptyBorder {
         this.color = color;
     }
 
+    @SuppressWarnings("deprecation")
     public static void main(String[] args) {
         JFrame f = new JFrame();
         JTextArea ta = new JTextArea();

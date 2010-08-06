@@ -16,6 +16,7 @@ ASTFile File():
        (
         ( block=IncludeDeclarationBlock()
         | block=PluginsBlock()
+        | block=PropertiesBlock()
         | block=SortDeclarationBlock()
         | block=FunctionDeclarationBlock()
         | block=BinderDeclarationBlock()
@@ -43,6 +44,35 @@ ASTPlugins PluginsBlock():
              { pairs.add(new ASTPluginDeclaration(service, implementation)); }
         )+
     { return new ASTPlugins(first, pairs); }
+}
+
+ASTProperties PropertiesBlock():
+{
+  Token first, t, value, separator=null;
+  StringBuilder name = new StringBuilder();
+  List<ASTPropertiesDeclaration> pairs = new ArrayList<ASTPropertiesDeclaration>();
+}
+{
+        first="properties"
+        ( t=<IDENTIFIER> { name.append(t.image); } 
+             ( separator=<OP_IDENTIFIER> t=<IDENTIFIER> 
+                {   
+// uncomment to enforce "." as a separator
+//                    if(null!=separator && !separator.image.equals("."))
+//                        throw new ParseException("expected '.' but found '" 
+//                        + separator.image + "' @l" + separator.beginLine + ";c"
+//                        + separator.beginColumn);
+                        
+                    name.append(".").append(t.image);
+                }
+             )* 
+                value=<STRING>
+             {       
+                pairs.add(new ASTPropertiesDeclaration(name.toString(),value));
+                name.setLength(0);
+             }
+        )+
+    { return new ASTProperties(first, pairs); }
 }
 
 

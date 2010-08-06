@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -35,7 +34,6 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Util;
 
@@ -370,10 +368,12 @@ public class ProofNode {
                 case COPY:
                     antecedent.addAll(sequent.getAntecedent());
                     succedent.addAll(sequent.getSuccedent());
-                    history = new SequentHistory(sequentHistory, ruleAppText, reasonAnnotation, this);
+                    history = new SequentHistory(sequentHistory, ruleAppText,
+                            reasonAnnotation, this);
                     break;
                 default:
-                    history = new SequentHistory(ruleAppText, reasonAnnotation, this);
+                    history = new SequentHistory(ruleAppText, reasonAnnotation,
+                            this);
                 break;
                 }
                 

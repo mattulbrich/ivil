@@ -43,7 +43,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * @see ProofComponentModel
  */
 public class ProofComponent extends JTree implements PropertyChangeListener {
-
+    
     private static final long serialVersionUID = 6352175425195393727L;
 
     public static final String VERBOSITY_PROPERTY = "tree-verbosity";
