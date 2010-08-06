@@ -33,32 +33,28 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 /**
  * The Class SimplificationStrategy.
  */
-public class SimplificationStrategy extends AbstractStrategy implements RuleApplicationFilter {
-    
+public class SimplificationStrategy extends AbstractStrategy implements
+        RuleApplicationFilter {
+
     /**
      * SplitMode lists all possibilities to handle splitting:
      * <ol>
      * <li>Do it whenever a splitting rule application is found
      * <li>Never do it
-     * <li>Do it only if no program terms are anywhere on the sequent 
-     * (symbolic execution first)
+     * <li>Do it only if no program terms are anywhere on the sequent (symbolic
+     * execution first)
      * </ol>
      */
     public static enum SplitMode {
         SPLIT, DONT_SPLIT, SPLIT_NO_PROGRAMS
     };
-    
+
     /**
      * Collects all categories taken into account in this strategy.
      */
-    private final static String[] REWRITE_CATEGORIES = {
-        "updSimpl",
-        "close",
-        "concrete",
-        "prop simp",
-        "fol simp",
-    };
-    
+    private final static String[] REWRITE_CATEGORIES = { "updSimpl", "close",
+            "concrete", "prop simp", "fol simp", };
+
     /**
      * The category name of splitting rules. This is kept separate from the
      * others to allow to install a filter on the collection.
@@ -67,6 +63,7 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
 
     /**
      * Use this {@link TermVisitor} to detect programs in an term.
+     * 
      * @see #accepts(RuleApplication)
      */
     private static TermVisitor PROGRAM_DETECTOR = new DefaultTermVisitor.DepthTermVisitor() {
@@ -74,40 +71,41 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
             throw new TermException("Program found!");
         }
     };
-    
+
     /**
      * store for all categories those proof node which did not match and do not
      * try to match again.
      */
     private Set<ProofNode>[] noMatchNodes;
-    
+
     /**
      * The currently active split mode.
      */
     private SplitMode splitMode = SplitMode.SPLIT_NO_PROGRAMS;
-    
+
     /**
      * The rewrite rule handlers for the various categories. Length coincides
      * with the length of {@link #REWRITE_CATEGORIES} plus 1 (for split)
      */
     private RewriteRuleCollection ruleCollections[];
-    
+
     /*
      * Find rule application on a certain goal. Try all collections.
      */
     protected RuleApplicationMaker findRuleApplication(int goalNo) {
-        
+
         assert ruleCollections != null;
-        
+
         for (int collNo = 0; collNo < ruleCollections.length; collNo++) {
             ProofNode goal = getProof().getGoal(goalNo);
-            
+
             // this node has already been checked: no matches
-            if(noMatchNodes[collNo].contains(goal))
+            if (noMatchNodes[collNo].contains(goal))
                 continue;
-            
-            RuleApplicationMaker ruleApplication = ruleCollections[collNo].findRuleApplication(getProof(), goalNo);
-            if(ruleApplication != null) {
+
+            RuleApplicationMaker ruleApplication = ruleCollections[collNo]
+                    .findRuleApplication(getProof(), goalNo);
+            if (ruleApplication != null) {
                 ruleApplication.setGoalNumber(goalNo);
                 return ruleApplication;
             }
@@ -120,59 +118,73 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
     }
 
     @SuppressWarnings("unchecked")
-    @Override 
-    public void init(@NonNull Proof proof, @NonNull Environment env, @NonNull StrategyManager strategyManager)
-            throws StrategyException {
+    @Override
+    public void init(@NonNull Proof proof, @NonNull Environment env,
+            @NonNull StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
-        
+
         ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length + 1];
         List<Rule> allRules = env.getAllRules();
         for (int i = 0; i < REWRITE_CATEGORIES.length; i++) {
             try {
-                ruleCollections[i] = new RewriteRuleCollection(allRules, REWRITE_CATEGORIES[i], env);
+                ruleCollections[i] = new RewriteRuleCollection(allRules,
+                        REWRITE_CATEGORIES[i], env);
             } catch (RuleException e) {
                 throw new StrategyException("Cannot initialise MyStrategy", e);
             }
         }
-        
+
         // create the splitting rule collection which uses "this" as filter.
         try {
-            ruleCollections[REWRITE_CATEGORIES.length] = new RewriteRuleCollection(allRules, SPLIT_CATEGORY, env);
-            ruleCollections[REWRITE_CATEGORIES.length].setApplicationFilter(this);
+            ruleCollections[REWRITE_CATEGORIES.length] = new RewriteRuleCollection(
+                    allRules, SPLIT_CATEGORY, env);
+            ruleCollections[REWRITE_CATEGORIES.length]
+                    .setApplicationFilter(this);
         } catch (RuleException e) {
-            throw new StrategyException("Cannot initialise SimplificationStrategy", e);
+            throw new StrategyException(
+                    "Cannot initialise SimplificationStrategy", e);
         }
-        
+
         // set up the noMatchNodes array
         noMatchNodes = new Set[ruleCollections.length];
         for (int i = 0; i < noMatchNodes.length; i++) {
             noMatchNodes[i] = new HashSet<ProofNode>();
         }
-        
+
         // check if env asks us to change split mode
         // FIXME Error if valueOf fails.
-        if(env.hasProperty(this.getClass().getName() + ".splitMode"))
-            setSplitMode(SplitMode.valueOf(env.getProperty(this.getClass().getName() + ".splitMode")));
+        {
+            String value = env.getProperty(this.getClass().getName()
+                    + ".splitMode");
+            try {
+                if (null != value)
+                    setSplitMode(SplitMode.valueOf(value));
+            } catch (IllegalArgumentException e) {
+                throw new StrategyException(
+                        "The problem environment specified a value \""
+                                + value
+                                + "\", which does not name a valid Mode for SimplificationStrategy.splitMode",
+                        e);
+            }
+        }
     }
-    
-    
+
     /**
      * Filter acceptable rule applications. This is only relevant for splitting
      * rules. Check the sequent for program terms if set so ...
      * 
      * @return <code>true</code> if current mode is {@link SplitMode#SPLIT} or
      *         no programs on the sequent to be treated and current mode is
-     *         {@link SplitMode#SPLIT_NO_PROGRAMS}, otherwise
-     *         <code>false</code>
+     *         {@link SplitMode#SPLIT_NO_PROGRAMS}, otherwise <code>false</code>
      */
-    
-    @Override 
+
+    @Override
     public boolean accepts(RuleApplication ruleApp) {
         switch (splitMode) {
         case SPLIT:
             // allow always
             return true;
-            
+
         case DONT_SPLIT:
             // allow never
             return false;
@@ -197,12 +209,13 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         }
         throw new Error("Unreachable");
     }
-    
+
     /*
      * invoked after an automated proof finishes: forget everything about
      * possible unmatching proofnodes: frees memory.
      */
-    @Override public void endSearch()  {
+    @Override
+    public void endSearch() {
         for (Set<ProofNode> set : noMatchNodes) {
             set.clear();
         }
