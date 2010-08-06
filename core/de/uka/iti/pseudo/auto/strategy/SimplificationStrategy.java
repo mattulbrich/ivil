@@ -150,6 +150,7 @@ public class SimplificationStrategy extends AbstractStrategy implements RuleAppl
         }
         
         // check if env asks us to change split mode
+        // FIXME Error if valueOf fails.
         if(env.hasProperty(this.getClass().getName() + ".splitMode"))
             setSplitMode(SplitMode.valueOf(env.getProperty(this.getClass().getName() + ".splitMode")));
     }

@@ -55,14 +55,8 @@ ASTProperties PropertiesBlock():
 {
         first="properties"
         ( t=<IDENTIFIER> { name.append(t.image); } 
-             ( separator=<OP_IDENTIFIER> t=<IDENTIFIER> 
+             ( "." t=<IDENTIFIER> 
                 {   
-// uncomment to enforce "." as a separator
-//                    if(null!=separator && !separator.image.equals("."))
-//                        throw new ParseException("expected '.' but found '" 
-//                        + separator.image + "' @l" + separator.beginLine + ";c"
-//                        + separator.beginColumn);
-                        
                     name.append(".").append(t.image);
                 }
              )* 

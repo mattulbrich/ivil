@@ -165,6 +165,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < LEFTDSQUARE: "[[" >
 | < RIGHTDSQUARE: "]]" >
 | < COMMA: "," >
+| < DOT: "." >
 | < PARALLEL: "||" >
 | < COLON: ":" >
 | < SEMICOLON: ";" >
