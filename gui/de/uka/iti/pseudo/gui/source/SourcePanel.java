@@ -64,7 +64,7 @@ public class SourcePanel extends CodePanel {
             return Util.readURLAsString((URL)reference);
         } catch (IOException e) {
             ExceptionDialog.showExceptionDialog(getProofCenter()
-                    .getMainWindow(), e);
+                    .getMainWindow(), "Source code cannot be loaded: " + reference, e);
             return null;
         }
 

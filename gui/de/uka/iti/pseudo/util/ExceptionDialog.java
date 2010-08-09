@@ -66,17 +66,17 @@ public class ExceptionDialog extends JDialog {
     private static int MIN_WIDTH = 300;
     private static int LINE_LENGTH = 72;
 
-    private ExceptionDialog(Window w, Throwable throwable) {
+    private ExceptionDialog(Window w, String message, Throwable throwable) {
         super(w, "Fehler", ModalityType.APPLICATION_MODAL);
         this.exception = throwable;
-        this.message = exception.getLocalizedMessage();
+        this.message = message;
         initGUI();
         firstSize = getSize();
     }
 
-    private ExceptionDialog() {
-        this(new JFrame(), new Exception("test"));
-    }
+//    private ExceptionDialog() {
+//        this(new JFrame(), new Exception("test"));
+//    }
 
     private void initGUI() {
         {
@@ -205,7 +205,18 @@ public class ExceptionDialog extends JDialog {
 
     public static void showExceptionDialog(Window parentComponent,
             Throwable throwable) {
-        ExceptionDialog dlg = new ExceptionDialog(parentComponent, throwable);
+        showExceptionDialog(parentComponent, throwable.getLocalizedMessage(),
+                throwable);
+    }
+
+    public static void showExceptionDialog(Window owner, String message) {
+        showExceptionDialog(owner, new StackTraceThrowable(message));
+    }
+
+    public static void showExceptionDialog(Window parentComponent,
+            String message, Throwable throwable) {
+        ExceptionDialog dlg = new ExceptionDialog(parentComponent, message,
+                throwable);
         dlg.setLocationRelativeTo(parentComponent);
         dlg.setVisible(true);
         dlg.dispose();
@@ -215,6 +226,7 @@ public class ExceptionDialog extends JDialog {
         showExceptionDialog(new JFrame(), new NullPointerException(
                 "Some more eleborate error message"));
         showExceptionDialog(new JFrame(), "some other error");
+        showExceptionDialog(new JFrame(), "message and exception", new Exception("this should not appear"));
         showExceptionDialog(
                 new JFrame(),
                 "ugly looooooooooong error with lots of details, for instance http://java.sun.com/j2se/1.4.2/docs/api/java/awt/GridBagLayout.html#columnWidths");
@@ -225,23 +237,6 @@ public class ExceptionDialog extends JDialog {
                 new JFrame(),
                 "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890");
         System.exit(0);
-    }
-
-    public static void showExceptionDialog(Window owner, String message) {
-        showExceptionDialog(owner, new StackTraceThrowable(message));
-    }
-
-    public static void showExceptionDialog(Window parentComponent,
-            String message, Throwable throwable) {
-        ExceptionDialog dlg = new ExceptionDialog(parentComponent, throwable);
-        dlg.setMessage(message);
-        dlg.setLocationRelativeTo(parentComponent);
-        dlg.setVisible(true);
-        dlg.dispose();
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     private static class StackTraceThrowable extends Throwable {
