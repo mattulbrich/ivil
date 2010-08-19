@@ -6,6 +6,19 @@ include
   "$int.p"
   "$symbex.p"
   "$decproc.p"
+  
+properties
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeyProgramBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeySourceBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtSkip "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtLoop "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtJumpBack "false"
+  
+  de.uka.iti.pseudo.auto.strategy.CompoundStrategy.strategies 
+    "de.uka.iti.pseudo.auto.strategy.SimplificationStrategy,
+     de.uka.iti.pseudo.auto.strategy.BreakpointStrategy,
+     de.uka.iti.pseudo.auto.strategy.SMTStrategy"
+
 
 function
   int c assignable
@@ -49,7 +62,7 @@ program P source "fakultaet.pseudo"
 
     sourceline 16
   L6: assume !n> 0
-      assert c = fak(n_pre)
+      assert c = fak(n_pre) ; "postcondition"
 
 problem
   [0;P]

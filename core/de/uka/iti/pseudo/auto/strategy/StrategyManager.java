@@ -74,7 +74,6 @@ public class StrategyManager {
      *            the environment to bind to
      */
     public StrategyManager(@NonNull Proof proof, @NonNull Environment env) {
-        super();
         this.proof = proof;
         this.env = env;
     }
@@ -96,10 +95,11 @@ public class StrategyManager {
      */
     public void registerStrategy(Class<? extends Strategy> clss)
             throws StrategyException {
-        if (registeredStrategies.containsKey(clss))
+        if (registeredStrategies.containsKey(clss)) {
             throw new StrategyException("Class " + clss
                     + " has already been registered");
-
+        }
+        
         try {
             Strategy newInstance = clss.newInstance();
             registerInternally(newInstance);
@@ -125,8 +125,9 @@ public class StrategyManager {
         strategy.init(proof, env, this);
         registeredStrategies.put(strategy.getClass(), strategy);
         if (selectedStrategy == null && 
-                strategy.getClass().getName().equals(DEFAULT_STRATEGY_CLASSNAME))
+                strategy.getClass().getName().equals(DEFAULT_STRATEGY_CLASSNAME)) {
             selectedStrategy = strategy;
+        }
     }
 
     /**

@@ -1,6 +1,22 @@
 
 # Factorial using invariants
 
+properties
+
+  # possible values are: SPLIT, DONT_SPLIT, SPLIT_NO_PROGRAMS
+  de.uka.iti.pseudo.auto.strategy.SimplificationStrategy.splitMode "SPLIT_NO_PROGRAMS"
+  
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeyProgramBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeySourceBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtSkip "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtLoop "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtJumpBack "false"
+  
+  de.uka.iti.pseudo.auto.strategy.CompoundStrategy.strategies 
+    "de.uka.iti.pseudo.auto.strategy.SimplificationStrategy,
+     de.uka.iti.pseudo.auto.strategy.BreakpointStrategy,
+     de.uka.iti.pseudo.auto.strategy.SMTStrategy"
+  
 include 
   "$base.p"
   "$int.p"
@@ -15,7 +31,7 @@ function
   int fak(int)
 
 axiom fak_def
-  fak(0) = 0 &
+  fak(0) = 1 &
   (\forall n; n>0 -> fak(n)=fak(n-1)*n)
 
 rule fak_0

@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.TimingOutTask;
 
 public class Z3SMT implements DecisionProcedure {
     
@@ -44,6 +45,8 @@ public class Z3SMT implements DecisionProcedure {
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
+        TimingOutTask timeoutTask = null;
+        
         try {
             Runtime rt = Runtime.getRuntime();
 
@@ -54,13 +57,14 @@ public class Z3SMT implements DecisionProcedure {
 
             // System.err.println("Wait for " + process);
 
-            TimeoutThread timeoutThread = new TimeoutThread(timeout, process);
-            timeoutThread.start();
+            // this task is automatically scheduled on some timer thread.
+            timeoutTask = new TimingOutTask(timeout, process);
+            timeoutTask.schedule();
 
             int errorVal = process.waitFor();
             // System.err.println("Finished waiting: " + errorVal);
 
-            if(timeoutThread.hasKilled) {
+            if(timeoutTask.hasFinished()) {
                 // System.err.println("Timed out");
                 return Pair.make(Result.UNKNOWN, "Z3 timed out");
             }
@@ -95,6 +99,10 @@ public class Z3SMT implements DecisionProcedure {
             // may get lost!
             ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
+        } finally {
+            if(timeoutTask != null) {
+                timeoutTask.cancel();
+            }
         }
     }
 
@@ -118,33 +126,5 @@ public class Z3SMT implements DecisionProcedure {
         }
     }
     
-    private static class TimeoutThread extends Thread {
-        
-        private Process process;
-        private long timeout;
-        
-        private boolean hasKilled = false; 
-
-        public TimeoutThread(long timeout, Process process) {
-            this.timeout = timeout;
-            this.process = process;
-        }
-
-        @Override 
-        public void run() {
-            try {
-                Thread.sleep(timeout);
-                try {
-                    process.exitValue();
-                } catch(IllegalThreadStateException ex) {
-                    // was still running.
-                    process.destroy();
-                    hasKilled = true;
-                }
-                
-            } catch(InterruptedException ex) {
-            }
-        }
-    }
 
 }
