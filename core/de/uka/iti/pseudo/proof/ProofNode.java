@@ -282,11 +282,18 @@ public class ProofNode {
     
     /**
      * Remove any child from this node and set the applied rule to null.
+     * Additionally, set the parent of all children to null.
      * 
      * <p>This method is only package visible and should only be called from within
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
+        if(children != null) {
+            for (ProofNode node : children) {
+                node.parent = null;
+            }
+        }
+        
         children = null;
         appliedRuleApp = null;
     }
