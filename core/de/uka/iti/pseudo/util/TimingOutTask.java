@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.util;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import nonnull.NonNull;
+
 public class TimingOutTask extends TimerTask {
     
     private static Timer timer = null;
@@ -22,17 +24,20 @@ public class TimingOutTask extends TimerTask {
     
     private boolean hasFinished = false; 
 
-    public TimingOutTask(long timeout, Process process) {
+    public TimingOutTask(long timeout, @NonNull Process process) {
+        assert timeout > 0;
         this.timeout = timeout;
         this.process = process;
     }
     
-    public TimingOutTask(long timeout, Thread thread) {
+    public TimingOutTask(long timeout, @NonNull Thread thread) {
+        assert timeout > 0;
         this.thread = thread;
         this.timeout = timeout;
     }
     
     public TimingOutTask(int timeout) {
+        assert timeout > 0;
         this.timeout = timeout;
         this.thread = Thread.currentThread();
     }
@@ -41,8 +46,18 @@ public class TimingOutTask extends TimerTask {
         getTimer().schedule(this, timeout);
     }
 
+    /* my version is synchronised */
+    @Override
+    public synchronized boolean cancel() {
+        hasFinished = true;
+        return super.cancel();
+    }
+    
     @Override 
-    public void run() {
+    public synchronized void run() {
+        if(hasFinished())
+            return;
+            
         if(process != null) {
             try {
                 process.exitValue();
@@ -58,6 +73,7 @@ public class TimingOutTask extends TimerTask {
             assert false : "Either a process or a thread must be given";
         }
     }
+    
 
     /**
      * @return the hasFinished

@@ -30,7 +30,7 @@ public class Z3SMT implements DecisionProcedure {
     public Z3SMT() {
     }
 
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException, IOException {
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException, IOException {
 
         // System.out.println("Z3 for " + sequent);
         
@@ -58,16 +58,15 @@ public class Z3SMT implements DecisionProcedure {
             // System.err.println("Wait for " + process);
 
             // this task is automatically scheduled on some timer thread.
-            timeoutTask = new TimingOutTask(timeout, process);
+            timeoutTask = new TimingOutTask(timeout);
             timeoutTask.schedule();
 
+            if(Thread.interrupted()) {
+                throw new InterruptedException();
+            }
+            
             int errorVal = process.waitFor();
             // System.err.println("Finished waiting: " + errorVal);
-
-            if(timeoutTask.hasFinished()) {
-                // System.err.println("Timed out");
-                return Pair.make(Result.UNKNOWN, "Z3 timed out");
-            }
 
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
@@ -93,12 +92,19 @@ public class Z3SMT implements DecisionProcedure {
 
             // System.err.println("Result: " + result);
             return result;
+        } catch(InterruptedException ex) {
+            if(timeoutTask != null && timeoutTask.hasFinished()) {
+                return Pair.make(Result.UNKNOWN, "Z3 timed out");
+            } else {
+                return Pair.make(Result.UNKNOWN, "Z3 has been interrupted");
+            }
 
         } catch(Exception ex) {
             dumpTmp(challenge);
             // may get lost!
             ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
+            
         } finally {
             if(timeoutTask != null) {
                 timeoutTask.cancel();

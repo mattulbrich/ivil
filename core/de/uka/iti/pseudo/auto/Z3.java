@@ -29,7 +29,7 @@ public class Z3 implements DecisionProcedure, Callable<String> {
     public Z3() {
     }
 
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException {
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException {
         
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
         public Pair<Result, String> call() throws Exception {
