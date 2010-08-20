@@ -53,12 +53,12 @@ public class AskDecisionProcedure extends WhereCondition {
         		decisionProcedure = 
         			(DecisionProcedure) Class.forName(decisionProcClass).newInstance();
             
-            long timeout = Long.parseLong(timeoutString);
+            int timeout = Integer.parseInt(timeoutString);
             
-            System.out.println("Solve " + sequent);
+            // System.out.println("Solve " + sequent);
             DecisionProcedure.Result res = cache.get(sequent);
             if(res == null) {
-            	System.out.println(" ... cache miss");
+            	// System.out.println(" ... cache miss");
             	res = decisionProcedure.solve(sequent, env, timeout).fst();
             	cache.put(sequent, res);
             }
