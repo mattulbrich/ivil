@@ -38,6 +38,20 @@ rule exists_left
   replace  $$subst(%x, $$skolem(%x), %b)
   tags rewrite "fol simp"
 
+(* type quantifications *)
+
+rule typed_forall_left
+  find (\T_all 'a; (\forall %x as 'a; %b)) |-
+  where
+    interact %inst as 'b
+  add $$subst(%x, %inst, %b) |-
+
+rule type_forall_left
+  find (\T_all 'a; %b) |-
+  where
+    interact %inst as 'b
+  add $$specialiseType(arb as 'a, %inst, %b) |-
+
 (*
  * Conditionals
  *)

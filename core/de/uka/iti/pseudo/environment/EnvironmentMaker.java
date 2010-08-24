@@ -32,8 +32,10 @@ import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -197,6 +199,12 @@ public class EnvironmentMaker {
 
             if(TermUnification.containsSchemaVariables(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
+            
+            try {
+                problemTerm.visit(new ToplevelCheckVisitor());
+            } catch (TermException e) {
+                throw new ASTVisitException(term, e);
+            }
         }
 
     }

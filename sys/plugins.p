@@ -33,6 +33,9 @@ plugin
     # general substitution
     metaFunction : "de.uka.iti.pseudo.rule.meta.SubstMetaFunction"
 
+    # general substitution
+    metaFunction : "de.uka.iti.pseudo.rule.meta.SpecialiseMetaFunction"
+
     # skolem symbol generation
     metaFunction : "de.uka.iti.pseudo.rule.meta.SkolemMetaFunction"
 

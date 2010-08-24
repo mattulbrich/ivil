@@ -242,7 +242,6 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         ASTTerm subterm = typevarBinderTerm.getTerm();
         TypeVariable tv = new TypeVariable(typevarBinderTerm.getTypeVarToken().image.substring(1));
-        assert tv.getVariableName().startsWith(TypeVariable.BINDABLE_PREFIX);
         
         try {
             typingContext.solveConstraint(subterm.getTyping().getRawType(), Environment.getBoolType());

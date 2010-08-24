@@ -153,7 +153,10 @@ ASTTypevarBinderTerm TypevarBinderTerm():
         // this might be generalised later ... if ever needed ?!
         ( binderToken = <ALL_TY> | binderToken = <EX_TY> )
         
-        tyvarToken=<BINDABLE_TYVAR_IDENTIFIER>
+        // in top level terms
+        ( tyvarToken=<BINDABLE_TYVAR_IDENTIFIER>
+        // only in rules:
+        | tyvarToken=<TYVAR_IDENTIFIER>)
 
         ";" t=Term()
         

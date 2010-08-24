@@ -37,10 +37,12 @@ import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
+import de.uka.iti.pseudo.term.TestTypeVariableBinder;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
 import de.uka.iti.pseudo.term.creation.TestTermUnification;
+import de.uka.iti.pseudo.term.creation.TestToplevelCheckVisitor;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestAppendMap;
@@ -74,6 +76,7 @@ public class AllTests {
         suite.addTestSuite(TestTermUnification.class);
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
+        suite.addTestSuite(TestTypeVariableBinder.class);
         suite.addTestSuite(TestStatements.class);
         suite.addTestSuite(TestProofNode.class);
         suite.addTestSuite(TestRule.class);
@@ -95,6 +98,7 @@ public class AllTests {
         suite.addTestSuite(TestSettings.class);
         suite.addTestSuite(TestLinearLookupMap.class);
         suite.addTestSuite(TestParameterSheet.class);
+        suite.addTestSuite(TestToplevelCheckVisitor.class);
         //$JUnit-END$
         return suite;
     }

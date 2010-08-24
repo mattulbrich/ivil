@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 
 // TODO DOC
@@ -39,7 +40,7 @@ public class TypeVariableBinding extends Term {
             if(tvb.getKind() != getKind())
                 return false;
             
-            if(tvb.getTypeVariable().equals(getTypeVariable()))
+            if(!tvb.getTypeVariable().equals(getTypeVariable()))
                 return false;
             
             if(!tvb.getSubterm(0).equals(getSubterm(0)))
@@ -74,6 +75,14 @@ public class TypeVariableBinding extends Term {
     @Override
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
+    }
+
+    /**
+     * type variable bindings only have one subterm. return it
+     * @return the only subterm of the type variable binding
+     */
+    public @NonNull Term getSubterm() {
+        return getSubterm(0);
     }
 
 }
