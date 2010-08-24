@@ -99,13 +99,13 @@ public class CompoundStrategy extends AbstractStrategy {
         }
         else
         {
-            String[] s = desiredStrategies.split(",");
+            String[] s = desiredStrategies.split(",\\s*");
             strategies = new Strategy[s.length];
             for (int i = 0; i < strategies.length; i++) {
                 try {
                     strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName(s[i]));
                 } catch (ClassNotFoundException e) {
-                    System.err.printf("{} does not name a proper class\n", s[i]);
+                    System.err.println(s[i] + " does not name a proper class");
                     e.printStackTrace();
                 }
                 allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;

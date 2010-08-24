@@ -80,7 +80,7 @@ public final class SMTBackgroundAction extends BarAction implements
      * {@value #CLOSE_RULE_NAME} using the key
      * {@link AskDecisionProcedure#KEY_TIMEOUT}
      */
-    private long timeout;
+    private int timeout;
     
     /**
      * Cache to remember solvability of sequents.
@@ -170,7 +170,7 @@ public final class SMTBackgroundAction extends BarAction implements
             try {
                 String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
                 solver = (DecisionProcedure) Class.forName(className).newInstance();
-                timeout = Long.parseLong(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
+                timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
             } catch(Exception ex) {
                 System.err.println("Cannot instantiate background decision procedure");
                 ex.printStackTrace();
