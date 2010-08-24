@@ -31,6 +31,12 @@ import de.uka.iti.pseudo.term.Term;
  * This is a collection of static methods  
  */
 public class Util {
+    
+    
+    /**
+     * the resource path to read the version information from.
+     */
+    private static final String VERSION_PATH = "/META-INF/VERSION";
 
 	/**
      * Join a list of objects into a string, separated by ", "
@@ -393,6 +399,26 @@ public class Util {
             if(f != null)
                 f.close();
         }
+    }
+
+    /**
+     * Get the currently running version number as a string.
+     * 
+     * The version is read from the resource {@value VERSION_PATH}. If this
+     * cannot be read, "&lt&unknown version&gt;" is returned.
+     * 
+     * @return a non-null version description
+     */
+    public static String getIvilVersion() {
+        String version = "<unknown version>";
+        try {
+            URL resource = Util.class.getResource(VERSION_PATH);
+            if (resource != null)
+                version = Util.readURLAsString(resource);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return version;
     }
 
 }
