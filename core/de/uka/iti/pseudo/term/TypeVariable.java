@@ -58,6 +58,13 @@ public class TypeVariable extends Type {
     public static final String VARIANT_PREFIX = "#";
     
     /**
+     * The prefix used to distinguish a type variable used in a type 
+     * quantification from a usual type variable.
+     * @see TypeVariableBinding
+     */
+    public static final String BINDABLE_PREFIX = "'";
+    
+    /**
      * The actual name (w/o leading ')
      */
     private String name;

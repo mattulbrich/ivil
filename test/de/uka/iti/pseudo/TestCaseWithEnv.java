@@ -19,7 +19,6 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.util.RewindMap;
 
 /**
  * The Class TestCaseWithEnv provides infrastructure for test cases which need

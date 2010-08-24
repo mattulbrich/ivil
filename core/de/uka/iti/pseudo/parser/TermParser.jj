@@ -153,7 +153,7 @@ ASTTypevarBinderTerm TypevarBinderTerm():
         // this might be generalised later ... if ever needed ?!
         ( binderToken = <ALL_TY> | binderToken = <EX_TY> )
         
-        tyvarToken=<TYVAR_IDENTIFIER>
+        tyvarToken=<BINDABLE_TYVAR_IDENTIFIER>
 
         ";" t=Term()
         
@@ -176,7 +176,7 @@ ASTType TypeRef():
 		)?
 		{ return new ASTTypeApplication(token, args); }
 	|
-		token = <TYVAR_IDENTIFIER>
+		( token = <TYVAR_IDENTIFIER> | token = <BINDABLE_TYVAR_IDENTIFIER> )
 		{ return new ASTTypeVar(token); }
 }
 

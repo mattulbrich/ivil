@@ -231,7 +231,7 @@ public class TypeUnification implements Cloneable {
                 throw new UnificationException("Cannot unify (occur check)",
                         tv, fixType);
             // the following is needed! (to prevent "true = arb" from parsing)
-            if(isImmutableVariant(tv))
+            if(isImmutableTypeVariable(tv))
                 throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, fixType);
             return;
@@ -270,16 +270,26 @@ public class TypeUnification implements Cloneable {
      * some type variables may not be instantiated.
      * 
      * Example:
-     *   (arb as 'a)  and  (2 as int) 
-     * may not be presented to $eq('a,'a).
-     * 
-     * Type variants are made so that the check is
-     *   (arb as '#a) and (2 as int)
+     *   For a given polymorphic function symbol "bool f('a)" and a parameter
+     *   type 'something the application "f(3)" should not be possible, since
+     *   'something and int are not compatible. 
+     *    
+     * Type variants are made so that the check is 'a against '#something.
+     * With '#something being immutable, the unification will fail.
      *   
-     * which cannot be instantiated if '#a may not be instantiated.
+     * Also: 'a and '#a are different avoiding name clashes.
+     * 
+     * ---
+     * 
+     * Bound type variables may also not specialised
+     * 
+     * Example:
+     *   (\ALL_ty ''a; true as ''a) is illegal, since ''a would be bound to bool.
      */
-    private boolean isImmutableVariant(TypeVariable tv) {
-        return tv.getVariableName().startsWith(TypeVariable.VARIANT_PREFIX);
+    private boolean isImmutableTypeVariable(TypeVariable tv) {
+        String variableName = tv.getVariableName();
+        return variableName.startsWith(TypeVariable.VARIANT_PREFIX) ||
+            variableName.startsWith(TypeVariable.BINDABLE_PREFIX);
     }
 
     /**
@@ -347,6 +357,8 @@ public class TypeUnification implements Cloneable {
             if (occursIn(tv, type2))
                 throw new UnificationException("Cannot unify (occur check)",
                         type1, type2);
+            if(isImmutableTypeVariable(tv))
+                throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, type2);
             return;
         }
@@ -358,6 +370,8 @@ public class TypeUnification implements Cloneable {
             if (occursIn(tv, type1))
                 throw new UnificationException("Cannot unify (occur check)",
                         type1, type2);
+            if(isImmutableTypeVariable(tv))
+                throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, type1);
             return;
         }
@@ -396,6 +410,7 @@ public class TypeUnification implements Cloneable {
 
         String variableName = tv.getVariableName();
         
+        assert !isImmutableTypeVariable(tv);
         assert instantiation.get(variableName) == null;
         assert !occursIn(tv, type);
 
@@ -456,6 +471,11 @@ public class TypeUnification implements Cloneable {
      */
     public Map<String, Type> getInstantiation() {
         return Collections.unmodifiableMap(instantiation);
+    }
+    
+    @Override
+    public String toString() {
+        return instantiation.toString();
     }
 
 }

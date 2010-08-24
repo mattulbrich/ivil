@@ -48,7 +48,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("!(1=1)", "!1 = 1");
         testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)");
         testTerm("(\\forall x; x > 5)", "(\\forall x; x > 5)");
-        testTerm("((\\T_all 'a; (true)))", "(\\T_all 'a; true)");
+        testTerm("((\\T_all ''a; (true)))", "(\\T_all ''a; true)");
         testTerm("f(1+2)", "f(1 + 2)");
     }
     
