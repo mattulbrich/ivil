@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -109,7 +110,7 @@ public class AutoProofAction extends BarAction
                     getProofCenter().apply(ruleAppl);
                     strategy.notifyRuleApplication(ruleAppl);
                 } catch (ProofException e) {
-                    System.err.println("Error while applying rule " + ruleAppl.getRule().getName() + 
+                    Log.log(Log.ERROR, "Error while applying rule " + ruleAppl.getRule().getName() + 
                             " on " + ruleAppl.getFindSelector() + " on goal " +
                             ruleAppl.getGoalNumber());
                     throw e;

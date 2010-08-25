@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -35,7 +36,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     }
     
     public void actionPerformed(ActionEvent e) {
-        System.err.println(e);
+        Log.enter(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
         
         try {
@@ -43,6 +44,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
         } catch (ProofException ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         }
+        Log.leave();
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

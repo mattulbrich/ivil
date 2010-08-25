@@ -42,6 +42,7 @@ import de.uka.iti.pseudo.rule.where.AskDecisionProcedure;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 
 
@@ -172,7 +173,7 @@ public final class SMTBackgroundAction extends BarAction implements
                 solver = (DecisionProcedure) Class.forName(className).newInstance();
                 timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
             } catch(Exception ex) {
-                System.err.println("Cannot instantiate background decision procedure");
+                Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
                 ex.printStackTrace();
                 closeRule = null;
             }
@@ -207,7 +208,7 @@ public final class SMTBackgroundAction extends BarAction implements
                             proofCenter.fireSelectedProofNode(next);
                         
                     } catch(ProofException ex) {
-                        System.err.println(ex);
+                        Log.stacktrace(ex);
                         // this is ok - the goal may be not closable.  
                     } catch (Exception e) {
                         ExceptionDialog.showExceptionDialog(getParentFrame(), e);
@@ -217,7 +218,7 @@ public final class SMTBackgroundAction extends BarAction implements
                 proof.getLock().unlock();
             }
         } else {
-            System.err.println("Proof is currently locked by an other thread");
+            Log.log(Log.ERROR, "Proof is currently locked by an other thread");
         }
 
     }

@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -131,6 +132,10 @@ public class Main {
             timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5) * 1000;
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
+            
+            if(verbose) {
+                Log.setMinLevel(Log.ALL);
+            }
 
             executor = Executors.newFixedThreadPool(numberThreads);
 

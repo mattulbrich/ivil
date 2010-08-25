@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TimingOutTask;
 
@@ -119,7 +120,7 @@ public class Z3SMT implements DecisionProcedure {
             w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();
-            System.err.println("Challenge dumped to file " + tmp);
+            Log.log(Log.ERROR, "Challenge dumped to file " + tmp);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

@@ -18,6 +18,13 @@ then
   OPTIONS="-Djava.util.logging.config.file=$BASE/logging.properties $OPTIONS"
 fi
 
+#
+# verbose
+if [ "$1" = "-v" ]
+then
+  shift
+  OPTIONS="-Dpseudo.log=20"
+fi
 
 #
 # debugging w/o suspend

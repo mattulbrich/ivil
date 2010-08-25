@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The Class BarManager is a pretty generic framework to allow menu bars and
@@ -389,7 +390,7 @@ public class BarManager {
                     String location = "/" + packagePrefix.replace('.', '/') + val;
                     URL systemResource = BarManager.class.getResource(location);
                     if(systemResource == null)
-                        System.err.println("Warning: Unknown icon resource " + location);
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
                     button.setIcon(GUIUtil.makeIcon(systemResource));
                     // System.err.println(packagePrefix + "|" +  val + "|" + location);
                 }
@@ -415,7 +416,7 @@ public class BarManager {
                     String location = "/" + packagePrefix.replace('.', '/') + val;
                     URL systemResource = BarManager.class.getResource(location);
                     if(systemResource == null)
-                        System.err.println("Warning: Unknown icon resource " + location);
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
                     button.setIcon(GUIUtil.makeIcon(systemResource));
                     // System.err.println(packagePrefix + "|" +  val + "|" + location);
                     if(toolbarOnlyIcons) {
@@ -607,7 +608,7 @@ public class BarManager {
                     String location = "/" + packagePrefix.replace('.', '/') + val;
                     URL systemResource = BarManager.class.getResource(location);
                     if(systemResource == null)
-                        System.err.println("Warning: Unknown icon resource " + location);
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
                     menuItem.setIcon(GUIUtil.makeIcon(systemResource));
                 }
                 

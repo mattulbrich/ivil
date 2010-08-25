@@ -18,6 +18,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -35,6 +36,7 @@ import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.Dump;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -421,8 +423,10 @@ public class ProofNode {
             return Util.listToArray(newNodes, ProofNode.class);
             
         } catch (TermException e) {
-            System.err.println("Failed rule application:");
-            Dump.dumpRuleApplication(ruleApp);
+            Log.log(Log.WARNING, "Failed rule application:");
+            if(Log.DEBUG >= Log.getMinLevel()) {
+                Dump.dumpRuleApplication(ruleApp);
+            }
             throw new ProofException("Exception during application of rule " + rule.getName(), e);
         }
     }

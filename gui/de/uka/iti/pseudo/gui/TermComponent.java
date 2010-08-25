@@ -56,6 +56,7 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
@@ -186,9 +187,10 @@ public class TermComponent extends JTextPane {
         }
 
         @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+            Log.enter(e);
             proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, 
                     mouseSelection);
-            System.out.println(mouseSelection);
+            Log.log(Log.VERBOSE, mouseSelection);
         }
     };
 
@@ -267,8 +269,8 @@ public class TermComponent extends JTextPane {
             setComponentPopupMenu(popupMenu);
             popupMenu.addPopupMenuListener(popupMenuListener);
         } catch (IOException ex) {
-            System.err.println("Disabling popup menu in term component");
-            ex.printStackTrace();
+            Log.println("Disabling popup menu in term component");
+            Log.stacktrace(ex);
         }
     }
 
@@ -529,7 +531,7 @@ public class TermComponent extends JTextPane {
         }
         
         if(begin == -1) {
-            System.err.println("cannot mark subterm number " + termNo + " in " + annotatedString);
+            Log.println("cannot mark subterm number " + termNo + " in " + annotatedString);
             return;
         }
 
@@ -560,8 +562,8 @@ public class TermComponent extends JTextPane {
 
     public boolean dropTermOnLocation(TermSelector ts, Point point) {
         // TODO Implement drag and drop between terms
-        System.out.println("NOT IMPLEMENTED YET");
-        System.out.println(ts +" on " + getTermAt(point));
+        Log.log(Log.WARNING, "NOT IMPLEMENTED YET");
+        Log.log(Log.WARNING, ts +" on " + getTermAt(point));
         return false;
     }
 

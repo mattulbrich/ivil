@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.VerticalLayout;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The class ParameterPanel is used to model the dialog within the "Settings"
@@ -50,7 +51,7 @@ public class ParameterPanel extends JPanel {
         {
             add(new JLabel("Active strategy:"));
             activeStrategySelector = new JComboBox(strategyManager.getAllStrategies().toArray());
-            System.out.println(strategyManager.getSelectedStrategy());
+            Log.log(Log.VERBOSE, strategyManager.getSelectedStrategy());
             activeStrategySelector.setSelectedItem(strategyManager.getSelectedStrategy());
             activeStrategySelector.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

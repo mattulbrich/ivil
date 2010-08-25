@@ -31,6 +31,7 @@ import javax.swing.border.Border;
 
 import de.uka.iti.pseudo.gui.parameters.ParameterSheet;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 @SuppressWarnings("serial") 

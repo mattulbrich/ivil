@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 
 public class SMTStrategy extends AbstractStrategy {
@@ -46,7 +47,7 @@ public class SMTStrategy extends AbstractStrategy {
             solver = (DecisionProcedure) Class.forName(className).newInstance();
             timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
         } catch(Exception ex) {
-            System.err.println("Cannot instantiate background decision procedure");
+            Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
             ex.printStackTrace();
             closeRule = null;
         }

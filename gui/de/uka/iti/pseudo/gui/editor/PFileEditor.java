@@ -62,6 +62,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -117,8 +118,8 @@ public class PFileEditor extends JFrame implements ActionListener {
                 } catch (InterruptedException e) {
                     // start another round if we are interrupted
                 } catch (RuntimeException e) {
-                    System.err.println("Unexpected runtime exception");
-                    e.printStackTrace();
+                    Log.log(Log.WARNING, "Unexpected runtime exception");
+                    Log.stacktrace(e);
                 }
             }
         }
@@ -206,7 +207,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             file.setFilename(filename);
             new EnvironmentMaker(p, file, filename);
             
-            System.err.println("Syntax checked ... no more errors");
+            Log.log(Log.VERBOSE, "Syntax checked ... no more errors");
             
             setErrorFilename(null);
             markError(null, null);

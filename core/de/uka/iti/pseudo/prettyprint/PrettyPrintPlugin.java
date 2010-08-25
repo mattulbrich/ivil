@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * PrettyPrintPlugin is used to make the pretty printing of terms more flexible.
@@ -47,8 +48,8 @@ public abstract class PrettyPrintPlugin {
                 throw new Error("term must be either Application or Binding");
             
         } catch (TermException e) {
-            System.err.println("Error while prettyprinting, possibly messed output");
-            e.printStackTrace();
+            Log.log(Log.WARNING, "Error while prettyprinting, possibly messed output");
+            Log.stacktrace(e);
         }
         
         return printer.length() > startLength;

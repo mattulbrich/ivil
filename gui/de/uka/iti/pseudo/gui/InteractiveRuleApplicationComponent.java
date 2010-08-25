@@ -52,6 +52,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
@@ -236,10 +237,10 @@ public class InteractiveRuleApplicationComponent extends
             try {
                 svType = TermMaker.makeType(value, env);
             } catch (ASTVisitException e) {
-                System.err.println("cannot parseType: " + value + ", continue anyway");
+                Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                 continue;
             } catch (ParseException e) {
-                System.err.println("cannot parseType: " + value + ", continue anyway");
+                Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                 continue;
             }
             

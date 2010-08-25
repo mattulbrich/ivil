@@ -17,6 +17,7 @@ import java.util.List;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -105,8 +106,8 @@ public class CompoundStrategy extends AbstractStrategy {
                 try {
                     strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName(s[i]));
                 } catch (ClassNotFoundException e) {
-                    System.err.println(s[i] + " does not name a proper class");
-                    e.printStackTrace();
+                    Log.log(Log.WARNING, s[i] + " does not name a proper class");
+                    Log.stacktrace(e);
                 }
                 allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
             }
