@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
 public class TestTermUnification extends TestCaseWithEnv {
@@ -167,6 +168,16 @@ public class TestTermUnification extends TestCaseWithEnv {
         
         assertEquals(mt("{i1:=0}i1"), mc.instantiate(mt("{U}i1")));
         assertEquals(mt("{V}b2"), mc.instantiate(mt("{V}%a")));
+    }
+    
+    public void testTypeQuantification() throws Exception {
+    
+        TermUnification mc = new TermUnification(env);
+        
+        mc.leftUnify(mt("(\\T_all 'a; arb as 'a = arb)"), mt("(\\T_all ''a; arb as ''a = arb as ''a)"));
+        
+        assertEquals(new TypeVariable("'a"),
+                mc.getTypeUnification().instantiateTypeVariable(TypeVariable.ALPHA));
     }
     
 }

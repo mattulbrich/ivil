@@ -49,7 +49,7 @@ rule typed_forall_left
 rule type_forall_left
   find (\T_all 'a; %b) |-
   where
-    interact %inst as 'b
+    interact %inst as 'b, true
   add $$specialiseType(arb as 'a, %inst, %b) |-
 
 (*

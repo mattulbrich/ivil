@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.environment;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -100,7 +101,8 @@ public abstract class WhereCondition implements Mappable {
      * 
      * <p>For where conditions, the name is the unique key.
      */
-    @Override public Object getKey() {
+    @Override 
+    public @NonNull Object getKey() {
         return getName();
     }
     
@@ -119,7 +121,7 @@ public abstract class WhereCondition implements Mappable {
      * 
      * @throws RuleException if syntax is incorrect
      */
-    public abstract void checkSyntax(Term[] arguments) throws RuleException;
+    public abstract void checkSyntax(@DeepNonNull Term[] arguments) throws RuleException;
 
     /**
      * Any implementation must provide this method to check the validity of a

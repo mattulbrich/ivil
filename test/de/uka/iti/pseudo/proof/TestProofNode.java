@@ -19,7 +19,6 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 public class TestProofNode extends TestCaseWithEnv {
     

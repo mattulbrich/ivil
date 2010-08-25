@@ -11,7 +11,9 @@
 package de.uka.iti.pseudo.rule.where;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
+import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 
 public class TestWhereConditions extends TestCaseWithEnv {
@@ -66,6 +68,50 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertFalse(can.check(null, new Term[] { makeTerm("$$intEval(i1+1)") }, null, null, env));
         assertFalse(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, new RuleApplicationMaker(env), null, env));
         
+    }
+    
+    public void testInteractive() throws Exception {
+        Interactive inter = new Interactive();
+        Term intX = makeTerm("%x as int");
+        Term alphaX = makeTerm("%x as 'a");
+        
+        inter.checkSyntax(new Term[] { intX });
+        inter.checkSyntax(new Term[] { intX, Environment.getFalse() });
+        inter.checkSyntax(new Term[] { alphaX, Environment.getTrue() });
+        inter.checkSyntax(new Term[] { intX, Environment.getFalse() });
+        
+        try {
+            inter.checkSyntax(new Term[] { intX, Environment.getTrue() });
+            fail("should complain that x has not a type var type");
+        } catch(RuleException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+        
+        try {
+            inter.checkSyntax(new Term[] { intX, intX });
+            fail("should complain that 2nd arg has wrong kind");
+        } catch(RuleException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+        
+        try {
+            inter.checkSyntax(new Term[] { });
+            fail("should complain that no args");
+        } catch(RuleException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+        
+        try {
+            inter.checkSyntax(new Term[] { Environment.getFalse()});
+            fail("should complain that 1st argument not schema");
+        } catch(RuleException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+
     }
     
 }

@@ -62,16 +62,24 @@ public class TypingContext extends TypeUnification {
      * This counter is used to create distinct type variables.
      */
     private int counter = 0;
-    
+
     /**
      * Solve a constraint.
      * 
-     * This is infact a try to unify two type expressions.
+     * <p>
+     * This is a try to unify two type expressions.
      * 
-     * @param formal the formal type
-     * @param actual the actual type
+     * <p>
+     * <b>Note:</b> This implementation is identical to
+     * {@link #unify(Type, Type)}
      * 
-     * @throws UnificationException if the unification fails.
+     * @param formal
+     *            the formal type
+     * @param actual
+     *            the actual type
+     * 
+     * @throws UnificationException
+     *             if the unification fails.
      */
     public void solveConstraint(Type formal, Type actual) throws UnificationException {
     	

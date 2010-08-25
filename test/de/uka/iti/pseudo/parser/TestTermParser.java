@@ -15,6 +15,8 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
@@ -168,4 +170,14 @@ public class TestTermParser extends TestCaseWithEnv {
         assertEquals(new Variable("i1", Environment.getIntType()), st);
     }
     
+    public void testMakeAndType() throws Exception {
+        
+        try {
+            Term t = TermMaker.makeAndTypeTerm("3", env, "none:test", TypeVariable.ALPHA);
+            assertEquals(TypeVariable.ALPHA, t.getType());
+        } catch(ASTVisitException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+    }
 }

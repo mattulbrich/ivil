@@ -152,8 +152,11 @@ public class TermMaker extends ASTDefaultVisitor {
         astTerm = (ASTTerm) head.getWrappedElement();
         
         try {
-            if(targetType != null)
-                typingResolver.getTypingContext().solveConstraint(astTerm.getTyping().getRawType(), targetType);
+            if(targetType != null) {
+                // we use leftUnify in order to not change the targetType 
+                // TypingResolver#solveConstraint uses bidirectional unify.
+                typingResolver.getTypingContext().leftUnify(astTerm.getTyping().getRawType(), targetType);
+            }
         } catch (UnificationException e) {
             throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
         }

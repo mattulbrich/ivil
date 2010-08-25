@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -47,10 +48,11 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
-import de.uka.iti.pseudo.util.Triple;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
 import de.uka.iti.pseudo.util.settings.ColorResolver;
@@ -85,6 +87,9 @@ public class InteractiveRuleApplicationComponent extends
     // the list of applicable rules
     private JList applicableList;
 
+    // the list of interactions. information about schema variables, types, etc.
+    protected List<InteractionEntry> interactionList = new ArrayList<InteractionEntry>();
+
     private void makeGUI() {
         applicableListPanel = new JPanel(new BorderLayout());
         applicableListPanel.setBorder(BorderFactory.createTitledBorder("Applicable rules"));
@@ -106,7 +111,7 @@ public class InteractiveRuleApplicationComponent extends
         });
     }
 
-    public Vector<?> makeModel() {
+    private Vector<?> makeModel() {
         Vector<Object> applications = new Vector<Object>();
         if(interactiveApplications.isEmpty()) {
             applications.add("No applicable rules");
@@ -138,9 +143,9 @@ public class InteractiveRuleApplicationComponent extends
         if (selected instanceof ImmutableRuleApplication) {
 
             // remove old error notices
-            for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
-                pair.trd().setBackground(getBackground());
-                pair.trd().setToolTipText(null);
+            for (InteractionEntry pair : interactionList) {
+                pair.textComponent.setBackground(getBackground());
+                pair.textComponent.setToolTipText(null);
             }
             
             JTextComponent component = null;
@@ -149,18 +154,26 @@ public class InteractiveRuleApplicationComponent extends
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
                 
                 // collect the user instantiations
-                for (Triple<String, Type, ? extends JTextComponent> pair : interactionList) {
-                    String varname = pair.fst();
-                    Type type = pair.snd();
-                    component = pair.trd();
+                for (InteractionEntry pair : interactionList) {
+                    String varname = pair.schemaVariableName;
+                    Type type = pair.schemaVariableType;
+                    component = pair.textComponent;
                     String content = component.getText();
                     
-                    Term term = TermMaker.makeAndTypeTerm(content, env, 
-                            "User input for " + varname, type);
+                    // if in typeInstantiationMode then set no type here
+                    Type typeConstraint = pair.typeMode ? null : type;
                     
-                    assert type.equals(term.getType());
+                    Term term = TermMaker.makeAndTypeTerm(content, env, 
+                            "User input for " + varname, typeConstraint);
+
+                    assert typeConstraint == null || type.equals(term.getType());
                     
                     app.getSchemaVariableMapping().put(varname, term);
+                    if(pair.typeMode) {
+                        assert type instanceof TypeVariable : type + " MUST be a type variable by construction";
+                        String tyvarName = ((TypeVariable)type).getVariableName();
+                        app.getTypeVariableMapping().put(tyvarName, term.getType());
+                    }
                 }
                 putClientProperty("finished", true);
                 ProofNode next = proofCenter.apply(app);
@@ -172,8 +185,10 @@ public class InteractiveRuleApplicationComponent extends
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
                 } else {
-                    System.err.println("We do not have a component to feed back to ...");
-                    // TODO give feedback somewhere else
+                    ExceptionDialog.showExceptionDialog(SwingUtilities
+                            .windowForComponent(this),
+                            "We do not have a component to feed back to ...",
+                            ex);
                 }
             }
         }
@@ -202,34 +217,68 @@ public class InteractiveRuleApplicationComponent extends
     @Override 
     protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
-        
+        interactionList.clear();
         for(Map.Entry<String, String> entry : app.getProperties().entrySet()) {
             String key = entry.getKey();
-            if(!key.startsWith(Interactive.INTERACTION))
+            if(!key.startsWith(Interactive.INTERACTION + "("))
                continue;
+            
+            String value = entry.getValue();
+            boolean typeMode = false;
+            
+            if(value.startsWith(Interactive.INSTANTIATE_PREFIX)) {
+                typeMode = true;
+                value = value.substring(Interactive.INSTANTIATE_PREFIX.length());
+            }
             
             String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
             Type svType;
             try {
-                svType = TermMaker.makeType(entry.getValue(), env);
+                svType = TermMaker.makeType(value, env);
             } catch (ASTVisitException e) {
-                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
+                System.err.println("cannot parseType: " + value + ", continue anyway");
                 continue;
             } catch (ParseException e) {
-                System.err.println("cannot parseType: " + entry.getValue() + ", continue anyway");
+                System.err.println("cannot parseType: " + value + ", continue anyway");
                 continue;
             }
             
-            JLabel label = new JLabel(svName + " as " + svType);
+            JLabel label;
+            if(typeMode) {
+                label = new JLabel(svName + " of some type");
+            } else {
+                label = new JLabel(svName + " as " + svType); 
+            }
+            
             instantiationsPanel.add(label, 0);
             BracketMatchingTextArea textField = new BracketMatchingTextArea();
             textField.addActionListener(this);
             instantiationsPanel.add(textField, 1);
-            interactionList.add(Triple.make(svName, svType, textField));
+            interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
         }
     }
 
+}
+
+/**
+ * A little helper class (more data container / record / struct) which holds
+ * information on one single interaction entry.
+ */
+class InteractionEntry {
+    String schemaVariableName;
+    Type schemaVariableType;
+    JTextComponent textComponent;
+    boolean typeMode;
+    
+    public InteractionEntry(String schemaVariableName, Type schemaVariableType,
+            JTextComponent textComponent, boolean instantiateType) {
+        this.schemaVariableName = schemaVariableName;
+        this.schemaVariableType = schemaVariableType;
+        this.textComponent = textComponent;
+        this.typeMode = instantiateType;
+    }
+    
 }
 
 /**
