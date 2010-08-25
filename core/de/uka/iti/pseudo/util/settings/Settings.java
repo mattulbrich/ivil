@@ -159,7 +159,7 @@ public class Settings {
             return getInteger(key);
         } catch (SettingsException e) {
             // log
-            Log.log(Log.VERBOSE, "Falling back to default value");
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
             Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
@@ -203,7 +203,7 @@ public class Settings {
             return getProperty(key);
         } catch (SettingsException e) {
             // log
-            Log.log(Log.VERBOSE, "Falling back to default value");
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
             Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
@@ -218,7 +218,7 @@ public class Settings {
             String value = getProperty(key);
             return expandString(value);
         } catch (SettingsException e) {
-            Log.log(Log.VERBOSE, "Falling back to default value");
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
             Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
@@ -364,7 +364,7 @@ public class Settings {
             return getColor(key);
         } catch(SettingsException e) {
             // log
-            Log.log(Log.VERBOSE, "Falling back to default value");
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultColor);
             Log.stacktrace(Log.VERBOSE, e);
             return defaultColor;
         }

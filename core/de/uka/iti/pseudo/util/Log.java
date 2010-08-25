@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.util;
 import java.io.PrintStream;
 
 import de.uka.iti.pseudo.util.settings.Settings;
-import de.uka.iti.pseudo.util.settings.SettingsException;
 
 
 /**
@@ -67,9 +66,9 @@ public class Log {
      * VERBOSE messages might include things like minor (recoverable)
      * failures.  Issues indicating potential performance problems
      * are also worth logging as VERBOSE.
-     * This level is initialized to <CODE>30</CODE>.
+     * This level is initialized to <CODE>20</CODE>.
      */
-    public static final int VERBOSE = 30;
+    public static final int VERBOSE = 20;
     
     /**
      * FINEST indicates a highly detailed tracing message.
@@ -83,15 +82,27 @@ public class Log {
      */
     public static final int ALL = 0;
     
-    
     /**
-     * The minimum level of a log message to be displayed 
+     * The minimum level of a log message to be displayed.
+     * 
+     * We cannot use Settings here because that leads to a loop -
+     * Settings uses Log and always prints a message.
      */
-    private static int minLevel = Settings.getInstance().getInteger("pseudo.log", ERROR);
+    private static int minLevel = Integer.getInteger("pseudo.log", ERROR);
 
     
     private Log() {
         // only static methods
+    }
+    
+    public static int getMinLevel() {
+        return minLevel;
+    }
+
+
+    public static void setMinLevel(int level) {
+        assert level >= 0;
+        minLevel = level;
     }
     
     
@@ -207,8 +218,19 @@ public class Log {
             String prefix = getClassAndMethod(3);
             String threadName = Thread.currentThread().getName();
             System.err.println("> " + prefix + " [" + threadName + 
-                    "] - Level " + level + "\n  " + string);
+                    "] - Level " + levelToString(level) + "\n  " + string);
         }
+    }
+
+    private static String levelToString(int level) {
+        switch(level) {
+        case 50: return "ERROR";
+        case 40: return "WARNING";
+        case 30: return "DEBUG";
+        case 20: return "VERBOSE";
+        case 10: return "TRACE";
+        }
+        return Integer.toString(level);
     }
 
     /**
@@ -232,7 +254,7 @@ public class Log {
 
     public static void stacktrace(Throwable e) {
         if(DEBUG >= minLevel) {
-            String prefix = getClassAndMethod(3);
+            String prefix = getClassAndMethod(2);
             System.err.println("> Exc in " + prefix + ":");
             e.printStackTrace(System.err);
         }
@@ -240,19 +262,34 @@ public class Log {
     
     public static void stacktrace(int level, Throwable e) {
         if(level >= minLevel) {
-            String prefix = getClassAndMethod(3);
+            String prefix = getClassAndMethod(2);
             System.err.println("> Exc in " + prefix + ":");
             e.printStackTrace(System.err);
         }
     }
 
-    public static int getMinLevel() {
-        return minLevel;
-    }
-
-
-    public static void setMinLevel(int level) {
-        assert level >= 0;
-        minLevel = level;
+    
+    
+    public static void main(String[] args) {
+        Log.setMinLevel(TRACE);
+        enter((Object)args);
+        
+        Log.setMinLevel(DEBUG);
+        // should not do anything
+        leave();
+        Log.log(VERBOSE, "VERBOSE: Should not be printed");
+        Log.log(DEBUG, "DEBUG: Should be printed");
+        Log.log(WARNING, "WARNING: Should be printed");
+        Log.log(ERROR, "ERROR: Should be printed");
+        Log.log(88, "88: Should be printed");
+        
+        try {
+            throw new Exception("Hello World");
+        } catch (Exception e) {
+            stacktrace(e);
+        }
+        
+        Log.setMinLevel(TRACE);
+        leave();
     }
 }
