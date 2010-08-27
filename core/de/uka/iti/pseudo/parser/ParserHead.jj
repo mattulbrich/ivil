@@ -120,7 +120,8 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | "\t"
 | "\n"
 | "\r"
-| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+// http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#tth_sEc3.15
+| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
 }
 
 < DEFAULT > TOKEN :
