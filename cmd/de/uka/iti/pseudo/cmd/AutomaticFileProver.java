@@ -44,6 +44,7 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.TimingOutTask;
 
 /**
@@ -316,12 +317,8 @@ public class AutomaticFileProver implements Callable<Result> {
      * 
      */
     private String instantiateString(RuleApplication ruleApp, String string) {
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMapping = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
-        
-        return termInst.replaceInString(string, prettyPrint);
+        TextInstantiator textInst = new TextInstantiator(ruleApp);
+        return textInst.replaceInString(string, prettyPrint);
     }
 
     /**

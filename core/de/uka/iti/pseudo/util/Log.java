@@ -11,9 +11,6 @@ package de.uka.iti.pseudo.util;
 
 import java.io.PrintStream;
 
-import de.uka.iti.pseudo.util.settings.Settings;
-
-
 /**
  * Log provides static methods for a <b>very simple</b> logging mechanism.
  * 
@@ -222,6 +219,9 @@ public class Log {
         }
     }
 
+    /*
+     * get the readable counterpart for an integer log level
+     */
     private static String levelToString(int level) {
         switch(level) {
         case 50: return "ERROR";
@@ -252,6 +252,14 @@ public class Log {
     }
 
 
+    /**
+     * Log the stack trace of an exception.
+     * 
+     * The used level is <code>DEBUG</code>.
+     * 
+     * @param e
+     *            the throwable object whose trace is to be logged.
+     */
     public static void stacktrace(Throwable e) {
         if(DEBUG >= minLevel) {
             String prefix = getClassAndMethod(2);
@@ -260,6 +268,17 @@ public class Log {
         }
     }
     
+    /**
+     * Log the stack trace of an exception.
+     * 
+     * The used level is determined by the argument.
+     * 
+     * @param level
+     *            the level to use for the logging.
+     * 
+     * @param e
+     *            the throwable object whose trace is to be logged.
+     */
     public static void stacktrace(int level, Throwable e) {
         if(level >= minLevel) {
             String prefix = getClassAndMethod(2);
@@ -269,7 +288,7 @@ public class Log {
     }
 
     
-    
+    // testing only
     public static void main(String[] args) {
         Log.setMinLevel(TRACE);
         enter((Object)args);

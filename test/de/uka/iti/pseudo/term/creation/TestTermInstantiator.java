@@ -15,7 +15,6 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
@@ -74,39 +73,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         }
     }
     
-    public void testStringInst() throws Exception {
-        
-        Term t1 = makeTerm("1+2");
-        Term t2 = makeTerm("[99; P]");
-        termmap.put("%x", t1);
-        termmap.put("%longerName", t2);
-        
-        String instantiated = inst.replaceInString("test {%x} and try {%longerName} but not {this} nor {%that}");
-        
-        assertEquals("test " + t1 + " and try " + t2 + " but not ?? nor ??", instantiated);
-    }
     
-    public void testStringInstWithPP() throws Exception {
-        PrettyPrint pp = new PrettyPrint(env);
-        Term t1 = makeTerm("1+2");
-        termmap.put("%x", t1);
-        
-        String instantiated = inst.replaceInString("test {%x} with pp", pp);
-        
-        assertEquals("test 1 + 2 with pp", instantiated);
-        
-    }
-    
-    public void testExplainStringInst() throws Exception {
-        PrettyPrint pp = new PrettyPrint(env);
-        Term t1 = makeTerm("[0;P]");
-        termmap.put("%x", t1);
-        
-        String instantiated = inst.replaceInString("test {explain %x}", pp);
-        
-        assertEquals("test first statement", instantiated);
-        
-    }
     
     // partially from a bug
     public void testUpdate() throws Exception {

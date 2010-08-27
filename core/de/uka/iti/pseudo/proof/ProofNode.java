@@ -18,7 +18,6 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -322,12 +321,6 @@ public class ProofNode {
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(
-                schemaMap, typeMap, updateMap, env);
-        
         // capture the current state of the rule application in an
         // immutable copy. No need to copy if already immutable.
         ImmutableRuleApplication immRuleApp; 
@@ -337,7 +330,15 @@ public class ProofNode {
             immRuleApp = new ImmutableRuleApplication(ruleApp);
         }
         
+        Map<String, Term> schemaMap = immRuleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = immRuleApp.getTypeVariableMapping();
+        Map<String, Update> updateMap = immRuleApp.getSchemaUpdateMapping();
+        TermInstantiator inst = new ProgramComparingTermInstantiator(
+                schemaMap, typeMap, updateMap, env);
+        
         Rule rule = ruleApp.getRule();
+        
+        assert rule != null : "Rule in RuleApplication must not be null";
 
         matchFindClause(ruleApp, inst, rule);
         matchAssumeClauses(ruleApp, inst, rule);

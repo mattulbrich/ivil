@@ -93,7 +93,7 @@ public class Environment {
     private Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
     private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
     private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
-    private Map<String, Axiom> axiomMap = new HashMap<String, Axiom>();
+    private Map<String, Axiom> axiomMap = new LinkedHashMap<String, Axiom>();
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
@@ -996,7 +996,19 @@ public class Environment {
     // ---------- Handling axioms ----------
     //
 
-    // TODO DOC
+    /**
+     * Adds an axiom to the environment.
+     * 
+     * <p>
+     * No axiom by the same name must already exist in this (or a parent)
+     * environment.
+     * 
+     * @param axiom
+     *            the axiom to add to the environment
+     * 
+     * @throws EnvironmentException
+     *             if the environment has already been fixed.
+     */
     public void addAxiom(@NonNull Axiom axiom) throws EnvironmentException {
         if (isFixed())
             throw new EnvironmentException(
@@ -1013,17 +1025,50 @@ public class Environment {
         axiomMap.put(name, axiom);
     }
 
-    // TODO DOC
-    public @Nullable
-    Axiom getAxiom(@NonNull String name) {
+    /**
+     * Gets an axiom by name.
+     * 
+     * <p>
+     * If no axiom is defined by this name, the call is delegated to the parent
+     * environment. Null is returned if no axiom has been defined within all
+     * reachable environments.
+     * 
+     * @param name
+     *            name of the requested axiom
+     * 
+     * @return an axiom or null
+     */
+    public @Nullable Axiom getAxiom(@NonNull String name) {
         Axiom axiom = axiomMap.get(name);
+        
         if (axiom == null && parentEnvironment != null)
             axiom = parentEnvironment.getAxiom(name);
+        
+        assert axiom == null || name.equals(axiom.getName());
+        
         return axiom;
     }
 
-    public Collection<Axiom> getAllAxioms() {
-        return axiomMap.values();
+    /**
+     * gets a collection containing all axioms of this environment and
+     * all parenting environments.
+     * 
+     * <p>
+     * The result is a freshly created collection which you may modify.
+     * The axioms are in "order of appearance".
+     * 
+     * @return a freshly created list of all defined axioms.
+     */
+    public List<Axiom> getAllAxioms() {
+        List<Axiom> axioms;
+
+        if (parentEnvironment == null)
+            axioms = new ArrayList<Axiom>();
+        else
+            axioms = parentEnvironment.getAllAxioms();
+
+        axioms.addAll(axiomMap.values());
+        return axioms;
     }
 
     //

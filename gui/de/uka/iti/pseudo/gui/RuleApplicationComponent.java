@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
@@ -33,7 +32,6 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
 
 /**
  * A component to display a rule application.

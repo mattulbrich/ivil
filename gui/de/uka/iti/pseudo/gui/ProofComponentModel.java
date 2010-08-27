@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
+import de.uka.iti.pseudo.util.TextInstantiator;
 
 /**
  * A proof component model is a specialised tree model for the ProofComponent
@@ -254,12 +255,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
          * instantiate the schema variables in a string.
          */
         private String instantiateString(RuleApplication ruleApp, String string) {
-            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-            Map<String, Update> updateMapping = ruleApp.getSchemaUpdateMapping();
-            TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
-            
-            return termInst.replaceInString(string, prettyPrint);
+            TextInstantiator textInst = new TextInstantiator(ruleApp);
+            return textInst.replaceInString(string, prettyPrint);
         }
         
     }

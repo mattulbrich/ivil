@@ -48,6 +48,7 @@ import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestAppendMap;
 import de.uka.iti.pseudo.util.TestLinearLookupMap;
 import de.uka.iti.pseudo.util.TestRewindMap;
+import de.uka.iti.pseudo.util.TestTextInstantiator;
 import de.uka.iti.pseudo.util.TestUtil;
 import de.uka.iti.pseudo.util.settings.TestSettings;
 
@@ -88,6 +89,7 @@ public class AllTests {
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTypeVariableCollector.class);
         suite.addTestSuite(TestTermInstantiator.class);
+        suite.addTestSuite(TestTextInstantiator.class);
         suite.addTestSuite(TestTermReplacer.class);
         suite.addTestSuite(TestUtil.class);
         suite.addTestSuite(TestAppendMap.class);

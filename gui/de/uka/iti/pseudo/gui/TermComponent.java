@@ -60,6 +60,7 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TermSelectionTransferable;
+import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -460,12 +461,8 @@ public class TermComponent extends JTextPane {
      * 
      */
     private String instantiateString(RuleApplication ruleApp, String string) {
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMapping = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator termInst = new TermInstantiator(schemaMap, typeMap, updateMapping);
-        
-        return termInst.replaceInString(string, prettyPrinter);
+        TextInstantiator textInst = new TextInstantiator(ruleApp);
+        return textInst.replaceInString(string, prettyPrinter);
     }
 
     /**

@@ -212,7 +212,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             setErrorFilename(null);
             markError(null, null);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.stacktrace(Log.VERBOSE, e);
             Token problemtoken = e.currentToken.next;
             markError(e, problemtoken);
         } catch (ASTVisitException e) {
