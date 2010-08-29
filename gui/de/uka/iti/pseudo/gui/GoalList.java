@@ -112,7 +112,7 @@ public class GoalList extends JList implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
-            if (getSelectedValue() != node) {
+            if (getLastVisibleIndex() != -1 && getSelectedValue() != node) {
                 clearSelection();
                 setSelectedValue(node, true);
             }

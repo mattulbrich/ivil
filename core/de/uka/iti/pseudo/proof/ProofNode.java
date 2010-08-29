@@ -543,4 +543,8 @@ public class ProofNode {
     public SequentHistory getSequentHistory() {
         return sequentHistory;
     }
+
+    public String toString() {
+        return "ProofNode #" + number + "; " + getSummaryString();
+    }
 }
