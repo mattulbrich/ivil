@@ -72,25 +72,25 @@ public class BreakpointStrategy extends AbstractStrategy implements
         {
             String name;
 
-            name = this.getClass().getName() + ".obeyProgramBreakpoints";
+            name = this.getClass().getSimpleName() + ".obeyProgramBreakpoints";
             if (env.hasProperty(name))
                 obeyProgramBreakpoints = Boolean.parseBoolean(env
                         .getProperty(name));
 
-            name = this.getClass().getName() + ".obeySourceBreakpoints";
+            name = this.getClass().getSimpleName() + ".obeySourceBreakpoints";
             if (env.hasProperty(name))
                 obeySourceBreakpoints = Boolean.parseBoolean(env
                         .getProperty(name));
 
-            name = this.getClass().getName() + ".stopAtSkip";
+            name = this.getClass().getSimpleName() + ".stopAtSkip";
             if (env.hasProperty(name))
                 stopAtSkip = Boolean.parseBoolean(env.getProperty(name));
 
-            name = this.getClass().getName() + ".stopAtLoop";
+            name = this.getClass().getSimpleName() + ".stopAtLoop";
             if (env.hasProperty(name))
                 stopAtLoop = Boolean.parseBoolean(env.getProperty(name));
 
-            name = this.getClass().getName() + ".stopAtJumpBack";
+            name = this.getClass().getSimpleName() + ".stopAtJumpBack";
             if (env.hasProperty(name))
                 stopAtJumpBack = Boolean.parseBoolean(env.getProperty(name));
         }

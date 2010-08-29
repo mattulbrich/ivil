@@ -6,6 +6,14 @@ include
   "$int.p"
   "$symbex.p"
   "$decproc.p"
+  
+   
+properties
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeyProgramBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeySourceBreakpoints "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtSkip "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtLoop "false"
+  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtJumpBack "false"
 
 function
   int c assignable

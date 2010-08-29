@@ -94,7 +94,8 @@ class StepInstructionStrategy extends AbstractStrategy {
         try {
             ruleCollection = new RewriteRuleCollection(env.getAllRules(), REWRITE_CATEGORY, env);
         } catch (RuleException e) {
-            throw new StrategyException("Cannot initialise BreakpointStrategy", e);
+            throw new StrategyException(
+                    "Cannot initialise StepInstructionStrategy", e);
         }
     }
 

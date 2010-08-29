@@ -86,7 +86,8 @@ public class CompoundStrategy extends AbstractStrategy {
         this.strategyManager = strategyManager;
         
         // look for strategy list in env
-        String desiredStrategies = env.getProperty(this.getClass().getName() + ".strategies");
+        String desiredStrategies = env.getProperty(this.getClass()
+                .getSimpleName() + ".strategies");
         
         allAbstractStrategy = true;
         if(null == desiredStrategies)
@@ -104,9 +105,14 @@ public class CompoundStrategy extends AbstractStrategy {
             for (int i = 0; i < strategies.length; i++) {
                 try {
                     strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName(s[i]));
-                } catch (ClassNotFoundException e) {
-                    System.err.printf("{} does not name a proper class\n", s[i]);
-                    e.printStackTrace();
+                } catch (ClassNotFoundException ex) {
+                    try {
+                        //test for short names of built in strategies
+                        strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName("de.uka.iti.pseudo.auto.strategy."+s[i]));
+                    } catch (ClassNotFoundException e) {
+                        System.err.printf("%s does not name a proper class\n", s[i]);
+                        e.printStackTrace();
+                    }
                 }
                 allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
             }

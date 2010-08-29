@@ -7,15 +7,15 @@ properties
   you.can.define.anything.you.want "surrounded by"
   for.example.you.can.change "split mode:"
   
-  de.uka.iti.pseudo.auto.strategy.SimplificationStrategy.splitMode "SPLIT"
+  SimplificationStrategy.splitMode "SPLIT"
   
-  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeyProgramBreakpoints "false"
-  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.obeySourceBreakpoints "false"
-  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtSkip "false"
-  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtLoop "false"
-  de.uka.iti.pseudo.auto.strategy.BreakpointStrategy.stopAtJumpBack "true"
+  BreakpointStrategy.obeyProgramBreakpoints "false"
+  BreakpointStrategy.obeySourceBreakpoints "false"
+  BreakpointStrategy.stopAtSkip "false"
+  BreakpointStrategy.stopAtLoop "false"
+  BreakpointStrategy.stopAtJumpBack "true"
   
-  de.uka.iti.pseudo.auto.strategy.CompoundStrategy.strategies "de.uka.iti.pseudo.auto.strategy.SimplificationStrategy,de.uka.iti.pseudo.auto.strategy.BreakpointStrategy,de.uka.iti.pseudo.auto.strategy.SMTStrategy"
+  CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,SMTStrategy"
   
 problem
   cond(true, 3, 2) > 2
