@@ -10,6 +10,7 @@ include
    
 properties
   BreakpointStrategy.stopAtJumpBack "false"
+  CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,SMTStrategy"
 
 function
   int c assignable
