@@ -69,6 +69,17 @@ public abstract class AbstractStrategy implements Strategy {
         return null;
     }
 
+    @Override
+    public RuleApplication findRuleApplication(ProofNode target)
+            throws StrategyException {
+        int index = proof.getOpenGoals().indexOf(target);
+
+        if(-1 == index)
+            return null;
+
+        return findRuleApplication(index);
+    }
+
     protected abstract RuleApplication findRuleApplication(int goalIndex) throws StrategyException;
 
     @Override

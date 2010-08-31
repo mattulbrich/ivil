@@ -28,8 +28,9 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-@SuppressWarnings("serial") 
 public class SourcePanel extends CodePanel {
+
+    private static final long serialVersionUID = -4642311479594469571L;
 
     private static final Color SOURCE_COLOR = 
         Settings.getInstance().getColor("pseudo.program.sourcecolor", Color.BLACK);

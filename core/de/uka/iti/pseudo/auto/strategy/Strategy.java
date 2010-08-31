@@ -14,6 +14,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
 /**
@@ -61,6 +62,16 @@ public interface Strategy {
      *             if the strategy has run into difficulties.
      */
     @Nullable RuleApplication findRuleApplication() throws StrategyException;
+    
+    /**
+     * @see findRuleApplication()
+     * @param target
+     *            only rule applications for target node are considered
+     * @throws StrategyException
+     */
+    @Nullable
+    RuleApplication findRuleApplication(ProofNode target)
+            throws StrategyException;
 
     /**
      * Initialise this strategy.

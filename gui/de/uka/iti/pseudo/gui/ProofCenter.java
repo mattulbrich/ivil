@@ -242,6 +242,9 @@ public class ProofCenter {
     public void fireSelectedProofNode(@NonNull ProofNode node) {
         // FIXME Consider firePropertySet here
         firePropertyChange(SELECTED_PROOFNODE, node);
+
+        System.out.printf("selected node @line %d/%d\n",
+                node.getProgramLineNumber(), node.getSourceLineNumber());
     }
 //    
 //    /**
