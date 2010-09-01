@@ -120,7 +120,8 @@ ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
-  Token name, as = null, modifier = null, precedence = null;
+  Token name, as = null, precedence = null;
+  int modifier = 0;
   ASTType range, ty;
   List<ASTType> tyrefs = new ArrayList<ASTType>();
 }
@@ -135,17 +136,18 @@ ASTFunctionDeclaration FunctionDeclaration():
           ")"
         )?
         
-        // FIXME ---> This must be TWO separate blocks: fix and ass/uni
-        // see bug #1018
+        (
+          "assignable" { modifier |= ASTFunctionDeclaration.MODIFIER_ASSIGNABLE; }
+        |
+          "unique"     { modifier |= ASTFunctionDeclaration.MODIFIER_UNIQUE; }
+        )?
         
         (
-          modifier="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+          "infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+             { modifier |= ASTFunctionDeclaration.MODIFIER_INFIX; }
         |
-          modifier="prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
-        |
-          modifier="assignable"
-        |
-          modifier="unique"
+          "prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+             { modifier |= ASTFunctionDeclaration.MODIFIER_PREFIX; }
         )?
         
     { 

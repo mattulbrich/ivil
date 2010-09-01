@@ -27,14 +27,19 @@ public class ASTFunctionDeclaration extends ASTElement {
 
     private Token precedence;
 
-    private Token modifier;
+    private int modifier;
+    
+    public static final int MODIFIER_UNIQUE = 1;
+    public static final int MODIFIER_ASSIGNABLE = 2;
+    public static final int MODIFIER_PREFIX = 4;
+    public static final int MODIFIER_INFIX = 8;
 
     private Token name;
     
 	private Token operatorIdentifier;
 
     public ASTFunctionDeclaration(ASTType range, Token name,
-            List<ASTType> tyrefs, Token modifier,
+            List<ASTType> tyrefs, int modifier,
             Token operatorIdentifier, Token precedence) {
     	this.rangeType = range;
     	this.argumentTypes = tyrefs;
@@ -67,16 +72,21 @@ public class ASTFunctionDeclaration extends ASTElement {
     }
 
     public boolean isInfix() {
-        return modifier != null && modifier.image.equals("infix");
+        return (modifier & MODIFIER_INFIX) != 0;
     }
     
     public boolean isPrefix() {
-        return modifier != null && modifier.image.equals("prefix");
+        return (modifier & MODIFIER_PREFIX) != 0;
     }
     
     public boolean isAssignable() {
-        return modifier != null && modifier.image.equals("assignable");
+        return (modifier & MODIFIER_ASSIGNABLE) != 0;
     }
+    
+    public boolean isUnique() {
+        return (modifier & MODIFIER_UNIQUE) != 0;
+    }
+
 
     public Token getOperatorIdentifier() {
 		return operatorIdentifier;
@@ -85,9 +95,4 @@ public class ASTFunctionDeclaration extends ASTElement {
 	public Token getLocationToken() {
         return name;
     }
-
-	public boolean isUnique() {
-		return modifier != null && modifier.image.equals("unique");
-	}
-
 }
