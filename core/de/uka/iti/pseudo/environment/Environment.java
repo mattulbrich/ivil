@@ -1070,6 +1070,11 @@ public class Environment {
         axioms.addAll(axiomMap.values());
         return axioms;
     }
+    
+    // TODO DOC
+    public Collection<Axiom> getLocalAxioms() {
+        return axiomMap.values();
+    }
 
     //
     // ---------- Handling plugins ----------

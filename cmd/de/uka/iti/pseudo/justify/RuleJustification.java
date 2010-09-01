@@ -78,6 +78,7 @@ public class RuleJustification {
         EnvironmentExporter eex = new EnvironmentExporter(out);
         eex.exportIncludes(imports);
         eex.exportDefinitionsFrom(env);
+        eex.exportAxiomsFrom(env);
 
         for (Rule r : env.getLocalRules()) {
             if (r == rule)
@@ -87,7 +88,7 @@ public class RuleJustification {
         }
 
         env.setFixed();
-        Environment wrapEnv = new Environment("wrapping_for_justification", env);
+        Environment wrapEnv = new Environment("none:wrapping_for_justification", env);
         RuleProblemExtractor rpe = new RuleProblemExtractor(rule, wrapEnv);
         Term instantiatedProblem = rpe.extractProblem();
 

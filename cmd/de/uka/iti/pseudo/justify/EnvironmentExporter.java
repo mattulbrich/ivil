@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
@@ -108,8 +109,22 @@ public class EnvironmentExporter {
 		}
 		pw.println();
 	}
+	
+	public void exportAxiomsFrom(Environment env) {
+	    Collection<Axiom> axioms = env.getLocalAxioms();
+	    for (Axiom axiom : axioms) {
+                exportAxiom(axiom);
+            }
+	}
 
-	public void exportRule(Rule r) {
+
+	private void exportAxiom(Axiom axiom) {
+            pw.println("axiom " + axiom.getName());
+            pw.println("  " + axiom.getTerm());
+            pw.println();
+	}
+
+    public void exportRule(Rule r) {
 		pw.println("rule " + r.getName());
         
 		LocatedTerm findClause = r.getFindClause();
