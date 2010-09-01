@@ -135,6 +135,9 @@ ASTFunctionDeclaration FunctionDeclaration():
           ")"
         )?
         
+        // FIXME ---> This must be TWO separate blocks: fix and ass/uni
+        // see bug #1018
+        
         (
           modifier="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
         |
