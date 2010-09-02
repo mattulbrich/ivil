@@ -43,6 +43,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This class can be used to save and load {@link Proof}s to XML documents.
@@ -222,7 +223,7 @@ class SAXHandler extends DefaultHandler {
     
     public void endElement(String uri, String localName, String name)
             throws SAXException {
-        System.out.println("ende: " + name);
+        Log.println("ende: " + name);
         if(name.equals("find")) {
             try {
                 ram.setFindSelector(new TermSelector(content));

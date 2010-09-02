@@ -68,6 +68,11 @@ public class CommandLine {
         String value;
         String parameter;
     }
+
+    /**
+     * default value for the length of a line for output.
+     */
+    private static final int DEFAULT_LINE_LENGTH = 80;
     
     /**
      * The options that have been defined. Mapped from their image.
@@ -78,6 +83,12 @@ public class CommandLine {
      * The additional arguments which do not belong to an option.
      */
     private List<String> arguments = new LinkedList<String>();
+    
+    /**
+     * the line length to be used for printing out usage.
+     * Break lines which are longer
+     */
+    private int lineLength = DEFAULT_LINE_LENGTH;
 
     /**
      * Instantiates a new command line handling object.
@@ -97,6 +108,15 @@ public class CommandLine {
      *                the description of the option
      */
     public void addOption(String image, String parameter, String description) {
+        
+        if(!image.startsWith("-")) {
+            throw new IllegalArgumentException("Parameters need to start with '-': " + image);
+        }
+        
+        if(options.containsKey(image)) {
+            throw new IllegalArgumentException(image + " has already been registered");
+        }
+        
         Option o = new Option();
         o.image = image;
         o.parameter = parameter;
@@ -236,25 +256,52 @@ public class CommandLine {
         
         for (Option option : options.values()) {
             int len = option.image.length();
-            if(option.value != null)
-                len += 1 + option.value.length();
+            if(option.parameter != null)
+                len += 1 + option.parameter.length();
             maxlen = Math.max(len, maxlen);
         }
         
         maxlen += 2;
         
+        int descLength = lineLength - maxlen;
+        
+        // TODO: Wrap line
         for (Option option : options.values()) {
             String s = option.image;
-            if(option.value != null)
-                s += " " + option.value;
+            if(option.parameter != null)
+                s += " " + option.parameter;
             stream.print(s);
-            for (int i = maxlen - s.length(); i > 0; i--) {
-                stream.print(" ");
+            indent(stream, maxlen - s.length());
+        
+            String message = option.description;
+            
+            while (message.length() > descLength) {
+                int p = message.lastIndexOf(' ', descLength);
+                if (p <= 0) {
+                    p = message.indexOf(' ', descLength);
+                }
+
+                if (p > 0) {
+                    stream.println(message.substring(0, p));
+                    message = message.substring(p + 1);
+                } else {
+                    stream.println(message);
+                    message = "";
+                }
+                
+                indent(stream, maxlen);
             }
-            stream.println(option.description);
+            
+            stream.println(message);
         }
         
         stream.flush();
+    }
+
+    private void indent(PrintStream stream, int len) {
+        for (int i = len; i > 0; i--) {
+            stream.print(" ");
+        }
     }
 
 }

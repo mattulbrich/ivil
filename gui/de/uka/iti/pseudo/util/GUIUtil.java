@@ -97,7 +97,7 @@ public class GUIUtil {
             e.printStackTrace();
         }
 
-        System.err.println("Cannot load icon " + resource
+        Log.log(Log.WARNING, "Cannot load icon " + resource
                 + ", continuing anyway ...");
         return UNKNOWN_ICON;
     }

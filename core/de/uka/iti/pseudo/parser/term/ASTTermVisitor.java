@@ -23,6 +23,8 @@ public interface ASTTermVisitor {
 	void visit(ASTApplicationTerm applicationTerm) throws ASTVisitException;
 
 	void visit(ASTBinderTerm binderTerm) throws ASTVisitException;
+	
+	void visit(ASTTypevarBinderTerm astTypevarBinderTerm) throws ASTVisitException;
 
 	void visit(ASTIdentifierTerm identifierTerm) throws ASTVisitException;
 

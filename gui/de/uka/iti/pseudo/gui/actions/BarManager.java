@@ -35,6 +35,7 @@ import javax.swing.JToolBar;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The Class BarManager is a pretty generic framework to allow menu bars and
@@ -389,9 +390,9 @@ public class BarManager {
                     String location = "/" + packagePrefix.replace('.', '/') + val;
                     URL systemResource = BarManager.class.getResource(location);
                     if(systemResource == null)
-                        System.err.println("Warning: Unknown icon resource " + location);
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
                     button.setIcon(GUIUtil.makeIcon(systemResource));
-                    System.err.println(packagePrefix + "|" +  val + "|" + location);
+                    // System.err.println(packagePrefix + "|" +  val + "|" + location);
                 }
                 
                 val = properties.getProperty(element + ".tooltip");
@@ -409,6 +410,20 @@ public class BarManager {
             } else if(args[0].equals("TODO")){
                 JButton button = new JButton(value.substring(5));
                 button.setEnabled(false);
+                
+                String val = properties.getProperty(element + ".icon");
+                if(val != null) {
+                    String location = "/" + packagePrefix.replace('.', '/') + val;
+                    URL systemResource = BarManager.class.getResource(location);
+                    if(systemResource == null)
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
+                    button.setIcon(GUIUtil.makeIcon(systemResource));
+                    // System.err.println(packagePrefix + "|" +  val + "|" + location);
+                    if(toolbarOnlyIcons) {
+                        button.setText(null);
+                    }
+                }
+                
                 result = button;
                 
             } else {
@@ -587,6 +602,16 @@ public class BarManager {
             } else if(args[0].equals("TODO")){
                 JMenuItem menuItem = new JMenuItem(value.substring(5));
                 menuItem.setEnabled(false);
+                
+                String val = properties.getProperty(property + ".icon");
+                if(val != null) {
+                    String location = "/" + packagePrefix.replace('.', '/') + val;
+                    URL systemResource = BarManager.class.getResource(location);
+                    if(systemResource == null)
+                        Log.log(Log.WARNING, "Warning: Unknown icon resource " + location);
+                    menuItem.setIcon(GUIUtil.makeIcon(systemResource));
+                }
+                
                 result = menuItem;
 
             } else {

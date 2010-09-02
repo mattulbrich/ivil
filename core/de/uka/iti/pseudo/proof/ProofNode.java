@@ -38,6 +38,7 @@ import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.Dump;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -375,11 +376,18 @@ public class ProofNode {
     
     /**
      * Remove any child from this node and set the applied rule to null.
+     * Additionally, set the parent of all children to null.
      * 
      * <p>This method is only package visible and should only be called from within
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
+        if(children != null) {
+            for (ProofNode node : children) {
+                node.parent = null;
+            }
+        }
+        
         children = null;
         appliedRuleApp = null;
     }
@@ -406,12 +414,6 @@ public class ProofNode {
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(
-                schemaMap, typeMap, updateMap, env);
-        
         // capture the current state of the rule application in an
         // immutable copy. No need to copy if already immutable.
         ImmutableRuleApplication immRuleApp; 
@@ -421,7 +423,15 @@ public class ProofNode {
             immRuleApp = new ImmutableRuleApplication(ruleApp);
         }
         
+        Map<String, Term> schemaMap = immRuleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = immRuleApp.getTypeVariableMapping();
+        Map<String, Update> updateMap = immRuleApp.getSchemaUpdateMapping();
+        TermInstantiator inst = new ProgramComparingTermInstantiator(
+                schemaMap, typeMap, updateMap, env);
+        
         Rule rule = ruleApp.getRule();
+        
+        assert rule != null : "Rule in RuleApplication must not be null";
 
         matchFindClause(ruleApp, inst, rule);
         matchAssumeClauses(ruleApp, inst, rule);
@@ -507,8 +517,10 @@ public class ProofNode {
             return Util.listToArray(newNodes, ProofNode.class);
             
         } catch (TermException e) {
-            System.err.println("Failed rule application:");
-            Dump.dumpRuleApplication(ruleApp);
+            Log.log(Log.WARNING, "Failed rule application:");
+            if(Log.DEBUG >= Log.getMinLevel()) {
+                Dump.dumpRuleApplication(ruleApp);
+            }
             throw new ProofException("Exception during application of rule " + rule.getName(), e);
         }
     }

@@ -1,11 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Start script for ivil
 #
 #
 BASE=`dirname "$0"`
-echo $BASE
 # TODO make it independent from my path. How?
 BYTECODE=$HOME/eclipse/pseudo.bytecode
 
@@ -19,22 +18,63 @@ then
   OPTIONS="-Djava.util.logging.config.file=$BASE/logging.properties $OPTIONS"
 fi
 
-
 #
-# debugging
-if [ "$1" = "-D" ]
-then
-  shift $ARGV
-  OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1234 $OPTIONS"
-fi
-
+# Debug command line options
 #
-# Profiling (not together with -D)
-if [ "$1" = "-J" ]
-then
-  shift $ARGV
-  OPTIONS="-Xrunhprof:cpu=samples,depth=10,thread=y $OPTIONS"
-fi
+
+verbose=false
+
+while [ "${1:0:2}" == "-D" ]
+do
+  case ${1:0:3}
+  in
+
+    #
+    # verbose
+    -Dv)
+       shift
+       verbose=true
+       OPTIONS="-Dpseudo.log=10 $OPTIONS"
+       ;;
+       
+    #
+    # debugging w/ suspend
+    -Ds)
+       OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1234 $OPTIONS"
+       shift 
+       ;;
+
+    #
+    # debugging  w/o suspend  ( c(ontinue) )
+    -Dc)
+       OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1234 $OPTIONS"
+       shift 
+       ;;
+       
+    #
+    # Profiling
+    -Dj)
+       shift
+       OPTIONS="-Xrunhprof:cpu=samples,depth=10,thread=y $OPTIONS"
+       ;;
+
+    #
+    # additional VM parameter (-Dpseudo.showtype=true for instance)
+    -DX)
+       OPTIONS="${1:3} $OPTIONS"
+       shift 
+       ;;
+       
+    # error message otherwise
+    *)
+       echo "unknown debug option: $1"
+       shift
+       ;;
+      
+  esac
+done
+
+$verbose && echo "Options: $OPTIONS"
 
 java -ea $OPTIONS \
   -Dpseudo.baseDir=$BASE \

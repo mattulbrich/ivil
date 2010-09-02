@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.rule.meta.SkolemMetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * GUI Action to jump to the node which introduces a symbol.
@@ -79,7 +80,7 @@ public class JumpToIntroductionAction
         
         String skolemName = extractSkolemName(selectedTermTag);
         if(skolemName == null) {
-            System.err.println("Not a skolem symbol");
+            Log.log(Log.WARNING, "Not a skolem symbol");
             return;
         }
         
@@ -97,7 +98,7 @@ public class JumpToIntroductionAction
             }
         }
         
-        System.err.println("The introduction of the skolem constant is not a parent of this node");
+        Log.log(Log.WARNING, "The introduction of the skolem constant is not a parent of this node");
     }
 
     /*

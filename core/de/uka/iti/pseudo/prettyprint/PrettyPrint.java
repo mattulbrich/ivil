@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 // TODO: Auto-generated Javadoc
@@ -108,7 +109,7 @@ public class PrettyPrint {
             this.pluginPrettyPrinters = Collections.unmodifiableList(list);
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            System.err.println("Disabling pretty printer plugins!");
+            Log.log(Log.WARNING, "Disabling pretty printer plugins!");
             this.pluginPrettyPrinters = Collections.emptyList();
         }
     }
@@ -189,6 +190,8 @@ public class PrettyPrint {
                 printer.resetPreviousStyle();
         } catch (TermException e) {
             // not thrown in this code
+            // FIXME ... I did receive a call however!
+            e.printStackTrace();
             throw new Error(e);
         }
 

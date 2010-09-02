@@ -13,15 +13,14 @@ package de.uka.iti.pseudo.util.settings;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessControlException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * Settings are "pimped {@link Properties}".
@@ -160,8 +159,8 @@ public class Settings {
             return getInteger(key);
         } catch (SettingsException e) {
             // log
-            System.err.println("Falling back to default value");
-            e.printStackTrace();
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
+            Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
     }
@@ -204,8 +203,8 @@ public class Settings {
             return getProperty(key);
         } catch (SettingsException e) {
             // log
-            // System.err.println("Falling back to default value");
-            e.printStackTrace();
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
+            Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
     }
@@ -219,8 +218,8 @@ public class Settings {
             String value = getProperty(key);
             return expandString(value);
         } catch (SettingsException e) {
-            System.err.println("Falling back to default value");
-            e.printStackTrace();
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultValue);
+            Log.stacktrace(Log.VERBOSE, e);
             return defaultValue;
         }
     }
@@ -257,7 +256,7 @@ public class Settings {
                         expansion = getProperty(key);
                     } catch(SettingsException ex) {
                         // log
-                        System.err.println("Cannot expand ${" + key + "}, no such key defined");
+                        Log.log(Log.WARNING, "Cannot expand ${" + key + "}, no such key defined");
                         expansion = "";
                     }
                     
@@ -309,8 +308,8 @@ public class Settings {
                 return getBoolean(key);
             } catch (SettingsException e) {
                 // log
-                System.err.println("Falling back to default value");
-                e.printStackTrace();
+                Log.log(Log.VERBOSE, "Falling back to default value");
+                Log.stacktrace(Log.VERBOSE, e);
                 return defaultValue;
             }
     }
@@ -365,8 +364,8 @@ public class Settings {
             return getColor(key);
         } catch(SettingsException e) {
             // log
-            System.err.println("Falling back to default value");
-            e.printStackTrace();
+            Log.log(Log.VERBOSE, "Falling back to default value " + defaultColor);
+            Log.stacktrace(Log.VERBOSE, e);
             return defaultColor;
         }
     }
@@ -432,10 +431,10 @@ public class Settings {
     public Font getFont(String key, Font defaultFont) {
         try {
             return getFont(key);
-        } catch(SettingsException ex) {
+        } catch(SettingsException e) {
             // log
-            System.err.println("Falling back to default value");
-            ex.printStackTrace();
+            Log.log(Log.VERBOSE, "Falling back to default value");
+            Log.stacktrace(Log.VERBOSE, e);
             return defaultFont;
         }
     }

@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTProperties;
 import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
@@ -54,6 +55,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTTypevarBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
@@ -66,6 +68,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
@@ -149,8 +152,11 @@ public class TermMaker extends ASTDefaultVisitor {
         astTerm = (ASTTerm) head.getWrappedElement();
         
         try {
-            if(targetType != null)
-                typingResolver.getTypingContext().solveConstraint(astTerm.getTyping().getRawType(), targetType);
+            if(targetType != null) {
+                // we use leftUnify in order to not change the targetType 
+                // TypingResolver#solveConstraint uses bidirectional unify.
+                typingResolver.getTypingContext().leftUnify(astTerm.getTyping().getRawType(), targetType);
+            }
         } catch (UnificationException e) {
             throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
         }
@@ -452,6 +458,30 @@ public class TermMaker extends ASTDefaultVisitor {
                     boundId, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(binderTerm, e);
+        }
+    }
+    
+    public void visit(ASTTypevarBinderTerm arg) throws ASTVisitException {
+        
+        TypeVariableBinding.Kind kind = null;
+
+        switch(arg.getBinderToken().kind) {
+        case ParserConstants.ALL_TY: kind = TypeVariableBinding.Kind.ALL; break;
+        case ParserConstants.EX_TY: kind = TypeVariableBinding.Kind.EX; break;
+        default: throw new Error("The parser must not accept more than these two type var binders");
+        }
+        
+        arg.getTerm().visit(this);
+        Term subterm = resultTerm;
+        
+        // remove leading '
+        String typeVarName = arg.getTypeVarToken().image.substring(1);
+        TypeVariable typeVar = new TypeVariable(typeVarName);
+        
+        try {
+            resultTerm = new TypeVariableBinding(kind, typeVar, subterm);
+        } catch (TermException e) {
+            throw new ASTVisitException(arg, e);
         }
     }
 

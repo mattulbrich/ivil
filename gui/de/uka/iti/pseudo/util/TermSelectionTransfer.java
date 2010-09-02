@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.proof.TermSelector;
 // TODO DOC
 // Is this drag and drop?
 
+@SuppressWarnings("serial")
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;

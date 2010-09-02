@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 
@@ -73,6 +74,10 @@ public abstract class DefaultTermVisitor implements TermVisitor {
     
     public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
         defaultVisitTerm(schemaUpdateTerm);
+    }
+    
+    public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
+        defaultVisitTerm(typeVariableBinding);
     }
 
 }

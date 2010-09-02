@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.util.Log;
 
 public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 
@@ -34,7 +35,7 @@ public class ASTIncludeDeclarationBlock extends ASTDeclarationBlock {
 	private boolean onlyStringTokens() {
 		for (Token token : includeStrings) {
 			if(token.kind != ParserConstants.STRING) {
-				System.err.println("Unexpected token " + token + " (" + token.kind + ")");
+				Log.log(Log.ERROR, "Unexpected token " + token + " (" + token.kind + ")");
 				return false;
 			}
 		}

@@ -41,6 +41,7 @@ import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -183,9 +184,9 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
             repaint();
         } catch (BadLocationException e) {
             // throw new Error(e);
-            System.err.println("Illegal line number " + line
+            Log.log(Log.WARNING, "Illegal line number " + line
                     + " referenced for " + getBreakPointResource());
-            e.printStackTrace();
+            Log.stacktrace(e);
         }
     }
     

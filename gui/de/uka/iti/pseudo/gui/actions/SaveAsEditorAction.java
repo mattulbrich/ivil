@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.Log;
 
 //TODO Documentation needed
 @SuppressWarnings("serial") 
@@ -93,7 +94,7 @@ public class SaveAsEditorAction extends BarAction {
                 return;
             }
         }
-        System.err.println("No backup made ... exceeding limit");
+        Log.log(Log.WARNING, "No backup made ... exceeding limit");
     }
     
 }

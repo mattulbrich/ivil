@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -252,6 +253,19 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             }
             printer.append(")");
         }
+        printer.end();
+        currentTermTag = oldTag;
+    }
+    
+    public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
+        TermTag oldTag = begin(typeVariableBinding);
+        
+        String bindString = typeVariableBinding.getKind().image;
+        String typevar = typeVariableBinding.getTypeVariable().toString();
+        printer.append("(").append(bindString).append(" ").append(typevar).append("; ");
+        currentSubTermIndex = 0;
+        typeVariableBinding.getSubterm(0).visit(this);
+        printer.append(")");
         printer.end();
         currentTermTag = oldTag;
     }

@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -18,8 +17,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -28,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
@@ -36,36 +32,63 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.util.Triple;
 
-// TODO DOC
-
+/**
+ * A component to display a rule application.
+ * 
+ * It allows for extension!
+ * 
+ * @see InteractiveRuleApplicationComponent
+ */
 @SuppressWarnings("serial") 
 public class RuleApplicationComponent extends JPanel implements PropertyChangeListener {
     
+    /**
+     * The font to use for printing rules
+     */
     private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
 
+    /**
+     * The rule application to display
+     */
     private RuleApplication ruleApplication;
 
+    /**
+     * The underlying environment.
+     */
     protected Environment env;
 
+    /**
+     * The text area to print the rule text.
+     */
     private JTextArea ruleText;
 
-    // protected for interactive fields added by a subclass
+    /**
+     * The instantiations panel. Is protected to allow subclasses to add stuff
+     * there (i.e. interactive instantiations)
+     */
     protected JPanel instantiationsPanel;
 
+    /**
+     * The underlying proof center.
+     */
     protected ProofCenter proofCenter;
     
-    protected List<Triple<String, Type, ? extends JTextComponent>> interactionList = 
-        new ArrayList<Triple<String, Type, ? extends JTextComponent>>();
-
+    /**
+     * Instantiates a new rule application component.
+     * 
+     * @param proofCenter
+     *            the proof center to use
+     */
     public RuleApplicationComponent(ProofCenter proofCenter) {
         this.env = proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
         makeGUI();
     }
 
+    /**
+     * Prepare the gui.
+     */
     private void makeGUI() {
         this.setLayout(new GridBagLayout());
         // slot (0,0) in the gridbaglayout is filled in the interactive rule subclass
@@ -97,6 +120,12 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         }
     }
 
+    /**
+     * Display a rule application.
+     * 
+     * called by {@link #setRuleApplication(RuleApplication)}.
+     * 
+     */
     private void displayRuleApp(RuleApplication app) {
         if(app == null) {
             ruleText.setText("");
@@ -107,9 +136,16 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         }
     }
     
+    /**
+     * Sets the instantiations.
+     * 
+     * Can be overridden.
+     * 
+     * @param app
+     *            the new instantiations
+     */
     protected void setInstantiations(RuleApplication app) {
         instantiationsPanel.removeAll();
-        interactionList.clear();
         for (Map.Entry<String, Term> entry : app.getSchemaVariableMapping().entrySet()) {
             String schemaName = entry.getKey();
             Term t = entry.getValue();
@@ -127,6 +163,13 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         
     }
 
+    /**
+     * Using the pretty printer of the proof center, dump the rule to its text
+     * area.
+     * 
+     * @param rule
+     *            the rule to print
+     */
     private void setRuleText(Rule rule) {
         PrettyPrint pp = proofCenter.getPrettyPrinter();
         ruleText.setText(pp.print(rule));
@@ -135,7 +178,10 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
     /*
      * This class only reacts to "select proof node" events. The interactive
      * subclass also reacts to rule application setting.
-     */  
+     * 
+     * (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
     @Override 
     public void propertyChange(PropertyChangeEvent evt) {
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
@@ -149,18 +195,34 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         }
     }
 
+    /**
+     * Sets the rule application.
+     * 
+     * @param ruleApplication
+     *            the new rule application
+     */
     protected void setRuleApplication(RuleApplication ruleApplication) {
         this.ruleApplication = ruleApplication;
         displayRuleApp(ruleApplication);
     }
 
+    /**
+     * Gets the rule application.
+     * 
+     * @return the rule application
+     */
     protected RuleApplication getRuleApplication() {
         return ruleApplication;
     }
 
+    /**
+     * Gets the proof center.
+     * 
+     * @return the proof center
+     */
     protected ProofCenter getProofCenter() {
         return null;
     }
 
-    
 }
+

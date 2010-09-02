@@ -120,7 +120,8 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | "\t"
 | "\n"
 | "\r"
-| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+// http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#tth_sEc3.15
+| <SINGLE_LINE_COMMENT: "#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")?>
 }
 
 < DEFAULT > TOKEN :
@@ -172,6 +173,10 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < AS: "as" >
 | < SEP: "|-" >
 
+// type variable binders
+| < ALL_TY: "\\T_all" >
+| < EX_TY: "\\T_ex" >
+
 // Programs
 | < ASSUME: "assume" >
 | < ASSERT: "assert" >
@@ -192,6 +197,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 // Identifiers-
 | < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 | < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+| < BINDABLE_TYVAR_IDENTIFIER: "''" <IDENTIFIER> >
 | < SCHEMA_IDENTIFIER: "%" <IDENTIFIER> >
 // | < LABEL_IDENTIFIER: "&" <IDENTIFIER> >
 | < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >

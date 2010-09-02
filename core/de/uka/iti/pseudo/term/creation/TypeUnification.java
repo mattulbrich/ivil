@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -11,6 +10,7 @@
 
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.Collections;
 import java.util.Map;
 
 import nonnull.NonNull;
@@ -67,7 +67,7 @@ public class TypeUnification implements Cloneable {
      */
     private TypeVisitor instantiater = new DefaultTypeVisitor() {
         public Type visit(TypeVariable typeVariable) {
-            Type replace = instantiation.get(typeVariable.getVariableName());
+            Type replace = instantiateTypeVariable(typeVariable);
             if (replace != null)
                 return replace;
             else
@@ -83,16 +83,16 @@ public class TypeUnification implements Cloneable {
         instantiation = new AppendMap<String, Type>();
     }
 
-    /**
-     * create a new type unification with the given initial mapping.
-     * 
-     * It is not checked if the mapping is valid (for instance acyclic)
-     * 
-     * @param mapping from type variable names to types
-     */
-    @Deprecated public TypeUnification(AppendMap<String, Type> map) {
-        instantiation = map.clone();
-    }
+//    /**
+//     * create a new type unification with the given initial mapping.
+//     * 
+//     * It is not checked if the mapping is valid (for instance acyclic)
+//     * 
+//     * @param mapping from type variable names to types
+//     */
+//    @Deprecated public TypeUnification(AppendMap<String, Type> map) {
+//        instantiation = map.clone();
+//    }
     
     /**
      * create a copy of this type unification object which has a copy of
@@ -150,6 +150,24 @@ public class TypeUnification implements Cloneable {
     }
 
     /**
+     * Instantiate a type variable.
+     * 
+     * <p>
+     * In this implementation this is delegated to the {@link #instantiation}
+     * map. Derived classes may choose to behave differently but should act
+     * accordingly in {@link #addMapping(TypeVariable, Type)}.
+     * 
+     * @param typeVariable
+     *            the type variable
+     * 
+     * @return the type stored in the map.
+     */
+    protected Type instantiateTypeVariable(TypeVariable typeVariable) {
+        return instantiation.get(typeVariable.getVariableName());
+    }
+    
+
+    /**
      * Do unification in which only type variables in the first type argument
      * are matched. A type variable in the second argument does not match a
      * non-variable in the first argument.
@@ -178,12 +196,12 @@ public class TypeUnification implements Cloneable {
 
         try {
             leftUnify0(adaptingType, fixType);
-            assert instantiate(adaptingType).equals(fixType);
+            assert instantiate(adaptingType).equals(instantiate(fixType)) : adaptingType + " vs " + fixType;
             return fixType;
         } catch (UnificationException e) {
             // restore old mapping
-            e.addDetail("Cannot left-unify '" + adaptingType + "' and '"
-                    + fixType + "'");
+            e.addDetail("Cannot left-unify \"" + adaptingType + "\" and \""
+                    + fixType + "\"");
             instantiation = copy;
             throw e;
         }
@@ -207,10 +225,13 @@ public class TypeUnification implements Cloneable {
 
         if (adaptingType instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) adaptingType;
+            // lazily apply the instantiation so far
+            fixType = instantiate(fixType);
             if (occursIn(tv, fixType))
                 throw new UnificationException("Cannot unify (occur check)",
                         tv, fixType);
-            if(isImmutableVariant(tv))
+            // the following is needed! (to prevent "true = arb" from parsing)
+            if(isImmutableTypeVariable(tv))
                 throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, fixType);
             return;
@@ -249,16 +270,26 @@ public class TypeUnification implements Cloneable {
      * some type variables may not be instantiated.
      * 
      * Example:
-     *   (arb as 'a)  and  (2 as int) 
-     * may not be presented to $eq('a,'a).
-     * 
-     * Type variants are made so that the check is
-     *   (arb as '#a) and (2 as int)
+     *   For a given polymorphic function symbol "bool f('a)" and a parameter
+     *   type 'something the application "f(3)" should not be possible, since
+     *   'something and int are not compatible. 
+     *    
+     * Type variants are made so that the check is 'a against '#something.
+     * With '#something being immutable, the unification will fail.
      *   
-     * which cannot be instantiated if '#a may not be instantiated.
+     * Also: 'a and '#a are different avoiding name clashes.
+     * 
+     * ---
+     * 
+     * Bound type variables may also not specialised
+     * 
+     * Example:
+     *   (\ALL_ty ''a; true as ''a) is illegal, since ''a would be bound to bool.
      */
-    private boolean isImmutableVariant(TypeVariable tv) {
-        return tv.getVariableName().startsWith(TypeVariable.VARIANT_PREFIX);
+    private boolean isImmutableTypeVariable(TypeVariable tv) {
+        String variableName = tv.getVariableName();
+        return variableName.startsWith(TypeVariable.VARIANT_PREFIX) ||
+            variableName.startsWith(TypeVariable.BINDABLE_PREFIX);
     }
 
     /**
@@ -292,8 +323,8 @@ public class TypeUnification implements Cloneable {
             return instantiate(type1);
         } catch (UnificationException e) {
             // restore old mapping
-            e.addDetail("Cannot unify '" + type1 + "' and '"
-                            + type2 + "'");
+            e.addDetail("Cannot unify \"" + type1 + "\" and \""
+                            + type2 + "\"");
             instantiation = copy;
             throw e;
         }
@@ -321,18 +352,26 @@ public class TypeUnification implements Cloneable {
 
         if (type1 instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) type1;
+            // lazily apply the instantiation so far
+            type2 = instantiate(type2);
             if (occursIn(tv, type2))
                 throw new UnificationException("Cannot unify (occur check)",
                         type1, type2);
+            if(isImmutableTypeVariable(tv))
+                throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, type2);
             return;
         }
 
         if (type2 instanceof TypeVariable) {
             TypeVariable tv = (TypeVariable) type2;
+            // lazily apply the instantiation so far
+            type1 = instantiate(type1);
             if (occursIn(tv, type1))
                 throw new UnificationException("Cannot unify (occur check)",
                         type1, type2);
+            if(isImmutableTypeVariable(tv))
+                throw new UnificationException("I cannot instantiate an immutable typevariable");
             addMapping(tv, type1);
             return;
         }
@@ -360,23 +399,44 @@ public class TypeUnification implements Cloneable {
     /*
      * Adds a mapping.
      * 
-     * We have to update all existing mappings afterwards. Since no loops (occur
-     * check!) are allowed, we apply it to everything (including tv).
+     * We have to update all existing mappings afterwards. We apply the new assignment
+     * to all instantiations but to the one to type.
      * 
      * @param tv the tv
      * 
      * @param type the type
      */
-    private void addMapping(TypeVariable tv, Type type) {
+    protected void addMapping(final TypeVariable tv, final Type type) throws UnificationException {
 
-        assert instantiation.get(tv.getVariableName()) == null;
+        String variableName = tv.getVariableName();
+        
+        assert !isImmutableTypeVariable(tv);
+        assert instantiation.get(variableName) == null;
         assert !occursIn(tv, type);
 
-        instantiation.put(tv.getVariableName(), type);
+        instantiation.put(variableName, type);
+        
+        TypeVisitor tvInst = new DefaultTypeVisitor() {
+            public Type visit(TypeVariable typeVariable) {
+                if(typeVariable.equals(tv)) {
+                    return type;
+                } else {
+                    return typeVariable;
+                }
+            };
+        };
         
         // check whether this is needed or not: it is :)
         for (String t : instantiation.keySet()) {
-            instantiation.put(t, instantiate(instantiation.get(t)));
+            if(!variableName.equals(t)) {
+                Type res;
+                try {
+                    res = instantiation.get(t).visit(tvInst);
+                } catch (TermException e) {
+                    throw new Error(e);
+                }
+                instantiation.put(t, res);
+            }
         }
 
     }
@@ -410,8 +470,12 @@ public class TypeUnification implements Cloneable {
      * @return a mapping from type variables to maps.
      */
     public Map<String, Type> getInstantiation() {
-        // possibly wrap in Collections.unmodifiable?
-        return instantiation;
+        return Collections.unmodifiableMap(instantiation);
+    }
+    
+    @Override
+    public String toString() {
+        return instantiation.toString();
     }
 
 }

@@ -15,6 +15,8 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
@@ -36,7 +38,11 @@ public class TestTermParser extends TestCaseWithEnv {
             Term t = TermMaker.makeAndTypeTerm(term, env);
             fail(term + " should not be parsable, but parses as: " + t.toString(true));
         } catch (ASTVisitException e) {
+            if(VERBOSE)
+                e.printStackTrace();
         } catch (ParseException e) {
+            if(VERBOSE)
+                e.printStackTrace();
         }
     }
     
@@ -51,7 +57,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("(\\forall %x as int; %x=%x)", 
                 "(\\forall %x as int;$eq(%x as int,%x as int) as bool) as bool", true);
     }
-
+    
     public void testNumbers() throws Exception {
         testTerm("5", "5 as int", true);
     }
@@ -63,6 +69,26 @@ public class TestTermParser extends TestCaseWithEnv {
                 "$eq(P(arb as int,0 as int) as poly(int,int),P(0 as int,arb as int) as poly(int,int)) as bool", true);
         testTerm("Q(P(arb, arb))", "Q(P(arb as '2,arb as '2) as poly('2,'2)) as '2",true);
     }
+    
+    public void testTyvarBinder() throws Exception {
+        
+        testTerm("(\\T_all ''a;true)", false);
+        
+        // ''a must not be bound in matrix
+        testTermFail("(\\T_all ''a; true as ''a)");
+        testTermFail("(\\T_ex ''a; bf(3 as ''a))");
+        testTermFail("3 as ''a");
+        
+        testTerm("(\\T_all ''b;(arb as ''b) = (arb as ''b))",
+                 "(\\T_all ''b;$eq(arb as ''b,arb as ''b) as bool) as bool", true); 
+        
+        testTerm("(\\T_all ''a;(\\forall x as ''a;Q(P(x,x)) = x))",
+                 "(\\T_all ''a;(\\forall x as ''a;" +
+                   "$eq(Q(P(x as ''a,x as ''a) as poly(''a,''a)) as ''a,x as ''a) " +
+                     "as bool) as bool) as bool", true);
+        
+    }
+
 
     public void testOccurCheck() throws Exception {
         try {
@@ -70,6 +96,8 @@ public class TestTermParser extends TestCaseWithEnv {
             fail("should not be parsable");
         } catch (ASTVisitException e) {
         } 
+        
+        testTermFail("(arb as 'a) as set('a)");
     }
 
     public void testAs() throws Exception {
@@ -142,4 +170,14 @@ public class TestTermParser extends TestCaseWithEnv {
         assertEquals(new Variable("i1", Environment.getIntType()), st);
     }
     
+    public void testMakeAndType() throws Exception {
+        
+        try {
+            Term t = TermMaker.makeAndTypeTerm("3", env, "none:test", TypeVariable.ALPHA);
+            assertEquals(TypeVariable.ALPHA, t.getType());
+        } catch(ASTVisitException ex) {
+            if(VERBOSE)
+                ex.printStackTrace();
+        }
+    }
 }

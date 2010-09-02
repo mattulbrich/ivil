@@ -56,6 +56,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.parser.term.ASTType;
 import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
+import de.uka.iti.pseudo.parser.term.ASTTypevarBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 
 /**
@@ -107,6 +108,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     public void visit(ASTBinderTerm arg) throws ASTVisitException {
+        visitDefaultTerm(arg);
+    }
+    
+    public void visit(ASTTypevarBinderTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
 

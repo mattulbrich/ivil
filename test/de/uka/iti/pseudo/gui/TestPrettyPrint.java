@@ -48,6 +48,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("!(1=1)", "!1 = 1");
         testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)");
         testTerm("(\\forall x; x > 5)", "(\\forall x; x > 5)");
+        testTerm("((\\T_all ''a; (true)))", "(\\T_all ''a; true)");
         testTerm("f(1+2)", "f(1 + 2)");
     }
     
@@ -104,18 +105,6 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         assertEquals(11, as.getEndAt(7));
     }
     
-    // these need to be the last test!
-    public void testOrderConincidesWithSubtermCollector() throws Exception {
-        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
-        pp = new PrettyPrint(env);
-        testOrderEqual("1 + 2 +3");
-        testOrderEqual("1 + (2+3)");
-        testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
-        testOrderEqual("[[ %a : goto %n, %k ]]");
-        testOrderEqual("[ 6 ; P ]");
-        testOrderEqual("f(g(3,4))");
-    }
-
     private void testOrderEqual(String string) throws Exception {
         Term t = TermMaker.makeAndTypeTerm(string, env);
         AnnotatedString<TermTag> astring = PrettyPrint.print(env, t);
@@ -129,6 +118,10 @@ public class TestPrettyPrint extends TestCaseWithEnv {
             int pos = termTag.getTotalPos();
             assertEquals(sc.subtermsInOrder.get(pos), termTag.getTerm());
         }
+    }
+    
+    public void testTyvarBinding() throws Exception {
+        
     }
     
     private class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
@@ -152,5 +145,16 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         // testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
     }
     
+    // these need to be the last test!
+    public void testOrderConincidesWithSubtermCollector() throws Exception {
+        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        pp = new PrettyPrint(env);
+        testOrderEqual("1 + 2 +3");
+        testOrderEqual("1 + (2+3)");
+        testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
+        testOrderEqual("[[ %a : goto %n, %k ]]");
+        testOrderEqual("[ 6 ; P ]");
+        testOrderEqual("f(g(3,4))");
+    }
 
 }

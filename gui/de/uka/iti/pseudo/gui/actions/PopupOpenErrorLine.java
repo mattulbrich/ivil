@@ -18,6 +18,7 @@ import javax.swing.text.BadLocationException;
 
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 
+@SuppressWarnings("serial")
 public class PopupOpenErrorLine extends BarAction implements InitialisingAction, PropertyChangeListener{
 
     private static final long serialVersionUID = 7937208369106413832L;

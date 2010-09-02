@@ -1,0 +1,20 @@
+
+
+This is a program in no particular language.
+
+---
+
+pre: val != 0
+
+if b1
+then
+   val = 7
+else
+begin
+   val = 1/val
+   val = val + 9
+end
+
+post: val > 0
+
+

@@ -22,14 +22,16 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.TimingOutTask;
 
 public class Z3SMT implements DecisionProcedure {
     
     public Z3SMT() {
     }
 
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, long timeout) throws ProofException, IOException {
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException, IOException {
 
         // System.out.println("Z3 for " + sequent);
         
@@ -44,6 +46,8 @@ public class Z3SMT implements DecisionProcedure {
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
+        TimingOutTask timeoutTask = null;
+        
         try {
             Runtime rt = Runtime.getRuntime();
 
@@ -54,16 +58,16 @@ public class Z3SMT implements DecisionProcedure {
 
             // System.err.println("Wait for " + process);
 
-            TimeoutThread timeoutThread = new TimeoutThread(timeout, process);
-            timeoutThread.start();
+            // this task is automatically scheduled on some timer thread.
+            timeoutTask = new TimingOutTask(timeout);
+            timeoutTask.schedule();
 
+            if(Thread.interrupted()) {
+                throw new InterruptedException();
+            }
+            
             int errorVal = process.waitFor();
             // System.err.println("Finished waiting: " + errorVal);
-
-            if(timeoutThread.hasKilled) {
-                // System.err.println("Timed out");
-                return Pair.make(Result.UNKNOWN, "Z3 timed out");
-            }
 
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
@@ -89,12 +93,23 @@ public class Z3SMT implements DecisionProcedure {
 
             // System.err.println("Result: " + result);
             return result;
+        } catch(InterruptedException ex) {
+            if(timeoutTask != null && timeoutTask.hasFinished()) {
+                return Pair.make(Result.UNKNOWN, "Z3 timed out");
+            } else {
+                return Pair.make(Result.UNKNOWN, "Z3 has been interrupted");
+            }
 
         } catch(Exception ex) {
             dumpTmp(challenge);
             // may get lost!
             ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
+            
+        } finally {
+            if(timeoutTask != null) {
+                timeoutTask.cancel();
+            }
         }
     }
 
@@ -105,7 +120,7 @@ public class Z3SMT implements DecisionProcedure {
             w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();
-            System.err.println("Challenge dumped to file " + tmp);
+            Log.log(Log.ERROR, "Challenge dumped to file " + tmp);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -118,33 +133,5 @@ public class Z3SMT implements DecisionProcedure {
         }
     }
     
-    private static class TimeoutThread extends Thread {
-        
-        private Process process;
-        private long timeout;
-        
-        private boolean hasKilled = false; 
-
-        public TimeoutThread(long timeout, Process process) {
-            this.timeout = timeout;
-            this.process = process;
-        }
-
-        @Override 
-        public void run() {
-            try {
-                Thread.sleep(timeout);
-                try {
-                    process.exitValue();
-                } catch(IllegalThreadStateException ex) {
-                    // was still running.
-                    process.destroy();
-                    hasKilled = true;
-                }
-                
-            } catch(InterruptedException ex) {
-            }
-        }
-    }
 
 }

@@ -105,6 +105,9 @@ public interface RuleApplication {
     /**
      * Gets a mapping which relates type variables to types.
      * 
+     * <p><b>Note:</b>The keys into this map are type variable names w/o a
+     * leading prime ('). 
+     * 
      * @return the type variable mapping
      */
     public @DeepNonNull Map<String, Type> getTypeVariableMapping();

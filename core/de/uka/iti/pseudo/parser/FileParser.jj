@@ -120,7 +120,8 @@ ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
-  Token name, as = null, modifier = null, precedence = null;
+  Token name, as = null, precedence = null;
+  int modifier = 0;
   ASTType range, ty;
   List<ASTType> tyrefs = new ArrayList<ASTType>();
 }
@@ -136,13 +137,17 @@ ASTFunctionDeclaration FunctionDeclaration():
         )?
         
         (
-          modifier="infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+          "assignable" { modifier |= ASTFunctionDeclaration.MODIFIER_ASSIGNABLE; }
         |
-          modifier="prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+          "unique"     { modifier |= ASTFunctionDeclaration.MODIFIER_UNIQUE; }
+        )?
+        
+        (
+          "infix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+             { modifier |= ASTFunctionDeclaration.MODIFIER_INFIX; }
         |
-          modifier="assignable"
-        |
-          modifier="unique"
+          "prefix" as=<OP_IDENTIFIER>  precedence=<NATURAL>
+             { modifier |= ASTFunctionDeclaration.MODIFIER_PREFIX; }
         )?
         
     { 

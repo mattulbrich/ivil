@@ -20,6 +20,8 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
@@ -155,6 +157,61 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 resultingTerm = null;
             }
         }
+    }
+    
+    /*
+     * a type variable binding is rebuilt if its argument or 
+     * the type variable have changed
+     */
+    @Override
+    public void visit(TypeVariableBinding tyVarBinding) throws TermException {
+        defaultVisitTerm(tyVarBinding);
+        if(resultingTerm == null) {
+            boolean changed = false;
+            
+            Term subterm = tyVarBinding.getSubterm();
+            subterm.visit(this);
+            if(resultingTerm != null) {
+                subterm = resultingTerm;
+                changed = true;
+            }
+            
+            /*
+             * sub classes may choose to do things with bound variables
+             * as well. 
+             */
+            TypeVariable typeVariable = tyVarBinding.getTypeVariable();
+            Type modifiedType = modifyType(typeVariable);
+            if(!(modifiedType instanceof TypeVariable)) {
+                throw new TermException("The bound type of a type quantification must be a type variable: " + modifiedType);
+            }
+            
+            if(typeVariable != modifiedType) {
+                changed = true;
+                // cast is safe, has been checked!
+                typeVariable = (TypeVariable) modifiedType;
+            }
+
+            if(changed) {
+                resultingTerm = new TypeVariableBinding(tyVarBinding.getKind(),
+                        typeVariable, subterm);
+            } else {
+                resultingTerm = null;
+            }
+        }
+    }
+    
+    /**
+     * Some implementations may choose to visit the bound type variable and change it.
+     * 
+     * They can then override this method according to their needs.
+     * 
+     * The default behaviour is to NOT change the type variable
+     * 
+     * @param tyVarBinding binding to visit the bound type variable in.
+     */
+    protected TypeVariable visitBindingTypeVariable(TypeVariableBinding tyVarBinding) {
+        return tyVarBinding.getTypeVariable();
     }
 
     /**

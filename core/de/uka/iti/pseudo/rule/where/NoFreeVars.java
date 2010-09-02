@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The WhereCondition NoFreeVars ensures that the argument does not contain free
@@ -90,8 +91,7 @@ public class NoFreeVars extends WhereCondition {
             } else {
                 // if schema variable bound
                 // LOG if we use logging once
-                System.err
-                        .println("We should actually only check unschematic terms, but: "
+                Log.println("We should actually only check unschematic terms, but: "
                                 + binding);
                 super.visit(binding);
             }

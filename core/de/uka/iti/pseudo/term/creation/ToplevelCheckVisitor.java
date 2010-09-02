@@ -21,6 +21,8 @@ import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 
 /**
@@ -37,6 +39,7 @@ import de.uka.iti.pseudo.term.Variable;
  * <li>no schema update is present
  * <li>no schema program term is present
  * <li>no schema variable is bound in a binding
+ * <li>no "normal" type variable is bound in a type variable binding
  * <li>no meta function appears
  * <li>no free variable occur
  * <li>program terms have no matching statement
@@ -98,6 +101,14 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         super.visit(application);
     }
     
-
+    @Override
+    public void visit(TypeVariableBinding typeVariableBinding)  throws TermException {
+        
+        String variableName = typeVariableBinding.getTypeVariable().getVariableName();
+        if(!variableName.startsWith(TypeVariable.BINDABLE_PREFIX))
+            throw new TermException("Top level term contains ordinary bound type variable '" + variableName);
+        
+        super.visit(typeVariableBinding);
+    }
 
 }

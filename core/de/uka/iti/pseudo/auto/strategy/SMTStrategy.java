@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 
 public class SMTStrategy extends AbstractStrategy {
@@ -26,7 +27,7 @@ public class SMTStrategy extends AbstractStrategy {
     private static final String CLOSE_RULE_NAME = "auto_smt_close";
     private Rule closeRule;
     private DecisionProcedure solver;
-    private long timeout;
+    private int timeout;
     private Environment env;
 
     @Override public void init(Proof proof, Environment env,
@@ -44,9 +45,9 @@ public class SMTStrategy extends AbstractStrategy {
         try {
             String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
             solver = (DecisionProcedure) Class.forName(className).newInstance();
-            timeout = Long.parseLong(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
+            timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
         } catch(Exception ex) {
-            System.err.println("Cannot instantiate background decision procedure");
+            Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
             ex.printStackTrace();
             closeRule = null;
         }

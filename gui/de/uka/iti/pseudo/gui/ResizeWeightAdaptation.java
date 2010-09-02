@@ -54,15 +54,15 @@ class ResizeWeightAdaptation implements DockingListener {
 
     @Override
     public void dockingChanged(DockingEvent dockingEvent) {
-        System.err.println(dockingEvent);
+        // System.err.println(dockingEvent);
         Dock dock = dockingEvent.getDestinationDock();
         if (dock instanceof JPanel) {
             JPanel panel = (JPanel) dock;
             Component component = panel.getComponent(0);
             if (component instanceof JSplitPane) {
                 JSplitPane splitpane = (JSplitPane) component;
-                System.err.println("setting new resize weight " + resizeWeight + ", was: "
-                        + splitpane.getResizeWeight());
+//                System.err.println("setting new resize weight " + resizeWeight + ", was: "
+//                        + splitpane.getResizeWeight());
                 splitpane.setResizeWeight(resizeWeight);
             }
         }

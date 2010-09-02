@@ -15,7 +15,6 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -26,11 +25,16 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.VerticalLayout;
+import de.uka.iti.pseudo.util.Log;
 
+/**
+ * The class ParameterPanel is used to model the dialog within the "Settings"
+ * tab. It uses a {@link ParameterSheet} to display the properties of the
+ * selected strategy. The strategy can be chosen from a dropdown menu.
+ */
+@SuppressWarnings("serial")
 public class ParameterPanel extends JPanel {
 
-    private static final long serialVersionUID = -8785480731800659193L;
-    
     private ProofCenter proofCenter;
     private JComboBox activeStrategySelector;
     private JComboBox paramSelector;
@@ -41,14 +45,13 @@ public class ParameterPanel extends JPanel {
         init();
     }
 
-    @SuppressWarnings("serial")
     private void init() {
         final StrategyManager strategyManager = proofCenter.getStrategyManager();
         setLayout(new VerticalLayout());
         {
             add(new JLabel("Active strategy:"));
             activeStrategySelector = new JComboBox(strategyManager.getAllStrategies().toArray());
-            System.out.println(strategyManager.getSelectedStrategy());
+            Log.log(Log.VERBOSE, strategyManager.getSelectedStrategy());
             activeStrategySelector.setSelectedItem(strategyManager.getSelectedStrategy());
             activeStrategySelector.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -100,14 +103,13 @@ public class ParameterPanel extends JPanel {
         repaint();
     }
 
-    /*
-     * Make a new titled panel using the BorderFactory
-     */
-    @SuppressWarnings("unused")
-    private JPanel makeTitledPanel(String title) {
-        JPanel result = new JPanel(new VerticalLayout());
-        result.setBorder(BorderFactory.createTitledBorder(title));
-        return result;
-    }
+//    /*
+//     * Make a new titled panel using the BorderFactory
+//     */
+//    private JPanel makeTitledPanel(String title) {
+//        JPanel result = new JPanel(new VerticalLayout());
+//        result.setBorder(BorderFactory.createTitledBorder(title));
+//        return result;
+//    }
     
 }

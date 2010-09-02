@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * A RewriteRuleCollection allows to find applicable rewrite rules for a goal in
@@ -293,9 +294,9 @@ public class RewriteRuleCollection {
                 }
             }
         } catch (ProofException e) {
-            System.err.println("Error while finding rules for " + term);
-            System.err.println("Continuing anyway");
-            e.printStackTrace();
+            Log.log(Log.ERROR, "Error while finding rules for " + term);
+            Log.log(Log.ERROR, "Continuing anyway");
+            Log.stacktrace(e);
         }
         
         for (int i = 0; i < term.countSubterms(); i++) {

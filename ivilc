@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#
+# command line script for ivil
+#
+#
+BASE=`dirname "$0"`
+# TODO make it independent from my path. How?
+BYTECODE=$HOME/eclipse/pseudo.bytecode
+
+SYS_DIR=$BASE/sys:$BYTECODE/sys
+
+#
+# Logging
+OPTIONS=
+if [ -r $BASE/logging.properties ]
+then
+  OPTIONS="-Djava.util.logging.config.file=$BASE/logging.properties $OPTIONS"
+fi
+
+
+#
+# debugging
+if [ "$1" = "-D" ]
+then
+  shift $ARGV
+  OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1234 $OPTIONS"
+fi
+
+#
+# Profiling (not together with -D)
+if [ "$1" = "-J" ]
+then
+  shift $ARGV
+  OPTIONS="-Xrunhprof:cpu=samples,depth=10,thread=y $OPTIONS"
+fi
+
+java -ea $OPTIONS \
+  -Dpseudo.baseDir=$BASE \
+  -Dpseudo.sysDir=$SYS_DIR \
+  -Xmx300M \
+  -cp $BASE/ivil.jar de.uka.iti.pseudo.cmd.Main "$@"

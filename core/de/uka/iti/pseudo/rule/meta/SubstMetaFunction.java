@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 public class SubstMetaFunction extends MetaFunction {
 
     public SubstMetaFunction() {
+        //       toReplace, replaceWith, replaceIn
         super(ALPHA, "$$subst", BETA, BETA, ALPHA );
     }
 

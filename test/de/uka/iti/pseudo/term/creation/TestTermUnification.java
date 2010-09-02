@@ -16,8 +16,8 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.statement.SkipStatement;
-import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.UnificationException;
 
 public class TestTermUnification extends TestCaseWithEnv {
     
@@ -40,6 +40,15 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getIntType())));
         assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getBoolType())));
         assertEquals(mt("3"), mc.instantiate(mt("%i")));
+    }
+    
+    public void testUnifyIncomparable() throws Exception {
+        TermUnification mc = new TermUnification(env);
+        Term t1 = mt("g(%b, %a as int)");
+        Term t2 = mt("g(0, true)");
+        assertFalse(mc.leftUnify(t1, t2));
+        assertNull(mc.getTermInstantiation().get("%a"));
+        assertNull(mc.getTermInstantiation().get("%b"));
     }
     
     // from an early bug
@@ -159,6 +168,16 @@ public class TestTermUnification extends TestCaseWithEnv {
         
         assertEquals(mt("{i1:=0}i1"), mc.instantiate(mt("{U}i1")));
         assertEquals(mt("{V}b2"), mc.instantiate(mt("{V}%a")));
+    }
+    
+    public void testTypeQuantification() throws Exception {
+    
+        TermUnification mc = new TermUnification(env);
+        
+        mc.leftUnify(mt("(\\T_all 'a; arb as 'a = arb)"), mt("(\\T_all ''a; arb as ''a = arb as ''a)"));
+        
+        assertEquals(new TypeVariable("'a"),
+                mc.getTypeUnification().instantiateTypeVariable(TypeVariable.ALPHA));
     }
     
 }

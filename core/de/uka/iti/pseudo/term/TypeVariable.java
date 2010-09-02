@@ -52,10 +52,17 @@ public class TypeVariable extends Type {
     public final static TypeVariable BETA = new TypeVariable("b");
     
     /**
-     * The prefix used to indicate that a type variable cannot be instantiated.
+     * The prefix used to distinguish a type variable from its variant.
      * @see TypeUnification
      */
     public static final String VARIANT_PREFIX = "#";
+    
+    /**
+     * The prefix used to distinguish a type variable used in a type 
+     * quantification from a usual type variable.
+     * @see TypeVariableBinding
+     */
+    public static final String BINDABLE_PREFIX = "'";
     
     /**
      * The actual name (w/o leading ')
@@ -73,9 +80,6 @@ public class TypeVariable extends Type {
     }
 
     /**
-     * {@inheritDoc}
-     * 
-     * <p>
      * A type variable is rendered to a string by prepending a prime ' to its
      * name.
      */
