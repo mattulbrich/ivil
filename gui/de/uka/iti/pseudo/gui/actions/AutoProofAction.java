@@ -42,7 +42,7 @@ public class AutoProofAction extends BarAction
 
     public AutoProofAction() {
         super("Automatic Proof", goIcon);
-        putValue(SHORT_DESCRIPTION, "Run automatic proving on the current node");
+        putValue(SHORT_DESCRIPTION, "Run automatic proving on all nodes");
     }
     
     public void initialised() {

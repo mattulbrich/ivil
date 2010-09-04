@@ -115,7 +115,7 @@ public abstract class StepCodeAction extends BarAction implements
                 else
                     pc.fireSelectedProofNode(proof.getRoot());
             } else {
-                // find first unclosed node
+                // find first open node
                 current = selectedProofNode;
                 while (current.getChildren() != null)
                     for (ProofNode child : current.getChildren())
@@ -131,7 +131,6 @@ public abstract class StepCodeAction extends BarAction implements
             strategy.endSearch();
             proof.getLock().unlock();
         }
-
     }
 
     @Override
