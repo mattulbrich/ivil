@@ -47,11 +47,13 @@ public class Z3SMT implements DecisionProcedure {
         // System.err.println(challenge);
 
         TimingOutTask timeoutTask = null;
-        
+        Process process = null;
+
         try {
             Runtime rt = Runtime.getRuntime();
 
-            Process process = rt.exec("z3 -in -smt");
+            process = rt.exec("z3 -in -smt");
+            
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);
             w.close();
@@ -109,6 +111,10 @@ public class Z3SMT implements DecisionProcedure {
         } finally {
             if(timeoutTask != null) {
                 timeoutTask.cancel();
+            }
+            if(process != null) {
+                // ensure the process is killed
+                process.destroy();
             }
         }
     }
