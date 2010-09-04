@@ -40,6 +40,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class SnapshotManagerAction extends BarAction implements
         InitialisingAction, PropertyChangeListener {
 
+    private static final long serialVersionUID = 1021882115879082354L;
+
     private SnapshotManager manager;
 
     public SnapshotManagerAction() {
@@ -93,6 +95,8 @@ class Snapshot {
 }
 
 class SnapshotManager extends JDialog {
+
+    private static final long serialVersionUID = -5984529219385892379L;
 
     private ProofCenter proofCenter;
     private ProofNode root;
@@ -176,6 +180,7 @@ class SnapshotManager extends JDialog {
         setLocationRelativeTo(proofCenter.getMainWindow());
     }
 
+    @SuppressWarnings("serial")
     public void display() {
         checkSnapshots();
         final Object[] objects = snapshots.toArray();

@@ -18,6 +18,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -26,14 +27,11 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
@@ -204,95 +202,6 @@ public class ProofNode {
      */
     public @NonNull Sequent getSequent() {
         return sequent;
-    }
-
-    /**
-     * TODO check for equal programs, as P and Q could occur on the same node
-     * 
-     * Try to identify a unique line number in the corresponding program. If
-     * there are several program locations or no program locations on this node,
-     * -1 will be returned. <br>
-     * <b>Note:</b> this is an expensive operation
-     * 
-     * @return source line number or -1 if there is none and -2 if there are
-     *         several
-     * 
-     */
-    public int getProgramLineNumber() {
-        final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
-
-        TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-            public void visit(LiteralProgramTerm progTerm) throws TermException {
-                progTerms.add(progTerm);
-            }
-        };
-        try {
-            for (Term t : getSequent().getAntecedent()) {
-                t.visit(programFindVisitor);
-            }
-
-            for (Term t : getSequent().getSuccedent()) {
-                t.visit(programFindVisitor);
-            }
-        } catch (TermException e) {
-            // never thrown
-            throw new Error(e);
-        }
-        
-        if (progTerms.isEmpty()) {
-            return -1;
-        }
-
-        int rval = progTerms.get(0).getProgramIndex();
-        // check other program terms for equality
-        for (int i = 1; i < progTerms.size(); i++)
-            if (progTerms.get(i).getProgramIndex() != rval)
-                return -2;
-
-        return rval;
-    }
-
-    /**
-     * Try to identify a unique line number in the corresponding source file. If
-     * there are several source locations or no source locations on this node,
-     * -1 will be returned.
-     * 
-     * @return source line number or -1 if there is none and -2 if there are
-     *         several
-     */
-    
-    public int getSourceLineNumber() {
-        final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
-
-        TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-            public void visit(LiteralProgramTerm progTerm) throws TermException {
-                progTerms.add(progTerm);
-            }
-        };
-        try {
-            for (Term t : getSequent().getAntecedent()) {
-                t.visit(programFindVisitor);
-            }
-
-            for (Term t : getSequent().getSuccedent()) {
-                t.visit(programFindVisitor);
-            }
-        } catch (TermException e) {
-            // never thrown
-            throw new Error(e);
-        }
-
-        if (progTerms.isEmpty()) {
-            return -1;
-        }
-
-        int rval = progTerms.get(0).getStatement().getSourceLineNumber();
-        // check other program terms for equality
-        for (int i = 1; i < progTerms.size(); i++)
-            if (progTerms.get(i).getStatement().getSourceLineNumber() != rval)
-                return -2;
-
-        return rval;
     }
 
     /**
