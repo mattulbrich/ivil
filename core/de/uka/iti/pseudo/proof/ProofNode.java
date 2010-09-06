@@ -18,7 +18,6 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;

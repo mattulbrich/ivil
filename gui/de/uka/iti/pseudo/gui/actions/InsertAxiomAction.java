@@ -199,10 +199,13 @@ class AxiomChooserDialog extends JDialog {
     }
 
     private Vector<String> collectAxiomNames(Environment environment) {
+        Log.enter(System.currentTimeMillis());
         Vector<String> ret = new Vector<String>();
         for (Axiom axiom : environment.getAllAxioms()) {
             ret.add(axiom.getName());
         }
+        Log.log(Log.TRACE, System.currentTimeMillis());
+        Log.leave();
         return ret;
     }
     

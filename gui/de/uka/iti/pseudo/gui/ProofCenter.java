@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The Class ProofCenter is the center point of one proof and its visualiation
@@ -288,16 +289,20 @@ public class ProofCenter {
      */
     public @NonNull List<RuleApplication> getApplicableRules(
             @NonNull TermSelector termSelector) throws ProofException {
+        
+        Log.enter(termSelector);
 
         int goalNo = proof.getOpenGoals().indexOf(getCurrentProofNode());
         if (goalNo == -1) {
             // current sequent is not a goal.
+            Log.log(Log.VERBOSE, "no applicable rules");
             return Collections.emptyList();
         }
         
         RuleApplicationFinder iraf = new RuleApplicationFinder(proof, goalNo, env);
         List<RuleApplication> result = iraf.findAll(termSelector, rulesSortedForInteraction);
 
+        Log.log(Log.VERBOSE, "Found rule apps: " + result);
         return result;
     }
 
