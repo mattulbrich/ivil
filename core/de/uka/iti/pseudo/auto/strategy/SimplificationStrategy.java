@@ -92,26 +92,28 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    protected RuleApplicationMaker findRuleApplication(int goalNo) {
+    public RuleApplicationMaker findRuleApplication(ProofNode target) {
+        
+        // TODO changes as soon as proof nodes are stored in rule applications
+        int goalNumber = getProof().getOpenGoals().indexOf(target);
 
         assert ruleCollections != null;
 
         for (int collNo = 0; collNo < ruleCollections.length; collNo++) {
-            ProofNode goal = getProof().getGoal(goalNo);
 
             // this node has already been checked: no matches
-            if (noMatchNodes[collNo].contains(goal))
+            if (noMatchNodes[collNo].contains(target))
                 continue;
 
             RuleApplicationMaker ruleApplication = ruleCollections[collNo]
-                    .findRuleApplication(getProof(), goalNo);
+                    .findRuleApplication(getProof(), goalNumber);
             if (ruleApplication != null) {
-                ruleApplication.setGoalNumber(goalNo);
+                ruleApplication.setGoalNumber(goalNumber);
                 return ruleApplication;
             }
 
             // no result: no match. Remember for the next time.
-            noMatchNodes[collNo].add(goal);
+            noMatchNodes[collNo].add(target);
         }
 
         return null;

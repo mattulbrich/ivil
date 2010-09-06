@@ -56,7 +56,7 @@ public abstract class AbstractStrategy implements Strategy {
         int index = 0;
         for (ProofNode goal : openGoals) {
             if (!notMatching.contains(goal)) {
-                RuleApplication ra = findRuleApplication(index);
+                RuleApplication ra = findRuleApplication(goal);
                 if (ra != null) {
                     return ra;
                 } else {
@@ -69,18 +69,23 @@ public abstract class AbstractStrategy implements Strategy {
         return null;
     }
 
-    @Override
-    public RuleApplication findRuleApplication(ProofNode target)
-            throws StrategyException {
-        int index = proof.getOpenGoals().indexOf(target);
+//    @Override
+//    public abstract RuleApplication findRuleApplication(ProofNode target)
+//            throws StrategyException {
+//        
+//        assert target.getProof() == proof;
+//        
+//        int index = proof.getOpenGoals().indexOf(target);
+//
+//        if(-1 == index)
+//            return null;
+//
+//        RuleApplication result = findRuleApplication(index);
+//        // XXX uncomment as soon as this is ready: assert result.getProofNode() == target;
+//        return result;
+//    }
 
-        if(-1 == index)
-            return null;
-
-        return findRuleApplication(index);
-    }
-
-    protected abstract RuleApplication findRuleApplication(int goalIndex) throws StrategyException;
+    // protected abstract RuleApplication findRuleApplication(int goalIndex) throws StrategyException;
 
     @Override
     public void notifyRuleApplication(RuleApplication ruleApp)

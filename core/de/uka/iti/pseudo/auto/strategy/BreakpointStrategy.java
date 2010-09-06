@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.rule.RuleException;
@@ -97,7 +98,11 @@ public class BreakpointStrategy extends AbstractStrategy implements
     }
 
     @Override
-    public RuleApplication findRuleApplication(int goalNumber) {
+    public RuleApplication findRuleApplication(ProofNode target) {
+        
+        // TODO changes as soon as proof nodes are stored in rule applications
+        int goalNumber = getProof().getOpenGoals().indexOf(target);
+        
         RuleApplication ra = ruleCollection.findRuleApplication(getProof(),
                 goalNumber);
         return ra;

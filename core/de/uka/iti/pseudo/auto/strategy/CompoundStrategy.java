@@ -16,6 +16,7 @@ import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -51,6 +52,7 @@ public class CompoundStrategy extends AbstractStrategy {
      * If all my strategies are {@link AbstractStrategy}s themselves,
      * we can apply better algorithms. 
      */
+    // TODO Is this still needed?
     private boolean allAbstractStrategy;
     
     /**
@@ -62,20 +64,20 @@ public class CompoundStrategy extends AbstractStrategy {
      * @return the first rule application found, or null if no strategy returns
      *         an application.
      */
-    public RuleApplication findRuleApplication()
-            throws StrategyException {
-        
-        if(allAbstractStrategy) {
-            return super.findRuleApplication();
-        } else {
-            for (Strategy strategy : strategies) {
-                RuleApplication ra = strategy.findRuleApplication();
-                if(ra != null)
-                    return ra;
-            }
-            return null;
-        }
-    }
+//    public RuleApplication findRuleApplication()
+//            throws StrategyException {
+//        
+//        if(allAbstractStrategy) {
+//            return super.findRuleApplication();
+//        } else {
+//            for (Strategy strategy : strategies) {
+//                RuleApplication ra = strategy.findRuleApplication();
+//                if(ra != null)
+//                    return ra;
+//            }
+//            return null;
+//        }
+//    }
 
     /**
      * Initialise the strategy. Create the initial {@link #strategies}. 
@@ -234,17 +236,15 @@ public class CompoundStrategy extends AbstractStrategy {
     }
 
     /**
-     * delegate the search to all child strategies.
-     * 
-     * This method is only called if {@link #allAbstractStrategy} is set,
-     * therefore if all children can be converted to {@link AbstractStrategy}.
+     * delegates the search to all child strategies in order and returns the
+     * first hit.
      */
-    @Override protected RuleApplication findRuleApplication(int goalIndex)
+    @Override 
+    public RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
+        
         for (Strategy strategy : strategies) {
-            assert strategy instanceof AbstractStrategy : "We have ensured this by allAbstractStrategy";
-            AbstractStrategy absStrategy = (AbstractStrategy) strategy;
-            RuleApplication ra = absStrategy.findRuleApplication(goalIndex);
+            RuleApplication ra = strategy.findRuleApplication(target);
             if(ra != null)
                 return ra;
         }

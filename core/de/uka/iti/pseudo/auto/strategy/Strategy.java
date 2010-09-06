@@ -64,13 +64,30 @@ public interface Strategy {
     @Nullable RuleApplication findRuleApplication() throws StrategyException;
     
     /**
+     * Find an applicable rule application. The proof upon which the strategy
+     * has to work has been set using
+     * {@link #init(Proof, Environment, StrategyManager), StrategyManager)} Find
+     * a rule to apply for this proof.
+     * 
+     * A strategy may return null to indicate that it cannot provide a rule
+     * application.
+     * 
+     * Only rule applications for target <code>node</code> are considered. The
+     * argument must be a node of the tree of the proof with which this strategy
+     * has been initialised. It should not have set a rule application, yet
+     * (hence, must be a leave in the proof tree).
+     * 
+     * If the result is not <code>null</code>, the returned rule application is
+     * guaranteed to point to the given proof node.
+     * 
      * @see findRuleApplication()
      * @param target
-     *            only rule applications for target node are considered
+     *            a proof node which is a leaf of the proof under consideration
      * @throws StrategyException
+     *             if the strategy has run into difficulties.
      */
     @Nullable
-    RuleApplication findRuleApplication(ProofNode target)
+    RuleApplication findRuleApplication(@NonNull ProofNode target)
             throws StrategyException;
 
     /**

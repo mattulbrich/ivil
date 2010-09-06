@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
@@ -53,14 +54,18 @@ public class SMTStrategy extends AbstractStrategy {
         }
     }
 
-    @Override protected RuleApplication findRuleApplication(int goalIndex)
+    @Override 
+    public RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
+        
+        // TODO changes as soon as proof nodes are stored in rule applications
+        int goalIndex = getProof().getOpenGoals().indexOf(target);
         
         // retire if no solver found
         if(solver == null)
             return null;
-
-        Sequent sequent = getProof().getGoal(goalIndex).getSequent();
+        
+        Sequent sequent = target.getSequent();
         Pair<Result, String> result;
         
         try {
