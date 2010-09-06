@@ -174,7 +174,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     
         TermUnification mc = new TermUnification(env);
         
-        mc.leftUnify(mt("(\\T_all 'a; arb as 'a = arb)"), mt("(\\T_all ''a; arb as ''a = arb as ''a)"));
+        mc.leftUnify(mt("(\\T_all 'a; arb = arb as 'a)"), mt("(\\T_all ''a; arb = arb as ''a)"));
         
         assertEquals(new TypeVariable("'a"),
                 mc.getTypeUnification().instantiateTypeVariable(TypeVariable.ALPHA));
