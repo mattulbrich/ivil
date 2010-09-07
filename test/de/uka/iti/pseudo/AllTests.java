@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.proof.TestProofNode;
 import de.uka.iti.pseudo.proof.TestSubtermSelector;
 import de.uka.iti.pseudo.proof.TestTermSelector;
+import de.uka.iti.pseudo.proof.serialisation.TestValidXSD;
 import de.uka.iti.pseudo.rule.TestGoalAction;
 import de.uka.iti.pseudo.rule.TestRule;
 import de.uka.iti.pseudo.rule.meta.TestLoopInvariantProgramMetaFunction;
@@ -61,6 +62,7 @@ public class AllTests {
     public static Test suite() {
         TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo");
         //$JUnit-BEGIN$
+        suite.addTestSuite(TestValidXSD.class);
         suite.addTestSuite(TestFileParser.class);
         suite.addTestSuite(TestTermParser.class);
         suite.addTestSuite(TestProgramParser.class);

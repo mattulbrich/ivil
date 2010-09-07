@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.proof.serialisation;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +19,10 @@ import java.io.OutputStreamWriter;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
@@ -47,6 +52,7 @@ public class ProofXML implements ProofImport, ProofExport {
     public void importProof(InputStream is, Proof proof, Environment env)  throws IOException, ProofException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
+            factory.setSchema(makeSchema());
             SAXParser parser = factory.newSAXParser();
             SAXHandler handler = new SAXHandler(env, proof);
             parser.parse(is, handler);
@@ -57,6 +63,19 @@ public class ProofXML implements ProofImport, ProofExport {
         }
     }
     
+    private Schema makeSchema() throws IOException, SAXException {
+        SchemaFactory schemaFactory = SchemaFactory
+                .newInstance("http://www.w3.org/2001/XMLSchema");
+        InputStream is = getClass().getResourceAsStream("proof.xsd");
+        if(is == null)
+            throw new FileNotFoundException("XSD resource proof.xsd not available");
+        
+        Schema schema = schemaFactory
+                .newSchema(new Source[] { new StreamSource(is) });
+        
+        return schema;
+    }
+
     public void exportProof(OutputStream os, Proof proof, Environment env)
             throws IOException {
         

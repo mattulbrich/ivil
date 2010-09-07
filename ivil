@@ -30,6 +30,19 @@ do
   in
 
     #
+    # debug help
+    -Dh)
+       shift
+       echo "-Dh    this help"
+       echo "-Dv    verbose output (log level=10)"
+       echo "-Ds    debugging with suspend (waiting for debugger)"
+       echo "-Dc    debugging w/o suspend (continuing)"
+       echo "-Dj    enable profiling"
+       echo "-DX<Y> pass option <Y> through to the virtual machine"
+       exit 0
+       ;;
+   
+    #
     # verbose
     -Dv)
        shift

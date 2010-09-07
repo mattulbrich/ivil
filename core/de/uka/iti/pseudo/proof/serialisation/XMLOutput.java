@@ -33,14 +33,12 @@ public class XMLOutput {
 
     public void export(Proof proof) throws IOException {
         out.append("<?xml version=\"1.0\"?>").newline();
-        out.start("pseudoproof", "format", "0");
+        out.start("proof", "format", "0");
         out.start("info").newline();
         {
             out.start("date").append(new Date().toString()).end().newline();
             out.start("version").append("0.0").end().newline();
-            out.start("problem").append(
-                    "<![CDATA[" + proof.getRoot().getSequent().toString()
-                            + "]]>").end().newline();
+            out.start("problem").appendEncoded(proof.getRoot().getSequent().toString()).end().newline();
             out.start("hash").append("to be done").end().newline();
             out.end().newline();
         }
@@ -89,12 +87,6 @@ public class XMLOutput {
         String nodeNumber = Integer.toString(ruleApp.getNodeNumber());
         out.start("ruleApplication", "rule", ruleName, "node", nodeNumber).newline();
         
-        // properties
-        for (Entry<String, String> entry : ruleApp.getProperties().entrySet()) {
-            out.start("property", "name", entry.getKey()).
-                appendEncoded(entry.getValue()).end().newline();
-        }
-        
         // find
         TermSelector findSelector = ruleApp.getFindSelector();
         if(findSelector != null) {
@@ -126,6 +118,12 @@ public class XMLOutput {
             out.append(entry.getValue().toString()).end().newline();
         }
         
+        // properties
+        for (Entry<String, String> entry : ruleApp.getProperties().entrySet()) {
+            out.start("property", "name", entry.getKey()).
+                appendEncoded(entry.getValue()).end().newline();
+        }
+
         out.end().newline();
     }
 

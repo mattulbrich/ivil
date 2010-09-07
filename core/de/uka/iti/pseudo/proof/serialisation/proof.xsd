@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *    written by Mattias Ulbrich
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ *
+ * created using Rinzo XML XSD extraction
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+	<xs:element name="proof">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="info"/>
+				<xs:element ref="steps"/>
+			</xs:sequence>
+			<xs:attribute name="format" use="required" type="xs:integer"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="info">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="date"/>
+				<xs:element ref="version"/>
+				<xs:element ref="problem"/>
+				<xs:element ref="hash"/>
+				<xs:element ref="comment" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="date" type="xs:string"/>
+	<xs:element name="version" type="xs:decimal"/>
+	<xs:element name="problem" type="xs:string"/>
+	<xs:element name="hash" type="xs:string"/>
+	<xs:element name="comment" type="xs:string"/>
+
+	<xs:element name="steps">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element maxOccurs="unbounded" ref="ruleApplication"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="ruleApplication">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element minOccurs="0" ref="find"/>
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="assume"/>
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="schemavariable"/>
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="typevariable"/>
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="schemaupdate"/>
+				<xs:element minOccurs="0" maxOccurs="unbounded" ref="property"/>
+			</xs:sequence>
+			<xs:attribute name="node" use="required" type="xs:integer"/>
+			<xs:attribute name="rule" use="required" type="xs:NCName"/>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="find" type="termselector"/>
+	<xs:element name="assume" type="termselector"/>
+	<xs:element name="schemavariable" type="namedValue"/>
+	<xs:element name="typevariable" type="namedValue"/>
+	<xs:element name="schemaupdate" type="namedValue"/>
+	<xs:element name="property" type="namedValue"/>
+
+	<xs:simpleType name="termselector">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="(A|S)(\.[0-9]+)+"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="namedValue">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="name" use="required" type="xs:NCName" />
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+
+
+</xs:schema>
