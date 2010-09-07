@@ -16,6 +16,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -192,13 +193,14 @@ public final class SMTBackgroundAction extends BarAction implements
         // synchronise it with lock so that threads do not tamper with provable nodes
         if(proof.getLock().tryLock()) {
             try {
-                int countGoals =  proof.getOpenGoals().size();
+                List<ProofNode> openGoals = proof.getOpenGoals();
+                int countGoals = openGoals.size();
                 // bugfix: do it backward, otherwise solving goal 0 and
                 // incrementing would not do the second original goal which has
                 // become the new 0
                 for (int index = countGoals - 1; index >= 0; index--) {
                     MutableRuleApplication ra = new MutableRuleApplication();
-                    ra.setGoalNumber(index);
+                    ra.setNodeNumber(openGoals.get(index).getNumber());
                     ra.setRule(closeRule);
                     try {
                         ProofNode next = proofCenter.apply(ra);

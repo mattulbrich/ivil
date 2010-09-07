@@ -100,11 +100,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     @Override
     public RuleApplication findRuleApplication(ProofNode target) {
         
-        // TODO changes as soon as proof nodes are stored in rule applications
-        int goalNumber = getProof().getOpenGoals().indexOf(target);
-        
-        RuleApplication ra = ruleCollection.findRuleApplication(getProof(),
-                goalNumber);
+        RuleApplication ra = ruleCollection.findRuleApplication(target);
         return ra;
     }
 
@@ -259,8 +255,8 @@ public class BreakpointStrategy extends AbstractStrategy implements
      */
     @Override
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
-        int goal = ruleApp.getGoalNumber();
-        Sequent sequent = getProof().getGoal(goal).getSequent();
+        int index = ruleApp.getNodeNumber();
+        Sequent sequent = getProof().getGoalNEW(index).getSequent();
         Term find;
         try {
             find = ruleApp.getFindSelector().selectSubterm(sequent);

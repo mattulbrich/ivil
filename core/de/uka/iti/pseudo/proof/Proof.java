@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -13,6 +12,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
@@ -159,8 +159,15 @@ public class Proof extends Observable {
         lock.lock();
         
         try {
-            int goalno = extractGoalNo(ruleApp);
-            goal = openGoals.get(goalno);
+            goal = getGoalNEW(ruleApp.getNodeNumber());
+            
+            if (goal == null) {
+                throw new ProofException(
+                        "The rule application points to a non-existant or non-goal proof node");
+            }
+            
+            int goalno = openGoals.indexOf(goal);
+            assert goalno != -1;
 
             goal.apply(ruleApp, env);
 
@@ -173,6 +180,33 @@ public class Proof extends Observable {
             lock.unlock();
         }
 
+    }
+
+    /**
+     * Gets a goal from the set of open goals by node index.
+     * 
+     * <code>null</code> is returned if no open goal carries the given number -
+     * or an exception thrown.
+     * 
+     * The resulting proof node belongs to this proof and carries the desired
+     * number.
+     * 
+     * @param nodeNumber
+     *            the node number to search for.
+     * 
+     * @return an open proof node belonging to this proof.
+     * 
+     * @throws NoSuchElementException
+     *             the implementation may choose to throw this is no goal of
+     *             this number exists.
+     */
+    public ProofNode getGoalNEW(int nodeNumber) throws NoSuchElementException {
+        for (ProofNode goal : openGoals) {
+            if(goal.getNumber() == nodeNumber) {
+                return goal;
+            }
+        }
+        return null;
     }
 
     /**
@@ -209,20 +243,6 @@ public class Proof extends Observable {
 
     }
 
-    /*
-     * Extract the goal number from a rule application. Raises an exception if
-     * the number is out of bounds.
-     */
-    private int extractGoalNo(RuleApplication ruleApp) throws ProofException {
-        int goalno = ruleApp.getGoalNumber();
-        if (goalno < 0 || goalno >= openGoals.size())
-            throw new ProofException(
-                    "Cannot apply ruleApplication. Illegal goal number in\n"
-                            + ruleApp);
-        return goalno;
-    }
-
-    
     /**
      * Gets the root of this proof object. It contains the initial sequent.
      * 
@@ -294,9 +314,9 @@ public class Proof extends Observable {
      *             {@link #openGoals}.
      * 
      */
-    public @NonNull ProofNode getGoal(int goalNo) {
-        return openGoals.get(goalNo);
-    }
+//    public @NonNull ProofNode getGoal(int goalNo) {
+//        return openGoals.get(goalNo);
+//    }
 
     /**
      * Checks for unsaved changes.

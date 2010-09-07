@@ -58,9 +58,6 @@ public class SMTStrategy extends AbstractStrategy {
     public RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
         
-        // TODO changes as soon as proof nodes are stored in rule applications
-        int goalIndex = getProof().getOpenGoals().indexOf(target);
-        
         // retire if no solver found
         if(solver == null)
             return null;
@@ -77,7 +74,7 @@ public class SMTStrategy extends AbstractStrategy {
         boolean proveable = result.fst() == Result.VALID;
         if(proveable) {
             MutableRuleApplication ra = new MutableRuleApplication();
-            ra.setGoalNumber(goalIndex);
+            ra.setNodeNumber(target.getNumber());
             ra.setRule(closeRule);
             return ra;
         }

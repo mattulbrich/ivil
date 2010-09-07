@@ -62,7 +62,7 @@ public interface Strategy {
      *             if the strategy has run into difficulties.
      */
     @Nullable RuleApplication findRuleApplication() throws StrategyException;
-    
+
     /**
      * Find an applicable rule application. The proof upon which the strategy
      * has to work has been set using

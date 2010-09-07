@@ -204,6 +204,18 @@ public class ProofNode {
     }
 
     /**
+     * get the number of this proof node in the proof.
+     * 
+     * It is unique within the proof and used as index in RuleApplications. It
+     * does not change troughout the lifetime of this bject.
+     * 
+     * @return the non-negative unique index of this proof node
+     */
+    public int getNumber() {
+        return number;
+    }
+
+    /**
      * Gets a string summarizing this node.
      * 
      * <p>
@@ -558,6 +570,6 @@ public class ProofNode {
     }
 
     public String toString() {
-        return "ProofNode #" + number + "; " + getSummaryString();
+        return "ProofNode #" + getSummaryString();
     }
 }

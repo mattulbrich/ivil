@@ -72,7 +72,7 @@ public class RuleApplicationFinder {
     /**
      * and its number
      */
-    private int goalNo;
+    private int nodeNumber;
 
     /**
      * the number of hits after which the search should stop.
@@ -91,14 +91,15 @@ public class RuleApplicationFinder {
      * Instantiates a new interactive rule application finder.
      * 
      * @param proof the proof to inspect
-     * @param goalNo the goal no of the inspected node in the proof
+     * @param nodeNumber the goal no of the inspected node in the proof
      * @param env the environment in the background
      */
-    public RuleApplicationFinder(Proof proof, int goalNo, Environment env) {
-        this.goal = proof.getGoal(goalNo);
+    public RuleApplicationFinder(Proof proof, int nodeNo, Environment env) {
+        this.goal = proof.getGoalNEW(nodeNo);
+        assert goal != null;
         this.sequent = goal.getSequent();
         this.env = env;
-        this.goalNo = goalNo;
+        this.nodeNumber = nodeNo;
     }
         
     
@@ -194,7 +195,7 @@ public class RuleApplicationFinder {
 
         applications = new ArrayList<RuleApplication>();
         ruleAppMaker = new RuleApplicationMaker(env);
-        ruleAppMaker.setGoalNumber(goalNo);
+        ruleAppMaker.setNodeNumber(nodeNumber);
         
         try {
             for (Rule rule : sortedAllRules) {

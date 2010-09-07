@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
@@ -14,6 +23,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This class is designed to implement stepwise execution on source line basis.
@@ -55,6 +65,9 @@ public abstract class StepCodeAction extends BarAction implements
      */
     protected abstract CodeLocation getCodeLocation(ProofNode node);
 
+    
+    // TODO DOC!
+    // TODO put this in a thread different to the awt event queue.
     @Override
     public void actionPerformed(ActionEvent e) {
         // has no effect on nodes with children
@@ -94,7 +107,7 @@ public abstract class StepCodeAction extends BarAction implements
                 RuleApplication ra = strategy.findRuleApplication(current);
 
                 if (ra != null) {
-                    proof.apply(ra, pc.getEnvironment());
+                    pc.apply(ra);
                     strategy.notifyRuleApplication(ra);
 
                     for (ProofNode node : current.getChildren()) {
@@ -109,9 +122,11 @@ public abstract class StepCodeAction extends BarAction implements
                                     "The currently selected proof strategy is to weak to do another step");
             }
 
+            Log.log(Log.VERBOSE, "selectedProofNode=" + selectedProofNode);
+            
             if (selectedProofNode.isClosed()) {
                 if (proof.hasOpenGoals())
-                    pc.fireSelectedProofNode(proof.getGoal(0));
+                    pc.fireSelectedProofNode(proof.getOpenGoals().get(0));
                 else
                     pc.fireSelectedProofNode(proof.getRoot());
             } else {

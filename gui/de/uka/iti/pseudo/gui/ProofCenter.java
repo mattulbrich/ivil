@@ -334,7 +334,7 @@ public class ProofCenter {
      *             if the application fails.
      */
     public ProofNode apply(RuleApplication ruleApp) throws ProofException {
-        ProofNode parent = proof.getGoal(ruleApp.getGoalNumber());
+        ProofNode parent = proof.getGoalNEW(ruleApp.getNodeNumber());
         
         if(proof.getLock().tryLock()) {
             try {
@@ -355,7 +355,7 @@ public class ProofCenter {
         } else if(children.isEmpty()) {
             if(proof.hasOpenGoals()) {
                 // select first open remaining goal
-                next = proof.getGoal(0);
+                next = proof.getOpenGoals().get(0);
             } else {
                 next = proof.getRoot();
             }

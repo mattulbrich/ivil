@@ -26,7 +26,7 @@ public class MutableRuleApplication implements RuleApplication {
     private Rule rule;
     private List<TermSelector> assumeSelectors;
     private TermSelector findSelector;
-    private int goalNumber;
+    private int proofNodeNumber;
     private Map<String, String> properties;
     private Map<String, Term> schemaVariableMapping;
     private Map<String, Update> schemaUpdateMapping;
@@ -36,7 +36,7 @@ public class MutableRuleApplication implements RuleApplication {
         this.rule = ruleApp.getRule();
         this.assumeSelectors = new ArrayList<TermSelector>(ruleApp.getAssumeSelectors());
         this.findSelector = ruleApp.getFindSelector();
-        this.goalNumber = ruleApp.getGoalNumber();
+        this.proofNodeNumber = ruleApp.getNodeNumber();
         this.properties = new HashMap<String, String>(ruleApp.getProperties());
         this.schemaVariableMapping = new HashMap<String, Term>(ruleApp.getSchemaVariableMapping());
         this.schemaUpdateMapping = new HashMap<String, Update>(ruleApp.getSchemaUpdateMapping());
@@ -49,15 +49,15 @@ public class MutableRuleApplication implements RuleApplication {
         this.schemaUpdateMapping = new HashMap<String, Update>();
         this.typeVariableMapping = new HashMap<String, Type>();
         this.assumeSelectors = new ArrayList<TermSelector>();
-        this.goalNumber = 0;
+        this.proofNodeNumber = 0;
     }
 
     public void setFindSelector(TermSelector findSelector) {
         this.findSelector = findSelector;
     }
 
-    public void setGoalNumber(int goalNumber) {
-        this.goalNumber = goalNumber;
+    public void setNodeNumber(int number) {
+        this.proofNodeNumber = number;
     }
 
     public List<TermSelector> getAssumeSelectors() {
@@ -68,8 +68,8 @@ public class MutableRuleApplication implements RuleApplication {
         return findSelector;
     }
 
-    public int getGoalNumber() {
-        return goalNumber;
+    public int getNodeNumber() {
+        return proofNodeNumber;
     }
 
     public Map<String, String> getProperties() {

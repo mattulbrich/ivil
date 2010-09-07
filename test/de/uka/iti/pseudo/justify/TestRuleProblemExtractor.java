@@ -105,7 +105,9 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             expectedTerm = makeTerm(expected);
         } catch(Exception ex) {
             env.dump();
-            System.out.println(result);
+            System.err.println(expected);
+            System.err.println(result);
+            ex.printStackTrace();
             throw ex;
         }
 

@@ -95,11 +95,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
             // TODO put this inside the lock! (or threaded)
             ProofNode node = pc.getCurrentProofNode();
             
-            int index = proof.getOpenGoals().indexOf(node);
-            
-            assert index != -1;
-            
-            ruleApp.setGoalNumber(index);
+            ruleApp.setNodeNumber(node.getNumber());
             try {
                 proof.apply(ruleApp, env);
             } catch (ProofException ex) {

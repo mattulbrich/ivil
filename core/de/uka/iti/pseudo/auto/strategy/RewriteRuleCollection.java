@@ -19,6 +19,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
@@ -113,16 +114,19 @@ public class RewriteRuleCollection {
      * 
      * @param proof
      *            the proof to look in
-     * @param goalNo
-     *            the goal number in the goal.
+     * @param node
+     *            the proof node to find a rule for
      * 
      * @return a rule application maker if we can find something, null otherwise
      */
-    public RuleApplicationMaker findRuleApplication(Proof proof, int goalNo) {
+    public RuleApplicationMaker findRuleApplication(ProofNode node) {
 
-        RuleApplicationFinder finder = new RuleApplicationFinder(proof, goalNo, env);
+        Proof proof = node.getProof();
+        int number = node.getNumber();
+        
+        RuleApplicationFinder finder = new RuleApplicationFinder(proof, number, env);
         finder.setApplicationFilter(applicationFilter);
-        Sequent seq = proof.getGoal(goalNo).getSequent();
+        Sequent seq = node.getSequent();
 
         List<Term> ante = seq.getAntecedent();
         RuleApplicationMaker ram = findRuleApplication(finder, ante,

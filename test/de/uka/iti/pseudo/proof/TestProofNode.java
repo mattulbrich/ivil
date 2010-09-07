@@ -29,17 +29,23 @@ public class TestProofNode extends TestCaseWithEnv {
         Term pattern = rule.getFindClause().getTerm();
         Proof p = new Proof(term);
         
+        assertEquals(1, p.getRoot().getNumber());
+        
         RuleApplicationMaker app = new RuleApplicationMaker(env);
         
         app.setRule(rule);
         app.setFindSelector(new TermSelector("S.0"));
-        app.setGoalNumber(0);
+        app.setNodeNumber(1);
         app.getTermUnification().leftUnify(pattern, term);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         p.apply(app, env);
         
-        Term result = p.getGoal(0).getSequent().getSuccedent().get(1);
+        ProofNode openGoal = p.getOpenGoals().get(0);
+        
+        assertEquals(2, openGoal.getNumber());
+        
+        Term result = openGoal.getSequent().getSuccedent().get(1);
         
         assertEquals(makeTerm("3>0"), result);
     }
@@ -56,13 +62,17 @@ public class TestProofNode extends TestCaseWithEnv {
         
         app.setRule(rule);
         app.setFindSelector(new TermSelector("A.0"));
-        app.setGoalNumber(0);
+        app.setNodeNumber(1);
         app.getTermUnification().leftUnify(pattern, term);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         p.apply(app, env);
         
-        Term result = p.getGoal(0).getSequent().getAntecedent().get(1);
+        ProofNode openGoal = p.getOpenGoals().get(0);
+        
+        assertEquals(2, openGoal.getNumber());
+        
+        Term result = openGoal.getSequent().getAntecedent().get(1);
         
         assertEquals(makeTerm("3>0"), result);
     }
@@ -76,6 +86,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
+        app.setNodeNumber(1);
         app.setFindSelector(new TermSelector("S.0"));
         app.getTermUnification().leftUnify(pattern, term);
         
@@ -93,6 +104,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
+        app.setNodeNumber(1);
         app.setFindSelector(new TermSelector("S.0"));
         
         p.apply(app, env);
@@ -116,18 +128,19 @@ public class TestProofNode extends TestCaseWithEnv {
         }
     }
     
-    public void testIllegalGoalNumber() throws Exception {
+    public void testIllegalNodeNumber() throws Exception {
         Term term = makeTerm("true");
         Proof p = new Proof(term);
         Rule rule = env.getRule("close_true_right");
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setGoalNumber(1);
+        app.setNodeNumber(100);
         app.setFindSelector(new TermSelector("S.0"));
         
         try {
             p.apply(app, env);
+            fail("Should fail because of an illegal proof node number");
         } catch (ProofException e) {
             if(VERBOSE)
                 e.printStackTrace();
@@ -140,12 +153,12 @@ public class TestProofNode extends TestCaseWithEnv {
         Rule rule = env.getRule("close_true_right");
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setGoalNumber(0);
+        app.setNodeNumber(1);
         app.setFindSelector(new TermSelector("S.0"));
         p.apply(app, env);
         
         try {
-            p.getRoot().apply(app, env);
+            p.apply(app, env);
             fail("should have failed: applied twice to a proof node");
         } catch (ProofException e) {
             if(VERBOSE)
@@ -159,13 +172,13 @@ public class TestProofNode extends TestCaseWithEnv {
         Rule rule = env.getRule("remove_right");
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setGoalNumber(0);
+        app.setNodeNumber(1);
         app.setFindSelector(new TermSelector("S.0"));
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
         
         p.apply(app, env);
         
-        Sequent s = p.getGoal(0).getSequent();
+        Sequent s = p.getOpenGoals().get(0).getSequent();
         
         assertEquals(0, s.getAntecedent().size());
         assertEquals(0, s.getSuccedent().size());

@@ -72,8 +72,8 @@ public class CanEvaluateMeta extends WhereCondition {
             return wrappedApplication.getFindSelector();
         }
 
-        public int getGoalNumber() {
-            return wrappedApplication.getGoalNumber();
+        public int getNodeNumber() {
+            return wrappedApplication.getNodeNumber();
         }
 
         public Map<String, String> getProperties() {

@@ -22,15 +22,21 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 public class Dump {
 
     public static void dumpRuleApplication(RuleApplication ruleApp) {
-        System.err.println("Rule application : " + ruleApp);
-        System.err.println(" Rule: " + ruleApp.getRule().getName());
-        System.err.println(" Goal: " + ruleApp.getGoalNumber());
-        System.err.println(" Find: " + ruleApp.getFindSelector());
-        System.err.println(" Ass.: " + ruleApp.getAssumeSelectors());
-        System.err.println(" Schema vars   :" + ruleApp.getSchemaVariableMapping());
-        System.err.println(" Type variables:" + ruleApp.getTypeVariableMapping());
-        System.err.println(" Schema updates:" + ruleApp.getSchemaUpdateMapping());
-        System.err.println(" Properties: " + ruleApp.getProperties());
+        System.err.println(toString(ruleApp));
+    }
+    
+    public static String toString(RuleApplication ruleApp) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Rule application : " + ruleApp);
+        sb.append("\n Rule: " + ruleApp.getRule().getName());
+        sb.append("\n Node number: " + ruleApp.getNodeNumber());
+        sb.append("\n Find: " + ruleApp.getFindSelector());
+        sb.append("\n Ass.: " + ruleApp.getAssumeSelectors());
+        sb.append("\n Schema vars   : " + ruleApp.getSchemaVariableMapping());
+        sb.append("\n Type variables: " + ruleApp.getTypeVariableMapping());
+        sb.append("\n Schema updates: " + ruleApp.getSchemaUpdateMapping());
+        sb.append("\n Properties: " + ruleApp.getProperties());
+        return sb.toString();
     }
     
 }

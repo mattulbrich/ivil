@@ -41,7 +41,7 @@ import de.uka.iti.pseudo.util.Util;
 public class ImmutableRuleApplication implements RuleApplication {
 
     private Rule rule;
-    private int goalNumber;
+    private int proofNodeNumber;
     private TermSelector findSelector;
     private TermSelector[] assumeSelectors;
     private Map<String,Term> schemaVariableMap;
@@ -51,7 +51,7 @@ public class ImmutableRuleApplication implements RuleApplication {
     
     public ImmutableRuleApplication(@NonNull RuleApplication ruleApp) {
         rule = ruleApp.getRule();
-        goalNumber = ruleApp.getGoalNumber();
+        proofNodeNumber = ruleApp.getNodeNumber();
         findSelector = ruleApp.getFindSelector();
         assumeSelectors = Util.listToArray(ruleApp.getAssumeSelectors(), TermSelector.class);
         
@@ -65,8 +65,8 @@ public class ImmutableRuleApplication implements RuleApplication {
         return rule;
     }
 
-    public int getGoalNumber() {
-        return goalNumber;
+    public int getNodeNumber() {
+        return proofNodeNumber;
     }
 
     public TermSelector getFindSelector() {

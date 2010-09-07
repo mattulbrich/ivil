@@ -28,7 +28,7 @@ import de.uka.iti.pseudo.term.creation.TermUnification;
 public class RuleApplicationMaker implements RuleApplication {
     
     private Rule rule;
-    private int goalNumber;
+    private int proofNodeNumber;
     private TermSelector findSelector;
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
     private TermUnification termUnification;
@@ -39,8 +39,8 @@ public class RuleApplicationMaker implements RuleApplication {
         termUnification = new TermUnification(env);
     }
 
-    public void setGoalNumber(int goalNumber) {
-        this.goalNumber = goalNumber;
+    public void setNodeNumber(int goalNumber) {
+        this.proofNodeNumber = goalNumber;
     }
 
     public void setRule(Rule rule) {
@@ -75,8 +75,8 @@ public class RuleApplicationMaker implements RuleApplication {
         return findSelector;
     }
 
-    public int getGoalNumber() {
-        return goalNumber;
+    public int getNodeNumber() {
+        return proofNodeNumber;
     }
 
     public Rule getRule() {
