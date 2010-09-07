@@ -122,9 +122,8 @@ public class RewriteRuleCollection {
     public RuleApplicationMaker findRuleApplication(ProofNode node) {
 
         Proof proof = node.getProof();
-        int number = node.getNumber();
         
-        RuleApplicationFinder finder = new RuleApplicationFinder(proof, number, env);
+        RuleApplicationFinder finder = new RuleApplicationFinder(proof, node, env);
         finder.setApplicationFilter(applicationFilter);
         Sequent seq = node.getSequent();
 

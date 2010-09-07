@@ -70,11 +70,6 @@ public class RuleApplicationFinder {
     private ProofNode goal;
     
     /**
-     * and its number
-     */
-    private int nodeNumber;
-
-    /**
      * the number of hits after which the search should stop.
      */
     private int stopAtSize;
@@ -94,12 +89,12 @@ public class RuleApplicationFinder {
      * @param nodeNumber the goal no of the inspected node in the proof
      * @param env the environment in the background
      */
-    public RuleApplicationFinder(Proof proof, int nodeNo, Environment env) {
-        this.goal = proof.getGoalNEW(nodeNo);
+    public RuleApplicationFinder(Proof proof, ProofNode node, Environment env) {
+        this.goal = node;
         assert goal != null;
+        assert goal.getChildren() == null : "Must no have children";
         this.sequent = goal.getSequent();
         this.env = env;
-        this.nodeNumber = nodeNo;
     }
         
     
@@ -195,7 +190,7 @@ public class RuleApplicationFinder {
 
         applications = new ArrayList<RuleApplication>();
         ruleAppMaker = new RuleApplicationMaker(env);
-        ruleAppMaker.setNodeNumber(nodeNumber);
+        ruleAppMaker.setNodeNumber(goal.getNumber());
         
         try {
             for (Rule rule : sortedAllRules) {

@@ -292,14 +292,8 @@ public class ProofCenter {
         
         Log.enter(termSelector);
 
-        int goalNo = proof.getOpenGoals().indexOf(getCurrentProofNode());
-        if (goalNo == -1) {
-            // current sequent is not a goal.
-            Log.log(Log.VERBOSE, "no applicable rules");
-            return Collections.emptyList();
-        }
-        
-        RuleApplicationFinder iraf = new RuleApplicationFinder(proof, goalNo, env);
+        ProofNode node = getCurrentProofNode();
+        RuleApplicationFinder iraf = new RuleApplicationFinder(proof, node, env);
         List<RuleApplication> result = iraf.findAll(termSelector, rulesSortedForInteraction);
 
         Log.log(Log.VERBOSE, "Found rule apps: " + result);
