@@ -25,8 +25,12 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TimingOutTask;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 public class Z3SMT implements DecisionProcedure {
+    
+    private static boolean KEEP_CHALLENGES = 
+        Settings.getInstance().getBoolean("pseudo.keepZ3", false);
     
     public Z3SMT() {
     }
@@ -93,7 +97,11 @@ public class Z3SMT implements DecisionProcedure {
             } else
                 throw new ProofException("Z3 returned an error message: " + msg);
 
-            // System.err.println("Result: " + result);
+            if(KEEP_CHALLENGES) {
+              Log.log("Result: " + result);
+              dumpTmp(challenge);
+            }
+            
             return result;
         } catch(InterruptedException ex) {
             if(timeoutTask != null && timeoutTask.hasFinished()) {

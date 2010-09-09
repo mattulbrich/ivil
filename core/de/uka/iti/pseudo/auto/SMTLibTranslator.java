@@ -81,7 +81,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         "$eq", "=",
         "$plus", "+",
         "$minus", "-",
-        "$mult", "*"
+        "$mult", "*",
+        "$neg", "-"
     };
     
     /**
