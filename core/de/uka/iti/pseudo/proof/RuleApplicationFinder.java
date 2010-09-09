@@ -190,7 +190,7 @@ public class RuleApplicationFinder {
 
         applications = new ArrayList<RuleApplication>();
         ruleAppMaker = new RuleApplicationMaker(env);
-        ruleAppMaker.setNodeNumber(goal.getNumber());
+        ruleAppMaker.setProofNode(goal);
         
         try {
             for (Rule rule : sortedAllRules) {

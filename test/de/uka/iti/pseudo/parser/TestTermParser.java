@@ -15,7 +15,6 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -67,7 +66,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("P(true, 0)", "P(true as bool,0 as int) as poly(bool,int)", true);
         testTerm("P(arb, 0) = P(0, arb)", 
                 "$eq(P(arb as int,0 as int) as poly(int,int),P(0 as int,arb as int) as poly(int,int)) as bool", true);
-        testTerm("Q(P(arb, arb))", "Q(P(arb as '2,arb as '2) as poly('2,'2)) as '2",true);
+        testTerm("Q(P(arb, arb as 'a))", "Q(P(arb as 'a,arb as 'a) as poly('a,'a)) as 'a",true);
     }
     
     public void testTyvarBinder() throws Exception {
@@ -87,6 +86,13 @@ public class TestTermParser extends TestCaseWithEnv {
                    "$eq(Q(P(x as ''a,x as ''a) as poly(''a,''a)) as ''a,x as ''a) " +
                      "as bool) as bool) as bool", true);
         
+    }
+    
+    // was a bug
+    public void testExplicitTypes() throws Exception {
+        testTerm("$eq(arb as 'a,arb as 'a) as bool", true);
+        testTerm("arb as 'a = arb", "$eq(arb as 'a,arb as 'a) as bool", true);
+        testTerm("(\\T_all 'a;$eq(arb as 'a,arb as 'a) as bool) as bool", true);
     }
 
 

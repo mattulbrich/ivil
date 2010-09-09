@@ -84,7 +84,7 @@ public class XMLOutput {
             throws IOException {
         
         String ruleName = ruleApp.getRule().getName();
-        String nodeNumber = Integer.toString(ruleApp.getNodeNumber());
+        String nodeNumber = Integer.toString(ruleApp.getProofNode().getNumber());
         out.start("ruleApplication", "rule", ruleName, "node", nodeNumber).newline();
         
         // find

@@ -255,8 +255,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      */
     @Override
     public boolean accepts(RuleApplication ruleApp) throws RuleException {
-        int index = ruleApp.getNodeNumber();
-        Sequent sequent = getProof().getGoalNEW(index).getSequent();
+        Sequent sequent = ruleApp.getProofNode().getSequent();
         Term find;
         try {
             find = ruleApp.getFindSelector().selectSubterm(sequent);

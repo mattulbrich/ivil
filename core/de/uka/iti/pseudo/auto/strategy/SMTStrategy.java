@@ -74,7 +74,7 @@ public class SMTStrategy extends AbstractStrategy {
         boolean proveable = result.fst() == Result.VALID;
         if(proveable) {
             MutableRuleApplication ra = new MutableRuleApplication();
-            ra.setNodeNumber(target.getNumber());
+            ra.setProofNode(target);
             ra.setRule(closeRule);
             return ra;
         }

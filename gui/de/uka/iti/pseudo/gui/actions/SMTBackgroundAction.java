@@ -200,7 +200,7 @@ public final class SMTBackgroundAction extends BarAction implements
                 // become the new 0
                 for (int index = countGoals - 1; index >= 0; index--) {
                     MutableRuleApplication ra = new MutableRuleApplication();
-                    ra.setNodeNumber(openGoals.get(index).getNumber());
+                    ra.setProofNode(openGoals.get(index));
                     ra.setRule(closeRule);
                     try {
                         ProofNode next = proofCenter.apply(ra);

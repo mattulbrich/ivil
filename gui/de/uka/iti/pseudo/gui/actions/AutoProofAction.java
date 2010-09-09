@@ -112,7 +112,7 @@ public class AutoProofAction extends BarAction
                 } catch (ProofException e) {
                     Log.log(Log.ERROR, "Error while applying rule " + ruleAppl.getRule().getName() + 
                             " on " + ruleAppl.getFindSelector() + " on goal #" +
-                            ruleAppl.getNodeNumber());
+                            ruleAppl.getProofNode().getNumber());
                     throw e;
                 }
             }

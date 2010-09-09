@@ -121,7 +121,7 @@ class SAXHandler extends DefaultHandler {
     
     // TODO Does this really check from which side the terms come from?!
     private void matchRuleApp() throws ProofException {
-        ProofNode goal = proof.getGoalNEW(ram.getNodeNumber());
+        ProofNode goal = ram.getProofNode();
         Sequent seq = goal.getSequent();
         List<TermSelector> assumeSelectors = ram.getAssumeSelectors();
         

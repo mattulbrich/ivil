@@ -159,16 +159,14 @@ public class Proof extends Observable {
         lock.lock();
         
         try {
-            goal = getGoalNEW(ruleApp.getNodeNumber());
+            goal = ruleApp.getProofNode();            
+            int goalno = openGoals.indexOf(goal);
             
-            if (goal == null) {
+            if (goalno == -1) {
                 throw new ProofException(
                         "The rule application points to a non-existant or non-goal proof node");
             }
             
-            int goalno = openGoals.indexOf(goal);
-            assert goalno != -1;
-
             goal.apply(ruleApp, env);
 
             openGoals.remove(goalno);

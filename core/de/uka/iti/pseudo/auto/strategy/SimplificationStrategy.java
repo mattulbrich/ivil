@@ -108,7 +108,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
             RuleApplicationMaker ruleApplication = ruleCollections[collNo]
                     .findRuleApplication(target);
             if (ruleApplication != null) {
-                ruleApplication.setNodeNumber(target.getNumber());
+                ruleApplication.setProofNode(target);
                 return ruleApplication;
             }
 
@@ -194,8 +194,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
         case SPLIT_NO_PROGRAMS:
             // allow only if no programs on the sequent
             try {
-                Sequent seq = getProof().getGoalNEW(ruleApp.getNodeNumber())
-                        .getSequent();
+                Sequent seq = ruleApp.getProofNode().getSequent();
                 for (Term t : seq.getAntecedent()) {
                     t.visit(PROGRAM_DETECTOR);
                 }

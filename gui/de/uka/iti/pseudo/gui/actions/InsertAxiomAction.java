@@ -30,7 +30,6 @@ import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
@@ -76,6 +75,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
         AxiomChooserDialog dlg = new AxiomChooserDialog(getParentFrame(),
                 env, pc.getPrettyPrinter());
         
+        Log.log(Log.TRACE, "before set visible");
         dlg.setVisible(true);
         String axiomName = dlg.getAxiomName();
         
@@ -95,7 +95,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
             // TODO put this inside the lock! (or threaded)
             ProofNode node = pc.getCurrentProofNode();
             
-            ruleApp.setNodeNumber(node.getNumber());
+            ruleApp.setProofNode(node);
             try {
                 proof.apply(ruleApp, env);
             } catch (ProofException ex) {

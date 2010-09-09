@@ -35,7 +35,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         app.setRule(rule);
         app.setFindSelector(new TermSelector("S.0"));
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.getTermUnification().leftUnify(pattern, term);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
@@ -62,7 +62,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         app.setRule(rule);
         app.setFindSelector(new TermSelector("A.0"));
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.getTermUnification().leftUnify(pattern, term);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
@@ -86,7 +86,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
         app.getTermUnification().leftUnify(pattern, term);
         
@@ -104,7 +104,7 @@ public class TestProofNode extends TestCaseWithEnv {
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
         
         p.apply(app, env);
@@ -128,23 +128,34 @@ public class TestProofNode extends TestCaseWithEnv {
         }
     }
     
-    public void testIllegalNodeNumber() throws Exception {
-        Term term = makeTerm("true");
+    public void testPrunedNode() throws Exception {
+        Term term = makeTerm("true | true");
         Proof p = new Proof(term);
-        Rule rule = env.getRule("close_true_right");
+        Rule rule = env.getRule("or_right");
         
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setNodeNumber(100);
+        app.setProofNode(p.getRoot());
+        app.getTermUnification().leftUnify(rule.getFindClause().getTerm(), term);
+        app.setFindSelector(new TermSelector("S.0"));
+        p.apply(app, env);
+        
+        ProofNode node = p.getOpenGoals().get(0);
+        
+        p.prune(p.getRoot());
+        app = new RuleApplicationMaker(env);
+        app.setRule(env.getRule("close_true_right"));
+        app.setProofNode(node);
         app.setFindSelector(new TermSelector("S.0"));
         
         try {
             p.apply(app, env);
-            fail("Should fail because of an illegal proof node number");
+            fail("Should fail because of a pruned proof node");
         } catch (ProofException e) {
             if(VERBOSE)
                 e.printStackTrace();
         }
+        
     }
     
     public void testApplyTwice() throws Exception {
@@ -153,7 +164,7 @@ public class TestProofNode extends TestCaseWithEnv {
         Rule rule = env.getRule("close_true_right");
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
         p.apply(app, env);
         
@@ -172,7 +183,7 @@ public class TestProofNode extends TestCaseWithEnv {
         Rule rule = env.getRule("remove_right");
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
-        app.setNodeNumber(1);
+        app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
         

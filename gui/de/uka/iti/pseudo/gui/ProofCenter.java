@@ -328,7 +328,7 @@ public class ProofCenter {
      *             if the application fails.
      */
     public ProofNode apply(RuleApplication ruleApp) throws ProofException {
-        ProofNode parent = proof.getGoalNEW(ruleApp.getNodeNumber());
+        ProofNode parent = ruleApp.getProofNode();
         
         if(proof.getLock().tryLock()) {
             try {

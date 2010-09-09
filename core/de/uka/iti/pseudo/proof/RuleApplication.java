@@ -60,13 +60,14 @@ public interface RuleApplication {
     public boolean hasMutableProperties();
 
     /**
-     * Retrieves the proof number of the goal to apply the rule on.
-     *
+     * Retrieves the goal to apply the rule on. The node must be a leaf in a
+     * proof: It must not have been pruned and must not have children yet.
+     * 
      * @see Proof#getGoal(int)
      * @see ProofNode#getNumber()
      * @return a non-negative integer
      */
-    public int getNodeNumber();
+    public @NonNull ProofNode getProofNode();
 
     /**
      * Retrieves the selector which points to the find clause which is to be used.

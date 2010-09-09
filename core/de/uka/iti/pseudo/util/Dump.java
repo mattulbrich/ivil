@@ -29,7 +29,7 @@ public class Dump {
         StringBuilder sb = new StringBuilder();
         sb.append("Rule application : " + ruleApp);
         sb.append("\n Rule: " + ruleApp.getRule().getName());
-        sb.append("\n Node number: " + ruleApp.getNodeNumber());
+        sb.append("\n Node number: " + ruleApp.getProofNode());
         sb.append("\n Find: " + ruleApp.getFindSelector());
         sb.append("\n Ass.: " + ruleApp.getAssumeSelectors());
         sb.append("\n Schema vars   : " + ruleApp.getSchemaVariableMapping());

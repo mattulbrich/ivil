@@ -160,5 +160,29 @@ public class TypingContext extends TypeUnification {
             throw new Error(e);
         }
     }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * In typing resolution, if two type variables are to be compared, we prefer
+     * that the temporary variable be instantiated rather than the usual one.
+     */
+    @Override
+    protected void addMapping(TypeVariable tv, Type type) throws UnificationException {
+        
+        if (type instanceof TypeVariable) {
+            TypeVariable tv2 = (TypeVariable) type;
+            if(isTemporaryVariable(tv2)) {
+                super.addMapping(tv2, tv);
+                return;
+            }
+        }
+        super.addMapping(tv, type);
+    }
+
+    private boolean isTemporaryVariable(TypeVariable tv) {
+        char c = tv.getVariableName().charAt(0);
+        return c >= '0' && c <= '9';
+    }
     
 }
