@@ -163,8 +163,8 @@ public class StrategyManager {
      * 
      * @return the strategy, or null if the class is not registered
      */
-    @SuppressWarnings("unchecked") public <T extends Strategy> T getStrategy(
-            Class<T> clss) {
+    @SuppressWarnings("unchecked")
+    public <T extends Strategy> T getStrategy(Class<T> clss) {
         return (T) registeredStrategies.get(clss);
     }
 

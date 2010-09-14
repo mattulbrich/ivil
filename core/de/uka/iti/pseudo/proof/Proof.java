@@ -102,6 +102,11 @@ public class Proof extends Observable {
     private int proofNodeCounter;
 
     /**
+     * The daemon, that does jobs on this proof.
+     */
+    private ProofDaemon daemon;
+
+    /**
      * Instantiates a new proof with an initial sequent.
      * 
      * @param initialSequent
