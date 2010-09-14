@@ -86,8 +86,12 @@ public class Proof extends Observable {
     /**
      * This list contains all open proof nodes that are reachable from
      * {@link #root}.
+     * 
+     * This list is synchronized because some GUI elements need concurrent
+     * access with automatic proofs.
      */
-    private @DeepNonNull List<ProofNode> openGoals = new LinkedList<ProofNode>();
+    private @DeepNonNull List<ProofNode> openGoals = 
+        Collections.synchronizedList(new LinkedList<ProofNode>());
 
     /**
      * A flag which is true iff the proof has been modified after the last call

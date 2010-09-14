@@ -87,16 +87,16 @@ public class GoalList extends JList implements PropertyChangeListener {
             return countGoals;
         }
 
-        public void update(final Observable o, Object arg) {
+        public void update(Observable o, Object arg) {
             assert o == proof;
-
-            // Make a copy of the open goals so that unfortunate scheduling
-            // does no harm afterwards
-            openGoals = proof.getOpenGoals().toArray();
-            countGoals = openGoals.length;
-
+            
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
+                    // Make a copy of the open goals so that unfortunate scheduling
+                    // does no harm afterwards
+                    openGoals = proof.getOpenGoals().toArray();
+                    countGoals = openGoals.length;
+
                     ListDataEvent event = new ListDataEvent(GoalList.this,
                             ListDataEvent.CONTENTS_CHANGED, 0, getSize());
                     for (ListDataListener listener : listenerList
