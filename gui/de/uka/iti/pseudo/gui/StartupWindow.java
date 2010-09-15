@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
-@SuppressWarnings("serial")
 public class StartupWindow extends JFrame {
     private static final long serialVersionUID = -250971288261688572L;
     

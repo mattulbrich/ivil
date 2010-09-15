@@ -220,6 +220,24 @@ public class ProofDaemon implements Runnable {
         jobs.add(job);
     }
 
+    /**
+     * Creates a job from a runnable, enques it and returnes the appropriate
+     * future.
+     * 
+     * @param job
+     * @return The future belonging to the job
+     */
+    public Future<Void> addJob(final Runnable job) {
+        Job<Void> rval = new Job<Void>() {
+            public Void run() {
+                job.run();
+                return null;
+            }
+        };
+        addJob(rval);
+        return rval;
+    }
+
     public boolean isIdle() {
         return jobs.isEmpty() && thread.getState() == Thread.State.WAITING;
     }

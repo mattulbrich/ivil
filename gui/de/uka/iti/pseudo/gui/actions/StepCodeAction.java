@@ -62,88 +62,97 @@ public abstract class StepCodeAction extends BarAction {
      */
     protected abstract CodeLocation getCodeLocation(ProofNode node);
 
-    
-    // TODO DOC!
-    // TODO put this in a thread different to the awt event queue.
+    /**
+     * This action takes the current proof node, queries its location in the
+     * code and then tries to continue the proof automatically until all open
+     * child nodes have a different code location.
+     * 
+     * <p>
+     * The code location is calculated via getCodeLocation. If no valid code
+     * location can be found for the current node, nothing is done.
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
-        ProofNode selectedProofNode = getProofCenter().getCurrentProofNode();
+        final ProofNode selectedProofNode = getProofCenter()
+                .getCurrentProofNode();
 
         // has no effect on nodes with children
         if (null != selectedProofNode.getChildren())
             return; // if this effect is undesired, select the first open goal
                     // that has a line number
 
-        CodeLocation loc = getCodeLocation(selectedProofNode);
+        final CodeLocation loc = getCodeLocation(selectedProofNode);
 
         // you cannot step for a line, if you can't identify your line number
         // uniquely
         if (null == loc || !loc.isUnique)
             return;
 
-        ProofCenter pc = getProofCenter();
-        Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
-        Proof proof = pc.getProof();
+        final ProofCenter pc = getProofCenter();
+        final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
+        final Proof proof = pc.getProof();
 
-        List<ProofNode> todo = new LinkedList<ProofNode>();
+        final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
 
-        // TODO unsafe!! use a job
-        if (!proof.getDaemon().isIdle()) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(),
-                    "Proof locked by another thread");
-            return;
-        }
+        proof.getDaemon().addJob(new Runnable() {
+            public void run() {
+                try {
+                    strategy.init(proof, pc.getEnvironment(),
+                            pc.getStrategyManager());
+                    strategy.beginSearch();
 
-        try {
-            strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
-            strategy.beginSearch();
+                    ProofNode current = null;
 
-            ProofNode current = null;
+                    while (!todo.isEmpty()) {
+                        current = todo.remove(0);
 
-            while (!todo.isEmpty()) {
-                current = todo.remove(0);
+                        RuleApplication ra = strategy
+                                .findRuleApplication(current);
 
-                RuleApplication ra = strategy.findRuleApplication(current);
+                        if (ra != null) {
+                            pc.apply(ra);
+                            strategy.notifyRuleApplication(ra);
 
-                if (ra != null) {
-                    pc.apply(ra);
-                    strategy.notifyRuleApplication(ra);
-
-                    for (ProofNode node : current.getChildren()) {
-                        CodeLocation next = getCodeLocation(node);
-                        if (null == next || (next.equals(loc) && next.isUnique)) {
-                            todo.add(node);
-                        }
+                            for (ProofNode node : current.getChildren()) {
+                                CodeLocation next = getCodeLocation(node);
+                                if (null == next
+                                        || (next.equals(loc) && next.isUnique)) {
+                                    todo.add(node);
+                                }
+                            }
+                        } else
+                            ExceptionDialog
+                                    .showExceptionDialog(getParentFrame(),
+                                            "The currently selected proof strategy is to weak to do another step");
                     }
-                } else
-                    ExceptionDialog
-                            .showExceptionDialog(getParentFrame(),
-                                    "The currently selected proof strategy is to weak to do another step");
+
+                    Log.log(Log.VERBOSE, "selectedProofNode="
+                            + selectedProofNode);
+
+                    if (selectedProofNode.isClosed()) {
+                        if (proof.hasOpenGoals())
+                            pc.fireSelectedProofNode(proof.getOpenGoals()
+                                    .get(0));
+                        else
+                            pc.fireSelectedProofNode(proof.getRoot());
+                    } else {
+                        // find first open node
+                        current = selectedProofNode;
+                        while (current.getChildren() != null)
+                            for (ProofNode child : current.getChildren())
+                                if (!child.isClosed())
+                                    current = child;
+
+                        pc.fireSelectedProofNode(current);
+                    }
+
+                } catch (Exception ex) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                } finally {
+                    strategy.endSearch();
+                }
             }
-
-            Log.log(Log.VERBOSE, "selectedProofNode=" + selectedProofNode);
-            
-            if (selectedProofNode.isClosed()) {
-                if (proof.hasOpenGoals())
-                    pc.fireSelectedProofNode(proof.getOpenGoals().get(0));
-                else
-                    pc.fireSelectedProofNode(proof.getRoot());
-            } else {
-                // find first open node
-                current = selectedProofNode;
-                while (current.getChildren() != null)
-                    for (ProofNode child : current.getChildren())
-                        if (!child.isClosed())
-                            current = child;
-
-                pc.fireSelectedProofNode(current);
-            }
-
-        } catch (Exception ex) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-        } finally {
-            strategy.endSearch();
-        }
+        });
     }
 }

@@ -16,16 +16,17 @@ import java.beans.PropertyChangeListener;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 
-// TODO Documentation needed
-@SuppressWarnings("serial") 
+/**
+ * Prunes the children of the current proof node.
+ */
 public class PruneAction extends BarAction implements InitialisingAction, PropertyChangeListener {
     
+    private static final long serialVersionUID = 2727224331227052729L;
+
     public PruneAction() {
         super("Prune", GUIUtil.makeIcon(PruneAction.class.getResource("img/cut.png")));
         putValue(SHORT_DESCRIPTION, "Cut the current proof at the selected node");
@@ -39,7 +40,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
         Log.enter(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
         
-        getProofCenter().getProof().getDaemon().pruneUntil(proofNode);
+        getProofCenter().prune(proofNode);
         Log.leave();
     }
 

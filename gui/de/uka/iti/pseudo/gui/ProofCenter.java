@@ -40,6 +40,7 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 
 /**
@@ -396,22 +397,34 @@ public class ProofCenter {
      * proof structure is propagated using the
      * {@link #fireSelectedProofNode(ProofNode)} method.
      * 
+     * If the selected proof node was not part of the proof, an error message
+     * will be shown.
+     * 
      * @param proofNode
      *            the node in the proof to prune.
-     * @throws ProofException
-     *             if the node is not part of this proof.
      */
-    public void prune(ProofNode proofNode) throws ProofException {
-        proof.prune(proofNode);
+    public void prune(final ProofNode proofNode) {
+        proof.getDaemon().addJob(new Runnable() {
+            public void run() {
+                try {
+                    proof.prune(proofNode);
+                } catch (ProofException e) {
+                    ExceptionDialog
+                            .showExceptionDialog(mainWindow,
+                                    "Tried to proof an allready closed proof. This should not be allowed.");
+                }
 
-        // fire a null node as the pruned node is allways allready selected
-        try {
-        fireSelectedProofNode(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // nothing really bad, but should not happen
-        }
-        fireSelectedProofNode(proofNode);
+                // fire a null node as the pruned node is always already
+                // selected
+                try {
+                    fireSelectedProofNode(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // nothing really bad, but should not happen
+                }
+                fireSelectedProofNode(proofNode);
+            }
+        });
     }
 
     /**

@@ -61,7 +61,8 @@ public class AutoProofAction extends BarAction implements
 
     public void actionPerformed(ActionEvent e) {
 
-        Proof proof = getProofCenter().getProof();
+        final Proof proof = getProofCenter().getProof();
+        final ProofCenter pc = getProofCenter();
 
         // if there are no open goals disable this action,
         // as the proof must have been closed
@@ -78,8 +79,7 @@ public class AutoProofAction extends BarAction implements
             proof.getDaemon().addJob(job = new Job<Void>() {
 
                 public Void run() {
-                    Proof proof = getProofCenter().getProof();
-                    Strategy strategy = getProofCenter().getStrategyManager()
+                    Strategy strategy = pc.getStrategyManager()
                             .getSelectedStrategy();
 
                     // if there are no open goals disable this action,
@@ -99,7 +99,7 @@ public class AutoProofAction extends BarAction implements
 
                             if (ruleAppl == null || shouldStop) {
                                 // we should stop: select an open goal
-                                ProofNode currentNode = getProofCenter()
+                                ProofNode currentNode = pc
                                         .getCurrentProofNode();
                                 List<ProofNode> openGoals = proof
                                         .getOpenGoals();
@@ -112,15 +112,14 @@ public class AutoProofAction extends BarAction implements
                                     } else {
                                         selected = proof.getRoot();
                                     }
-                                    getProofCenter().fireSelectedProofNode(
-                                            selected);
+                                    pc.fireSelectedProofNode(selected);
                                 }
                                 // endSearch is called in finally
                                 return null;
                             }
 
                             try {
-                                getProofCenter().apply(ruleAppl);
+                                pc.apply(ruleAppl);
                                 strategy.notifyRuleApplication(ruleAppl);
                             } catch (ProofException e) {
                                 Log.log(Log.ERROR, "Error while applying rule "
@@ -137,7 +136,7 @@ public class AutoProofAction extends BarAction implements
                                 .showExceptionDialog(getParentFrame(), e);
                     } finally {
                         strategy.endSearch();
-                        getProofCenter().firePropertyChange(
+                        pc.firePropertyChange(
                                 ProofCenter.ONGOING_PROOF, false);
                         job = null;
                     }

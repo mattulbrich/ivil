@@ -64,8 +64,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
     public void actionPerformed(ActionEvent e) {
         final Proof origProof = getProofCenter().getProof();
 
-        origProof.getDaemon().addJob(new Job<Void>() {
-            public Void run() {
+        origProof.getDaemon().addJob(new Runnable() {
+            public void run() {
                 try {
                     List<ProofNode> rootChildren = origProof.getRoot()
                             .getChildren();
@@ -108,7 +108,6 @@ import de.uka.iti.pseudo.util.GUIUtil;
                     }
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 }
-                return null;
             }
         });
     }
