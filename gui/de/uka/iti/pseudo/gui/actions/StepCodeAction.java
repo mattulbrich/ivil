@@ -148,17 +148,26 @@ public abstract class StepCodeAction extends BarAction implements
         }
     }
 
+    // TODO when a new node is selected, check whether this action is applicable.
+    // If there is no relevant modality, deactivate the button.
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
             selectedProofNode = (ProofNode) evt.getNewValue();
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
+            setEnabled(!(Boolean) evt.getNewValue());
     }
 
     @Override
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(
+        ProofCenter proofCenter = getProofCenter();
+        
+        proofCenter.addPropertyChangeListener(
                 ProofCenter.SELECTED_PROOFNODE, this);
-        selectedProofNode = getProofCenter().getProof().getRoot();
+        proofCenter.addPropertyChangeListener(
+                ProofCenter.ONGOING_PROOF, this);
+        
+        selectedProofNode = proofCenter.getProof().getRoot();
     }
 
 }
