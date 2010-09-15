@@ -104,7 +104,7 @@ public class Proof extends Observable {
     /**
      * The daemon, that does jobs on this proof.
      */
-    private ProofDaemon daemon;
+    final ProofDaemon daemon;
 
     /**
      * Instantiates a new proof with an initial sequent.
@@ -116,6 +116,8 @@ public class Proof extends Observable {
         root = new ProofNode(this, initialSequent,
                 new SequentHistory.Annotation("formula on initial sequent"));
         openGoals.add(root);
+
+        daemon = new ProofDaemon(this);
     }
 
     /**

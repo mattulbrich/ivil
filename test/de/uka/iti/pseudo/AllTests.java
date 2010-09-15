@@ -103,6 +103,7 @@ public class AllTests {
         suite.addTestSuite(TestLinearLookupMap.class);
         suite.addTestSuite(TestParameterSheet.class);
         suite.addTestSuite(TestToplevelCheckVisitor.class);
+        TestProoferDaemon: Hier sollte getestet werden, dass keine ruleapplications von fremden threads ausgeführt werden können.
         //$JUnit-END$
         return suite;
     }
