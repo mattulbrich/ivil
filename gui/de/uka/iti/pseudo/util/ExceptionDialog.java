@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -213,13 +214,19 @@ public class ExceptionDialog extends JDialog {
         showExceptionDialog(owner, new StackTraceThrowable(message));
     }
 
-    public static void showExceptionDialog(Window parentComponent,
-            String message, Throwable throwable) {
-        ExceptionDialog dlg = new ExceptionDialog(parentComponent, message,
-                throwable);
-        dlg.setLocationRelativeTo(parentComponent);
-        dlg.setVisible(true);
-        dlg.dispose();
+    public static void showExceptionDialog(final Window parentComponent,
+            final String message, final Throwable throwable) {
+
+        // ensure excetption dialogs dont interrupt awt
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ExceptionDialog dlg = new ExceptionDialog(parentComponent,
+                        message, throwable);
+                dlg.setLocationRelativeTo(parentComponent);
+                dlg.setVisible(true);
+                dlg.dispose();
+            }
+        });
     }
 
     public static void main(String[] args) {

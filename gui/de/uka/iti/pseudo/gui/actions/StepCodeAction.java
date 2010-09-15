@@ -33,8 +33,7 @@ import de.uka.iti.pseudo.util.Log;
  * children are either closed or getCodeLine returns a value different from the
  * initial one.
  */
-public abstract class StepCodeAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction {
+public abstract class StepCodeAction extends BarAction {
     
     private static final long serialVersionUID = 5444254542006126131L;
 
@@ -47,8 +46,6 @@ public abstract class StepCodeAction extends BarAction implements
             return c.line == line && c.program.equals(program);
         }
     }
-
-    private ProofNode selectedProofNode;
 
     public StepCodeAction(String name, Icon icon) {
         super(name, icon);
@@ -70,6 +67,8 @@ public abstract class StepCodeAction extends BarAction implements
     // TODO put this in a thread different to the awt event queue.
     @Override
     public void actionPerformed(ActionEvent e) {
+        ProofNode selectedProofNode = getProofCenter().getCurrentProofNode();
+
         // has no effect on nodes with children
         if (null != selectedProofNode.getChildren())
             return; // if this effect is undesired, select the first open goal
@@ -89,7 +88,8 @@ public abstract class StepCodeAction extends BarAction implements
         List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
 
-        if (!proof.getLock().tryLock()) {
+        // TODO unsafe!! use a job
+        if (!proof.getDaemon().isIdle()) {
             ExceptionDialog.showExceptionDialog(getParentFrame(),
                     "Proof locked by another thread");
             return;
@@ -144,21 +144,6 @@ public abstract class StepCodeAction extends BarAction implements
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } finally {
             strategy.endSearch();
-            proof.getLock().unlock();
         }
     }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
-            selectedProofNode = (ProofNode) evt.getNewValue();
-    }
-
-    @Override
-    public void initialised() {
-        getProofCenter().addPropertyChangeListener(
-                ProofCenter.SELECTED_PROOFNODE, this);
-        selectedProofNode = getProofCenter().getProof().getRoot();
-    }
-
 }

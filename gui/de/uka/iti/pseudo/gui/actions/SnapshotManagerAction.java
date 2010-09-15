@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.concurrent.locks.Lock;
 
 import javax.swing.AbstractListModel;
 import javax.swing.BorderFactory;
@@ -30,6 +29,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofDaemon.Job;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -246,26 +246,27 @@ class SnapshotManager extends JDialog {
     }
 
     private void restoreSelectedSnapshot() {
-        Proof proof = proofCenter.getProof();
-        Snapshot selected = (Snapshot) choiceList.getSelectedValue();
+        final Proof proof = proofCenter.getProof();
+        final Snapshot selected = (Snapshot) choiceList.getSelectedValue();
         if (selected == null)
             return;
 
-        Lock lock = proofCenter.getProof().getLock();
-        lock.lock();
-        try {
-            // if(checkSnapshot(selected))
-            // return;
+        proof.getDaemon().addJob(new Job<Void>() {
+            public Void run() {
+                try {
+                    // if(checkSnapshot(selected))
+                    // return;
 
-            for (ProofNode goal : selected.openGoals) {
-                proof.prune(goal);
+                    for (ProofNode goal : selected.openGoals) {
+                        proof.prune(goal);
+                    }
+
+                } catch (ProofException e) {
+                    ExceptionDialog.showExceptionDialog(getOwner(), e);
+                }
+                return null;
             }
-
-        } catch (ProofException e) {
-            ExceptionDialog.showExceptionDialog(getOwner(), e);
-        } finally {
-            lock.unlock();
-        }
+        });
 
         setVisible(false);
     }

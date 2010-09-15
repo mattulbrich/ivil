@@ -39,11 +39,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
         Log.enter(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
         
-        try {
-            getProofCenter().prune(proofNode);
-        } catch (ProofException ex) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-        }
+        getProofCenter().getProof().getDaemon().pruneUntil(proofNode);
         Log.leave();
     }
 

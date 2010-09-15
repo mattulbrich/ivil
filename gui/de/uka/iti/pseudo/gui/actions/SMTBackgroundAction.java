@@ -191,33 +191,30 @@ public final class SMTBackgroundAction extends BarAction implements
         ProofCenter proofCenter = getProofCenter();
 
         // synchronise it with lock so that threads do not tamper with provable nodes
-        if(proof.getLock().tryLock()) {
-            try {
-                List<ProofNode> openGoals = proof.getOpenGoals();
-                int countGoals = openGoals.size();
-                // bugfix: do it backward, otherwise solving goal 0 and
-                // incrementing would not do the second original goal which has
-                // become the new 0
-                for (int index = countGoals - 1; index >= 0; index--) {
-                    MutableRuleApplication ra = new MutableRuleApplication();
-                    ra.setProofNode(openGoals.get(index));
-                    ra.setRule(closeRule);
-                    try {
-                        ProofNode next = proofCenter.apply(ra);
-                        
-                        // not on a leave --> goto a leaf
-                        if(proofCenter.getCurrentProofNode().getChildren() != null)
-                            proofCenter.fireSelectedProofNode(next);
-                        
-                    } catch(ProofException ex) {
-                        Log.stacktrace(ex);
-                        // this is ok - the goal may be not closable.  
-                    } catch (Exception e) {
-                        ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-                    }
+        // TODO unsafe!!
+        if (proof.getDaemon().isIdle()) {
+            List<ProofNode> openGoals = proof.getOpenGoals();
+            int countGoals = openGoals.size();
+            // bugfix: do it backward, otherwise solving goal 0 and
+            // incrementing would not do the second original goal which has
+            // become the new 0
+            for (int index = countGoals - 1; index >= 0; index--) {
+                MutableRuleApplication ra = new MutableRuleApplication();
+                ra.setProofNode(openGoals.get(index));
+                ra.setRule(closeRule);
+                try {
+                    ProofNode next = proofCenter.apply(ra);
+
+                    // not on a leave --> goto a leaf
+                    if (proofCenter.getCurrentProofNode().getChildren() != null)
+                        proofCenter.fireSelectedProofNode(next);
+
+                } catch (ProofException ex) {
+                    Log.stacktrace(ex);
+                    // this is ok - the goal may be not closable.
+                } catch (Exception e) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), e);
                 }
-            } finally {
-                proof.getLock().unlock();
             }
         } else {
             Log.log(Log.ERROR, "Proof is currently locked by an other thread");

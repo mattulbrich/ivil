@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofDaemon.Job;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -37,7 +38,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * 
  */
 @SuppressWarnings("serial")
-public class AutoProofSubtreeAction extends BarAction implements Runnable,
+public class AutoProofSubtreeAction extends BarAction implements
         PropertyChangeListener, InitialisingAction, Observer {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class
@@ -45,7 +46,7 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class
             .getResource("img/cog_stop.png"));
 
-    private Thread thread = null;
+    private Job<Void> job = null;
     private boolean shouldStop;
 
     private ProofNode selectedProofNode;
@@ -67,25 +68,10 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
 
     public void actionPerformed(ActionEvent e) {
 
-        // TODO synchronization!
-        if (thread == null) {
-            thread = new Thread(this, "Autoproving");
-            getProofCenter()
-                    .firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-            shouldStop = false;
-            thread.start();
-        } else {
-            shouldStop = true;
-        }
-    }
-
-    public void run() {
         Proof proof = getProofCenter().getProof();
-        ProofCenter pc = getProofCenter();
-        Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
 
-        // if there are no open goals disable this action, as the proof must
-        // have been closed
+        // if there are no open goals disable this action,
+        // as the proof must have been closed
         if (!proof.hasOpenGoals()) {
             ExceptionDialog
                     .showExceptionDialog(getParentFrame(),
@@ -94,47 +80,65 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
             return;
         }
 
-        List<ProofNode> todo = new LinkedList<ProofNode>();
-        todo.add(selectedProofNode);
+        if (job == null) {
+            shouldStop = false;
+            proof.getDaemon().addJob(job = new Job<Void>() {
 
-        if (!proof.getLock().tryLock()) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(),
-                    "Proof locked by another thread");
-            return;
-        }
+                public Void run() {
+                    Proof proof = getProofCenter().getProof();
+                    ProofCenter pc = getProofCenter();
+                    Strategy strategy = pc.getStrategyManager()
+                            .getSelectedStrategy();
 
-        try {
-            strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
-            strategy.beginSearch();
+                    // if there are no open goals disable this action, as the
+                    // proof must have been closed
+                    if (!proof.hasOpenGoals()) {
+                        setEnabled(false);
+                        return null;
+                    }
 
-            ProofNode current = null;
+                    List<ProofNode> todo = new LinkedList<ProofNode>();
+                    todo.add(selectedProofNode);
 
-            while (!todo.isEmpty() && !shouldStop) {
-                current = todo.remove(0);
+                    try {
+                        strategy.init(proof, pc.getEnvironment(),
+                                pc.getStrategyManager());
+                        strategy.beginSearch();
 
-                RuleApplication ra = strategy.findRuleApplication(current);
+                        ProofNode current = null;
 
-                if (ra != null) {
-                    proof.apply(ra, pc.getEnvironment());
-                    strategy.notifyRuleApplication(ra);
+                        while (!todo.isEmpty() && !shouldStop) {
+                            current = todo.remove(0);
 
-                    for (ProofNode node : current.getChildren())
-                            todo.add(node);
-                } else if (current.getChildren() != null)
-                    for (ProofNode node : current.getChildren())
-                        todo.add(node);
-            }
-        } catch (Exception e) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-        } finally {
-            strategy.endSearch();
-            thread = null;
-            proof.getLock().unlock();
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF,
-                    false);
-            // some listeners have been switched off, they might want to update
-            // now.
-            proof.notifyObservers();
+                            RuleApplication ra = strategy
+                                    .findRuleApplication(current);
+
+                            if (ra != null) {
+                                proof.apply(ra, pc.getEnvironment());
+                                strategy.notifyRuleApplication(ra);
+
+                                for (ProofNode node : current.getChildren())
+                                    todo.add(node);
+                            } else if (current.getChildren() != null)
+                                for (ProofNode node : current.getChildren())
+                                    todo.add(node);
+                        }
+                    } catch (Exception e) {
+                        ExceptionDialog
+                                .showExceptionDialog(getParentFrame(), e);
+                    } finally {
+                        strategy.endSearch();
+                        getProofCenter().firePropertyChange(
+                                ProofCenter.ONGOING_PROOF, false);
+                        job = null;
+                    }
+                    return null;
+                }
+            });
+            getProofCenter()
+                    .firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+        } else {
+            shouldStop = true;
         }
     }
 

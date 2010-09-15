@@ -350,17 +350,12 @@ public class Proof extends Observable {
         return proofNodeCounter;
     }
 
-    /**
-     * Get the lock that protects this proof object from being tampered with.
-     * 
-     * <p>
-     * If you intend to have a consistent state of the proof and want to apply
-     * rules, be sure to have acquired this lock beforehand.
-     * 
-     * @return the write lock for this proof
-     */
-    public @NonNull Lock getLock() {
-        return lock;
+    public ProofDaemon getDaemon() {
+        return daemon;
+    }
+
+    public boolean isDaemonThread(final Thread t) {
+        return t == daemon.thread;
     }
 
 }

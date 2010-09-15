@@ -141,16 +141,9 @@ public class ProofDaemon implements Runnable {
 
             return (T) result;
         }
-
-        /**
-         * Only valid, if isDone() returned true.
-         * 
-         * @return the currently saved exception.
-         */
-        public Exception getException() {
-            return exception;
-        }
     }
+
+    private final Proof proof;
 
     /**
      * The daemons job queue.
@@ -163,6 +156,7 @@ public class ProofDaemon implements Runnable {
     final Thread thread;
 
     ProofDaemon(Proof proof) {
+        this.proof = proof;
         jobs = new LinkedBlockingQueue<Job<?>>();
 
         thread = new Thread(this);
@@ -222,8 +216,12 @@ public class ProofDaemon implements Runnable {
      * @param job
      *            The job to be enqueued
      */
-    public <T> void doJob(Job<T> job) {
+    public <T> void addJob(Job<T> job) {
         jobs.add(job);
+    }
+
+    public boolean isIdle() {
+        return jobs.isEmpty() && thread.getState() == Thread.State.WAITING;
     }
 
     /**
@@ -235,6 +233,9 @@ public class ProofDaemon implements Runnable {
 
         // NOTE: the daemon is not meant to be halted. If you want to collect a
         // complete proof it should be safe to stop it.
+
+        // TODO ensure threads will be collected by the garbage collector; maybe
+        // a weak reference is needed here
         while (true) {
             try {
                 job = jobs.take();
@@ -254,6 +255,10 @@ public class ProofDaemon implements Runnable {
                 job.exception = e;
             } finally {
                 job.done = true;
+                job.sem.release();
+
+                // notify all observers of the proof
+                proof.notifyObservers();
             }
         }
     }

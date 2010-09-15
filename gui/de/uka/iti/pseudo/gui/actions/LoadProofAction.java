@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofDaemon.Job;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
@@ -33,7 +34,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 // TODO Documentation needed
 
 /*
- * have a look at SaveProofAction for generalisation with different file formats.
+ * have a look at SaveProofAction for generalization with different file formats.
  */
 
 @SuppressWarnings("serial") public class LoadProofAction extends BarAction
@@ -41,7 +42,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
     private JFileChooser fileChooser;
 
-    // at the moment there is only one, so hardcode it
+    // at the moment there is only one, so hard code it
     private ProofImport proofImport = new ProofXML();
 
     public LoadProofAction() {
@@ -61,53 +62,54 @@ import de.uka.iti.pseudo.util.GUIUtil;
     }
 
     public void actionPerformed(ActionEvent e) {
+        final Proof origProof = getProofCenter().getProof();
 
-        Proof origProof = getProofCenter().getProof();
-        if (origProof.getLock().tryLock()) {
-            try {
-                List<ProofNode> rootChildren = origProof.getRoot()
-                        .getChildren();
-                if (rootChildren != null) {
-                    ExceptionDialog
-                            .showExceptionDialog(getParentFrame(),
-                                    "Root must not have children if loading a proof");
-                }
-
-                if (fileChooser == null)
-                    fileChooser = new JFileChooser(".");
-
-                int result = fileChooser.showOpenDialog(getProofCenter()
-                        .getMainWindow());
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    Environment env = getProofCenter().getEnvironment();
-                    FileInputStream is = new FileInputStream(fileChooser
-                            .getSelectedFile());
-                    if (!proofImport.acceptsInput(is))
-                        throw new IOException("The input file "
-                                + fileChooser.getSelectedFile()
-                                + " is not accepted");
-
-                    is = new FileInputStream(fileChooser.getSelectedFile());
-
-                    proofImport.importProof(is, origProof, env);
-
-                    // no unsaved changes now.
-                    origProof.changesSaved();
-                }
-
-            } catch (Exception ex) {
+        origProof.getDaemon().addJob(new Job<Void>() {
+            public Void run() {
                 try {
-                    getProofCenter().prune(getProofCenter().getProof().getRoot());
-                } catch (ProofException ex2) {
-                    ex2.printStackTrace();
+                    List<ProofNode> rootChildren = origProof.getRoot()
+                            .getChildren();
+                    if (rootChildren != null) {
+                        ExceptionDialog
+                                .showExceptionDialog(getParentFrame(),
+                                        "Root must not have children if loading a proof");
+                    }
+
+                    if (fileChooser == null)
+                        fileChooser = new JFileChooser(".");
+
+                    int result = fileChooser
+                            .showOpenDialog(getProofCenter()
+                                    .getMainWindow());
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        Environment env = getProofCenter().getEnvironment();
+                        FileInputStream is = new FileInputStream(
+                                fileChooser.getSelectedFile());
+                        if (!proofImport.acceptsInput(is))
+                            throw new IOException("The input file "
+                                    + fileChooser.getSelectedFile()
+                                    + " is not accepted");
+
+                        is = new FileInputStream(fileChooser
+                                .getSelectedFile());
+
+                        proofImport.importProof(is, origProof, env);
+
+                        // no unsaved changes now.
+                        origProof.changesSaved();
+                    }
+
+                } catch (Exception ex) {
+                    try {
+                        getProofCenter().prune(
+                                getProofCenter().getProof().getRoot());
+                    } catch (ProofException ex2) {
+                        ex2.printStackTrace();
+                    }
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 }
-                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-            } finally {
-                origProof.getLock().unlock();
+                return null;
             }
-        } else {
-            ExceptionDialog.showExceptionDialog(getParentFrame(),
-                    "Cannot load proof, it is currently locked by another thread");
-        }
+        });
     }
 }

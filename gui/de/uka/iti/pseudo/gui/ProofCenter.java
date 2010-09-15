@@ -18,6 +18,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
@@ -187,7 +190,8 @@ public class ProofCenter {
      * 
      * @return the environment
      */
-    public @NonNull Environment getEnvironment() {
+    public @NonNull
+    Environment getEnvironment() {
         return env;
     }
 
@@ -317,9 +321,9 @@ public class ProofCenter {
      * closed, the root is returned - though not an open goal.
      * 
      * <p>
-     * If the proof is currently locked by another thread, this implementation
-     * not wait for the lock but throws an exception. The UI has to ensure that
-     * this method is not invoked while the lock is held.
+     * If apply was not invoked by a job and the ProofDaemon is buzy, this
+     * implementation will not wait for the lock but throws an exception. The UI
+     * has to ensure that this method is not invoked while the lock is held.
      * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
@@ -328,16 +332,25 @@ public class ProofCenter {
      *             if the application fails.
      */
     public ProofNode apply(RuleApplication ruleApp) throws ProofException {
+
         ProofNode parent = ruleApp.getProofNode();
         
-        if(proof.getLock().tryLock()) {
-            try {
-                proof.apply(ruleApp, env);
-            } finally {
-                proof.getLock().unlock();
-            }
+        // check if we are the daemon to allow for desired behavior
+        if (proof.isDaemonThread(Thread.currentThread())) {
+            proof.apply(ruleApp, env);
         } else {
-            throw new ProofException("The proof is currently locked by another thread");
+            if (proof.getDaemon().isIdle()) {
+                // apply rule and wait, as the first goal will change
+                try {
+                    applyDeferred(ruleApp).get();
+                } catch (Exception e) {
+                    // in this case, no exception should be thrown
+                    e.printStackTrace();
+                }
+            } else {
+                throw new ProofException(
+                        "The proof is currently locked by another thread");
+            }
         }
         
         // next to select is first child (or self if no children)
@@ -359,6 +372,21 @@ public class ProofCenter {
         }
         
         return next;
+    }
+
+    /**
+     * Like apply, but this implementation will create a job, that will apply ra
+     * as soon as possible.
+     * 
+     * @see apply
+     * @param ra
+     *            rule to be applied
+     * @return A Future of Type Boolean, which indicates the status of the rule
+     *         application and its success; will return false if rule could not
+     *         be applied for some reason
+     */
+    public Future<Boolean> applyDeferred(RuleApplication ra) {
+        return proof.getDaemon().applyRule(ra, env);
     }
 
     /**
@@ -466,7 +494,8 @@ public class ProofCenter {
     }
 
     /**
-     * Notify all registered listeners that a property's value has changed.
+     * Notify all registered listeners that a property's value has changed. It
+     * is safe to call this method from jobs.
      * 
      * <p>
      * Please note that an event is only triggered if the new value differs from
@@ -479,10 +508,21 @@ public class ProofCenter {
      * @param newValue
      *            value after the change.
      */
-    public void firePropertyChange(String propertyName, Object newValue) {
-        Object oldValue = generalProperties.get(propertyName);
-        generalProperties.put(propertyName, newValue);
-        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    public void firePropertyChange(final String propertyName,
+            final Object newValue) {
+        // check whether the property change was fired from a job or not, if
+        // fired from a job, we have to wait for the GUI to finish
+        if (proof.isDaemonThread(Thread.currentThread())) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    firePropertyChange(propertyName, newValue);
+                }
+            });
+        } else {
+            Object oldValue = generalProperties.get(propertyName);
+            generalProperties.put(propertyName, newValue);
+            changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+        }
     }
 
     /**
