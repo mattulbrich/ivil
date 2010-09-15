@@ -104,7 +104,8 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
         }
 
         try {
-            strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
+            // init() is called upon creation of the strategy, and only once!
+            // strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
             strategy.beginSearch();
 
             ProofNode current = null;
