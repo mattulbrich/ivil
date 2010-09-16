@@ -49,8 +49,8 @@ public class BreakpointStrategy extends AbstractStrategy implements
     private boolean obeyProgramBreakpoints = true;
     private boolean obeySourceBreakpoints = true;
     private boolean stopAtSkip = false;
-    private boolean stopAtLoop = false;
-    private boolean stopAtJumpBack = true;
+    private boolean stopAtLoop = true;
+    private boolean stopAtJumpBack = false;
 
     private RewriteRuleCollection ruleCollection;
 
@@ -133,8 +133,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
         if (stopAtLoop) {
             if (seenProgramTerms.contains(progTerm))
                 return true;
+            seenProgramTerms.add(progTerm);
         }
-        seenProgramTerms.add(progTerm);
+        
 
         Program program = progTerm.getProgram();
         int number = progTerm.getProgramIndex();
@@ -166,6 +167,17 @@ public class BreakpointStrategy extends AbstractStrategy implements
         }
 
         return false;
+    }
+    
+    /**
+     * When starting a new round of automated proving, forget about
+     * program terms that we have encountered in previous runs.
+     */
+    @Override
+    public void beginSearch() throws StrategyException {
+        super.beginSearch();
+        
+        seenProgramTerms.clear();
     }
 
     /**

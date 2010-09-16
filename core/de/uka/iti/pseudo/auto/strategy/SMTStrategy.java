@@ -48,7 +48,7 @@ public class SMTStrategy extends AbstractStrategy {
             solver = (DecisionProcedure) Class.forName(className).newInstance();
             timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
         } catch(Exception ex) {
-            Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
+            Log.log(Log.ERROR, "Cannot instantiate background decision procedure");
             ex.printStackTrace();
             closeRule = null;
         }
