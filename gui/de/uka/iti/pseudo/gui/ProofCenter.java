@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.Collections;
@@ -64,13 +65,34 @@ import de.uka.iti.pseudo.util.Log;
 public class ProofCenter {
     
     /**
-     * 
+     * Property key indicating that an automatic proof is on the run.
+     * boolean type.  
      */
     public static final String ONGOING_PROOF = "pseudo.ongoing_proof";
     
+    /**
+     * Property key to indicate that a proof node has been selected.
+     * Type: ProofNode
+     */
     public static final String SELECTED_PROOFNODE = "pseudo.selectedProofNode";
     
+    /**
+     * Property key to indicate that a rule application has been selected.
+     * Type: RuleApplication
+     */
     public static final String SELECTED_RULEAPPLICATION = "pseudo.selectedRuleApplication";
+    
+    /**
+     * Property key to denote the verbosity of the display
+     * Type: int 
+     */
+    public static final String TREE_VERBOSITY = "pseudo.tree.verbosity";
+    
+    /**
+     * Property key to denote whether numbers should be printed in display
+     * Type: boolean
+     */
+    public static final String TREE_SHOW_NUMBERS = "pseudo.tree.shownumbers";
     
     /**
      * The main window.
@@ -158,6 +180,7 @@ public class ProofCenter {
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
+        dumpPropertyListeners();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
@@ -323,6 +346,8 @@ public class ProofCenter {
      * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
+     *            
+     * @return the proof node which should be selected as next goal.
      * 
      * @throws ProofException
      *             if the application fails.
@@ -340,7 +365,7 @@ public class ProofCenter {
             throw new ProofException("The proof is currently locked by another thread");
         }
         
-        // next to select is first child (or self if no children)
+        // next to select its first child (or self if no children)
         List<ProofNode> children = parent.getChildren();
         ProofNode next;
         if(children == null) {
@@ -480,6 +505,7 @@ public class ProofCenter {
      *            value after the change.
      */
     public void firePropertyChange(String propertyName, Object newValue) {
+        Log.enter(propertyName, newValue);
         Object oldValue = generalProperties.get(propertyName);
         generalProperties.put(propertyName, newValue);
         changeSupport.firePropertyChange(propertyName, oldValue, newValue);
@@ -501,6 +527,7 @@ public class ProofCenter {
      *            value after the change.
      */
     public void firePropertySet(String propertyName, Object newValue) {
+        Log.enter(propertyName, newValue);
         generalProperties.put(propertyName, newValue);
         changeSupport.firePropertyChange(propertyName, null, newValue);
     }
@@ -531,6 +558,25 @@ public class ProofCenter {
     public void removePropertyChangeListener(String propertyName,
             PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(propertyName, listener);
+    }
+    
+    /**
+     * This method prints all registered {@link PropertyChangeListener}s 
+     * to System.err. It is solely for debug purposes.
+     */
+    public void dumpPropertyListeners() {
+        PropertyChangeListener[] listeners = changeSupport
+                .getPropertyChangeListeners();
+        for (PropertyChangeListener listener : listeners) {
+            if (listener instanceof PropertyChangeListenerProxy) {
+                PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
+                System.err.println(proxy.getPropertyName() + ": "
+                        + proxy.getListener());
+            } else {
+                System.err.println("*: " + listener);
+            }
+        }
+
     }
 
 }

@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.TextInstantiator;
 
 /**
@@ -53,6 +54,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
     private final static Vector<ProofTreeNode> EMPTY_VECTOR = new Vector<ProofTreeNode>();
     
     private int verbosity;
+    
+    private boolean showNumbers;
 
     private PrettyPrint prettyPrint;
 
@@ -199,7 +202,12 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                         label = "OPEN";
                     }
                 }
+                
+                if(showNumbers && parent != null) {
+                    label = proofNode.getNumber() + ": " + label;
+                }
             }
+            
             return label;
         }
 
@@ -284,6 +292,7 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
             }
         }};
 
+
     public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
         // we cannot do this in one call, since this would give a comp. error
         super(null);
@@ -355,6 +364,16 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
 
     public void setVerbosity(int verbosity) {
         this.verbosity = verbosity;
+        invalidateTree();
+    }
+    
+    public void setShowNumbers(boolean b) {
+        Log.enter(b);
+        showNumbers = b;
+        invalidateTree();
+    }
+
+    private void invalidateTree() {
         ProofTreeNode root = (ProofTreeNode) getRoot();
         root.invalidate();
         

@@ -18,7 +18,6 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.ProofComponent;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 
 /**
@@ -32,8 +31,6 @@ import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 public class VerbosityAction extends BarAction
         implements InitialisingAction, PropertyChangeListener {
 
-    public static final String TREE_VERBOSITY = ProofComponent.VERBOSITY_PROPERTY;
-    public static final int DEFAULT_VERBOSITY = ProofComponent.DEFAULT_VERBOSITY;
     public static final int MAX_VALUE = 10;
     
     private static String MESSAGE = "<html>Choose the level of verbosity in which the proof<br>"
@@ -51,22 +48,23 @@ public class VerbosityAction extends BarAction
             values[i] = i+1;
         }
 
-        Object preselected = pc.getProperty(TREE_VERBOSITY);
+        Object preselected = pc.getProperty(ProofCenter.TREE_VERBOSITY);
 
         Integer result = (Integer) JOptionPane.showInputDialog(
                 getParentFrame(), MESSAGE, "Verbosity",
                 JOptionPane.QUESTION_MESSAGE, null, values, preselected);
         
         if(result != null)
-            pc.firePropertyChange(TREE_VERBOSITY, result);
+            pc.firePropertyChange(ProofCenter.TREE_VERBOSITY, result);
         
     }
 
     @Override public void initialised() {
         ProofCenter pc = getProofCenter();
-        pc.addPropertyChangeListener(TREE_VERBOSITY, this);
-
-        pc.firePropertyChange(TREE_VERBOSITY, DEFAULT_VERBOSITY);
+        pc.addPropertyChangeListener(ProofCenter.TREE_VERBOSITY, this);
+        Object curval = pc.getProperty(ProofCenter.TREE_VERBOSITY);
+        
+        putValue(Action.NAME, "Verbosity in Tree (now: " + curval + ")");
     }
 
     @Override public void propertyChange(PropertyChangeEvent evt) {

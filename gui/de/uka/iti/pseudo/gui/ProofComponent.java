@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -46,9 +47,11 @@ public class ProofComponent extends JTree implements PropertyChangeListener {
     
     private static final long serialVersionUID = 6352175425195393727L;
 
-    public static final String VERBOSITY_PROPERTY = "tree-verbosity";
     public static final int DEFAULT_VERBOSITY = 
         Settings.getInstance().getInteger("pseudo.prooftree.defaultverbosity", 10);
+    
+    public static final boolean DEFAULT_SHOW_NUMBER =
+        Settings.getInstance().getBoolean("pseudo.prooftree.shownumbers", false);
     
     /*
      * some UI constants
@@ -112,13 +115,15 @@ public class ProofComponent extends JTree implements PropertyChangeListener {
         setModel(proofModel);
         setCellRenderer(new Renderer());
         addListeners(proofCenter);
+        proofCenter.firePropertySet(ProofCenter.TREE_VERBOSITY, DEFAULT_VERBOSITY);
+        proofCenter.firePropertySet(ProofCenter.TREE_SHOW_NUMBERS, DEFAULT_SHOW_NUMBER);
         JPopupMenu popup = proofCenter.getBarManager().makePopup(POPUP_BAR_PROPERTY);
         addMouseListener(new TreePopupMouseListener(this, popup));
     }
 
 
     private void addListeners(final ProofCenter proofCenter) {
-        proofCenter.addPropertyChangeListener(VERBOSITY_PROPERTY,
+        proofCenter.addPropertyChangeListener(ProofCenter.TREE_VERBOSITY,
                 new PropertyChangeListener() {
                     @Override public void propertyChange(PropertyChangeEvent evt) {
                         ProofNode currentProofNode = getSelectedProofNode();
@@ -129,6 +134,14 @@ public class ProofComponent extends JTree implements PropertyChangeListener {
                     }
                 });
         
+        proofCenter.addPropertyChangeListener(ProofCenter.TREE_SHOW_NUMBERS,
+                new PropertyChangeListener() {
+                    @Override public void propertyChange(PropertyChangeEvent evt) {
+                        Log.enter(evt);
+                        proofModel.setShowNumbers((Boolean) evt.getNewValue());
+                        repaint();
+                    }
+                });
     }
 
 
@@ -159,5 +172,5 @@ public class ProofComponent extends JTree implements PropertyChangeListener {
             repaint();
         }
     }
-
+    
 }
