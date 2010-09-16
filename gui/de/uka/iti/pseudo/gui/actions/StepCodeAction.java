@@ -14,8 +14,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Icon;
+
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
@@ -33,7 +36,8 @@ import de.uka.iti.pseudo.util.Log;
  * children are either closed or getCodeLine returns a value different from the
  * initial one.
  */
-public abstract class StepCodeAction extends BarAction {
+public abstract class StepCodeAction extends BarAction implements
+        InitialisingAction, Observer {
     
     private static final long serialVersionUID = 5444254542006126131L;
 
@@ -154,5 +158,15 @@ public abstract class StepCodeAction extends BarAction {
                 }
             }
         });
+    }
+
+    public void initialised() {
+        getProofCenter().getProof().addObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Proof proof = (Proof) o;
+        setEnabled(proof.hasOpenGoals());
     }
 }

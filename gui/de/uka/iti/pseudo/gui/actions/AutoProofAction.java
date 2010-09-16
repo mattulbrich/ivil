@@ -38,7 +38,7 @@ import de.uka.iti.pseudo.util.Log;
  */
 @SuppressWarnings("serial")
 public class AutoProofAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction, Observer {
+        PropertyChangeListener, InitialisingAction, Observer, Runnable {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class
             .getResource("img/cog_go.png"));
@@ -60,9 +60,7 @@ public class AutoProofAction extends BarAction implements
     }
 
     public void actionPerformed(ActionEvent e) {
-
         final Proof proof = getProofCenter().getProof();
-        final ProofCenter pc = getProofCenter();
 
         // if there are no open goals disable this action,
         // as the proof must have been closed
@@ -76,73 +74,7 @@ public class AutoProofAction extends BarAction implements
 
         if (job == null) {
             shouldStop = false;
-            proof.getDaemon().addJob(job = new Job<Void>() {
-
-                public Void run() {
-                    Strategy strategy = pc.getStrategyManager()
-                            .getSelectedStrategy();
-
-                    // if there are no open goals disable this action,
-                    // as the proof must have been closed
-                    if (!proof.hasOpenGoals()) {
-                        setEnabled(false);
-                        return null;
-                    }
-
-                    try {
-
-                        strategy.beginSearch();
-
-                        while (true) {
-                            RuleApplication ruleAppl = strategy
-                                    .findRuleApplication();
-
-                            if (ruleAppl == null || shouldStop) {
-                                // we should stop: select an open goal
-                                ProofNode currentNode = pc
-                                        .getCurrentProofNode();
-                                List<ProofNode> openGoals = proof
-                                        .getOpenGoals();
-                                if (currentNode == null
-                                        || currentNode.getChildren() != null) {
-                                    ProofNode selected;
-                                    // bugfix for bug #1001
-                                    if (openGoals.size() > 0) {
-                                        selected = openGoals.get(0);
-                                    } else {
-                                        selected = proof.getRoot();
-                                    }
-                                    pc.fireSelectedProofNode(selected);
-                                }
-                                // endSearch is called in finally
-                                return null;
-                            }
-
-                            try {
-                                pc.apply(ruleAppl);
-                                strategy.notifyRuleApplication(ruleAppl);
-                            } catch (ProofException e) {
-                                Log.log(Log.ERROR, "Error while applying rule "
-                                        + ruleAppl.getRule().getName() + " on "
-                                        + ruleAppl.getFindSelector()
-                                        + " on goal #"
-                                        + ruleAppl.getProofNode().getNumber());
-                                throw e;
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        ExceptionDialog
-                                .showExceptionDialog(getParentFrame(), e);
-                    } finally {
-                        strategy.endSearch();
-                        pc.firePropertyChange(
-                                ProofCenter.ONGOING_PROOF, false);
-                        job = null;
-                    }
-                    return null;
-                }
-            });
+            proof.getDaemon().addJob(this);
             getProofCenter()
                     .firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         } else {
@@ -158,6 +90,67 @@ public class AutoProofAction extends BarAction implements
     public void update(Observable o, Object arg) {
         Proof proof = (Proof) o;
         setEnabled(proof.hasOpenGoals());
+    }
+
+    @Override
+    public void run() {
+        final Proof proof = getProofCenter().getProof();
+        final ProofCenter pc = getProofCenter();
+        Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
+
+        // if there are no open goals disable this action,
+        // as the proof must have been closed
+        if (!proof.hasOpenGoals()) {
+            setEnabled(false);
+            return;
+        }
+
+        try {
+
+            strategy.beginSearch();
+
+            while (true) {
+                RuleApplication ruleAppl = strategy.findRuleApplication();
+
+                if (ruleAppl == null || shouldStop) {
+                    // we should stop: select an open goal
+                    ProofNode currentNode = pc.getCurrentProofNode();
+                    List<ProofNode> openGoals = proof.getOpenGoals();
+                    if (currentNode == null
+                            || currentNode.getChildren() != null) {
+                        ProofNode selected;
+                        // bugfix for bug #1001
+                        if (openGoals.size() > 0) {
+                            selected = openGoals.get(0);
+                        } else {
+                            selected = proof.getRoot();
+                        }
+                        pc.fireSelectedProofNode(selected);
+                    }
+                    // endSearch is called in finally
+                    return;
+                }
+
+                try {
+                    pc.apply(ruleAppl);
+                    strategy.notifyRuleApplication(ruleAppl);
+                } catch (ProofException e) {
+                    Log.log(Log.ERROR,
+                            "Error while applying rule "
+                                    + ruleAppl.getRule().getName() + " on "
+                                    + ruleAppl.getFindSelector() + " on goal #"
+                                    + ruleAppl.getProofNode().getNumber());
+                    throw e;
+                }
+            }
+
+        } catch (Exception e) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+        } finally {
+            strategy.endSearch();
+            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+            job = null;
+        }
     }
 
 }

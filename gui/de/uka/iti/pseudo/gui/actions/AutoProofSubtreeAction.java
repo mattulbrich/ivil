@@ -39,7 +39,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  */
 @SuppressWarnings("serial")
 public class AutoProofSubtreeAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction, Observer {
+        PropertyChangeListener, InitialisingAction, Observer, Runnable {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class
             .getResource("img/cog_go.png"));
@@ -82,59 +82,7 @@ public class AutoProofSubtreeAction extends BarAction implements
 
         if (job == null) {
             shouldStop = false;
-            proof.getDaemon().addJob(job = new Job<Void>() {
-
-                public Void run() {
-                    Proof proof = getProofCenter().getProof();
-                    ProofCenter pc = getProofCenter();
-                    Strategy strategy = pc.getStrategyManager()
-                            .getSelectedStrategy();
-
-                    // if there are no open goals disable this action, as the
-                    // proof must have been closed
-                    if (!proof.hasOpenGoals()) {
-                        setEnabled(false);
-                        return null;
-                    }
-
-                    List<ProofNode> todo = new LinkedList<ProofNode>();
-                    todo.add(selectedProofNode);
-
-                    try {
-                        strategy.init(proof, pc.getEnvironment(),
-                                pc.getStrategyManager());
-                        strategy.beginSearch();
-
-                        ProofNode current = null;
-
-                        while (!todo.isEmpty() && !shouldStop) {
-                            current = todo.remove(0);
-
-                            RuleApplication ra = strategy
-                                    .findRuleApplication(current);
-
-                            if (ra != null) {
-                                proof.apply(ra, pc.getEnvironment());
-                                strategy.notifyRuleApplication(ra);
-
-                                for (ProofNode node : current.getChildren())
-                                    todo.add(node);
-                            } else if (current.getChildren() != null)
-                                for (ProofNode node : current.getChildren())
-                                    todo.add(node);
-                        }
-                    } catch (Exception e) {
-                        ExceptionDialog
-                                .showExceptionDialog(getParentFrame(), e);
-                    } finally {
-                        strategy.endSearch();
-                        getProofCenter().firePropertyChange(
-                                ProofCenter.ONGOING_PROOF, false);
-                        job = null;
-                    }
-                    return null;
-                }
-            });
+            proof.getDaemon().addJob(this);
             getProofCenter()
                     .firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         } else {
@@ -155,4 +103,49 @@ public class AutoProofSubtreeAction extends BarAction implements
         setEnabled(proof.hasOpenGoals());
     }
 
+    public void run() {
+        Proof proof = getProofCenter().getProof();
+        ProofCenter pc = getProofCenter();
+        Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
+
+        // if there are no open goals disable this action, as the
+        // proof must have been closed
+        if (!proof.hasOpenGoals()) {
+            setEnabled(false);
+            return;
+        }
+
+        List<ProofNode> todo = new LinkedList<ProofNode>();
+        todo.add(selectedProofNode);
+
+        try {
+            strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
+            strategy.beginSearch();
+
+            ProofNode current = null;
+
+            while (!todo.isEmpty() && !shouldStop) {
+                current = todo.remove(0);
+
+                RuleApplication ra = strategy.findRuleApplication(current);
+
+                if (ra != null) {
+                    proof.apply(ra, pc.getEnvironment());
+                    strategy.notifyRuleApplication(ra);
+
+                    for (ProofNode node : current.getChildren())
+                        todo.add(node);
+                } else if (current.getChildren() != null)
+                    for (ProofNode node : current.getChildren())
+                        todo.add(node);
+            }
+        } catch (Exception e) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+        } finally {
+            strategy.endSearch();
+            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF,
+                    false);
+            job = null;
+        }
+    }
 }
