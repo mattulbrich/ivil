@@ -114,7 +114,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction, P
                 RuleApplication ra = strategy.findRuleApplication(current);
 
                 if (ra != null) {
-                    proof.apply(ra, proofCenter.getEnvironment());
+                    proofCenter.apply(ra);
                     strategy.notifyRuleApplication(ra);
 
                     for (ProofNode node : current.getChildren())
@@ -124,14 +124,17 @@ public class ConjectureAction extends BarAction implements InitialisingAction, P
                         todo.add(node);
             }
             
+            ProofNode next = currentProofNode.getChildren().get(0);
             if (!topNode.isClosed()) {
                 int result = JOptionPane.showConfirmDialog(getParentFrame(),
                         "The proof branch cannot be closed. Keep it?",
                         "Question", JOptionPane.YES_NO_OPTION);
                 if(result == JOptionPane.NO_OPTION) {
                     proof.prune(currentProofNode);
-                }
+                    next = currentProofNode;
+                } 
             }
+            proofCenter.fireSelectedProofNode(next);
             
         } catch (Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);

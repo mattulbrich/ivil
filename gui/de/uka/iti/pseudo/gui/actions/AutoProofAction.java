@@ -64,8 +64,9 @@ public class AutoProofAction extends BarAction
     }
 
     public void run() {
-        Proof proof = getProofCenter().getProof();
-        Strategy strategy = getProofCenter().getStrategyManager().getSelectedStrategy();
+        ProofCenter pc = getProofCenter();
+        Proof proof = pc.getProof();
+        Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
         
         //if there are no open goals disable this action, as the proof must have been closed
         if(!proof.hasOpenGoals()) {
@@ -90,7 +91,7 @@ public class AutoProofAction extends BarAction
 
                 if(ruleAppl == null || shouldStop) {
                     // we should stop: select an open goal
-                    ProofNode currentNode = getProofCenter().getCurrentProofNode();
+                    ProofNode currentNode = pc.getCurrentProofNode();
                     List<ProofNode> openGoals = proof.getOpenGoals();
                     if(currentNode == null || currentNode.getChildren() != null) {
                         ProofNode selected;
@@ -100,15 +101,16 @@ public class AutoProofAction extends BarAction
                         } else {
                             selected = proof.getRoot();
                         }
-                        getProofCenter().fireSelectedProofNode(selected);
+                        pc.fireSelectedProofNode(selected);
                     }
                     // endSearch is called in finally
                     return;
                 }
 
                 try {
-                    getProofCenter().apply(ruleAppl);
+                    ProofNode next = pc.apply(ruleAppl);
                     strategy.notifyRuleApplication(ruleAppl);
+                    // pc.fireSelectedProofNode(next);
                 } catch (ProofException e) {
                     Log.log(Log.ERROR, "Error while applying rule " + ruleAppl.getRule().getName() + 
                             " on " + ruleAppl.getFindSelector() + " on goal #" +
@@ -123,7 +125,7 @@ public class AutoProofAction extends BarAction
             strategy.endSearch();
             thread = null;
             proof.getLock().unlock();
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             // some listeners have been switched off, they might want to update now.
             proof.notifyObservers();
         }

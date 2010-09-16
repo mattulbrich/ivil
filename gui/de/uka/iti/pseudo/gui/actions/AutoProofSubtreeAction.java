@@ -33,6 +33,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * Tries to automatically close all nodes below the selected one with the
  * current strategy. If an inner node is selected, all children will be used.
  * 
+ * @see AutoProofAction
+ * 
  * @author felden@ira.uka.de
  * 
  */
@@ -116,8 +118,9 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
                 RuleApplication ra = strategy.findRuleApplication(current);
 
                 if (ra != null) {
-                    proof.apply(ra, pc.getEnvironment());
+                    ProofNode next = pc.apply(ra);
                     strategy.notifyRuleApplication(ra);
+                    // pc.fireSelectedProofNode(next);
 
                     for (ProofNode node : current.getChildren())
                             todo.add(node);
