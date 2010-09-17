@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.BreakpointStrategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -180,7 +181,7 @@ public class ProofCenter {
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
-        dumpPropertyListeners();
+        // dumpPropertyListeners();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
@@ -263,7 +264,7 @@ public class ProofCenter {
      * @param node
      *            the node to be selected
      */
-    public void fireSelectedProofNode(@NonNull ProofNode node) {
+    public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
         // FIXME Consider firePropertySet here
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
@@ -403,6 +404,7 @@ public class ProofCenter {
 
         // fire a null node as the pruned node is allways allready selected
         try {
+            // FIXME !!! fireSelectedProofNode has @NonNull annotation!
         fireSelectedProofNode(null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -416,7 +418,7 @@ public class ProofCenter {
      * 
      * @return the currently selected proof node
      */
-    public ProofNode getCurrentProofNode() {
+    public @Nullable ProofNode getCurrentProofNode() {
         Object currentPN = getProperty(SELECTED_PROOFNODE);
         return (currentPN instanceof ProofNode) ? (ProofNode)currentPN : null;   
     }

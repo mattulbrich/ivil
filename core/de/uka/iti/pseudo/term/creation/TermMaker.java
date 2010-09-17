@@ -313,6 +313,20 @@ public class TermMaker extends ASTDefaultVisitor {
 
         return termMaker.resultType;
     }
+
+    public static Update makeAndTypeUpdate(String updString, Environment env)
+            throws ASTVisitException, ParseException {
+
+        String toParse = updString + " true";
+
+        Term t = makeAndTypeTerm(toParse, env);
+        if (t instanceof UpdateTerm) {
+            UpdateTerm updTerm = (UpdateTerm) t;
+            return updTerm.getUpdate(); 
+        }
+        
+        throw new ASTVisitException(updString + " does not denote a valid update");
+    }
     
     /**
      * Make a statement from an AST.

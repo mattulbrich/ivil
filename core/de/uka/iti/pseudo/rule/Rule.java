@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -46,37 +47,37 @@ public class Rule {
     /**
      * The name of this rule
      */
-    private String name;
+    private @NonNull String name;
     
     /**
      * The set of assumptions. no null in here.
      */
-    private LocatedTerm assumptions[];
+    private @DeepNonNull LocatedTerm assumptions[];
     
     /**
      * The find clause.
      */
-    private LocatedTerm findClause;
+    private @Nullable LocatedTerm findClause;
     
     /**
      * The where clauses.
      */
-    private WhereClause whereClauses[];
+    private @DeepNonNull WhereClause whereClauses[];
     
     /**
      * The goal actions. a non-empty array.
      */
-    private GoalAction goalActions[];
+    private @DeepNonNull GoalAction goalActions[];
     
     /**
      * The properties.
      */
-    private Map<String, String> properties;
+    private @NonNull Map<String, String> properties;
 
     /**
-     * The location.
+     * The location
      */
-    private ASTLocatedElement location;
+    private @NonNull ASTLocatedElement location;
     
     /**
      * gets a property. Properties are specified using the "tag" keyword in

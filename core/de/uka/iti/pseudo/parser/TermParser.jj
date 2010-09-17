@@ -45,13 +45,13 @@ ASTTerm UpdateTerm():
 {      LOOKAHEAD(3)
          "{" id=<IDENTIFIER> "}" term=UpdateTerm()
             { return new ASTSchemaUpdateTerm(id, term); }
-       | "{" assignments=UpdateTerm_List() "}" term=UpdateTerm() 
+       | "{" assignments=ParallelAssignment() "}" term=UpdateTerm() 
             { return new ASTUpdateTerm(assignments, term); }
        | term=AsTerm()
             { return term; }
 }
 
-List<ASTAssignmentStatement> UpdateTerm_List():	 
+List<ASTAssignmentStatement> ParallelAssignment():	 
 {
   Token t;
   ASTTerm term;

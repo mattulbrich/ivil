@@ -202,7 +202,7 @@ public class Proof extends Observable {
      *             the implementation may choose to throw this is no goal of
      *             this number exists.
      */
-    public ProofNode getGoalNEW(int nodeNumber) throws NoSuchElementException {
+    public ProofNode getGoalbyNumber(int nodeNumber) throws NoSuchElementException {
         for (ProofNode goal : openGoals) {
             if(goal.getNumber() == nodeNumber) {
                 return goal;
@@ -297,7 +297,7 @@ public class Proof extends Observable {
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
     }
-
+    
     /**
      * Gets a particular goal of the list of open goals.
      * 

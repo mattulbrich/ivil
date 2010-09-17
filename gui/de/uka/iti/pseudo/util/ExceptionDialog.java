@@ -215,6 +215,7 @@ public class ExceptionDialog extends JDialog {
 
     public static void showExceptionDialog(Window parentComponent,
             String message, Throwable throwable) {
+        Log.stacktrace(Log.DEBUG, throwable);
         ExceptionDialog dlg = new ExceptionDialog(parentComponent, message,
                 throwable);
         dlg.setLocationRelativeTo(parentComponent);

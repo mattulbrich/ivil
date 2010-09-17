@@ -10,7 +10,7 @@
 # and very large proof trees.
 
 properties
-  BreakpointStrategy.stopAtJumpBack "false"
+  BreakpointStrategy.stopAtLoop "false"
 
 include "$symbex.p" "$int.p" "$decproc.p"
 

@@ -151,11 +151,11 @@ public class ConjectureAction extends BarAction implements InitialisingAction, P
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        // TODO Implement PropertyChangeListener.propertyChange
         ProofCenter proofCenter = getProofCenter();
 
         boolean ongoing = (Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF);
-        boolean isLeaf = proofCenter.getCurrentProofNode().getChildren() == null;
+        ProofNode curProofNode = proofCenter.getCurrentProofNode();
+        boolean isLeaf = curProofNode != null && curProofNode.getChildren() == null;
 
         setEnabled(!ongoing && isLeaf);
     }
