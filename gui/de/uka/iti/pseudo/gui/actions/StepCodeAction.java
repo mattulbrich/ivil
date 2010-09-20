@@ -14,8 +14,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Icon;
+
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
@@ -34,7 +37,7 @@ import de.uka.iti.pseudo.util.Log;
  * initial one.
  */
 public abstract class StepCodeAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction {
+        PropertyChangeListener, InitialisingAction, Observer {
     
     private static final long serialVersionUID = 5444254542006126131L;
 
@@ -168,8 +171,16 @@ public abstract class StepCodeAction extends BarAction implements
                 ProofCenter.SELECTED_PROOFNODE, this);
         proofCenter.addPropertyChangeListener(
                 ProofCenter.ONGOING_PROOF, this);
+        proofCenter.getProof().addObserver(this);
         
         selectedProofNode = proofCenter.getProof().getRoot();
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        Proof proof = (Proof) o;
+        // TODO see bugtracker 1004: more sophisticated decision 
+        // enable if the currently selected node has an applicable modality. 
+        setEnabled(proof.hasOpenGoals());
+    }
 }
