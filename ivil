@@ -3,12 +3,20 @@
 #
 # Start script for ivil
 #
-#
-BASE=`dirname "$0"`
-# TODO make it independent from my path. How?
-BYTECODE=$HOME/eclipse/pseudo.bytecode
+# The environment variable IVIL_SYSPATH points to directories which contain
+# built-in ivil files
 
-SYS_DIR=$BASE/sys:$BYTECODE/sys
+CANONICAL=`readlink -f "$0"`
+BASE=`dirname "$CANONICAL"`
+
+SYS_DIR=$BASE/sys:$IVIL_SYSPATH
+
+#
+# Java executable
+if [ -z $JAVA_CMD ]
+then
+  JAVA_CMD=java
+fi
 
 #
 # Logging
@@ -47,7 +55,7 @@ do
     -Dv)
        shift
        verbose=true
-       OPTIONS="-Dpseudo.log=10 $OPTIONS"
+       OPTIONS="-Dpseudo.log=10 -Dpseudo.showtypes=true $OPTIONS"
        ;;
        
     #
@@ -89,7 +97,9 @@ done
 
 $verbose && echo "Options: $OPTIONS"
 
-java -ea $OPTIONS \
+
+$JAVA_CMD -version
+$JAVA_CMD -ea $OPTIONS \
   -Dpseudo.baseDir=$BASE \
   -Dpseudo.sysDir=$SYS_DIR \
   -Xmx300M \
