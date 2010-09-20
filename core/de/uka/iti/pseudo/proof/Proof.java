@@ -17,7 +17,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -79,11 +78,6 @@ public class Proof extends Observable {
     private @NonNull ProofNode root;
 
     /**
-     * The locking mechanism to ensure synchronisation on the proof.
-     */
-    private Lock lock = new ReentrantLock();
-
-    /**
      * This list contains all open proof nodes that are reachable from
      * {@link #root}.
      */
@@ -139,7 +133,8 @@ public class Proof extends Observable {
     }
 
     /**
-     * Apply a rule application to this proof.
+     * Apply a rule application to this proof. You can only call this from a
+     * daemon job.
      * 
      * <p>
      * The number of the goal to apply to is extracted from the application and
@@ -147,8 +142,9 @@ public class Proof extends Observable {
      * {@link ProofNode#apply(RuleApplication, TermInstantiator, Environment, Properties)}
      * is invoked.
      * 
-     * <p>This method first acquires the lock of the proof before it makes any changes.
-     * The lock is released before returning 
+     * <p>
+     * This method first acquires the lock of the proof before it makes any
+     * changes. The lock is released before returning
      * 
      * @param ruleApp
      *            the rule application to apply to this proof.
@@ -157,34 +153,33 @@ public class Proof extends Observable {
      * 
      * @throws ProofException
      *             may be thrown if the application is not successful.
+     * 
+     * @see ProofDaemon.applyRule
      */
     public void apply(@NonNull RuleApplication ruleApp, Environment env)
             throws ProofException {
     
         ProofNode goal;
 
-        lock.lock();
+        // TODO maybe this can be replaced somehow; assert?
+        if (Thread.currentThread() != daemon.thread)
+            throw new UnsupportedOperationException(
+                    "only the proof daemon can apply rules");
         
-        try {
-            goal = ruleApp.getProofNode();            
-            int goalno = openGoals.indexOf(goal);
-            
-            if (goalno == -1) {
-                throw new ProofException(
-                        "The rule application points to a non-existant or non-goal proof node");
-            }
-            
-            goal.apply(ruleApp, env);
+        goal = ruleApp.getProofNode();
+        int goalno = openGoals.indexOf(goal);
 
-            openGoals.remove(goalno);
-            openGoals.addAll(goalno, goal.getChildren());
-
-            fireNodeChanged(goal);
-
-        } finally {
-            lock.unlock();
+        if (goalno == -1) {
+            throw new ProofException(
+                    "The rule application points to a non-existant or non-goal proof node");
         }
 
+        goal.apply(ruleApp, env);
+
+        openGoals.remove(goalno);
+        openGoals.addAll(goalno, goal.getChildren());
+
+        fireNodeChanged(goal);
     }
 
     /**
@@ -229,23 +224,20 @@ public class Proof extends Observable {
      */
     public void prune(ProofNode proofNode) throws ProofException {
 
-        lock.lock();
-        try {
-            if (proofNode.getProof() != this)
-                throw new ProofException(
-                        "The proof node does not belong to me");
+        // TODO maybe this can be replaced somehow; assert?
+        if (Thread.currentThread() != daemon.thread)
+            throw new UnsupportedOperationException(
+                    "only the proof daemon can apply rules");
 
-            proofNode.prune();
+        if (proofNode.getProof() != this)
+            throw new ProofException("The proof node does not belong to me");
 
-            openGoals.clear();
-            root.collectOpenGoals(openGoals);
+        proofNode.prune();
 
-            fireNodeChanged(proofNode);
+        openGoals.clear();
+        root.collectOpenGoals(openGoals);
 
-        } finally {
-            lock.unlock();
-        }
-
+        fireNodeChanged(proofNode);
     }
 
     /**

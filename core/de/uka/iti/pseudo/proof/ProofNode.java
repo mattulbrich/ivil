@@ -302,10 +302,9 @@ public class ProofNode {
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
-        // TODO this should be unnecessary
-        if (Thread.currentThread() != proof.daemon.thread)
-            throw new UnsupportedOperationException(
-                    "only the proof daemon can apply rules");
+        // workaround for missing friend
+        assert (Thread.currentThread().getStackTrace()[1].getClassName() != Proof.class
+                .getName());
 
         if(children != null) {
             for (ProofNode node : children) {
@@ -335,12 +334,10 @@ public class ProofNode {
      * @throws ProofException
      */
     void apply(RuleApplication ruleApp, Environment env) throws ProofException {
-        
-        // TODO this should be unnecessary
-        if (Thread.currentThread() != proof.daemon.thread)
-            throw new UnsupportedOperationException(
-                    "only the proof daemon can apply rules");
-        
+        // workaround for missing friend
+        assert (Thread.currentThread().getStackTrace()[1].getClassName() != Proof.class
+                .getName());
+
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         

@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.gui;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -131,7 +132,7 @@ public class ProofCenter {
      * elements here.This is the value support.
      */
     private Map<String, Object> generalProperties = new HashMap<String, Object>();
-    
+
     /**
      * Instantiates a new proof center.
      * 
@@ -526,11 +527,17 @@ public class ProofCenter {
         // check whether the property change was fired from a job or not, if
         // fired from a job, we have to wait for the GUI to finish
         if (proof.isDaemonThread(Thread.currentThread())) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    firePropertyChange(propertyName, newValue);
-                }
-            });
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        firePropertyChange(propertyName, newValue);
+                    }
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
         } else {
             Object oldValue = generalProperties.get(propertyName);
             generalProperties.put(propertyName, newValue);

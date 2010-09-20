@@ -183,7 +183,7 @@ public class ProofDaemon implements Runnable {
                 if (ra.getProofNode().getChildren() != null)
                     return false;
 
-                ra.getProofNode().apply(ra, env);
+                proof.apply(ra, env);
                 return true;
             }
         };
@@ -201,15 +201,16 @@ public class ProofDaemon implements Runnable {
      */
     public void pruneUntil(final ProofNode node) {
         jobs.add(new Job<Void>() {
-            public Void run() {
-                node.prune();
+            public Void run() throws ProofException {
+                proof.prune(node);
                 return null;
             }
         });
     }
 
     /**
-     * Enques a job.
+     * Enques a job. After the job is done, all observers of proof will we
+     * notified.
      * 
      * @param <T>
      *            Result type of the job
@@ -221,8 +222,8 @@ public class ProofDaemon implements Runnable {
     }
 
     /**
-     * Creates a job from a runnable, enques it and returnes the appropriate
-     * future.
+     * Creates a job from a runnable, enqueues it and returns the appropriate
+     * future. After the job is done, all observers of proof will we notified.
      * 
      * @param job
      * @return The future belonging to the job
