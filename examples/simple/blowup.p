@@ -1,7 +1,7 @@
 #
 # A small example to artificially blow up a proof tree.
 #
-# The below program generates exp(N) many branches which all
+# The below program generates exp(x) many branches which all
 # end in the assertion.
 #
 # The label double serves as duplication point.
@@ -11,13 +11,15 @@
 
 properties
   BreakpointStrategy.stopAtJumpBack "false"
+  BreakpointStrategy.stopAtLoop "false"
+  CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,SMTStrategy"
 
 include "$symbex.p" "$int.p" "$decproc.p"
 
 function int x assignable
 
 program P
-  x := 6
+  x := 8
  loop:
   goto double, double
  double:
