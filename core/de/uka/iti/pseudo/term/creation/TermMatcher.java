@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
@@ -218,6 +219,21 @@ class TermMatcher extends DefaultTermVisitor {
         }
         
         defaultVisitTerm(b1);
+    }
+    
+    @Override
+    public void visit(TypeVariableBinding tyvarBinding)
+            throws TermException {
+
+        TypeVariableBinding otherBinding = (TypeVariableBinding) compareTerm;
+        
+        if(tyvarBinding.getKind() != otherBinding.getKind()) {
+            throw new UnificationException(tyvarBinding, otherBinding);
+        }
+        
+        termUnification.getTypeUnification().leftUnify(tyvarBinding.getTypeVariable(), otherBinding.getTypeVariable());
+        
+        defaultVisitTerm(tyvarBinding);
     }
 
     @Override 

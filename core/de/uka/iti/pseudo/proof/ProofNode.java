@@ -535,7 +535,7 @@ public class ProofNode implements Comparable<ProofNode> {
         }
         
         if(!findSubTerm.equals(instantiated))
-            throw new ProofException("find clause does not match: \n" + findSubTerm + "\n" + instantiated);
+            throw new ProofException("find clause does not match: \nfind: " + findSubTerm + "\ninstantiated: " + instantiated);
         
         if(!rule.getFindClause().isFittingSelect(findSelector))
             throw new ProofException("find selector does match find clase: \n" + rule.getFindClause() + 

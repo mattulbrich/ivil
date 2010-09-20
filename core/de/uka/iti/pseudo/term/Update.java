@@ -18,7 +18,6 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Update captures a set of assignments to assignable variables.
  */

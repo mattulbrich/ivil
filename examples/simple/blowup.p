@@ -10,9 +10,13 @@
 # and very large proof trees.
 
 properties
+<<<<<<< HEAD
   BreakpointStrategy.stopAtJumpBack "false"
   BreakpointStrategy.stopAtLoop "false"
   CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,SMTStrategy"
+=======
+  BreakpointStrategy.stopAtLoop "false"
+>>>>>>> a35e98d29d18a3b458f110c8a2777a718a4ac501
 
 include "$symbex.p" "$int.p" "$decproc.p"
 

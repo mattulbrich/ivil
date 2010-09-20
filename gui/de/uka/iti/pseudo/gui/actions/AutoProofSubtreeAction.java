@@ -19,6 +19,8 @@ import de.uka.iti.pseudo.proof.ProofNode;
  * Tries to automatically close all nodes below the selected one with the
  * current strategy. If an inner node is selected, all children will be used.
  * 
+ * @see AutoProofAction
+ * 
  * @author felden@ira.uka.de
  * 
  */

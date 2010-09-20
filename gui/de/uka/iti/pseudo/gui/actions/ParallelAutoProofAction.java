@@ -31,10 +31,12 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofDaemon.Job;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This action tries to close a given list of open goals by searching for rule
@@ -128,8 +130,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements
 
     @Override
     public void run() {
-        final Proof proof = getProofCenter().getProof();
         final ProofCenter pc = getProofCenter();
+        final Proof proof = pc.getProof();
         final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
 
         // if there are no open goals disable this action, as the
@@ -145,7 +147,6 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         RuleApplication ra;
 
         try {
-            strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
             strategy.beginSearch();
 
             while (!todo.isEmpty() && !shouldStop) {
@@ -166,8 +167,17 @@ public abstract class ParallelAutoProofAction extends BarAction implements
                     if (ra != null) {
                         final ProofNode current = ra.getProofNode();
 
-                        proof.apply(ra, pc.getEnvironment());
-                        strategy.notifyRuleApplication(ra);
+                        try {
+                            proof.apply(ra, pc.getEnvironment());
+                            strategy.notifyRuleApplication(ra);
+                        } catch (ProofException e) {
+                            Log.log(Log.ERROR, "Error while applying rule "
+                                            + ra.getRule().getName() + " on "
+                                            + ra.getFindSelector()
+                                            + " on goal #"
+                                            + ra.getProofNode().getNumber());
+                            throw e;
+                        }
 
                         for (ProofNode node : current.getChildren())
                             todo.add(node);
@@ -178,8 +188,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements
             ExceptionDialog.showExceptionDialog(getParentFrame(), e);
         } finally {
             strategy.endSearch();
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF,
-                    false);
+            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             job = null;
         }
     }

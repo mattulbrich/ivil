@@ -14,7 +14,13 @@ package de.uka.iti.pseudo.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -52,9 +58,6 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.Update;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
@@ -218,7 +221,7 @@ public class TermComponent extends JTextPane {
         this.termSelector = termSelector;
         this.proofCenter = proofCenter;
         this.prettyPrinter = proofCenter.getPrettyPrinter();
-        this.verbosityLevel = (Integer)proofCenter.getProperty(ProofComponent.VERBOSITY_PROPERTY);
+        this.verbosityLevel = (Integer)proofCenter.getProperty(ProofCenter.TREE_VERBOSITY);
         this.annotatedString = prettyPrinter.print(t);
         this.open = open;
 
@@ -234,6 +237,7 @@ public class TermComponent extends JTextPane {
         annotatedString.appendToDocument(getDocument(), attributeFactory);
         setDragEnabled(true);
         setTransferHandler(new TermSelectionTransfer());
+
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
@@ -552,7 +556,7 @@ public class TermComponent extends JTextPane {
         if(mouseSelection == null)
             return null;
         
-        TermSelector ts = new TermSelector(termSelector, mouseSelection.getTotalPos());
+        TermSelector ts = mouseSelection.getTermSelector(termSelector);
         String string = mouseSelection.getTerm().toString(false);
         return new TermSelectionTransferable(ts, string);
     }

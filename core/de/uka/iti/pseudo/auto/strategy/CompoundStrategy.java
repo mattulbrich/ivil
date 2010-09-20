@@ -35,7 +35,7 @@ public class CompoundStrategy extends AbstractStrategy {
      * of instanced of the here mentioned classes 
      */
     private static final Class<?>[] ORIGINAL_STRATEGIES = {
-            SimplificationStrategy.class, BreakpointStrategy.class };
+            SimplificationStrategy.class, BreakpointStrategy.class, SMTStrategy.class };
 
     /**
      * The strategy manager is needed to query all possible instances for

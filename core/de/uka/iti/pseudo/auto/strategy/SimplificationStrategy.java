@@ -92,9 +92,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    // FIXME make this threadsafe
-    public RuleApplicationMaker findRuleApplication(
-            ProofNode target) {
+    public RuleApplicationMaker findRuleApplication(ProofNode target) {
         
         // TODO changes as soon as proof nodes are stored in rule applications
         // int goalNumber = getProof().getOpenGoals().indexOf(target);

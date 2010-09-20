@@ -80,8 +80,12 @@ public class Proof extends Observable {
     /**
      * This list contains all open proof nodes that are reachable from
      * {@link #root}.
+     * 
+     * This list is synchronized because some GUI elements need concurrent
+     * access with automatic proofs.
      */
-    private @DeepNonNull List<ProofNode> openGoals = new LinkedList<ProofNode>();
+    private @DeepNonNull List<ProofNode> openGoals = 
+        Collections.synchronizedList(new LinkedList<ProofNode>());
 
     /**
      * A flag which is true iff the proof has been modified after the last call
@@ -200,7 +204,7 @@ public class Proof extends Observable {
      *             the implementation may choose to throw this is no goal of
      *             this number exists.
      */
-    public ProofNode getGoalNEW(int nodeNumber) throws NoSuchElementException {
+    public ProofNode getGoalbyNumber(int nodeNumber) throws NoSuchElementException {
         for (ProofNode goal : openGoals) {
             if(goal.getNumber() == nodeNumber) {
                 return goal;
@@ -292,7 +296,7 @@ public class Proof extends Observable {
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
     }
-
+    
     /**
      * Gets a particular goal of the list of open goals.
      * 

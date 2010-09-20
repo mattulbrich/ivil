@@ -28,12 +28,16 @@ import de.uka.iti.pseudo.term.Sequent;
  * Objects of this class are stored in {@link ProofNode}s, furnished with data
  * during the construction of a node and are then fixed using {@link #fix()} to
  * make the structure immutable afterwards.
+ * 
+ * This class keeps two lists {@link #antecedent} and {@link #succedent} holding
+ * references to annotations. The lists have the same lengths as the according
+ * lists of the associated sequent.
  */
 public class SequentHistory {
 
     /**
      * A {@link SequentHistory} annotation keeps history information about one
-     * step in a proof.
+     * step in a proof. This class is immutable.
      */
     public static class Annotation {
 
@@ -118,69 +122,63 @@ public class SequentHistory {
         }
     }
 
-    // TODO: Auto-generated Javadoc
-    // XXX: HOW THE HECK DOES THIS WORK?!?!?
-
     /**
-     * The text of the rule application which has been made
+     * This annotation is generated during the construction and will be used to
+     * modify the history information. It is set to null when the object is
+     * fixed.
      */
-    private String ruleAppText;
+    private Annotation protoType;
+    //private String ruleAppText;
 
     /**
-     * The annotation which is reason for the last change.
-     */
-    private Annotation reasonAnnotation;
-
-    /**
-     * The creating proof node.
-     */
-    private ProofNode creatingProofNode;
-
-    /**
-     * The fixed.
+     * Indicates that the sequent history has been marked fixed, i.e., made
+     * immutable.
      */
     private boolean fixed;
 
     /**
-     * The antecedent.
+     * The list of annotations for the antecedent.
      */
     private ArrayList<Annotation> antecedent;
 
     /**
-     * The succedent.
+     * The list of annotations for the succedent.
      */
     private ArrayList<Annotation> succedent;
 
     /**
-     * Instantiates a new sequent history.
+     * Instantiates a new sequent history using information for the creation of
+     * annotations.
+     * 
+     * {@link #antecedent} and {@link #succedent} are set to empty lists.
      * 
      * @param ruleAppText
-     *            the rule app text
+     *            the text used for new annotations
      * @param reasonAnnotation
-     *            the reason annotation
+     *            the parent annotation used for new annotations
      * @param creatingProofNode
-     *            the creating proof node
+     *            the creating proof node used for new annotations
      */
     public SequentHistory(String ruleAppText, Annotation reasonAnnotation,
             ProofNode creatingProofNode) {
-        this.ruleAppText = ruleAppText;
-        this.reasonAnnotation = reasonAnnotation;
-        this.creatingProofNode = creatingProofNode;
+        this.protoType = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
         this.antecedent = new ArrayList<Annotation>();
         this.succedent = new ArrayList<Annotation>();
     }
 
     /**
-     * Instantiates a new sequent history.
+     * Instantiates a new sequent history using information for the creation of
+     * annotations and a parent sequent history. {@link #antecedent} and
+     * {@link #succedent} are copies of the lists in <code>sequentHistory</code>.
      * 
      * @param sequentHistory
-     *            the sequent history
+     *            the sequent history used for initialisation
      * @param ruleAppText
-     *            the rule app text
+     *            the text used for new annotations
      * @param reasonAnnotation
-     *            the reason annotation
-     * @param proofNode
-     *            the proof node
+     *            the parent annotation used for new annotations
+     * @param creatingProofNode
+     *            the creating proof node used for new annotations
      */
     public SequentHistory(SequentHistory sequentHistory, String ruleAppText,
             Annotation reasonAnnotation, ProofNode proofNode) {
@@ -190,7 +188,11 @@ public class SequentHistory {
     }
 
     /**
-     * Instantiates a new sequent history.
+     * Instantiates a new sequent history using an initial annotation.
+     * 
+     * The lists of annotations contains the initial annotation. Their lengths
+     * correspond to the lengths of the sequent. The history is fixed
+     * automatically.
      * 
      * @param sequent
      *            the sequent
@@ -214,19 +216,21 @@ public class SequentHistory {
     }
 
     /**
-     * Fix.
+     * Make this sequent history immutable.
+     * 
+     * The structure cannot be changed after a call to this method.
+     * 
+     * Construction references are set to null.
      */
     public void fix() {
         fixed = true;
-        ruleAppText = null;
-        creatingProofNode = null;
-        reasonAnnotation = null;
+        protoType = null;
         antecedent.trimToSize();
         succedent.trimToSize();
     }
 
     /**
-     * Check not fixed.
+     * Throws an exception if the history has been fixed already.
      */
     private void checkNotFixed() {
         if (fixed)
@@ -235,25 +239,28 @@ public class SequentHistory {
     }
 
     /**
-     * Sizes agree with.
+     * Checks whether the sizes of the sized of the antecedent and succedent
+     * list coincide with the corresponding lists of the given sequent.
      * 
      * @param sequent
-     *            the sequent
+     *            the sequent to check against
      * 
      * @return true, if successful
      */
-    public boolean sizesAgreeWith(Sequent sequent) {
+    public boolean sizesAgreeWith(@NonNull Sequent sequent) {
         return antecedent.size() == sequent.getAntecedent().size()
                 && succedent.size() == sequent.getSuccedent().size();
     }
 
     /**
-     * Removed.
+     * Modify the lists of annotations by removing an annotation. The position
+     * of the annotation is given by a term selector.
      * 
      * @param selector
-     *            the selector
+     *            a term selector indicating the index of the annotation to
+     *            remove.
      */
-    public void removed(TermSelector selector) {
+    public void removed(@NonNull TermSelector selector) {
         checkNotFixed();
 
         if (selector.isAntecedent()) {
@@ -264,32 +271,50 @@ public class SequentHistory {
     }
 
     /**
-     * Added.
+     * Modify the lists of annotations by adding a new annotation. The data to
+     * use in the annotation is taken from the prototype. 
      * 
      * @param side
-     *            the side
+     *            the side to add to. {@link TermSelector#ANTECEDENT} or
+     *            {@link TermSelector#SUCCEDENT}.
      */
     public void added(boolean side) {
         checkNotFixed();
 
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode,
-                reasonAnnotation);
-
         if (side == TermSelector.ANTECEDENT) {
-            antecedent.add(ann);
+            antecedent.add(protoType);
         } else {
-            succedent.add(ann);
+            succedent.add(protoType);
         }
-
     }
 
     /**
-     * Select.
+     * Modify the lists of annotations by replacing an annotation. The data to
+     * use in the annotation is taken from the prototype.
      * 
      * @param selector
-     *            the selector
+     *            a term selector indicating the index of the annotation to
+     *            replace.
+     */
+    public void replaced(@NonNull TermSelector selector) {
+        checkNotFixed();
+
+        if (selector.isAntecedent())
+            antecedent.set(selector.getTermNo(), protoType);
+        else
+            succedent.set(selector.getTermNo(), protoType);
+    }
+    
+    /**
+     * Retrieve an annotation for certain position.
      * 
-     * @return the annotation
+     * Returns <code>null</code> only if the argument is <code>null</code>.
+     * 
+     * @param selector
+     *            a term selector indicating the index of the annotation to
+     *            retrieve.
+     * 
+     * @return the annotation at the given position or null
      */
     public Annotation select(TermSelector selector) {
         if (selector == null)
@@ -298,24 +323,6 @@ public class SequentHistory {
             return antecedent.get(selector.getTermNo());
         else
             return succedent.get(selector.getTermNo());
-    }
-
-    /**
-     * Replaced.
-     * 
-     * @param selector
-     *            the selector
-     */
-    public void replaced(TermSelector selector) {
-        checkNotFixed();
-
-        Annotation ann = new Annotation(ruleAppText, creatingProofNode,
-                reasonAnnotation);
-
-        if (selector.isAntecedent())
-            antecedent.set(selector.getTermNo(), ann);
-        else
-            succedent.set(selector.getTermNo(), ann);
     }
 
 }

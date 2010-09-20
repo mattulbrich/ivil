@@ -220,6 +220,7 @@ public class ExceptionDialog extends JDialog {
         // ensure excetption dialogs dont interrupt awt
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
+                Log.stacktrace(Log.DEBUG, throwable);
                 ExceptionDialog dlg = new ExceptionDialog(parentComponent,
                         message, throwable);
                 dlg.setLocationRelativeTo(parentComponent);
