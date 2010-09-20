@@ -37,7 +37,7 @@ import de.uka.iti.pseudo.util.Log;
  * initial one.
  */
 public abstract class StepCodeAction extends BarAction implements
-        InitialisingAction, Observer {
+        PropertyChangeListener, InitialisingAction, Observer {
     
     private static final long serialVersionUID = 5444254542006126131L;
 
@@ -47,7 +47,8 @@ public abstract class StepCodeAction extends BarAction implements
         public Object program;
 
         public boolean equals(CodeLocation c) {
-            return c.line == line && c.program.equals(program);
+            return c.program != null && program != null && c.line == line
+                    && c.program.equals(program);
         }
     }
 
@@ -115,7 +116,7 @@ public abstract class StepCodeAction extends BarAction implements
                                 .findRuleApplication(current);
 
                         if (ra != null) {
-                            pc.apply(ra);
+                            proof.apply(ra, pc.getEnvironment());
                             strategy.notifyRuleApplication(ra);
 
                             for (ProofNode node : current.getChildren()) {
@@ -161,7 +162,15 @@ public abstract class StepCodeAction extends BarAction implements
     }
 
     public void initialised() {
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF,
+                this);
         getProofCenter().getProof().addObserver(this);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        // FIXME this should disable step buttons while proofing
+        setEnabled(!(Boolean) evt.getNewValue()
+                && getProofCenter().getProof().hasOpenGoals());
     }
 
     @Override

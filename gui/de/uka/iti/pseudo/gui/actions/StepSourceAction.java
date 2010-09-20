@@ -63,6 +63,10 @@ public class StepSourceAction extends StepCodeAction {
         rval.isUnique = true;
         rval.line = progTerms.get(0).getStatement().getSourceLineNumber();
         rval.program = progTerms.get(0).getProgram().getSourceFile();
+
+        if (null == rval.program) // no source file found
+            return null;
+
         // check other program terms for equality
         for (int i = 1; i < progTerms.size(); i++){
             if (progTerms.get(i).getStatement().getSourceLineNumber() != rval.line ||
