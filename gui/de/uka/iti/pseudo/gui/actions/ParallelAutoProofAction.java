@@ -22,7 +22,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 import javax.swing.Icon;
 
@@ -74,7 +73,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements
 
     private Job<Void> job = null;
     private boolean shouldStop = false;
-    private ExecutorService pool = Executors.newFixedThreadPool(16);
+    private static ExecutorService pool = Executors.newFixedThreadPool(16);
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
@@ -141,9 +140,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         }
 
         List<ProofNode> todo = new LinkedList<ProofNode>(getInitialList());
-        // Queue<Future<RuleApplication>> applications = new
-        // LinkedList<Future<RuleApplication>>();
-        ProofNode current;
+        Queue<Future<RuleApplication>> applications = new LinkedList<Future<RuleApplication>>();
+
         RuleApplication ra;
 
         try {
@@ -151,15 +149,28 @@ public abstract class ParallelAutoProofAction extends BarAction implements
             strategy.beginSearch();
 
             while (!todo.isEmpty() && !shouldStop) {
-                current = todo.remove(0);
-                ra = strategy.findRuleApplication(current);
+                // start rule search for all nodes in todo list
+                while (!todo.isEmpty()) {
+                    final ProofNode current = todo.remove(0);
+                    applications.add(pool
+                            .submit(new Callable<RuleApplication>() {
+                                public RuleApplication call()
+                                        throws StrategyException {
+                            return strategy.findRuleApplication(current);
+                        }
+                    }));
+                }
+                while (!applications.isEmpty()) {
+                    ra = applications.remove().get();
+                    final ProofNode current = ra.getProofNode();
 
-                if (ra != null) {
-                    proof.apply(ra, pc.getEnvironment());
-                    strategy.notifyRuleApplication(ra);
+                    if (ra != null) {
+                        proof.apply(ra, pc.getEnvironment());
+                        strategy.notifyRuleApplication(ra);
 
-                    for (ProofNode node : current.getChildren())
-                        todo.add(node);
+                        for (ProofNode node : current.getChildren())
+                            todo.add(node);
+                    }
                 }
             }
         } catch (Exception e) {

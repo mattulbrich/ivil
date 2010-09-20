@@ -33,7 +33,8 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 /**
  * The Class SimplificationStrategy.
  */
-public class SimplificationStrategy extends AbstractStrategy implements
+public class SimplificationStrategy extends AbstractStrategy
+        implements
         RuleApplicationFilter {
 
     /**
@@ -92,7 +93,8 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    public RuleApplicationMaker findRuleApplication(ProofNode target) {
+    synchronized public RuleApplicationMaker findRuleApplication(
+            ProofNode target) {
         
         // TODO changes as soon as proof nodes are stored in rule applications
         int goalNumber = getProof().getOpenGoals().indexOf(target);
