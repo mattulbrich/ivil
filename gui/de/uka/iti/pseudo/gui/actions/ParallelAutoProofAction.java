@@ -162,9 +162,10 @@ public abstract class ParallelAutoProofAction extends BarAction implements
                 }
                 while (!applications.isEmpty()) {
                     ra = applications.remove().get();
-                    final ProofNode current = ra.getProofNode();
 
                     if (ra != null) {
+                        final ProofNode current = ra.getProofNode();
+
                         proof.apply(ra, pc.getEnvironment());
                         strategy.notifyRuleApplication(ra);
 
