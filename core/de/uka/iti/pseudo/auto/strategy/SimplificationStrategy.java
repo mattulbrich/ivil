@@ -10,9 +10,9 @@
  */
 package de.uka.iti.pseudo.auto.strategy;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -93,7 +93,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * Find rule application on a certain goal. Try all collections.
      */
     // FIXME make this threadsafe
-    synchronized public RuleApplicationMaker findRuleApplication(
+    public RuleApplicationMaker findRuleApplication(
             ProofNode target) {
         
         // TODO changes as soon as proof nodes are stored in rule applications
@@ -152,7 +152,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
         // set up the noMatchNodes array
         noMatchNodes = new Set[ruleCollections.length];
         for (int i = 0; i < noMatchNodes.length; i++) {
-            noMatchNodes[i] = new HashSet<ProofNode>();
+            noMatchNodes[i] = new ConcurrentSkipListSet<ProofNode>();
         }
 
         // check if env asks us to change split mode

@@ -64,7 +64,7 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * @see Proof
  */
-public class ProofNode {
+public class ProofNode implements Comparable<ProofNode> {
     
     /**
      * The sequent stored in this node. This does not change.
@@ -578,5 +578,10 @@ public class ProofNode {
 
     public String toString() {
         return "ProofNode #" + getSummaryString();
+    }
+
+    @Override
+    public int compareTo(ProofNode o) {
+        return number - o.number;
     }
 }
