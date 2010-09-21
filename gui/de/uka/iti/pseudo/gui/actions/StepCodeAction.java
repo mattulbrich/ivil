@@ -158,7 +158,17 @@ public abstract class StepCodeAction extends BarAction implements
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
+        {
             selectedProofNode = (ProofNode) evt.getNewValue();
+            try {
+                final CodeLocation loc = getCodeLocation(selectedProofNode);
+                setEnabled(null == selectedProofNode.getChildren()
+                        && null != loc && null != loc.program && loc.isUnique);
+            } catch (NullPointerException e) {
+                setEnabled(false); // can happen if no code location can be
+                                   // found
+            }
+        }
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
             setEnabled(!(Boolean) evt.getNewValue());
     }
@@ -178,9 +188,13 @@ public abstract class StepCodeAction extends BarAction implements
 
     @Override
     public void update(Observable o, Object arg) {
-        Proof proof = (Proof) o;
-        // TODO see bugtracker 1004: more sophisticated decision 
-        // enable if the currently selected node has an applicable modality. 
-        setEnabled(proof.hasOpenGoals());
+        try {
+            final CodeLocation loc = getCodeLocation(selectedProofNode);
+            setEnabled(null == selectedProofNode.getChildren() && null != loc
+                    && null != loc.program && loc.isUnique);
+        } catch (NullPointerException e) {
+            setEnabled(false); // can happen if no code location can be
+                               // found
+        }
     }
 }
