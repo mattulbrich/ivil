@@ -19,6 +19,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -28,6 +29,8 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * Tries to automatically close all nodes below the selected one with the
@@ -40,7 +43,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
  */
 @SuppressWarnings("serial")
 public class AutoProofSubtreeAction extends BarAction implements Runnable,
-        PropertyChangeListener, InitialisingAction, Observer {
+        PropertyChangeListener, InitialisingAction, NotificationListener {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class
             .getResource("img/cog_go.png"));
@@ -58,12 +61,13 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
     }
 
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF,
-                this);
-        getProofCenter().getProof().addObserver(this);
-
+        getProofCenter().addPropertyChangeListener(
+                ProofCenter.ONGOING_PROOF, this);
         getProofCenter().addPropertyChangeListener(
                 ProofCenter.SELECTED_PROOFNODE, this);
+        getProofCenter().addNotificationListener(
+                ProofCenter.PROOFTREE_HAS_CHANGED, this);
+        
         selectedProofNode = getProofCenter().getProof().getRoot();
     }
 
@@ -83,7 +87,7 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
 
     public void run() {
         Proof proof = getProofCenter().getProof();
-        ProofCenter pc = getProofCenter();
+        final ProofCenter pc = getProofCenter();
         Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
 
         // if there are no open goals disable this action, as the proof must
@@ -134,24 +138,33 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
             strategy.endSearch();
             thread = null;
             proof.getLock().unlock();
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF,
-                    false);
-            // some listeners have been switched off, they might want to update
-            // now.
-            proof.notifyObservers();
+            // TODO put this in the after-work part of a SwingWorker
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    // some listeners have been switched off, they might want to update now.
+                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                }});
         }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
+        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             selectedProofNode = (ProofNode) evt.getNewValue();
-        else
+            // TODO update enable state at this point.
+        }
+        
+        // FIXME?! Really? For the embedded action you want to change the icon?
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             setIcon(((Boolean) evt.getNewValue()) ? stopIcon : goIcon);
+        }
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        Proof proof = (Proof) o;
+    public void handleNotification(NotificationEvent event) {
+        // TODO ... is this what we want? Should depend on whether there are open goals
+        // under the currently selected node.
+        Proof proof = getProofCenter().getProof();
         setEnabled(proof.hasOpenGoals());
     }
 

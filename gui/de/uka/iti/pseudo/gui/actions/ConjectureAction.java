@@ -9,6 +9,7 @@ import java.util.Queue;
 
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -76,7 +77,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction, P
     private void run() {
        
 
-        ProofCenter proofCenter = getProofCenter();
+        final ProofCenter proofCenter = getProofCenter();
         Proof proof = proofCenter.getProof();
         ProofNode currentProofNode = proofCenter.getCurrentProofNode();
         Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
@@ -141,10 +142,13 @@ public class ConjectureAction extends BarAction implements InitialisingAction, P
         } finally {
             strategy.endSearch();
             proof.getLock().unlock();
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-            // some listeners have been switched off, they might want to update
-            // now.
-            proof.notifyObservers();
+         // TODO put this in the after-work part of a SwingWorker
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    // some listeners have been switched off, they might want to update now.
+                    proofCenter.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                }});
         }
 
     }

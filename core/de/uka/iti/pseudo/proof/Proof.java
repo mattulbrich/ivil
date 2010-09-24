@@ -70,7 +70,7 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  * tree may have changed.</li>
  * </ol>
  */
-public class Proof extends Observable {
+public class Proof {
 
     /**
      * The root node of the proof tree. This will never be null and always
@@ -80,8 +80,25 @@ public class Proof extends Observable {
 
     /**
      * The locking mechanism to ensure synchronisation on the proof.
+     * 
+     * TODO remove this ...
      */
     private Lock lock = new ReentrantLock();
+
+    /**
+     * The object which encapsulates the observable part of the pattern. All
+     * listeners are added to this observable and all notifications go through
+     * it.
+     * 
+     * This object automatically sets the set changed prior to calling the
+     * notification.
+     */
+    private Observable observable = new Observable() {
+        public void notifyObservers(Object arg) {
+            setChanged();
+            super.notifyObservers(arg);
+        };
+    };
 
     /**
      * This list contains all open proof nodes that are reachable from
@@ -265,18 +282,25 @@ public class Proof extends Observable {
      */
     private void fireNodeChanged(ProofNode proofNode) {
         changedSinceSave = true;
-        setChanged();
-        notifyObservers(proofNode);
+        observable.notifyObservers(proofNode);
+    }
+    
+    
+
+    /**
+     * @param o
+     * @see java.util.Observable#addObserver(java.util.Observer)
+     */
+    public void addObserver(Observer o) {
+        observable.addObserver(o);
     }
 
     /**
-     * notify all observers without argument: They should renew their perception of
-     * the proof.
+     * @param o
+     * @see java.util.Observable#deleteObserver(java.util.Observer)
      */
-    @Override
-    public void notifyObservers() {
-        setChanged();
-        super.notifyObservers();
+    public void deleteObserver(Observer o) {
+        observable.deleteObserver(o);
     }
 
     /**

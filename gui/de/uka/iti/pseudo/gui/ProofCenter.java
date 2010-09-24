@@ -19,6 +19,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+
+import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -40,6 +44,9 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationListener;
+import de.uka.iti.pseudo.util.NotificationSupport;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * The Class ProofCenter is the center point of one proof and its visualiation
@@ -63,7 +70,7 @@ import de.uka.iti.pseudo.util.Log;
  * A general PropertyChange mechanism is installed to provide an opportunity to
  * work with general properties on the proof process. 
  */
-public class ProofCenter {
+public class ProofCenter implements Observer {
     
     /**
      * Property key indicating that an automatic proof is on the run.
@@ -94,6 +101,19 @@ public class ProofCenter {
      * Type: boolean
      */
     public static final String TREE_SHOW_NUMBERS = "pseudo.tree.shownumbers";
+
+    /**
+     * Notification signal to indicate that a node in the proof has been changed.
+     * Activated every time that the proof is changed (observing the proof)
+     */
+    public static final String PROOFNODE_HAS_CHANGED = "pseudo.proofnode_changed";
+    
+    /**
+     * Notification signal to indicate that the proof has changed.
+     * This is called after an action on the proof has finished. This notification
+     * may come after 0, 1 or several proof node changes to the proof. 
+     */
+    public static final String PROOFTREE_HAS_CHANGED = "pseudo.prooftree_changed";
     
     /**
      * The main window.
@@ -144,12 +164,14 @@ public class ProofCenter {
      * elements here. This is the listener support
      */
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-
+    
     /**
      * general property mechnism to allow listening w/o declaration of new
      * elements here.This is the value support.
      */
     private Map<String, Object> generalProperties = new HashMap<String, Object>();
+    
+    private NotificationSupport notificationSupport = new NotificationSupport(this);
     
     /**
      * Instantiates a new proof center.
@@ -176,6 +198,8 @@ public class ProofCenter {
         
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
+        
+        proof.addObserver(this);
 
         firePropertyChange(ONGOING_PROOF, false);
         
@@ -474,6 +498,20 @@ public class ProofCenter {
                 .getBreakpointManager();
     }
 
+    // react to changes on the proof ... delegate to the UI components (on UI thread)
+    
+    @Override
+    public void update(Observable o, Object arg) {
+        
+        final ProofNode pn = (ProofNode) arg;
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                fireNotification(PROOFNODE_HAS_CHANGED, pn);
+            }
+        });
+    }
+    
     // Delegations to changeSupport!
     
     /**
@@ -490,6 +528,10 @@ public class ProofCenter {
     public void addPropertyChangeListener(String propertyName,
             PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(propertyName, listener);
+    }
+    
+    public void addNotificationListener(String signal, NotificationListener listener) {
+        notificationSupport.addNotificationListener(signal, listener);
     }
 
     /**
@@ -512,7 +554,7 @@ public class ProofCenter {
         generalProperties.put(propertyName, newValue);
         changeSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
-
+    
     /**
      * Notify all registered listeners that a property's value has been set.
      * 
@@ -528,10 +570,9 @@ public class ProofCenter {
      * @param newValue
      *            value after the change.
      */
-    public void firePropertySet(String propertyName, Object newValue) {
-        Log.enter(propertyName, newValue);
-        generalProperties.put(propertyName, newValue);
-        changeSupport.firePropertyChange(propertyName, null, newValue);
+    public void fireNotification(String signal, Object... parameters) {
+        Log.enter(signal, Util.readOnlyArrayList(parameters));
+        notificationSupport.fireNotification(signal, parameters);
     }
     
     /**
@@ -560,6 +601,10 @@ public class ProofCenter {
     public void removePropertyChangeListener(String propertyName,
             PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(propertyName, listener);
+    }
+    
+    public void removeNotificationListener(String signal, NotificationListener listener) {
+        notificationSupport.removeNotificationListener(signal, listener);
     }
     
     /**

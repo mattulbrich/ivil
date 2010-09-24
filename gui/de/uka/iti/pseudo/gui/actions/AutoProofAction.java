@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -28,11 +29,13 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 // TODO Documentation needed
 @SuppressWarnings("serial") 
 public class AutoProofAction extends BarAction 
-    implements Runnable, PropertyChangeListener, InitialisingAction, Observer {
+    implements Runnable, PropertyChangeListener, InitialisingAction, NotificationListener {
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
@@ -47,7 +50,7 @@ public class AutoProofAction extends BarAction
     
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
-        getProofCenter().getProof().addObserver(this);
+        getProofCenter().addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
     
     public void actionPerformed(ActionEvent e) {
@@ -64,7 +67,7 @@ public class AutoProofAction extends BarAction
     }
 
     public void run() {
-        ProofCenter pc = getProofCenter();
+        final ProofCenter pc = getProofCenter();
         Proof proof = pc.getProof();
         Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
         
@@ -125,9 +128,13 @@ public class AutoProofAction extends BarAction
             strategy.endSearch();
             thread = null;
             proof.getLock().unlock();
-            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-            // some listeners have been switched off, they might want to update now.
-            proof.notifyObservers();
+            // TODO put this in the after-work part of a SwingWorker
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    // some listeners have been switched off, they might want to update now.
+                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                }});
         }
     }
 
@@ -136,9 +143,11 @@ public class AutoProofAction extends BarAction
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        Proof proof = (Proof) o;
-        setEnabled(proof.hasOpenGoals());        
+    public void handleNotification(NotificationEvent evt) {
+        if(evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+            Proof proof = getProofCenter().getProof();
+            setEnabled(proof.hasOpenGoals());
+        }
     }
 
 }

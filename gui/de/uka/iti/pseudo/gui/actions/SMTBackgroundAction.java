@@ -27,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
@@ -44,6 +45,8 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.Pair;
 
 
@@ -57,7 +60,7 @@ import de.uka.iti.pseudo.util.Pair;
  */
 @SuppressWarnings("serial") 
 public final class SMTBackgroundAction extends BarAction implements
-        InitialisingAction, PropertyChangeListener, Observer, Runnable {
+        InitialisingAction, PropertyChangeListener, Runnable, NotificationListener {
 
     /**
      * The property on ProofCenter that will be used to store the
@@ -159,7 +162,7 @@ public final class SMTBackgroundAction extends BarAction implements
         ProofCenter proofCenter = getProofCenter();
         
         proof = proofCenter.getProof();
-        proof.addObserver(this);
+        proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
         env = proofCenter.getEnvironment();
         
         proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
@@ -262,23 +265,27 @@ public final class SMTBackgroundAction extends BarAction implements
      * - remove from provable if no longer a goal
      * - set jobs to all newly open goals
      */
-    public void update(Observable o, Object arg) {
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        assert SwingUtilities.isEventDispatchThread();
         
-        // no update while in automatic proof
-        if((Boolean)getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)) {
-            return;
+        if(event.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+            // no update while in automatic proof
+            if((Boolean)getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)) {
+                return;
+            }
+        
+            Iterator<ProofNode> it = provableNodes.iterator();
+            while(it.hasNext()) {
+                if(!proof.getOpenGoals().contains(it.next()))
+                    it.remove();
+            }
+
+            setFlashing(!provableNodes.isEmpty());
+
+            jobs.clear();
+            jobs.addAll(proof.getOpenGoals());
         }
-        
-        Iterator<ProofNode> it = provableNodes.iterator();
-        while(it.hasNext()) {
-            if(!proof.getOpenGoals().contains(it.next()))
-                it.remove();
-        }
-        
-        setFlashing(!provableNodes.isEmpty());
-        
-        jobs.clear();
-        jobs.addAll(proof.getOpenGoals());
     }
 
     /*

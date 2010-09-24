@@ -111,12 +111,13 @@ public class ProofComponent extends JTree implements PropertyChangeListener {
         // this.proof = proof;
         Proof proof = proofCenter.getProof();
         proofModel = new ProofComponentModel(proof.getRoot(), proofCenter);
-        proof.addObserver(proofModel);
+        proofCenter.addNotificationListener(ProofCenter.PROOFNODE_HAS_CHANGED, proofModel);
+        proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, proofModel);
         setModel(proofModel);
         setCellRenderer(new Renderer());
         addListeners(proofCenter);
-        proofCenter.firePropertySet(ProofCenter.TREE_VERBOSITY, DEFAULT_VERBOSITY);
-        proofCenter.firePropertySet(ProofCenter.TREE_SHOW_NUMBERS, DEFAULT_SHOW_NUMBER);
+        proofCenter.firePropertyChange(ProofCenter.TREE_VERBOSITY, DEFAULT_VERBOSITY);
+        proofCenter.firePropertyChange(ProofCenter.TREE_SHOW_NUMBERS, DEFAULT_SHOW_NUMBER);
         JPopupMenu popup = proofCenter.getBarManager().makePopup(POPUP_BAR_PROPERTY);
         addMouseListener(new TreePopupMouseListener(this, popup));
     }
