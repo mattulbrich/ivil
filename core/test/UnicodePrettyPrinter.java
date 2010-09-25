@@ -135,7 +135,8 @@ public class UnicodePrettyPrinter extends PrettyPrintPlugin {
             append(replacement);
             printBoundVariable(term);
             int i = 0;
-            for (Term t : term.getSubterms()) {
+            for (@SuppressWarnings("unused")
+            Term t : term.getSubterms()) {
                 append("; ");
                 printSubterm(term, i);
                 i++;

@@ -10,7 +10,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;

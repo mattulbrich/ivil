@@ -145,8 +145,7 @@ public class MainWindow extends JFrame {
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, sequentComponent);
         }
         {
-            goalList = new GoalList(proofCenter.getProof(), proofCenter.getEnvironment());
-            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, goalList);
+            goalList = new GoalList(proofCenter);
             goalList.addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
                     if(!e.getValueIsAdjusting()) {

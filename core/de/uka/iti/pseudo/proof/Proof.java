@@ -17,6 +17,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -69,13 +70,29 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  * tree may have changed.</li>
  * </ol>
  */
-public class Proof extends Observable {
+public class Proof {
 
     /**
      * The root node of the proof tree. This will never be null and always
      * contains the sequent to be be proved.
      */
     private @NonNull ProofNode root;
+
+
+    /**
+     * The object which encapsulates the observable part of the pattern. All
+     * listeners are added to this observable and all notifications go through
+     * it.
+     * 
+     * This object automatically sets the set changed prior to calling the
+     * notification.
+     */
+    private Observable observable = new Observable() {
+        public void notifyObservers(Object arg) {
+            setChanged();
+            super.notifyObservers(arg);
+        };
+    };
 
     /**
      * This list contains all open proof nodes that are reachable from
@@ -103,6 +120,11 @@ public class Proof extends Observable {
      * The daemon, that does jobs on this proof.
      */
     final ProofDaemon daemon;
+    
+    /**
+     * This mutex is used to ensure apply and prune are atomic operations.
+     */
+    final ReentrantLock mutex = new ReentrantLock();
 
     /**
      * Instantiates a new proof with an initial sequent.
@@ -160,30 +182,28 @@ public class Proof extends Observable {
      * 
      * @see ProofDaemon.applyRule
      */
-    public void apply(@NonNull RuleApplication ruleApp, Environment env)
+    public void apply(@NonNull RuleApplication ruleApp,
+            Environment env)
             throws ProofException {
     
         ProofNode goal;
-
-        // TODO maybe this can be replaced somehow; assert?
-        if (Thread.currentThread() != daemon.thread)
-            throw new UnsupportedOperationException(
-                    "only the proof daemon can apply rules");
         
         goal = ruleApp.getProofNode();
-        int goalno = openGoals.indexOf(goal);
-
-        if (goalno == -1) {
-            throw new ProofException(
-                    "The rule application points to a non-existant or non-goal proof node");
+        synchronized(mutex){
+            int goalno = openGoals.indexOf(goal);
+    
+            if (goalno == -1) {
+                throw new ProofException(
+                        "The rule application points to a non-existant or non-goal proof node");
+            }
+    
+            goal.apply(ruleApp, env);
+    
+            openGoals.remove(goalno);
+            openGoals.addAll(goalno, goal.getChildren());
+    
+            fireNodeChanged(goal);
         }
-
-        goal.apply(ruleApp, env);
-
-        openGoals.remove(goalno);
-        openGoals.addAll(goalno, goal.getChildren());
-
-        fireNodeChanged(goal);
     }
 
     /**
@@ -228,20 +248,17 @@ public class Proof extends Observable {
      */
     public void prune(ProofNode proofNode) throws ProofException {
 
-        // TODO maybe this can be replaced somehow; assert?
-        if (Thread.currentThread() != daemon.thread)
-            throw new UnsupportedOperationException(
-                    "only the proof daemon can apply rules");
-
         if (proofNode.getProof() != this)
             throw new ProofException("The proof node does not belong to me");
 
-        proofNode.prune();
+        synchronized (mutex) {
+            proofNode.prune();
 
-        openGoals.clear();
-        root.collectOpenGoals(openGoals);
+            openGoals.clear();
+            root.collectOpenGoals(openGoals);
 
-        fireNodeChanged(proofNode);
+            fireNodeChanged(proofNode);
+        }
     }
 
     /**
@@ -264,18 +281,25 @@ public class Proof extends Observable {
      */
     private void fireNodeChanged(ProofNode proofNode) {
         changedSinceSave = true;
-        setChanged();
-        notifyObservers(proofNode);
+        observable.notifyObservers(proofNode);
+    }
+    
+    
+
+    /**
+     * @param o
+     * @see java.util.Observable#addObserver(java.util.Observer)
+     */
+    public void addObserver(Observer o) {
+        observable.addObserver(o);
     }
 
     /**
-     * notify all observers without argument: They should renew their perception of
-     * the proof.
+     * @param o
+     * @see java.util.Observable#deleteObserver(java.util.Observer)
      */
-    @Override
-    public void notifyObservers() {
-        setChanged();
-        super.notifyObservers();
+    public void deleteObserver(Observer o) {
+        observable.deleteObserver(o);
     }
 
     /**

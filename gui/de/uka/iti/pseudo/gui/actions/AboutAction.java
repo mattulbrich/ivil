@@ -32,7 +32,6 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * Shows an About Box ... eventually
  */
-@SuppressWarnings("serial")
 public class AboutAction extends BarAction {
 
     private static final long serialVersionUID = -6434986871638617270L;

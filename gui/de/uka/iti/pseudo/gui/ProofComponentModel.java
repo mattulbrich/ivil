@@ -13,12 +13,8 @@ package de.uka.iti.pseudo.gui;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.Queue;
 import java.util.Vector;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
@@ -33,11 +29,9 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
-import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.Update;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.TextInstantiator;
 
 /**
@@ -45,7 +39,7 @@ import de.uka.iti.pseudo.util.TextInstantiator;
  *
  * @see ProofComponent
  */
-public class ProofComponentModel extends DefaultTreeModel implements Observer {
+public class ProofComponentModel extends DefaultTreeModel implements NotificationListener {
     
     private static final long serialVersionUID = -6525872309302128760L;
     
@@ -61,7 +55,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
 
     private ProofCenter proofCenter;
 
-    private BlockingQueue<ProofNode> updateQueue = new LinkedBlockingQueue<ProofNode>();
+    // we assume that only the AWT thread operates on this data structure, hence,
+    // no synchronisation is needed.
+    private Queue<ProofNode> updateQueue = new LinkedList<ProofNode>();
     
     public class ProofTreeNode implements TreeNode {
 
@@ -269,8 +265,37 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
         
     }
     
-    private Runnable treeUpdateRunnable = new Runnable() {
-        public void run() {
+    public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
+        // we cannot do this in one call, since this would give a comp. error
+        super(null);
+        setRoot(new ProofTreeNode(null, root, false));
+        
+        this.proofCenter = proofCenter;
+        this.prettyPrint = proofCenter.getPrettyPrinter();
+    }
+
+    /**
+     * handle 2 kinds of notifications:
+     * 
+     * <p>{@link ProofCenter#PROOFNODE_HAS_CHANGED}:
+     * add the changed proof node to the update queue.
+     * 
+     * <p>{@link ProofCenter#PROOFTREE_HAS_CHANGED}:
+     * update the tree at the places that have been changed.
+     */
+    
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        assert SwingUtilities.isEventDispatchThread();
+        
+        if(event.isSignal(ProofCenter.PROOFNODE_HAS_CHANGED)) {
+            assert event.countParameters() == 1;
+            ProofNode pn = (ProofNode) event.getParameter(0);
+            updateQueue.add(pn);
+        }
+        
+        // FIXME This bit is responsible for the slow tree update!
+        if(event.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
             ProofNode proofNode = updateQueue.poll();
             while(proofNode != null) {
                 TreePath p = getPath(proofNode);
@@ -283,42 +308,17 @@ public class ProofComponentModel extends DefaultTreeModel implements Observer {
                     ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
                     ptn.invalidate();
 
-                    TreeModelEvent event = new TreeModelEvent(proofNode, proofNodePath);
+                    TreeModelEvent treeEvent = new TreeModelEvent(proofNode, proofNodePath);
                     for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-                        listener.treeStructureChanged(event);
+                        listener.treeStructureChanged(treeEvent);
                     }
                 }
                 proofNode = updateQueue.poll();
             }
-        }};
-
-
-    public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
-        // we cannot do this in one call, since this would give a comp. error
-        super(null);
-        setRoot(new ProofTreeNode(null, root, false));
-        
-        this.proofCenter = proofCenter;
-        this.prettyPrint = proofCenter.getPrettyPrinter();
-    }
-
-    /**
-     * the observation is likely to appear outside the AWT thread.
-     * arg == null implies that an automatic proof has ended.
-     */
-    public void update(final Observable proof, final Object arg) {
-        ProofNode proofNode = (ProofNode) arg;
-        
-        if(proofNode != null)
-            updateQueue.add(proofNode);
-        
-        // no update while in automatic proof
-        // this is done by the call with arg==null after the run.
-        if ((Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF) == false) {
-            SwingUtilities.invokeLater(treeUpdateRunnable);
         }
+        
     }
-    
+
     /**
      * retrieve the proof node from a tree path object.
      * 

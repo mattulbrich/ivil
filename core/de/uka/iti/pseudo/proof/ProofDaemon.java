@@ -275,9 +275,6 @@ public class ProofDaemon implements Runnable {
             } finally {
                 job.done = true;
                 job.sem.release();
-
-                // notify all observers of the proof
-                proof.notifyObservers();
             }
         }
     }

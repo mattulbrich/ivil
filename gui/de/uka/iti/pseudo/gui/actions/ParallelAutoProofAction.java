@@ -15,8 +15,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -37,6 +36,8 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * This action tries to close a given list of open goals by searching for rule
@@ -44,9 +45,11 @@ import de.uka.iti.pseudo.util.Log;
  * 
  * @author felden@ira.uka.de
  */
-@SuppressWarnings("serial")
 public abstract class ParallelAutoProofAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction, Observer, Runnable {
+        PropertyChangeListener, InitialisingAction, Runnable,
+        NotificationListener {
+
+    private static final long serialVersionUID = 7212654361200636678L;
 
     class RuleApplicationFinder implements Callable<RuleApplication> {
         final private ProofNode target;
@@ -84,7 +87,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF,
                 this);
-        getProofCenter().getProof().addObserver(this);
+        getProofCenter().addNotificationListener(
+                ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -110,14 +114,22 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         }
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
-        setIcon(((Boolean) evt.getNewValue()) ? stopIcon : goIcon);
+    @Override
+    public void handleNotification(NotificationEvent evt) {
+        // TODO ... is this what we want? Should depend on whether there are
+        // open goals
+        // under the currently selected node.
+        if (evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+            Proof proof = getProofCenter().getProof();
+            setEnabled(proof.hasOpenGoals());
+        }
     }
 
-    @Override
-    public void update(Observable o, Object arg) {
-        Proof proof = (Proof) o;
-        setEnabled(proof.hasOpenGoals());
+    public void propertyChange(PropertyChangeEvent evt) {
+        // FIXME?! Really? For the embedded action you want to change the icon?
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
+            setIcon(((Boolean) evt.getNewValue()) ? stopIcon : goIcon);
+        }
     }
 
     /**
@@ -190,6 +202,15 @@ public abstract class ParallelAutoProofAction extends BarAction implements
             strategy.endSearch();
             pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             job = null;
+            // TODO put this in the after-work part of a SwingWorker
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    // some listeners have been switched off, they might want to
+                    // update now.
+                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                }
+            });
         }
     }
 }

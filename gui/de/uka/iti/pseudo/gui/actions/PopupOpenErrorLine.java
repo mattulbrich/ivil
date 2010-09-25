@@ -13,12 +13,12 @@ package de.uka.iti.pseudo.gui.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
 import javax.swing.JTextArea;
 import javax.swing.text.BadLocationException;
 
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 
-@SuppressWarnings("serial")
 public class PopupOpenErrorLine extends BarAction implements InitialisingAction, PropertyChangeListener{
 
     private static final long serialVersionUID = 7937208369106413832L;

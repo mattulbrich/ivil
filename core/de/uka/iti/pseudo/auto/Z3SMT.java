@@ -72,8 +72,7 @@ public class Z3SMT implements DecisionProcedure {
                 throw new InterruptedException();
             }
             
-            int errorVal = process.waitFor();
-            // System.err.println("Finished waiting: " + errorVal);
+            process.waitFor();
 
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();

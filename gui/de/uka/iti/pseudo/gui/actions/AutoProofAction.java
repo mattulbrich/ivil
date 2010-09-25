@@ -19,8 +19,9 @@ import de.uka.iti.pseudo.proof.ProofNode;
  * 
  * @author felden@ira.uka.de
  */
-@SuppressWarnings("serial")
 public class AutoProofAction extends ParallelAutoProofAction {
+
+    private static final long serialVersionUID = -7094117185284991811L;
 
     public AutoProofAction() {
         super("Automatic Proof");
@@ -31,5 +32,4 @@ public class AutoProofAction extends ParallelAutoProofAction {
     public List<ProofNode> getInitialList() {
         return getProofCenter().getProof().getOpenGoals();
     }
-
 }

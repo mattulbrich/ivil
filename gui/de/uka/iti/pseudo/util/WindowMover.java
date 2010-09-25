@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.AbstractBorder;
 import javax.swing.event.MouseInputListener;
 
-@SuppressWarnings("serial")
 public class WindowMover extends AbstractBorder implements MouseInputListener {
     
     private static final long serialVersionUID = 600989019991147038L;

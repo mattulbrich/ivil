@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.util;
 
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.TextComponent;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
@@ -27,7 +26,6 @@ import de.uka.iti.pseudo.proof.TermSelector;
 // TODO DOC
 // Is this drag and drop?
 
-@SuppressWarnings("serial")
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;

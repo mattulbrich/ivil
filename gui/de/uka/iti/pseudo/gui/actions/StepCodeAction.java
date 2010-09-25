@@ -14,8 +14,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.Icon;
 
@@ -27,6 +25,8 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * This class is designed to implement stepwise execution on source line basis.
@@ -37,7 +37,7 @@ import de.uka.iti.pseudo.util.Log;
  * initial one.
  */
 public abstract class StepCodeAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction, Observer {
+        PropertyChangeListener, InitialisingAction, NotificationListener {
     
     private static final long serialVersionUID = 5444254542006126131L;
 
@@ -156,6 +156,28 @@ public abstract class StepCodeAction extends BarAction implements
         });
     }
 
+    // TODO when a new node is selected, check whether this action is applicable.
+    // If there is no relevant modality, deactivate the button.
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
+        {
+            selectedProofNode = (ProofNode) evt.getNewValue();
+            try {
+                final CodeLocation loc = getCodeLocation(selectedProofNode);
+                setEnabled(null == selectedProofNode.getChildren()
+                        && null != loc && null != loc.program && loc.isUnique);
+            } catch (NullPointerException e) {
+                // FIXME HACK. Do not "use" for NPE.
+                setEnabled(false); // can happen if no code location can be
+                                   // found
+            }
+        }
+        
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
+            setEnabled(!(Boolean) evt.getNewValue());
+    }
+
     @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
@@ -164,46 +186,27 @@ public abstract class StepCodeAction extends BarAction implements
                 ProofCenter.SELECTED_PROOFNODE, this);
         proofCenter.addPropertyChangeListener(
                 ProofCenter.ONGOING_PROOF, this);
-        proofCenter.getProof().addObserver(this);
+        proofCenter.addNotificationListener(
+                ProofCenter.PROOFTREE_HAS_CHANGED, this);
         
         selectedProofNode = proofCenter.getProof().getRoot();
-    }
-
-    // TODO when a new node is selected, check whether this action is applicable.
-    // If there is no relevant modality, deactivate the button.
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())){
-            selectedProofNode = (ProofNode) evt.getNewValue();
-            
-            try{
-                final CodeLocation loc = getCodeLocation(selectedProofNode);
-                setEnabled(null == selectedProofNode.getChildren()
-                        && null != loc && null != loc.program && loc.isUnique);
-            } catch(NullPointerException e){
-                setEnabled(false); //can happen if no code location can be found
-            }
-        }
-        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
-            setEnabled(!(Boolean) evt.getNewValue()
-                    && getProofCenter().getProof().hasOpenGoals());
     }
 
     
 
     @Override
-    public void update(Observable o, Object arg) {
-        Proof proof = (Proof) o;
-        if (proof.hasOpenGoals()) {
+    public void handleNotification(NotificationEvent evt) {
+        if(evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+            // FIXME move to method in CodeLocation!
             try {
                 final CodeLocation loc = getCodeLocation(selectedProofNode);
-                setEnabled(null == selectedProofNode.getChildren()
-                        && null != loc && null != loc.program && loc.isUnique);
+                setEnabled(null == selectedProofNode.getChildren() && null != loc
+                        && null != loc.program && loc.isUnique);
             } catch (NullPointerException e) {
+                // FIXME HACK. Do not catch NPE
                 setEnabled(false); // can happen if no code location can be
-                                   // found
+                // found
             }
-        } else
-            setEnabled(false);
+        }
     }
 }
