@@ -115,11 +115,6 @@ public class Proof {
      * the nodes using this counter.
      */
     private int proofNodeCounter;
-
-    /**
-     * The daemon, that does jobs on this proof.
-     */
-    final ProofDaemon daemon;
     
     /**
      * This mutex is used to ensure apply and prune are atomic operations.
@@ -136,8 +131,6 @@ public class Proof {
         root = new ProofNode(this, initialSequent,
                 new SequentHistory.Annotation("formula on initial sequent"));
         openGoals.add(root);
-
-        daemon = new ProofDaemon(this);
     }
 
     /**
@@ -320,28 +313,6 @@ public class Proof {
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
     }
-    
-    /**
-     * Gets a particular goal of the list of open goals.
-     * 
-     * <p>
-     * Since the structure of a proof may change rapidly, you should first
-     * acquire the proof's lock ({@link #getLock()}) and then do inquiries on
-     * its content, e.g., by using this method.
-     * 
-     * @param goalNo
-     *            the number of the goal to retrieve
-     * 
-     * @return the goal which corresponds to tje open problem.
-     * 
-     * @throws IndexOutOfBoundsException
-     *             if the argument is outside the range of valid indices of
-     *             {@link #openGoals}.
-     * 
-     */
-//    public @NonNull ProofNode getGoal(int goalNo) {
-//        return openGoals.get(goalNo);
-//    }
 
     /**
      * Checks for unsaved changes.
@@ -369,13 +340,4 @@ public class Proof {
         proofNodeCounter++;
         return proofNodeCounter;
     }
-
-    public ProofDaemon getDaemon() {
-        return daemon;
-    }
-
-    public boolean isDaemonThread(final Thread t) {
-        return t == daemon.thread;
-    }
-
 }
