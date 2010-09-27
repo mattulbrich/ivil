@@ -130,7 +130,7 @@ public final class NotificationSupport {
             }
         }
 
-        if (listeners != null) {
+        if (totalListeners != null) {
             for (NotificationListener listener : totalListeners) {
                 listener.handleNotification(event);
             }
