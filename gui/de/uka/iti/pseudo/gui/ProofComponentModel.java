@@ -13,7 +13,6 @@ package de.uka.iti.pseudo.gui;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Observable;
 import java.util.Queue;
 import java.util.Vector;
 
@@ -24,6 +23,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import com.sun.media.sound.PCMtoPCMCodec;
+import com.sun.org.apache.xpath.internal.axes.PredicatedNodeTest;
+
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -32,7 +34,6 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
-import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.TextInstantiator;
 
 /**
@@ -40,7 +41,7 @@ import de.uka.iti.pseudo.util.TextInstantiator;
  *
  * @see ProofComponent
  */
-public class ProofComponentModel extends DefaultTreeModel implements NotificationListener {
+class ProofComponentModel extends DefaultTreeModel {
     
     private static final long serialVersionUID = -6525872309302128760L;
     
@@ -60,6 +61,9 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
     // no synchronisation is needed.
     private Queue<ProofNode> updateQueue = new LinkedList<ProofNode>();
     
+    /**
+     * A TreeNode corresponding to one proof node of the proof. 
+     */
     public class ProofTreeNode implements TreeNode {
 
     	private ProofNode proofNode;
@@ -74,38 +78,54 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
                 children = EMPTY_VECTOR;
         }
 
+        //
+        // -- implementation of the interface
+        //
+        
+        @Override
         public Enumeration<?> children() {
             expand();
             return children.elements();
         }
 
+        @Override
         public boolean getAllowsChildren() {
             return true;
         }
 
+        @Override
         public TreeNode getChildAt(int childIndex) {
             expand();
             return children.elementAt(childIndex);
         }
 
+        @Override
         public int getChildCount() {
             expand();
             return children.size();
         }
 
+        @Override
         public int getIndex(TreeNode node) {
             expand();
             return children.indexOf(node);
         }
 
-        public TreeNode getParent() {
+        // NB: narrowing of return type!
+        @Override
+        public ProofTreeNode getParent() {
             return parent;
         }
 
+        @Override
         public boolean isLeaf() {
             expand();
             return children.isEmpty();
         }
+        
+        //
+        // --- now my own methods
+        //
 
         private void expand() {
             if(children != null)
@@ -172,10 +192,39 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
         public ProofNode getProofNode() {
             return proofNode;
         }
+        
+        public TreePath getPath() {
+            if(parent == null) {
+                return new TreePath(this);
+            } else {
+                return parent.getPath().pathByAddingChild(this);
+            }
+        }
 
         public void invalidate() {
             children = null;
             label = null;
+        }
+        
+        public ProofTreeNode findProofNode(ProofNode pn, boolean expandOnDemand) {
+            if(pn == getProofNode() && (children == null || children.isEmpty()))
+                return this;
+            
+            if(children == null) {
+                if(expandOnDemand) {
+                    expand();
+                } else {
+                    return null;
+                }
+            }
+            
+            for (ProofTreeNode child : children) {
+                ProofTreeNode res = child.findProofNode(pn, expandOnDemand);
+                if(res != null)
+                    return res;
+            }
+            
+            return null;
         }
 
         /*
@@ -200,7 +249,8 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
                     }
                 }
                 
-                if(showNumbers && parent != null) {
+                // empty vector indicates a leaf.
+                if(showNumbers && children != null && children.isEmpty() && parent != null) {
                     label = proofNode.getNumber() + ": " + label;
                 }
             }
@@ -256,14 +306,6 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
 		}
         
 
-        /*
-         * instantiate the schema variables in a string.
-         */
-        private String instantiateString(RuleApplication ruleApp, String string) {
-            TextInstantiator textInst = new TextInstantiator(ruleApp);
-            return textInst.replaceInString(string, prettyPrint);
-        }
-        
     }
     
     public ProofComponentModel(ProofNode root, ProofCenter proofCenter) {
@@ -276,51 +318,6 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
     }
 
     /**
-     * handle 2 kinds of notifications:
-     * 
-     * <p>{@link ProofCenter#PROOFNODE_HAS_CHANGED}:
-     * add the changed proof node to the update queue.
-     * 
-     * <p>{@link ProofCenter#PROOFTREE_HAS_CHANGED}:
-     * update the tree at the places that have been changed.
-     */
-    
-    @Override
-    public void handleNotification(NotificationEvent event) {
-        assert SwingUtilities.isEventDispatchThread();
-        
-        if(event.isSignal(ProofCenter.PROOFNODE_HAS_CHANGED)) {
-            assert event.countParameters() == 1;
-            ProofNode pn = (ProofNode) event.getParameter(0);
-            updateQueue.add(pn);
-        }
-        
-        // FIXME This bit is responsible for the slow tree update!
-        if(event.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
-            ProofNode proofNode = updateQueue.poll();
-            while(proofNode != null) {
-                TreePath p = getPath(proofNode);
-
-                // in case the node is no longer seen we do not need to
-                // update anything anyway.
-                if (p != null) {
-
-                    TreePath proofNodePath = p.getParentPath();
-                    ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
-                    ptn.invalidate();
-
-                    TreeModelEvent treeEvent = new TreeModelEvent(proofNode, proofNodePath);
-                    for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-                        listener.treeStructureChanged(treeEvent);
-                    }
-                }
-                proofNode = updateQueue.poll();
-            }
-        }
-        
-    }
-
-    /**
      * retrieve the proof node from a tree path object.
      * 
      * @param path a path into this model
@@ -328,39 +325,23 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
      */
     public ProofNode getProofNode(TreePath path) {
         ProofTreeNode treeNode = (ProofTreeNode) path.getLastPathComponent();
-        return treeNode.proofNode;
-    }
-
-    /**
-     * get the path to the node which corresponds to a certain proof node.
-     * TODO is this depth first search? can we do better? do we need to?
-     * @param node
-     * @return
-     */
-    public TreePath getPath(ProofNode node) {
-        LinkedList<Object> list = new LinkedList<Object>();
-        if(findProofNode((ProofTreeNode) root, node, list)) {
-            list.addFirst(root);
-            return new TreePath(list.toArray());
-        } else {
-            return null;
-        }
+        return treeNode.getProofNode();
     }
     
-    private boolean findProofNode(ProofTreeNode tree, ProofNode node, LinkedList<Object> path) {
-        if(tree.isLeaf() && tree.proofNode == node) {
-            return true;
-        }
-            
-        tree.expand();
-        for (ProofTreeNode ptn : tree.children) {
-            if(findProofNode(ptn, node, path)) {
-                path.addFirst(ptn);
-                return true;
-            }
-        }
+    public ProofTreeNode getProofTreeNode(ProofNode node, boolean allowExpansion) {
+        ProofTreeNode ptroot = (ProofTreeNode)root;
+        ProofTreeNode found= ptroot.findProofNode(node, allowExpansion);
+        return found;
+    }
+    
+    public TreePath getPath(ProofNode node, boolean allowExpansion) {
+        ProofTreeNode found= getProofTreeNode(node, allowExpansion);
         
-        return false;
+        if(found == null) {
+            return null;
+        } else {
+            return found.getPath();
+        }
     }
 
     public void setVerbosity(int verbosity) {
@@ -382,6 +363,47 @@ public class ProofComponentModel extends DefaultTreeModel implements Notificatio
         for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
             listener.treeStructureChanged(event);
         }
+    }
+    
+    /*
+     * instantiate the schema variables in a string.
+     */
+    private String instantiateString(RuleApplication ruleApp, String string) {
+        TextInstantiator textInst = new TextInstantiator(ruleApp);
+        return textInst.replaceInString(string, prettyPrint);
+    }
+
+    public void addChangedProofNode(ProofNode pn) {
+        assert SwingUtilities.isEventDispatchThread();
+        updateQueue.add(pn);
+    }
+
+    public void publishChanges() {
+        assert SwingUtilities.isEventDispatchThread();
+        
+        ProofNode proofNode = updateQueue.poll();
+        while(proofNode != null) {
+            TreePath p = getPath(proofNode, false);
+
+            if (p != null) {
+
+                TreePath proofNodePath = p.getParentPath();
+                if(proofNodePath == null)
+                    proofNodePath = p;
+                
+                ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
+                ptn.invalidate();
+                ptn.expand();
+
+                TreeModelEvent treeEvent = new TreeModelEvent(proofNode, proofNodePath);
+                for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+                    listener.treeStructureChanged(treeEvent);
+                }
+            }
+            
+            proofNode = updateQueue.poll();
+        }
+
     }
 
 }

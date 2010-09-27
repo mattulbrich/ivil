@@ -258,7 +258,7 @@ class SnapshotManager extends JDialog {
             // return;
 
             for (ProofNode goal : selected.openGoals) {
-                proof.prune(goal);
+                proofCenter.prune(goal);
             }
 
         } catch (ProofException e) {

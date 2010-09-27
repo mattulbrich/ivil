@@ -122,9 +122,8 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
                 RuleApplication ra = strategy.findRuleApplication(current);
 
                 if (ra != null) {
-                    ProofNode next = pc.apply(ra);
+                    pc.apply(ra);
                     strategy.notifyRuleApplication(ra);
-                    // pc.fireSelectedProofNode(next);
 
                     for (ProofNode node : current.getChildren())
                             todo.add(node);
@@ -143,8 +142,8 @@ public class AutoProofSubtreeAction extends BarAction implements Runnable,
                 public void run() {
                     pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                     // some listeners have been switched off, they might want to update now.
-                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
                 }});
+            pc.fireProoftreeChangedNotification(true);
         }
     }
 

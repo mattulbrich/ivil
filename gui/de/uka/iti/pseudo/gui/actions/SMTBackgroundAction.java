@@ -18,8 +18,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
@@ -206,14 +204,11 @@ public final class SMTBackgroundAction extends BarAction implements
                     ra.setProofNode(openGoals.get(index));
                     ra.setRule(closeRule);
                     try {
-                        ProofNode next = proofCenter.apply(ra);
+                        proofCenter.apply(ra);
                         
-                        // not on a leave --> goto a leaf
-                        if(proofCenter.getCurrentProofNode().getChildren() != null)
-                            proofCenter.fireSelectedProofNode(next);
                         
                     } catch(ProofException ex) {
-                        Log.stacktrace(ex);
+                        Log.stacktrace(Log.VERBOSE, ex);
                         // this is ok - the goal may be not closable.  
                     } catch (Exception e) {
                         ExceptionDialog.showExceptionDialog(getParentFrame(), e);
@@ -221,6 +216,7 @@ public final class SMTBackgroundAction extends BarAction implements
                 }
             } finally {
                 proof.getLock().unlock();
+                proofCenter.fireProoftreeChangedNotification(true);
             }
         } else {
             Log.log(Log.ERROR, "Proof is currently locked by an other thread");

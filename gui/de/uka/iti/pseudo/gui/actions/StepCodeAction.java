@@ -113,9 +113,8 @@ public abstract class StepCodeAction extends BarAction implements
                 RuleApplication ra = strategy.findRuleApplication(current);
 
                 if (ra != null) {
-                    ProofNode nextNode = pc.apply(ra);
+                    pc.apply(ra);
                     strategy.notifyRuleApplication(ra);
-                    pc.fireSelectedProofNode(nextNode);
                     
                     for (ProofNode node : current.getChildren()) {
                         CodeLocation next = getCodeLocation(node);

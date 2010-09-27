@@ -23,6 +23,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -265,6 +266,29 @@ public class ProofCenter implements Observer {
     public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
+
+    /**
+     * Indicate that a proof step has been completed and the tree should be
+     * reassessed.
+     * 
+     * All registered notification listeners listening to the signal
+     * {@link ProofCenter#PROOFTREE_HAS_CHANGED} will get notified.
+     * 
+     * @param selectNextGoal
+     *            if this is true, the next selectable goal is automatically
+     *            selected.
+     */
+    public void fireProoftreeChangedNotification(final boolean selectNextGoal) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                fireNotification(PROOFTREE_HAS_CHANGED);
+                if(selectNextGoal) {
+                    selectNextGoal();
+                }
+            }
+        });
+    }
     
     /**
      * Gets the List of possible rule applications for a term within the
@@ -323,8 +347,8 @@ public class ProofCenter implements Observer {
      * @throws ProofException
      *             if the application fails.
      */
-    public ProofNode apply(RuleApplication ruleApp) throws ProofException {
-        ProofNode parent = ruleApp.getProofNode();
+    public void apply(RuleApplication ruleApp) throws ProofException {
+//        ProofNode parent = ruleApp.getProofNode();
         
         if(proof.getLock().tryLock()) {
             try {
@@ -337,32 +361,32 @@ public class ProofCenter implements Observer {
         }
         
         // next to select its first child (or self if no children)
-        List<ProofNode> children = parent.getChildren();
-        ProofNode next;
-        if(children == null) {
-            // still a goal
-            next = parent;
-        } else if(children.isEmpty()) {
-            if(proof.hasOpenGoals()) {
-                // select first open remaining goal
-                next = proof.getOpenGoals().get(0);
-            } else {
-                next = proof.getRoot();
-            }
-        } else {
-            // select first child goal
-            next = children.get(0);
-        }
-        
-        return next;
+//        List<ProofNode> children = parent.getChildren();
+//        ProofNode next;
+//        if(children == null) {
+//            // still a goal
+//            next = parent;
+//        } else if(children.isEmpty()) {
+//            if(proof.hasOpenGoals()) {
+//                // select first open remaining goal
+//                next = proof.getOpenGoals().get(0);
+//            } else {
+//                next = proof.getRoot();
+//            }
+//        } else {
+//            // select first child goal
+//            next = children.get(0);
+//        }
+//        
+//        return next;
     }
 
     /**
      * Prune a proof.
      * 
      * This is delegated to the proof object. On success, the change of the
-     * proof structure is propagated using the
-     * {@link #fireSelectedProofNode(ProofNode)} method.
+     * proof structure is propagated by a notification of the signal
+     * {@value #PROOFTREE_HAS_CHANGED}.
      * 
      * @param proofNode
      *            the node in the proof to prune.
@@ -371,16 +395,10 @@ public class ProofCenter implements Observer {
      */
     public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
-
-        // fire a null node as the pruned node is allways allready selected
-        try {
-            // FIXME !!! fireSelectedProofNode has @NonNull annotation!
-        fireSelectedProofNode(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            // nothing really bad, but should not happen
-        }
-        fireSelectedProofNode(proofNode);
+        
+        // prune triggers #update of this object, that sends a
+        // PROOFNODE_HAS_CHANGED notification. This remains:
+        fireProoftreeChangedNotification(false);
     }
 
     /**
@@ -495,8 +513,8 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void firePropertyChange(String propertyName, Object newValue) {
-        Log.enter(propertyName, newValue);
         Object oldValue = generalProperties.get(propertyName);
+        Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
         generalProperties.put(propertyName, newValue);
         changeSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
@@ -517,6 +535,7 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void fireNotification(String signal, Object... parameters) {
+        assert SwingUtilities.isEventDispatchThread();
         Log.enter(signal, Util.readOnlyArrayList(parameters));
         notificationSupport.fireNotification(signal, parameters);
     }
@@ -570,6 +589,35 @@ public class ProofCenter implements Observer {
             }
         }
 
+    }
+
+    private void selectNextGoal() {
+        ProofNode res = findGoal(getCurrentProofNode());
+        
+        if(res == null) {
+            res = findGoal(proof.getRoot());
+        }
+        
+        if(res == null) {
+            Log.log(Log.DEBUG, "No goal to select, selected root");
+            fireSelectedProofNode(proof.getRoot());
+        } else {
+            Log.log(Log.DEBUG, "Goal selected: " + res);
+            fireSelectedProofNode(res);
+        }
+    }
+    
+    private ProofNode findGoal(ProofNode p) {
+        if(p.getChildren() == null)
+            return p;
+        
+        for (ProofNode pn : p.getChildren()) {
+            ProofNode res = findGoal(pn);
+            if(res != null)
+                return res;
+        }
+        
+        return null;
     }
 
 }

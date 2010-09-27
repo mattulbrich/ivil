@@ -180,8 +180,8 @@ public class InteractiveRuleApplicationComponent extends
                     }
                 }
                 putClientProperty("finished", true);
-                ProofNode next = proofCenter.apply(app);
-                proofCenter.fireSelectedProofNode(next);
+                proofCenter.apply(app);
+                proofCenter.fireProoftreeChangedNotification(true);
                 
             } catch (Exception ex) {
                 ex.printStackTrace();

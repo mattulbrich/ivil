@@ -111,9 +111,8 @@ public class AutoProofAction extends BarAction
                 }
 
                 try {
-                    ProofNode next = pc.apply(ruleAppl);
+                    pc.apply(ruleAppl);
                     strategy.notifyRuleApplication(ruleAppl);
-                    // pc.fireSelectedProofNode(next);
                 } catch (ProofException e) {
                     Log.log(Log.ERROR, "Error while applying rule " + ruleAppl.getRule().getName() + 
                             " on " + ruleAppl.getFindSelector() + " on goal #" +
@@ -132,9 +131,8 @@ public class AutoProofAction extends BarAction
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-                    // some listeners have been switched off, they might want to update now.
-                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
                 }});
+            pc.fireProoftreeChangedNotification(true);
         }
     }
 
