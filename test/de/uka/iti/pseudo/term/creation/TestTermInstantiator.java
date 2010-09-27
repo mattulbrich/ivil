@@ -73,6 +73,16 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         }
     }
     
+    // from a bug:
+    public void testInUpdates3() throws Exception {
+        termmap.put("%c", makeTerm("i1"));
+
+        Term orig = makeTerm("{ %c := 0 }true");
+        assertEquals(makeTerm("{ i1 := 0 }true"), inst.instantiate(orig));
+        
+        orig = makeTerm("{ i1 := %c }true");
+        assertEquals(makeTerm("{ i1 := i1 }true"), inst.instantiate(orig));
+    }
     
     
     // partially from a bug

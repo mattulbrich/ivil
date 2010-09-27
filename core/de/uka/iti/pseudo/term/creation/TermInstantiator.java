@@ -176,14 +176,23 @@ public class TermInstantiator extends RebuildingTermVisitor {
         List<AssignmentStatement> assignments = updateTerm.getAssignments();
         
         for(int i = 0; i < assignments.size(); i++) {
+            AssignmentStatement assignment = assignments.get(i);
             
-            assignments.get(i).getTarget().visit(this);
+            assignment.getTarget().visit(this);
             Term tgt = resultingTerm;
             
-            assignments.get(i).getValue().visit(this);
+            assignment.getValue().visit(this);
             Term val = resultingTerm;
             
             if(tgt != null || val != null) {
+                // restore target if visitation returned null
+                if(tgt == null)
+                    tgt = assignment.getTarget();
+                
+                // restore value if visitation returned null
+                if(val == null)
+                    val = assignment.getValue();
+                
                 if(newAssignments == null) {
                     newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
                 }
