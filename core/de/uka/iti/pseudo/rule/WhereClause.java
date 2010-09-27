@@ -38,6 +38,11 @@ public class WhereClause {
     private WhereCondition whereCondition;
 
     /**
+     * A flag indicating whether the condition should check for success or failure.
+     */
+    private boolean inverted;
+    
+    /**
      * The arguments applied to the condition
      */
     private @NonNull Term[] arguments;
@@ -50,6 +55,9 @@ public class WhereClause {
      * 
      * @param where
      *            the where condition
+     * @param inverted 
+     *            indicates whether the condition is to <b>fail</b> rather
+     *            than to succeed.  
      * @param terms
      *            the terms on which the condition is applied
      * 
@@ -57,10 +65,11 @@ public class WhereClause {
      *             if the syntax check of the condition fails for the arguments
      *             terms.
      */
-    public WhereClause(WhereCondition where, Term[] terms) throws RuleException {
+    public WhereClause(WhereCondition where, boolean inverted, Term[] terms) throws RuleException {
         this.arguments = terms;
         this.whereCondition = where;
-
+        this.inverted =inverted;
+        
         where.checkSyntax(arguments);
     }
     
@@ -135,7 +144,8 @@ public class WhereClause {
             throw new RuleException("Exception during instantiation", e);
         }
 
-        return whereCondition.check(arguments, actualArgs, ruleApp, goal, env);
+        // This is the same as (check() && !inverted) || (!check() && inverted)
+        return whereCondition.check(arguments, actualArgs, ruleApp, goal, env) != inverted;
     }
 
 

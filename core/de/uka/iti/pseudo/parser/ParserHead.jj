@@ -139,6 +139,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < INCLUDE: "include" >
 | < INFIX: "infix" >
 | < NEWGOAL: "newgoal" >
+| < NOT: "not" >
 | < PLUGIN : "plugin" >
 | < PREFIX: "prefix" >
 | < PROBLEM: "problem" >
