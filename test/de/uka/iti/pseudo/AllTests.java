@@ -38,6 +38,7 @@ import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
 import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
+import de.uka.iti.pseudo.term.TestTermComparator;
 import de.uka.iti.pseudo.term.TestTypeVariableBinder;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
@@ -91,6 +92,7 @@ public class AllTests {
         suite.addTestSuite(TestSchemaCollectorVisitor.class);
         suite.addTestSuite(TestTypeVariableCollector.class);
         suite.addTestSuite(TestTermInstantiator.class);
+        suite.addTestSuite(TestTermComparator.class);
         suite.addTestSuite(TestTextInstantiator.class);
         suite.addTestSuite(TestTermReplacer.class);
         suite.addTestSuite(TestUtil.class);
