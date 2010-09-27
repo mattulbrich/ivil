@@ -143,17 +143,6 @@ public class ProofCenter implements Observer {
     private List<Rule> rulesSortedForInteraction;
     
     /**
-     * for synchronisation: Is this center currently firing a message? 
-     * If so, do not start another firing.
-     */
-//    private boolean isFiring = false;
-    
-    /**
-     * The currently selected proof node.
-     */
-//    private ProofNode currentProofNode;
-
-    /**
      * the system pretty printer used by components, 
      * configured by menu
      */
@@ -170,7 +159,10 @@ public class ProofCenter implements Observer {
      * elements here.This is the value support.
      */
     private Map<String, Object> generalProperties = new HashMap<String, Object>();
-    
+
+    /**
+     * general notification mechanism to allow for listening to events.
+     */
     private NotificationSupport notificationSupport = new NotificationSupport(this);
     
     /**
@@ -257,24 +249,6 @@ public class ProofCenter implements Observer {
         return mainWindow;
     }
     
-//    /**
-//     * Registers a proof node selection listener.
-//     * 
-//     * @param l the listener
-//     */
-//    public void addProofNodeSelectionListener(ProofNodeSelectionListener l) {
-//        listeners.add(l);
-//    }
-//    
-//    /**
-//     * Unregisters a proof node selection listener.
-//     * 
-//     * @param l the listener
-//     */
-//    public void removeProofNodeSelectionListener(ProofNodeSelectionListener l) {
-//        listeners.remove(l);
-//    }
-//    
     /**
      * Indicate that a proof node has been selected.
      * 
@@ -289,36 +263,8 @@ public class ProofCenter implements Observer {
      *            the node to be selected
      */
     public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
-        // FIXME Consider firePropertySet here
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
-//    
-//    /**
-//     * Indicate that a rule application has been selected.
-//     * 
-//     * All registered proof node selection listeners are informed of this
-//     * selection. The notification is ensured to be run on the swing event queue
-//     * thread. It may or may not have already been executed when this method
-//     * returns.
-//     * 
-//     * @see ProofNodeSelectionListener#ruleApplicationSelected(RuleApplication)
-//     * 
-//     * @param ruleApplication
-//     *            the rule application to be selected
-//     */
-//    public void fireSelectedRuleApplication(final RuleApplication ruleApplication) {
-//        if(!isFiring) {
-//            isFiring = true;
-//            SwingUtilities.invokeLater(new Runnable() {
-//                public void run() {
-//                    for (ProofNodeSelectionListener l : listeners) {
-//                        l.ruleApplicationSelected(ruleApplication);
-//                    }
-//                    isFiring = false;
-//                }
-//            });
-//        }
-//    }
     
     /**
      * Gets the List of possible rule applications for a term within the
