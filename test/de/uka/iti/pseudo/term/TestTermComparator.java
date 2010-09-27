@@ -30,14 +30,14 @@ public class TestTermComparator extends TestCaseWithEnv {
         assertTrue(tc.compare(makeTerm("c"), makeTerm("b")) > 0);
         assertTrue(tc.compare(makeTerm("a"), makeTerm("a")) == 0);
         
-        assertTrue(tc.compare(makeTerm("1"), makeTerm("0")) == 0);
+        assertTrue(tc.compare(makeTerm("1"), makeTerm("0")) > 0);
         assertTrue(tc.compare(makeTerm("a"), makeTerm("0")) < 0);
         assertTrue(tc.compare(makeTerm("z"), makeTerm("0")) > 0);
         assertTrue(tc.compare(makeTerm("a"), makeTerm("sk")) > 0);
     }
     
     public void testCompareDepth() throws Exception {
-        assertTrue(tc.compare(makeTerm("f(a)"), makeTerm("g(a)")) == 0);
+        assertTrue(tc.compare(makeTerm("f(a)"), makeTerm("g(a)")) < 0);
         assertTrue(tc.compare(makeTerm("f(a)"), makeTerm("f(b)")) < 0);
         assertTrue(tc.compare(makeTerm("g(a)"), makeTerm("f(b)")) < 0);
         assertTrue(tc.compare(makeTerm("g(z)"), makeTerm("h(a,b)")) > 0);
@@ -47,6 +47,10 @@ public class TestTermComparator extends TestCaseWithEnv {
         assertTrue(tc.compare(makeTerm("{ass:=f(ass)}b"), makeTerm("a")) > 0);
         assertTrue(tc.compare(makeTerm("{ass:=f(ass)}b"), makeTerm("z")) < 0);
         assertTrue(tc.compare(makeTerm("{ass:=f(ass)}b"), makeTerm("{ass:=f(ass)}c")) < 0);
+    }
+    
+    public void testLexical() throws Exception {
+        assertTrue(tc.compare(makeTerm("same1"), makeTerm("same2")) < 0);
     }
 
 }
