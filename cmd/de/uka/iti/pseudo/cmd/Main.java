@@ -133,9 +133,9 @@ public class Main {
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
             
-            if(verbose) {
-                Log.setMinLevel(Log.ALL);
-            }
+//            if(verbose) {
+//                Log.setMinLevel(Log.ALL);
+//            }
 
             executor = Executors.newFixedThreadPool(numberThreads);
 

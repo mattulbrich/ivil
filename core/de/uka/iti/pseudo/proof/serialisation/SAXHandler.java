@@ -162,7 +162,7 @@ class SAXHandler extends DefaultHandler {
                 proof.apply(ram, env);
                 ram = null;
             } catch (ProofException e) {
-                if(Log.getMinLevel() <= Log.WARNING) {
+                if(Log.isLogging(Log.WARNING)) {
                     Dump.dumpRuleApplication(ram);
                 }
                 throwSAXException(null, e);

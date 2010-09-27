@@ -438,7 +438,7 @@ public class ProofNode {
             
         } catch (TermException e) {
             Log.log(Log.WARNING, "Failed rule application:");
-            if(Log.DEBUG >= Log.getMinLevel()) {
+            if(Log.isLogging(Log.DEBUG)) {
                 Dump.dumpRuleApplication(ruleApp);
             }
             throw new ProofException("Exception during application of rule " + rule.getName(), e);
