@@ -11,11 +11,19 @@ package de.uka.iti.pseudo.util;
 
 import java.io.PrintStream;
 
+import nonnull.NonNull;
+
 /**
- * Log provides static methods for a <b>very simple</b> logging mechanism.
+ * Log provides static methods for a <b>very basic</b> logging mechanism.
  * 
- * Better use log4j or java.util.logging if more comfort is desired. A change
- * should be easily done.
+ * <p>
+ * This interface can be implemented using various back-ends. A simple console
+ * output implementation ({@link SimpleLog}) is included.
+ * 
+ * <p>
+ * log4j or java.util.logging can be used if more comfort is desired. An
+ * implementation should be easily done.
+ * <small>(Look at Log4JLogImplementation in lib)</small>
  * 
  * @author mattias ulbrich
  */
@@ -43,9 +51,9 @@ public class Log {
     public static final int WARNING = 40;
     
     /**
-     * INFO is a message level for informational messages.
+     * DEBUG is a message level for informational messages.
      * <p>
-     * Typically INFO messages will be written to the console
+     * Typically DEBUG messages will be written to the console
      * or its equivalent.  So the INFO level should only be 
      * used for reasonably significant messages that will
      * make sense to developers and system admins.
@@ -68,7 +76,7 @@ public class Log {
     public static final int VERBOSE = 20;
     
     /**
-     * FINEST indicates a highly detailed tracing message.
+     * TRACE indicates a highly detailed tracing message.
      * This level is initialized to <CODE>10</CODE>. 
      */
     public static final int TRACE = 10;
@@ -78,30 +86,76 @@ public class Log {
      * This level is initialized to <code>0</code>.
      */
     public static final int ALL = 0;
+
+    /**
+     * All actual logging is delegated to an instance of this interface. 
+     */
+    public static interface LogImplementation {
+
+        /**
+         * do the actual logging.
+         * 
+         * @param level
+         *            the level of the message
+         * @param message
+         *            the message to be sent to the log system
+         */
+        void doLog(int level, String message);
+
+        /**
+         * do the actual logging for a throwable object.
+         * 
+         * @param level
+         *            the level of the message
+         * @param e
+         *            the throwable to describe on the log system.
+         */
+        void doStackTrace(int level, Throwable e);
+
+        /**
+         * test whether a log level is being log by the system.
+         * 
+         * @param level
+         *            the level to test
+         * @return true if this level is under surveillance.
+         */
+        boolean isLogging(int level);
+        
+    }
     
     /**
-     * The minimum level of a log message to be displayed.
-     * 
-     * We cannot use Settings here because that leads to a loop -
-     * Settings uses Log and always prints a message.
+     * the implementing object to which we delegate our log commands.
      */
-    private static int minLevel = Integer.getInteger("pseudo.log", ERROR);
-
+    private static LogImplementation logImplementation;
     
+    /**
+     * Set up the implementation by system property.
+     */
+    static {
+        // bypass settings!
+        String className = System.getProperty("pseudo.logClass", "de.uka.iti.pseudo.util.SimpleLog");
+        try {
+            logImplementation = (LogImplementation) Class.forName(className).newInstance();
+        } catch (Exception e) {
+            System.err.println("Error initialising logging. Diabled!");
+            e.printStackTrace();
+            logImplementation = null;
+        }
+    }
+
+    /**
+     * Set the {@link LogImplementation} to use for future log output.
+     * 
+     * @param logImplementation
+     *            the logImplementation to set
+     */
+    public static void setLogImplementation(@NonNull LogImplementation logImplementation) {
+        Log.logImplementation = logImplementation;
+    }
+
     private Log() {
         // only static methods
     }
-    
-    public static int getMinLevel() {
-        return minLevel;
-    }
-
-
-    public static void setMinLevel(int level) {
-        assert level >= 0;
-        minLevel = level;
-    }
-    
     
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
@@ -180,12 +234,7 @@ public class Log {
      * @param args arguments to the method should be supplied
      */
     public static void enter(Object... args) {
-        if(TRACE >= minLevel) {
-            String prefix = getClassAndMethod(2);
-
-            System.err.println("> Enter " + prefix);
-            System.err.println("  Arguments: " + Util.join(args, ", "));
-        }
+        dbgPrint(TRACE, "enter method \n Arguments: " + Util.join(args, ", "));
     }
     
     /**
@@ -194,10 +243,7 @@ public class Log {
      * Logging level {@link #TRACE} is used.
      */
     public static void leave() {
-        if(TRACE >= minLevel) {
-            String prefix = getClassAndMethod(2);
-            System.err.println("> Leave " + prefix);
-        }
+        dbgPrint(TRACE, "leave method");
     }
     
     /**
@@ -211,44 +257,10 @@ public class Log {
      *            string to be printed out
      */
     private static final void dbgPrint(int level, String string) {
-        if(level >= minLevel) {
-            String prefix = getClassAndMethod(3);
-            String threadName = Thread.currentThread().getName();
-            System.err.println("> " + prefix + " [" + threadName + 
-                    "] - Level " + levelToString(level) + "\n  " + string);
+        if(logImplementation != null) {
+            logImplementation.doLog(level, string);
         }
-    }
-
-    /*
-     * get the readable counterpart for an integer log level
-     */
-    private static String levelToString(int level) {
-        switch(level) {
-        case 50: return "ERROR";
-        case 40: return "WARNING";
-        case 30: return "DEBUG";
-        case 20: return "VERBOSE";
-        case 10: return "TRACE";
-        }
-        return Integer.toString(level);
-    }
-
-    /**
-     * return information about some execution context. The context of interest
-     * may have appeared several levels higher.
-     * 
-     * @author MU
-     * @param level
-     *            to go up in the context hierarchy
-     * @return a String giving information about the stack of the calling
-     *         function.
-     */
-    private static String getClassAndMethod(int level) {
-        StackTraceElement[] trace = new Exception().getStackTrace();
-        if (trace.length > level) {
-            return trace[level].toString();
-        }
-        return "";
+        
     }
 
 
@@ -261,11 +273,8 @@ public class Log {
      *            the throwable object whose trace is to be logged.
      */
     public static void stacktrace(Throwable e) {
-        if(DEBUG >= minLevel) {
-            String prefix = getClassAndMethod(2);
-            System.err.println("> Exc in " + prefix + ":");
-            e.printStackTrace(System.err);
-        }
+        logImplementation.doStackTrace(DEBUG, e);
+        
     }
     
     /**
@@ -280,35 +289,19 @@ public class Log {
      *            the throwable object whose trace is to be logged.
      */
     public static void stacktrace(int level, Throwable e) {
-        if(level >= minLevel) {
-            String prefix = getClassAndMethod(2);
-            System.err.println("> Exc in " + prefix + ":");
-            e.printStackTrace(System.err);
-        }
+        logImplementation.doStackTrace(level, e);
+    }
+
+    /**
+     * Check if a log level is being traced at the moment.
+     * 
+     * @param level
+     *            level to check
+     * @return true iff a message of this level would be published.
+     */
+    public static boolean isLogging(int level) {
+        return logImplementation.isLogging(level);
     }
 
     
-    // testing only
-    public static void main(String[] args) {
-        Log.setMinLevel(TRACE);
-        enter((Object)args);
-        
-        Log.setMinLevel(DEBUG);
-        // should not do anything
-        leave();
-        Log.log(VERBOSE, "VERBOSE: Should not be printed");
-        Log.log(DEBUG, "DEBUG: Should be printed");
-        Log.log(WARNING, "WARNING: Should be printed");
-        Log.log(ERROR, "ERROR: Should be printed");
-        Log.log(88, "88: Should be printed");
-        
-        try {
-            throw new Exception("Hello World");
-        } catch (Exception e) {
-            stacktrace(e);
-        }
-        
-        Log.setMinLevel(TRACE);
-        leave();
-    }
 }
