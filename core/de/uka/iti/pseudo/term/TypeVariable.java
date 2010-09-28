@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -27,17 +26,16 @@ import de.uka.iti.pseudo.term.creation.TypeUnification;
  * This class encapsulates a type variable type with an arbitrary name.
  * 
  * <p>
- * All type variables are printed prefixed with a prime symbol. Their name,
- * however, does not include that prime.
+ * All type variables are printed prefixed with a prime symbol. <b>Their name,
+ * however, does not include that prime.</b>
  * 
- * <h4>Special type variables</h4>
- * <ul>
- * <li><code>{@literal '#<id>}</code>: used by TypeUnification to 
- * make uninstantiatable variants
- * <li><code>{@literal '%<id>}</code>: type of a schema variables
- * <li><code>{@literal '[0-9]+}</code>: temporily created types during type inference
- * <li><code>{@literal '<id>}</code>: usual type variables, entered by user
- * </ul>
+ * <p>
+ * Type variables stand for one ordinary type (variable free expression over the
+ * type constructors) in one interpretation. They are not meant to be
+ * instantiated. SchemaTypeVariables may be instantiated.
+ *
+ * @see TypeApplication
+ * @see SchemaType
  */
 public class TypeVariable extends Type {
 
@@ -50,19 +48,6 @@ public class TypeVariable extends Type {
      * a second predefined type variable for convenience 
      */
     public final static TypeVariable BETA = new TypeVariable("b");
-    
-    /**
-     * The prefix used to distinguish a type variable from its variant.
-     * @see TypeUnification
-     */
-    public static final String VARIANT_PREFIX = "#";
-    
-    /**
-     * The prefix used to distinguish a type variable used in a type 
-     * quantification from a usual type variable.
-     * @see TypeVariableBinding
-     */
-    public static final String BINDABLE_PREFIX = "'";
     
     /**
      * The actual name (w/o leading ')
@@ -101,8 +86,8 @@ public class TypeVariable extends Type {
 	 * @see de.uka.iti.pseudo.term.Type#visit(de.uka.iti.pseudo.term.TypeVisitor)
 	 */
 	@Override
-	public Type visit(TypeVisitor visitor) throws TermException {
-	    return visitor.visit(this);
+	public <R,A> R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
+	    return visitor.visit(this, parameter);
 	}
 	
 	/** 

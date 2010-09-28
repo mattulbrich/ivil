@@ -14,16 +14,18 @@ package de.uka.iti.pseudo.environment;
 import java.util.HashSet;
 import java.util.Set;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
+import de.uka.iti.pseudo.term.creation.DefaultTypeVisitor;
 
 /**
  * The Class TypeVariableCollector provides the method {@link #collect(Type)} to
@@ -32,24 +34,54 @@ import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
  * The method {@link #collect(Term)} applies collect to the types of all
  * subterms.
  */
-public class TypeVariableCollector implements TypeVisitor {
-    
+public class TypeVariableCollector {
+
+    private Set<TypeVariable> typeVariables = new HashSet<TypeVariable>();
+
+    private Set<SchemaType> schemaTypeVariables = new HashSet<SchemaType>();
+
+    private TypeVisitor<Void, Void> typeVisitor = new DefaultTypeVisitor<Void>() {
+        public Void visit(SchemaType schemaTypeVariable, Void argument)
+                throws TermException {
+            schemaTypeVariables.add(schemaTypeVariable);
+            return null;
+        };
+
+        public Void visit(TypeVariable typeVariable, Void argument)
+                throws TermException {
+            typeVariables.add(typeVariable);
+            return null;
+        };
+    };
+
     private TermVisitor typeVariableTermVisitor = new DefaultTermVisitor.DepthTermVisitor() {
         protected void defaultVisitTerm(Term term) throws TermException {
             super.defaultVisitTerm(term);
-            term.getType().visit(TypeVariableCollector.this);
+            term.getType().accept(typeVisitor, null);
         }
+
         public void visit(Binding binding) throws TermException {
             super.visit(binding);
-            binding.getVariableType().visit(TypeVariableCollector.this);
+            binding.getVariableType().accept(typeVisitor, null);
         }
     };
-    
-    /** 
-     * Collect type variables in a term. All (indirect) subterms are visited and all
-     * type variables are collected.
+
+    /*
+     * constructor hidden
      */
-    public static @NonNull Set<TypeVariable> collect(@NonNull Term term) {
+    private TypeVariableCollector() {
+    }
+
+    /**
+     * Collect type variables in a term. All (indirect) subterms are visited and
+     * all type variables are collected.
+     * 
+     * @param term
+     *            some term whose types are to be searched for type variables
+     * 
+     * @return the set of type variable found in term.
+     */
+    public static @DeepNonNull Set<TypeVariable> collect(@NonNull Term term) {
         TypeVariableCollector tvc = new TypeVariableCollector();
         try {
             term.visit(tvc.typeVariableTermVisitor);
@@ -68,10 +100,10 @@ public class TypeVariableCollector implements TypeVisitor {
      * 
      * @return the set of type variable found in type.
      */
-    public static @NonNull Set<TypeVariable> collect(@NonNull Type type) {
+    public static @DeepNonNull Set<TypeVariable> collect(@NonNull Type type) {
         TypeVariableCollector tvc = new TypeVariableCollector();
         try {
-            type.visit(tvc);
+            type.accept(tvc.typeVisitor, null);
         } catch (TermException e) {
             // never thrown in the code
             throw new Error(e);
@@ -79,30 +111,44 @@ public class TypeVariableCollector implements TypeVisitor {
         return tvc.typeVariables;
     }
 
-    private Set<TypeVariable> typeVariables = new HashSet<TypeVariable>();
-
-    /*
-     * constructor hidden
+    /**
+     * Collect schema type variables in a term. All (indirect) subterms are
+     * visited and all schmema type variables are collected.
+     * 
+     * @param term
+     *            some term whose types are to be searched for schema type
+     *            variables
+     * 
+     * @return the set of schema type variable found in term.
      */
-    private TypeVariableCollector() {
-    }
-
-    /*
-     * add the type variable to the set
-     */
-    public Type visit(TypeVariable typeVariable) throws TermException {
-        typeVariables.add(typeVariable);
-        return null;
-    }
-
-    /*
-     * visit all subexpressions
-     */
-    public Type visit(TypeApplication typeApplication) throws TermException {
-        for (Type t : typeApplication.getArguments()) {
-            t.visit(this);
+    public static @DeepNonNull Set<SchemaType> collectSchema(@NonNull Term term) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            term.visit(tvc.typeVariableTermVisitor);
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
         }
-        return null;
+        return tvc.schemaTypeVariables;
+    }
+
+    /**
+     * Collect schema schema type variables in a type.
+     * 
+     * @param type
+     *            some arbitrary type
+     * 
+     * @return the set of schema type variable found in type.
+     */
+    public static @DeepNonNull Set<SchemaType> collectSchema(@NonNull Type type) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            type.accept(tvc.typeVisitor, null);
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
+        }
+        return tvc.schemaTypeVariables;
     }
 
 }

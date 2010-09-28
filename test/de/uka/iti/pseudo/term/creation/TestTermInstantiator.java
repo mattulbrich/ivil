@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
@@ -90,7 +91,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         
         termmap.put("%x", makeTerm("i1"));
         termmap.put("%v", makeTerm("2"));
-        typemap.put("%v", Environment.getIntType());
+        typemap.put("v", Environment.getIntType());
         
         Term t = inst.instantiate(makeTerm("{%x:=%v}i2"));
         assertEquals(makeTerm("{ i1 := 2 }i2"), t);
@@ -153,17 +154,33 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     public void testBindingInstantiation() throws Exception {
         Term.SHOW_TYPES = true;
         termmap.put("%v", makeTerm("1"));
-        typemap.put("%v", Environment.getIntType());
+        typemap.put("v", Environment.getIntType());
         
         Term t = inst.instantiate(makeTerm("(\\forall x; x = %v)"));
         assertEquals(makeTerm("(\\forall x; x = 1)"), t);
+    }
+    
+    public void testTypeQuant() throws Exception {
+        typemap.put("v", new TypeVariable("inst"));
+        typemap.put("w", Environment.getIntType());
+        
+        Term t = inst.instantiate(makeTerm("(\\T_all %'v; true)"));
+        assertEquals(makeTerm("(\\T_all 'inst; true)"), t);
+        
+        try {
+            inst.instantiate(makeTerm("(\\T_all %'w; true)"));
+            fail("should have failed. int has been bound");
+        } catch (Exception e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
     }
     
     public void testSchemaUpdates() throws Exception {
         UpdateTerm ut = (UpdateTerm) makeTerm("{ i1 := 0 || b1 := false }true");
         updatemap.put("U", ut.getUpdate());
         termmap.put("%a", makeTerm("33"));
-        typemap.put("%a", Environment.getIntType());
+        typemap.put("a", Environment.getIntType());
         
         Term t = inst.instantiate(makeTerm("false & { U }false"));
         assertEquals(makeTerm("false & { i1 := 0 || b1 := false } false"), t);
@@ -177,7 +194,8 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         Term.SHOW_TYPES = true;
         typemap.put("a", Environment.getIntType());
         
-        Term t = inst.instantiate(makeTerm("arb as poly('a, 'b)"));
+        Term t0 = makeTerm("arb as poly(%'a, 'b)");
+        Term t = inst.instantiate(t0);
         assertEquals(makeTerm("arb as poly(int, 'b)"), t);
 
     }

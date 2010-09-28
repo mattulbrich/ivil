@@ -44,8 +44,11 @@ public class TestToplevelCheckVisitor extends TestCaseWithEnv {
         // free type var
         assertFalse(check(makeTerm("arb")));
      
-        // unbound quantified type var
-        assertFalse(check(makeTerm("(\\T_all 'a; true)")));
+        // quantified schema type
+        assertFalse(check(makeTerm("(\\T_all %'a; true)")));
+        
+        // quantified type var
+        assertTrue(check(makeTerm("(\\T_all 'a; true)")));
     }
     
     // from a bug

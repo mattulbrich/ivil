@@ -137,7 +137,7 @@ public class Log {
         try {
             logImplementation = (LogImplementation) Class.forName(className).newInstance();
         } catch (Exception e) {
-            System.err.println("Error initialising logging. Diabled!");
+            System.err.println("Error initialising logging. Disabled!");
             e.printStackTrace();
             logImplementation = null;
         }

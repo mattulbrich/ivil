@@ -15,6 +15,8 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
@@ -29,17 +31,18 @@ import de.uka.iti.pseudo.util.AppendMap;
  * 
  * There are two versions of the algorithm used in this class:
  * <ul>
- * <li>leftUnify in which only variables in the left (=first) type may be
+ * <li>leftUnify in which only schema variables in the left (=first) type may be
  * instantiated. This is used for instance in {@link Application} to check the
- * correctness of a typing. "0 as int" may not be typed as "'a", therefore the
+ * correctness of a typing. "0 as int" may not be typed as "%'a", therefore the
  * asymmetry.
  * <li>unify in which variables in both types can be instantiated. This is for
  * instance used to resolve constraints in
  * {@link TypingContext#solveConstraint(Type, Type)}
  * </ul>
  * 
- * We keep a map from TypeVariables to Types as the recorded substitution. This
- * map is updated when unifying pairs of types
+ * <p>
+ * We keep a map from {@link SchemaType}s to {@link Type}s as the
+ * recorded substitution. This map is updated when unifying pairs of types.
  * 
  */
 
@@ -53,25 +56,24 @@ public class TypeUnification implements Cloneable {
     private AppendMap<String, Type> instantiation;
 
     /**
-     * A visitor that replaces all type variables with variants. Since
-     * identifiers are not allowed to start with #, they are unique.
+     * A visitor that replaces all type variables with schema type variables.
      */
-    private final static TypeVisitor VARIANT_VISITOR = new DefaultTypeVisitor() {
-        public Type visit(TypeVariable typeVariable) {
-            return new TypeVariable(TypeVariable.VARIANT_PREFIX + typeVariable.getVariableName());
+    private final static RebuildingTypeVisitor<Void> VARIANT_VISITOR = new RebuildingTypeVisitor<Void>() {
+        public Type visit(TypeVariable typeVariable, Void parameter) {
+            return new SchemaType(SchemaType.VARIANT_PREFIX + typeVariable.getVariableName());
         };
     };
 
     /**
      * This visitor is used to actually apply the substitution.
      */
-    private TypeVisitor instantiater = new DefaultTypeVisitor() {
-        public Type visit(TypeVariable typeVariable) {
-            Type replace = instantiateTypeVariable(typeVariable);
+    private TypeVisitor<Type, Void> instantiater = new RebuildingTypeVisitor<Void>() {
+        public Type visit(SchemaType schemaTypeVariable, Void parameter) {
+            Type replace = instantiateSchemaType(schemaTypeVariable);
             if (replace != null)
                 return replace;
             else
-                return typeVariable;
+                return schemaTypeVariable;
         };
     };
     
@@ -111,20 +113,25 @@ public class TypeUnification implements Cloneable {
     }
 
     /**
-     * Make variant of a type.
+     * Make a variant of a type that can be instantiated.
      * 
-     * Every type variable <code>'a</code> is replaced by <code>'#a</code>. The same type variable
-     * is mapped to the same variant while no new type variable does not appear
-     * in a type which is not a variant itself.
+     * Every <b>type variable</b> <code>'a</code> is replaced by an instantiatable schema
+     * type <code>%'#a</code>. The same type variable is mapped to the same schema entity.
+     * 
+     * The extra # is included to make these names unique and have no name clashes with
+     * existing types.
      * 
      * @param type
      *            type to make variant of
      * 
      * @return type in which type variables are modified.
+     * 
+     * @see Application#typeCheck()
+     * @see Binding#typeCheck()
      */
-    public static @NonNull Type makeVariant(@NonNull Type type) {
+    public static @NonNull Type makeSchemaVariant(@NonNull Type type) {
         try {
-            return type.visit(VARIANT_VISITOR);
+            return type.accept(VARIANT_VISITOR, null);
         } catch (TermException e) {
             // never thrown in this code
             throw new Error(e);
@@ -142,7 +149,7 @@ public class TypeUnification implements Cloneable {
      */
     public @NonNull Type instantiate(@NonNull Type type) {
         try {
-            return type.visit(instantiater);
+            return type.accept(instantiater, null);
         } catch (TermException e) {
             // not thrown in this code
             throw new Error(e);
@@ -150,30 +157,107 @@ public class TypeUnification implements Cloneable {
     }
 
     /**
-     * Instantiate a type variable.
+     * Instantiate a schema type.
      * 
      * <p>
      * In this implementation this is delegated to the {@link #instantiation}
      * map. Derived classes may choose to behave differently but should act
-     * accordingly in {@link #addMapping(TypeVariable, Type)}.
+     * accordingly in {@link #addMapping(SchemaType, Type)}.
      * 
-     * @param typeVariable
-     *            the type variable
+     * @param schemaType
+     *            the schema type
      * 
      * @return the type stored in the map.
      */
-    protected Type instantiateTypeVariable(TypeVariable typeVariable) {
-        return instantiation.get(typeVariable.getVariableName());
+    protected Type instantiateSchemaType(SchemaType schemaType) {
+        return instantiation.get(schemaType.getVariableName());
     }
     
+    
+    /*
+     * does the actual LEFT unification after Robinson
+     */
+    private class Unifier implements TypeVisitor<Void, Type> {
+        
+        private boolean bidirectional;
+        
+        public Unifier(boolean bidirectional) {
+            this.bidirectional = bidirectional;
+        }
 
+        @Override
+        public Void visit(TypeApplication adaptApp, Type fixType) throws TermException {
+            if (bidirectional && fixType instanceof SchemaType) {
+                fixType.accept(this, adaptApp);
+            } else
+            
+            if(fixType instanceof TypeApplication) {
+                TypeApplication fixApp = (TypeApplication) fixType;
+                
+                if (adaptApp.getSort() != fixApp.getSort()) {
+                    throw new UnificationException("Incompatible sorts",
+                            adaptApp, fixApp);
+                }
+
+                Type[] adaptArguments = adaptApp.getArguments();
+                Type[] fixArguments = fixApp.getArguments();
+
+                for (int i = 0; i < fixArguments.length; i++) {
+                    // possibly wrap in try/catch to add detail information
+                    adaptArguments[i].accept(this, fixArguments[i]);
+                }
+            } else {
+                
+                throw new UnificationException("Cannot unify (by class)", adaptApp, fixType);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(TypeVariable adaptVar, Type fixType)
+                throws TermException {
+            if (bidirectional && fixType instanceof SchemaType) {
+                fixType.accept(this, adaptVar);
+            } else {
+                // we can simply use the equality check here since type variables
+                // have no arguments
+                if(!adaptVar.equals(fixType)) {
+                    throw new UnificationException("Cannot unify", adaptVar, fixType);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public Void visit(SchemaType stv, Type fixType)
+                throws TermException {
+            if (instantiation.containsKey(stv.getVariableName())) {
+                instantiate(stv).accept(this, fixType);
+            } else {
+                Type inst = instantiate(fixType);
+                if(!stv.equals(inst)) {
+                    if (occursIn(stv, inst)) {
+                        throw new UnificationException("Cannot unify (occur check)",
+                                stv, inst);
+                    }
+                    addMapping(stv, inst);
+                }
+            }
+            return null;
+        }
+        
+    }
+    
+    private Unifier leftUnifier = new Unifier(false);
+    private Unifier unifier = new Unifier(true);
+    
     /**
      * Do unification in which only type variables in the first type argument
      * are matched. A type variable in the second argument does not match a
      * non-variable in the first argument.
      * 
      * Is often combined with one argument changed using
-     * {@link #makeVariant(Type)}.
+     * {@link #makeSchemaVariant(Type)}.
      * 
      * All instantiations are recorded in {@link #instantiation} The results on
      * the mapping are atomic. On success all instantiations appear, otherwise
@@ -195,74 +279,26 @@ public class TypeUnification implements Cloneable {
         AppendMap<String, Type> copy = instantiation.clone();
 
         try {
-            leftUnify0(adaptingType, fixType);
-            assert instantiate(adaptingType).equals(instantiate(fixType)) : adaptingType + " vs " + fixType;
+            adaptingType.accept(leftUnifier, fixType);
+            assert instantiate(adaptingType).equals(fixType) : adaptingType + " vs " + fixType;
             return fixType;
-        } catch (UnificationException e) {
+        } catch (TermException ex) {
             // restore old mapping
-            e.addDetail("Cannot left-unify \"" + adaptingType + "\" and \""
-                    + fixType + "\"");
             instantiation = copy;
-            throw e;
+            
+            assert ex instanceof UnificationException :
+                "Only unification exception may be thrown here";
+        
+            UnificationException uex = (UnificationException) ex;
+            uex.addDetail("Cannot left-unify \"" + adaptingType + "\" and \""
+                    + fixType + "\"");
+            
+            throw uex;
         }
 
     }
-
-    /*
-     * do the actual unification after Robinson
-     */
-    private void leftUnify0(Type adaptingType, Type fixType)
-            throws UnificationException {
-
-        if (adaptingType instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) adaptingType;
-            if (instantiation.containsKey(tv.getVariableName()))
-                adaptingType = instantiate(tv);
-        }
-
-        if (adaptingType.equals(fixType))
-            return;
-
-        if (adaptingType instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) adaptingType;
-            // lazily apply the instantiation so far
-            fixType = instantiate(fixType);
-            if (occursIn(tv, fixType))
-                throw new UnificationException("Cannot unify (occur check)",
-                        tv, fixType);
-            // the following is needed! (to prevent "true = arb" from parsing)
-            if(isImmutableTypeVariable(tv))
-                throw new UnificationException("I cannot instantiate an immutable typevariable");
-            addMapping(tv, fixType);
-            return;
-        }
-
-        assert adaptingType instanceof TypeApplication;
-
-        if (!(fixType instanceof TypeApplication)) {
-            throw new UnificationException(
-                    "Cannot instantiate type variable on the right",
-                    adaptingType, fixType);
-        }
-
-        assert fixType instanceof TypeApplication;
-
-        TypeApplication adaptApp = (TypeApplication) adaptingType;
-        TypeApplication fixApp = (TypeApplication) fixType;
-
-        if (adaptApp.getSort() != fixApp.getSort()) {
-            throw new UnificationException("Incompatible sorts", adaptApp,
-                    fixApp);
-        }
-
-        Type[] adaptArguments = adaptApp.getArguments();
-        Type[] fixArguments = fixApp.getArguments();
-
-        for (int i = 0; i < fixArguments.length; i++) {
-            // possibly wrap in try/catch to add detail information
-            leftUnify0(adaptArguments[i], fixArguments[i]);
-        }
-    }
+    
+    
 
     /*
      * helper function to determine whether a type variable may be instantiated
@@ -286,11 +322,11 @@ public class TypeUnification implements Cloneable {
      * Example:
      *   (\ALL_ty ''a; true as ''a) is illegal, since ''a would be bound to bool.
      */
-    private boolean isImmutableTypeVariable(TypeVariable tv) {
-        String variableName = tv.getVariableName();
-        return variableName.startsWith(TypeVariable.VARIANT_PREFIX) ||
-            variableName.startsWith(TypeVariable.BINDABLE_PREFIX);
-    }
+//    private boolean isImmutableTypeVariable(TypeVariable tv) {
+//        String variableName = tv.getVariableName();
+//        return variableName.startsWith(TypeVariable.VARIANT_PREFIX) ||
+//            variableName.startsWith(TypeVariable.BINDABLE_PREFIX);
+//    }
 
     /**
      * Do unification, matching of two types. A type variable in matches any
@@ -318,106 +354,45 @@ public class TypeUnification implements Cloneable {
         AppendMap<String, Type> copy = instantiation.clone();
 
         try {
-            unify0(type1, type2);
+            type1.accept(unifier, type2);
             assert instantiate(type1).equals(instantiate(type2)) : type1 + " vs " + type2;
             return instantiate(type1);
-        } catch (UnificationException e) {
+        } catch (TermException ex) {
             // restore old mapping
-            e.addDetail("Cannot unify \"" + type1 + "\" and \""
-                            + type2 + "\"");
             instantiation = copy;
-            throw e;
+            
+            assert ex instanceof UnificationException :
+                "Only unification exception may be thrown here";
+        
+            UnificationException uex = (UnificationException) ex;
+            uex.addDetail("Cannot left-unify \"" + type1 + "\" and \""
+                    + type2 + "\"");
+            
+            throw uex;
         }
     }
     
-    /*
-     * do the actual unification after Robinson
-     */
-    private void unify0(Type type1, Type type2) throws UnificationException {
-
-        if (type1 instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) type1;
-            if (instantiation.containsKey(tv.getVariableName()))
-                type1 = instantiate(tv);
-        }
-
-        if (type2 instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) type2;
-            if (instantiation.containsKey(tv.getVariableName()))
-                type2 = instantiate(tv);
-        }
-
-        if (type1.equals(type2))
-            return;
-
-        if (type1 instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) type1;
-            // lazily apply the instantiation so far
-            type2 = instantiate(type2);
-            if (occursIn(tv, type2))
-                throw new UnificationException("Cannot unify (occur check)",
-                        type1, type2);
-            if(isImmutableTypeVariable(tv))
-                throw new UnificationException("I cannot instantiate an immutable typevariable");
-            addMapping(tv, type2);
-            return;
-        }
-
-        if (type2 instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) type2;
-            // lazily apply the instantiation so far
-            type1 = instantiate(type1);
-            if (occursIn(tv, type1))
-                throw new UnificationException("Cannot unify (occur check)",
-                        type1, type2);
-            if(isImmutableTypeVariable(tv))
-                throw new UnificationException("I cannot instantiate an immutable typevariable");
-            addMapping(tv, type1);
-            return;
-        }
-
-        assert type1 instanceof TypeApplication;
-        assert type2 instanceof TypeApplication;
-
-        TypeApplication app1 = (TypeApplication) type1;
-        TypeApplication app2 = (TypeApplication) type2;
-
-        if (app1.getSort() != app2.getSort()) {
-            throw new UnificationException("Incompatible sorts", app1, app2);
-        }
-
-        Type[] args1 = app1.getArguments();
-        Type[] args2 = app2.getArguments();
-
-        for (int i = 0; i < args1.length; i++) {
-            // possibly wrap in try/catch to add detail information
-            unify0(args1[i], args2[i]);
-        }
-
-    }
-
-    /*
+    /**
      * Adds a mapping.
      * 
      * We have to update all existing mappings afterwards. We apply the new assignment
      * to all instantiations but to the one to type.
      * 
-     * @param tv the tv
-     * 
-     * @param type the type
+     * @param tv the schema type variable.
+     * @param type the type to instantiate for it.
      */
-    protected void addMapping(final TypeVariable tv, final Type type) throws UnificationException {
+    protected void addMapping(final @NonNull SchemaType tv,
+            final @NonNull Type type) throws UnificationException {
 
         String variableName = tv.getVariableName();
         
-        assert !isImmutableTypeVariable(tv);
         assert instantiation.get(variableName) == null;
         assert !occursIn(tv, type);
 
         instantiation.put(variableName, type);
         
-        TypeVisitor tvInst = new DefaultTypeVisitor() {
-            public Type visit(TypeVariable typeVariable) {
+        TypeVisitor<Type, Void> stvInst = new RebuildingTypeVisitor<Void>() {
+            public Type visit(SchemaType typeVariable, Void param) {
                 if(typeVariable.equals(tv)) {
                     return type;
                 } else {
@@ -426,13 +401,15 @@ public class TypeUnification implements Cloneable {
             };
         };
         
+        // TODO can we not use the "instantiator" now?
         // check whether this is needed or not: it is :)
         for (String t : instantiation.keySet()) {
             if(!variableName.equals(t)) {
                 Type res;
                 try {
-                    res = instantiation.get(t).visit(tvInst);
+                    res = instantiation.get(t).accept(stvInst, null);
                 } catch (TermException e) {
+                    // not thrown in that code
                     throw new Error(e);
                 }
                 instantiation.put(t, res);
@@ -441,25 +418,26 @@ public class TypeUnification implements Cloneable {
 
     }
 
+    private static TypeVisitor<Void, SchemaType> schemaDetector = new DefaultTypeVisitor<SchemaType>() {
+        @Override
+        public Void visit(SchemaType stv1, SchemaType stv2)
+                throws TermException {
+            if (stv1.equals(stv2))
+                throw new TermException("SchemaTypeVariable found!");
+            return null;
+        }
+    };
+
     /*
      * Occur check. Does tv appear in type?
      */
-    private boolean occursIn(final TypeVariable tv, Type type) {
-        TypeVisitor vis = new DefaultTypeVisitor() {
-            @Override public Type visit(TypeVariable typeVariable)
-                    throws TermException {
-                if (typeVariable.equals(tv))
-                    throw new TermException("TypeVariable found!");
-                return typeVariable;
-            }
-        };
-
+    private boolean occursIn(final SchemaType stv, Type type) {
         try {
-            type.visit(vis);
+            type.accept(schemaDetector, stv);
             // no exception: not found
             return false;
         } catch (TermException e) {
-            // exception: type variable has been found
+            // exception: schema type variable has been found
             return true;
         }
     }

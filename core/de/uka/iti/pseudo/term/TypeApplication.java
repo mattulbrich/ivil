@@ -67,8 +67,15 @@ public class TypeApplication extends Type {
 	}
     
     @Override
-    public Type visit(TypeVisitor visitor) throws TermException {
-        return visitor.visit(this);
+    public <R,A> R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
+        return visitor.visit(this, parameter);
+    }
+    
+    public <R, A> void acceptDeep(TypeVisitor<R, A> visitor, A parameter)
+            throws TermException {
+        for (Type subtype : typeParamters) {
+            subtype.accept(visitor, parameter);
+        }
     }
 
     public Sort getSort() {

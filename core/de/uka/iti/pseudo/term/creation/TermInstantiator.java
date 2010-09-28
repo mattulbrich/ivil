@@ -16,19 +16,18 @@ import java.util.Map;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
-// TODO DOC DOC
 
 // Instantiation is not applied on the instantiated terms or types.
 public class TermInstantiator extends RebuildingTermVisitor {
@@ -54,11 +53,11 @@ public class TermInstantiator extends RebuildingTermVisitor {
 
     private boolean typesInstantiated;
     
-    private TypeVisitor typeInstantiator = new DefaultTypeVisitor() {
-        public Type visit(TypeVariable typeVariable) throws TermException {
-            Type t = typeMap.get(typeVariable.getVariableName());
+    private TypeVisitor<Type, Void> typeInstantiator = new RebuildingTypeVisitor<Void>() {
+        public Type visit(SchemaType stv, Void arg) throws TermException {
+            Type t = typeMap.get(stv.getVariableName());
             if(t == null)
-                return typeVariable;
+                return stv;
             else {
                 typesInstantiated = true;
                 return t;
@@ -74,7 +73,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
     protected Type modifyType(Type type) throws TermException {
         if(typeMap != null) {
             typesInstantiated = false;
-            Type newType = type.visit(typeInstantiator);
+            Type newType = type.accept(typeInstantiator, null);
             if(typesInstantiated)
                 type = newType;
         }

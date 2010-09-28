@@ -12,12 +12,12 @@ package de.uka.iti.pseudo.term.creation;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
-import de.uka.iti.pseudo.term.UnificationException;
 
 public class TestTermUnification extends TestCaseWithEnv {
     
@@ -40,6 +40,9 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getIntType())));
         assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getBoolType())));
         assertEquals(mt("3"), mc.instantiate(mt("%i")));
+        
+        // the types have been set automatically!
+        assertEquals(Environment.getIntType(), mc.getTypeUnification().instantiateSchemaType(new SchemaType("a")));
     }
     
     public void testUnifyIncomparable() throws Exception {
@@ -140,6 +143,17 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(mt("arb = 2"), mc.instantiate(mt("arb = %a as int")));
     }
     
+    public void testDoubling() throws Exception {
+        
+        TermUnification mc = new TermUnification(env);
+        assertFalse(mc.leftUnify(mt("g(arb as %'a, arb as %'a)"), mt("g(arb as int,arb as bool)")));
+        mc = new TermUnification(env);
+        assertFalse(mc.leftUnify(mt("(\\T_all %'b; true)"), mt("(\\T_all 'a; true as %'b)")));
+        mc = new TermUnification(env);
+        assertFalse(mc.leftUnify(mt("(\\T_all %'a; true) & arb as %'a = arb"), mt("(\\T_all %'a; true) & arb as int = arb")));
+        
+    }
+    
     public void testOccurCheck() throws Exception {
         TermUnification mc = new TermUnification(env);
         try {
@@ -174,10 +188,12 @@ public class TestTermUnification extends TestCaseWithEnv {
     
         TermUnification mc = new TermUnification(env);
         
-        mc.leftUnify(mt("(\\T_all 'a; arb = arb as 'a)"), mt("(\\T_all ''a; arb = arb as ''a)"));
+        mc.leftUnify(mt("(\\T_all %'a; arb = arb as %'a)"), mt("(\\T_all 'a; arb = arb as 'a)"));
         
-        assertEquals(new TypeVariable("'a"),
-                mc.getTypeUnification().instantiateTypeVariable(TypeVariable.ALPHA));
+        assertFalse(mc.leftUnify(mt("(\\T_all %'b; true)"), mt("(\\T_all 'a; true as %'b)")));
+        
+        assertEquals(new TypeVariable("a"),
+                mc.getTypeUnification().instantiateSchemaType(new SchemaType("a")));
     }
     
 }

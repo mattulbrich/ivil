@@ -49,6 +49,7 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaType;
 import de.uka.iti.pseudo.parser.term.ASTSchemaUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -62,6 +63,7 @@ import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -147,7 +149,7 @@ public class TermMaker extends ASTDefaultVisitor {
         // We have to embed the AST into a container because the structure may
         // change if it is a ASTListTerm.
         ASTHeadElement head = new ASTHeadElement(astTerm);
-        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
+        TypingResolver typingResolver = new TypingResolver(env);
         astTerm.visit(typingResolver);
         astTerm = (ASTTerm) head.getWrappedElement();
         
@@ -348,7 +350,7 @@ public class TermMaker extends ASTDefaultVisitor {
     public static Statement makeAndTypeStatement(ASTStatement astStatement,
             int linenumber, Environment env) throws ASTVisitException {
         
-        TypingResolver typingResolver = new TypingResolver(env, new TypingContext());
+        TypingResolver typingResolver = new TypingResolver(env);
         
         astStatement.visit(typingResolver);
         
@@ -488,12 +490,10 @@ public class TermMaker extends ASTDefaultVisitor {
         arg.getTerm().visit(this);
         Term subterm = resultTerm;
         
-        // remove leading '
-        String typeVarName = arg.getTypeVarToken().image.substring(1);
-        TypeVariable typeVar = new TypeVariable(typeVarName);
+        Type boundType = arg.getBoundTyping().getType();
         
         try {
-            resultTerm = new TypeVariableBinding(kind, typeVar, subterm);
+            resultTerm = new TypeVariableBinding(kind, boundType, subterm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -658,6 +658,10 @@ public class TermMaker extends ASTDefaultVisitor {
     // drop the '
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
         resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
+    }
+    
+    public void visit(ASTSchemaType schemaType) throws ASTVisitException {
+        resultType = new SchemaType(schemaType.getSchemaTypeToken().image.substring(2));
     }
 
     public void visit(ASTAssertStatement arg) throws ASTVisitException {

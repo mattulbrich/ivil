@@ -12,22 +12,22 @@ package de.uka.iti.pseudo.term.creation;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
 public class TestTypeUnification extends TestCaseWithEnv {
 
     private Type setB;
     private Type setA;
-    private TypeVariable tyvA = new TypeVariable("a");
-    private TypeVariable tyvB = new TypeVariable("b");
-    private TypeVariable tyvD = new TypeVariable("d");
+    private SchemaType tyvA = new SchemaType("a");
+    private SchemaType tyvB = new SchemaType("b");
+    private SchemaType tyvD = new SchemaType("d");
     
     {
         try {
-            setB = makeTerm("arb as set('b)").getType();
-            setA = makeTerm("arb as set('a)").getType();
+            setB = makeTerm("arb as set(%'b)").getType();
+            setA = makeTerm("arb as set(%'a)").getType();
         } catch (Exception e) {
             throw new Error(e);
         }
@@ -68,7 +68,7 @@ public class TestTypeUnification extends TestCaseWithEnv {
         TypeUnification tu = new TypeUnification();
         try {
             tu.leftUnify(tyvA, setA);
-            fail("Should have cyclic occur failure here");
+            fail("Should have occur failure here");
         } catch (UnificationException ex) {
             if (VERBOSE)
                 ex.printStackTrace();

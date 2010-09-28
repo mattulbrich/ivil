@@ -36,7 +36,8 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setFindSelector(new TermSelector("S.0"));
         app.setProofNode(p.getRoot());
-        app.getTermUnification().leftUnify(pattern, term);
+        boolean b = app.getTermUnification().leftUnify(pattern, term);
+        assertTrue(b);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         p.apply(app, env);

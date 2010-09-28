@@ -12,20 +12,25 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.AppendMap;
+import de.uka.iti.pseudo.util.AppendSet;
 
 /**
  * The Class TermUnification is the recording instance of a term matching.
@@ -66,6 +71,12 @@ public class TermUnification implements Cloneable {
     private Environment env;
 
     /**
+     * remember those types which are bound in type quantifications.
+     * They must not be instantiated with TypeApplications.
+     */
+    private AppendSet<SchemaType> boundSchemaTypes = new AppendSet<SchemaType>();
+
+    /**
      * Instantiates a new term unification.
      * 
      * @param env
@@ -91,17 +102,34 @@ public class TermUnification implements Cloneable {
         
         AppendMap<String, Term> copyTermInst = instantiation.clone();
         AppendMap<String, Update> copyUpdateInst = updateInst.clone();
+        AppendSet<SchemaType> copySchemaBoundTypes = boundSchemaTypes.clone();
         try {
             
             termMatcher.compare(adaptingTerm, fixTerm);
+            checkBoundSchemaTypes();
             return true;
             
         } catch (TermException e) {
             instantiation = copyTermInst;
             updateInst = copyUpdateInst;
+            boundSchemaTypes = copySchemaBoundTypes;
             return false;
         }
         
+    }
+    
+    /*
+     * check that all bound schema types are not instantiated with
+     * TypeApplications.
+     */
+    private void checkBoundSchemaTypes() throws UnificationException {
+        for (SchemaType schema : boundSchemaTypes) {
+            Type inst = typeUnification.instantiateSchemaType(schema);
+            if (inst != null || inst instanceof TypeApplication)
+                throw new UnificationException(schema
+                        + " is a bound type variable, but instantiated to "
+                        + inst);
+        }
     }
 
     /**
@@ -287,6 +315,18 @@ public class TermUnification implements Cloneable {
      */
     public Map<String, Update> getUpdateInstantiation() {
         return Collections.unmodifiableMap(updateInst);
+    }
+
+    /**
+     * Add a schema type to the set of remembered bound schema types.
+     * 
+     * Those types must not be instantiated with {@link TypeApplication}s. This
+     * is checked in {@link #leftUnify(Term, Term)}.
+     * 
+     * @param schemaType schematic type to add.
+     */
+    public void addBoundSchemaType(@NonNull SchemaType schemaType) {
+        boundSchemaTypes.add(schemaType);
     }
 
     

@@ -48,6 +48,7 @@ public class TestTermParser extends TestCaseWithEnv {
     // emerged from a bug (3)
     public void testBinder() throws Exception {
         testTerm("(\\some %x as 't;true as bool)", "(\\some %x as 't;true as bool) as 't", true); 
+        testTerm("(\\some %x;true as bool)", "(\\some %x as %'x;true as bool) as %'x", true);
         testTerm("(\\forall %x; %x = 5)", "(\\forall %x as int;$eq(%x as int,5 as int) as bool) as bool", true);
         
         testTermFail("(\\forall %x as bool; %x as int > 5)"); 
@@ -71,20 +72,17 @@ public class TestTermParser extends TestCaseWithEnv {
     
     public void testTyvarBinder() throws Exception {
         
-        testTerm("(\\T_all ''a;true)", false);
+        testTerm("(\\T_all 'a;true)", false);
         
-        // ''a must not be bound in matrix
-        testTermFail("(\\T_all ''a; true as ''a)");
-        testTermFail("(\\T_ex ''a; bf(3 as ''a))");
-        testTermFail("3 as ''a");
+        testTerm("(\\T_all 'b; (arb as 'b) = (arb as 'b))",
+                 "(\\T_all 'b;$eq(arb as 'b,arb as 'b) as bool) as bool", true); 
         
-        testTerm("(\\T_all ''b;(arb as ''b) = (arb as ''b))",
-                 "(\\T_all ''b;$eq(arb as ''b,arb as ''b) as bool) as bool", true); 
-        
-        testTerm("(\\T_all ''a;(\\forall x as ''a;Q(P(x,x)) = x))",
-                 "(\\T_all ''a;(\\forall x as ''a;" +
-                   "$eq(Q(P(x as ''a,x as ''a) as poly(''a,''a)) as ''a,x as ''a) " +
+        testTerm("(\\T_all 'a;(\\forall x as 'a; Q(P(x,x)) = x))",
+                 "(\\T_all 'a;(\\forall x as 'a;" +
+                   "$eq(Q(P(x as 'a,x as 'a) as poly('a,'a)) as 'a,x as 'a) " +
                      "as bool) as bool) as bool", true);
+        
+        testTermFail("(\\T_ex %'a; arb as %'a = 3)");
         
     }
     
@@ -92,6 +90,7 @@ public class TestTermParser extends TestCaseWithEnv {
     public void testExplicitTypes() throws Exception {
         testTerm("$eq(arb as 'a,arb as 'a) as bool", true);
         testTerm("arb as 'a = arb", "$eq(arb as 'a,arb as 'a) as bool", true);
+        testTerm("arb as %'a = arb", "$eq(arb as %'a,arb as %'a) as bool", true);
         testTerm("(\\T_all 'a;$eq(arb as 'a,arb as 'a) as bool) as bool", true);
     }
 
@@ -108,9 +107,12 @@ public class TestTermParser extends TestCaseWithEnv {
 
     public void testAs() throws Exception {
         testTerm("arb as int", "arb as int", true);
-        testTerm("P(0 as 'a, arb as 'a)", "P(0 as int,arb as int) as poly(int,int)", true);
+        testTerm("P(0 as %'a, arb as %'a)", "P(0 as int,arb as int) as poly(int,int)", true);
+        testTerm("arb as %'a", "arb as %'a", true);
         testTerm("arb as 'a", "arb as 'a", true);
         testTerm("arb = 2", "$eq(arb as int,2 as int) as bool", true);
+        testTermFail("0 as bool");
+        testTermFail("0 as 'a");
     }
 
     public void testPrecedence() throws Exception {
@@ -159,7 +161,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("%b as bool", true);
         
         testTerm("%a as bool", true);
-        testTerm("%a = %b", "$eq(%a as '%b,%b as '%b) as bool", true);
+        testTerm("%a = %b", "$eq(%a as %'b,%b as %'b) as bool", true);
         
         testTerm("%unknown", false);
         

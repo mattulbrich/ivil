@@ -18,9 +18,9 @@ public class TypeVariableBinding extends Term {
     };
 
     private Kind kind;
-    private TypeVariable typeVariable;
+    private Type boundType;
 
-    public TypeVariableBinding(Kind kind, TypeVariable typeVar, Term subterm) throws TermException {
+    public TypeVariableBinding(Kind kind, Type boundType, Term subterm) throws TermException {
         super(new Term[] { subterm }, Environment.getBoolType());
         
         if (!subterm.getType().equals(Environment.getBoolType())) {
@@ -29,8 +29,14 @@ public class TypeVariableBinding extends Term {
                             + subterm.getType());
         }
         
+        if (!(boundType instanceof TypeVariable || boundType instanceof SchemaType)) {
+            throw new TermException(
+                    "TypeVariableBinding binds a type variable or a schema type, not "
+                            + boundType);
+        }
+
         this.kind = kind;
-        this.typeVariable = typeVar;
+        this.boundType = boundType;
     }
 
     @Override
@@ -40,7 +46,7 @@ public class TypeVariableBinding extends Term {
             if(tvb.getKind() != getKind())
                 return false;
             
-            if(!tvb.getTypeVariable().equals(getTypeVariable()))
+            if(!tvb.getBoundType().equals(getBoundType()))
                 return false;
             
             if(!tvb.getSubterm(0).equals(getSubterm(0)))
@@ -58,17 +64,14 @@ public class TypeVariableBinding extends Term {
         return kind;
     }
 
-    /**
-     * @return the typeVariable
-     */
-    public TypeVariable getTypeVariable() {
-        return typeVariable;
+    public Type getBoundType() {
+        return boundType;
     }
 
     @Override
     public String toString(boolean typed) {
         
-        return "(" + kind.image + " " + typeVariable + ";"
+        return "(" + kind.image + " " + boundType + ";"
                 + getSubterm(0).toString(typed) + (typed ? ") as bool" : ")");
     }
 

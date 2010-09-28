@@ -1,0 +1,184 @@
+
+//
+// This file contains partial parser definition for terms only
+//
+
+// a greedy term ... read the whole stream
+// needed for parsing terms
+ASTTerm TermEOF():
+{ 
+  ASTTerm term;
+}
+{
+<<<<<<< Updated upstream:core/de/uka/iti/pseudo/parser/TermParser.jj
+=======
+        // switch to protected mode first to allow more identifiers
+>>>>>>> Stashed changes:core/de/uka/iti/pseudo/parser/TermParser.jj
+        { token_source.SwitchTo(PROTECTED); }
+	term=Term() <EOF>
+	{ return term; }
+}
+
+ASTTerm Term():
+{ 
+  ASTTerm term;
+<<<<<<< Updated upstream:core/de/uka/iti/pseudo/parser/TermParser.jj
+  List<ASTTerm> list = new ArrayList<ASTTerm>();
+  int depth = 0; 
+}
+{
+        ( term=OpIdentifier() { list.add(term); } )*
+        term=UpdateTerm() { list.add(term); }
+        (
+          ( term=OpIdentifier() { list.add(term); } )+
+          term=UpdateTerm() { list.add(term); }
+        )*
+   { 
+     if(list.size() > 1)
+        return new ASTListTerm(list);
+     else
+        return list.get(0);
+   }/*
+   ( LOOKAHEAD(2) 
+     (    OpIdentifier() 
+       | "||" | "as" TypeRef() | ":=" | ProgramTerm()
+       | <BINDER_IDENTIFIER> 
+       | ( "(" | "{" ) { depth ++; }
+       | ( ")" | "}" ) { depth --; }
+       | ","
+     ) {
+          // somthing
+       }
+   )+*/
+}
+
+ASTTerm UpdateTerm():
+{
+  ASTTerm term;
+  Token id;
+  List<ASTAssignmentStatement> assignments;
+}
+{      LOOKAHEAD(3)
+         "{" id=<IDENTIFIER> "}" term=UpdateTerm()
+            { return new ASTSchemaUpdateTerm(id, term); }
+       | "{" assignments=UpdateTerm_List() "}" term=UpdateTerm() 
+            { return new ASTUpdateTerm(assignments, term); }
+       | term=AsTerm()
+            { return term; }
+}
+
+List<ASTAssignmentStatement> UpdateTerm_List():	 
+{
+=======
+  ASTTypeRef tyref;
+>>>>>>> Stashed changes:core/de/uka/iti/pseudo/parser/TermParser.jj
+  Token t;
+  List<ASTElement> list = new ArrayList<ASTElement>();
+  MutableInteger termDepth = new MutableInteger(0); 
+}
+{ 
+   ( LOOKAHEAD(2) 
+     term = ProgramTerm() { list.add(term); }
+   | term = Identifier() { list.add(term); }
+   | term = SchemaVariable() { list.add(term); }
+   | term = NumberLiteral() { list.add(term); }
+   | t = TermToken(termDepth) { list.add(new ASTTermToken(t)); }
+   | "as" tyref=TypeRef() { list.add(typeref); }
+   )+
+      { return new ASTListTerm(list); }
+}
+
+/*
+ * We pass a mutuable integer reference to this method.
+ * This allows us to track the level of "({[" parentheses.
+ * A comma "," will only be accepted if within a parenthesis, 
+ * otherwise the term ends and the "," separates terms.
+ * -> WhereClause, Statement_TermList
+ */
+Token TermToken(MutableInteger termDepth):
+{
+  Token t;
+}
+{
+  (
+    t=<OP_IDENTIFIER> |
+    t=<BINDER_IDENTIFIER> |
+    t="||" | t=":=" | t=":" | 
+    ( t="(" | t="{" | t="[" ) { termDepth.increment(); } 
+    ( t=")" | t="}" | t="]" ) { termDepth.decrement(); }
+    LOOKAHEAD({ termDepth.intValue() > 0 }) t="," 
+  ) { return t; } 
+}
+
+ASTTerm ProgramTerm():
+{
+  ASTProgramTerm pt;
+}
+{
+    (  "[" pt=ProgramTerm_Content(false) "]" 
+    |  "[[" pt=ProgramTerm_Content(true) "]]"
+    )
+    { return pt; }
+}
+
+ASTProgramTerm ProgramTerm_Content(boolean termination):
+{
+  Token t, label, progref;
+  ASTStatement matchStatement = null, st;
+}
+{
+       ( label=<SCHEMA_IDENTIFIER> 
+         (  ":" matchStatement=Statement() )?
+           { return new ASTProgramTerm(label, termination, matchStatement); }
+            
+       | 
+         label=<NATURAL> ";" progref=<IDENTIFIER>
+         { return new ASTProgramTerm(label, termination, progref); }
+       )
+}
+
+ASTType TypeRef():
+{
+  Token token;
+  List<ASTType> args = new ArrayList<ASTType>();
+  ASTType ty;
+}
+{
+		token = <IDENTIFIER>
+		( LOOKAHEAD(2) // a binder declaration may follow, but has a binder-identifier next
+		  "(" ty=TypeRef() { args.add(ty); }
+		  		( "," ty=TypeRef() { args.add(ty); } )*
+		  ")"
+		)?
+		{ return new ASTTypeApplication(token, args); }
+	|
+		token = <TYVAR_IDENTIFIER>
+		{ return new ASTTypeVar(token); }
+}
+
+ASTTerm Identifier():
+{
+  Token t;
+}
+{
+        t=<IDENTIFIER>
+  { return new ASTIdentifierTerm(t); }
+}
+
+ASTNumberLiteralTerm NumberLiteral():
+{
+  Token t;
+}
+{
+        t=<NATURAL>
+  { return new ASTNumberLiteralTerm(t); }
+}
+
+ASTSchemaVariableTerm SchemaVariable():
+{
+	Token t;
+}
+{
+        t=<SCHEMA_IDENTIFIER>
+  { return new ASTSchemaVariableTerm(t); }
+}

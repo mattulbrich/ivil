@@ -18,6 +18,12 @@ import nonnull.NonNull;
  * <p>
  * This abstract superclass provides an infrastructure for caching calculated
  * hash values.
+ * 
+ * @see TypeVariable
+ * @see TypeApplication
+ * @see SchemaType
+ * 
+ * @author mattias ulbrich
  */
 public abstract class Type {
 
@@ -39,7 +45,7 @@ public abstract class Type {
      * @throws TermException
      *             may be thrown by the visitor
      */
-    public abstract Type visit(@NonNull TypeVisitor visitor) throws TermException;
+    public abstract <R,A> R accept(@NonNull TypeVisitor<R,A> visitor, A parameter) throws TermException;
     
     /**
      * {@inheritDoc}

@@ -22,6 +22,8 @@ import de.uka.iti.pseudo.parser.file.ASTLocatedTerm;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.parser.file.ASTProgramDeclaration;
+import de.uka.iti.pseudo.parser.file.ASTProperties;
+import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleAdd;
 import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
@@ -50,6 +52,7 @@ import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaType;
 import de.uka.iti.pseudo.parser.term.ASTSchemaUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -167,6 +170,11 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTTypeVar arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
+    
+    @Override
+    public void visit(ASTSchemaType arg) throws ASTVisitException {
+        visitDefaultType(arg);
+    }
 
     //
     // statements call visitDefaultStatement
@@ -209,7 +217,7 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     //
-    // other elements call visitDefualt directly
+    // other elements call visitDefault directly
     //
     
     public void visit(ASTFile arg) throws ASTVisitException {
@@ -293,6 +301,16 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
     
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    @Override
+    public void visit(ASTProperties arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+
+    @Override
+    public void visit(ASTPropertiesDeclaration arg) throws ASTVisitException {
         visitDefault(arg);
     }
     

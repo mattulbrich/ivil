@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
@@ -104,9 +105,9 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
     @Override
     public void visit(TypeVariableBinding typeVariableBinding)  throws TermException {
         
-        String variableName = typeVariableBinding.getTypeVariable().getVariableName();
-        if(!variableName.startsWith(TypeVariable.BINDABLE_PREFIX))
-            throw new TermException("Top level term contains ordinary bound type variable '" + variableName);
+        Type boundType = typeVariableBinding.getBoundType();
+        if(!(boundType instanceof TypeVariable))
+            throw new TermException("Top level term contains schema type " + boundType);
         
         super.visit(typeVariableBinding);
     }
