@@ -217,8 +217,12 @@ public class Rule {
                 throw new RuleException("Goal action contains remove element where find is not present or not top level");
             }
             
-            if(goalAction.getReplaceWith() != null && getFindClause() == null)
-                throw new RuleException("Find-less rules must not have a replace clause");
+            if(goalAction.getReplaceWith() != null) {
+                if(getFindClause() == null)
+                    throw new RuleException("Find-less rules must not have a replace clause");
+                if(!getFindClause().getTerm().getType().equals(goalAction.getReplaceWith().getType()))
+                    throw new RuleException("Find clause and replace clause must have the same type");
+            }
         }
         
         // schema variables to always have same type:
