@@ -168,7 +168,8 @@ public class PFileEditor extends JFrame implements ActionListener {
             editor.setFont(Settings.getInstance().getFont("pseudo.editor.font", editor.getFont()));
             editor.setBorder(new LineNrBorder(Color.lightGray));
             installUndoManager(editor);
-            editor.setCaret(new NotScrollingCaret());
+            // why did we want this??
+            // editor.setCaret(new NotScrollingCaret());
             // TODO make this configurable
             editor.getDocument().addDocumentListener(doclistener);
             try {
