@@ -50,6 +50,14 @@ public abstract class StepCodeAction extends BarAction implements
             return c.program != null && program != null && c.line == line
                     && c.program.equals(program);
         }
+
+        /**
+         * A code location is valid iff it can be maped to a unique source line
+         * in exactly one program.
+         */
+        public boolean isValid(){
+            return program != null && line >= 0 && isUnique;
+        }
     }
     
     protected ProofNode selectedProofNode;
@@ -160,15 +168,9 @@ public abstract class StepCodeAction extends BarAction implements
         if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))
         {
             selectedProofNode = (ProofNode) evt.getNewValue();
-            try {
-                final CodeLocation loc = getCodeLocation(selectedProofNode);
-                setEnabled(null == selectedProofNode.getChildren()
-                        && null != loc && null != loc.program && loc.isUnique);
-            } catch (NullPointerException e) {
-                // FIXME HACK. Do not "use" for NPE.
-                setEnabled(false); // can happen if no code location can be
-                                   // found
-            }
+
+            final CodeLocation loc = getCodeLocation(selectedProofNode);
+            setEnabled(null == selectedProofNode.getChildren() && null != loc && loc.isValid());
         }
         
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
@@ -194,16 +196,8 @@ public abstract class StepCodeAction extends BarAction implements
     @Override
     public void handleNotification(NotificationEvent evt) {
         if(evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
-            // FIXME move to method in CodeLocation!
-            try {
-                final CodeLocation loc = getCodeLocation(selectedProofNode);
-                setEnabled(null == selectedProofNode.getChildren() && null != loc
-                        && null != loc.program && loc.isUnique);
-            } catch (NullPointerException e) {
-                // FIXME HACK. Do not catch NPE
-                setEnabled(false); // can happen if no code location can be
-                // found
-            }
+            final CodeLocation loc = getCodeLocation(selectedProofNode);
+            setEnabled(null == selectedProofNode.getChildren() && null != loc && loc.isValid());
         }
     }
 }

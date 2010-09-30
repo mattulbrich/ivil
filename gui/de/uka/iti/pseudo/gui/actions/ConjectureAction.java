@@ -10,12 +10,12 @@ import java.util.Queue;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
-import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
@@ -67,77 +67,80 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
             return;
         }
 
-        // FIXME CREATE WORKER
-        SwingUtilities.invokeLater(this);
-    }
-        
-    public void run() {
-        getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-
         final ProofCenter proofCenter = getProofCenter();
-        Proof proof = proofCenter.getProof();
-        ProofNode currentProofNode = proofCenter.getCurrentProofNode();
-        Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
-        
-        try {
+        (new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
+                proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
 
-            Term term = TermMaker.makeAndTypeTerm(conjecture, 
-                    proofCenter.getEnvironment(), "user input");
+                ProofNode currentProofNode = proofCenter.getCurrentProofNode();
+                Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
 
-            MutableRuleApplication ram = new MutableRuleApplication();
-            ram.setRule(cutRule);
-            ram.setProofNode(currentProofNode);
-            ram.getSchemaVariableMapping().put("%inst", term);
-            proofCenter.getProof().apply(ram, proofCenter.getEnvironment());
+                try {
 
-            Queue<ProofNode> todo = new LinkedList<ProofNode>(); 
-            ProofNode topNode = currentProofNode.getChildren().get(1);
-            todo.add(topNode);
+                    Term term = TermMaker.makeAndTypeTerm(conjecture, proofCenter.getEnvironment(), "user input");
 
-            // init() is called upon creation of the strategy, and only once!
-            // strategy.init(proof, pc.getEnvironment(), pc.getStrategyManager());
-            strategy.beginSearch();
+                    MutableRuleApplication ram = new MutableRuleApplication();
+                    ram.setRule(cutRule);
+                    ram.setProofNode(currentProofNode);
+                    ram.getSchemaVariableMapping().put("%inst", term);
+                    proofCenter.getProof().apply(ram, proofCenter.getEnvironment());
 
-            ProofNode current = null;
+                    Queue<ProofNode> todo = new LinkedList<ProofNode>();
+                    ProofNode topNode = currentProofNode.getChildren().get(1);
+                    todo.add(topNode);
 
-            while (!todo.isEmpty()) {
-                current = todo.remove();
+                    // init() is called upon creation of the strategy, and only
+                    // once!
+                    // strategy.init(proof, pc.getEnvironment(),
+                    // pc.getStrategyManager());
+                    strategy.beginSearch();
 
-                RuleApplication ra = strategy.findRuleApplication(current);
+                    ProofNode current = null;
 
-                if (ra != null) {
-                    proofCenter.apply(ra);
-                    strategy.notifyRuleApplication(ra);
+                    while (!todo.isEmpty()) {
+                        current = todo.remove();
 
-                    for (ProofNode node : current.getChildren())
-                        todo.add(node);
-                } else if (current.getChildren() != null)
-                    for (ProofNode node : current.getChildren())
-                        todo.add(node);
+                        RuleApplication ra = strategy.findRuleApplication(current);
+
+                        if (ra != null) {
+                            proofCenter.apply(ra);
+                            strategy.notifyRuleApplication(ra);
+
+                            for (ProofNode node : current.getChildren())
+                                todo.add(node);
+                        } else if (current.getChildren() != null)
+                            for (ProofNode node : current.getChildren())
+                                todo.add(node);
+                    }
+
+                    ProofNode next = currentProofNode.getChildren().get(0);
+                    if (!topNode.isClosed()) {
+                        int result = JOptionPane.showConfirmDialog(getParentFrame(),
+                                "The proof branch cannot be closed. Keep it?", "Question", JOptionPane.YES_NO_OPTION);
+                        if (result == JOptionPane.NO_OPTION) {
+                            proofCenter.prune(currentProofNode);
+                            next = currentProofNode;
+                        }
+                    }
+                    proofCenter.fireSelectedProofNode(next);
+
+                } catch (Exception ex) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                } finally {
+                    strategy.endSearch();
+
+                }
+                return null;
             }
-            
-            ProofNode next = currentProofNode.getChildren().get(0);
-            if (!topNode.isClosed()) {
-                int result = JOptionPane.showConfirmDialog(getParentFrame(),
-                        "The proof branch cannot be closed. Keep it?",
-                        "Question", JOptionPane.YES_NO_OPTION);
-                if(result == JOptionPane.NO_OPTION) {
-                    proofCenter.prune(currentProofNode);
-                    next = currentProofNode;
-                } 
+
+            public void done() {
+                proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                proofCenter.fireProoftreeChangedNotification(true);
             }
-            proofCenter.fireSelectedProofNode(next);
-            
-        } catch (Exception ex) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-        } finally {
-            strategy.endSearch();
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-                }});
-            proofCenter.fireProoftreeChangedNotification(true);
-        }
+        }).execute();
+    }
+
+    public void run() {
 
     }
 

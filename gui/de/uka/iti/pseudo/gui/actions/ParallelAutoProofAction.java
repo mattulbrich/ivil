@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -41,7 +41,7 @@ import de.uka.iti.pseudo.util.PooledAutoProofer;
  * @author felden@ira.uka.de
  */
 public abstract class ParallelAutoProofAction extends BarAction implements PropertyChangeListener, InitialisingAction,
-        Runnable, NotificationListener {
+        NotificationListener {
 
     private static final long serialVersionUID = 7212654361200636678L;
 
@@ -68,7 +68,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
-    private boolean hasJob = false;
+    private SwingWorker<Void, Integer> job = null;
     private PooledAutoProofer pool;
 
     public ParallelAutoProofAction(String name) {
@@ -95,16 +95,45 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
             return;
         }
 
-        if (hasJob) {
+        if (null != job) {
             pool.stopAutoProof(true);
-            hasJob = false;
-        } else {
-            hasJob = true;
 
+        } else {
+            final ProofCenter pc = getProofCenter();
+
+            job = new SwingWorker<Void, Integer>() {
+                public Void doInBackground() {
+                    final Proof proof = pc.getProof();
+                    final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
+                    final Environment env = pc.getEnvironment();
+
+                    // if there are no open goals disable this action, as the
+                    // proof must have been closed
+                    if (!proof.hasOpenGoals()) {
+                        setEnabled(false);
+                        return null;
+                    }
+
+                    for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
+                        pool.autoProof(node, strategy, env);
+                    }
+
+                    pool.waitAutoProof();
+                    return null;
+                    }
+
+                public void done() {
+                    pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    // some listeners have been switched off, they might
+                    // want to
+                    // update now.
+                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                    job = null;
+                }
+            };
             getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
 
-            // FIXME CREATE WORKER
-            SwingUtilities.invokeLater(this);
+            job.execute();
         }
     }
 
@@ -120,7 +149,6 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        // FIXME?! Really? For the embedded action you want to change the icon?
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             setIcon((ongoingProof = (Boolean) evt.getNewValue()) ? stopIcon : goIcon);
         }
@@ -133,36 +161,4 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      *         current strategy and closed, if possible.
      */
     public abstract List<ProofNode> getInitialList();
-
-    @Override
-    public void run() {
-        final ProofCenter pc = getProofCenter();
-        final Proof proof = pc.getProof();
-        final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
-        final Environment env = pc.getEnvironment();
-
-        // if there are no open goals disable this action, as the
-        // proof must have been closed
-        if (!proof.hasOpenGoals()) {
-            setEnabled(false);
-            return;
-        }
-
-        for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
-            pool.autoProof(node, strategy, env);
-        }
-
-        pool.waitAutoProof();
-
-        // FIXME put this in the after-work part of a SwingWorker
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-                // some listeners have been switched off, they might want to
-                // update now.
-                pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
-                hasJob = false;
-            }
-        });
-    }
 }

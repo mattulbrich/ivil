@@ -24,7 +24,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -251,9 +251,8 @@ class SnapshotManager extends JDialog {
         if (selected == null)
             return;
 
-        // FIXME CREATE WORKER
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        (new SwingWorker<Void, Void>(){
+            public Void doInBackground() {
                 try {
                     // if(checkSnapshot(selected))
                     // return;
@@ -264,9 +263,10 @@ class SnapshotManager extends JDialog {
 
                 } catch (ProofException e) {
                     ExceptionDialog.showExceptionDialog(getOwner(), e);
+                    }
+                return null;
                 }
-            }
-        });
+        }).execute();
 
         setVisible(false);
     }

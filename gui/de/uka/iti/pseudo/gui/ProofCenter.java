@@ -342,27 +342,7 @@ public class ProofCenter implements Observer {
      *             if the application fails.
      */
     public void apply(RuleApplication ruleApp) throws ProofException {
-//        ProofNode parent = ruleApp.getProofNode();
-        
-        // next to select its first child (or self if no children)
-//        List<ProofNode> children = parent.getChildren();
-//        ProofNode next;
-//        if(children == null) {
-//            // still a goal
-//            next = parent;
-//        } else if(children.isEmpty()) {
-//            if(proof.hasOpenGoals()) {
-//                // select first open remaining goal
-//                next = proof.getOpenGoals().get(0);
-//            } else {
-//                next = proof.getRoot();
-//            }
-//        } else {
-//            // select first child goal
-//            next = children.get(0);
-//        }
-//        
-//        return next;
+        proof.apply(ruleApp, env);
     }
 
     /**
