@@ -81,6 +81,7 @@
         <include name="**/*.gif" />
         <include name="**/*.png" />
     	<include name="**/*.properties" />
+    	<include name="**/*.xml" />
       </fileset>  
     </copy>
   </target>
