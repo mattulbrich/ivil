@@ -66,6 +66,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
+    private boolean ongoingProof = false;
 
     private boolean hasJob = false;
     private PooledAutoProofer pool;
@@ -112,7 +113,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
         // TODO ... is this what we want? Should depend on whether there are
         // open goals
         // under the currently selected node.
-        if (evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+        if (evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED) && !ongoingProof) {
             Proof proof = getProofCenter().getProof();
             setEnabled(proof.hasOpenGoals());
         }
@@ -121,7 +122,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     public void propertyChange(PropertyChangeEvent evt) {
         // FIXME?! Really? For the embedded action you want to change the icon?
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
-            setIcon(((Boolean) evt.getNewValue()) ? stopIcon : goIcon);
+            setIcon((ongoingProof = (Boolean) evt.getNewValue()) ? stopIcon : goIcon);
         }
     }
 
@@ -150,6 +151,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
         for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
             pool.autoProof(node, strategy, env);
         }
+
+        pool.waitAutoProof();
 
         // FIXME put this in the after-work part of a SwingWorker
         SwingUtilities.invokeLater(new Runnable() {

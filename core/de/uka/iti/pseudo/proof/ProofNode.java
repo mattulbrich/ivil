@@ -94,7 +94,7 @@ public class ProofNode implements Comparable<ProofNode> {
      * The applied rule.
      * This is set iff children have been calculated
      */
-    private ImmutableRuleApplication appliedRuleApp;
+    private ImmutableRuleApplication appliedRuleApp = null;
     
     /*@ invariant appliedRule == null <==> children == null; @*/  
     
