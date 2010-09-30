@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -62,7 +63,8 @@ import de.uka.iti.pseudo.util.GUIUtil;
     public void actionPerformed(ActionEvent e) {
         final Proof origProof = getProofCenter().getProof();
 
-        origProof.getDaemon().addJob(new Runnable() {
+        // FIXME broken
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
                     List<ProofNode> rootChildren = origProof.getRoot()

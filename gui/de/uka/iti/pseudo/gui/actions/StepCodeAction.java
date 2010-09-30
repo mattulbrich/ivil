@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -99,7 +100,7 @@ public abstract class StepCodeAction extends BarAction implements
         final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
 
-        proof.getDaemon().addJob(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
                     strategy.beginSearch();

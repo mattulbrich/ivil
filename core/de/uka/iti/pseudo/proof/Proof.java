@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.proof;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;

@@ -302,10 +302,6 @@ public class ProofNode implements Comparable<ProofNode> {
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
     void prune() {
-        // workaround for missing friend
-        assert (Thread.currentThread().getStackTrace()[1].getClassName() != Proof.class
-                .getName());
-
         if(children != null) {
             for (ProofNode node : children) {
                 node.parent = null;
@@ -334,10 +330,6 @@ public class ProofNode implements Comparable<ProofNode> {
      * @throws ProofException
      */
     void apply(RuleApplication ruleApp, Environment env) throws ProofException {
-        // workaround for missing friend
-        assert (Thread.currentThread().getStackTrace()[1].getClassName() != Proof.class
-                .getName());
-
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         

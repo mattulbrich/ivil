@@ -106,12 +106,12 @@ public class PooledAutoProofer {
     /**
      * The strategy to be used in this search.
      */
-    public final Strategy strategy;
+    public Strategy strategy;
 
     /**
      * Environment to be used by this auto proofer.
      */
-    public final Environment env;
+    public Environment env;
 
     /**
      * Flag to signal jobs, that they should stop.
@@ -146,6 +146,28 @@ public class PooledAutoProofer {
             wait.tryAcquire();
             todo.add(new Job(this, node));
         }
+    }
+
+    /**
+     * This function allows to start auto proofing with new strategy and
+     * environments.
+     * <p>
+     * The purpose of this function is to reduce recreation of PooledAutoProofer
+     * Objects when used for example as auto proof action in GUI mode.
+     * <p>
+     * <b>NOTE:</b> if you call this while buzy, with another strategy or
+     * environment, the old job will be canceled; in this case, the function
+     * will block until all jobs were canceled.
+     */
+    public void autoProof(@NonNull ProofNode node, @NonNull Strategy strategy,
+            @NonNull Environment env) {
+        if (workCounter.get() != 0
+                && (this.strategy != strategy || this.env != env)) {
+            stopAutoProof(true);
+        }
+        this.strategy = strategy;
+        this.env = env;
+        autoProof(node);
     }
 
     /**

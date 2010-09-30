@@ -10,11 +10,11 @@
  */
 package de.uka.iti.pseudo.gui;
 
+import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.Future;
 
 import javax.swing.SwingUtilities;
 
@@ -294,7 +293,7 @@ public class ProofCenter implements Observer {
      *            the node to be selected
      */
     public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
-        // FIXME Consider firePropertySet here
+        // using property set here causes stack overflow
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
 //    
@@ -369,11 +368,6 @@ public class ProofCenter implements Observer {
      * branch, the first open goal will be returned. If the whole tree is
      * closed, the root is returned - though not an open goal.
      * 
-     * <p>
-     * If apply was not invoked by a job and the ProofDaemon is buzy, this
-     * implementation will not wait for the lock but throws an exception. The UI
-     * has to ensure that this method is not invoked while the lock is held.
-     * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
      *            
@@ -383,26 +377,10 @@ public class ProofCenter implements Observer {
      *             if the application fails.
      */
     public ProofNode apply(RuleApplication ruleApp) throws ProofException {
+        // note: no synchronization needed, as parallelism only occurs on lower
+        // levels
 
         ProofNode parent = ruleApp.getProofNode();
-        
-        // check if we are the daemon to allow for desired behavior
-        if (proof.isDaemonThread(Thread.currentThread())) {
-            proof.apply(ruleApp, env);
-        } else {
-            if (proof.getDaemon().isIdle()) {
-                // apply rule and wait, as the first goal will change
-                try {
-                    applyDeferred(ruleApp).get();
-                } catch (Exception e) {
-                    // in this case, no exception should be thrown
-                    e.printStackTrace();
-                }
-            } else {
-                throw new ProofException(
-                        "The proof is currently locked by another thread");
-            }
-        }
         
         // next to select its first child (or self if no children)
         List<ProofNode> children = parent.getChildren();
@@ -426,21 +404,6 @@ public class ProofCenter implements Observer {
     }
 
     /**
-     * Like apply, but this implementation will create a job, that will apply ra
-     * as soon as possible.
-     * 
-     * @see apply
-     * @param ra
-     *            rule to be applied
-     * @return A Future of Type Boolean, which indicates the status of the rule
-     *         application and its success; will return false if rule could not
-     *         be applied for some reason
-     */
-    public Future<Boolean> applyDeferred(RuleApplication ra) {
-        return proof.getDaemon().applyRule(ra, env);
-    }
-
-    /**
      * Prune a proof.
      * 
      * This is delegated to the proof object. On success, the change of the
@@ -454,28 +417,13 @@ public class ProofCenter implements Observer {
      *            the node in the proof to prune.
      */
     public void prune(final ProofNode proofNode) {
-        proof.getDaemon().addJob(new Runnable() {
-            public void run() {
-                try {
-                    proof.prune(proofNode);
-                } catch (ProofException e) {
-                    ExceptionDialog
-                            .showExceptionDialog(mainWindow,
-                                    "Tried to proof an allready closed proof. This should not be allowed.");
-                }
-
-                // fire a null node as the pruned node is always already
-                // selected
-                try {
-                 // FIXME !!! fireSelectedProofNode has @NonNull annotation!
-                    fireSelectedProofNode(null);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // nothing really bad, but should not happen
-                }
-                fireSelectedProofNode(proofNode);
-            }
-        });
+        try {
+            proof.prune(proofNode);
+        } catch (ProofException e) {
+            ExceptionDialog.showExceptionDialog(mainWindow, e.getMessage());
+        }
+                
+        fireSelectedProofNode(proofNode);
     }
 
     /**
@@ -594,18 +542,12 @@ public class ProofCenter implements Observer {
             final Object newValue) {
         // check whether the property change was fired from a job or not, if
         // fired from a job, we have to wait for the GUI to finish
-        if (proof.isDaemonThread(Thread.currentThread())) {
-            try {
-                SwingUtilities.invokeAndWait(new Runnable() {
-                    public void run() {
-                        firePropertyChange(propertyName, newValue);
-                    }
-                });
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
+        if (!EventQueue.isDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    firePropertyChange(propertyName, newValue);
+                }
+            });
         } else {
             Log.enter(propertyName, newValue);
             Object oldValue = generalProperties.get(propertyName);
@@ -613,7 +555,39 @@ public class ProofCenter implements Observer {
             changeSupport.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
-    
+
+    /**
+     * Notify all registered listeners that a property's value has changed. It
+     * is safe to call this method from jobs.
+     * 
+     * <p>
+     * Please note that an event is only triggered if the new value differs from
+     * null.
+     * 
+     * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
+     * 
+     * @param propertyName
+     *            name of the property
+     * @param newValue
+     *            value after the change.
+     */
+    public void firePropertySet(final String propertyName,
+            @NonNull final Object newValue) {
+        // check whether the property change was fired from a job or not, if
+        // fired from a job, we have to wait for the GUI to finish
+        if (!EventQueue.isDispatchThread()) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    firePropertySet(propertyName, newValue);
+                }
+            });
+        } else {
+            Log.enter(propertyName, newValue);
+            generalProperties.put(propertyName, newValue);
+            changeSupport.firePropertyChange(propertyName, null, newValue);
+        }
+    }
+
     /**
      * Notify all registered listeners that a property's value has been set.
      * 

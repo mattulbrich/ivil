@@ -190,7 +190,7 @@ public final class SMTBackgroundAction extends BarAction implements
      */
     public void actionPerformed(ActionEvent actionEvt) {
 
-        proof.getDaemon().addJob(new Runnable() {
+        SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ProofCenter proofCenter = getProofCenter();
 

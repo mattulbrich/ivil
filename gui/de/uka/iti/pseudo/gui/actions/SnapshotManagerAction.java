@@ -24,12 +24,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.proof.ProofDaemon.Job;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -251,8 +251,9 @@ class SnapshotManager extends JDialog {
         if (selected == null)
             return;
 
-        proof.getDaemon().addJob(new Job<Void>() {
-            public Void run() {
+        // FIXME CREATE WORKER
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
                 try {
                     // if(checkSnapshot(selected))
                     // return;
@@ -264,7 +265,6 @@ class SnapshotManager extends JDialog {
                 } catch (ProofException e) {
                     ExceptionDialog.showExceptionDialog(getOwner(), e);
                 }
-                return null;
             }
         });
 

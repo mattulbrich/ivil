@@ -67,7 +67,8 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
             return;
         }
 
-        getProofCenter().getProof().getDaemon().addJob(this);
+        // FIXME CREATE WORKER
+        SwingUtilities.invokeLater(this);
     }
         
     public void run() {
