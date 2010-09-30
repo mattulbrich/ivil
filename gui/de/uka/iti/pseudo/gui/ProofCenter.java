@@ -372,9 +372,6 @@ public class ProofCenter implements Observer {
      * proof structure is propagated by a notification of the signal
      * {@value #PROOFTREE_HAS_CHANGED}.
      * 
-     * If the selected proof node was not part of the proof, an error message
-     * will be shown.
-     * 
      * @param proofNode
      *            the node in the proof to prune.
      */
@@ -512,38 +509,6 @@ public class ProofCenter implements Observer {
                     + newValue);
             generalProperties.put(propertyName, newValue);
             changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-        }
-    }
-
-    /**
-     * Notify all registered listeners that a property's value has changed. It
-     * is safe to call this method from jobs.
-     * 
-     * <p>
-     * Please note that an event is only triggered if the new value differs from
-     * null.
-     * 
-     * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
-     * 
-     * @param propertyName
-     *            name of the property
-     * @param newValue
-     *            value after the change.
-     */
-    public void firePropertySet(final String propertyName,
-            @NonNull final Object newValue) {
-        // check whether the property change was fired from a job or not, if
-        // fired from a job, we have to wait for the GUI to finish
-        if (!EventQueue.isDispatchThread()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    firePropertySet(propertyName, newValue);
-                }
-            });
-        } else {
-            Log.enter(propertyName, newValue);
-            generalProperties.put(propertyName, newValue);
-            changeSupport.firePropertyChange(propertyName, null, newValue);
         }
     }
 
