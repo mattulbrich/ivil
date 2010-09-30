@@ -14,9 +14,9 @@ import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TypeVariable;
 
 /**
  * This where condition can be used in rules to indicate that a schema variable
@@ -37,7 +37,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
  * which must either be <code>true</code> or <code>false</code> (literally).
  * <code>false</code> indicates the usual behaviour while <code>true</code> also
  * allows to instantiate the type of the schema variable (<i>which <b>must</b> be
- * type variable then. This is convenient for type instantiations.
+ * schema type then). This is convenient for type instantiations.
  * 
  * @author mattias ulbrich
  */
@@ -75,8 +75,8 @@ public class Interactive extends WhereCondition {
             Term arg2 = arguments[1];
             if(arg2.equals(Environment.getTrue())) {
                 Term arg1 = arguments[0];
-                if(!(arg1 .getType() instanceof TypeVariable)) {
-                    throw new RuleException("in type mode: 1st argument must be of type variable type");
+                if(!(arg1.getType() instanceof SchemaType)) {
+                    throw new RuleException("in type mode: 1st argument must be of schema type");
                 }
                 
                 return true;

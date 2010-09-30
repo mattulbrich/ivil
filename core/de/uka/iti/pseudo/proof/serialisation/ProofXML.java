@@ -54,7 +54,7 @@ public class ProofXML implements ProofImport, ProofExport {
         try {
             factory.setSchema(makeSchema());
             SAXParser parser = factory.newSAXParser();
-            SAXHandler handler = new SAXHandler(env, proof);
+            SAXHandler handler = new SAXHandler(env, proof, true);
             parser.parse(is, handler);
         } catch (ParserConfigurationException e) {
             throw new IOException(e);

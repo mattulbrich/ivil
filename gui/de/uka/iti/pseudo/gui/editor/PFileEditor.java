@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,12 +27,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -39,18 +38,18 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
 
 import nonnull.Nullable;
+
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
+import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
+import org.fife.ui.rsyntaxtextarea.TokenMaker;
+import org.fife.ui.rtextarea.RTextScrollPane;
+
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
-import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.CloseEditorAction;
@@ -63,7 +62,6 @@ import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
-import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO in some future: syntax highlighting
@@ -73,7 +71,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     private static final long serialVersionUID = 8116827588545997986L;
     private static final String ERROR_FILE_PROPERTY = "errorFile";
     private static final String ERROR_LINE_PROPERTY = "errorLine";
-    private JTextArea editor;
+    private RSyntaxTextArea editor;
     private File editedFile;
     private Object errorHighlighting;
     private JLabel statusLine;
@@ -163,13 +161,21 @@ public class PFileEditor extends JFrame implements ActionListener {
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
         {
-            editor = new BracketMatchingTextArea();
-            editor.setLineWrap(false);
-            editor.setFont(Settings.getInstance().getFont("pseudo.editor.font", editor.getFont()));
-            editor.setBorder(new LineNrBorder(Color.lightGray));
-            installUndoManager(editor);
-            editor.setCaret(new NotScrollingCaret());
+            editor = new RSyntaxTextArea();
             // TODO make this configurable
+            editor.setLineWrap(false);
+            editor.setTextAntiAliasHint("VALUE_TEXT_ANTIALIAS_ON");
+            editor.setBracketMatchingEnabled(true);
+            editor.setPopupMenu(barManager.makePopup("editor.popup"));
+            ((RSyntaxDocument) editor.getDocument()).setSyntaxStyle((TokenMaker) new IvilTokenMaker());
+            Font font = Settings.getInstance().getFont("pseudo.editor.font", editor.getFont());
+            editor.setFont(font);
+            SyntaxScheme schema = SyntaxScheme.load(font, getClass().getResourceAsStream("syntaxScheme.xml"));
+            editor.setSyntaxScheme(schema);
+            editor.getInputMap().put(KeyStroke.getKeyStroke("control shift C"), RSyntaxTextAreaEditorKit.rstaToggleCommentAction);
+//            installUndoManager(editor);
+            // TODO make this configurable
+            // TODO use the parser manager from RSyntax...
             editor.getDocument().addDocumentListener(doclistener);
             try {
                 errorHighlighting = editor.getHighlighter().addHighlight(0, 0, new CurlyHighlightPainter());
@@ -177,12 +183,13 @@ public class PFileEditor extends JFrame implements ActionListener {
                // cannot happen
                 throw new Error(e);
             }
-            JScrollPane scroll = new JScrollPane(editor);
+            RTextScrollPane scroll = new RTextScrollPane(editor);
             contentPane.add(scroll, BorderLayout.CENTER);
         }
         {
             statusLine = new JLabel();
-            final JPopupMenu popup = barManager.makePopup("editor.popup");
+            statusLine.setFont(statusLine.getFont().deriveFont(Font.PLAIN));
+            final JPopupMenu popup = barManager.makePopup("error.popup");
             statusLine.addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     if(SwingUtilities.isRightMouseButton(e)) {
@@ -257,7 +264,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                         setErrorLine(0);
                     } else {
                         from = toIndex(token.beginLine, token.beginColumn);
-                        to = toIndex(token.endLine, token.endColumn) + 1;
+                        to = toIndex(token.endLine, token.endColumn);
                         setErrorLine(token.beginLine);
                     }
                     editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
@@ -328,67 +335,64 @@ public class PFileEditor extends JFrame implements ActionListener {
     
     // from http://www.java2s.com/Code/Java/Swing-JFC/AddingUndoandRedotoaTextComponent.htm
    
-    @SuppressWarnings("serial")
-    private static void installUndoManager(JTextComponent textcomp) {
-        final UndoManager undo = new UndoManager();
-        Document doc = textcomp.getDocument();
-
-        doc.addUndoableEditListener(new UndoableEditListener() {
-            public void undoableEditHappened(UndoableEditEvent evt) {
-                undo.addEdit(evt.getEdit());
-            }
-        });
-        
-        textcomp.getActionMap().put("Undo",
-            new AbstractAction("Undo") {
-                public void actionPerformed(ActionEvent evt) {
-                    try {
-                        if (undo.canUndo()) {
-                            undo.undo();
-                        }
-                    } catch (CannotUndoException e) {
-                    }
-                }
-           });
-        
-        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
-        
-        textcomp.getActionMap().put("Redo",
-            new AbstractAction("Redo") {
-                public void actionPerformed(ActionEvent evt) {
-                    try {
-                        if (undo.canRedo()) {
-                            undo.redo();
-                        }
-                    } catch (CannotRedoException e) {
-                    }
-                }
-            });
-        
-        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
-    }
-    
-
-//    public static void main(String[] args) {
-//        SwingUtilities.invokeLater(new Runnable() {
-//            public void run() {
-//                try {
-//                    PFileEditor editor;
-//                    editor = new PFileEditor(new File("sys/proposition.p"));
-//                    editor.setSize(600,600);
-//                    editor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//                    editor.setVisible(true);
-//                } catch (HeadlessException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
+//    @SuppressWarnings("serial")
+//    private static void installUndoManager(JTextComponent textcomp) {
+//        final UndoManager undo = new UndoManager();
+//        Document doc = textcomp.getDocument();
+//
+//        doc.addUndoableEditListener(new UndoableEditListener() {
+//            public void undoableEditHappened(UndoableEditEvent evt) {
+//                undo.addEdit(evt.getEdit());
 //            }
 //        });
 //        
+//        textcomp.getActionMap().put("Undo",
+//            new AbstractAction("Undo") {
+//                public void actionPerformed(ActionEvent evt) {
+//                    try {
+//                        if (undo.canUndo()) {
+//                            undo.undo();
+//                        }
+//                    } catch (CannotUndoException e) {
+//                    }
+//                }
+//           });
+//        
+//        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
+//        
+//        textcomp.getActionMap().put("Redo",
+//            new AbstractAction("Redo") {
+//                public void actionPerformed(ActionEvent evt) {
+//                    try {
+//                        if (undo.canRedo()) {
+//                            undo.redo();
+//                        }
+//                    } catch (CannotRedoException e) {
+//                    }
+//                }
+//            });
+//        
+//        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
 //    }
+    
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    PFileEditor editor;
+                    editor = new PFileEditor(); //new File("sys/fol.p"));
+                    editor.setSize(600,600);
+                    editor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    editor.setVisible(true);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+        
+    }
     
     public void actionPerformed(ActionEvent evt) {
         Action action = editor.getActionMap().get(evt.getActionCommand());

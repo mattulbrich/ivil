@@ -19,11 +19,13 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTWhereClause extends ASTRuleElement {
     
-    Token identifier;
+    private Token identifier;
+    private boolean inverted;
 
-    public ASTWhereClause(Token headToken, Token t, List<ASTTerm> args) {
+    public ASTWhereClause(Token headToken, boolean inverted, Token t, List<ASTTerm> args) {
         super(headToken);
         this.identifier = t;
+        this.inverted = inverted;
         addChildren(args);
     }
 
@@ -37,6 +39,10 @@ public class ASTWhereClause extends ASTRuleElement {
 
     public Token getIdentifier() {
         return identifier;
+    }
+    
+    public boolean isInverted() {
+        return inverted;
     }
 
 }

@@ -18,10 +18,12 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -102,7 +104,8 @@ class TermMatcher extends DefaultTermVisitor {
                 compare(inst, t2);
             } else {
                 termUnification.addInstantiation(sv, t2);
-                termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), t2.getType());
+                // is this still desired? If %a <- 3 then %'a <- int automatically
+                termUnification.getTypeUnification().leftUnify(new SchemaType(sv.getName().substring(1)), t2.getType());
             }
             
         } else if(t1 instanceof SchemaProgramTerm && t2 instanceof LiteralProgramTerm) {
@@ -155,7 +158,7 @@ class TermMatcher extends DefaultTermVisitor {
                 throw new UnificationException("Incomparable termination", sp, litPrg);
             
             termUnification.addInstantiation(sv, litPrg);
-            termUnification.getTypeUnification().leftUnify(new TypeVariable(sv.getName()), Environment.getBoolType());
+            termUnification.getTypeUnification().leftUnify(new SchemaType(sv.getName().substring(1)), Environment.getBoolType());
             if(sp.hasMatchingStatement()) {
                 Statement matchingSt = sp.getMatchingStatement();
                 Statement statement = litPrg.getStatement();
@@ -231,7 +234,13 @@ class TermMatcher extends DefaultTermVisitor {
             throw new UnificationException(tyvarBinding, otherBinding);
         }
         
-        termUnification.getTypeUnification().leftUnify(tyvarBinding.getTypeVariable(), otherBinding.getTypeVariable());
+        Type boundType = tyvarBinding.getBoundType();
+        termUnification.getTypeUnification().leftUnify(boundType, otherBinding.getBoundType());
+        
+        if (boundType instanceof SchemaType) {
+            SchemaType schemaType = (SchemaType) boundType;
+            termUnification.addBoundSchemaType(schemaType);            
+        }
         
         defaultVisitTerm(tyvarBinding);
     }

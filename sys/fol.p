@@ -17,40 +17,40 @@ include
    "$proposition.p"
 
 rule forall_right
-  find  |-  (\forall %x as 'a; %b) 
+  find  |-  (\forall %x; %b) 
   replace  $$subst(%x, $$skolem(%x), %b)
   tags rewrite "fol simp"
 
 rule exists_right
-  find  |-  (\exists %x as 'a; %b) 
+  find  |-  (\exists %x; %b) 
   where
-    interact %inst as 'a
+    interact %inst
   add |-  $$subst(%x, %inst, %b) 
 
 rule forall_left
-  find  (\forall %x as 'a; %b)  |-
+  find  (\forall %x; %b)  |-
   where
-    interact %inst as 'a
+    interact %inst
   add $$subst(%x, %inst, %b) |-
 
 rule exists_left
-  find   (\exists %x as 'a; %b)  |-
+  find   (\exists %x; %b)  |-
   replace  $$subst(%x, $$skolem(%x), %b)
   tags rewrite "fol simp"
 
 (* type quantifications *)
 
 rule typed_forall_left
-  find (\T_all 'a; (\forall %x as 'a; %b)) |-
+  find (\T_all %'a; (\forall %x as %'a; %b)) |-
   where
-    interact %inst as 'b
+    interact %inst as %'inst, true
   add $$subst(%x, %inst, %b) |-
 
 rule type_forall_left
-  find (\T_all 'a; %b) |-
+  find (\T_all %'a; %b) |-
   where
-    interact %inst as 'b, true
-  add $$specialiseType(arb as 'a, %inst, %b) |-
+    interact %inst as %'inst, true
+  add $$specialiseType(arb as %'a, %inst, %b) |-
 
 (*
  * Conditionals
@@ -91,7 +91,17 @@ rule equality_refl
 
 rule equality_comm
   find  %t = %u 
-  replace %u = %t 
+  replace %u = %t
+
+(* bring equalities into order if they are not yet *)
+rule equality_order
+  find %t = %u
+  where
+    unorderedTerms %t, %u
+  replace %u = %t
+  tags
+    rewrite "fol simp"
+    verbosity "8"
 
 rule equality_apply
   find  %t 
@@ -99,6 +109,18 @@ rule equality_apply
   where
     toplevel
   replace   %u 
+
+rule auto_equality_apply
+  find %t 
+  assume %t = %u  |-
+  where toplevel
+  where distinctAssumeAndFind
+  where not unorderedTerms %t, %u
+  replace %u 
+  tags
+    autoonly
+    rewrite "fol simp"
+    verbosity "3"
 
 rule equality_unique
   find %t = %u

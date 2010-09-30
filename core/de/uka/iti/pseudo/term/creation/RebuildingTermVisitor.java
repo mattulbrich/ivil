@@ -15,6 +15,7 @@ import java.util.List;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -180,39 +181,40 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
              * sub classes may choose to do things with bound variables
              * as well. 
              */
-            TypeVariable typeVariable = tyVarBinding.getTypeVariable();
-            Type modifiedType = modifyType(typeVariable);
-            if(!(modifiedType instanceof TypeVariable)) {
-                throw new TermException("The bound type of a type quantification must be a type variable: " + modifiedType);
+            Type boundType = tyVarBinding.getBoundType();
+            Type modifiedType = modifyType(boundType);
+            
+            if (!(modifiedType instanceof TypeVariable)
+                    && !(modifiedType instanceof SchemaType)) {
+                throw new TermException("The bound type of a type quantification must be a type variable or schema type: " + modifiedType);
             }
             
-            if(typeVariable != modifiedType) {
+            if(boundType != modifiedType) {
                 changed = true;
-                // cast is safe, has been checked!
-                typeVariable = (TypeVariable) modifiedType;
+                boundType = modifiedType;
             }
 
             if(changed) {
                 resultingTerm = new TypeVariableBinding(tyVarBinding.getKind(),
-                        typeVariable, subterm);
+                        boundType, subterm);
             } else {
                 resultingTerm = null;
             }
         }
     }
     
-    /**
-     * Some implementations may choose to visit the bound type variable and change it.
-     * 
-     * They can then override this method according to their needs.
-     * 
-     * The default behaviour is to NOT change the type variable
-     * 
-     * @param tyVarBinding binding to visit the bound type variable in.
-     */
-    protected TypeVariable visitBindingTypeVariable(TypeVariableBinding tyVarBinding) {
-        return tyVarBinding.getTypeVariable();
-    }
+//    /**
+//     * Some implementations may choose to visit the bound type variable and change it.
+//     * 
+//     * They can then override this method according to their needs.
+//     * 
+//     * The default behaviour is to NOT change the type variable
+//     * 
+//     * @param tyVarBinding binding to visit the bound type variable in.
+//     */
+//    protected TypeVariable visitBindingTypeVariable(TypeVariableBinding tyVarBinding) {
+//        return tyVarBinding.getTypeVariable();
+//    }
 
     /**
      * Some implementations may choose to visit the bound variable as a subterm

@@ -233,7 +233,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         }
 
         try {
-            resultingWhereclause = new WhereClause(where, terms);
+            resultingWhereclause = new WhereClause(where, arg.isInverted(), terms);
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }

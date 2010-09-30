@@ -15,6 +15,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
@@ -36,10 +38,16 @@ public class PopupOpenErrorFile
         if(errorFile == null)
             return;
         try {
-            File file = new File(errorFile);
+            URL url = new URL(errorFile);
+            if(!"file".equals(url.getProtocol())) {
+                throw new IOException(url.getProtocol() +
+                        ": Only the file protocol is supported for this functionality");
+            }
+            URI uri = url.toURI();
+            File file = new File(uri.getPath());
             Main.openEditor(file);
-        } catch (IOException e1) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
+        } catch (Exception ex) {
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         }
     }
 

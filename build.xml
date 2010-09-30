@@ -4,10 +4,8 @@
 <project name="ivil - Interactive verification on intermediate language" default="nonnull" basedir=".">
 
   <property name="compile.debug" value="true" />
-<!--
-  <property name="compile.nonnullchecks" value="remove this line to switchoff" />
--->
- 
+<!--  <property name="compile.nonnullchecks" value="remove this line to switchoff" />
+ -->
   <target name="init">
     <mkdir dir="classes/META-INF"/>
     <mkdir dir="classes-test"/>
@@ -39,6 +37,7 @@
      <javac srcdir="gui" destdir="classes" debug="${compile.debug}">
       <classpath>
         <pathelement path="lib/javadocking.jar" />
+        <pathelement path="lib/rsyntaxtextarea.jar" />
       	<pathelement path="classes" />
       </classpath>
       <compilerarg value="-Xlint"/>
@@ -82,6 +81,7 @@
         <include name="**/*.gif" />
         <include name="**/*.png" />
     	<include name="**/*.properties" />
+    	<include name="**/*.xml" />
       </fileset>  
     </copy>
   </target>
@@ -97,7 +97,9 @@
         <attribute name="Implementation-Title" 
 		   value="ivil - Interactive Verification on Intermediate Language"/>
         <attribute name="Implementation-Version" value="0.0"/>
-        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar"/>
+        <!-- log4j is an optional library, the runtime env will not complain if
+             the file is absent -->
+        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
         <attribute name="SplashScreen-Image" value="de/uka/iti/pseudo/gui/img/logo.png"/>
       </manifest>

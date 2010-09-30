@@ -25,7 +25,6 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 
@@ -128,9 +127,6 @@ public abstract class StepCodeAction extends BarAction implements
                                     .showExceptionDialog(getParentFrame(),
                                             "The currently selected proof strategy is to weak to do another step");
                     }
-
-                    Log.log(Log.VERBOSE, "selectedProofNode="
-                            + selectedProofNode);
 
                     if (selectedProofNode.isClosed()) {
                         if (proof.hasOpenGoals())

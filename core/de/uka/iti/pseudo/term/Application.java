@@ -98,11 +98,14 @@ public class Application extends Term {
 
         try {
             for (int i = 0; i < countSubterms(); i++) {
-                unify.leftUnify(argumentTypes[i], TypeUnification
-                        .makeVariant(getSubterm(i).getType()));
+                unify.leftUnify(
+                        TypeUnification.makeSchemaVariant(argumentTypes[i]), 
+                        getSubterm(i).getType());
             }
-            unify.leftUnify(function.getResultType(), TypeUnification
-                    .makeVariant(getType()));
+            
+            unify.leftUnify(
+                    TypeUnification.makeSchemaVariant(function.getResultType()),
+                    getType());
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
                     + " cannot be typed.\nFunction symbol: " + function 

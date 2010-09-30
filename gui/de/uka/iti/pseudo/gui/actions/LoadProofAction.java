@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
@@ -100,8 +101,12 @@ import de.uka.iti.pseudo.util.GUIUtil;
                     }
 
                 } catch (Exception ex) {
-                    getProofCenter().prune(
-                            getProofCenter().getProof().getRoot());
+                    try {
+                        getProofCenter().prune(getProofCenter().getProof().getRoot());
+                    } catch (ProofException e) {
+                        // should never happen
+                        e.printStackTrace();
+                    }
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 }
             }

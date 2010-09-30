@@ -122,7 +122,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                         "The proof branch cannot be closed. Keep it?",
                         "Question", JOptionPane.YES_NO_OPTION);
                 if(result == JOptionPane.NO_OPTION) {
-                    proof.prune(currentProofNode);
+                    proofCenter.prune(currentProofNode);
                     next = currentProofNode;
                 } 
             }
@@ -135,9 +135,8 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-                    // some listeners have been switched off, they might want to update now.
-                    proofCenter.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
                 }});
+            proofCenter.fireProoftreeChangedNotification(true);
         }
 
     }

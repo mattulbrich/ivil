@@ -145,7 +145,7 @@ ASTBinderTerm BinderTerm():
 ASTTypevarBinderTerm TypevarBinderTerm():
 {
   Token binderToken;
-  Token tyvarToken;
+  ASTType type;
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
 }
@@ -154,13 +154,11 @@ ASTTypevarBinderTerm TypevarBinderTerm():
         ( binderToken = <ALL_TY> | binderToken = <EX_TY> )
         
         // in top level terms
-        ( tyvarToken=<BINDABLE_TYVAR_IDENTIFIER>
-        // only in rules:
-        | tyvarToken=<TYVAR_IDENTIFIER>)
+        ( type=BindableTypeRef() )
 
         ";" t=Term()
         
-   { return new ASTTypevarBinderTerm(binderToken, tyvarToken, t); }
+   { return new ASTTypevarBinderTerm(binderToken, type, t); }
 }
 
 
@@ -179,9 +177,22 @@ ASTType TypeRef():
 		)?
 		{ return new ASTTypeApplication(token, args); }
 	|
-		( token = <TYVAR_IDENTIFIER> | token = <BINDABLE_TYVAR_IDENTIFIER> )
-		{ return new ASTTypeVar(token); }
+		ty=BindableTypeRef() { return ty; }
 }
+
+/* type references that can be used for type binders.
+ * TypeApplications are not allowed */
+ASTType BindableTypeRef():
+{
+  Token token;
+}
+{
+                ( token = <TYVAR_IDENTIFIER> )
+                { return new ASTTypeVar(token); }
+        |
+                ( token = <SCHEMA_TYPE_IDENTIFIER> )
+                { return new ASTSchemaType(token); }
+} 
 
         
 ASTTerm ApplicationTerm():

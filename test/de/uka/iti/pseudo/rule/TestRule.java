@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.term.Term;
@@ -91,6 +92,28 @@ public class TestRule extends TestCaseWithEnv {
             fail("Should fail: no find but remove");
         } catch (RuleException e) {
             if(VERBOSE)
+                System.out.println(e);
+        }
+    }
+    
+    // bug detected by writing the test
+    public void testTyping() throws Exception {
+        LocatedTerm find = new LocatedTerm(makeTerm("%a as 'a"), MatchingLocation.BOTH);
+        Term replace = makeTerm("arb as int");
+        GoalAction replaceAction = new GoalAction("samegoal", "", false,
+                replace, Collections.<Term> emptyList(), Collections
+                        .<Term> emptyList());
+
+        try {
+            Rule rule = new Rule("test", Collections.<LocatedTerm> emptyList(),
+                    find, Collections.<WhereClause> emptyList(), Collections
+                            .singletonList(replaceAction), Collections
+                            .<String, String> emptyMap(),
+                    ASTLocatedElement.CREATED);
+            rule.dump();
+            fail("Should fail: replace has different type than find");
+        } catch (RuleException e) {
+            if (VERBOSE)
                 System.out.println(e);
         }
     }

@@ -44,7 +44,6 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.NotificationSupport;
@@ -145,17 +144,6 @@ public class ProofCenter implements Observer {
     private List<Rule> rulesSortedForInteraction;
     
     /**
-     * for synchronisation: Is this center currently firing a message? 
-     * If so, do not start another firing.
-     */
-//    private boolean isFiring = false;
-    
-    /**
-     * The currently selected proof node.
-     */
-//    private ProofNode currentProofNode;
-
-    /**
      * the system pretty printer used by components, 
      * configured by menu
      */
@@ -173,7 +161,9 @@ public class ProofCenter implements Observer {
      */
     private Map<String, Object> generalProperties = new HashMap<String, Object>();
 
-    // TODO DOC
+    /**
+     * general notification mechanism to allow for listening to events.
+     */
     private NotificationSupport notificationSupport = new NotificationSupport(this);
     
     /**
@@ -261,24 +251,6 @@ public class ProofCenter implements Observer {
         return mainWindow;
     }
     
-//    /**
-//     * Registers a proof node selection listener.
-//     * 
-//     * @param l the listener
-//     */
-//    public void addProofNodeSelectionListener(ProofNodeSelectionListener l) {
-//        listeners.add(l);
-//    }
-//    
-//    /**
-//     * Unregisters a proof node selection listener.
-//     * 
-//     * @param l the listener
-//     */
-//    public void removeProofNodeSelectionListener(ProofNodeSelectionListener l) {
-//        listeners.remove(l);
-//    }
-//    
     /**
      * Indicate that a proof node has been selected.
      * 
@@ -293,36 +265,31 @@ public class ProofCenter implements Observer {
      *            the node to be selected
      */
     public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
-        // using property set here causes stack overflow
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
-//    
-//    /**
-//     * Indicate that a rule application has been selected.
-//     * 
-//     * All registered proof node selection listeners are informed of this
-//     * selection. The notification is ensured to be run on the swing event queue
-//     * thread. It may or may not have already been executed when this method
-//     * returns.
-//     * 
-//     * @see ProofNodeSelectionListener#ruleApplicationSelected(RuleApplication)
-//     * 
-//     * @param ruleApplication
-//     *            the rule application to be selected
-//     */
-//    public void fireSelectedRuleApplication(final RuleApplication ruleApplication) {
-//        if(!isFiring) {
-//            isFiring = true;
-//            SwingUtilities.invokeLater(new Runnable() {
-//                public void run() {
-//                    for (ProofNodeSelectionListener l : listeners) {
-//                        l.ruleApplicationSelected(ruleApplication);
-//                    }
-//                    isFiring = false;
-//                }
-//            });
-//        }
-//    }
+
+    /**
+     * Indicate that a proof step has been completed and the tree should be
+     * reassessed.
+     * 
+     * All registered notification listeners listening to the signal
+     * {@link ProofCenter#PROOFTREE_HAS_CHANGED} will get notified.
+     * 
+     * @param selectNextGoal
+     *            if this is true, the next selectable goal is automatically
+     *            selected.
+     */
+    public void fireProoftreeChangedNotification(final boolean selectNextGoal) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                fireNotification(PROOFTREE_HAS_CHANGED);
+                if(selectNextGoal) {
+                    selectNextGoal();
+                }
+            }
+        });
+    }
     
     /**
      * Gets the List of possible rule applications for a term within the
@@ -371,44 +338,39 @@ public class ProofCenter implements Observer {
      * @param ruleApp
      *            the rule application to apply onto the proof.
      *            
-     * @return the proof node which should be selected as next goal.
-     * 
      * @throws ProofException
      *             if the application fails.
      */
-    public ProofNode apply(RuleApplication ruleApp) throws ProofException {
-        // note: no synchronization needed, as parallelism only occurs on lower
-        // levels
-
-        ProofNode parent = ruleApp.getProofNode();
+    public void apply(RuleApplication ruleApp) throws ProofException {
+//        ProofNode parent = ruleApp.getProofNode();
         
         // next to select its first child (or self if no children)
-        List<ProofNode> children = parent.getChildren();
-        ProofNode next;
-        if(children == null) {
-            // still a goal
-            next = parent;
-        } else if(children.isEmpty()) {
-            if(proof.hasOpenGoals()) {
-                // select first open remaining goal
-                next = proof.getOpenGoals().get(0);
-            } else {
-                next = proof.getRoot();
-            }
-        } else {
-            // select first child goal
-            next = children.get(0);
-        }
-        
-        return next;
+//        List<ProofNode> children = parent.getChildren();
+//        ProofNode next;
+//        if(children == null) {
+//            // still a goal
+//            next = parent;
+//        } else if(children.isEmpty()) {
+//            if(proof.hasOpenGoals()) {
+//                // select first open remaining goal
+//                next = proof.getOpenGoals().get(0);
+//            } else {
+//                next = proof.getRoot();
+//            }
+//        } else {
+//            // select first child goal
+//            next = children.get(0);
+//        }
+//        
+//        return next;
     }
 
     /**
      * Prune a proof.
      * 
      * This is delegated to the proof object. On success, the change of the
-     * proof structure is propagated using the
-     * {@link #fireSelectedProofNode(ProofNode)} method.
+     * proof structure is propagated by a notification of the signal
+     * {@value #PROOFTREE_HAS_CHANGED}.
      * 
      * If the selected proof node was not part of the proof, an error message
      * will be shown.
@@ -416,14 +378,12 @@ public class ProofCenter implements Observer {
      * @param proofNode
      *            the node in the proof to prune.
      */
-    public void prune(final ProofNode proofNode) {
-        try {
-            proof.prune(proofNode);
-        } catch (ProofException e) {
-            ExceptionDialog.showExceptionDialog(mainWindow, e.getMessage());
-        }
-                
-        fireSelectedProofNode(proofNode);
+    public void prune(ProofNode proofNode) throws ProofException {
+        proof.prune(proofNode);
+        
+        // prune triggers #update of this object, that sends a
+        // PROOFNODE_HAS_CHANGED notification. This remains:
+        fireProoftreeChangedNotification(false);
     }
 
     /**
@@ -540,8 +500,6 @@ public class ProofCenter implements Observer {
      */
     public void firePropertyChange(final String propertyName,
             final Object newValue) {
-        // check whether the property change was fired from a job or not, if
-        // fired from a job, we have to wait for the GUI to finish
         if (!EventQueue.isDispatchThread()) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
@@ -549,8 +507,9 @@ public class ProofCenter implements Observer {
                 }
             });
         } else {
-            Log.enter(propertyName, newValue);
             Object oldValue = generalProperties.get(propertyName);
+            Log.log("Changing " + propertyName + " from " + oldValue + " to "
+                    + newValue);
             generalProperties.put(propertyName, newValue);
             changeSupport.firePropertyChange(propertyName, oldValue, newValue);
         }
@@ -604,6 +563,7 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void fireNotification(String signal, Object... parameters) {
+        assert SwingUtilities.isEventDispatchThread();
         Log.enter(signal, Util.readOnlyArrayList(parameters));
         notificationSupport.fireNotification(signal, parameters);
     }
@@ -657,6 +617,35 @@ public class ProofCenter implements Observer {
             }
         }
 
+    }
+
+    private void selectNextGoal() {
+        ProofNode res = findGoal(getCurrentProofNode());
+        
+        if(res == null) {
+            res = findGoal(proof.getRoot());
+        }
+        
+        if(res == null) {
+            Log.log(Log.DEBUG, "No goal to select, selected root");
+            fireSelectedProofNode(proof.getRoot());
+        } else {
+            Log.log(Log.DEBUG, "Goal selected: " + res);
+            fireSelectedProofNode(res);
+        }
+    }
+    
+    private ProofNode findGoal(ProofNode p) {
+        if(p.getChildren() == null)
+            return p;
+        
+        for (ProofNode pn : p.getChildren()) {
+            ProofNode res = findGoal(pn);
+            if(res != null)
+                return res;
+        }
+        
+        return null;
     }
 
 }

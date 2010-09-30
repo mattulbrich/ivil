@@ -13,11 +13,16 @@ package de.uka.iti.pseudo.term;
 /**
  * Allow visiting also for type structures. Even though this is a rather small
  * distinction it can make since in combination with for instance TermVisitor.
+ * 
+ * @param <R> Result type for the methods
+ * @param <P> Parameter type for the additional parameter to methods.
  */
-public interface TypeVisitor {
+public interface TypeVisitor<R, P> {
 
-    Type visit(TypeApplication typeApplication) throws TermException;
+    R visit(TypeApplication typeApplication, P parameter) throws TermException;
     
-    Type visit(TypeVariable typeVariable) throws TermException;
+    R visit(TypeVariable typeVariable, P parameter) throws TermException;
+
+    R visit(SchemaType schemaType, P parameter) throws TermException;
 
 }

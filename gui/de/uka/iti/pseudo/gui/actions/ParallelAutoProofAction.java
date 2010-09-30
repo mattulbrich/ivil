@@ -40,9 +40,8 @@ import de.uka.iti.pseudo.util.PooledAutoProofer;
  * 
  * @author felden@ira.uka.de
  */
-public abstract class ParallelAutoProofAction extends BarAction implements
-        PropertyChangeListener, InitialisingAction, Runnable,
-        NotificationListener {
+public abstract class ParallelAutoProofAction extends BarAction implements PropertyChangeListener, InitialisingAction,
+        Runnable, NotificationListener {
 
     private static final long serialVersionUID = 7212654361200636678L;
 
@@ -50,8 +49,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         final private ProofNode target;
         final private Strategy strategy;
 
-        public RuleApplicationFinder(final ProofNode target,
-                final Strategy strategy) {
+        public RuleApplicationFinder(final ProofNode target, final Strategy strategy) {
             this.target = target;
             this.strategy = strategy;
         }
@@ -66,10 +64,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         }
     }
 
-    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class
-            .getResource("img/cog_go.png"));
-    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class
-            .getResource("img/cog_stop.png"));
+    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
+    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
 
     private boolean hasJob = false;
     private PooledAutoProofer pool;
@@ -79,13 +75,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements
     }
 
     public void initialised() {
-        pool = new PooledAutoProofer(getProofCenter().getStrategyManager()
-                .getSelectedStrategy(), getProofCenter().getEnvironment());
-        
-        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF,
-                this);
-        getProofCenter().addNotificationListener(
-                ProofCenter.PROOFTREE_HAS_CHANGED, this);
+        pool = new PooledAutoProofer(getProofCenter().getStrategyManager().getSelectedStrategy(), getProofCenter()
+                .getEnvironment());
+
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+        getProofCenter().addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -94,9 +88,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         // if there are no open goals disable this action,
         // as the proof must have been closed
         if (!proof.hasOpenGoals()) {
-            ExceptionDialog
-                    .showExceptionDialog(getParentFrame(),
-                            "Tried to proof an allready closed proof. This should not be allowed.");
+            ExceptionDialog.showExceptionDialog(getParentFrame(),
+                    "Tried to proof an allready closed proof. This should not be allowed.");
             setEnabled(false);
             return;
         }
@@ -107,8 +100,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements
         } else {
             hasJob = true;
 
-            getProofCenter()
-                    .firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
 
             // FIXME CREATE WORKER
             SwingUtilities.invokeLater(this);
@@ -159,7 +151,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements
             pool.autoProof(node, strategy, env);
         }
 
-        // TODO put this in the after-work part of a SwingWorker
+        // FIXME put this in the after-work part of a SwingWorker
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);

@@ -152,13 +152,18 @@ public class Binding extends Term {
 
         try {
             for (int i = 0; i < countSubterms(); i++) {
-                unify.leftUnify(argumentTypes[i], TypeUnification
-                        .makeVariant(getSubterm(i).getType()));
+                unify.leftUnify(
+                        TypeUnification.makeSchemaVariant(argumentTypes[i]), 
+                        getSubterm(i).getType());
             }
-            unify.leftUnify(binder.getVarType(), TypeUnification
-                    .makeVariant(getVariableType()));
-            unify.leftUnify(binder.getResultType(), TypeUnification
-                    .makeVariant(getType()));
+            unify.leftUnify(
+                    TypeUnification.makeSchemaVariant(binder.getVarType()),
+                    getVariableType());
+            
+            unify.leftUnify(
+                    TypeUnification.makeSchemaVariant(binder.getResultType()),
+                    getType());
+            
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
                     + " cannot be typed.\nFunction symbol: " + binder

@@ -301,13 +301,16 @@ ASTWhereClause WhereClause(Token headToken):
 {
 	Token t;
 	ASTTerm term;
+	boolean inverted = false;
 	List<ASTTerm> args = new ArrayList<ASTTerm>();
 }
 {
+       ( "not" { inverted = true; } )?
+       
        t=<IDENTIFIER>
        (  
              term=Term() { args.add(term); } 
              ( "," term=Term() { args.add(term); } )*
        )?
-       { return new ASTWhereClause(headToken, t, args); }   
+       { return new ASTWhereClause(headToken, inverted, t, args); }   
 }

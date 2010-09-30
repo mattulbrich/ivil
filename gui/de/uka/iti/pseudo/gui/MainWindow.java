@@ -143,6 +143,7 @@ public class MainWindow extends JFrame {
             rightTabDock.addDockable(dock, new Position(0));
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, sequentComponent);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, sequentComponent);
+            proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, sequentComponent);
         }
         {
             goalList = new GoalList(proofCenter);
@@ -161,7 +162,6 @@ public class MainWindow extends JFrame {
         }
         {
             proofComponent = new ProofComponent(proofCenter);
-            proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, proofComponent);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
                     ProofNode selectedProofNode = proofComponent.getSelectedProofNode();

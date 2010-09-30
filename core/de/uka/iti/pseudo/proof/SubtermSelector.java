@@ -183,7 +183,7 @@ public class SubtermSelector {
     public boolean equals(Object obj) {
         if (obj instanceof SubtermSelector) {
             SubtermSelector ts = (SubtermSelector) obj;
-            if(getDepth() != getDepth())
+            if(getDepth() != ts.getDepth())
                 return false;
             
             for (int i = 0; i < selectorInfo.length; i++) {

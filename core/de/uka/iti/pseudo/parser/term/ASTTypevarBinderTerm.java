@@ -5,17 +5,22 @@ import java.util.Collections;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.term.creation.Typing;
 
 public class ASTTypevarBinderTerm extends ASTTerm {
     
-    Token binderToken;
-    Token typeVarToken;
+    private Token binderToken;
+    private Typing boundTyping;
 
     public ASTTypevarBinderTerm(Token binderToken,
-            Token typeVarToken, ASTTerm subterm) {
-        super(Collections.singletonList(subterm));
+            ASTType type, ASTTerm subterm) {
+        super(Collections.<ASTTerm>emptyList());
+        addChild(type);
+        addChild(subterm);
         this.binderToken = binderToken;
-        this.typeVarToken = typeVarToken;
+        
+        assert type instanceof ASTTypeVar
+                || type instanceof ASTSchemaType;
     }
 
     @Override
@@ -27,8 +32,8 @@ public class ASTTypevarBinderTerm extends ASTTerm {
         return binderToken;
     }
 
-    public Token getTypeVarToken() {
-        return typeVarToken;
+    public ASTType getBoundType() {
+        return (ASTType) getChildren().get(0);
     }
 
     @Override
@@ -39,5 +44,14 @@ public class ASTTypevarBinderTerm extends ASTTerm {
     public ASTTerm getTerm() {
         return getSubterms().get(0);
     }
+    
+    public Typing getBoundTyping() {
+        return boundTyping;
+    }
+
+    public void setBoundTyping(Typing boundTyping) {
+        this.boundTyping = boundTyping;
+    }
+
 
 }

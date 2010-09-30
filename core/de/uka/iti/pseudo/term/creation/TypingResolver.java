@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -18,13 +17,12 @@ import java.util.Map;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.file.ASTProperties;
-import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
@@ -38,6 +36,7 @@ import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
+import de.uka.iti.pseudo.parser.term.ASTSchemaType;
 import de.uka.iti.pseudo.parser.term.ASTSchemaUpdateTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
@@ -46,30 +45,74 @@ import de.uka.iti.pseudo.parser.term.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.term.ASTTypeVar;
 import de.uka.iti.pseudo.parser.term.ASTTypevarBinderTerm;
 import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
-
-// TODO DOC
+// TODO: Auto-generated Javadoc
+/**
+ * This class provides functionality to solve typing constraints of terms, it
+ * performs type inference.
+ * 
+ * Typing information is added to the AST nodes. This information is used when
+ * terms are created from the AST.
+ * 
+ * Additionally (and independently) AST terms which are recorded in form of a
+ * list Term is resolved using the Shunting Yard algorithm.
+ * 
+ * @see EnvironmentTypingResolver
+ * @see ShuntingYard
+ * 
+ * @author mattias ulbrich
+ */
 public class TypingResolver extends ASTDefaultVisitor {
     
+    /**
+     * The environment in which the resolution is performed
+     */
     private Environment env;
+    
+    /**
+     * The mapping of bound variables to their types. Used for typing in bound
+     * contexts.
+     */
     private Map<String, Type> boundVariablesTypes = new HashMap<String, Type>();
+    
+    /**
+     * The typing context is used for solving constraints (i.e. unification)
+     */
     private TypingContext typingContext;
+    
+    /**
+     * The resulting type is used to transport result during visitation.
+     */
     private Type resultingType;
     
-    public TypingResolver(Environment env, TypingContext typingContext) {
-        super();
+    /**
+     * Instantiates a new typing resolver.
+     * 
+     * @param env
+     *            the environment to work in
+     */
+    public TypingResolver(Environment env) {
         this.env = env;
-        this.typingContext = typingContext;
+        this.typingContext = new TypingContext();
     }
     
+    /**
+     * Gets the typing context used by this resolver
+     * 
+     * @return the typing context
+     */
     public TypingContext getTypingContext() {
         return typingContext;
     }
 
+    /* 
+     * By default, we go into depth to all children.
+     */
     @Override
     protected void visitDefault(ASTElement element) throws ASTVisitException {
         for(ASTElement e : element.getChildren()) {
@@ -77,6 +120,15 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    //////////////////////////////////////////////////
+    // Terms
+    
+    /* 
+     * visit children,
+     * look up function symbol in environment,  
+     * check that arity of function symbols is obeyed,
+     * call setTyping to resolve constraints 
+     */
     @Override
     public void visit(ASTApplicationTerm applicationTerm)
             throws ASTVisitException {
@@ -98,14 +150,18 @@ public class TypingResolver extends ASTDefaultVisitor {
                     argumentTypes.length + " arguments, but received " + subterms.size(), applicationTerm);
         
         try {
-			setTyping(applicationTerm, subterms, resultType, argumentTypes);
-		} catch (UnificationException e) {
-			throw new ASTVisitException("Type inference failed for function " + functSymb +
-					"\nFunction: " + funct+
-					"\n" + e.getDetailedMessage(), applicationTerm, e);
-		}
+            setTyping(applicationTerm, subterms, resultType, argumentTypes);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for function " + functSymb +
+                    "\nFunction: " + funct+
+                    "\n" + e.getDetailedMessage(), applicationTerm, e);
+        }
     }
     
+    /*
+     * Compare the visitation for applications. visit children, lookup function
+     * symbol, check arity, call setTyping to solve the constraints.
+     */
     @Override
     public void visit(ASTFixTerm fixTerm) throws ASTVisitException {
         
@@ -134,6 +190,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    /*
+     * Creates new schema types for the signature
+     * and match these new types against the typings of the parameters.
+     */
     private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
         
         assert subterms.size() == arguments.length;
@@ -153,7 +213,12 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
 
 
-    // DOC!
+    /* 
+     * visit children,
+     * look up function symbol in environment,  
+     * check that arity of function symbols is obeyed,
+     * call setTyping to resolve constraints 
+     */
     @Override
     public void visit(ASTBinderTerm binderTerm)
             throws ASTVisitException {
@@ -163,12 +228,16 @@ public class TypingResolver extends ASTDefaultVisitor {
         ASTType astVarType = binderTerm.getVariableType();
         
         if(!var.startsWith("%")) {
-            varType = typingContext.newTypeVariable();
+            // bound "usual" variable
+            varType = typingContext.newSchemaType();
             boundVariablesTypes.put(var, varType);
             super.visit(binderTerm);
             boundVariablesTypes.remove(var);
         } else {
-            varType = new TypeVariable(var);
+            // bound schema variable: the type is according.
+            // discard the leading %
+            String name = var.substring(1);
+            varType = new SchemaType(name);
             super.visit(binderTerm);
         }
         
@@ -210,7 +279,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
     
     // special version of setTyping adapted for the needs of binding terms
-    // DOC this method
+    // see there
     private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder) throws UnificationException {
         
         Type resulType = binder.getResultType();
@@ -233,19 +302,25 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
-    // XXX
+    /* 
+     * visit child term, add constraint for that to be boolean,
+     */
     @Override
     public void visit(ASTTypevarBinderTerm typevarBinderTerm)
             throws ASTVisitException {
         
         super.visit(typevarBinderTerm);
         
-        ASTTerm subterm = typevarBinderTerm.getTerm();
-        TypeVariable tv = new TypeVariable(typevarBinderTerm.getTypeVarToken().image.substring(1));
+        typevarBinderTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
+        typevarBinderTerm.getBoundType().visit(this);
+        typevarBinderTerm.setBoundTyping(new Typing(resultingType, typingContext));
+        
+        ASTTerm subterm = typevarBinderTerm.getTerm();
+        //
+        // constrain matrix to bool
         try {
             typingContext.solveConstraint(subterm.getTyping().getRawType(), Environment.getBoolType());
-            typevarBinderTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         } catch (UnificationException e) {
             throw new ASTVisitException(
                     "Type inference failed for type quantifier\n"
@@ -254,6 +329,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         
     }
 
+    /* 
+     * visit the subterm, the ascribed type and add ann according typing.
+     */
     @Override
     public void visit(ASTAsType asType) throws ASTVisitException {
         asType.getTerm().visit(this);
@@ -262,25 +340,29 @@ public class TypingResolver extends ASTDefaultVisitor {
         asType.setTyping(new Typing(resultingType, typingContext));
         
         try {
-			typingContext.solveConstraint( 
-			        asType.getTerm().getTyping().getRawType(),
-			        resultingType);
-		} catch (UnificationException e) {
-			throw new ASTVisitException("Type inference failed for explicitly typed term" +
-					"\nExplicit Type: " + asType.getTyping().getRawType() +
-					"\n" + e.getDetailedMessage(), e);
-			}
+            typingContext.solveConstraint( 
+                    asType.getTerm().getTyping().getRawType(),
+                    resultingType);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for explicitly typed term" +
+                    "\nExplicit Type: " + asType.getTyping().getRawType() +
+                    "\n" + e.getDetailedMessage(), e);
+        }
     }
     
+    /*
+     * find out whether this identifier is a variable (use the map of bound variables),
+     * if so, add recorded typing. Otherwise treat it like a 0-ary function.
+     */
     @Override
     public void visit(ASTIdentifierTerm identifierTerm)
-            throws ASTVisitException {
+    throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;
         Function funcSymbol = env.getFunction(name);
         Type tv = boundVariablesTypes.get(name);
-        
+
         if(tv != null) {
-        	identifierTerm.setTyping(new Typing(tv, typingContext));
+            identifierTerm.setTyping(new Typing(tv, typingContext));
         } else if(funcSymbol != null) {
             int arity = funcSymbol.getArgumentTypes().length;
             Type result = funcSymbol.getResultType();
@@ -290,26 +372,34 @@ public class TypingResolver extends ASTDefaultVisitor {
                         arity + " arguments, but received none", identifierTerm);
 
             try {
-				setTyping(identifierTerm, Collections.<ASTTerm>emptyList(), result, new Type[0]);
-			} catch (UnificationException e) {
-				throw new ASTVisitException("Type inference failed for constant " + name +
-						"\nFunction: " + funcSymbol +
-						"\n" + e.getDetailedMessage(), identifierTerm);
-			}
+                setTyping(identifierTerm, Collections.<ASTTerm>emptyList(), result, new Type[0]);
+            } catch (UnificationException e) {
+                throw new ASTVisitException("Type inference failed for constant " + name +
+                        "\nFunction: " + funcSymbol +
+                        "\n" + e.getDetailedMessage(), identifierTerm);
+            }
         } else {
-        	throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
+            throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
         }
 
     }
     
+    /* 
+     * A schema variable gets its canonic schema type.
+     * ( %a gets the type %'a )
+     */
     @Override
     public void visit(ASTSchemaVariableTerm schemaVariableTerm)
             throws ASTVisitException {
-        String name = schemaVariableTerm.getToken().image;
-        TypeVariable typeVar = new TypeVariable(name);
+        // discard the leading %
+        String name = schemaVariableTerm.getToken().image.substring(1);
+        SchemaType typeVar = new SchemaType(name);
         schemaVariableTerm.setTyping(new Typing(typeVar, typingContext));
     }
     
+    /*
+     * transscribe the type of the updated term to the update.
+     */
     @Override 
     public void visit(ASTUpdateTerm updateTerm) throws ASTVisitException {
         super.visit(updateTerm);
@@ -317,14 +407,15 @@ public class TypingResolver extends ASTDefaultVisitor {
         updateTerm.setTyping(subterm.getTyping());
     }
     
+    /* 
+     * transscribe the type of the updated term to the update.
+     */
     @Override 
     public void visit(ASTSchemaUpdateTerm schemaUpdateTerm) throws ASTVisitException {
         super.visit(schemaUpdateTerm);
         ASTTerm subterm = schemaUpdateTerm.getSubterms().get(0);
         schemaUpdateTerm.setTyping(subterm.getTyping());
     } 
-
-
     
     @Override
     public void visit(ASTNumberLiteralTerm numberLiteralTerm)
@@ -334,6 +425,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         
     }
     
+    /* 
+     * A list term is a list of tokens like "5 + 2 * 3".
+     * We call the shunting yard to resolve this to "(plus 5 (times 2 3))"
+     */
     @Override 
     public void visit(ASTListTerm listTerm) throws ASTVisitException {
         
@@ -345,7 +440,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         replacement.visit(this);
     }
     
-    
+    /*
+     * program terms are boolean in any case. If they are schematic with a match
+     * pattern, the schema type must be bool.
+     */
     @Override 
     public void visit(ASTProgramTerm programTerm) throws ASTVisitException {
         super.visit(programTerm);
@@ -353,7 +451,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
         if(programTerm.isSchema()) {
-            TypeVariable tv = new TypeVariable(programTerm.getLabel().image);
+            SchemaType tv = new SchemaType(programTerm.getLabel().image.substring(1));
             try {
                 typingContext.solveConstraint(Environment.getBoolType(), tv);
             } catch (UnificationException e) {
@@ -362,6 +460,12 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    //////////////////////////////////////////////////
+    // Types
+    
+    /* 
+     * make a type from an AST. Applies the visitor recursively.
+     */
     @Override
     public void visit(ASTTypeApplication typeRef) throws ASTVisitException {
         String typeName = typeRef.getTypeToken().image;
@@ -387,6 +491,17 @@ public class TypingResolver extends ASTDefaultVisitor {
         resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
     }
     
+    @Override
+    public void visit(ASTSchemaType schemaType) throws ASTVisitException {
+        resultingType = new SchemaType(schemaType.getSchemaTypeToken().image.substring(2));
+    }
+    
+    //////////////////////////////////////////////////
+    // Statements
+    
+    /* 
+     * Assertions have boolean type.
+     */
     @Override 
     public void visit(ASTAssertStatement arg) throws ASTVisitException {
         super.visit(arg);
@@ -397,6 +512,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    /* 
+     * Assumptions have boolean type.
+     */
     @Override 
     public void visit(ASTAssumeStatement arg) throws ASTVisitException {
         super.visit(arg);
@@ -407,6 +525,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    /* 
+     * End statements have boolean type.
+     */
     @Override 
     public void visit(ASTEndStatement arg) throws ASTVisitException {
         super.visit(arg);
@@ -416,7 +537,11 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException("An end statement needs a boolean argument", arg, e);
         }
     }
-    
+
+    /*
+     * in goto statements, only the schema identifiers need to be constrained to
+     * integers, other identifiers are labels.
+     */
     @Override 
     public void visit(ASTGotoStatement arg) throws ASTVisitException {
         // do not type resolve labeled goto statements: 
@@ -435,6 +560,9 @@ public class TypingResolver extends ASTDefaultVisitor {
         }
     }
     
+    /* 
+     * In an assignment, left and right hand side must be compatible.
+     */
     @Override 
     public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
         super.visit(arg);
@@ -444,14 +572,6 @@ public class TypingResolver extends ASTDefaultVisitor {
         } catch (UnificationException e) {
             throw new ASTVisitException("Cannot infer types in an assignment", arg, e);
         }
-    }
-
-    @Override
-    public void visit(ASTProperties plugins) throws ASTVisitException {
-    }
-
-    @Override
-    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
     }
 
 }

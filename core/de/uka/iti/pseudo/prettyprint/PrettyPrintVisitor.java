@@ -261,7 +261,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         TermTag oldTag = begin(typeVariableBinding);
         
         String bindString = typeVariableBinding.getKind().image;
-        String typevar = typeVariableBinding.getTypeVariable().toString();
+        String typevar = typeVariableBinding.getBoundType().toString();
         printer.append("(").append(bindString).append(" ").append(typevar).append("; ");
         currentSubTermIndex = 0;
         typeVariableBinding.getSubterm(0).visit(this);

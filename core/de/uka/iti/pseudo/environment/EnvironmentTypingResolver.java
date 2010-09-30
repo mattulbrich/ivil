@@ -44,7 +44,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
 
     public EnvironmentTypingResolver(Environment env) {
         this.env = env;
-        typingResolver = new TypingResolver(env, new TypingContext());
+        typingResolver = new TypingResolver(env);
     }
 
     /*
@@ -86,7 +86,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         super.visit(arg);
         
         // reset context for next rule / program / problem
-        typingResolver = new TypingResolver(env, new TypingContext()); 
+        typingResolver = new TypingResolver(env); 
         currentFindRawType = null;
     }
     
@@ -101,7 +101,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         }
         
         // reset context for next rule / program / problem
-        typingResolver = new TypingResolver(env, new TypingContext()); 
+        typingResolver = new TypingResolver(env); 
         currentFindRawType = null;
     }
     

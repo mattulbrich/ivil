@@ -2,10 +2,6 @@ package de.uka.iti.pseudo.rule.meta;
 
 import static de.uka.iti.pseudo.term.TypeVariable.ALPHA;
 import static de.uka.iti.pseudo.term.TypeVariable.BETA;
-
-import java.util.Collections;
-import java.util.Map;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -14,9 +10,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
+import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 
 public class SpecialiseMetaFunction extends MetaFunction {
 
@@ -43,27 +38,37 @@ public class SpecialiseMetaFunction extends MetaFunction {
         
         TypeVariable typeVar = (TypeVariable) toReplace;
         
-        TypeVarInstantiator tr = new TypeVarInstantiator();
+        SchemaTypeInstantiator tr = new SchemaTypeInstantiator();
         return tr.replace(typeVar, replaceWith, replaceIn);
         
     }
     
-    static class TypeVarInstantiator extends RebuildingTermVisitor {
+    static class SchemaTypeInstantiator extends RebuildingTermVisitor {
         
-        private TermInstantiator termInstantiator;
+        private TypeVariable tyOfInterest;
+        private Type instantiation;
+        
+        private RebuildingTypeVisitor<Void> typeVariableReplacer = new RebuildingTypeVisitor<Void>() {
+            @Override
+            public Type visit(TypeVariable typeVariable, Void parameter) throws TermException {
+                if(typeVariable.equals(tyOfInterest)) {
+                    return instantiation;
+                } else {
+                    return typeVariable;
+                }
+            }
+        };
 
         @Override
         protected Type modifyType(Type type) throws TermException {
-            return termInstantiator.instantiate(type);
+            return type.accept(typeVariableReplacer, null);
         }
-
+        
         public Term replace(TypeVariable typeVar, Type replaceWith, Term replaceIn) throws TermException {
+        
+            tyOfInterest = typeVar;
+            instantiation = replaceWith;
             
-            Map<String, Type> typeInst = Collections.singletonMap(typeVar.getVariableName(), replaceWith);
-            
-            termInstantiator = new TermInstantiator(Collections.<String,Term>emptyMap(), 
-                    typeInst, 
-                    Collections.<String,Update>emptyMap());
             replaceIn.visit(this);
             return resultingTerm == null ? replaceIn : resultingTerm;
         }

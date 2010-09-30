@@ -23,13 +23,18 @@ import javax.swing.text.JTextComponent;
 
 public class CurlyHighlightPainter implements HighlightPainter {
 
-    private static final int STEP = 3;
+    private static final int STEP = 2;
+    private int YOFF = 1;
 
     public void paint(Graphics g, int offs0, int offs1, Shape bounds,
             JTextComponent c) {
         Rectangle alloc = bounds.getBounds();
         g = g.create();
         try {
+            // --- nothing to do if same character ---
+            if(offs0 == offs1)
+                return;
+            
             // --- determine locations ---
             TextUI mapper = c.getUI();
             Rectangle p0 = mapper.modelToView(c, offs0);
@@ -62,13 +67,13 @@ public class CurlyHighlightPainter implements HighlightPainter {
             // can't render
         }
     }
-
+    
     private void markError(Graphics g, int x, int y, int width) {
-        g.setClip(x, y-STEP+1, width, STEP);
+        //g.setClip(x, y-STEP+1, width, STEP);
 
         for (int p = x; p < x + width; p += 2 * STEP) {
-            g.drawLine(p, y, p+STEP, y-STEP);
-            g.drawLine(p+STEP, y-STEP, p+2*STEP, y);
+            g.drawLine(p, y + YOFF, p+STEP, y-STEP+YOFF);
+            g.drawLine(p+STEP, y-STEP+YOFF, p+2*STEP, y+YOFF);
         }
 
     }

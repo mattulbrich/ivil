@@ -193,30 +193,30 @@ public final class SMTBackgroundAction extends BarAction implements
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ProofCenter proofCenter = getProofCenter();
+                try {
 
-                List<ProofNode> openGoals = proof.getOpenGoals();
-                int countGoals = openGoals.size();
-                // bugfix: do it backward, otherwise solving goal 0 and
-                // incrementing would not do the second original goal which has
-                // become the new 0
-                for (int index = countGoals - 1; index >= 0; index--) {
-                    MutableRuleApplication ra = new MutableRuleApplication();
-                    ra.setProofNode(openGoals.get(index));
-                    ra.setRule(closeRule);
-                    try {
-                        ProofNode next = proofCenter.apply(ra);
+                    List<ProofNode> openGoals = proof.getOpenGoals();
+                    int countGoals = openGoals.size();
+                    // bugfix: do it backward, otherwise solving goal 0 and
+                    // incrementing would not do the second original goal which
+                    // has
+                    // become the new 0
+                    for (int index = countGoals - 1; index >= 0; index--) {
+                        MutableRuleApplication ra = new MutableRuleApplication();
+                        ra.setProofNode(openGoals.get(index));
+                        ra.setRule(closeRule);
+                        try {
+                            proofCenter.apply(ra);
 
-                        // not on a leave --> goto a leaf
-                        if (proofCenter.getCurrentProofNode().getChildren() != null)
-                            proofCenter.fireSelectedProofNode(next);
-
-                    } catch (ProofException ex) {
-                        Log.stacktrace(ex);
-                        // this is ok - the goal may be not closable.
-                    } catch (Exception e) {
-                        ExceptionDialog
-                                .showExceptionDialog(getParentFrame(), e);
+                        } catch (ProofException ex) {
+                            Log.stacktrace(Log.VERBOSE, ex);
+                            // this is ok - the goal may be not closable.
+                        } catch (Exception e) {
+                            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                        }
                     }
+                } finally {
+                    proofCenter.fireProoftreeChangedNotification(true);
                 }
             }
         });

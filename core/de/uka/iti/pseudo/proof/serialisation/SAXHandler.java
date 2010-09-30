@@ -33,11 +33,21 @@ class SAXHandler extends DefaultHandler {
     private Attributes attributes;
     private MutableRuleApplication ram;
     private int goalNo = 0;
+	private boolean ignoreExceptions;
     
-    public SAXHandler(Environment env, Proof proof) {
+    public SAXHandler(Environment env, Proof proof, boolean ignoreExceptions) {
         super();
         this.env = env;
         this.proof = proof;
+        this.ignoreExceptions = ignoreExceptions;
+    }
+    
+    private void handleException(String message) throws SAXException {
+    	if(ignoreExceptions) {
+    		Log.log(Log.WARNING, "Ignored exception: " + message);
+    	} else {
+    		throw new SAXException(message);
+    	}
     }
 
     public void startElement(String uri, String localName,
@@ -162,7 +172,7 @@ class SAXHandler extends DefaultHandler {
                 proof.apply(ram, env);
                 ram = null;
             } catch (ProofException e) {
-                if(Log.getMinLevel() <= Log.WARNING) {
+                if(Log.isLogging(Log.WARNING)) {
                     Dump.dumpRuleApplication(ram);
                 }
                 throwSAXException(null, e);

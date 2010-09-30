@@ -217,7 +217,7 @@ public class TermSelector {
             if(isAntecedent() != ts.isAntecedent())
                 return false;
             
-            if(getDepth() != getDepth())
+            if(getDepth() != ts.getDepth())
                 return false;
             
             return subtermSelector.equals(ts.subtermSelector);
@@ -261,6 +261,15 @@ public class TermSelector {
      */
     public boolean isToplevel() {
         return getDepth() == 0;
+    }
+    
+    /**
+     * Gets the toplevel selector to which this selector is a subselection
+     * 
+     * @return a term selector which is "prefix" to this.
+     */
+    public@NonNull TermSelector getToplevelSelector() {
+        return new TermSelector(inAntecedent, termNumber);
     }
 
     /**

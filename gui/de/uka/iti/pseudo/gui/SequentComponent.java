@@ -40,12 +40,14 @@ import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
 
 public class SequentComponent extends JPanel implements
-        PropertyChangeListener, Scrollable {
+        PropertyChangeListener, Scrollable, NotificationListener {
 
     private static final long serialVersionUID = -3882151273674917147L;
 
@@ -243,6 +245,15 @@ public class SequentComponent extends JPanel implements
             RuleApplication ruleApp = (RuleApplication) evt.getNewValue();
             ruleApplicationSelected(ruleApp);
         }
+    }
+    
+    @Override
+    public void handleNotification(NotificationEvent evt) {
+        assert evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED);
+       
+        boolean open = proofNode.getChildren() == null;
+        setProofNode(proofNode, open);
+        // a node may have become closed or open
     }
     
     protected ProofCenter getProofCenter() {

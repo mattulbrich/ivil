@@ -30,7 +30,7 @@ public class DistinctAssumeAndFind extends WhereCondition {
             Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
             Environment env) throws RuleException {
         
-        TermSelector findSel = ruleApp.getFindSelector();
+        TermSelector findSel = ruleApp.getFindSelector().getToplevelSelector();
         for (TermSelector sel : ruleApp.getAssumeSelectors()) {
             if(findSel.equals(sel)) {
                 return false;

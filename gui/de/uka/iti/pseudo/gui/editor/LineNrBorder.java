@@ -12,9 +12,10 @@ package de.uka.iti.pseudo.gui.editor;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 
 import javax.swing.JFrame;
 import javax.swing.JTextArea;
@@ -28,7 +29,7 @@ public class LineNrBorder extends EmptyBorder {
     private static final long serialVersionUID = 1461567609517301384L;
 
     private Color color;
-    private Font font;
+//    private Font font;
 
     public LineNrBorder(Color color) {
         super(0, 33, 0, 0);
@@ -46,6 +47,11 @@ public class LineNrBorder extends EmptyBorder {
 
     public void paintBorder(Component c, Graphics g, int x, int y, int width,
             int height) {
+    	
+    	Graphics2D g2 = (Graphics2D)g;
+    	g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+    			RenderingHints.VALUE_ANTIALIAS_ON);
+
 
         g.setFont(c.getFont());
         g.setColor(color);
@@ -78,12 +84,12 @@ public class LineNrBorder extends EmptyBorder {
         this.color = color;
     }
 
-    public Font getFont() {
-        return font;
-    }
-
-    public void setFont(Font font) {
-        this.font = font;
-    }
+//    public Font getFont() {
+//        return font;
+//    }
+//
+//    public void setFont(Font font) {
+//        this.font = font;
+//    }
 
 }

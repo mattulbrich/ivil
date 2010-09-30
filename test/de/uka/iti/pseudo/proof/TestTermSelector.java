@@ -91,5 +91,19 @@ public class TestTermSelector extends TestCaseWithEnv {
         assertTrue(t1.isToplevel());
         assertFalse(t2.isToplevel());
     }
+    
+    // from a bug
+    public void testEquality() throws Exception {
+        TermSelector t1 = new TermSelector("S.0");
+        TermSelector t2 = new TermSelector("S.0.1");
+        
+        assertFalse(t1.equals(t2));
+    }
+    
+    public void testGetToplevel() throws Exception {
+        TermSelector t1 = new TermSelector("A.1.2.3.4");
+        TermSelector t2 = new TermSelector("A.1");
+        assertEquals(t1.getToplevelSelector(), t2);
+    }
 
 }
