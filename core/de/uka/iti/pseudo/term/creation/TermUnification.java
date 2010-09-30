@@ -125,7 +125,7 @@ public class TermUnification implements Cloneable {
     private void checkBoundSchemaTypes() throws UnificationException {
         for (SchemaType schema : boundSchemaTypes) {
             Type inst = typeUnification.instantiateSchemaType(schema);
-            if (inst != null || inst instanceof TypeApplication)
+            if (inst instanceof TypeApplication)
                 throw new UnificationException(schema
                         + " is a bound type variable, but instantiated to "
                         + inst);

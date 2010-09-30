@@ -19,8 +19,8 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 
 // TODO DOC
-// FIXME remove abstract
-public abstract class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
+// TODO rebuild the type only if at least one element has been changed
+public class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
 
     public Type visit(TypeApplication typeApplication, A parameter) throws TermException {
         Sort sort = typeApplication.getSort();

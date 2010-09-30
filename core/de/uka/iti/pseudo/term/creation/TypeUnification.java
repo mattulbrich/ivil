@@ -445,7 +445,7 @@ public class TypeUnification implements Cloneable {
     /**
      * get the instantiation map which maps type variables to types.
      * 
-     * @return a mapping from type variables to maps.
+     * @return a unmodifiable mapping from type variables to maps.
      */
     public Map<String, Type> getInstantiation() {
         return Collections.unmodifiableMap(instantiation);

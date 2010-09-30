@@ -189,11 +189,16 @@ public class TestTermUnification extends TestCaseWithEnv {
         TermUnification mc = new TermUnification(env);
         
         mc.leftUnify(mt("(\\T_all %'a; arb = arb as %'a)"), mt("(\\T_all 'a; arb = arb as 'a)"));
+        assertEquals(new TypeVariable("a"),
+                mc.getTypeUnification().instantiateSchemaType(new SchemaType("a")));
+        
+        mc = new TermUnification(env);
+        boolean res = mc.leftUnify(mt("(\\T_all %'a; (\\forall %x as %'a; %b))"), mt("(\\T_all 'a; (\\forall y as 'a; id(y)=y))"));
+        assertTrue(res);
         
         assertFalse(mc.leftUnify(mt("(\\T_all %'b; true)"), mt("(\\T_all 'a; true as %'b)")));
         
-        assertEquals(new TypeVariable("a"),
-                mc.getTypeUnification().instantiateSchemaType(new SchemaType("a")));
+        
     }
     
 }
