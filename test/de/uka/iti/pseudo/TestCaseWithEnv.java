@@ -42,7 +42,7 @@ public class TestCaseWithEnv extends TestCase {
      * output or not
      */
     public static final boolean VERBOSE = Boolean.valueOf(System.getProperty(
-            "pseudo.test.verbose", "true"));
+            "pseudo.test.verbose", "false"));
 
     /**
      * provide the object needed for {@link #DEFAULT_ENV}.

@@ -76,7 +76,7 @@ public class Interactive extends WhereCondition {
             if(arg2.equals(Environment.getTrue())) {
                 Term arg1 = arguments[0];
                 if(!(arg1.getType() instanceof SchemaType)) {
-                    throw new RuleException("in type mode: 1st argument must be of type variable type");
+                    throw new RuleException("in type mode: 1st argument must be of schema type");
                 }
                 
                 return true;

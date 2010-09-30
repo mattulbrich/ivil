@@ -148,7 +148,7 @@ public class TestTermUnification extends TestCaseWithEnv {
         TermUnification mc = new TermUnification(env);
         assertFalse(mc.leftUnify(mt("g(arb as %'a, arb as %'a)"), mt("g(arb as int,arb as bool)")));
         mc = new TermUnification(env);
-        assertFalse(mc.leftUnify(mt("(\\T_all %'b; true)"), mt("(\\T_all 'a; true as %'b)")));
+        assertFalse(mc.leftUnify(mt("(\\T_all %'b; bf(%x as %'b))"), mt("(\\T_all 'a; bf(0))")));
         mc = new TermUnification(env);
         assertFalse(mc.leftUnify(mt("(\\T_all %'a; true) & arb as %'a = arb"), mt("(\\T_all %'a; true) & arb as int = arb")));
         

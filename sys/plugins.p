@@ -67,6 +67,8 @@ plugin
     # check whether the formula to be added is indeed an axiom
     whereCondition : "de.uka.iti.pseudo.rule.where.AxiomCondition"
 
+    # check whether two terms are not yet in ordered form
+    whereCondition : "de.uka.iti.pseudo.rule.where.UnorderedTerms"
 
 (*
  * This rule can -- in combination with the where condition axiom

@@ -73,7 +73,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
     public void testInteractive() throws Exception {
         Interactive inter = new Interactive();
         Term intX = makeTerm("%x as int");
-        Term alphaX = makeTerm("%x as 'a");
+        Term alphaX = makeTerm("%x as %'x");
         
         inter.checkSyntax(new Term[] { intX });
         inter.checkSyntax(new Term[] { intX, Environment.getFalse() });
