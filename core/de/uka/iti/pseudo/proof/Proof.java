@@ -16,8 +16,6 @@ import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -119,7 +117,7 @@ public class Proof {
     /**
      * This mutex is used to ensure apply and prune are atomic operations.
      */
-    final ReentrantLock mutex = new ReentrantLock();
+    final Object mutex = new Object();
 
     /**
      * Instantiates a new proof with an initial sequent.
@@ -337,6 +335,7 @@ public class Proof {
      * @return an integer which has not yet been return for this object
      */
     synchronized int makeFreshNumber() {
+
         proofNodeCounter++;
         return proofNodeCounter;
     }

@@ -264,7 +264,7 @@ public class ProofCenter implements Observer {
      * @param node
      *            the node to be selected
      */
-    public void fireSelectedProofNode(/*@NonNull*/ ProofNode node) {
+    public void fireSelectedProofNode(@NonNull ProofNode node) {
         firePropertyChange(SELECTED_PROOFNODE, node);
     }
 
@@ -354,13 +354,11 @@ public class ProofCenter implements Observer {
      * 
      * @param proofNode
      *            the node in the proof to prune.
+     * @throws ProofException
+     *             if the node is not part of this proof.
      */
     public void prune(ProofNode proofNode) throws ProofException {
         proof.prune(proofNode);
-        
-        // prune triggers #update of this object, that sends a
-        // PROOFNODE_HAS_CHANGED notification. This remains:
-        fireProoftreeChangedNotification(false);
     }
 
     /**
@@ -461,8 +459,7 @@ public class ProofCenter implements Observer {
     }
 
     /**
-     * Notify all registered listeners that a property's value has changed. It
-     * is safe to call this method from jobs.
+     * Notify all registered listeners that a property's value has changed.
      * 
      * <p>
      * Please note that an event is only triggered if the new value differs from
@@ -475,21 +472,12 @@ public class ProofCenter implements Observer {
      * @param newValue
      *            value after the change.
      */
-    public void firePropertyChange(final String propertyName,
-            final Object newValue) {
-        if (!EventQueue.isDispatchThread()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    firePropertyChange(propertyName, newValue);
-                }
-            });
-        } else {
+    public void firePropertyChange(String propertyName, Object newValue) {
+            assert SwingUtilities.isEventDispatchThread();
             Object oldValue = generalProperties.get(propertyName);
-            Log.log("Changing " + propertyName + " from " + oldValue + " to "
-                    + newValue);
+            Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
             generalProperties.put(propertyName, newValue);
             changeSupport.firePropertyChange(propertyName, oldValue, newValue);
-        }
     }
 
     /**

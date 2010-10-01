@@ -45,25 +45,6 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     private static final long serialVersionUID = 7212654361200636678L;
 
-    class RuleApplicationFinder implements Callable<RuleApplication> {
-        final private ProofNode target;
-        final private Strategy strategy;
-
-        public RuleApplicationFinder(final ProofNode target, final Strategy strategy) {
-            this.target = target;
-            this.strategy = strategy;
-        }
-
-        public RuleApplication call() {
-            try {
-                return strategy.findRuleApplication(target);
-            } catch (StrategyException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-    }
-
     private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
@@ -85,15 +66,6 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     public void actionPerformed(ActionEvent e) {
         final Proof proof = getProofCenter().getProof();
-
-        // if there are no open goals disable this action,
-        // as the proof must have been closed
-        if (!proof.hasOpenGoals()) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(),
-                    "Tried to proof an allready closed proof. This should not be allowed.");
-            setEnabled(false);
-            return;
-        }
 
         if (null != job) {
             pool.stopAutoProof(true);
@@ -131,8 +103,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                     job = null;
                 }
             };
-            getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
 
+            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
             job.execute();
         }
     }

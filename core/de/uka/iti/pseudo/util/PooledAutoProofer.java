@@ -20,12 +20,15 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  * 
  * @author felden@ira.uka.de
  */
+
 public class PooledAutoProofer {
+
+    // TODO DOC
     private static class Job implements Runnable {
         final PooledAutoProofer parent;
         final ProofNode node;
 
-        Job(PooledAutoProofer parent, ProofNode node) {
+        private Job(PooledAutoProofer parent, ProofNode node) {
             this.parent = parent;
             this.node = node;
 

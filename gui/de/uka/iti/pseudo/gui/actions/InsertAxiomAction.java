@@ -101,6 +101,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
             } catch (ProofException ex) {
                 ex.printStackTrace();
             }
+            pc.fireProoftreeChangedNotification(true);
             
         }
     }

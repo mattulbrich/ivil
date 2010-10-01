@@ -266,6 +266,9 @@ class SnapshotManager extends JDialog {
                     }
                 return null;
                 }
+            public void done() {
+                proofCenter.fireProoftreeChangedNotification(true);
+            }
         }).execute();
 
         setVisible(false);

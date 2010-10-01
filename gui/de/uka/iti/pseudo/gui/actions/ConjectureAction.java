@@ -68,9 +68,9 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
         }
 
         final ProofCenter proofCenter = getProofCenter();
+         proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         (new SwingWorker<Void, Void>() {
             public Void doInBackground() {
-                proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
 
                 ProofNode currentProofNode = proofCenter.getCurrentProofNode();
                 Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
