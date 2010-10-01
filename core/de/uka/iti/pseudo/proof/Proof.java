@@ -278,7 +278,13 @@ public class Proof {
     
 
     /**
-     * @param o
+     * Adds an observer to the set of observers for this proof, provided 
+     * that it is not the same as some observer already in the set. 
+     * The order in which notifications will be delivered to multiple 
+     * observers is not specified. 
+     * 
+     * @param o an observer to be added.
+     * 
      * @see java.util.Observable#addObserver(java.util.Observer)
      */
     public void addObserver(Observer o) {
@@ -286,7 +292,11 @@ public class Proof {
     }
 
     /**
-     * @param o
+     * Deletes an observer from the set of observers of this object. 
+     * Passing <CODE>null</CODE> to this method will have no effect.
+     * 
+     * @param   o   the observer to be deleted.
+     * 
      * @see java.util.Observable#deleteObserver(java.util.Observer)
      */
     public void deleteObserver(Observer o) {

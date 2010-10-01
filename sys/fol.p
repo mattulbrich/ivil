@@ -44,13 +44,13 @@ rule typed_forall_left
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
   where
     interact %inst as %'inst, true
-  add $$subst(%x, %inst, %b) |-
+  add $$polymorphicSpec(%x as %'a, %inst, %b, true) |-
 
-rule type_forall_left
+rule type_quant_left
   find (\T_all %'a; %b) |-
   where
     interact %inst as %'inst, true
-  add $$specialiseType(arb as %'a, %inst, %b) |-
+  add $$polymorphicSpec(arb as %'a, %inst, %b, false) |-
 
 (*
  * Conditionals

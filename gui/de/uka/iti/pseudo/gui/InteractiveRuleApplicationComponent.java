@@ -43,13 +43,11 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
-import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
@@ -173,17 +171,20 @@ public class InteractiveRuleApplicationComponent extends
                     
                     app.getSchemaVariableMapping().put(varname, term);
                     if(pair.typeMode) {
-                        assert type instanceof TypeVariable : type + " MUST be a type variable by construction";
-                        String tyvarName = ((TypeVariable)type).getVariableName();
+                        assert type instanceof SchemaType : type + " MUST be a schema type by construction";
+                        String tyvarName = ((SchemaType)type).getVariableName();
                         app.getTypeVariableMapping().put(tyvarName, term.getType());
                     }
                 }
-                putClientProperty("finished", true);
+                
                 proofCenter.apply(app);
+                
+                putClientProperty("finished", true);
                 proofCenter.fireProoftreeChangedNotification(true);
                 
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Log.log(Log.WARNING, "Error during the application of a rule");
+                Log.stacktrace(ex);
                 if(component != null) {
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
