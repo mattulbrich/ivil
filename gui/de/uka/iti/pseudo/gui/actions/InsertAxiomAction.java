@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Vector;
@@ -18,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -44,6 +47,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
         super("Insert axiom", GUIUtil.makeIcon(SnapshotManager.class
                 .getResource("img/book_next.png")));
         putValue(SHORT_DESCRIPTION, "lets you choose an axiom of the environment to insert into the sequent.");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0));
     }
 
     public void initialised() {

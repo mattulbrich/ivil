@@ -280,15 +280,10 @@ public class ProofCenter implements Observer {
      *            selected.
      */
     public void fireProoftreeChangedNotification(final boolean selectNextGoal) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                fireNotification(PROOFTREE_HAS_CHANGED);
-                if(selectNextGoal) {
-                    selectNextGoal();
-                }
-            }
-        });
+        fireNotification(PROOFTREE_HAS_CHANGED);
+        if(selectNextGoal) {
+            selectNextGoal();
+        }
     }
     
     /**

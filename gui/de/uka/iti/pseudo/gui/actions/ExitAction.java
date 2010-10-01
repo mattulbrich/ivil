@@ -32,7 +32,7 @@ public class ExitAction extends BarAction implements InitialisingAction, Propert
         super("Exit", GUIUtil.makeIcon(ExitAction.class.getResource("img/bullet_red.png")));
         putValue(ACTION_COMMAND_KEY, "exit");
         putValue(SHORT_DESCRIPTION, "closes all open windows of the program and exits");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_MASK));
         putValue(MNEMONIC_KEY, KeyEvent.VK_X);
     }
     

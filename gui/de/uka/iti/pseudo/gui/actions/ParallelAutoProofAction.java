@@ -99,7 +99,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                     // some listeners have been switched off, they might
                     // want to
                     // update now.
-                    pc.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                    pc.fireProoftreeChangedNotification(true);
                     job = null;
                 }
             };

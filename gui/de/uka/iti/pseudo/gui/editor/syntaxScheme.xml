@@ -6,4 +6,5 @@
 	<style token="SEPARATOR" fg="#804040" />
 	<style token="ERROR_CHAR" fg="#ff0000" />
 	<style token="LITERAL_STRING_DOUBLE_QUOTE" fg="#2A00FF" />
+	<style token="VARIABLE" fg="#994703" />
 </syntaxScheme>

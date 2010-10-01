@@ -185,6 +185,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             }
             RTextScrollPane scroll = new RTextScrollPane(editor);
             contentPane.add(scroll, BorderLayout.CENTER);
+            editor.requestFocus();
         }
         {
             statusLine = new JLabel();

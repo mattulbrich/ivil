@@ -20,10 +20,10 @@ import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -100,33 +100,42 @@ public class Main {
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY, ".");
     }
     
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) {
         
-        printVersion();
-        
-        CommandLine commandLine = makeCommandLine();
-        commandLine.parse(args);
-        
-        if(commandLine.isSet(CMDLINE_HELP)) {
-            commandLine.printUsage(System.out);
-            System.exit(0);
-        }
-        
-        List<String> fileArguments = commandLine.getArguments();
-        
-        if(fileArguments.isEmpty()) {
-            startupWindow = new StartupWindow();
-            startupWindow.setVisible(true);
-        } else {
-            File file = new File(fileArguments.get(0));
-            
-            if(commandLine.isSet(CMDLINE_EDIT)) {
-                openEditor(file);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                printVersion();
+
+                CommandLine commandLine = makeCommandLine();
+                commandLine.parse(args);
+
+                if(commandLine.isSet(CMDLINE_HELP)) {
+                    commandLine.printUsage(System.out);
+                    System.exit(0);
+                }
+
+                List<String> fileArguments = commandLine.getArguments();
+
+                if(fileArguments.isEmpty()) {
+                    startupWindow = new StartupWindow();
+                        startupWindow.setVisible(true);
+                    } else {
+                        File file = new File(fileArguments.get(0));
+
+                        if (commandLine.isSet(CMDLINE_EDIT)) {
+                            openEditor(file);
+                        } else {
+                            openProver(file);
+                        }
+                    }
+                } catch (Exception ex) {
+                    Log.log(Log.ERROR, "Exception during startup: "
+                            + ex.getMessage());
+                    Log.stacktrace(ex);
+                }
             }
-            else {
-                openProver(file);
-            }
-        }
+        });
     }
     
     private static void printVersion() {

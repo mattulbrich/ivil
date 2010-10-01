@@ -115,6 +115,7 @@
       <fileset dir="." includes="examples/**" excludes="**/*~*" />
       <fileset dir="." includes="sys/**" excludes="**/*~*" />
       <fileset dir="." includes="lib/javadocking.jar" />
+      <fileset dir="." includes="lib/rsyntaxtextarea.jar" />
       <fileset dir="." includes="lib/nonnull.jar" />
       <fileset dir="." includes="ivil.jar" />
     </zip>
