@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
@@ -35,9 +33,10 @@ public class PooledAutoProver {
         private Job(ProofNode node) {
             this.node = node;
 
-            workCounter.incrementAndGet();
-            // submit after incrementing to avoid false empty queues
-            pool.submit(this);
+            synchronized(wait) {
+                workCounter ++;
+            }
+            
         }
 
         /**
@@ -56,7 +55,7 @@ public class PooledAutoProver {
                     exceptions.add(e);
                     return;
                 }
-                
+
                 if (null != ra) {
                     try {
                         node.getProof().apply(ra, env);
@@ -66,13 +65,14 @@ public class PooledAutoProver {
                     }
 
                     for (ProofNode n : node.getChildren()) {
-                        todo.add(new Job(n));
+                        pool.submit(new Job(n));
                     }
                 }
-            
+
             } finally {
-                if (0 == workCounter.decrementAndGet()) {
-                    synchronized (wait) {
+                synchronized (wait) {
+                    workCounter --;
+                    if (workCounter == 0) {
                         wait.notifyAll();
                     }
                 }
@@ -86,17 +86,17 @@ public class PooledAutoProver {
     // first
     private static ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
 
-    /**
-     * Global to do list, which will be fetched by the workers in the pool.
-     */
-    private static LinkedBlockingQueue<Job> todo = new LinkedBlockingQueue<Job>();
+//    /**
+//     * Global to do list, which will be fetched by the workers in the pool.
+//     */
+//    private static LinkedBlockingQueue<Job> todo = new LinkedBlockingQueue<Job>();
 
     /**
      * This counter tells us how many of our jobs are still in the todo list.
      * 
      * This counter is meant to be used by jobs only.
      */
-    private final AtomicInteger workCounter = new AtomicInteger(0);
+    private int workCounter = 0;
 
     /**
      * The strategy to be used in this search.
@@ -140,18 +140,13 @@ public class PooledAutoProver {
      * cause the new node to be enqueued on the todo list.
      */
     public void autoProve(@NonNull ProofNode node) {
-        if (null == node.getChildren()) {
-            // remove old exceptions if starting a new run
-            if (todo.isEmpty())
-                exceptions.clear();
-
-            shouldStop = false;
-            todo.add(new Job(node));
-        }
+        assert !shouldStop : "automatic prove request after stop";
+        
+        pool.submit(new Job(node));
     }
 
     /**
-     * This function allows to start auto proofing with new strategy and
+     * This function allows to start auto proving with new strategy and
      * environments.
      * <p>
      * The purpose of this function is to reduce recreation of PooledAutoProofer
@@ -164,23 +159,22 @@ public class PooledAutoProver {
      * 
      * @throws ProofException
      */
-    public void autoProve(@NonNull ProofNode node, @NonNull Strategy strategy,
- @NonNull Environment env)
-            throws ProofException {
-        if (workCounter.get() != 0
-                && (this.strategy != strategy || this.env != env)) {
-            try {
-                stopAutoProve(true);
-            } catch (InterruptedException e) {
-                // this is unlikely to happen and not a big problem, so printing
-                // the stack trace should be enough
-                e.printStackTrace();
-            }
-        }
-        this.strategy = strategy;
-        this.env = env;
-        autoProve(node);
-    }
+//    public void autoProve(@NonNull ProofNode node, @NonNull Strategy strategy,
+//            @NonNull Environment env) throws ProofException {
+//        if (workCounter.get() != 0
+//                && (this.strategy != strategy || this.env != env)) {
+//            try {
+//                stopAutoProve(true);
+//            } catch (InterruptedException e) {
+//                // this is unlikely to happen and not a big problem, so printing
+//                // the stack trace should be enough
+//                e.printStackTrace();
+//            }
+//        }
+//        this.strategy = strategy;
+//        this.env = env;
+//        autoProve(node);
+//    }
 
     /**
      * Waits for current automatic proofing to finish.
@@ -194,11 +188,15 @@ public class PooledAutoProver {
      */
     public void waitAutoProve() throws ProofException, InterruptedException {
         synchronized (wait) {
-            wait.wait();
+            while(workCounter > 0) {
+                wait.wait();
+            }
         }
+        
         if (!exceptions.isEmpty())
             throw new ProofException(exceptions.size()
-                    + " Exceptions occured while auto proving, call getException() for details.");
+                    + " exceptions occurred while auto proving.",
+                    new CompoundException(exceptions));
     }
 
     /**

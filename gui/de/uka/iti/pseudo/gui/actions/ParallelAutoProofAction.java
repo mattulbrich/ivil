@@ -24,9 +24,10 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.PooledAutoProver;
@@ -46,97 +47,79 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
-    private SwingWorker<Void, Integer> job = null;
-    private PooledAutoProver pool;
+    private PooledAutoProver pool = null;
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
     }
 
     public void initialised() {
-        pool = new PooledAutoProver(getProofCenter().getStrategyManager().getSelectedStrategy(), getProofCenter()
-                .getEnvironment());
+        
 
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
         getProofCenter().addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
 
     public void actionPerformed(ActionEvent e) {
+        
+        final ProofCenter proofCenter = getProofCenter();
+        Strategy selectedStrategy = proofCenter.getStrategyManager().getSelectedStrategy();
+        Environment environment = proofCenter.getEnvironment();
 
-        if (null != job) {
+        if (null != pool) {
+            
             try {
                 pool.stopAutoProve(true);
-            } catch (ProofException e1) {
-                // print all exceptions that occurred
-                Exception ex = pool.getException();
-                while (ex != null)
-                    ex.printStackTrace();
-            } catch (InterruptedException e1) {
-                // actions should not get interrupted, but just in case print
-                // stack trace
-                e1.printStackTrace();
+            } catch (Exception ex) {
+                Log.stacktrace(ex);
+                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+            } finally {
+                pool = null;
             }
+            
         } else {
-            final ProofCenter pc = getProofCenter();
+            // due to synchronisation, this must be invoked on the Dispatcher thread.
+            pool = new PooledAutoProver(selectedStrategy, environment);
 
-            job = new SwingWorker<Void, Integer>() {
+            SwingWorker<Void, Integer> swingWorker = new SwingWorker<Void, Integer>() {
                 public Void doInBackground() {
-                    final Proof proof = pc.getProof();
-                    final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
-                    final Environment env = pc.getEnvironment();
+//                    Proof proof = proofCenter.getProof();
 
-                    // if there are no open goals disable this action, as the
-                    // proof must have been closed
-                    if (!proof.hasOpenGoals()) {
-                        setEnabled(false);
-                        return null;
-                    }
+//                    // if there are no open goals disable this action, as the
+//                    // proof must have been closed
+//                    // MU: happens automatically by ONGOING_PROOF ?!
+//                    // MU: should be done on dispatch thread.
+//                    if (!proof.hasOpenGoals()) {
+//                        setEnabled(false);
+//                        return null;
+//                    }
 
                     for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
-                        try {
-                            pool.autoProve(node, strategy, env);
-                        } catch (ProofException e) {
-                            // print all exceptions that occurred and retry
-                            Exception ex = pool.getException();
-                            while (ex != null)
-                                ex.printStackTrace();
-
-                            try {
-                                pool.autoProve(node, strategy, env);
-                            } catch (ProofException e1) {
-                                // impossible
-                            }
-                        }
+                        pool.autoProve(node);
                     }
 
                     try {
                         pool.waitAutoProve();
-                    } catch (ProofException e) {
-                        Exception ex = pool.getException();
-                        while (ex != null)
-                            ex.printStackTrace();
-
-                    } catch (InterruptedException e) {
-                        // actions should not get interrupted, but just in case
-                        // print
-                        // stack trace
-                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Log.stacktrace(e);
+                        ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                            e.printStackTrace();
                     }
+
                     return null;
                 }
 
                 public void done() {
-                    pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                    proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                     // some listeners have been switched off, they might
-                    // want to
-                    // update now.
-                    pc.fireProoftreeChangedNotification(true);
-                    job = null;
+                    // want to update now.
+                    proofCenter.fireProoftreeChangedNotification(true);
+                    pool = null;
                 }
             };
 
-            pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-            job.execute();
+            proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+            swingWorker.execute();
         }
     }
 
