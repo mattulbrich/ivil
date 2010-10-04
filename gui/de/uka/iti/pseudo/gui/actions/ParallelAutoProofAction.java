@@ -15,28 +15,25 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
-import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
-import de.uka.iti.pseudo.util.PooledAutoProofer;
+import de.uka.iti.pseudo.util.PooledAutoProver;
 
 /**
  * This action tries to close a given list of open goals by searching for rule
- * applications with a thread pool. This will need strategys to be threadsafe.
+ * applications with a thread pool. This will need strategies to be thread safe.
  * 
  * @author felden@ira.uka.de
  */
@@ -50,14 +47,14 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private boolean ongoingProof = false;
 
     private SwingWorker<Void, Integer> job = null;
-    private PooledAutoProofer pool;
+    private PooledAutoProver pool;
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
     }
 
     public void initialised() {
-        pool = new PooledAutoProofer(getProofCenter().getStrategyManager().getSelectedStrategy(), getProofCenter()
+        pool = new PooledAutoProver(getProofCenter().getStrategyManager().getSelectedStrategy(), getProofCenter()
                 .getEnvironment());
 
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
@@ -65,11 +62,20 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     }
 
     public void actionPerformed(ActionEvent e) {
-        final Proof proof = getProofCenter().getProof();
 
         if (null != job) {
-            pool.stopAutoProof(true);
-
+            try {
+                pool.stopAutoProve(true);
+            } catch (ProofException e1) {
+                // print all exceptions that occurred
+                Exception ex = pool.getException();
+                while (ex != null)
+                    ex.printStackTrace();
+            } catch (InterruptedException e1) {
+                // actions should not get interrupted, but just in case print
+                // stack trace
+                e1.printStackTrace();
+            }
         } else {
             final ProofCenter pc = getProofCenter();
 
@@ -87,12 +93,37 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                     }
 
                     for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
-                        pool.autoProof(node, strategy, env);
+                        try {
+                            pool.autoProve(node, strategy, env);
+                        } catch (ProofException e) {
+                            // print all exceptions that occurred and retry
+                            Exception ex = pool.getException();
+                            while (ex != null)
+                                ex.printStackTrace();
+
+                            try {
+                                pool.autoProve(node, strategy, env);
+                            } catch (ProofException e1) {
+                                // impossible
+                            }
+                        }
                     }
 
-                    pool.waitAutoProof();
-                    return null;
+                    try {
+                        pool.waitAutoProve();
+                    } catch (ProofException e) {
+                        Exception ex = pool.getException();
+                        while (ex != null)
+                            ex.printStackTrace();
+
+                    } catch (InterruptedException e) {
+                        // actions should not get interrupted, but just in case
+                        // print
+                        // stack trace
+                        e.printStackTrace();
                     }
+                    return null;
+                }
 
                 public void done() {
                     pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);

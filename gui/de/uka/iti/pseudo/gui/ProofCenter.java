@@ -10,7 +10,6 @@
  */
 package de.uka.iti.pseudo.gui;
 
-import java.awt.EventQueue;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
