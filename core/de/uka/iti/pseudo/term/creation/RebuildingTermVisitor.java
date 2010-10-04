@@ -229,8 +229,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
      * @param binding binding to visit the bound variable in.
      */
     protected void visitBindingVariable(Binding binding) throws TermException {
-        binding.getVariable().visit(this);
-        // resultingTerm = null;
+        resultingTerm = null;
     }
 
     /*

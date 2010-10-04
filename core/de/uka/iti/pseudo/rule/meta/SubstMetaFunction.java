@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 // TODO Documentation needed
@@ -36,6 +37,10 @@ public class SubstMetaFunction extends MetaFunction {
         Term toReplace = application.getSubterm(0);
         Term replaceWith = application.getSubterm(1);
         Term replaceIn = application.getSubterm(2);
+        
+        if(!(toReplace instanceof Variable)) {
+            throw new TermException("only variables can be replaced");
+        }
         
         TermReplacer tr = new TermReplacer();
         return tr.replace(toReplace, replaceWith, replaceIn);
@@ -56,10 +61,15 @@ public class SubstMetaFunction extends MetaFunction {
                 resultingTerm = null;
             }
         }
-        
+
+        /*
+         * In case that the variable to be replaced is quantified again,
+         * the second binding is to be ignored. For instance:
+         *   (\forall x; x > 0 & (\forall x; x < 0))
+         *   
+         * Here, instantiation is to not touch the second quantification.
+         */
         public void visit(Binding binding) throws TermException {
-            // TODO method documentation
-            // TODO make test case for that
             if(binding.getVariable().equals(termToReplace))
                 resultingTerm = null;
             else

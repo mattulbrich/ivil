@@ -6,10 +6,13 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 
@@ -48,6 +51,11 @@ public class SpecialiseMetaFunction extends MetaFunction {
             throw new TermException("Only type variables can be specialised, but not: " + toReplace);
         }
         
+        if(replacement != null && !(termToReplace instanceof Variable)) {
+            throw new TermException("Only variables can be substituted, but not: " + 
+                    termToReplace + ": " + termToReplace.getClass());
+        }
+        
         TypeVariable typeVar = (TypeVariable) toReplace;
         
         Instantiator tr = new Instantiator();
@@ -63,6 +71,11 @@ public class SpecialiseMetaFunction extends MetaFunction {
         private Term termOfInterest;
         private Term termReplacement;
         
+        /*
+         * count how often the type variable is bound in the current context
+         */
+        private int countBind = 0;
+        
         private RebuildingTypeVisitor<Void> typeVariableReplacer = new RebuildingTypeVisitor<Void>() {
             @Override
             public Type visit(TypeVariable typeVariable, Void parameter) throws TermException {
@@ -76,17 +89,56 @@ public class SpecialiseMetaFunction extends MetaFunction {
         
         @Override
         protected void defaultVisitTerm(Term term) throws TermException {
-            if(term.equals(termOfInterest)) {
+            if(countBind == 0 && term.equals(termOfInterest)) {
                 resultingTerm = termReplacement;
             } else {
                 super.defaultVisitTerm(term);
             }
         };
-
+        
         @Override
         protected Type modifyType(Type type) throws TermException {
             return type.accept(typeVariableReplacer, null);
         }
+        
+        @Override
+        protected void visitBindingVariable(Binding binding) throws TermException {
+            binding.getVariable().visit(this);
+        }
+
+        /*
+         * In case the type variable to be replaced is quantified over again,
+         * the second binding to not to be instantiated.
+         */
+        @Override
+        public void visit(TypeVariableBinding tyVarBinding) throws TermException {
+            if(tyVarBinding.getBoundType().equals(tyOfInterest)) {
+                resultingTerm = null;
+            } else {
+                super.visit(tyVarBinding);
+            }
+        }
+        
+        /*
+         * In case that the variable to be replaced is quantified again,
+         * the second binding must remain. However, the type MUST be instantiated,
+         * otherwise wrong type variables may get exposed.
+         *   (\T_all 'a; (\forall x as 'a; phi(x) & (\forall x as 'a; psi(x)))) |-
+         *   
+         * Here, an instantiation x => 0 is to not touch the second quantification,
+         * BUT for the typing:
+         *   phi(0) & (\forall x as int; psi(x))
+         */
+        public void visit(Binding binding) throws TermException {
+            if(binding.getVariable().equals(termOfInterest)) {
+                countBind ++;
+                super.visit(binding);
+                countBind --;
+            } else {
+                super.visit(binding);
+            }
+        }
+
         
         public Term replace(TypeVariable typeVar, Type replaceWith, Term termToReplace,
                 Term termToReplaceWith, Term termToReplaceIn) throws TermException {

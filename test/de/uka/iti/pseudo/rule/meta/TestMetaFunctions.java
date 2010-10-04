@@ -30,16 +30,61 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     
     private void assertEvalsTo(String t1, String t2) throws Exception {
         Term t = makeTerm(t1);
-        assertEquals(makeTerm(t2), eval.evalutate(t)); 
+        assertEvalsTo(t, t2);
+    }
+    
+    private void assertEvalsTo(Term t1, String t2) throws Exception {
+//      assertEquals(makeTerm(t2), eval.evalutate(t));
+        assertEquals(makeTerm(t2).toString(true), eval.evalutate(t1).toString(true));    
     }
 
     public void testSubst() throws Exception {
-        assertEvalsTo("$$subst(i2, 3, i1+i2)", "i1+3");
+        Term t = makeTerm("(\\bind x; $$subst(x, 3, i1+x))");
+        assertEvalsTo(t.getSubterm(0), "i1+3");
+        
+        try {
+            assertEvalsTo("$$subst(i1,i2,false)", "false");
+            fail("Only variables can be substituted");
+        } catch (TermException e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
     }
     
     public void testBoundSubst() throws Exception {
-        assertEvalsTo("(\\bind x; $$subst(x, 3, x + (\\bind x; x*2)))",
-                "(\\bind x as int; 3 + (\\bind x; x*2))");    
+        Term t = makeTerm("(\\bind x; $$subst(x, 3, x + (\\bind x; x*2)))");
+        assertEvalsTo(t.getSubterm(0), "3 + (\\bind x; x*2)");
+    }
+ 
+    public void testSpec() throws Exception {
+        try {
+            assertEvalsTo("$$polymorphicSpec(arb as int, arb as bool, bf(arb as int), false)",
+                "bf(arb as bool)");
+            fail("only type variables can be specialised");
+        } catch (TermException ex) {
+            if (VERBOSE)
+                ex.printStackTrace();
+        }
+        
+        
+        assertEvalsTo(
+                "$$polymorphicSpec(arb as 'a, arb as bool, bf(arb as 'a), false)",
+                "bf(arb as bool)");
+        
+        assertEvalsTo(
+                "$$polymorphicSpec(arb as 'a, arb as int, (\\forall x as 'a; id(x) = x), false)",
+                "(\\forall x as int; id(x) = x)");
+        
+        assertEvalsTo(
+                "$$polymorphicSpec(arb as 'a, arb as int, (\\T_all 'a; id(arb as 'a) = arb as 'a), false)",
+                "(\\T_all 'a; id(arb as 'a) = arb as 'a)");
+
+        Term.SHOW_TYPES = true;
+        // see visit(Binder) in SpecialiseMetaFunction!
+        Term t = makeTerm("(\\bind x as 'a; $$polymorphicSpec(x, 0, (bf(x) & (\\forall x as 'a; bf(x))), true))");
+        assertEvalsTo(t.getSubterm(0),
+                "bf(0) & (\\forall x as int; bf(x))");
+    
     }
     
     public void testSkolem() throws Exception {
