@@ -5,11 +5,16 @@
 <!-- version (which shouldn't differ from this one except for -->
 <!-- this comment and entity expansions, but just in case -->
 
-<!-- DOCTYPE removed -->
+<!-- MU DOCTYPE removed -->
 
+<!-- MU: I had to remove references to external files since otherwise
+     w/o network, this file would not parse. For our simple test, this
+     suffices, however. -->
+     
 <xsd:schema targetNamespace="http://www.w3.org/2001/XMLSchema" blockDefault="#all"
   elementFormDefault="qualified" version="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xml:lang="EN" xmlns:hfp="http://www.w3.org/2001/XMLSchema-hasFacetAndProperty">
+   xmlns:hfp="http://www.w3.org/2001/XMLSchema-hasFacetAndProperty">
+   <!-- MU xml:lang="EN" -->
  <xsd:annotation>
   <xsd:documentation>
     Part 1 version: Id: structures.xsd,v 1.2 2004/01/15 11:34:25 ht Exp 
@@ -32,7 +37,8 @@
       towards the end of this schema document</xsd:documentation>
  </xsd:annotation>
 
- <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd">
+ <!-- MU
+ <xsd:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd">
    <xsd:annotation>
      <xsd:documentation>
        Get access to the xml: attribute groups for xml:lang
@@ -40,7 +46,7 @@
      </xsd:documentation>
    </xsd:annotation>
  </xsd:import>
-
+ -->
  <xsd:complexType name="openAttrs">
    <xsd:annotation>
      <xsd:documentation>
@@ -201,7 +207,7 @@
      <xsd:attribute name="attributeFormDefault" type="xsd:formChoice" use="optional" default="unqualified"/>
      <xsd:attribute name="elementFormDefault" type="xsd:formChoice" use="optional" default="unqualified"/>
      <xsd:attribute name="id" type="xsd:ID"/>
-     <xsd:attribute ref="xml:lang"/>
+     <!-- MU <xsd:attribute ref="xml:lang"/> -->
     </xsd:extension>
    </xsd:complexContent>
   </xsd:complexType>
@@ -1218,7 +1224,7 @@ use</xsd:documentation>
      <xsd:any processContents="lax"/>
     </xsd:sequence>
     <xsd:attribute name="source" type="xsd:anyURI"/>
-    <xsd:attribute ref="xml:lang"/>
+    <!-- MU <xsd:attribute ref="xml:lang"/> -->
     <xsd:anyAttribute namespace="##other" processContents="lax"/>
    </xsd:complexType>
  </xsd:element>
