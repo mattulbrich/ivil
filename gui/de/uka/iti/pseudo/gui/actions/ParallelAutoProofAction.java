@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
-import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
@@ -83,16 +82,6 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
             SwingWorker<Void, Integer> swingWorker = new SwingWorker<Void, Integer>() {
                 public Void doInBackground() {
-//                    Proof proof = proofCenter.getProof();
-
-//                    // if there are no open goals disable this action, as the
-//                    // proof must have been closed
-//                    // MU: happens automatically by ONGOING_PROOF ?!
-//                    // MU: should be done on dispatch thread.
-//                    if (!proof.hasOpenGoals()) {
-//                        setEnabled(false);
-//                        return null;
-//                    }
 
                     for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
                         pool.autoProve(node);
@@ -125,12 +114,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     @Override
     public void handleNotification(NotificationEvent evt) {
-        // TODO ... is this what we want? Should depend on whether there are
-        // open goals
-        // under the currently selected node.
         if (evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED) && !ongoingProof) {
-            Proof proof = getProofCenter().getProof();
-            setEnabled(proof.hasOpenGoals());
+            setEnabled(!getInitialList().isEmpty());
         }
     }
 

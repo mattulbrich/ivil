@@ -3,6 +3,9 @@ package de.uka.iti.pseudo.util;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * This exception is used as a container for many exceptions.
+ */
 public class CompoundException extends Exception {
     
     private static final long serialVersionUID = -2174383160531654448L;

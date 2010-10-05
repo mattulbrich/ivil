@@ -40,7 +40,7 @@ public class PooledAutoProver {
         }
 
         /**
-         * Try to solve node. On success, add all children to the todo list. If
+         * Try to solve node. On success, create new jobs for all children. If
          * exceptions occur here, add them to the exceptions list.
          */
         public void run() {
@@ -86,27 +86,20 @@ public class PooledAutoProver {
     // first
     private static ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
 
-//    /**
-//     * Global to do list, which will be fetched by the workers in the pool.
-//     */
-//    private static LinkedBlockingQueue<Job> todo = new LinkedBlockingQueue<Job>();
-
     /**
-     * This counter tells us how many of our jobs are still in the todo list.
-     * 
-     * This counter is meant to be used by jobs only.
+     * The work counter counts the number of unfinished jobs.
      */
     private int workCounter = 0;
 
     /**
      * The strategy to be used in this search.
      */
-    public Strategy strategy;
+    private final Strategy strategy;
 
     /**
      * Environment to be used by this auto proofer.
      */
-    public Environment env;
+    private final Environment env;
 
     /**
      * Flag to signal jobs, that they should stop.
@@ -146,37 +139,6 @@ public class PooledAutoProver {
     }
 
     /**
-     * This function allows to start auto proving with new strategy and
-     * environments.
-     * <p>
-     * The purpose of this function is to reduce recreation of PooledAutoProofer
-     * Objects when used for example as auto proof action in GUI mode.
-     * <p>
-     * <b>NOTE:</b> if you call this while busy, with another strategy or
-     * environment, the old job will be canceled; in this case, the function
-     * will block until all jobs were canceled. If the old job had errors, a
-     * ProofException will be raised and no new job will be created.
-     * 
-     * @throws ProofException
-     */
-//    public void autoProve(@NonNull ProofNode node, @NonNull Strategy strategy,
-//            @NonNull Environment env) throws ProofException {
-//        if (workCounter.get() != 0
-//                && (this.strategy != strategy || this.env != env)) {
-//            try {
-//                stopAutoProve(true);
-//            } catch (InterruptedException e) {
-//                // this is unlikely to happen and not a big problem, so printing
-//                // the stack trace should be enough
-//                e.printStackTrace();
-//            }
-//        }
-//        this.strategy = strategy;
-//        this.env = env;
-//        autoProve(node);
-//    }
-
-    /**
      * Waits for current automatic proofing to finish.
      * 
      * @throws ProofException
@@ -186,7 +148,7 @@ public class PooledAutoProver {
      * @throws InterruptedException
      *             rethrown, when interrupted, while waiting
      */
-    public void waitAutoProve() throws ProofException, InterruptedException {
+    public void waitAutoProve() throws CompoundException, InterruptedException {
         synchronized (wait) {
             while(workCounter > 0) {
                 wait.wait();
@@ -194,24 +156,13 @@ public class PooledAutoProver {
         }
         
         if (!exceptions.isEmpty())
-            throw new ProofException(exceptions.size()
-                    + " exceptions occurred while auto proving.",
-                    new CompoundException(exceptions));
-    }
-
-    /**
-     * Returns the topmost exception or null if no exception was thrown.
-     */
-    public Exception getException() {
-        if (exceptions.isEmpty())
-            return null;
-        return exceptions.remove(0);
+            throw new CompoundException(exceptions);
     }
 
     /**
      * @see tstopAutoProve(false)
      */
-    public void stopAutoProve() throws ProofException, InterruptedException {
+    public void stopAutoProve() throws CompoundException, InterruptedException {
         stopAutoProve(false);
     }
 
@@ -221,14 +172,13 @@ public class PooledAutoProver {
      * @param waitForJobs
      *            set to true if you want to reuse the auto proofer.
      * 
-     * @throws ProofException
-     *             thrown to indicate exceptions were thrown by jobs. The
-     *             created exceptions can be retrieved with getException()
+     * @throws CompoundException
+     *             thrown if some jobs got exceptions
      * 
      * @throws InterruptedException
      *             rethrown, when interrupted, while waiting
      */
-    public void stopAutoProve(boolean waitForJobs) throws ProofException, InterruptedException {
+    public void stopAutoProve(boolean waitForJobs) throws CompoundException, InterruptedException {
         shouldStop = true;
         if (waitForJobs)
             waitAutoProve();
