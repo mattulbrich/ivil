@@ -224,7 +224,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             Token problemtoken = e.currentToken.next;
             markError(e, problemtoken);
         } catch (ASTVisitException e) {
-            e.printStackTrace();
+            Log.stacktrace(Log.VERBOSE, e);
             ASTLocatedElement location = e.getLocation();
             if (location instanceof ASTElement) {
                 ASTElement ast = (ASTElement) location;

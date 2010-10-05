@@ -133,6 +133,7 @@ public class Main {
                     Log.log(Log.ERROR, "Exception during startup: "
                             + ex.getMessage());
                     Log.stacktrace(ex);
+                    System.exit(1);
                 }
             }
         });

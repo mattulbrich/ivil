@@ -514,6 +514,11 @@ public class BarManager {
         String items[] = getPropertyOrFail(property).split(" +");
         JMenu result = new JMenu(getPropertyOrFail(property + ".text"));
         
+        String mnemonic = properties.getProperty(property + ".mnemonic");
+        if(mnemonic != null) {
+            result.setMnemonic(mnemonic.charAt(0));
+        }
+        
         for (String item : items) {
             // submenu must be ignored - it may appear however as first item.
             // just skip it
@@ -590,6 +595,11 @@ public class BarManager {
                 val = properties.getProperty(property + ".tooltip");
                 if(val != null)
                     menuItem.setToolTipText(val);
+                
+                val = properties.getProperty(property + ".mnemonic");
+                if(val != null) {
+                    menuItem.setMnemonic(val.charAt(0));
+                }
 
                 if(actionListener != null)
                     menuItem.addActionListener(actionListener);
