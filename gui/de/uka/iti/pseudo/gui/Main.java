@@ -129,7 +129,7 @@ public class Main {
                             openProver(file);
                         }
                     }
-                } catch (Exception ex) {
+                } catch (Throwable ex) {
                     Log.log(Log.ERROR, "Exception during startup: "
                             + ex.getMessage());
                     Log.stacktrace(ex);

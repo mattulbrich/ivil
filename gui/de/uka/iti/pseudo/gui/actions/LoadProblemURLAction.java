@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
@@ -34,7 +35,7 @@ public class LoadProblemURLAction extends BarAction implements PropertyChangeLis
     public LoadProblemURLAction() {
         super("Load problem from URL ...", GUIUtil.makeIcon(LoadProblemURLAction.class.getResource("img/page_white_world.png")));
         putValue(ACTION_COMMAND_KEY, "loadProbURL");
-        // putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(SHORT_DESCRIPTION, "open a problem from a URL into a new window");
     }
     

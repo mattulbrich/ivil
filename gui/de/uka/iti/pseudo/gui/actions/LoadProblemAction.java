@@ -40,6 +40,7 @@ public class LoadProblemAction extends BarAction implements InitialisingAction, 
         super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
         putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
     }
     
