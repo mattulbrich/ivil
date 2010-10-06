@@ -10,7 +10,11 @@
  */
 package de.uka.iti.pseudo.gui.actions;
 
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.List;
+
+import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.proof.ProofNode;
 
@@ -26,6 +30,7 @@ public class AutoProofAction extends ParallelAutoProofAction {
     public AutoProofAction() {
         super("Automatic Proof");
         putValue(SHORT_DESCRIPTION, "Run automatic proving on all nodes");
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
     }
 
     @Override
