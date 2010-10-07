@@ -30,6 +30,7 @@ public class SaveEditorAction extends SaveAsEditorAction {
         putValue(ACTION_COMMAND_KEY, "save");
         putValue(SHORT_DESCRIPTION, "save the currently edited file");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_S);
     }
     
     public void actionPerformed(ActionEvent e) {

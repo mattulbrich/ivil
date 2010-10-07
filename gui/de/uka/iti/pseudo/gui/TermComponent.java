@@ -94,6 +94,10 @@ public class TermComponent extends JTextPane {
     private static final Color VARIABLE_FOREGROUND =
         S.getColor("pseudo.termcomponent.variableforeground", Color.MAGENTA);
     
+    // types should be painted less noticeable
+    private static final Color TYPE_FOREGROUND = 
+        S.getColor("pseudo.termcomponent.typeforeground", Color.LIGHT_GRAY);
+    
     // marking for an assumption
     private static final Color LIGHT_MARKING_COLOR = 
         S.getColor("pseudo.termcomponent.assumptionforeground", Color.LIGHT_GRAY);
@@ -109,7 +113,6 @@ public class TermComponent extends JTextPane {
 
     // the property for the bar manager to describe my popup menu
     private static final String POPUP_PROPERTY = "termComponent.popup";
-
 
     // darker and a lighter color for marking
     private HighlightPainter[] MARKINGS = {
@@ -313,11 +316,14 @@ public class TermComponent extends JTextPane {
 
             if (descr.contains("keyword"))
                 StyleConstants.setBold(retval, true);
-
+            
             if (descr.contains("variable"))
                 StyleConstants.setForeground(retval, VARIABLE_FOREGROUND);
             // StyleConstants.setItalic(retval, true);
 
+            if (descr.contains("type"))
+                StyleConstants.setForeground(retval, TYPE_FOREGROUND);
+            
             attributeCache.put(descr, retval);
 
             return retval;

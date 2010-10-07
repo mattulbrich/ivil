@@ -31,6 +31,7 @@ public class ReloadProblemAction extends BarAction implements
         super("Reload problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_green_text.png")));
         putValue(ACTION_COMMAND_KEY, "reloadProb");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_R);
         putValue(SHORT_DESCRIPTION, "reload the last problem file into a new window");
     }
     

@@ -11,8 +11,12 @@
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
@@ -29,7 +33,9 @@ public class PrettyPrintTypedRadioAction extends BarAction
     
     public PrettyPrintTypedRadioAction() {
         super("Print types");
-        // TODO tooltip
+        putValue(MNEMONIC_KEY, KeyEvent.VK_T);
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_MASK | InputEvent.SHIFT_MASK ));
+        putValue(SHORT_DESCRIPTION, "Include type information into the display");
     }
     
     @Override

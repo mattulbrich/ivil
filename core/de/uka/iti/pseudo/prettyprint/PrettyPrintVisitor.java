@@ -217,8 +217,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             }
             printer.append(")");
         }
-        if (pp.isTyped())
+        if (pp.isTyped()) {
+            printer.setStyle("type");
             printer.append(" as " + application.getType());
+            printer.resetPreviousStyle();
+        }
     }
     
     //
@@ -228,7 +231,13 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(Variable variable) throws TermException {
         printer.setStyle("variable");
         TermTag oldTag = begin(variable);
-        printer.append(variable.toString(pp.isTyped())).end();
+        printer.append(variable.getName());
+        if(pp.isTyped()) {
+            printer.setStyle("type");
+            printer.append(" as " + variable.getType());
+            printer.resetPreviousStyle(); 
+        }
+        printer.end();
         printer.resetPreviousStyle();
         currentTermTag = oldTag;
     }
@@ -242,8 +251,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             printer.append("(").append(bindname).append(" ");
             printer.setStyle("variable");
             printer.append(binding.getVariableName());
-            if (pp.isTyped())
+            if (pp.isTyped()) {
+                printer.setStyle("type");
                 printer.append(" as ").append(binding.getVariableType().toString());
+                printer.resetPreviousStyle();
+            }
             printer.resetPreviousStyle();
             int i = 0;
             for (Term t : binding.getSubterms()) {
@@ -295,13 +307,15 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
                     printInfix(application, fixOperator);
                 }
 
-                if (pp.isTyped())
-                    printer.append(") as ")
+                if (pp.isTyped()) {
+                    printer.append(")");
+                    printer.setStyle("type");
+                    printer.append(" as ")
                     .append(application.getType().toString());
+                    printer.resetPreviousStyle();
+                }
 
             } else {
-
-
 
                 printApplication(application, fctname);
 

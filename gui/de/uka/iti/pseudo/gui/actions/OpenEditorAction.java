@@ -33,6 +33,7 @@ public class OpenEditorAction extends BarAction {
         putValue(ACTION_COMMAND_KEY, "open");
         putValue(SHORT_DESCRIPTION, "Open a problem file in a new editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));
+        putValue(MNEMONIC_KEY, KeyEvent.VK_E);
     }
     
     public void actionPerformed(ActionEvent e) {

@@ -30,7 +30,7 @@ public class AutoProofAction extends ParallelAutoProofAction {
     public AutoProofAction() {
         super("Automatic Proof");
         putValue(SHORT_DESCRIPTION, "Run automatic proving on all nodes");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK));
     }
 
     @Override
