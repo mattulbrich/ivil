@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -23,7 +22,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 /**
  * A proof contains the information on a tree of sequents and their meta
@@ -132,9 +130,8 @@ public class Proof {
      * 
      * <p>
      * The number of the goal to apply to is extracted from the application and
-     * then the method
-     * {@link ProofNode#apply(RuleApplication, TermInstantiator, Environment, Properties)}
-     * is invoked.
+     * then the method {@link ProofNode#apply(RuleApplication, Environment)} is
+     * invoked.
      * 
      * <p>
      * This method first acquires the lock of the proof before it makes any
@@ -237,7 +234,7 @@ public class Proof {
     }
 
     /**
-     * inform all subscribed ovservers that a proof node has changed.
+     * inform all subscribed observers that a proof node has changed.
      * 
      * <p>
      * The {@link #changedSinceSave} flag is changed to <code>true</code>.
