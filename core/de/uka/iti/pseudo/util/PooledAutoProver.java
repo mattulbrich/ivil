@@ -76,6 +76,7 @@ public class PooledAutoProver {
                     workCounter --;
                     if (workCounter == 0) {
                         strategy.endSearch();
+                        Log.log(Log.TRACE, "strategy.endSearch()");
                         monitor.notifyAll();
                     }
                 }
@@ -146,8 +147,9 @@ public class PooledAutoProver {
         assert !shouldStop : "automatic prove request after stop";
 
         synchronized (monitor) {
-        if (0 != workCounter)
+            if (0 == workCounter)
             strategy.beginSearch();
+            Log.log(Log.TRACE, "strategy.beginSearch()");
         }
 
         pool.submit(new Job(node));
