@@ -33,7 +33,7 @@ public class PooledAutoProver {
         private Job(ProofNode node) {
             this.node = node;
 
-            synchronized(wait) {
+            synchronized (monitor) {
                 workCounter ++;
             }
             
@@ -67,13 +67,16 @@ public class PooledAutoProver {
                     for (ProofNode n : node.getChildren()) {
                         pool.submit(new Job(n));
                     }
+                } else {
+                    Log.log(Log.TRACE, "could not find a rule application for %s\n", node.toString());
                 }
 
             } finally {
-                synchronized (wait) {
+                synchronized (monitor) {
                     workCounter --;
                     if (workCounter == 0) {
-                        wait.notifyAll();
+                        strategy.endSearch();
+                        monitor.notifyAll();
                     }
                 }
             }
@@ -107,9 +110,10 @@ public class PooledAutoProver {
     private boolean shouldStop = false;
 
     /**
-     * This object is used to notify waiters
+     * This object is used to notify waiting threads and to ensure consistency
+     * of workCount.
      */
-    private Object wait = new Object();
+    private Object monitor = new Object();
 
     /**
      * This list is used to keep track of exceptions.
@@ -131,17 +135,28 @@ public class PooledAutoProver {
      * Starts auto proving on the target node. Does nothing if node has
      * children. You may invoke this while other nodes are processed, what will
      * cause the new node to be enqueued on the todo list.
+     * 
+     * @param node
+     *            node to be enqueued
+     * 
+     * @throws StrategyException
+     *             will be thrown if strategy.beginSearch() throws an exception
      */
-    public void autoProve(@NonNull ProofNode node) {
+    public void autoProve(@NonNull ProofNode node) throws StrategyException {
         assert !shouldStop : "automatic prove request after stop";
-        
+
+        synchronized (monitor) {
+        if (0 != workCounter)
+            strategy.beginSearch();
+        }
+
         pool.submit(new Job(node));
     }
 
     /**
-     * Waits for current automatic proofing to finish.
+     * Waits for current automatic proving to finish.
      * 
-     * @throws ProofException
+     * @throws CompoundException
      *             thrown to indicate exceptions were thrown by jobs. The
      *             created exceptions can be retrieved with getException()
      * 
@@ -149,9 +164,9 @@ public class PooledAutoProver {
      *             rethrown, when interrupted, while waiting
      */
     public void waitAutoProve() throws CompoundException, InterruptedException {
-        synchronized (wait) {
-            while(workCounter > 0) {
-                wait.wait();
+        synchronized (monitor) {
+            if (0 != workCounter) {
+                monitor.wait();
             }
         }
         
@@ -160,14 +175,20 @@ public class PooledAutoProver {
     }
 
     /**
-     * @see tstopAutoProve(false)
+     * Stops the current automatic proving not waiting for its end.
+     * 
+     * @throws CompoundException
+     *             thrown if some jobs got exceptions
+     * 
+     * @throws InterruptedException
+     *             rethrown, when interrupted, while waiting
      */
     public void stopAutoProve() throws CompoundException, InterruptedException {
         stopAutoProve(false);
     }
 
     /**
-     * Stops the current automatic proofing.
+     * Stops the current automatic proving.
      * 
      * @param waitForJobs
      *            set to true if you want to reuse the auto proofer.
