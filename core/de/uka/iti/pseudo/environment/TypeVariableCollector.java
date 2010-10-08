@@ -11,11 +11,13 @@
 
 package de.uka.iti.pseudo.environment;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
@@ -23,6 +25,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTypeVisitor;
@@ -33,22 +36,32 @@ import de.uka.iti.pseudo.term.creation.DefaultTypeVisitor;
  * 
  * The method {@link #collect(Term)} applies collect to the types of all
  * subterms.
+ * 
+ * One can also collect schema types.
+ * 
+ * The collection can furthermore also be applied to types instead of terms.
+ * 
+ * The collections (sets) which contain the entities are lazily created.
  */
 public class TypeVariableCollector {
 
-    private Set<TypeVariable> typeVariables = new HashSet<TypeVariable>();
+    private Set<TypeVariable> typeVariables = null;
 
-    private Set<SchemaType> schemaTypeVariables = new HashSet<SchemaType>();
+    private Set<SchemaType> schemaTypeVariables = null;
 
     private TypeVisitor<Void, Void> typeVisitor = new DefaultTypeVisitor<Void>() {
-        public Void visit(SchemaType schemaTypeVariable, Void argument)
-                throws TermException {
+        public Void visit(SchemaType schemaTypeVariable, Void argument) {
+            if(schemaTypeVariables == null) {
+                schemaTypeVariables = new HashSet<SchemaType>();
+            }
             schemaTypeVariables.add(schemaTypeVariable);
             return null;
         };
 
-        public Void visit(TypeVariable typeVariable, Void argument)
-                throws TermException {
+        public Void visit(TypeVariable typeVariable, Void argument) {
+            if(typeVariables == null) {
+                typeVariables = new HashSet<TypeVariable>();
+            }
             typeVariables.add(typeVariable);
             return null;
         };
@@ -63,6 +76,10 @@ public class TypeVariableCollector {
         public void visit(Binding binding) throws TermException {
             super.visit(binding);
             binding.getVariableType().accept(typeVisitor, null);
+        }
+        
+        public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
+            typeVariableBinding.getBoundType().accept(typeVisitor, null);
         }
     };
 
@@ -89,7 +106,7 @@ public class TypeVariableCollector {
             // never thrown in the code
             throw new Error(e);
         }
-        return tvc.typeVariables;
+        return makeSet(tvc.typeVariables);
     }
 
     /**
@@ -108,7 +125,7 @@ public class TypeVariableCollector {
             // never thrown in the code
             throw new Error(e);
         }
-        return tvc.typeVariables;
+        return  makeSet(tvc.typeVariables);
     }
 
     /**
@@ -129,7 +146,7 @@ public class TypeVariableCollector {
             // never thrown in the code
             throw new Error(e);
         }
-        return tvc.schemaTypeVariables;
+        return  makeSet(tvc.schemaTypeVariables);
     }
 
     /**
@@ -148,7 +165,24 @@ public class TypeVariableCollector {
             // never thrown in the code
             throw new Error(e);
         }
-        return tvc.schemaTypeVariables;
+        return makeSet(tvc.schemaTypeVariables);
+    }
+    
+    /**
+     * Turns a <code>null</code> into an empty set.
+     * 
+     * @param <E>
+     *            elements in the set
+     * @param set
+     *            set to handle
+     * @return a refrence to an empty set if {@code set==null} is true, {@code
+     *         set} otherwise.
+     */
+    private static @NonNull <E> Set<E> makeSet(@Nullable Set<E> set) {
+        if(set == null)
+            return Collections.emptySet();
+        else
+            return set;
     }
 
 }
