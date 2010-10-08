@@ -15,8 +15,10 @@ import java.util.Stack;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -24,6 +26,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.Variable;
 
 /**
@@ -40,7 +43,8 @@ import de.uka.iti.pseudo.term.Variable;
  * <li>no schema update is present
  * <li>no schema program term is present
  * <li>no schema variable is bound in a binding
- * <li>no "normal" type variable is bound in a type variable binding
+ * <li>no subterm has schema type.
+ * <li>no schema type is bound in a type binding nor a binding
  * <li>no meta function appears
  * <li>no free variable occur
  * <li>program terms have no matching statement
@@ -55,6 +59,13 @@ import de.uka.iti.pseudo.term.Variable;
 public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
 
     private Stack<Variable> allowedVariables = new Stack<Variable>();
+    
+    private static TypeVisitor<Void, Void> schemaDetector = new DefaultTypeVisitor<Void>() {
+        @Override
+        public Void visit(SchemaType st, Void parameter) throws TermException {
+                throw new TermException("Top level term contains schema type " + st);
+        }
+    }; 
 
     public void check(Term term) throws TermException {
         term.visit(this);
@@ -62,6 +73,12 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
             throw new TermException("Top level term does not have boolean type");
     }
 
+    @Override
+    protected void defaultVisitTerm(Term term) throws TermException {
+        term.getType().accept(schemaDetector, null);
+        super.defaultVisitTerm(term);
+    }
+    
     public void visit(SchemaProgramTerm schemaProgram) throws TermException {
         throw new TermException("Top level term contains schema program"
                 + schemaProgram);
@@ -78,12 +95,15 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
     }
 
     public void visit(Binding binding) throws TermException {
+        BindableIdentifier variable = binding.getVariable();
         if (binding.hasSchemaVariable())
             throw new TermException(
                     "Top level term contains bound schema variable"
-                            + binding.getVariable());
+                            + variable);
 
-        allowedVariables.push((Variable) binding.getVariable());
+        variable.getType().accept(schemaDetector, null);
+
+        allowedVariables.push((Variable) variable);
         super.visit(binding);
         allowedVariables.pop();
     }

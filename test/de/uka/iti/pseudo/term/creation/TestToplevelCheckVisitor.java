@@ -55,5 +55,11 @@ public class TestToplevelCheckVisitor extends TestCaseWithEnv {
     public void testTestHiddenSchema() throws Exception {
         assertFalse(check(makeTerm("(\\forall i; i > %a)")));
     }
+    
+    // from a bug
+    public void testSchemaType() throws Exception {
+        assertFalse(check(makeTerm("arb = arb")));
+        assertFalse(check(makeTerm("(\\forall x as %'a; x = x)")));
+    }
 
 }
