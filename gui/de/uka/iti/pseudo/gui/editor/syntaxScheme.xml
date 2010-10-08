@@ -4,7 +4,7 @@
 	<style token="RESERVED_WORD" fg="#7F0055" />
 	<style token="LITERAL_BOOLEAN" fg="#7F0055" />
 	<style token="SEPARATOR" fg="#804040" />
-	<style token="ERROR_CHAR" fg="#ff0000" />
+	<style token="ERROR_CHAR" bg="#ff0000" fg="#ffffff" />
 	<style token="LITERAL_STRING_DOUBLE_QUOTE" fg="#2A00FF" />
 	<style token="VARIABLE" fg="#994703" />
 </syntaxScheme>
