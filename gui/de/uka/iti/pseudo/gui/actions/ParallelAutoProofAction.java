@@ -83,6 +83,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
             SwingWorker<Void, Integer> swingWorker = new SwingWorker<Void, Integer>() {
                 public Void doInBackground() {
 
+                    Log.log("auto proofing nodes: %s\n", getInitialList().toString());
                     for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
                         pool.autoProve(node);
                     }

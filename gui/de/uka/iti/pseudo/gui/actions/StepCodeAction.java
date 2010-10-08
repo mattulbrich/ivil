@@ -117,6 +117,9 @@ public abstract class StepCodeAction extends BarAction implements
                     while (!todo.isEmpty()) {
                         current = todo.remove(0);
 
+                        if (null != current.getChildren())
+                            continue;
+
                         RuleApplication ra = strategy.findRuleApplication(current);
 
                         if (ra != null) {

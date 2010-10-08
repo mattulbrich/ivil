@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -23,7 +22,6 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 /**
  * A proof contains the information on a tree of sequents and their meta
@@ -32,29 +30,6 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  * It is a mutable object, i.e., the application of inference rules does not
  * result in a different new proof value, but changes the data structures within
  * this object.
- * 
- * <h2>Locking</h2>
- * 
- * The lock to be used with this object can be obtained using the method
- * {@link #getLock()}. If you intend to do several operations on the proof, take
- * the lock, do your actions and then release it. A typical piece of code would look like:
- * <pre>
- *   Proof p; // ...
- *   
- *   Lock lock = p.getLock();
- *   lock.lock();
- *   try {
- *      RuleApplication ruleApp1; // ... calculate it
- *      RuleApplication ruleApp2; // ... calculate it
- *   
- *      p.apply(ruleApp1);
- *      p.apply(ruleApp2)
- *   } finally {
- *      lock.unlock();
- *   }
- * </pre>
- * 
- * You can also use {@link Lock#tryLock()} and fail in case the lock cannot be acquired.
  * 
  * <h2>Observable</h2>
  * 
@@ -155,9 +130,8 @@ public class Proof {
      * 
      * <p>
      * The number of the goal to apply to is extracted from the application and
-     * then the method
-     * {@link ProofNode#apply(RuleApplication, TermInstantiator, Environment, Properties)}
-     * is invoked.
+     * then the method {@link ProofNode#apply(RuleApplication, Environment)} is
+     * invoked.
      * 
      * <p>
      * This method first acquires the lock of the proof before it makes any
@@ -170,8 +144,6 @@ public class Proof {
      * 
      * @throws ProofException
      *             may be thrown if the application is not successful.
-     * 
-     * @see ProofDaemon.applyRule
      */
     public void apply(@NonNull RuleApplication ruleApp,
             Environment env)
@@ -262,7 +234,7 @@ public class Proof {
     }
 
     /**
-     * inform all subscribed ovservers that a proof node has changed.
+     * inform all subscribed observers that a proof node has changed.
      * 
      * <p>
      * The {@link #changedSinceSave} flag is changed to <code>true</code>.
@@ -320,6 +292,28 @@ public class Proof {
      */
     public boolean hasOpenGoals() {
         return !openGoals.isEmpty();
+    }
+
+    /**
+     * Checks if node can be reached from root. Therefore it walk through
+     * parents until root or null is reached.
+     * 
+     * This method is especially useful to check validity of nodes after pruning
+     * occurred.
+     * 
+     * @param node
+     *            the node where the search for root will be started
+     * @return true iff root is reachable
+     */
+    public boolean isReachable(ProofNode node) {
+        ProofNode parent = node.getParent();
+        while (null != parent) {
+            if (parent == root)
+                return true;
+            else
+                parent = parent.getParent();
+        }
+        return false;
     }
 
     /**

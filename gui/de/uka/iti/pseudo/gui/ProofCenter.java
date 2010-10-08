@@ -416,8 +416,10 @@ public class ProofCenter implements Observer {
                 .getBreakpointManager();
     }
 
-    // react to changes on the proof ... delegate to the UI components (on UI thread)
-    
+    /**
+     * react to changes on the proof ... delegate to the UI components (on UI
+     * thread)
+     */
     @Override
     public void update(Observable o, Object arg) {
         
