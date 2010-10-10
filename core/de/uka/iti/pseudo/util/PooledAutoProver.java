@@ -75,8 +75,6 @@ public class PooledAutoProver {
                 synchronized (monitor) {
                     workCounter --;
                     if (workCounter == 0) {
-                        strategy.endSearch();
-                        Log.log(Log.TRACE, "strategy.endSearch()");
                         monitor.notifyAll();
                     }
                 }
@@ -122,6 +120,9 @@ public class PooledAutoProver {
     private List<Exception> exceptions = Collections.synchronizedList(new LinkedList<Exception>());
 
     /**
+     * <b>Note</b>: it's up to the caller, to call strategy.begindSearch() and
+     * strategy.endSearch()
+     * 
      * @param strategy
      *            Strategy to be used by autoProof calls
      * @param environment
@@ -145,12 +146,6 @@ public class PooledAutoProver {
      */
     public void autoProve(@NonNull ProofNode node) throws StrategyException {
         assert !shouldStop : "automatic prove request after stop";
-
-        synchronized (monitor) {
-            if (0 == workCounter)
-            strategy.beginSearch();
-            Log.log(Log.TRACE, "strategy.beginSearch()");
-        }
 
         pool.submit(new Job(node));
     }

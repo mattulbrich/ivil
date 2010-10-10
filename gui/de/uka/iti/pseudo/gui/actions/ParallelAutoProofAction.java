@@ -20,7 +20,7 @@ import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
-import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -53,17 +53,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     }
 
     public void initialised() {
-        
-
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
         getProofCenter().addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
 
     public void actionPerformed(ActionEvent e) {
-        
-        final ProofCenter proofCenter = getProofCenter();
-        Strategy selectedStrategy = proofCenter.getStrategyManager().getSelectedStrategy();
-        Environment environment = proofCenter.getEnvironment();
 
         if (null != pool) {
             
@@ -75,19 +69,37 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
             } finally {
                 pool = null;
             }
-            
         } else {
-            // due to synchronisation, this must be invoked on the Dispatcher thread.
-            pool = new PooledAutoProver(selectedStrategy, environment);
+            // start auto proving
+            final ProofCenter proofCenter = getProofCenter();
+            final Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
 
-            SwingWorker<Void, Integer> swingWorker = new SwingWorker<Void, Integer>() {
+            pool = new PooledAutoProver(strategy, proofCenter.getEnvironment());
+
+            proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+            try {
+                strategy.beginSearch();
+            } catch (StrategyException ex) {
+                // abort, as the strategy can't be used for some reason
+                Log.stacktrace(ex);
+                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                pool = null;
+                return;
+            }
+
+            for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
+                try {
+                    pool.autoProve(node);
+                } catch (StrategyException e1) {
+                    Log.stacktrace(e1);
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
+                }
+            }
+
+            // create a swing worker, that will wait for auto proving to finish
+            // and collect and display exceptions
+            (new SwingWorker<Void, Integer>() {
                 public Void doInBackground() {
-
-                    Log.log("auto proofing nodes: %s\n", getInitialList().toString());
-                    for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
-                        pool.autoProve(node);
-                    }
-
                     try {
                         pool.waitAutoProve();
                     } catch (Exception e) {
@@ -100,16 +112,14 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                 }
 
                 public void done() {
+                    strategy.endSearch();
                     proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                     // some listeners have been switched off, they might
                     // want to update now.
                     proofCenter.fireProoftreeChangedNotification(true);
                     pool = null;
                 }
-            };
-
-            proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-            swingWorker.execute();
+            }).execute();
         }
     }
 
