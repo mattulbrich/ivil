@@ -87,19 +87,13 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                 return;
             }
 
-            for (ProofNode node : new LinkedList<ProofNode>(getInitialList())) {
-                try {
-                    pool.autoProve(node);
-                } catch (StrategyException e1) {
-                    Log.stacktrace(e1);
-                    ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
-                }
-            }
-
-            // create a swing worker, that will wait for auto proving to finish
-            // and collect and display exceptions
+            // create a swing worker, that will wait for auto proving to collect
+            // and display exceptions
             (new SwingWorker<Void, Integer>() {
                 public Void doInBackground() {
+                    for (ProofNode node : new LinkedList<ProofNode>(getInitialList()))
+                        pool.autoProve(node);
+
                     try {
                         pool.waitAutoProve();
                     } catch (Exception e) {

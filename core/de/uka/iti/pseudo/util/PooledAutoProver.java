@@ -140,11 +140,8 @@ public class PooledAutoProver {
      * 
      * @param node
      *            node to be enqueued
-     * 
-     * @throws StrategyException
-     *             will be thrown if strategy.beginSearch() throws an exception
      */
-    public void autoProve(@NonNull ProofNode node) throws StrategyException {
+    public void autoProve(@NonNull ProofNode node) {
         assert !shouldStop : "automatic prove request after stop";
 
         pool.submit(new Job(node));
