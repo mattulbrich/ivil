@@ -10,7 +10,6 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.term.creation.TypeUnification;
 
 /*
  * Special type variables

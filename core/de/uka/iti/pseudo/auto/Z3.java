@@ -22,9 +22,16 @@ import java.util.concurrent.TimeoutException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 
-public class Z3 implements DecisionProcedure, Callable<String> {
+/**
+ * Better use Z3SMT ... translation via SMT-lib
+ * @author mattias ulbrich
+ *
+ */
+@Deprecated
+public class Z3 implements DecisionProcedure {
     
     public Z3() {
     }
@@ -59,7 +66,7 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             }
             r.close();
             
-//            System.err.println("Z3 answers: " + msg);
+            Log.log(Log.VERBOSE, "Z3 answers: " + msg);
             if("unsat".equals(answerLine)) {
                 return Pair.make(Result.VALID, msg.toString());
             } else if("sat".equals(answerLine)) {
@@ -87,10 +94,6 @@ public class Z3 implements DecisionProcedure, Callable<String> {
             if(t != null)
                 t.interrupt();
         }
-    }
-
-    public String call() throws Exception {
-        return null;
     }
 
 }

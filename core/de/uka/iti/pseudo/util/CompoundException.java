@@ -2,11 +2,13 @@ package de.uka.iti.pseudo.util;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Iterator;
 
 /**
  * This exception is used as a container for many exceptions.
  */
-public class CompoundException extends Exception {
+public class CompoundException extends Exception implements Iterable<Exception> {
+
     
     private static final long serialVersionUID = -2174383160531654448L;
     private Exception[] embeddedExceptions;
@@ -34,6 +36,10 @@ public class CompoundException extends Exception {
     }
     
     @Override
+    public Iterator<Exception> iterator() {
+        return Util.readOnlyArrayList(embeddedExceptions).iterator();
+    }
+    
     public void printStackTrace(PrintStream s) {
         for(int i = 0; i < embeddedExceptions.length; i++) {
             s.println("--- embedded exception " + i + " ---");

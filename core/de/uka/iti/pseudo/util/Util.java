@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -146,6 +145,23 @@ public class Util {
 //        return false;
 //    }
 	
+    /**
+     * Duplicate a string a number of times.
+     * 
+     * @param string
+     *            the string to duplicate.
+     * @param count
+     *            the number of repetitions.
+     * 
+     * @return the repeated concatenation of the argument.
+     */
+    public static @NonNull String duplicate(String string, int count) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < count; i++) {
+            sb.append(string);
+        }
+        return sb.toString();
+    }
 
 	/**
      * Wrap an immutable list object around an array. The elements in the array

@@ -11,6 +11,7 @@
 
 package de.uka.iti.pseudo.environment;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -121,6 +122,29 @@ public class TypeVariableCollector {
         TypeVariableCollector tvc = new TypeVariableCollector();
         try {
             type.accept(tvc.typeVisitor, null);
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
+        }
+        return  makeSet(tvc.typeVariables);
+    }
+    
+    /**
+     * Collect type variables in a collection of types.
+     * 
+     * The collection is iterated and all found type variables are accumulated.
+     * 
+     * @param types
+     *            a collection of types
+     * 
+     * @return the set of type variable found types.
+     */
+    public static @DeepNonNull Set<TypeVariable> collect(@DeepNonNull Collection<Type> types) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            for (Type type : types) {
+                type.accept(tvc.typeVisitor, null);
+            }
         } catch (TermException e) {
             // never thrown in the code
             throw new Error(e);

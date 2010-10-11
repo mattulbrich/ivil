@@ -437,6 +437,28 @@ public class Environment {
     public Collection<Sort> getLocalSorts() {
         return sortMap.values();
     }
+    
+    /**
+     * gets a collection containing all sort symbols of this environment and
+     * all parenting environments.
+     * 
+     * <p>
+     * The result is a freshly created collection which you may modify.
+     * 
+     * @return a freshly created list of all sort symbols
+     */
+    public List<Sort> getAllSorts() {
+        List<Sort> sorts;
+
+        if (parentEnvironment == null)
+            sorts = new ArrayList<Sort>();
+        else
+            sorts = parentEnvironment.getAllSorts();
+
+        sorts.addAll(sortMap.values());
+        return sorts;
+    }
+
 
     /**
      * Gets a sort name which starts with the given prefix and which has not yet

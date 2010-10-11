@@ -129,7 +129,7 @@ public class Z3SMT implements DecisionProcedure {
     private void dumpTmp(String challenge) {
         Writer w = null;
         try {
-            File tmp = File.createTempFile("ivil", ".smt");
+            File tmp = File.createTempFile("ivil" + ((System.currentTimeMillis() / 1000) % 10000) + "_", ".smt");
             w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();
