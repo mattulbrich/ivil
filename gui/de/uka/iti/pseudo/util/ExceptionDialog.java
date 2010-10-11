@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -132,6 +133,7 @@ public class ExceptionDialog extends JDialog {
                             setVisible(false);
                         }
                     });
+                    getRootPane().setDefaultButton(jOK);
                 }
             }
             {
@@ -154,7 +156,10 @@ public class ExceptionDialog extends JDialog {
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(10, 10, 10, 10), 0, 0));
             StringWriter out = new StringWriter();
-            exception.printStackTrace(new PrintWriter(out));
+            PrintWriter pw = new PrintWriter(out);
+            exception.printStackTrace(pw);
+            verboseTrace(exception, pw);
+            
             jTextArea.setText(out.toString());
             // jTextArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             setSize(new Dimension(firstSize.width, firstSize.height * 2));
@@ -163,6 +168,23 @@ public class ExceptionDialog extends JDialog {
             pack();
             setSize(firstSize);
         }
+    }
+    
+    private void verboseTrace(Throwable throwable, PrintWriter pw) {
+        if(throwable == null) {
+            return;
+        }
+        
+        if (throwable instanceof CompoundException) {
+            CompoundException compEx = (CompoundException) throwable;
+            for (Exception ex : compEx) {
+                Log.stacktrace(ex);
+                pw.println("--- EMBEDDED EXCEPTION");
+                ex.printStackTrace(pw);
+                verboseTrace(ex, pw);
+            }
+        }
+        verboseTrace(throwable.getCause(), pw);
     }
 
     // from BasicOptionPaneUI.
@@ -237,6 +259,10 @@ public class ExceptionDialog extends JDialog {
         showExceptionDialog(
                 new JFrame(),
                 "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890");
+        
+        CompoundException cex = new CompoundException(Arrays.asList(new Exception("Ex1"), new RuntimeException("Ex2")));
+        
+        showExceptionDialog(new JFrame(), new Throwable("Test compound ex", cex));
         System.exit(0);
     }
 

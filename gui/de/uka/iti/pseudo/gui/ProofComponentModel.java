@@ -23,9 +23,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import com.sun.media.sound.PCMtoPCMCodec;
-import com.sun.org.apache.xpath.internal.axes.PredicatedNodeTest;
-
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -33,7 +30,6 @@ import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.util.Log;
-import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.TextInstantiator;
 
 /**

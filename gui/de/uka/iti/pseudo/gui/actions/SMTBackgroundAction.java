@@ -321,6 +321,7 @@ public final class SMTBackgroundAction extends BarAction implements
                             setFlashing(true);
                         }
                     } catch (Exception ex) {
+                        // TODO ... Put this onto the dispatcher thread;
                         ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                         JOptionPane.showMessageDialog(getParentFrame(), 
                                 "'Background SMT' will be switched off to stop repeating " +
