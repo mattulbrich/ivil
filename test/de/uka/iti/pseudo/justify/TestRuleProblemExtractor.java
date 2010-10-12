@@ -110,6 +110,24 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         testRule("skolemize3");
     }
 
+    public void test_type_quant_fails() throws Exception {
+        String name = "type_quant_fails";
+        Rule rule = startEnv.getRule(name);
+        if(rule == null)
+            fail("Unknown rule " + name);
+        
+        env = new Environment("none:wrap", startEnv);
+        RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
+        
+        try {
+            Term result = rpe.extractProblem();
+            System.out.println(result);
+            fail("Should have failed: Type quant not allowed");
+        } catch (Exception e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
+    }
                     
     private void testRule(String name) throws Exception {
 

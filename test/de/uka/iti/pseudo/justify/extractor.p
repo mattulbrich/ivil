@@ -182,7 +182,7 @@ rule skolemize
        "true = (\forall x as 'x; b(x)) -> false -> false"
 # ensure "bool b('x)" is available.  
    
-   
+    
 rule skolemize2
   find (\forall %x as int; %b)
   replace true
@@ -196,5 +196,9 @@ rule skolemize3
   find (\forall c; (\forall %x; f(%x) & %a & %b & %d) & %a) & %c & %d | (\exists %e; true)
   replace true
   tags expectedTranslation 
-        "true = ((\forall c as 'c; (\forall x as int; f(x) & a(c) & b(x, c) & d) & a(c)) & c1 & d |
-         (\exists e as skolem1; true)) -> false -> false"  
+        "true = ((\forall c as 'v3; (\forall x as int; f(x) & a(c) & b(x, c) & d) & a(c)) & c1 & d |
+         (\exists e as 'e; true)) -> false -> false"  
+
+rule type_quant_fails
+  find (\T_all 'a; %c)
+  replace true

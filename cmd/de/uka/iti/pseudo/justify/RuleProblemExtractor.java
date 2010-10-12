@@ -20,7 +20,6 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
@@ -36,8 +35,8 @@ import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.Variable;
@@ -174,6 +173,12 @@ public class RuleProblemExtractor {
             super.defaultVisitTerm(term);
         }
     }
+    
+    private static TermVisitor typeQuantDetector = new DefaultTermVisitor.DepthTermVisitor() {
+        public void visit(de.uka.iti.pseudo.term.TypeVariableBinding typeVariableBinding) throws TermException {
+            throw new TermException("Type quantification not supported at the moment");
+        };
+    };
 
     /**
      * Instantiates a new rule problem extractor.
@@ -218,6 +223,10 @@ public class RuleProblemExtractor {
             problem0 = extractRewriteProblem();
         else
             problem0 = extractLocatedProblem();
+        
+        //
+        // check for type quantification absence
+        problem0.visit(typeQuantDetector);
 
         //
         // collect info on used variables
@@ -480,7 +489,7 @@ public class RuleProblemExtractor {
         // make argument array
         int i = 0;
         for (BindableIdentifier dep : dependencies) {
-            argTypes[i] = dep.getType();
+            argTypes[i] = termInst.instantiate(dep.getType());
             if (dep instanceof SchemaVariable) {
                 SchemaVariable schema = (SchemaVariable) dep;
                 argTerms[i] = mapVars.get(schema.getName());
