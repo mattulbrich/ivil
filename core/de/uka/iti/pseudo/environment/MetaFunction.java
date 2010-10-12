@@ -49,8 +49,11 @@ public abstract class MetaFunction extends Function {
      *            
      * @param argumentTypes
      *            the types of the arguments of the function symbol
+     *            
+     * @throws EnvironmentException
+     *            if the symbol cannot be created 
      */
-    public MetaFunction(Type resultType, String name, Type... argumentTypes) {
+    public MetaFunction(Type resultType, String name, Type... argumentTypes) throws EnvironmentException {
         super(name, resultType, argumentTypes, false, false, ASTLocatedElement.BUILTIN);
         
         assert name.startsWith("$$");

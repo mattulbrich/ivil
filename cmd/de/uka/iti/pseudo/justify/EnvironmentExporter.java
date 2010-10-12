@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
@@ -36,10 +37,10 @@ public class EnvironmentExporter {
 
 	public EnvironmentExporter(File out) throws IOException {
 		pw = new PrintWriter(out);
-		printHeader(pw);
+		printHeader();
 	}
 
-	private void printHeader(PrintWriter pw2) {
+	private void printHeader() {
 		pw.println("# Created by RuleJustification");
 		pw.println("# " + new Date());
 		pw.println();
@@ -115,6 +116,17 @@ public class EnvironmentExporter {
 	    for (Axiom axiom : axioms) {
                 exportAxiom(axiom);
             }
+	}
+	
+	public void exportPropertiesFrom(Environment env) {
+	    Map<String, String> localProperties = env.getLocalProperties();
+	    if(!localProperties.isEmpty()) {
+	        pw.println("properties");
+	        for (Map.Entry<String, String> entry : localProperties.entrySet()) {
+	            pw.println("  " + entry.getKey() + " : \"" + entry.getValue() + "\"");
+	        }
+	        pw.println();
+	    }
 	}
 
 

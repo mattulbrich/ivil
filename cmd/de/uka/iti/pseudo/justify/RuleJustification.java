@@ -78,6 +78,7 @@ public class RuleJustification {
         eex.exportIncludes(imports);
         eex.exportDefinitionsFrom(env);
         eex.exportAxiomsFrom(env);
+        eex.exportPropertiesFrom(env);
 
         for (Rule r : env.getLocalRules()) {
             if (r == rule)

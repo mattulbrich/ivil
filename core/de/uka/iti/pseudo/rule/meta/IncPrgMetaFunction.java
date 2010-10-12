@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -24,7 +25,7 @@ public class IncPrgMetaFunction extends MetaFunction {
     
     private static final Type BOOL = Environment.getBoolType();
     
-    public IncPrgMetaFunction() {
+    public IncPrgMetaFunction() throws EnvironmentException {
         super(BOOL, "$$incPrg", BOOL);
     }
 

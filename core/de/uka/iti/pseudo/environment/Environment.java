@@ -365,18 +365,34 @@ public class Environment {
         else
             return false;
     }
+
+    /**
+     * Retrieves one particular property from this environment.
+     * 
+     * Delegate to the parent environment if there is one and the property is
+     * not set in this environment
+     * 
+     * @param name
+     *            Name of the property to be retrieved
+     *            
+     * @return <code>null</code> if property was not specified
+     */
+    public String getProperty(@NonNull String name) {
+        String rval = propertiesMap.get(name);
+        if(rval == null && parentEnvironment != null) {
+            rval = parentEnvironment.getProperty(name);
+        }
+        
+        return rval;
+    }
     
     /**
+     * Retrieves a map of all locally defined properties.
      * 
-     * @param name Name of the property to be retrieved
-     * @return null if property was not specified
+     * @return an unmodifiable map of properties.
      */
-    public String getProperty(String name) {
-        String rval = propertiesMap.get(name);
-        if(null == rval)
-            return null!=parentEnvironment?parentEnvironment.getProperty(name):null;
-        else
-            return rval;
+    public Map<String, String> getLocalProperties() {
+        return Collections.unmodifiableMap(propertiesMap);
     }
 
     //

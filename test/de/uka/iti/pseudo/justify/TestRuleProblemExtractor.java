@@ -38,6 +38,10 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
 
     private Environment startEnv;
     
+    static {
+        Term.SHOW_TYPES = true;
+    }
+    
     public TestRuleProblemExtractor() {
         startEnv = loadEnv(); 
     }
@@ -69,6 +73,10 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
     public void test_rename_schemas2() throws Exception {
         testRule("rename_schemas2");
     }
+    
+    public void test_free_numeric_schema_type() throws Exception {
+        testRule("free_numeric_schema_type");
+    }
 
     public void test_rename_schema3() throws Exception {
         testRule("rename_schema3");
@@ -81,10 +89,27 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
     public void test_rename_schema5() throws Exception {
         testRule("rename_schema5");
     }
+    
+    public void test_schema_type1() throws Exception {
+        testRule("schema_type1");
+    }
+    
+    public void test_schema_type2() throws Exception {
+        testRule("schema_type2");
+    }
 
     public void test_skolemize() throws Exception {
         testRule("skolemize");
     }
+    
+    public void test_skolemize2() throws Exception {
+        testRule("skolemize2");
+    }
+    
+    public void test_skolemize3() throws Exception {
+        testRule("skolemize3");
+    }
+
                     
     private void testRule(String name) throws Exception {
 
@@ -108,7 +133,7 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             System.err.println(expected);
             System.err.println(result);
             ex.printStackTrace();
-            throw ex;
+            throw new Exception("Exception parsing expectation", ex);
         }
 
         if(!result.equals(expectedTerm)) {
@@ -127,6 +152,8 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             System.out.println(pp.print(result));
         }
 
+        // String comparison is better in eclupse for inspection :)
+        assertEquals(expectedTerm.toString(true), result.toString(true));
         assertEquals(expectedTerm, result);
     }
 }

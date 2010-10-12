@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
@@ -31,7 +32,7 @@ public class JmpPrgMetaFunction extends MetaFunction {
     private static final Type BOOL = Environment.getBoolType();
     private static final Type INT= Environment.getIntType();
     
-    public JmpPrgMetaFunction() {
+    public JmpPrgMetaFunction() throws EnvironmentException {
         super(BOOL, "$$jmpPrg", BOOL, INT);
     }
 

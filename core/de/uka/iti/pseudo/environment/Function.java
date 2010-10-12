@@ -11,6 +11,8 @@
 
 package de.uka.iti.pseudo.environment;
 
+import java.util.Arrays;
+
 import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Type;
@@ -76,9 +78,9 @@ public class Function {
      * @param name
      *            an identifier (possibly beginning with $)
      * @param resultType
-     *            the result type of the function
+     *            the result type of the function, must not contain schema types
      * @param argumentTypes
-     *            the argument types
+     *            the argument types, must not contain schema types
      * @param unique
      *            true if this is unique
      * @param assignable
@@ -88,7 +90,7 @@ public class Function {
      */
     public Function(@NonNull String name, @NonNull Type resultType,
             @NonNull Type[] argumentTypes, boolean unique, boolean assignable, 
-            @NonNull ASTLocatedElement declaration) {
+            @NonNull ASTLocatedElement declaration) throws EnvironmentException {
         this.name = name;
         this.resultType = resultType;
         this.argumentTypes = argumentTypes;
@@ -96,8 +98,23 @@ public class Function {
         this.unique = unique;
         this.assignable = assignable;
         
-        assert !assignable || getArity() == 0;
-        assert !unique || !assignable;
+        if(assignable && getArity() != 0)
+            throw new EnvironmentException("Assignables must have arity 0: " + name);
+        
+        if(unique && assignable)
+            throw new EnvironmentException("Assignables must not be unique: " + name);
+        
+        if (!TypeVariableCollector.collectSchema(resultType).isEmpty())
+            throw new EnvironmentException(
+                    "Result types must no contain schema types: " + resultType
+                            + " for " + name);
+        
+        if(!TypeVariableCollector.collectSchema(Arrays.asList(argumentTypes)).isEmpty()) {
+            throw new EnvironmentException(
+                    "Argument types must no contain schema types: "
+                            + Arrays.asList(argumentTypes)
+                            + " for " + name);
+        }
     }
 
     /**

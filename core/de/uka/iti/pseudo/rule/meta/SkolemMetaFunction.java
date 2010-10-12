@@ -32,7 +32,7 @@ public class SkolemMetaFunction extends MetaFunction {
     public static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
         public String getLocation() { return "SKOLEMISED"; }};
         
-    public SkolemMetaFunction() {
+    public SkolemMetaFunction() throws EnvironmentException {
         super(TypeVariable.ALPHA, "$$skolem", TypeVariable.ALPHA);
     }
 
@@ -53,10 +53,10 @@ public class SkolemMetaFunction extends MetaFunction {
         
         Function newFunction = env.getFunction(name);
         if(newFunction == null) {
-            newFunction = new Function(name, application.getType(), new Type[0], 
-                    false, false, SKOLEM);
-
             try {
+                newFunction = new Function(name, application.getType(), new Type[0], 
+                    false, false, SKOLEM);
+            
                 env.addFunction(newFunction);
             } catch (EnvironmentException e) {
                 throw new TermException(e);

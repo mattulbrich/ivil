@@ -12,9 +12,35 @@ package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 
 public class TestApplication extends TestCaseWithEnv {
 
+    // no place to put it but here
+    public void testSchemaInFunctionDef() throws Exception {
+        try {
+            Function f = new Function("fail", new SchemaType("sch"),
+                    new Type[0],
+                    false, false, ASTLocatedElement.CREATED);
+            System.out.println(f);
+            fail("Should fail due to schema types");
+        } catch (Exception e) {
+            if (VERBOSE)
+                e.printStackTrace();
+        }
+        try {
+            Function f = new Function("fail", Environment.getBoolType(),
+                    new Type[] { new SchemaType("sch2") }, false, false,
+                    ASTLocatedElement.CREATED);
+            System.out.println(f);
+            fail("Should fail due to schema types");
+        } catch (Exception e) {
+            if (VERBOSE)
+                e.printStackTrace();
+        }
+    }
+    
     // due to a bug
     public void testCreateApplicationWithTypes() throws Exception {
         Application arb = new Application(env.getFunction("arb"), new TypeVariable("a"));

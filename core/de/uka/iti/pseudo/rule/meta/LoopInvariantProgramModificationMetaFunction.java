@@ -102,7 +102,7 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
     private static final Type BOOL = Environment.getBoolType();
     private static final Type INT= Environment.getIntType();
     
-    public LoopInvariantProgramModificationMetaFunction() {
+    public LoopInvariantProgramModificationMetaFunction() throws EnvironmentException {
         super(BOOL, "$$loopInvPrgMod", BOOL, BOOL, INT);
     }
     
@@ -260,7 +260,7 @@ class LoopModifier {
      * variant (variant != null) and a term has not yet been set from outside
      * (e.g. during testing).
      */
-    private void makeVarAtPreSymbol() throws TermException {
+    private void makeVarAtPreSymbol() throws TermException, EnvironmentException {
         if(varAtPre == null && variant != null) {
             String newname = env.createNewFunctionName("varAtPre");
             Function varAtPreSym = new Function(newname, Environment.getIntType(), new Type[0],

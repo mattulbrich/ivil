@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.rule.meta;
 import static de.uka.iti.pseudo.term.TypeVariable.ALPHA;
 import static de.uka.iti.pseudo.term.TypeVariable.BETA;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -20,7 +21,7 @@ public class SpecialiseMetaFunction extends MetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
 
-    public SpecialiseMetaFunction() {
+    public SpecialiseMetaFunction() throws EnvironmentException {
         //       toReplace, replaceWith, replaceIn, replaceTermAndType
         super(BOOL, "$$polymorphicSpec", ALPHA, BETA, BOOL, BOOL);
     }

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Binder;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;
@@ -58,8 +59,9 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
 
     /**
      * Instantiates a new update simplificator.
+     * @throws EnvironmentException 
      */
-    public AbstractUpdSimplMetaFunction(String name) {
+    public AbstractUpdSimplMetaFunction(String name) throws EnvironmentException {
         super(TypeVariable.ALPHA, name, TypeVariable.ALPHA);
     }
 

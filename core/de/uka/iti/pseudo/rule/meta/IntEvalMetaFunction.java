@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.rule.meta;
 import java.math.BigInteger;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
@@ -25,7 +26,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 // TODO Documentation needed
 public class IntEvalMetaFunction extends MetaFunction {
     
-    public IntEvalMetaFunction() {
+    public IntEvalMetaFunction() throws EnvironmentException {
         super(TypeVariable.ALPHA, "$$intEval", TypeVariable.ALPHA);
     }
 

@@ -14,6 +14,7 @@ package de.uka.iti.pseudo.environment;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import nonnull.DeepNonNull;
@@ -191,6 +192,30 @@ public class TypeVariableCollector {
         }
         return makeSet(tvc.schemaTypeVariables);
     }
+    
+    /**
+     * Collect schema type in a collection of types.
+     * 
+     * The collection is iterated and all found schema type are accumulated.
+     * 
+     * @param types
+     *            a collection of types
+     * 
+     * @return the set of schema type found types.
+     */
+    public static Set<SchemaType> collectSchema(@DeepNonNull Collection<Type> types) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            for (Type type : types) {
+                type.accept(tvc.typeVisitor, null);
+            }
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
+        }
+        return makeSet(tvc.schemaTypeVariables);
+    }
+
     
     /**
      * Turns a <code>null</code> into an empty set.

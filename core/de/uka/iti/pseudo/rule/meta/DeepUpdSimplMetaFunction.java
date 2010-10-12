@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -20,7 +21,7 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 public class DeepUpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
 
-    public DeepUpdSimplMetaFunction() {
+    public DeepUpdSimplMetaFunction() throws EnvironmentException {
         super("$$deepUpdSimpl");
     }
 

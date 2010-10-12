@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.rule.meta;
 import static de.uka.iti.pseudo.term.TypeVariable.ALPHA;
 import static de.uka.iti.pseudo.term.TypeVariable.BETA;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
@@ -25,7 +26,7 @@ import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 // TODO Documentation needed
 public class SubstMetaFunction extends MetaFunction {
 
-    public SubstMetaFunction() {
+    public SubstMetaFunction() throws EnvironmentException {
         //       toReplace, replaceWith, replaceIn
         super(ALPHA, "$$subst", BETA, BETA, ALPHA );
     }
