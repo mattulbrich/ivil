@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -41,21 +40,40 @@ public class LocatedTerm extends Pair<Term, MatchingLocation> {
     public MatchingLocation getMatchingLocation() {
         return snd();
     }
-    
+
     /**
-     * convert the term to a string and add the sequent separator
-     * "|-" either before or behind the term if appropriate
+     * convert the term to a string and add the sequent separator "|-" either
+     * before or behind the term if appropriate
+     * 
+     * return a term with typing information iff {@link Term#SHOW_TYPES} is set
+     * to true.
      * 
      * @return located term as string
      */
     @Override public String toString() {
+        return toString(Term.SHOW_TYPES);
+    }
+    
+    /**
+     * convert the term to a string and add the sequent separator "|-" either
+     * before or behind the term if appropriate
+     * 
+     * return a term with typing information iff {@code showTypes} is set
+     * to true.
+     * 
+     * @param showTypes
+     *            iff true print the located term with typing information
+     * 
+     * @return located term as string
+     */
+    public String toString(boolean showTypes) {
         switch(getMatchingLocation()) {
         case ANTECEDENT:
             return getTerm() + " |-";
         case SUCCEDENT:
             return "|- " + getTerm();
         case BOTH:
-            return getTerm().toString();
+            return getTerm().toString(showTypes);
         }
         // unreachable
         throw new Error();

@@ -40,7 +40,9 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -105,9 +107,13 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         }
         
         try {
+            ToplevelCheckVisitor tcv = new ToplevelCheckVisitor();
+            term.visit(tcv);
             Axiom axiom = new Axiom(name, term, properties, arg);
             env.addAxiom(axiom);
         } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
+        } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
         

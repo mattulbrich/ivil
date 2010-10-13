@@ -141,12 +141,12 @@ public class EnvironmentExporter {
         
 		LocatedTerm findClause = r.getFindClause();
         if(findClause != null) {
-            pw.println("  find " + findClause);
+            pw.println("  find " + findClause.toString());
         }
         
         List<LocatedTerm> assumptions = r.getAssumptions();
         for (LocatedTerm lt : assumptions) {
-            pw.println("  assume " + lt);
+            pw.println("  assume " + lt.toString());
         }
         
         List<WhereClause> whereClauses = r.getWhereClauses();

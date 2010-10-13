@@ -14,7 +14,6 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.term.creation.Typing;
 import de.uka.iti.pseudo.util.SelectList;

@@ -140,7 +140,7 @@ public abstract class Term {
 	
 	/**
 	 * depending on {@link #SHOW_TYPES} print the term
-	 * woth or without typing information
+	 * with or without typing information
 	 * 
 	 * @return string for this term
 	 */
