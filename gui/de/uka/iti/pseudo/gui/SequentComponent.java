@@ -266,7 +266,7 @@ public class SequentComponent extends JPanel implements
         @Override 
         public void mouseClicked(MouseEvent e) {
 
-            if(SwingUtilities.isLeftMouseButton(e)) {
+            if (SwingUtilities.isLeftMouseButton(e) && !proofCenter.getCurrentProofNode().isClosed()) {
                 try {
                     TermComponent tc = (TermComponent) e.getSource();
                     TermSelector termSelector = tc.getTermAt(e.getPoint());

@@ -249,7 +249,7 @@ public class ProofCenter implements Observer {
     public @NonNull MainWindow getMainWindow() {
         return mainWindow;
     }
-    
+
     /**
      * Indicate that a proof node has been selected.
      * 
@@ -258,13 +258,17 @@ public class ProofCenter implements Observer {
      * thread. It may or may not have already been executed when this method
      * returns.
      * 
-     * @see ProofNodeSelectionListener#proofNodeSelected(ProofNode)
+     * This method will fire a change, even if the same node has been selected,
+     * so listeners must not invoke this method.
      * 
      * @param node
      *            the node to be selected
      */
     public void fireSelectedProofNode(@NonNull ProofNode node) {
-        firePropertyChange(SELECTED_PROOFNODE, node);
+        assert SwingUtilities.isEventDispatchThread();
+        Log.log("Selected node " + node);
+        generalProperties.put(SELECTED_PROOFNODE, node);
+        changeSupport.firePropertyChange(SELECTED_PROOFNODE, null, node);
     }
 
     /**

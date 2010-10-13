@@ -59,6 +59,7 @@ public class GoalList extends JList implements PropertyChangeListener, Notificat
 
         // display initial goals
         model.update();
+        setSelectedValue(proof.getRoot(), true);
     }
 
     @SuppressWarnings("serial")

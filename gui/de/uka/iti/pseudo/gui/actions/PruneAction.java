@@ -50,6 +50,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
         
         // no need to select new goal.
         getProofCenter().fireProoftreeChangedNotification(false);
+        getProofCenter().fireSelectedProofNode(proofNode);
         Log.leave();
     }
 
