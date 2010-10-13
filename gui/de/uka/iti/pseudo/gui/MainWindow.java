@@ -151,7 +151,7 @@ public class MainWindow extends JFrame {
                 public void valueChanged(ListSelectionEvent e) {
                     if(!e.getValueIsAdjusting()) {
                         ProofNode proofNode = goalList.getSelectedProofNode();
-                        if(proofNode != null) {
+                        if (proofNode != null && proofNode != proofCenter.getCurrentProofNode()) {
                             proofCenter.fireSelectedProofNode(proofNode);
                         }
                     }
@@ -165,7 +165,7 @@ public class MainWindow extends JFrame {
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
                     ProofNode selectedProofNode = proofComponent.getSelectedProofNode();
-                    if(selectedProofNode != null)
+                    if (selectedProofNode != null && selectedProofNode != proofCenter.getCurrentProofNode())
                         proofCenter.fireSelectedProofNode(selectedProofNode);
                 }
             });

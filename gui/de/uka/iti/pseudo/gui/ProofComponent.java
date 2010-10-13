@@ -175,37 +175,45 @@ public class ProofComponent extends JTree {
                     }
                 });
 
-        proofCenter.addNotificationListener(ProofCenter.PROOFNODE_HAS_CHANGED,
-                new NotificationListener() {
-                    @Override
-                    public void handleNotification(NotificationEvent event) {
-                        assert event.countParameters() == 1;
-                        ProofNode pn = (ProofNode) event.getParameter(0);
-                        proofModel.addChangedProofNode(pn);
-                    }
-                });
+        proofCenter.addNotificationListener(ProofCenter.PROOFNODE_HAS_CHANGED, new NotificationListener() {
+            @Override
+            public void handleNotification(NotificationEvent event) {
+                assert event.countParameters() == 1;
+                ProofNode pn = (ProofNode) event.getParameter(0);
+                proofModel.addChangedProofNode(pn);
 
-        proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED,
-                new NotificationListener() {
-                    public void handleNotification(NotificationEvent event) {
-                        ProofNode selection = getSelectedProofNode();
-                        
-                        // update the model
-                        proofModel.publishChanges();
-                        
-                        // try to reestablish the selection!
-//                        ProofTreeNode proofTreeNode = proofModel.getProofTreeNode(selection, false);
-//                        if(proofTreeNode != null) {
-//                            TreePath path = proofTreeNode.getPath();
-//                            Log.log(Log.VERBOSE, "Reselecting " + selection
-//                                    + " in tree; path=" + path);
-//                            if (path != null) {
-//                                setSelectionPath(path);
-//                            }
-//                        }
-                        repaint();
-                    }
-                });
+                proofModel.publishChanges();
+
+                // if no node was selected, select root
+                if (selectionModel.isSelectionEmpty()) {
+                    selectionModel.setSelectionPath(proofModel.getPath(proofCenter.getProof().getRoot(), true));
+                }
+                repaint();
+            }
+        });
+
+        // proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED,
+        // new NotificationListener() {
+        // public void handleNotification(NotificationEvent event) {
+        // ProofNode selection = getSelectedProofNode();
+        //
+        // // update the model
+        // proofModel.publishChanges();
+        //
+        // // try to reestablish the selection!
+        // // ProofTreeNode proofTreeNode =
+        // proofModel.getProofTreeNode(selection, false);
+        // // if(proofTreeNode != null) {
+        // // TreePath path = proofTreeNode.getPath();
+        // // Log.log(Log.VERBOSE, "Reselecting " + selection
+        // // + " in tree; path=" + path);
+        // // if (path != null) {
+        // // setSelectionPath(path);
+        // // }
+        // // }
+        // repaint();
+        // }
+        // });
 
     }
 
