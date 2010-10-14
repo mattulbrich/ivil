@@ -35,12 +35,12 @@ public class StartupWindow extends JFrame {
 
     private void makeGUI() throws IOException {
         {
-            URL resource = getClass().getResource("actions/menu.properties");
+            URL resource = getClass().getResource("actions/menu.xml");
             if(resource == null)
-                throw new IOException("resource actions/menu.properties not found");
+                throw new IOException("resource actions/menu.xml not found");
             barManager = new BarManager(null, resource);
             barManager.putProperty(BarAction.PARENT_FRAME, this);
-            setJMenuBar(barManager.makeMenubar("menubar.startup"));
+            setJMenuBar(barManager.makeMenubar("startup.menubar"));
         }
         getContentPane().add(new JLabel(makeImage()), BorderLayout.CENTER);
         setDefaultCloseOperation(EXIT_ON_CLOSE);

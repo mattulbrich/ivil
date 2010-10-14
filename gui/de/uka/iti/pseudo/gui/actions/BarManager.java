@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -12,8 +11,10 @@ package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,8 +33,10 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 
@@ -206,12 +209,12 @@ public class BarManager {
     /**
      * The property name for the default menubar.
      */
-    private static final String DEFAULT_MENUBAR_PROPERTY = "menubar";
+//    private static final String DEFAULT_MENUBAR_PROPERTY = "menubar";
     
     /**
      * The property name for the default toolbar.
      */
-    private static final String DEFAULT_TOOLBAR_PROPERTY = "toolbar";
+//    private static final String DEFAULT_TOOLBAR_PROPERTY = "toolbar";
     
     /**
      * The general action listener which is set on all created buttons, menu
@@ -238,8 +241,8 @@ public class BarManager {
      * The action cache stores all created objects so that objected created once
      * will be reused.
      */
-    private Map<Class<?>, Action> actionCache = 
-        new HashMap<Class<?>, Action>();
+    private Map<String, Action> actionCache = 
+        new HashMap<String, Action>();
 
     /**
      * The package prefix if one is provided in the properties, null only in the
@@ -251,7 +254,7 @@ public class BarManager {
      * A flag to indicate whether toolbar buttons should have text or images
      * only.
      */
-    private boolean toolbarOnlyIcons;
+//    private boolean toolbarOnlyIcons;
     
     /**
      * Instantiates a new bar manager. The configuration is to be read from a
@@ -272,9 +275,17 @@ public class BarManager {
      */
     private void prepareProperties() throws IOException {
         if(properties == null) {
-            properties = new Properties();
-            InputStream stream = resource.openStream();
-            properties.load(stream);
+            try {
+                // first try it as an xml document
+                properties = 
+                    NestedXMLPropertyReader.read(resource.openStream(), true);
+            } catch(IOException ex) {
+                // fall back in error case
+                Log.stacktrace(ex);
+                properties = new Properties();
+                InputStream stream = resource.openStream();
+                properties.load(stream);
+            }
             
             properties.put("SEPARATOR", "SEPARATOR");
             
@@ -284,7 +295,7 @@ public class BarManager {
             else
                 packagePrefix = packagePrefix + ".";
             
-            toolbarOnlyIcons = "true".equals(properties.getProperty("toolbar.onlyIcons"));
+//            toolbarOnlyIcons = "true".equals(properties.getProperty("toolbar.onlyIcons"));
         }
     }
     
@@ -297,9 +308,9 @@ public class BarManager {
      * @throws IOException
      *             on read errors, or configuration error
      */
-    public JToolBar makeToolbar() throws IOException {
-        return makeToolbar(DEFAULT_TOOLBAR_PROPERTY);
-    }
+//    public JToolBar makeToolbar() throws IOException {
+//        return makeToolbar(DEFAULT_TOOLBAR_PROPERTY);
+//    }
     
     /**
      * Make a toolbar from the property resources. It uses the key the
@@ -320,9 +331,12 @@ public class BarManager {
         JToolBar result = new JToolBar();
         
         String[] elements = getPropertyOrFail(propertyName).split(" +");
+
+        String val = properties.getProperty(propertyName + ".onlyIcons");
+        boolean toolbarOnlyIcons = "true".equals(val);
         
         for (String element : elements) {
-            result.add(makeToolbarItem(element));
+            result.add(makeToolbarItem(element, toolbarOnlyIcons));
         }
         
         return result;
@@ -333,12 +347,13 @@ public class BarManager {
      * 
      * SEPARATOR, ACTION, TOGGLE_ACION, TODO, COMMAND
      */
-    private JComponent makeToolbarItem(String element)
+    private JComponent makeToolbarItem(String element, boolean toolbarOnlyIcons)
             throws IOException {
         
         String value = getPropertyOrFail(element);
         String args[] = value.split(" ", 3);
         JComponent result;
+        String val;
         
         try {
             if(args[0].equals("SEPARATOR")) {
@@ -352,7 +367,8 @@ public class BarManager {
                 
             } else if(args[0].equals("ACTION")) {
                 String className = args[1]; 
-                Action action = makeAction(className);
+                String param = args.length > 2 ? args[2] : null;
+                Action action = makeAction(element, param, className);
                 JButton button = new JButton(action);
                 
                 if(actionListener != null)
@@ -365,7 +381,8 @@ public class BarManager {
                 
             } else if(args[0].equals("TOGGLE_ACTION")) {
                 String className = args[1]; 
-                Action action = makeAction(className);
+                String param = args.length > 2 ? args[2] : null;
+                Action action = makeAction(element, param, className);
                 JToggleButton button = new JToggleButton(action);
                 
                 if(actionListener != null)
@@ -381,7 +398,7 @@ public class BarManager {
                 JButton button = new JButton();
                 button.setActionCommand(command);
                 
-                String val =  properties.getProperty(element + ".text");
+                val =  properties.getProperty(element + ".text");
                 if(val != null && !toolbarOnlyIcons)
                     button.setText(val);
                 
@@ -411,7 +428,7 @@ public class BarManager {
                 JButton button = new JButton(value.substring(5));
                 button.setEnabled(false);
                 
-                String val = properties.getProperty(element + ".icon");
+                val = properties.getProperty(element + ".icon");
                 if(val != null) {
                     String location = "/" + packagePrefix.replace('.', '/') + val;
                     URL systemResource = BarManager.class.getResource(location);
@@ -445,9 +462,9 @@ public class BarManager {
      * @throws IOException
      *             on read errors, or configuration error
      */
-    public JMenuBar makeMenubar() throws IOException {
-        return makeMenubar(DEFAULT_MENUBAR_PROPERTY);
-    }
+//    public JMenuBar makeMenubar() throws IOException {
+//        return makeMenubar(DEFAULT_MENUBAR_PROPERTY);
+//    }
     
     /**
      * Make a menubar from the property resources. It uses the key the specified
@@ -550,8 +567,9 @@ public class BarManager {
                 result = makeMenu(property);
 
             } else if(args[0].equals("ACTION")) {
-                String className = args[1]; 
-                Action action = makeAction(className);
+                String className = args[1];
+                String param = args.length > 2 ? args[2] : null;
+                Action action = makeAction(property, param, className);
                 JMenuItem menuItem = new JMenuItem(action);
                 
                 if(actionListener != null)
@@ -561,7 +579,8 @@ public class BarManager {
 
             } else if(args[0].equals("RADIO_ACTION")) {
                 String className = args[1];
-                Action action = makeAction(className);
+                String param = args.length > 2 ? args[2] : null;
+                Action action = makeAction(property, param, className);
                 JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(action);
                 if(actionListener != null)
                     menuItem.addActionListener(actionListener);
@@ -570,7 +589,8 @@ public class BarManager {
 
             } else if(args[0].equals("TOGGLE_ACTION")) {
                 String className = args[1];
-                Action action = makeAction(className);
+                String param = args.length > 2 ? args[2] : null;
+                Action action = makeAction(property, param, className);
                 JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(action);
                 if(actionListener != null)
                     menuItem.addActionListener(actionListener);
@@ -646,54 +666,138 @@ public class BarManager {
         return value;
     }
 
+    /**
+     * Create an action by a property key.
+     * 
+     * @param property
+     *            a key to the properties
+     * 
+     * @return the action corresponding to the key.
+     * 
+     * @throws IOException
+     *             Signals that an I/O exception has occurred, or that the
+     *             property is not set or not an action property.
+     */
+    public Action makeAction(String property) throws IOException {
+        String value = getPropertyOrFail(property);
+        String args[] = value.split(" ", 3);
+        
+        if(args.length < 2) {
+            throw new IOException("The property must at least have two elements: " + property);
+        }
+        
+        if(!"ACTION".equals(args[0])) {
+            throw new IOException("The property must be an ACTION: " + property);
+        }
+        
+        String param = args.length > 2 ? args[2] : null;
+
+        return makeAction(property, param, args[1]);
+    }
 
     /**
      * Get an action object for a class name.
      * 
      * <p>
-     * The object is created, has the properties set and is initialised (if it
-     * implements {@link InitialisingAction}.)
+     * If parameter is <code>null</code>: The object is created, has the
+     * properties set and is initialised (if it implements
+     * {@link InitialisingAction}.)
      * 
      * <p>
-     * If the method has been called earlier with the same argument, no new
+     * If parameter is not <code>null</code>: The object is created and the
+     * passed parameter is used as parameter to the constructor. The action has
+     * to implement a corresponding constructor!
+     * 
+     * <p>
+     * If the method has been called earlier with the same arguments, no new
      * object is created, but the old is returned.
      * 
      * @param className
      *            the class name
      * 
-     * @return the initilised action
+     * @param parameter
+     *            the parameter to give to the action.
+     *            
+     * @return the initialised action
      * 
      * @throws IOException
      *             wrapping any exception
      */
-    public @NonNull Action makeAction(@NonNull String className) throws IOException {
+    private @NonNull Action makeAction(@NonNull String prefix,
+            @Nullable String parameter,
+            @NonNull String className) throws IOException {
         
         if(!className.contains("."))
             className = packagePrefix + className;
         
         try {
-            Class<?> clss = Class.forName(className);
-            
-            Action cached = actionCache.get(clss);
+            Action cached = actionCache.get(prefix);
             if(cached != null) {
                 return cached;
             }
             
-            Action action = (Action) clss.newInstance();
-            actionCache.put(clss, action);
-            
-            for (Entry<String, Object> entry : defaultActionProperties.entrySet()) {
-                action.putValue(entry.getKey(), entry.getValue());
+            Class<?> clss = Class.forName(className);
+            Action action;
+            if(parameter == null) {
+                action = (Action) clss.newInstance();
+            } else {
+                Constructor<?> constr = clss.getConstructor(String.class);
+                action = (Action) constr.newInstance(parameter);
             }
             
-            if (action instanceof InitialisingAction) {
-                InitialisingAction initAction = (InitialisingAction) action;
-                initAction.initialised();
-            }
+            initialiseAction(action, prefix);
+            
+            actionCache.put(prefix, action);
 
             return action;
         } catch (Exception e) {
             throw new IOException("cannot create Action instance of " + className, e);
+        }
+    }
+    
+    /**
+     * initialise an action. That is: Set all default action properties and, if
+     * the action is an instance of {@link InitialisingAction}, call initialised
+     * on it.
+     * @param prefix 
+     */
+    private void initialiseAction(Action action, String prefix) {
+        for (Entry<String, Object> entry : defaultActionProperties.entrySet()) {
+            action.putValue(entry.getKey(), entry.getValue());
+        }
+        
+        String val = properties.getProperty(prefix + ".text");
+        if(val != null) {
+            action.putValue(Action.NAME, val);
+        }
+        
+        val = properties.getProperty(prefix + ".icon");
+        if(val != null) {
+            String location = packagePrefix.replace('.', '/') + val;
+            action.putValue(Action.SMALL_ICON, 
+                   GUIUtil.makeIcon(ClassLoader.getSystemResource(location)));
+        }
+        
+        val = properties.getProperty(prefix + ".tooltip");
+        if(val != null) {
+            action.putValue(Action.SHORT_DESCRIPTION, val);
+        }
+        
+        val = properties.getProperty(prefix + ".mnemonic");
+        if(val != null) {
+            int value = (val.charAt(0) - 'A') + KeyEvent.VK_A;
+            action.putValue(Action.MNEMONIC_KEY, value);
+        }
+        
+        val = properties.getProperty(prefix + ".accelerator");
+        if(val != null) {
+            KeyStroke keyStroke = KeyStroke.getKeyStroke(val);
+            action.putValue(Action.ACCELERATOR_KEY, keyStroke);
+        }
+        
+        if (action instanceof InitialisingAction) {
+            InitialisingAction initAction = (InitialisingAction) action;
+            initAction.initialised();
         }
     }
     

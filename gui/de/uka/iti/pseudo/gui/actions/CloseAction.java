@@ -37,14 +37,6 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class CloseAction extends BarAction 
     implements InitialisingAction, WindowListener, PropertyChangeListener {
 
-    public CloseAction() {
-        super("Close", GUIUtil.makeIcon(CloseAction.class.getResource("img/bullet_orange.png")));
-        putValue(ACTION_COMMAND_KEY, "close");
-        putValue(SHORT_DESCRIPTION, "closes the current window");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-    }
-    
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if(proofCenter != null)

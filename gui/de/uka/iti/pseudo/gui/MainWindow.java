@@ -83,7 +83,7 @@ public class MainWindow extends JFrame {
     void makeGUI() throws IOException {
 
         // setup the bar manager
-        URL resource = getClass().getResource("actions/menu.properties");
+        URL resource = getClass().getResource("actions/menu.xml");
         if(resource == null)
             throw new IOException("resource actions/menu.properties not found");
         barManager = new BarManager(null, resource);
@@ -201,14 +201,14 @@ public class MainWindow extends JFrame {
             sourceTabDock.addDockable(dock, new Position(0));
         }
         {
-            setJMenuBar(barManager.makeMenubar());
-            getContentPane().add(barManager.makeToolbar(), BorderLayout.NORTH);
+            setJMenuBar(barManager.makeMenubar("prover.menubar"));
+            getContentPane().add(barManager.makeToolbar("prover.toolbar"), BorderLayout.NORTH);
         }
         {
             // ExitAction is actually also a WindowListener. ...
             // we call the bar manager so that no unnecessary copy 
             // is created if it already exists.
-            addWindowListener((WindowListener) barManager.makeAction(CloseAction.class.getName()));    
+            addWindowListener((WindowListener) barManager.makeAction("general.close"));    
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
         setSize(1000, 700);

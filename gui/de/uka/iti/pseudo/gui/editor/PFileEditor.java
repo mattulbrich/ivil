@@ -20,6 +20,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,12 +49,12 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.TokenMaker;
+import org.fife.ui.rsyntaxtextarea.modes.PlainTextTokenMaker;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
-import de.uka.iti.pseudo.gui.actions.CloseEditorAction;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -64,8 +66,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-// TODO in some future: syntax highlighting
-
+// TODO DOC
 public class PFileEditor extends JFrame implements ActionListener {
     
     private static final long serialVersionUID = 8116827588545997986L;
@@ -98,6 +99,8 @@ public class PFileEditor extends JFrame implements ActionListener {
     };
     private int errorLine;
     private boolean hasChanged;
+    public boolean syntaxChecking = true;
+    private Object syntaxHighlighting = true;
 
     private class UpdateThread extends Thread {
         public UpdateThread() {
@@ -123,9 +126,11 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
         
         public void changed() {
-            synchronized(lock) {
-                interrupt();
-                lock.notify();
+            if(syntaxChecking ) {
+                synchronized(lock) {
+                    interrupt();
+                    lock.notify();
+                }
             }
         }
     }
@@ -138,6 +143,13 @@ public class PFileEditor extends JFrame implements ActionListener {
     public PFileEditor(@Nullable File file) throws IOException {
         init();
         loadFile(file);
+        
+        // send property change to wordwrap to the editor.
+        addPropertyChangeListener("editor.wordwrap", new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                editor.setLineWrap((Boolean) evt.getNewValue());
+            }
+        });
     }
 
 
@@ -145,20 +157,13 @@ public class PFileEditor extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
         Container contentPane = getContentPane();
         {
-            URL resource = BarManager.class.getResource("menu.properties");
+            URL resource = BarManager.class.getResource("menu.xml");
             if(resource == null)
-                throw new IOException("cannot find menu.properties");
+                throw new IOException("cannot find menu.xml");
             
             barManager = new BarManager(this, resource);
             barManager.putProperty(BarAction.PARENT_FRAME, this);
             barManager.putProperty(BarAction.EDITOR_FRAME, this);
-            JToolBar toolbar = barManager.makeToolbar("editor.toolbar"); 
-            contentPane.add(toolbar, BorderLayout.NORTH);
-            setJMenuBar(barManager.makeMenubar("editor.menubar"));
-        }
-        {
-            addWindowListener((WindowListener) barManager.makeAction(CloseEditorAction.class.getName()));    
-            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
         {
             editor = new RSyntaxTextArea();
@@ -190,7 +195,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             statusLine = new JLabel();
             statusLine.setFont(statusLine.getFont().deriveFont(Font.PLAIN));
-            final JPopupMenu popup = barManager.makePopup("error.popup");
+            final JPopupMenu popup = barManager.makePopup("editor.errorpopup");
             statusLine.addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     if(SwingUtilities.isRightMouseButton(e)) {
@@ -204,6 +209,15 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             updateThread = new UpdateThread();
             updateThread.start();
+        }
+        {
+            JToolBar toolbar = barManager.makeToolbar("editor.toolbar"); 
+            contentPane.add(toolbar, BorderLayout.NORTH);
+            setJMenuBar(barManager.makeMenubar("editor.menubar"));
+        }
+        {
+            addWindowListener((WindowListener) barManager.makeAction("general.close"));    
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
     }
     
@@ -265,7 +279,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                         setErrorLine(0);
                     } else {
                         from = toIndex(token.beginLine, token.beginColumn);
-                        to = toIndex(token.endLine, token.endColumn);
+                        to = toIndex(token.endLine, token.endColumn) + 1;
                         setErrorLine(token.beginLine);
                     }
                     editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
@@ -276,7 +290,10 @@ public class PFileEditor extends JFrame implements ActionListener {
                 
                 if(exc == null) {
                     statusLine.setForeground(Color.black);
-                    statusLine.setText("syntax check succesful");
+                    String text = syntaxChecking ?
+                            "syntax check successful" :
+                            "syntax check disabled";
+                    statusLine.setText(text);
                     statusLine.setToolTipText(null);
                 } else {
                     statusLine.setForeground(Color.red);
@@ -464,5 +481,51 @@ public class PFileEditor extends JFrame implements ActionListener {
     public void setFilename(File path) {
         editedFile = path;
         updateTitle();
+    }
+
+
+    public void setProperty(String property, Object newValue) {
+        Object old = getProperty(property);
+        
+        if("lineWrap".equals(property)) {
+            editor.setLineWrap((Boolean)newValue);
+        }
+        
+        if("syntaxCheck".equals(property)) {
+            syntaxChecking = (Boolean)newValue;
+            if(syntaxChecking) {
+                updateThread.changed();
+            } else {
+                markError(null, null);
+            }
+        }
+        
+        if("syntaxHighlight".equals(property)) {
+            RSyntaxDocument rSyntaxDocument = (RSyntaxDocument) editor.getDocument();
+            if((Boolean) newValue) { 
+                rSyntaxDocument.setSyntaxStyle(new IvilTokenMaker());
+            } else {
+                rSyntaxDocument.setSyntaxStyle(new PlainTextTokenMaker());
+            }
+        }
+        
+        firePropertyChange(property, old, newValue);
+    }
+
+
+    public Object getProperty(String property) {
+        if("lineWrap".equals(property)) {
+            return editor.getLineWrap();
+        }
+        
+        if("syntaxCheck".equals(property)) {
+            return syntaxChecking; 
+        }
+        
+        if("syntaxHighlight".equals(property)) {
+            return syntaxHighlighting ;
+        }
+        
+        return null;
     }
 }
