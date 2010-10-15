@@ -1,0 +1,239 @@
+<!--
+#
+# This file is part of This file is part of
+#    ivil - Interactive Verification on Intermediate Language
+#
+# Copyright (C) 2009 Universitaet Karlsruhe, Germany
+#    written by Mattias Ulbrich
+#
+# The system is protected by the GNU General Public License.
+# See LICENSE.TXT for details.
+#
+-->
+<barmanager>
+
+    <!-- If no package name given, assume the following prefix -->
+	<package>de.uka.iti.pseudo.gui.actions</package>
+
+	<!-- THE MAIN WINDOW -->
+	<prover>
+		
+		<toolbar onlyIcons="true">
+				proof.auto proof.prune SEPARATOR
+				prover.openInEditor SEPARATOR 
+				file.loadProb file.loadProof file.saveProof SEPARATOR
+				proof.stepInstr proof.stepSource smt.active proof.conjecture proof.snapshots
+		</toolbar>
+
+		<menubar>
+			prover.fileMenu prover.editorMenu prover.proofMenu prover.settingsMenu
+		</menubar>
+
+		<fileMenu text="File" mnemonic="F">
+			file.loadProb file.loadURLProb file.reloadProb file.recentProb file.loadProof file.saveProof 
+		    SEPARATOR general.close general.exit
+		</fileMenu>
+		
+		<editorMenu text="Editor" mnemonic="E">
+			prover.openInEditor editor.new editor.open	
+		</editorMenu>
+
+		<proofMenu text="Proof" mnemonic="P">
+			proof.prune proof.auto proof.axiom proof.conjecture proof.decProc proof.snapshots
+            SEPARATOR proof.stepInstr proof.stepSource
+		</proofMenu>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			settings.verbosity settings.showNumbers prover.settingsMenu.prettyPrintingMenu smt.activation
+		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
+		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
+		    </prettyPrintingMenu>
+        </settingsMenu>
+        
+	</prover>
+	
+	<!-- THE STARTUP WINDOW -->
+	<startup>
+		<menubar>
+			startup.fileMenu	
+		</menubar>
+		<fileMenu text="File" mnemonic="F">
+			file.loadProb file.loadURLProb file.reloadProb file.recentProb SEPARATOR editor.open editor.new 
+			SEPARATOR general.exit	
+		</fileMenu>
+	</startup>
+	
+	<!-- THE EDITOR WINDOW -->
+	<editor>
+		<toolbar onlyIcons="true">
+			editor.loadAsProblem SEPARATOR 
+  			editor.new editor.open editor.save SEPARATOR editor.copy editor.cut editor.paste	
+		</toolbar>
+		
+		<menubar>
+			editor.fileMenu editor.proverMenu editor.editMenu editor.settingsMenu			
+		</menubar>
+		
+		<fileMenu text="File" mnemonic="F">
+			editor.new editor.open editor.save editor.saveAs SEPARATOR general.close general.exit	
+		</fileMenu>
+		
+		<proverMenu text="Prover" mnemonic="P">
+			editor.loadAsProblem file.loadProb
+		</proverMenu> 
+		
+		<editMenu text="Edit" mnemonic="E">
+			editor.copy editor.cut editor.paste 
+			SEPARATOR editor.undo editor.redo
+			SEPARATOR editor.toggleComment
+		</editMenu>
+		
+		<settingsMenu text="Settings" mnemonic="S">
+			editor.settings.lineWrap editor.settings.syntaxHighlighting editor.settings.syntaxChecking
+		</settingsMenu>
+		
+		<popup>
+			editor.popup.jumpToErrorLine editor.popup.openErrorFile
+		    SEPARATOR editor.copy editor.cut editor.paste
+			SEPARATOR editor.undo editor.redo
+			SEPARATOR editor.toggleComment
+		</popup>
+		
+		<errorpopup>
+			editor.popup.jumpToErrorLine editor.popup.openErrorFile
+		</errorpopup>
+	</editor>
+	
+	<!--
+	  ===== ACTIONS ======
+	-->
+	<editor>
+		<popup>
+			<jumpToErrorLine>ACTION PopupOpenErrorLine</jumpToErrorLine>
+			<openErrorFile>ACTION PopupOpenErrorFile</openErrorFile>
+		</popup>
+		
+		<save>ACTION SaveEditorAction</save> 
+		<saveAs>ACTION SaveAsEditorAction</saveAs>
+		<new>ACTION NewEditorAction</new>
+		<open>ACTION OpenEditorAction</open>
+		<loadAsProblem>ACTION LoadEditedProblemAction</loadAsProblem>
+		
+		<toggleComment text="Toggle comment on selection" icon="img/comment.png" mnemonic="M">
+			COMMAND RSTA.ToggleCommentAction
+			<tooltip>Switch on or off the comments for the selected area</tooltip>
+		</toggleComment>
+		
+		<copy text="Copy" tooltip="Copy to clipboard" icon="img/page_white_copy.png">
+			COMMAND copy-to-clipboard
+		</copy>
+		
+		<cut text="Cut" tooltip="Cut to clipboard" icon="img/cut_red.png">
+			COMMAND cut-to-clipboard
+		</cut>
+		
+		<paste text="Paste" tooltip="Paste from clipboard" icon="img/page_white_paste.png">
+			COMMAND cut-to-clipboard
+		</paste>
+		
+		<undo text="Undo" tooltip="Undo last edit change" icon="img/arrow_undo.png">
+			COMMAND RTA.UndoAction	
+		</undo>
+		
+		<redo text="Redo" tooltip="Redo last edit change undone" icon="img/arrow_redo.png">
+			COMMAND RTA.RedoAction	
+		</redo>
+		
+		<settings>
+			<lineWrap>TOGGLE_ACTION EditorPropertyAction lineWrap
+				<text>Wrap long lines</text>
+				<tooltip>break long lines for display</tooltip>
+			</lineWrap>
+			<syntaxChecking>TOGGLE_ACTION EditorPropertyAction syntaxCheck
+				<text>Syntax checking</text>
+				<tooltip>automatically check for syntax errors every 500ms</tooltip>
+			</syntaxChecking>
+			<syntaxHighlighting>TOGGLE_ACTION EditorPropertyAction syntaxHighlight
+				<text>Syntax highlighting</text>
+				<tooltip>mark up ivil syntax in the edited file</tooltip>
+			</syntaxHighlighting>	
+		</settings>
+		
+	</editor>
+
+	<prover>
+		<openInEditor>ACTION OpenCurrentInEditorAction</openInEditor>
+	</prover>
+	
+	<file>
+		<loadProb>ACTION LoadProblemAction</loadProb>
+		<loadURLProb>ACTION LoadProblemURLAction</loadURLProb>
+		<reloadProb>ACTION ReloadProblemAction</reloadProb>
+		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
+		<loadProof>ACTION LoadProofAction</loadProof>
+		<saveProof>ACTION SaveProofAction</saveProof>
+	</file>
+
+	<proof>
+		<prune>ACTION PruneAction</prune>
+		<auto>ACTION AutoProofAction</auto>
+		<autoSubtree>ACTION AutoProofSubtreeAction</autoSubtree>
+		<axiom>ACTION InsertAxiomAction</axiom>
+		<conjecture>ACTION ConjectureAction</conjecture>
+		<decProc>TODO Decision Procedure</decProc>
+		<stepInstr>ACTION StepInstructionAction</stepInstr>
+		<stepSource>ACTION StepSourceAction
+			<icon>img/control_fastforward.png</icon>
+		</stepSource>
+		<snapshots>ACTION SnapshotManagerAction</snapshots>
+	</proof>
+
+	<smt>
+		<active>ACTION SMTBackgroundAction</active>
+		<activation>TOGGLE_ACTION SMTActivationAction</activation>	
+	</smt>
+
+	<settings>
+		<verbosity>ACTION VerbosityAction</verbosity>
+		<showNumbers>TOGGLE_ACTION ShowNumbersInTreeAction</showNumbers>
+		<pp>
+			<typed>TOGGLE_ACTION PrettyPrintTypedRadioAction</typed>
+			<fix>TOGGLE_ACTION PrettyPrintFixedRadioAction</fix>
+			<mod>TOGGLE_ACTION PrettyPrintPluginsRadioAction				</mod>
+		</pp>
+	</settings>
+		
+	<general>
+		<close>ACTION CloseAction
+			<mnemonic>C</mnemonic>
+			<tooltip>Closes the current window</tooltip>
+			<accelerator>control W</accelerator>
+			<text>Close</text>
+			<icon>img/bullet_orange.png</icon>
+		</close>
+		<exit>ACTION ExitAction</exit>
+	</general>
+	
+	<!--
+	  === COMPONENT MENUS ===
+	-->
+	<proofComponent>
+		<popup>
+			proofComponent.expandHere proofComponent.expandAll settings.verbosity 
+			SEPARATOR proof.prune proof.conjecture proof.auto proof.autoSubtree
+		</popup>
+		<expandHere>ACTION ExpandProofTreeBelowAction</expandHere>
+		<expandAll>ACTION FullyExpandProofTreeAction</expandAll>
+	</proofComponent>
+	
+	<termComponent>
+		<popup>
+			termComponent.showInfo termComponent.jumpToIntroduction
+			termComponent.autoHere proof.axiom
+		</popup>
+		<showInfo>TODO Show information for this formula</showInfo>
+		<jumpToIntroduction>ACTION JumpToIntroductionAction</jumpToIntroduction>
+		<autoHere>TODO Apply automatic rules here </autoHere>
+	</termComponent>
+
+</barmanager>

@@ -38,7 +38,7 @@ public class CurlyHighlightPainter implements HighlightPainter {
             // --- determine locations ---
             TextUI mapper = c.getUI();
             Rectangle p0 = mapper.modelToView(c, offs0);
-            Rectangle p1 = mapper.modelToView(c, offs1);
+            Rectangle p1 = mapper.modelToView(c, offs1-1);
 
             // --- render ---
             Color color = Color.red;
