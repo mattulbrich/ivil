@@ -122,7 +122,7 @@ public class TestProgramChanger extends TestCaseWithEnv {
         // Q1.dump();
         
         assertEquals(3, Q1.countStatements());
-        assertEquals("goto 0", Q1.getStatement(2).toString());
+        assertEquals("goto 0", Q1.getStatement(2).toString(false));
     }
     
     
