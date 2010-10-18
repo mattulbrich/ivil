@@ -32,6 +32,9 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * A component to display a rule application.
@@ -41,7 +44,8 @@ import de.uka.iti.pseudo.term.Term;
  * @see InteractiveRuleApplicationComponent
  */
 @SuppressWarnings("serial") 
-public class RuleApplicationComponent extends JPanel implements PropertyChangeListener {
+
+public class RuleApplicationComponent extends JPanel implements PropertyChangeListener, NotificationListener {
     
     /**
      * The font to use for printing rules
@@ -84,6 +88,8 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         this.env = proofCenter.getEnvironment();
         this.proofCenter = proofCenter;
         makeGUI();
+
+        proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
     }
 
     /**
@@ -174,26 +180,6 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
         PrettyPrint pp = proofCenter.getPrettyPrinter();
         ruleText.setText(pp.print(rule));
     }
-    
-    /*
-     * This class only reacts to "select proof node" events. The interactive
-     * subclass also reacts to rule application setting.
-     * 
-     * (non-Javadoc)
-     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-     */
-    @Override 
-    public void propertyChange(PropertyChangeEvent evt) {
-        if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
-            ProofNode node = (ProofNode) evt.getNewValue();
-            // null can be sent if the selected node changed
-            if (null == node)
-                return;
-
-            RuleApplication ruleApp = node.getAppliedRuleApp();
-            setRuleApplication(ruleApp);
-        }
-    }
 
     /**
      * Sets the rule application.
@@ -221,7 +207,30 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
      * @return the proof center
      */
     protected ProofCenter getProofCenter() {
-        return null;
+        return proofCenter;
+    }
+
+    /**
+     * update the rule application view
+     */
+    private void update(ProofNode node) {
+        setRuleApplication(node.getAppliedRuleApp());
+    }
+
+    /**
+     * If selected ProofNode changed, get the corresponding rule application and
+     * display it.
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
+            update((ProofNode) evt.getNewValue());
+        }
+    }
+
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        update(getProofCenter().getCurrentProofNode());
     }
 
 }

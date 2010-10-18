@@ -197,7 +197,6 @@ public class ProofCenter implements Observer {
         
         mainWindow = new MainWindow(this, env.getResourceName());
         mainWindow.makeGUI();
-        // dumpPropertyListeners();
         fireSelectedProofNode(proof.getRoot());
         
         prepareRuleLists();
@@ -265,10 +264,7 @@ public class ProofCenter implements Observer {
      *            the node to be selected
      */
     public void fireSelectedProofNode(@NonNull ProofNode node) {
-        assert SwingUtilities.isEventDispatchThread();
-        Log.log("Selected node " + node);
-        generalProperties.put(SELECTED_PROOFNODE, node);
-        changeSupport.firePropertyChange(SELECTED_PROOFNODE, null, node);
+        firePropertyChange(SELECTED_PROOFNODE, node);
     }
 
     /**
