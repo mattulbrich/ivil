@@ -73,6 +73,7 @@ public class PooledAutoProver {
 
             } finally {
                 synchronized (monitor) {
+                    applicationsDone++;
                     workCounter --;
                     if (workCounter == 0) {
                         monitor.notifyAll();
@@ -92,6 +93,11 @@ public class PooledAutoProver {
      * The work counter counts the number of unfinished jobs.
      */
     private int workCounter = 0;
+
+    /**
+     * The amount of finished jobs
+     */
+    private int applicationsDone = 0;
 
     /**
      * The strategy to be used in this search.
@@ -197,5 +203,14 @@ public class PooledAutoProver {
         shouldStop = true;
         if (waitForJobs)
             waitAutoProve();
+    }
+
+    /**
+     * @return the number of already successfully applied RAs
+     */
+    public int getSuccessfullApplicationsCount() {
+        // note: no synchronization needed here, as reading integers is allways
+        // atomic
+        return applicationsDone;
     }
 }
