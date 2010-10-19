@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -29,7 +30,7 @@ public class CloseEditorAction extends BarAction
     implements WindowListener {
 
     public CloseEditorAction() {
-        super("Close", GUIUtil.makeIcon(CloseEditorAction.class.getResource("img/bullet_orange.png")));
+        super("Close", GUIUtil.makeIcon(CloseEditorAction.class.getResource("../img/bullet_orange.png")));
         putValue(ACTION_COMMAND_KEY, "close");
         putValue(SHORT_DESCRIPTION, "closes the editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));

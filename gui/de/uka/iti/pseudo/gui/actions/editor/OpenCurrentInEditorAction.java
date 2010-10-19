@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import de.uka.iti.pseudo.gui.Main;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -25,7 +26,7 @@ public class OpenCurrentInEditorAction extends BarAction {
     
     public OpenCurrentInEditorAction() {
         putValue(NAME, "Edit current problem");
-        putValue(SMALL_ICON, GUIUtil.makeIcon(OpenCurrentInEditorAction.class.getResource("img/link_edit.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(OpenCurrentInEditorAction.class.getResource("../img/link_edit.png")));
         putValue(SHORT_DESCRIPTION, "Open the currently active problem file in a new editor window");
     }
     

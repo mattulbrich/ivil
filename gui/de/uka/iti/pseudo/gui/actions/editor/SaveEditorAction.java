@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -26,7 +26,7 @@ public class SaveEditorAction extends SaveAsEditorAction {
     
     public SaveEditorAction() {
         putValue(NAME, "Save");
-        putValue(SMALL_ICON, GUIUtil.makeIcon(SaveEditorAction.class.getResource("img/disk.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(SaveEditorAction.class.getResource("../img/disk.png")));
         putValue(ACTION_COMMAND_KEY, "save");
         putValue(SHORT_DESCRIPTION, "save the currently edited file");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));

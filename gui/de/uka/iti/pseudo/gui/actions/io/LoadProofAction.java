@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -22,6 +22,8 @@ import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -47,7 +49,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
     public LoadProofAction() {
         super("Load proof ...", GUIUtil.makeIcon(LoadProofAction.class
-                .getResource("img/page.png")));
+.getResource("../img/page.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(SHORT_DESCRIPTION,
                 "load a proof to the currently active problem");

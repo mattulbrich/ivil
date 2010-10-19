@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -18,6 +18,8 @@ import java.beans.PropertyChangeListener;
 
 import javax.swing.KeyStroke;
 
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 

@@ -7,7 +7,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.auto;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -20,6 +20,7 @@ import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -52,8 +53,8 @@ public abstract class StepCodeAction extends BarAction implements
         }
 
         /**
-         * A code location is valid iff it can be maped to a unique source line
-         * in exactly one program.
+         * @return true iff the code location can be mapped to a unique source
+         *         line in exactly one program.
          */
         public boolean isValid(){
             return program != null && line >= 0 && isUnique;
@@ -164,8 +165,6 @@ public abstract class StepCodeAction extends BarAction implements
         });
     }
 
-    // TODO when a new node is selected, check whether this action is applicable.
-    // If there is no relevant modality, deactivate the button.
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName()))

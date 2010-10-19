@@ -14,6 +14,7 @@ import javax.swing.SwingWorker;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.gui.actions.io.LoadProblemAction;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -35,7 +36,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
     public ConjectureAction() {
         super("Add a Conjecture",
-                GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/lightbulb_add.png")));
+ GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/lightbulb_add.png")));
         
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         putValue(SHORT_DESCRIPTION, "Add a hypothesis and prove it");

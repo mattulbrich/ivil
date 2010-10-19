@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -20,6 +20,7 @@ import javax.swing.JFileChooser;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 
@@ -29,7 +30,7 @@ public class OpenEditorAction extends BarAction {
     
     public OpenEditorAction() {
         putValue(NAME, "Edit problem file ...");
-        putValue(SMALL_ICON, GUIUtil.makeIcon(OpenEditorAction.class.getResource("img/page_white_text_edit.png")));
+        putValue(SMALL_ICON, GUIUtil.makeIcon(OpenEditorAction.class.getResource("../img/page_white_text_edit.png")));
         putValue(ACTION_COMMAND_KEY, "open");
         putValue(SHORT_DESCRIPTION, "Open a problem file in a new editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_E, InputEvent.CTRL_MASK));

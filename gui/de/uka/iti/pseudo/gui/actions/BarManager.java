@@ -18,8 +18,8 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -277,8 +277,7 @@ public class BarManager {
         if(properties == null) {
             try {
                 // first try it as an xml document
-                properties = 
-                    NestedXMLPropertyReader.read(resource.openStream(), true);
+                properties = NestedXMLPropertyReader.read(resource.openStream(), true);
             } catch(IOException ex) {
                 // fall back in error case
                 Log.stacktrace(ex);
@@ -730,6 +729,9 @@ public class BarManager {
         if(!className.contains("."))
             className = packagePrefix + className;
         
+        // use '/' to escape . to allow for subpackages
+        className = className.replace("/", ".");
+
         try {
             Action cached = actionCache.get(prefix);
             if(cached != null) {

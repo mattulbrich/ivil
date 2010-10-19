@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -16,6 +16,7 @@ import java.io.File;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.Main;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
@@ -29,7 +30,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class LoadEditedProblemAction extends BarAction {
 
     public LoadEditedProblemAction() {
-        super("Load problem ...", GUIUtil.makeIcon(LoadEditedProblemAction.class.getResource("img/link_go.png")));
+        super("Load problem ...", GUIUtil.makeIcon(LoadEditedProblemAction.class.getResource("../img/link_go.png")));
         putValue(ACTION_COMMAND_KEY, "loadEditedProb");
         putValue(SHORT_DESCRIPTION, "open the currently edited problem in a new prover window");
     }

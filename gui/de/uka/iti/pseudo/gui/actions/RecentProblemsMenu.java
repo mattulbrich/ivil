@@ -24,13 +24,18 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
-// TODO DOC
-
-@SuppressWarnings("serial")
+/**
+ * Presents a List of recently used problems. Very useful for manual testing and
+ * demonstration.
+ * 
+ * @author timm.felden@felden.com
+ */
 public class RecentProblemsMenu extends JMenu implements MenuListener {
 
-    static public class LoadProblem extends BarAction implements
-            PropertyChangeListener {
+    private static final long serialVersionUID = 2656732349530151485L;
+
+    static public class LoadProblem extends BarAction implements PropertyChangeListener {
+        private static final long serialVersionUID = 6547255936403664041L;
         private final String location;
 
         /**

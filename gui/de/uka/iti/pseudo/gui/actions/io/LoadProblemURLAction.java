@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -33,7 +34,8 @@ import de.uka.iti.pseudo.util.settings.Settings;
 public class LoadProblemURLAction extends BarAction implements PropertyChangeListener {
 
     public LoadProblemURLAction() {
-        super("Load problem from URL ...", GUIUtil.makeIcon(LoadProblemURLAction.class.getResource("img/page_white_world.png")));
+        super("Load problem from URL ...", GUIUtil.makeIcon(LoadProblemURLAction.class
+                .getResource("../img/page_white_world.png")));
         putValue(ACTION_COMMAND_KEY, "loadProbURL");
         putValue(MNEMONIC_KEY, KeyEvent.VK_U);
         putValue(SHORT_DESCRIPTION, "open a problem from a URL into a new window");

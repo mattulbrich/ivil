@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.auto;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -22,6 +22,7 @@ import javax.swing.SwingWorker;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
@@ -42,8 +43,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     private static final long serialVersionUID = 7212654361200636678L;
 
-    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
-    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
+    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/cog_go.png"));
+    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/cog_stop.png"));
     private boolean ongoingProof = false;
 
     private PooledAutoProver pool = null;

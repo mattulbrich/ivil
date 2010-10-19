@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -24,6 +24,8 @@ import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
@@ -37,7 +39,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class LoadProblemAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
     public LoadProblemAction() {
-        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/page_white_text.png")));
+        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/page_white_text.png")));
         putValue(ACTION_COMMAND_KEY, "loadProb");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
         putValue(MNEMONIC_KEY, KeyEvent.VK_O);

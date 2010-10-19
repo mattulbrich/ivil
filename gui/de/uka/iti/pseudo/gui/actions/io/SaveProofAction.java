@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
@@ -28,6 +28,8 @@ import de.uka.iti.pseudo.gui.ExporterFileFilter;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.MainWindow;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
@@ -45,7 +47,7 @@ public class SaveProofAction extends BarAction
     implements PropertyChangeListener, InitialisingAction {
     
     public SaveProofAction() {
-        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("img/page_save.png")));
+        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("../img/page_save.png")));
         putValue(ACTION_COMMAND_KEY, "saveProb");
         putValue(SHORT_DESCRIPTION, "save a proof to the currently active problem");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
