@@ -13,11 +13,10 @@ package de.uka.iti.pseudo.gui.actions.auto;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.LinkedList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.Icon;
-import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -47,7 +46,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/cog_stop.png"));
     private boolean ongoingProof = false;
 
-    private PooledAutoProver pool = null;
+    private ParallelAutoProofWorker job = null;
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
@@ -60,22 +59,23 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     public void actionPerformed(ActionEvent e) {
 
-        if (null != pool) {
+        if (null != job) {
             
             try {
-                pool.stopAutoProve(true);
+                job.halt();
             } catch (Exception ex) {
                 Log.stacktrace(ex);
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } finally {
-                pool = null;
+                job = null;
             }
         } else {
             // start auto proving
             final ProofCenter proofCenter = getProofCenter();
             final Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
 
-            pool = new PooledAutoProver(strategy, proofCenter.getEnvironment());
+            job = new ParallelAutoProofWorker(getInitialList(), new PooledAutoProver(strategy,
+                    proofCenter.getEnvironment()), proofCenter, strategy);
 
             proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
             try {
@@ -84,37 +84,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
                 // abort, as the strategy can't be used for some reason
                 Log.stacktrace(ex);
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                pool = null;
+                job = null;
                 return;
             }
-
-            // create a swing worker, that will wait for auto proving to collect
-            // and display exceptions
-            (new SwingWorker<Void, Integer>() {
-                public Void doInBackground() {
-                    for (ProofNode node : new LinkedList<ProofNode>(getInitialList()))
-                        pool.autoProve(node);
-
-                    try {
-                        pool.waitAutoProve();
-                    } catch (Exception e) {
-                        Log.stacktrace(e);
-                        ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-                            e.printStackTrace();
-                    }
-
-                    return null;
-                }
-
-                public void done() {
-                    strategy.endSearch();
-                    proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
-                    // some listeners have been switched off, they might
-                    // want to update now.
-                    proofCenter.fireProoftreeChangedNotification(true);
-                    pool = null;
-                }
-            }).execute();
+            
+            job.execute();
         }
     }
 
