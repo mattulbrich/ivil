@@ -99,13 +99,7 @@ public class Z3Translator extends DefaultTermVisitor {
         if(trans == null && application.countSubterms() == 0) {
             registerNo ++;
             String ty = makeSort(application.getType());
-            //FIXME redundant if .. is this intended?
-            //if(trans == null) {
-                translation.add("Const c" + registerNo + " " + maskName(name) + 
-                    "." + ty + " " + ty);
-            //} else {
-            //    translation.add("Const c" + registerNo + " " + trans + " " + ty);
-            //}
+            translation.add("Const c" + registerNo + " " + maskName(name) + "." + ty + " " + ty);
             return;
         }
         

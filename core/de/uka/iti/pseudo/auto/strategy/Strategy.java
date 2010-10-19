@@ -149,11 +149,6 @@ public interface Strategy {
      * This method is invoked on the strategy to indicate that - if necessary or
      * desired - state dependent information can be invalidated, possible
      * freeing memory.
-     * 
-     * @throws StrategyException
-     *             if the strategy fails
-     * 
-     *             FIXME TFE: is the throws documentation up to date?
      */
    void endSearch();
 
