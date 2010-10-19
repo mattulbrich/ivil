@@ -86,7 +86,7 @@ public class SchemaProgramTerm extends ProgramTerm {
      * if no matching statement has been provided.
      */
     protected String getContentString(boolean typed) {
-        String res = getSchemaVariable().toString();
+        String res = getSchemaVariable().toString(typed);
         if (hasMatchingStatement())
             res += ": " + matchingStatement.toString(typed);
         return res;
