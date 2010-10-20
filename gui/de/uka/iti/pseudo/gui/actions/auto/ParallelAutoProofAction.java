@@ -58,38 +58,27 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     }
 
     public void actionPerformed(ActionEvent e) {
+        // start auto proving
+        final ProofCenter proofCenter = getProofCenter();
+        final Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
 
-        if (null != job) {
-            
-            try {
-                job.halt();
-            } catch (Exception ex) {
-                Log.stacktrace(ex);
-                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-            } finally {
-                job = null;
-            }
-        } else {
-            // start auto proving
-            final ProofCenter proofCenter = getProofCenter();
-            final Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
+        job = new ParallelAutoProofWorker(getInitialList(),
+                new PooledAutoProver(strategy, proofCenter.getEnvironment()), proofCenter, strategy, getParentFrame());
 
-            job = new ParallelAutoProofWorker(getInitialList(), new PooledAutoProver(strategy,
-                    proofCenter.getEnvironment()), proofCenter, strategy);
-
-            proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-            try {
-                strategy.beginSearch();
-            } catch (StrategyException ex) {
-                // abort, as the strategy can't be used for some reason
-                Log.stacktrace(ex);
-                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                job = null;
-                return;
-            }
-            
-            job.execute();
+        proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+        try {
+            strategy.beginSearch();
+        } catch (StrategyException ex) {
+            // abort, as the strategy can't be used for some reason
+            Log.stacktrace(ex);
+            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+            job = null;
+            return;
         }
+
+        job.execute();
+        // block ui with a modal dialog
+        job.showDialog();
     }
 
     @Override

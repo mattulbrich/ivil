@@ -18,7 +18,7 @@ include "$symbex.p" "$int.p" "$decproc.p"
 function int x assignable
 
 program P
-  x := 8
+  x := 9
  loop:
   goto double, double
  double:

@@ -154,6 +154,15 @@ public class PooledAutoProver {
     }
 
     /**
+     * Only usable after all initial nodes have been submitted via autoProve
+     * 
+     * @return true iff no more nodes are to be processed
+     */
+    public boolean done() {
+        return 0 == workCounter;
+    }
+
+    /**
      * Waits for current automatic proving to finish.
      * 
      * @throws CompoundException
@@ -212,5 +221,12 @@ public class PooledAutoProver {
         // note: no synchronization needed here, as reading integers is allways
         // atomic
         return applicationsDone;
+    }
+
+    /**
+     * @return the number of jobs in the queue
+     */
+    public int getOpenGoalsCount() {
+        return workCounter;
     }
 }
