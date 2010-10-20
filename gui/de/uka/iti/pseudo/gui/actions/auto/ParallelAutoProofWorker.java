@@ -18,7 +18,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.PooledAutoProver;
 
-public class ParallelAutoProofWorker extends SwingWorker<Void, Integer> {
+public class ParallelAutoProofWorker extends SwingWorker<Void, Void> {
     private final List<ProofNode> nodes;
     private final PooledAutoProver pool;
     private final Strategy strategy;
@@ -70,7 +70,8 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Integer> {
                 }
             }
         });
-        dialog.setVisible(true);
+        if (!isDone())
+            dialog.setVisible(true);
     }
 
     public Void doInBackground() {
@@ -103,13 +104,13 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Integer> {
             ExceptionDialog.showExceptionDialog(parentFrame, e);
         }
 
-        // close the dialog, as it is not interesting for the user any more
-        dialog.setVisible(false);
-
         return null;
     }
 
     public void done() {
+
+        // close the dialog, as it is not interesting for the user any more
+        dialog.setVisible(false);
 
         strategy.endSearch();
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
