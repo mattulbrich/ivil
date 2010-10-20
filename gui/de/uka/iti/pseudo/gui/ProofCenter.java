@@ -469,11 +469,11 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void firePropertyChange(String propertyName, Object newValue) {
-            assert SwingUtilities.isEventDispatchThread();
-            Object oldValue = generalProperties.get(propertyName);
-            Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
-            generalProperties.put(propertyName, newValue);
-            changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+        assert SwingUtilities.isEventDispatchThread();
+        Object oldValue = generalProperties.get(propertyName);
+        Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
+        generalProperties.put(propertyName, newValue);
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
     }
 
     /**

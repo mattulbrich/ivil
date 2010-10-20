@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -108,8 +109,9 @@ public abstract class StepCodeAction extends BarAction implements
         final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
+        pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+        (new SwingWorker<Void, Void>() {
+            public Void doInBackground() {
                 try {
                     strategy.beginSearch();
 
@@ -129,40 +131,40 @@ public abstract class StepCodeAction extends BarAction implements
 
                             for (ProofNode node : current.getChildren()) {
                                 CodeLocation next = getCodeLocation(node);
-                                if (null == next
-                                        || (next.equals(loc) && next.isUnique)) {
+                                if (null == next || (next.equals(loc) && next.isUnique)) {
                                     todo.add(node);
                                 }
                             }
                         } else
-                            ExceptionDialog
-                                    .showExceptionDialog(getParentFrame(),
-                                            "The currently selected proof strategy is to weak to do another step");
+                            ExceptionDialog.showExceptionDialog(getParentFrame(),
+                                    "The currently selected proof strategy is to weak to do another step");
                     }
-
-                    if (selectedProofNode.isClosed()) {
-                        if (proof.hasOpenGoals())
-                            pc.fireSelectedProofNode(proof.getOpenGoals().get(0));
-                        else
-                            pc.fireSelectedProofNode(proof.getRoot());
-                    } else {
-                        // find first open node
-                        current = selectedProofNode;
-                        while (current.getChildren() != null)
-                            for (ProofNode child : current.getChildren())
-                                if (!child.isClosed())
-                                    current = child;
-
-                        pc.fireSelectedProofNode(current);
-                    }
-
-                } catch (Exception ex) {
-                    ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                } finally {
-                    strategy.endSearch();
+                } catch (Exception e) {
+                    ExceptionDialog.showExceptionDialog(getParentFrame(), e);
                 }
+                return null;
             }
-        });
+
+            public void done() {
+                pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                if (selectedProofNode.isClosed()) {
+                    if (proof.hasOpenGoals())
+                        pc.fireSelectedProofNode(proof.getOpenGoals().get(0));
+                    else
+                        pc.fireSelectedProofNode(proof.getRoot());
+                } else {
+                    // find first open node
+                    ProofNode current = selectedProofNode;
+                    while (current.getChildren() != null)
+                        for (ProofNode child : current.getChildren())
+                            if (!child.isClosed())
+                                current = child;
+
+                    pc.fireSelectedProofNode(current);
+                }
+                strategy.endSearch();
+            }
+        }).execute();
     }
 
     @Override

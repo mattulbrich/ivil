@@ -185,8 +185,8 @@ public class ProofComponent extends JTree {
                 proofModel.publishChanges();
 
                 // if no node was selected, select root
-                if (selectionModel.isSelectionEmpty()) {
-                    selectionModel.setSelectionPath(proofModel.getPath(proofCenter.getProof().getRoot(), true));
+                if (selectionModel.isSelectionEmpty() && !(Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF)) {
+                    selectionModel.setSelectionPath(proofModel.getPath(proofCenter.getCurrentProofNode(), true));
                 }
                 repaint();
             }
