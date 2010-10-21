@@ -1,20 +1,15 @@
 package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
-import javax.swing.KeyStroke;
-
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This allows for reloading of the problem. If no problem was loaded yet, the
@@ -28,14 +23,14 @@ public class ReloadProblemAction extends BarAction implements
 	
 	private static final long serialVersionUID = 8652614246864976171L;
 
-	public ReloadProblemAction() {
-        super("Reload problem ...", GUIUtil.makeIcon(LoadProblemAction.class
-                .getResource("../img/page_white_green_text.png")));
-        putValue(ACTION_COMMAND_KEY, "reloadProb");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_R);
-        putValue(SHORT_DESCRIPTION, "reload the last problem file into a new window");
-    }
+//	public ReloadProblemAction() {
+//        super("Reload problem ...", GUIUtil.makeIcon(LoadProblemAction.class
+//                .getResource("../img/page_white_green_text.png")));
+//        putValue(ACTION_COMMAND_KEY, "reloadProb");
+//        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_MASK));
+//        putValue(MNEMONIC_KEY, KeyEvent.VK_R);
+//        putValue(SHORT_DESCRIPTION, "reload the last problem file into a new window");
+//    }
     
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);

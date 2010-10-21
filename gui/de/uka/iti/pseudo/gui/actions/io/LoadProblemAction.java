@@ -11,8 +11,6 @@
 package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -20,15 +18,12 @@ import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This is the action to load a problem file.
@@ -38,13 +33,13 @@ import de.uka.iti.pseudo.util.GUIUtil;
 @SuppressWarnings("serial") 
 public class LoadProblemAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
-    public LoadProblemAction() {
-        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/page_white_text.png")));
-        putValue(ACTION_COMMAND_KEY, "loadProb");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-        putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
-    }
+//    public LoadProblemAction() {
+//        super("Load problem ...", GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/page_white_text.png")));
+//        putValue(ACTION_COMMAND_KEY, "loadProb");
+//        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
+//        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
+//        putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
+//    }
     
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();

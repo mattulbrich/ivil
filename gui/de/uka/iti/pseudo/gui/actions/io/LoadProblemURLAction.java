@@ -11,7 +11,6 @@
 package de.uka.iti.pseudo.gui.actions.io;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
@@ -22,7 +21,6 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -33,13 +31,13 @@ import de.uka.iti.pseudo.util.settings.Settings;
 @SuppressWarnings("serial") 
 public class LoadProblemURLAction extends BarAction implements PropertyChangeListener {
 
-    public LoadProblemURLAction() {
-        super("Load problem from URL ...", GUIUtil.makeIcon(LoadProblemURLAction.class
-                .getResource("../img/page_white_world.png")));
-        putValue(ACTION_COMMAND_KEY, "loadProbURL");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
-        putValue(SHORT_DESCRIPTION, "open a problem from a URL into a new window");
-    }
+//    public LoadProblemURLAction() {
+//        super("Load problem from URL ...", GUIUtil.makeIcon(LoadProblemURLAction.class
+//                .getResource("../img/page_white_world.png")));
+//        putValue(ACTION_COMMAND_KEY, "loadProbURL");
+//        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
+//        putValue(SHORT_DESCRIPTION, "open a problem from a URL into a new window");
+//    }
     
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);

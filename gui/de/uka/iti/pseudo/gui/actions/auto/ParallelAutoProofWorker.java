@@ -59,19 +59,19 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> {
 
         cp.add(new CircleProgressIndicator(), new GridBagConstraints(0, 0, 1, 4, 1, 1,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
-                        2, 2, 2, 2), 0, 0));
+                        2, 2, 5, 2), 0, 0));
         cp.add(raCount, new GridBagConstraints(1, 0, 1, 1, 1, 1,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(
-                        2, 2, 2, 2), 0, 0));
+                        2, 2, 5, 2), 0, 0));
         cp.add(workCount, new GridBagConstraints(1, 1, 1, 1, 1, 1,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(
-                        2, 2, 2, 2), 0, 0));
+                        2, 2, 5, 2), 0, 0));
         cp.add(unclosableCount, new GridBagConstraints(1, 2, 1, 1, 1, 1,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(
-                        2, 2, 2, 2), 0, 0));
+                        2, 2, 5, 2), 0, 0));
         cp.add(timeElapsed, new GridBagConstraints(1, 3, 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(
-                        2, 2, 2, 2), 0, 0));
+                        2, 2, 5, 2), 0, 0));
         
         {
             JButton stop = new JButton("S T O P");

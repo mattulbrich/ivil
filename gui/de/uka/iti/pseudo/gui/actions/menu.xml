@@ -31,7 +31,7 @@
 
 		<fileMenu text="File" mnemonic="F">
 			file.loadProb file.loadURLProb file.reloadProb file.recentProb file.loadProof file.saveProof 
-		    SEPARATOR general.close general.exit
+			SEPARATOR general.close general.exit
 		</fileMenu>
 		
 		<editorMenu text="Editor" mnemonic="E">
@@ -40,7 +40,7 @@
 
 		<proofMenu text="Proof" mnemonic="P">
 			proof.prune proof.auto proof.axiom proof.conjecture proof.decProc proof.snapshots
-            SEPARATOR proof.stepInstr proof.stepSource
+			SEPARATOR proof.stepInstr proof.stepSource
 		</proofMenu>
 		
 		<settingsMenu text="Settings" mnemonic="S">
@@ -166,12 +166,39 @@
 	</prover>
 	
 	<file>
-		<loadProb>ACTION io/LoadProblemAction</loadProb>
-		<loadURLProb>ACTION io/LoadProblemURLAction</loadURLProb>
-		<reloadProb>ACTION io/ReloadProblemAction</reloadProb>
+		<loadProb>ACTION io/LoadProblemAction
+			<tooltip>open a problem file into a new window</tooltip>
+			<accelerator>control O</accelerator>
+			<mnemonic>O</mnemonic>
+			<text>Load problem ...</text>
+			<icon>img/page_white_text.png</icon>
+		</loadProb>
+		<loadURLProb>ACTION io/LoadProblemURLAction
+			<tooltip>open a problem from a URL into a new window</tooltip>
+			<mnemonic>U</mnemonic>
+			<text>Load problem from URL ...</text>
+			<icon>img/page_white_world.png</icon></loadURLProb>
+		<reloadProb>ACTION io/ReloadProblemAction
+			<tooltip>reload the last problem file into a new window</tooltip>
+			<mnemonic>R</mnemonic>
+			<accelerator>control R</accelerator>
+			<text>Reload problem</text>
+			<icon>img/page_white_green_text.png</icon>
+		</reloadProb>
 		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
-		<loadProof>ACTION io/LoadProofAction</loadProof>
-		<saveProof>ACTION io/SaveProofAction</saveProof>
+		<loadProof>ACTION io/LoadProofAction
+			<tooltip>load a proof to the currently active problem</tooltip>
+			<text>Load proof ...</text>
+			<mnemonic>P</mnemonic>
+			<icon>img/page.png</icon>
+		</loadProof>
+		<saveProof>ACTION io/SaveProofAction
+			<tooltip>save a proof to the currently active problem</tooltip>
+			<text>Save proof ...</text>
+			<accelerator>control S</accelerator>
+			<mnemonic>S</mnemonic>
+			<icon>img/page_save.png</icon>
+		</saveProof>
 	</file>
 
 	<proof>
