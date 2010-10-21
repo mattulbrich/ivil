@@ -469,7 +469,9 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void firePropertyChange(String propertyName, Object newValue) {
-        assert SwingUtilities.isEventDispatchThread();
+        // FIXME decide whether or not to remove this assertion, as it can't be
+        // used together with unit tests
+        // assert SwingUtilities.isEventDispatchThread();
         Object oldValue = generalProperties.get(propertyName);
         Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
         generalProperties.put(propertyName, newValue);

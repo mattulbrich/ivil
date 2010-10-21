@@ -136,13 +136,15 @@ import de.uka.iti.pseudo.util.Log;
  * <td><code>COMPONENT</code></td>
  * <td>M/T</td>
  * <td>class name</td>
- * <td>create an instance of the specified class which must extend {@link JComponent}</td>
+ * <td>create an instance of the specified class which must extend
+ * {@link JComponent}</td>
  * </tr>
  * </table>
  * 
  * To faciliate the specification of classnames, you can provide a key
  * <code>package</code> into which all class names are assumed if they do not
- * contain a "." (dot).
+ * contain a "." (dot). You can use "/" to indicate, that a class is in a sub
+ * package of the default package.
  * 
  * <h3>Example configuration</h3>
  * Here a small but typical example:
@@ -867,5 +869,12 @@ public class BarManager {
      */
     public void putProperty(@NonNull String property, Object value) {
         defaultActionProperties.put(property, value);
+    }
+
+    public Action getAction(String name) {
+        // for (Entry e : actionCache.entrySet())
+        // System.out.println(e.getKey() + " -> " + e.getValue());
+
+        return actionCache.get(name);
     }
 }
