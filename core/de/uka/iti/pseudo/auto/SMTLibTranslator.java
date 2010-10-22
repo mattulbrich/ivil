@@ -432,14 +432,14 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             int arity = sort.getArity();
             if (arity > 0) {
                 sb.setLength(0);
-                sb.append("(forall (");
+                sb.append("(forall ");
                 for (int i = 0; i < arity; i++) {
                     sb.append("(?t" + i + " Type) ");
                 }
                 for (int i = 0; i < arity; i++) {
                     sb.append("(?u" + i + " Type) ");
                 }
-                sb.append(") (implies (= (ty.").append(sort.getName());
+                sb.append(" (implies (= (ty.").append(sort.getName());
                 for (int i = 0; i < arity; i++) {
                     sb.append(" ?t" + i);
                 }
@@ -778,7 +778,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
                         append(                                ")");
                 
             } else {
-                sb.append("(forall (");
+                sb.append("(forall ");
                 
                 for (TypeVariable typeVariable : resultOnlyTypeVariables) {
                     sb.append(" (?Type.").append(typeVariable.getVariableName()).append(" Type)");
@@ -793,7 +793,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
                     .append(")");
                 }
 
-                sb.append(")");
+                // sb.append(")");
 
                 if (varInResult) {
                     sb.append(" (implies (and");
