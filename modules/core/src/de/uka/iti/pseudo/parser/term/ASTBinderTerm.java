@@ -18,24 +18,28 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.term.creation.Typing;
+import de.uka.iti.pseudo.util.Pair;
 
 public class ASTBinderTerm extends ASTTerm {
     
     private @LazyNonNull Typing variableTyping = null;
 
     private Token binderToken;
-    private ASTType variableType;
-    private Token variableToken;
+
+    private List<Pair<Token, ASTType>> boundVars;
     
-    public ASTBinderTerm(Token binderToken, ASTType variableType,
-            Token variableToken, List<ASTTerm> subterms) {
+    public ASTBinderTerm(Token binderToken, List<Pair<Token, ASTType>> boundVars,
+            List<ASTTerm> subterms) {
         super(subterms);
         this.binderToken = binderToken;
-        this.variableType = variableType;
-        this.variableToken = variableToken;
+        this.boundVars = boundVars;
         
-        if(variableType != null)
-            addChild(variableType);
+        for (Pair<Token, ASTType> var : boundVars) {
+            ASTType type = var.snd();
+            if(type != null) {
+                addChild(type);
+            }
+        }
     }
     
     @Override
@@ -46,13 +50,17 @@ public class ASTBinderTerm extends ASTTerm {
     public final Token getBinderToken() {
         return binderToken;
     }
-
-    public final ASTType getVariableType() {
-        return variableType;
+    
+    public final int countBoundVariabls() {
+        return boundVars.size();
     }
 
-    public final Token getVariableToken() {
-        return variableToken;
+    public final ASTType getVariableType(int index) {
+        return boundVars.get(index).snd();
+    }
+
+    public final Token getVariableToken(int index) {
+        return boundVars.get(index).fst();
     }
     
 	public Token getLocationToken() {
