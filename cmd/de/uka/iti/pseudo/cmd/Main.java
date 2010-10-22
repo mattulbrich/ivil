@@ -129,7 +129,7 @@ public class Main {
             checkOnly = commandLine.isSet(CMDLINE_CHECKONLY);
             allSuffix = commandLine.isSet(CMDLINE_ALLSUFFIX);
             verbose = commandLine.isSet(CMDLINE_VERBOSE);
-            timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5) * 1000;
+            timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
             
