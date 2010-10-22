@@ -13,6 +13,9 @@ include
   "selectionSortDecl.p"
   "$unicode.p"
 
+properties
+  BreakpointStrategy.stopAtLoop "false"
+
 function
   array(int) a assignable
   array(int) a_pre
@@ -101,7 +104,7 @@ final1:
   assume i = (n - 1) + 1
 
   sourceline 29
-  assert (\forall i; 1<=i & i<=n & 1<=i+1 & i+1<=n -> read(a, i) < read(a, i+1))
+  assert (\forall i; 1<=i & i<=n & 1<=i+1 & i+1<=n -> read(a, i) <= read(a, i+1))
     ; "for all applicable i: a[i] <= a[i+1]"
   
   sourceline 30
