@@ -42,8 +42,8 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     private static final long serialVersionUID = 7212654361200636678L;
 
-    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/cog_go.png"));
-    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/cog_stop.png"));
+    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
+    private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
     private ParallelAutoProofWorker job = null;

@@ -113,11 +113,23 @@
 			<openErrorFile>ACTION PopupOpenErrorFile</openErrorFile>
 		</popup>
 		
-		<save>ACTION editor/SaveEditorAction</save> 
-		<saveAs>ACTION editor/SaveAsEditorAction</saveAs>
-		<new>ACTION editor/NewEditorAction</new>
-		<open>ACTION editor/OpenEditorAction</open>
-		<loadAsProblem>ACTION editor/LoadEditedProblemAction</loadAsProblem>
+		<!--img/bullet_orange.png ? -->
+		
+		<save>ACTION editor/SaveEditorAction
+            <icon>img/page_white_text_edit.png</icon>
+        </save> 
+		<saveAs>ACTION editor/SaveAsEditorAction
+            <icon>img/page_white_text_edit.png</icon>
+        </saveAs>
+		<new>ACTION editor/NewEditorAction
+            <icon>img/page_white_text_new.png</icon>
+        </new>
+		<open>ACTION editor/OpenEditorAction
+            <icon>img/page_white_text_edit.png</icon>
+        </open>
+		<loadAsProblem>ACTION editor/LoadEditedProblemAction
+            <icon>img/link_go.png</icon>
+        </loadAsProblem>
 		
 		<toggleComment text="Toggle comment on selection" icon="img/comment.png" mnemonic="M">
 			COMMAND RSTA.ToggleCommentAction
@@ -166,7 +178,9 @@
 	</prover>
 	
 	<file>
-		<loadProb>ACTION io/LoadProblemAction</loadProb>
+		<loadProb>ACTION io/LoadProblemAction
+            <icon>img/??.png</icon>
+        </loadProb>
 		<loadURLProb>ACTION io/LoadProblemURLAction</loadURLProb>
 		<reloadProb>ACTION io/ReloadProblemAction</reloadProb>
 		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
@@ -181,8 +195,12 @@
 		<axiom>ACTION InsertAxiomAction</axiom>
 		<conjecture>ACTION ConjectureAction</conjecture>
 		<decProc>TODO Decision Procedure</decProc>
-		<stepInstr>ACTION auto/StepInstructionAction</stepInstr>
-		<stepSource>ACTION auto/StepSourceAction</stepSource>
+		<stepInstr>ACTION auto/StepInstructionAction
+            <icon>img/control_play.png</icon>
+        </stepInstr>
+		<stepSource>ACTION auto/StepSourceAction
+            <icon>img/control_fastforward.png</icon>
+		</stepSource>
 		<snapshots>ACTION SnapshotManagerAction</snapshots>
 	</proof>
 

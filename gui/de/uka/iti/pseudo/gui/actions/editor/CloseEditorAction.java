@@ -30,7 +30,7 @@ public class CloseEditorAction extends BarAction
     implements WindowListener {
 
     public CloseEditorAction() {
-        super("Close", GUIUtil.makeIcon(CloseEditorAction.class.getResource("../img/bullet_orange.png")));
+        super("Close");
         putValue(ACTION_COMMAND_KEY, "close");
         putValue(SHORT_DESCRIPTION, "closes the editor window");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_W, InputEvent.CTRL_MASK));

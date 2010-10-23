@@ -30,7 +30,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class LoadEditedProblemAction extends BarAction {
 
     public LoadEditedProblemAction() {
-        super("Load problem ...", GUIUtil.makeIcon(LoadEditedProblemAction.class.getResource("../img/link_go.png")));
+        super("Load problem ...");
         putValue(ACTION_COMMAND_KEY, "loadEditedProb");
         putValue(SHORT_DESCRIPTION, "open the currently edited problem in a new prover window");
     }

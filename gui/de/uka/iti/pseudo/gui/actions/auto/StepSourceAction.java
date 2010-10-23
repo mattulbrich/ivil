@@ -25,8 +25,7 @@ public class StepSourceAction extends StepCodeAction {
     private static final long serialVersionUID = 5225203245082459198L;
 
     public StepSourceAction() {
-        super("Step Source", GUIUtil.makeIcon(LoadProblemAction.class
-.getResource("../img/control_fastforward.png")));
+        super("Step Source");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         putValue(SHORT_DESCRIPTION,
                 "symbolically execute a single source code instruction");

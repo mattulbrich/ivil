@@ -25,10 +25,10 @@ public class StepInstructionAction extends StepCodeAction {
     private static final long serialVersionUID = -6585879229802844874L;
 
     public StepInstructionAction() {
-        super("Step Instruction", GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/control_play.png")));
+        super("Step Instruction");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
         putValue(SHORT_DESCRIPTION, "symbolically execute a single intermediate code instruction");
-        
+
     }
 
     @Override

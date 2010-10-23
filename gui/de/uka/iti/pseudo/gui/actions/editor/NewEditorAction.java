@@ -32,7 +32,6 @@ public class NewEditorAction extends BarAction {
 
     public NewEditorAction() {
         putValue(NAME, "New");
-        putValue(SMALL_ICON, GUIUtil.makeIcon(NewEditorAction.class.getResource("../img/page_white_text_new.png")));
         putValue(ACTION_COMMAND_KEY, "new");
         putValue(SHORT_DESCRIPTION, "Create and edit a new problem file");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));

@@ -64,8 +64,8 @@ public abstract class StepCodeAction extends BarAction implements
     
     protected ProofNode selectedProofNode;
 
-    public StepCodeAction(String name, Icon icon) {
-        super(name, icon);
+    public StepCodeAction(String name) {
+        super(name);
     }
 
     /**
