@@ -71,10 +71,11 @@ import de.uka.iti.pseudo.util.Util;
  * work with general properties on the proof process. 
  */
 public class ProofCenter implements Observer {
-    
+
     /**
-     * Property key indicating that an automatic proof is on the run.
-     * boolean type.  
+     * Property key indicating that an automatic proof is on the run. This will
+     * be set by all actions in actions.auto. <br>
+     * Type: Boolean
      */
     public static final String ONGOING_PROOF = "pseudo.ongoing_proof";
     

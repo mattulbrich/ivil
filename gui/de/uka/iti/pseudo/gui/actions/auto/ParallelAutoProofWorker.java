@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -37,6 +38,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
     private final Strategy strategy;
     private final ProofCenter pc;
     private final Frame parentFrame;
+    private final ParallelAutoProofAction action;
     private final JDialog dialog;
     private final JLabel raCount, workCount, unclosableCount, timeElapsed;
     // start time; subtract 500ms for proper rounding
@@ -46,13 +48,13 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
 
     private final int initialyClosableGoals;
 
-    public ParallelAutoProofWorker(List<ProofNode> nodes, PooledAutoProver pool, ProofCenter pc, Strategy strategy,
-            Frame frame) {
-        this.nodes = nodes;
-        this.pool = pool;
+    public ParallelAutoProofWorker(ProofCenter pc, ParallelAutoProofAction action, final Frame frame) {
+        this.nodes = new LinkedList<ProofNode>(action.getInitialList());
+        this.strategy = pc.getStrategyManager().getSelectedStrategy();
+        this.pool = new PooledAutoProver(strategy, pc.getEnvironment());
         this.pc = pc;
-        this.strategy = strategy;
-        parentFrame = frame;
+        this.parentFrame = frame;
+        this.action = action;
 
         this.initialyClosableGoals = pc.getProof().getOpenGoals().size() - this.nodes.size();
 
@@ -87,7 +89,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
                 GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
                         10, 2, 2, 2), 0, 0));
         {
-            JButton stop = new JButton("S T O P");
+            JButton stop = new JButton("Stop");
             stop.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -95,7 +97,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
                         ParallelAutoProofWorker.this.pool.stopAutoProve(true);
                     } catch (Exception ex) {
                         Log.stacktrace(ex);
-                        ExceptionDialog.showExceptionDialog(parentFrame, ex);
+                        ExceptionDialog.showExceptionDialog(frame, ex);
                     }
                     timer.stop();
                     dialog.setVisible(false);
@@ -104,7 +106,6 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
             buttons.add(stop);
         }
         {
-            // TODO Good idea or not?
             JButton bg = new JButton("Run in background");
             bg.addActionListener(new ActionListener() {
                 @Override
@@ -118,31 +119,22 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         
         dialog.pack();
         dialog.setResizable(false);
-        
+        dialog.setLocationRelativeTo(frame);
     }
 
     public void showDialog(){
 
-        // stop auto proving if the user closed the stats dialog
-//        dialog.addWindowListener(new WindowAdapter() {
-//            public void windowClosing(WindowEvent we) {
-//                try {
-//                    pool.stopAutoProve(true);
-//                } catch (Exception ex) {
-//                    Log.stacktrace(ex);
-//                    ExceptionDialog.showExceptionDialog(parentFrame, ex);
-//                }
-//            }
-//        });
-//        
         if (!isDone()) {
-            dialog.setLocationRelativeTo(parentFrame);
             timer.start();
             dialog.setVisible(true);
         }
     }
 
     public Void doInBackground() {
+        // wait for dialog to pop up, to avoid race conditions caused by closing
+        // the proof automatically to fast
+
+        // FIXME some semaphore here
 
         // get exceptions
         try {
@@ -181,6 +173,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         // close the dialog, as it is not interesting for the user any more
         dialog.setVisible(false);
         timer.stop();
+        action.job = null;
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
         // some listeners have been switched off, they might want to update now.

@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.util.CompoundException;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
@@ -45,7 +46,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
-    private ParallelAutoProofWorker job = null;
+    ParallelAutoProofWorker job = null;
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
@@ -61,36 +62,27 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      * ongoing proof. If so: bring up its modal dialog, otherwise create a new
      * job and run it and display the dialog.
      */
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent event) {
         
-        if(ongoingProof) {
-            
-            if(job != null)
-                job.showDialog();
-            
+        if (job != null) {
+            try {
+                job.halt();
+                setIcon(goIcon);
+            } catch (CompoundException e) {
+                Log.stacktrace(e);
+                ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                setIcon(goIcon);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         } else {
-        
             // start auto proving
             final ProofCenter proofCenter = getProofCenter();
-            final Strategy strategy = proofCenter.getStrategyManager().getSelectedStrategy();
 
-            job = new ParallelAutoProofWorker(getInitialList(),
-                    new PooledAutoProver(strategy, proofCenter.getEnvironment()), proofCenter, strategy, getParentFrame());
+            job = new ParallelAutoProofWorker(proofCenter, this, getParentFrame());
 
             proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
             
-            // moved the following to the Job.
-//            try {
-//                strategy.beginSearch();
-//            } catch (StrategyException ex) {
-//                // abort, as the strategy can't be used for some reason
-//                Log.stacktrace(ex);
-//                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-//                // TODO where is job set to null again after finishing it? Why to null here?
-//                job = null;
-//                return;
-//            }
-
             job.execute();
             // block ui with a modal dialog
             job.showDialog();
@@ -107,7 +99,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             ongoingProof = (Boolean) evt.getNewValue();
-            setIcon(ongoingProof ? stopIcon : goIcon);
+            setIcon(null != job ? stopIcon : goIcon);
         }
     }
 
