@@ -9,6 +9,14 @@ public class SimpleLog implements Log.LogImplementation {
      * Settings uses Log and always prints a message.
      */
     private int minLevel = Integer.getInteger("pseudo.log", Log.ERROR);
+    
+    public SimpleLog() {
+    }
+    
+    public SimpleLog(int minLevel) {
+        this();
+        setMinLevel(minLevel);
+    }
 
     
     public int getMinLevel() {

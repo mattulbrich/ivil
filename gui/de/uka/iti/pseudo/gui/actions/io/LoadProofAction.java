@@ -23,7 +23,6 @@ import javax.swing.SwingWorker;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -31,7 +30,6 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
 // TODO Documentation needed
 
@@ -47,13 +45,13 @@ import de.uka.iti.pseudo.util.GUIUtil;
     // at the moment there is only one, so hard code it
     private ProofImport proofImport = new ProofXML();
 
-    public LoadProofAction() {
-        super("Load proof ...", GUIUtil.makeIcon(LoadProofAction.class
-.getResource("../img/page.png")));
-        putValue(ACTION_COMMAND_KEY, "loadProb");
-        putValue(SHORT_DESCRIPTION,
-                "load a proof to the currently active problem");
-    }
+//    public LoadProofAction() {
+//        super("Load proof ...", GUIUtil.makeIcon(LoadProofAction.class
+//.getResource("../img/page.png")));
+//        putValue(ACTION_COMMAND_KEY, "loadProb");
+//        putValue(SHORT_DESCRIPTION,
+//                "load a proof to the currently active problem");
+//    }
 
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);

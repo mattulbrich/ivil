@@ -46,13 +46,13 @@ import de.uka.iti.pseudo.util.GUIUtil;
 public class SaveProofAction extends BarAction 
     implements PropertyChangeListener, InitialisingAction {
     
-    public SaveProofAction() {
-        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("../img/page_save.png")));
-        putValue(ACTION_COMMAND_KEY, "saveProb");
-        putValue(SHORT_DESCRIPTION, "save a proof to the currently active problem");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
-        putValue(MNEMONIC_KEY, KeyEvent.VK_S);
-    }
+//    public SaveProofAction() {
+//        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("../img/page_save.png")));
+//        putValue(ACTION_COMMAND_KEY, "saveProb");
+//        putValue(SHORT_DESCRIPTION, "save a proof to the currently active problem");
+//        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
+//        putValue(MNEMONIC_KEY, KeyEvent.VK_S);
+//    }
     
     /*
      * Add myself as a listener to IN_PROOF messages. 

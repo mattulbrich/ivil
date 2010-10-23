@@ -123,12 +123,12 @@ public class AutomaticFileProver implements Callable<Result> {
 
     /**
      * the timeout set for this prover.
-     * -1 means no timeout. A positive value a time span in milliseconds.
+     * -1 means no timeout. A positive value a time span in seconds.
      * 
      * @param timeout the timeout to set
      */
     public void setTimeout(int timeout) {
-        assert timeout == 1 || timeout > 0;
+        assert timeout == -1 || timeout > 0 : timeout;
         this.timeout = timeout;
     }
 
@@ -180,7 +180,7 @@ public class AutomaticFileProver implements Callable<Result> {
         
         TimingOutTask timingOut = null;
         if(timeout > 0) {
-            timingOut = new TimingOutTask(timeout);
+            timingOut = new TimingOutTask(timeout * 1000);
             timingOut.schedule();
         }
         

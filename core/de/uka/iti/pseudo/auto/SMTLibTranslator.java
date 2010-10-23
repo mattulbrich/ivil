@@ -432,14 +432,14 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             int arity = sort.getArity();
             if (arity > 0) {
                 sb.setLength(0);
-                sb.append("(forall (");
+                sb.append("(forall ");
                 for (int i = 0; i < arity; i++) {
                     sb.append("(?t" + i + " Type) ");
                 }
                 for (int i = 0; i < arity; i++) {
                     sb.append("(?u" + i + " Type) ");
                 }
-                sb.append(") (implies (= (ty.").append(sort.getName());
+                sb.append(" (implies (= (ty.").append(sort.getName());
                 for (int i = 0; i < arity; i++) {
                     sb.append(" ?t" + i);
                 }
@@ -461,11 +461,11 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         // type distinct
         sb.setLength(0);
         if (maxArity > 0) {
-            sb.append("(forall (");
+            sb.append("(forall ");
             for (int i = 0; i < maxArity; i++) {
                 sb.append("(?t" + i + " Type) ");
             }
-            sb.append(") (distinct");
+            sb.append("(distinct");
             for (Sort sort : allSorts) {
                 int arity = sort.getArity();
                 if (arity > 0) {
@@ -778,37 +778,39 @@ public class SMTLibTranslator extends DefaultTermVisitor {
                         append(                                ")");
                 
             } else {
-                sb.append("(forall (");
+                sb.append("(forall ");
                 
                 for (TypeVariable typeVariable : resultOnlyTypeVariables) {
-                    sb.append(" (?Type.").append(typeVariable.getVariableName()).append(" Type)");
+                    sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
                 }
                 
                 for (TypeVariable typeVariable : argumentTypeVariables) {
-                    sb.append(" (?Type.").append(typeVariable.getVariableName()).append(" Type)");
+                    sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
                 }
                 
                 for (int i = 0; i < argTypes.length; i++) {
-                    sb.append(" (?x").append(i).append(" ").append(argTypes[i])
-                    .append(")");
+                    sb.append("(?x").append(i).append(" ").append(argTypes[i])
+                        .append(") ");
                 }
 
-                sb.append(")");
+                // sb.append(")");
 
                 if (varInResult) {
-                    sb.append(" (implies (and");
+                    sb.append("(implies (and");
                     for (int i = 0; i < argTypes.length; i++) {
-                        sb
+                        if("Universe".equals(argTypes[i])) {
+                            sb
                                 .append(" (= (ty ?x")
                                 .append(i)
                                 .append(") ")
                                 .append(fctArgTypes[i].accept(typeToTerm, true))
                                 .append(")");
+                        }
                     }
-                    sb.append(")");
+                    sb.append(") ");
                 }
 
-                sb.append(" (= (ty (").append(name);
+                sb.append("(= (ty (").append(name);
                 for (TypeVariable typeVariable : resultOnlyTypeVariables) {
                     sb.append(" ?Type.").append(typeVariable.getVariableName());
                 }

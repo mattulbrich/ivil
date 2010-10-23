@@ -177,16 +177,16 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         
         trans.translate(makeTerm("bf(univResult(0))"), FORMULA);
         assertEquals("Typing for function symbol fct.univResult\n" +
-                        "(forall ( (?Type.a Type) (?x0 Universe)) (= (ty (fct.univResult ?x0)) ty.bool))", trans.assumptions.getLast());
+                        "(forall (?Type.a Type) (?x0 Universe) (= (ty (fct.univResult ?x0)) ty.bool))", trans.assumptions.getLast());
         
         trans.translate(makeTerm("bf(alphaResult(0))"), FORMULA);
         assertEquals("Typing for function symbol fct.alphaResult\n" +
-                "(forall ( (?Type.a Type) (?x0 Universe)) (implies (and (= (ty ?x0) ?Type.a))" +
+                "(forall (?Type.a Type) (?x0 Universe) (implies (and (= (ty ?x0) ?Type.a))" +
                 " (= (ty (fct.alphaResult ?x0)) ?Type.a)))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(freeResult(0) as int)"), FORMULA);
         assertEquals("Typing for function symbol fct.freeResult\n" +
-                "(forall ( (?Type.b Type) (?Type.a Type) (?x0 Universe)) (implies (and (= (ty ?x0) ?Type.a))" +
+                "(forall (?Type.b Type) (?Type.a Type) (?x0 Universe) (implies (and (= (ty ?x0) ?Type.a))" +
                 " (= (ty (fct.freeResult ?Type.b ?x0)) ?Type.b)))", trans.assumptions.getLast());
     }
     

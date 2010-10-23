@@ -9,10 +9,13 @@ include
 sort 
   array('type)
 
+plugin
+  prettyPrinter : "test.ArrayPrettyPrinter"
+
 function
   int length(array('a))
   bool inDom(array('a), int)
-  array(int) id
+  array(int) id(int)
 
   array('a) write(array('a), int, 'a)
   'a read(array('a), int)
@@ -27,18 +30,50 @@ function
  * definitions ... axioms
  *)
 
+axiom array_theory
+  (\T_all 'a; (\forall a as array('a); (\forall i as int;
+    (\forall j as int; (\forall v as 'a;
+    read(write(a, i, v), j) = cond(i=j, v, read(a, j)))))))
+
+axiom write_length
+  (\T_all 'a; (\forall a as array('a); (\forall i; (\forall v;
+    length(write(a,i,v)) = length(a)))))
+
+axiom id_def
+  (\forall i as int; (\forall n as int;
+      read(id(n), i) = i))
+
+axiom id_len
+  (\forall n; length(id(n)) = n)
+
+axiom swap_def
+  (\T_all 'a; (\forall a as array('a); (\forall  i; (\forall j; 
+    swap(a,i,j) = write(write(a, i, read(a, j)), j, read(a,i))))))
+
+(*
+ * direct consequences as taclets
+ *)
+
 rule read_write
   find read(write(%a, %i, %v), %j)
   replace cond(%i=%j, %v, read(%a, %j))
+  tags derived
 
 rule swap_def
   find swap(%a, %i, %j)
   replace write(write(%a, %i, read(%a, %j)), %j, read(%a, %i))
+  tags derived
 
 rule length_write
   find length(write(%a, %i, %v))
   replace length(%a)
+  tags derived
 
+rule length_id
+  find length(id(%n))
+  replace %n
+  tags derived
+  
 rule inDom_def
   find inDom(%a, %i)
   replace 1 <= %i & %i <= length(%a)
@@ -56,7 +91,7 @@ rule isPerm_def
             (\exists j; inDom(p, j) & read(%a, i) = read(%b, read(p, j)))))
 
 rule id_def
-  find read(id, %i)
+  find read(id(%n), %i)
   replace %i
 
 rule isSorted_def
@@ -112,6 +147,11 @@ rule isPerm_swap
   tags derived
        rewrite "fol simp"
 
+rule isPerm_id
+  find isPermN(id(%n))
+  replace true
+  tags rewrite "concrete"
+
 rule isPerm_refl
   assume %a = %b |-
   find isPerm(%a, %b)
@@ -119,6 +159,10 @@ rule isPerm_refl
   tags # derived
        rewrite "fol simp"  
 
+rule isPerm_refl2
+  find isPerm(%a, %a)
+  replace true
+  tags rewrite "fol simp"
 
 problem
 

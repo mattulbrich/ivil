@@ -90,9 +90,12 @@ public abstract class PrettyPrintPlugin {
     protected void printBoundVariable(Binding binding) {
         printer.setStyle("variable");
         printer.append(binding.getVariableName());
-        if (prettyPrinter.isTyped())
-            printer.append(" as ").append(binding.getType().toString());
         printer.resetPreviousStyle();
+        if (prettyPrinter.isTyped()) {
+            printer.setStyle("type");
+            printer.append(" as ").append(binding.getVariableType().toString());
+            printer.resetPreviousStyle();
+        }
     }
     
     protected boolean isPrintingFix() {
