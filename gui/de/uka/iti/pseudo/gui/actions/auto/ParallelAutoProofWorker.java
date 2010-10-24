@@ -63,10 +63,10 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         dialog.setLayout(new GridBagLayout());
         dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-        raCount = new JLabel("Rules applied: #########");
-        workCount = new JLabel("Open goals: #####");
-        unclosableCount = new JLabel("Unclosable goals: #####");
-        timeElapsed = new JLabel("Running since #### seconds");
+        raCount = new JLabel("Rules applied:          ");
+        workCount = new JLabel("Open goals:      ");
+        unclosableCount = new JLabel("Unclosable goals:      ");
+        timeElapsed = new JLabel("Running since      seconds");
 
         cp.add(new CircleProgressIndicator(), new GridBagConstraints(0, 0, 1, 4, 1, 1,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(
@@ -126,16 +126,14 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
 
         if (!isDone()) {
             timer.start();
+            synchronized (this) {
+            notifyAll();
+            }
             dialog.setVisible(true);
         }
     }
 
     public Void doInBackground() {
-        // wait for dialog to pop up, to avoid race conditions caused by closing
-        // the proof automatically to fast
-
-        // FIXME some semaphore here
-
         // get exceptions
         try {
             strategy.beginSearch();
@@ -149,6 +147,17 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         } catch (Exception e) {
             Log.stacktrace(e);
             ExceptionDialog.showExceptionDialog(parentFrame, e);
+        }
+
+        // wait up to 0.1sec for the dialog to show up; this is an easy fix for
+        // a problem, caused by closing a proof to fast
+        try {
+            synchronized (this) {
+                if (!dialog.isValid())
+                    wait(100);
+            }
+        } catch (InterruptedException e) {
+            // really doesnt matter; if we got interrupted just continue
         }
 
         return null;
