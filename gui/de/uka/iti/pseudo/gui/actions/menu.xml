@@ -174,7 +174,9 @@
 	</editor>
 
 	<prover>
-		<openInEditor>ACTION editor/OpenCurrentInEditorAction</openInEditor>
+		<openInEditor>ACTION editor/OpenCurrentInEditorAction
+		    <icon>img/page_white_text_edit.png</icon>
+		</openInEditor>
 	</prover>
 	
 	<file>
@@ -214,11 +216,15 @@
 	</file>
 
 	<proof>
-		<prune>ACTION PruneAction</prune>
+		<prune>ACTION PruneAction
+		  <icon>img/cut.png</icon>
+		</prune>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
 		<axiom>ACTION InsertAxiomAction</axiom>
-		<conjecture>ACTION ConjectureAction</conjecture>
+		<conjecture>ACTION ConjectureAction
+		    <icon>img/lightbulb_add.png</icon>
+		</conjecture>
 		<decProc>TODO Decision Procedure</decProc>
 		<stepInstr>ACTION auto/StepInstructionAction
             <icon>img/control_play.png</icon>
@@ -263,8 +269,12 @@
 			proofComponent.expandHere proofComponent.expandAll settings.verbosity 
 			SEPARATOR proof.prune proof.conjecture proof.auto proof.autoSubtree
 		</popup>
-		<expandHere>ACTION view/ExpandProofTreeBelowAction</expandHere>
-		<expandAll>ACTION view/FullyExpandProofTreeAction</expandAll>
+		<expandHere>ACTION view/ExpandProofTreeBelowAction
+		    <icon>img/bullet_toggle_plus.png</icon>
+		</expandHere>
+		<expandAll>ACTION view/FullyExpandProofTreeAction
+		    <icon>img/bullet_toggle_2plus.png</icon>
+		</expandAll>
 	</proofComponent>
 	
 	<termComponent>

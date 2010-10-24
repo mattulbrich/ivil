@@ -30,7 +30,7 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     private static final long serialVersionUID = 2727224331227052729L;
 
     public PruneAction() {
-        super("Prune", GUIUtil.makeIcon(PruneAction.class.getResource("img/cut.png")));
+        super("Prune");
         putValue(SHORT_DESCRIPTION, "Cut the current proof at the selected node");
     }
     
@@ -39,6 +39,9 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     }
     
     public void actionPerformed(ActionEvent e) {
+        // FIXME show dialog if proof is closed, to prevent mistaken pruning
+        // with space
+
         Log.enter(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
         

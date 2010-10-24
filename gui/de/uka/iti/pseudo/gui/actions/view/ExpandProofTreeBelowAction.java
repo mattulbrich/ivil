@@ -12,21 +12,15 @@ package de.uka.iti.pseudo.gui.actions.view;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.Icon;
-
 import de.uka.iti.pseudo.gui.ProofComponent;
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.auto.AutoProofAction;
-import de.uka.iti.pseudo.util.GUIUtil;
 
-@SuppressWarnings("serial") 
 public class ExpandProofTreeBelowAction extends BarAction {
-    
-    private static Icon plusIcon = 
- GUIUtil.makeIcon(AutoProofAction.class.getResource("../img/bullet_toggle_plus.png"));
-    
+
+    private static final long serialVersionUID = 3169340947658903144L;
+
     public ExpandProofTreeBelowAction() {
-        super("Expand the proof tree below", plusIcon);
+        super("Expand the proof tree below");
     }
 
     @Override public void actionPerformed(ActionEvent e) {

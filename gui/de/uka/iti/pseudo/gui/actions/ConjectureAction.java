@@ -36,7 +36,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
     public ConjectureAction() {
         super("Add a Conjecture",
- GUIUtil.makeIcon(LoadProblemAction.class.getResource("../img/lightbulb_add.png")));
+ GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/lightbulb_add.png")));
         
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         putValue(SHORT_DESCRIPTION, "Add a hypothesis and prove it");
