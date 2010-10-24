@@ -14,12 +14,13 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JOptionPane;
+
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 
 /**
@@ -39,8 +40,16 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     }
     
     public void actionPerformed(ActionEvent e) {
-        // FIXME show dialog if proof is closed, to prevent mistaken pruning
-        // with space
+        // pruning in closed proofs is mostly undesired, so better ask if thats
+        // really intended
+        if (!getProofCenter().getProof().hasOpenGoals()) {
+            int answer = JOptionPane.showOptionDialog(getParentFrame(),
+                    "The proof is allready closed, do you really want to prune?", "Really?", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
+            
+            if (JOptionPane.NO_OPTION == answer)
+                return;
+        }
 
         Log.enter(e);
         ProofNode proofNode = getProofCenter().getCurrentProofNode();
