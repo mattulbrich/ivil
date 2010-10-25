@@ -171,8 +171,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
     public void actionPerformed(ActionEvent e) {
         raCount.setText("Applications done: " + pool.getSuccessfullApplicationsCount());
         workCount.setText("Open goals: " + pool.getOpenGoalsCount());
-        unclosableCount.setText("Unclosable goals: "
-                + ((pc.getProof().getOpenGoals().size() - pool.getOpenGoalsCount()) - initialyClosableGoals));
+        unclosableCount.setText("Unclosable goals: " + pool.getUnclosableCount());
         timeElapsed.setText("Running since " + (System.currentTimeMillis() - startTime) / 1000 + " second"
                 + (((System.currentTimeMillis() - startTime) / 1000) == 1 ? "" : "s"));
     }

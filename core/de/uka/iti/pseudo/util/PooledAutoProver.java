@@ -69,6 +69,9 @@ public class PooledAutoProver {
                     }
                 } else {
                     Log.log(Log.TRACE, "could not find a rule application for %s\n", node.toString());
+                    synchronized (monitor) {
+                        unclosableGoalsCount++;
+                    }
                 }
 
             } finally {
@@ -95,9 +98,14 @@ public class PooledAutoProver {
     private int workCounter = 0;
 
     /**
-     * The amount of finished jobs
+     * The amount of finished jobs.
      */
     private int applicationsDone = 0;
+
+    /**
+     * The amount of goals that could not be closed with the current strategy.
+     */
+    private int unclosableGoalsCount = 0;
 
     /**
      * The strategy to be used in this search.
@@ -228,5 +236,14 @@ public class PooledAutoProver {
      */
     public int getOpenGoalsCount() {
         return workCounter;
+    }
+
+    /**
+     * @return the amount of currently unclosable goals, that should have been
+     *         clodes by the pool. this can be usefull as indicater to abort
+     *         autoproving
+     */
+    public int getUnclosableCount() {
+        return unclosableGoalsCount;
     }
 }
