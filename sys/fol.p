@@ -93,9 +93,12 @@ rule equality_comm
   find  %t = %u 
   replace %u = %t
 
-(* bring equalities into order if they are not yet *)
+(* bring equalities into order if they are not yet 
+ * This is only of importance if the term is toplevel
+ * in the antecedent since only then it will be applied
+ *)
 rule equality_order
-  find %t = %u
+  find %t = %u |-
   where
     unorderedTerms %t, %u
   replace %u = %t
@@ -119,7 +122,7 @@ rule auto_equality_apply
   replace %u 
   tags
     autoonly
-    rewrite "fol simp"
+    # rewrite "fol simp"
     verbosity "3"
 
 rule equality_unique

@@ -24,6 +24,10 @@ public class TestTermSelector extends TestCaseWithEnv {
 
         TermSelector ts3 = new TermSelector(ts1, 3);
         assertEquals("A.0.1.2.3", ts3.toString());
+        
+        
+        TermSelector ts4 = new TermSelector(ts1, 3, 4, 5);
+        assertEquals("A.0.1.2.3.4.5", ts4.toString());
     }
 
     public void testStringConstructors() throws FormatException {
@@ -104,6 +108,20 @@ public class TestTermSelector extends TestCaseWithEnv {
         TermSelector t1 = new TermSelector("A.1.2.3.4");
         TermSelector t2 = new TermSelector("A.1");
         assertEquals(t1.getToplevelSelector(), t2);
+    }
+    
+    public void testPrefix() throws Exception {
+        TermSelector t = new TermSelector("A.1.2.3.4");
+        TermSelector t1 = new TermSelector("A.1");
+        TermSelector t2 = new TermSelector("A.1.3");
+        TermSelector t3 = new TermSelector("S.1.2.3.4");
+        
+        assertTrue(t.hasPrefix(t1));
+        assertTrue(t.hasPrefix(t));
+        assertFalse(t.hasPrefix(t2));
+        assertFalse(t.hasPrefix(t3));
+        
+        assertFalse(t1.hasPrefix(t));
     }
 
 }

@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
 import de.uka.iti.pseudo.proof.TestProofNode;
+import de.uka.iti.pseudo.proof.TestRuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TestSubtermSelector;
 import de.uka.iti.pseudo.proof.TestTermSelector;
 import de.uka.iti.pseudo.proof.serialisation.TestValidXSD;
@@ -69,6 +70,7 @@ public class AllTests {
         suite.addTestSuite(TestProgramParser.class);
         suite.addTestSuite(TestProgramChanger.class);
         suite.addTestSuite(TestRuleParsing.class);
+        suite.addTestSuite(TestRuleApplicationMaker.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);
         suite.addTestSuite(TestUpdSimplification.class);

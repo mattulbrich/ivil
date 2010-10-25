@@ -75,28 +75,32 @@ public class SubtermSelector {
             this.selectorInfo[i] = (byte) path[i];
         }
     }
-    
+
     /**
-     * Instantiates a new term selector from a term selector and a subterm
-     * number.
+     * Instantiates a new term selector from a term selector and an additional
+     * path.
      * 
      * <p>
-     * The created selector contains the same information as the argument.
-     * Only the path to the subterm is augmented by subtermNo.
+     * The created selector the first argument's path augmented by the second
+     * argument.
      * 
      * @param termSelector
      *            the term selector to modify
-     * @param subtermNo
-     *            the subterm number to select
+     * @param path
+     *            the path to augment
      */
-    public SubtermSelector(@NonNull SubtermSelector termSelector, int subtermNo) {
-        assert subtermNo >= 0 && subtermNo <= Byte.MAX_VALUE;
-
-        selectorInfo = new byte[termSelector.selectorInfo.length + 1];
-        for (int i = 0; i < termSelector.selectorInfo.length; i++) {
-            this.selectorInfo[i] = termSelector.selectorInfo[i];
+    public SubtermSelector(@NonNull SubtermSelector termSelector, int... path) {
+        int orgLen = termSelector.getDepth();
+        
+        selectorInfo = new byte[orgLen + path.length];
+        
+        System.arraycopy(termSelector.selectorInfo, 0, 
+                selectorInfo, 0, orgLen);
+        
+        for (int i = 0; i < path.length; i++) {
+            assert path[i] >= 0 && path[i] <= Byte.MAX_VALUE;
+            selectorInfo[i + orgLen] = (byte) path[i];
         }
-        selectorInfo[selectorInfo.length-1] = (byte) subtermNo;
     }
     
     /**
@@ -203,22 +207,22 @@ public class SubtermSelector {
         return Arrays.hashCode(selectorInfo);
     }
 
-    /**
-     * If this selector selects a top level term, then this method selects a
-     * subterm of the term.
-     * 
-     * @param subtermNo
-     *            the subterm number of the term to select
-     * 
-     * @return a TermSelector with side and term number as this object and the
-     *         subterm subtermNo
-     * 
-     * @deprecated Use {@link #SubtermSelector(SubtermSelector, int)} instead
-     */
-    @Deprecated
-    public SubtermSelector selectSubterm(int subtermNo) {
-        return new SubtermSelector(this, subtermNo);
-    }
+//    /**
+//     * If this selector selects a top level term, then this method selects a
+//     * subterm of the term.
+//     * 
+//     * @param subtermNo
+//     *            the subterm number of the term to select
+//     * 
+//     * @return a TermSelector with side and term number as this object and the
+//     *         subterm subtermNo
+//     * 
+//     * @deprecated Use {@link #SubtermSelector(SubtermSelector, int)} instead
+//     */
+//    @Deprecated
+//    public SubtermSelector selectSubterm(int subtermNo) {
+//        return new SubtermSelector(this, subtermNo);
+//    }
     
     /**
      * Gets the path as list of integers.
@@ -311,6 +315,21 @@ public class SubtermSelector {
      */
     public int getSubtermNumber(int index) {
         return selectorInfo[index];
+    }
+
+    // TODO DOC
+    public boolean hasPrefix(SubtermSelector stSel) {
+        if(getDepth() < stSel.getDepth()) {
+            return false;
+        }
+        
+        for (int i = 0; i < stSel.getDepth(); i++) {
+            if(selectorInfo[i] != stSel.selectorInfo[i]) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
 }

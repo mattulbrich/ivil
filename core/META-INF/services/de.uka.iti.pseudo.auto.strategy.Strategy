@@ -3,5 +3,7 @@ de.uka.iti.pseudo.auto.strategy.BreakpointStrategy
 de.uka.iti.pseudo.auto.strategy.SimplificationStrategy
 de.uka.iti.pseudo.auto.strategy.SMTStrategy
 
+de.uka.iti.pseudo.auto.strategy.KnowledgeStrategy
+
 # !!! must be the last
 de.uka.iti.pseudo.auto.strategy.CompoundStrategy

@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -16,7 +15,9 @@ import java.util.Map;
 import java.util.Stack;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
@@ -109,6 +110,39 @@ public class RuleApplicationMaker implements RuleApplication {
 
     public TermUnification getTermUnification() {
         return termUnification;
+    }
+
+    /**
+     * Matches the clauses (find and assumptions) against their selected
+     * counterparts of the proof node.
+     * 
+     * We need to have set all assumption selectors, the find selector, the rule
+     * and the proof node.
+     * 
+     * This method may succeed even if the rule is not applicable afterwards:
+     * This is because located terms are not checked.
+     * @throws ProofException if the sequent does not match the rule entities.
+     */
+    public void matchInstantiations() throws ProofException {
+
+        assert rule != null;
+
+        Sequent sequent = proofNode.getSequent();
+        
+        LocatedTerm findClause = rule.getFindClause();
+        if(findClause != null && findSelector != null) {
+            Term findRule = findClause.getTerm();
+            Term findSeq = findSelector.selectSubterm(sequent);
+            termUnification.leftUnify(findRule, findSeq);
+        }
+        
+        int i=0;
+        for (LocatedTerm assumption : rule.getAssumptions()) {
+            Term assRule = assumption.getTerm();
+            Term assSeq = assumeSelectors.get(i++).selectSubterm(sequent);
+            termUnification.leftUnify(assRule, assSeq);
+        }
+        
     }
 
     

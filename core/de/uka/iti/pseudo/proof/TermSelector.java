@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -91,7 +90,8 @@ public class TermSelector {
         
         this.inAntecedent = inAntecedent;
         this.termNumber = (byte) termNo;
-        if(path != null)
+        // FIXME can this ever be null
+        if(path != null && path.length > 0)
             this.subtermSelector = new SubtermSelector(path);
         else
             this.subtermSelector = EMPTY_SUBTERMSELECTOR;
@@ -103,19 +103,17 @@ public class TermSelector {
      * 
      * <p>
      * The created selector contains the same information as the argument.
-     * Only the path to the subterm is augmented by subtermNo.
+     * Only the path to the subterm is augmented by the given path.
      * 
      * @param termSelector
      *            the term selector to modify
-     * @param subtermNo
-     *            the subterm number to select
+     * @param path
+     *            the path to select
      */
-    public TermSelector(TermSelector termSelector, int subtermNo) {
+    public TermSelector(TermSelector termSelector, int... path) {
         this.inAntecedent = termSelector.inAntecedent;
         this.termNumber = termSelector.termNumber;
-        this.subtermSelector = new SubtermSelector(termSelector.subtermSelector, subtermNo);
-        
-        assert subtermNo >= 0 && subtermNo <= Byte.MAX_VALUE;
+        this.subtermSelector = new SubtermSelector(termSelector.subtermSelector, path);
     }
 
     /**
@@ -331,7 +329,7 @@ public class TermSelector {
 
         int termNo = getTermNo();
         if (termNo < 0 || termNo >= terms.size())
-            throw new ProofException("Can select " + this);
+            throw new ProofException("Cannot select " + this + " in " + sequent);
 
         return terms.get(termNo);
     }
@@ -362,5 +360,30 @@ public class TermSelector {
 
     public SubtermSelector getSubtermSelector() {
         return subtermSelector;
+    }
+
+    
+    /**
+     * Checks whether this term selector has another term selector as prefix.
+     * 
+     * <p>
+     * The result is equivalent to
+     * <pre>this.toString().startsWith(prefix.toString())</pre> 
+     * 
+     * @param prefix
+     *            the term selector which may be a prefix to this. 
+     * 
+     * @return true iff the argument is a prefix to this selector.
+     */
+    public boolean hasPrefix(@NonNull TermSelector prefix) {
+        if(isAntecedent() != prefix.isAntecedent()) {
+            return false;
+        }
+
+        if(getTermNo() != prefix.getTermNo()) {
+            return false;
+        }
+        
+        return getSubtermSelector().hasPrefix(prefix.getSubtermSelector());
     }
 }
