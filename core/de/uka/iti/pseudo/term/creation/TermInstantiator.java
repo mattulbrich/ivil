@@ -36,8 +36,9 @@ public class TermInstantiator extends RebuildingTermVisitor {
     private Map<String, Type> typeMap;
     private Map<String, Update> updateMap;
 
-    public TermInstantiator(Map<String, Term> termMap, Map<String, Type> typeMap, Map<String, Update> updateMap) {
-        super();
+    public TermInstantiator(Map<String, Term> termMap,
+            Map<String, Type> typeMap, Map<String, Update> updateMap) {
+    super();
         this.termMap = termMap;
         this.typeMap = typeMap;
         this.updateMap = updateMap;
@@ -207,5 +208,11 @@ public class TermInstantiator extends RebuildingTermVisitor {
         } else {
             resultingTerm = null;
         }
+    }
+    
+    @Override
+    public String toString() {
+        return "TermInstantiator[terms=" + termMap + "; types=" + typeMap
+                + "; updates=" + updateMap + "]";
     }
 }

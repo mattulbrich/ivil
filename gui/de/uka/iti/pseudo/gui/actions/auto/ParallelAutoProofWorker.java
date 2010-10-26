@@ -46,7 +46,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
     
     private Timer timer = new Timer(REFRESH_DELAY, this);
 
-    private final int initialyClosableGoals;
+//    private final int initialyClosableGoals;
 
     public ParallelAutoProofWorker(ProofCenter pc, ParallelAutoProofAction action, final Frame frame) {
         this.nodes = new LinkedList<ProofNode>(action.getInitialList());
@@ -56,7 +56,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         this.parentFrame = frame;
         this.action = action;
 
-        this.initialyClosableGoals = pc.getProof().getOpenGoals().size() - this.nodes.size();
+//        this.initialyClosableGoals = pc.getProof().getOpenGoals().size() - this.nodes.size();
 
         dialog = new JDialog(frame, "Auto proving ...", true);
         Container cp = dialog.getContentPane();
@@ -181,7 +181,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         // close the dialog, as it is not interesting for the user any more
         dialog.setVisible(false);
         timer.stop();
-        action.job = null;
+        action.setJob(null);
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
         // some listeners have been switched off, they might want to update now.

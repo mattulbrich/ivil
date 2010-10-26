@@ -162,6 +162,8 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
             }
         }
 
+        //
+        // fall back to string comparison
         return t1.toString(false).compareTo(t2.toString(false));
     }
 

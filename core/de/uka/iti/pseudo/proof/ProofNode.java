@@ -492,9 +492,15 @@ public class ProofNode implements Comparable<ProofNode> {
             Rule rule, Environment env) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                if(!whereClause.applyTo(inst, ruleApp, this, env))
-                    throw new ProofException("WhereClause failed: " + whereClause);
+                if(!whereClause.applyTo(inst, ruleApp, this, env)) {
+                    Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
+                    Log.log(Log.DEBUG, "Term inst: " + inst);
+                    throw new ProofException("WhereClause failed: " + whereClause + 
+                            ", instantiation: " + inst);
+                }
             } catch (RuleException e) {
+                Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
+                Log.log(Log.DEBUG, "Term inst: " + inst);
                 throw new ProofException("WhereClause not applicable: " + whereClause, e);
             }
         }

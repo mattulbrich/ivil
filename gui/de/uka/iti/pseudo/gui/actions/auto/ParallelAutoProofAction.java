@@ -16,8 +16,6 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import de.uka.iti.pseudo.auto.strategy.Strategy;
-import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
@@ -28,7 +26,6 @@ import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
-import de.uka.iti.pseudo.util.PooledAutoProver;
 
 /**
  * This action tries to close a given list of open goals by searching for rule
@@ -46,7 +43,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
-    ParallelAutoProofWorker job = null;
+    private ParallelAutoProofWorker job = null;
 
     public ParallelAutoProofAction(String name) {
         super(name, goIcon);
@@ -110,4 +107,12 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      *         current strategy and closed, if possible.
      */
     public abstract List<ProofNode> getInitialList();
+
+    public void setJob(ParallelAutoProofWorker job) {
+        this.job = job;
+    }
+
+    public ParallelAutoProofWorker getJob() {
+        return job;
+    }
 }
