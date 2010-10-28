@@ -21,7 +21,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -64,23 +64,20 @@ public class ProgramPanel extends CodePanel {
     }
 
     @Override protected void addHighlights() {
-        List<LiteralProgramTerm> progTerms = getFoundProgramTerms();
-        for (LiteralProgramTerm progTerm : progTerms) {
-            Program program = progTerm.getProgram();
-            if(program == getDisplayedResource()) {
-                int index = progTerm.getProgramIndex();
-                if (index < program.countStatements())
-                    getSourceComponent().addHighlight(index);
+        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations()) {
+            if (location.program == getDisplayedResource()) {
+                if (location.line < ((Program) location.program).countStatements())
+                    getSourceComponent().addHighlight(location.line);
             }
         }
     }
 
     @Override protected Object chooseResource() {
-        List<LiteralProgramTerm> progTerms = getFoundProgramTerms();
-        if(progTerms.isEmpty()) {
+        CodeLocation[] locations = proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations();
+        if (locations.length == 0) {
             return null;
         }
-        return progTerms.get(0).getProgram();
+        return locations[0].program;
     }
 
     @Override protected ComboBoxModel getAllResources() {

@@ -17,8 +17,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
@@ -28,11 +26,6 @@ import javax.swing.JScrollPane;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.TermVisitor;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
@@ -41,16 +34,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     private BreakpointPane sourceComponent;
     private int numberOfKnownPrograms = 0;
     private JComboBox selectionBox;
-    private ProofCenter proofCenter;
+    protected final ProofCenter proofCenter;
     private BreakpointManager breakpointManager;
     private Object displayedResource;
-    private List<LiteralProgramTerm> foundProgramTerms = new ArrayList<LiteralProgramTerm>();
-    
-    private TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-        public void visit(LiteralProgramTerm progTerm) throws TermException {
-            foundProgramTerms.add(progTerm);
-        }
-    };
     
     public CodePanel(ProofCenter proofCenter, boolean showLinenumbers, 
             Color foregroundColor) throws IOException {
@@ -87,6 +73,12 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         // manually scroll to top
         sourceComponent.setLocation(0, 0);
         sourceComponent.setBreakPointResource(displayedResource);
+
+        // create highlights for selected source
+        sourceComponent.removeHighlights();
+        if (null == proofCenter.getCurrentProofNode())
+            return;
+        addHighlights();
     }
     
     @Override 
@@ -108,8 +100,6 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }
         
-        recalcProgramTerms(node);
-        
         Object resource = chooseResource();
         if(resource != null && resource != displayedResource) {
             selectionBox.setSelectedItem(resource);
@@ -119,24 +109,6 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         
         getSourceComponent().removeHighlights();
         addHighlights();
-    }
-    
-    private void recalcProgramTerms(ProofNode node) {
-
-        foundProgramTerms.clear();
-        try {
-            for (Term t : node.getSequent().getAntecedent()) {
-                t.visit(programFindVisitor);
-            }
-
-            for (Term t : node.getSequent().getSuccedent()) {
-                t.visit(programFindVisitor);
-            }
-        } catch (TermException e) {
-            // never thrown
-            throw new Error(e);
-        }
-
     }
 
     abstract protected String makeContent(Object reference);
@@ -158,9 +130,4 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     public Object getDisplayedResource() {
         return displayedResource;
     }
-    
-    public List<LiteralProgramTerm> getFoundProgramTerms() {
-        return foundProgramTerms;
-    }
-    
 }

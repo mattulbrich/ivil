@@ -23,7 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -71,29 +71,26 @@ public class SourcePanel extends CodePanel {
 
     }
     
-    @Override protected void addHighlights() {
-        for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
-            URL source = progTerm.getProgram().getSourceFile();
-            Object displayedResource = getDisplayedResource();
-            if (source != null && source.equals(displayedResource)) {
-                int sourceLine = progTerm.getStatement().getSourceLineNumber();
-                if (sourceLine > 0) {
+    @Override
+    protected void addHighlights() {
+        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
+            if (location.program == getDisplayedResource()) {
+                // FIXME how can this be false?
+                if (location.line > 0) {
                     // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(sourceLine - 1);
+                    getSourceComponent().addHighlight(location.line - 1);
                 }
             }
         }
     }
 
-    @Override protected Object chooseResource() {
-        for (LiteralProgramTerm progTerm : getFoundProgramTerms()) {
-            URL source = progTerm.getProgram().getSourceFile();
-            // TODO check whether URL can be read
-            if (source != null) {
-                return source;
-            }
+    @Override
+    protected Object chooseResource() {
+        CodeLocation[] locations = proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations();
+        if (locations.length == 0) {
+            return null;
         }
-        return null;
+        return locations[0].program;
     }
 
 }
