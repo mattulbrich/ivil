@@ -11,10 +11,13 @@
 package de.uka.iti.pseudo.term;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import nonnull.NonNull;
-
+import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 
@@ -33,12 +36,25 @@ public class Sequent {
      * The succedent.
      */
     private Term[] succedent;
-    
+
+    /**
+     * Native code locations, i.e. ivil byte code oder BoogiePL code
+     */
+    private final CodeLocation[] nativeCodeLocations;
+
+    /**
+     * Source code locations, i.e. any code that was used to generate the
+     * corresponding native code. Source code will be empty if no corresponding
+     * source code can be found.
+     */
+    private final CodeLocation[] sourceCodeLocations;
+
     /**
      * Instantiates a new sequent.
      * 
-     * The given arrays are not stored in the sequent themselves but are (shallow-) copied first. You can savely change them 
-     * after the constructor call. 
+     * The given arrays are not stored in the sequent themselves but are
+     * (shallow-) copied first. You can savely change them after the constructor
+     * call.
      * 
      * @param antecedent
      *            the terms in the antecedent
@@ -70,6 +86,53 @@ public class Sequent {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
         check();
+
+        // collectCodeLocations
+        {
+            final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
+
+            TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+                public void visit(LiteralProgramTerm progTerm) throws TermException {
+                    progTerms.add(progTerm);
+                }
+            };
+            try {
+                for (Term t : antecedent) {
+                    t.visit(programFindVisitor);
+                }
+
+                for (Term t : succedent) {
+                    t.visit(programFindVisitor);
+                }
+            } catch (TermException e) {
+                // never thrown
+                throw new Error(e);
+            }
+
+            if (progTerms.isEmpty()) {
+                nativeCodeLocations = sourceCodeLocations = new CodeLocation[0];
+            } else {
+                Set<CodeLocation> nativ = new HashSet<CodeLocation>();
+                Set<CodeLocation> source = new HashSet<CodeLocation>();
+
+                for (LiteralProgramTerm t : progTerms) {
+                    nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
+                    if(null != t.getProgram().getSourceFile())
+                        source.add(new CodeLocation(t.getStatement().getSourceLineNumber()
+                                , t.getProgram().getSourceFile()));
+                }
+
+                nativeCodeLocations = new CodeLocation[nativ.size()];
+                int i = 0;
+                for (CodeLocation c : nativ)
+                    nativeCodeLocations[i++] = c;
+
+                sourceCodeLocations = new CodeLocation[source.size()];
+                i = 0;
+                for (CodeLocation c : source)
+                    sourceCodeLocations[i++] = c;
+            }
+        }
     }
 
     /*
@@ -104,6 +167,21 @@ public class Sequent {
         return Util.readOnlyArrayList(succedent);
     }
     
+    /**
+     * @return the native code locations
+     */
+    public CodeLocation[] getNativeCodeLocations(){
+        return nativeCodeLocations;
+    }
+
+    /**
+     * @return the source code locations; these might be empty although native
+     *         code locations exist
+     */
+    public CodeLocation[] getSourceCodeLocations() {
+        return sourceCodeLocations;
+    }
+
     /**
      * A sequent is represented as a string as two comma separated lists of term
      * strings separated by <code>|-</code>. The antecedent appears on the

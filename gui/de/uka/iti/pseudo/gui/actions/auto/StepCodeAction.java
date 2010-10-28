@@ -15,8 +15,6 @@ import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
@@ -26,6 +24,7 @@ import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
@@ -42,25 +41,6 @@ public abstract class StepCodeAction extends BarAction implements
         PropertyChangeListener, InitialisingAction, NotificationListener {
     
     private static final long serialVersionUID = 5444254542006126131L;
-
-    public static class CodeLocation{
-        public boolean isUnique;
-        public int line;
-        public Object program;
-
-        public boolean equals(CodeLocation c) {
-            return c.program != null && program != null && c.line == line
-                    && c.program.equals(program);
-        }
-
-        /**
-         * @return true iff the code location can be mapped to a unique source
-         *         line in exactly one program.
-         */
-        public boolean isValid(){
-            return program != null && line >= 0 && isUnique;
-        }
-    }
     
     protected ProofNode selectedProofNode;
 
@@ -74,8 +54,8 @@ public abstract class StepCodeAction extends BarAction implements
      * @param node
      *            the node to be queried for code line information
      * 
-     * @return null if no code location exists on the proof node; a valid code
-     *         location else
+     * @return null if no unique code location exists on the proof node; a valid
+     *         code location else
      */
     protected abstract CodeLocation getCodeLocation(ProofNode node);
 
@@ -97,10 +77,9 @@ public abstract class StepCodeAction extends BarAction implements
 
         final CodeLocation loc = getCodeLocation(selectedProofNode);
 
-        // you cannot step for a line, if you can't identify your line number
-        // uniquely
-        if (null == loc || !loc.isUnique)
-            return;
+        // stepping should be disabled if no unique code location can be
+        // identified
+        assert (null != loc);
 
         final ProofCenter pc = getProofCenter();
         final Strategy strategy = pc.getStrategyManager().getSelectedStrategy();
@@ -131,7 +110,7 @@ public abstract class StepCodeAction extends BarAction implements
 
                             for (ProofNode node : current.getChildren()) {
                                 CodeLocation next = getCodeLocation(node);
-                                if (null == next || (next.equals(loc) && next.isUnique)) {
+                                if (null == next || next.equals(loc)) {
                                     todo.add(node);
                                 }
                             }
@@ -173,8 +152,7 @@ public abstract class StepCodeAction extends BarAction implements
         {
             selectedProofNode = (ProofNode) evt.getNewValue();
 
-            final CodeLocation loc = getCodeLocation(selectedProofNode);
-            setEnabled(null == selectedProofNode.getChildren() && null != loc && loc.isValid());
+            setEnabled(null == selectedProofNode.getChildren() && null != getCodeLocation(selectedProofNode));
         }
         
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName()))
@@ -200,8 +178,7 @@ public abstract class StepCodeAction extends BarAction implements
     @Override
     public void handleNotification(NotificationEvent evt) {
         if(evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
-            final CodeLocation loc = getCodeLocation(selectedProofNode);
-            setEnabled(null == selectedProofNode.getChildren() && null != loc && loc.isValid());
+            setEnabled(null == selectedProofNode.getChildren() && null != getCodeLocation(selectedProofNode));
         }
     }
 }
