@@ -24,6 +24,8 @@ import de.uka.iti.pseudo.term.statement.Statement;
  */
 public class LiteralProgramTerm extends ProgramTerm {
 
+    // TODO the two following fields look as if they should be replaced by a
+    // CodeLocation
     /**
      * The statement counter index into the program
      */

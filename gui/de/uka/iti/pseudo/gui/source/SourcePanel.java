@@ -23,6 +23,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Util;
@@ -73,13 +74,21 @@ public class SourcePanel extends CodePanel {
     
     @Override
     protected void addHighlights() {
-        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
-            if (location.program == getDisplayedResource()) {
-                // FIXME how can this be false?
-                if (location.line > 0) {
+        //print trace
+        for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent()) {
+            for (CodeLocation location : node.getSequent().getSourceCodeLocations()) {
+                if (location.program == getDisplayedResource() && location.line > 0) {
                     // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(location.line - 1);
+                    getSourceComponent().addHighlight(location.line - 1, true);
                 }
+            }
+        }
+        
+        //print current lines
+        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
+            if (location.program == getDisplayedResource() && location.line > 0) {
+                // line numbers start at 1 in code and at 0 in component.
+                getSourceComponent().addHighlight(location.line - 1, false);
             }
         }
     }

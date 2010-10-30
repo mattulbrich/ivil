@@ -64,11 +64,16 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         SETTINGS.getFont("pseudo.program.font", null);
     
     private static final Color HIGHLIGHT_COLOR = 
-        SETTINGS.getColor("pseudo.program.highlightcolor", Color.ORANGE);
-    
+ SETTINGS.getColor("pseudo.program.highlightcolor", Color.GREEN);
+    private static final Color TRACE_COLOR = 
+ SETTINGS.getColor("pseudo.program.tracecolor", new Color(200, 230, 200));
+        
     private static final Icon BULLET_ICON = GUIUtil.makeIcon(
             BulletBorder.class.getResource("/de/uka/iti/pseudo/gui/img/bullet_blue.png"));
     private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);
+    private static final HighlightPainter TRACE_PAINTER = new BarHighlightPainter(TRACE_COLOR);
+
+    public static boolean showTrace = SETTINGS.getBoolean("pseudo.program.showtrace", true);
     
     private BreakpointManager breakpointManager;
     private Object breakPointResource;
@@ -171,10 +176,13 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         repaint();
     }
 
-    public void addHighlight(int line) {
+    public void addHighlight(int line, boolean isTrace) {
+        if (isTrace && !showTrace)
+            return;
+
         try {
             int begin = getLineStartOffset(line);
-            Object tag = getHighlighter().addHighlight(begin, begin, BAR_PAINTER);
+            Object tag = getHighlighter().addHighlight(begin, begin, isTrace ? TRACE_PAINTER : BAR_PAINTER);
             lineHighlights.add(tag);
             
             // make this line visible

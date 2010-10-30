@@ -117,7 +117,7 @@ public class Sequent {
 
                 for (LiteralProgramTerm t : progTerms) {
                     nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
-                    if(null != t.getProgram().getSourceFile())
+                    if (null != t.getProgram().getSourceFile())
                         source.add(new CodeLocation(t.getStatement().getSourceLineNumber()
                                 , t.getProgram().getSourceFile()));
                 }

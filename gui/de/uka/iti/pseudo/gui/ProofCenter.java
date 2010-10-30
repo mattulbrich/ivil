@@ -96,12 +96,19 @@ public class ProofCenter implements Observer {
      * Type: int 
      */
     public static final String TREE_VERBOSITY = "pseudo.tree.verbosity";
-    
+
     /**
-     * Property key to denote whether numbers should be printed in display
-     * Type: boolean
+     * Property key to denote whether numbers should be printed in display Type:
+     * boolean
      */
     public static final String TREE_SHOW_NUMBERS = "pseudo.tree.shownumbers";
+
+    /**
+     * Property key to denote whether program traces should be highlighted or
+     * not<br>
+     * Type: boolean
+     */
+    public static final String CODE_PANE_SHOW_TRACE = "pseudo.program.showtrace";
 
     /**
      * Notification signal to indicate that a node in the proof has been changed.

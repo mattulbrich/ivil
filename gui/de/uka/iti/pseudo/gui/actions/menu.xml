@@ -44,7 +44,7 @@
 		</proofMenu>
 		
 		<settingsMenu text="Settings" mnemonic="S">
-			settings.verbosity settings.showNumbers prover.settingsMenu.prettyPrintingMenu smt.activation
+			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
 		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
@@ -165,10 +165,10 @@
 				<text>Syntax checking</text>
 				<tooltip>automatically check for syntax errors every 500ms</tooltip>
 			</syntaxChecking>
-			<syntaxHighlighting>TOGGLE_ACTION EditorPropertyAction syntaxHighlight
-				<text>Syntax highlighting</text>
-				<tooltip>mark up ivil syntax in the edited file</tooltip>
-			</syntaxHighlighting>	
+            <syntaxHighlighting>TOGGLE_ACTION EditorPropertyAction syntaxHighlight
+                <text>Syntax highlighting</text>
+                <tooltip>mark up ivil syntax in the edited file</tooltip>
+            </syntaxHighlighting>
 		</settings>
 		
 	</editor>
@@ -242,7 +242,8 @@
 
 	<settings>
 		<verbosity>ACTION view/VerbosityAction</verbosity>
-		<showNumbers>TOGGLE_ACTION view/ShowNumbersInTreeAction</showNumbers>
+        <showNumbers>TOGGLE_ACTION view/ShowNumbersInTreeAction</showNumbers>
+        <showProgramTrace>TOGGLE_ACTION view/ShowProgramTraceAction</showProgramTrace>
 		<pp>
 			<typed>TOGGLE_ACTION view/PrettyPrintTypedRadioAction</typed>
 			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>

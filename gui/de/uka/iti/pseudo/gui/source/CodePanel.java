@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
@@ -42,6 +43,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             Color foregroundColor) throws IOException {
         this.proofCenter = proofCenter;
         this.breakpointManager = proofCenter.getBreakpointManager();
+        proofCenter.addPropertyChangeListener(ProofCenter.CODE_PANE_SHOW_TRACE, this);
         init(showLinenumbers, foregroundColor); 
     }
     
@@ -89,6 +91,13 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             if (null == node)
                 return;
             proofNodeSelected(node);
+        } else if (ProofCenter.CODE_PANE_SHOW_TRACE.equals(evt.getPropertyName())) {
+            BreakpointPane.showTrace = (Boolean) evt.getNewValue();
+
+            getSourceComponent().removeHighlights();
+            if (null == proofCenter.getCurrentProofNode())
+                return;
+            addHighlights();
         }
         
     }

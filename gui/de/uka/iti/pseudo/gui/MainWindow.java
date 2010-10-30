@@ -33,7 +33,6 @@ import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.CloseAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
 import de.uka.iti.pseudo.gui.source.ProgramPanel;

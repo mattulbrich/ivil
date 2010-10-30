@@ -15,7 +15,6 @@ import java.beans.PropertyChangeListener;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.Log;
 
@@ -31,7 +30,6 @@ public class ShowNumbersInTreeAction extends BarAction
     
     public ShowNumbersInTreeAction() {
         super("Show node numbers in tree");
-        // TODO tooltip
     }
     
     public void actionPerformed(ActionEvent e) {

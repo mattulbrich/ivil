@@ -21,6 +21,7 @@ import javax.swing.DefaultComboBoxModel;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -64,12 +65,18 @@ public class ProgramPanel extends CodePanel {
     }
 
     @Override protected void addHighlights() {
-        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations()) {
-            if (location.program == getDisplayedResource()) {
+        // print trace
+        for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent())
+            for (CodeLocation location : node.getSequent().getNativeCodeLocations())
+                if (location.program == getDisplayedResource())
+                    if (location.line < ((Program) location.program).countStatements())
+                        getSourceComponent().addHighlight(location.line, true);
+
+
+        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations())
+            if (location.program == getDisplayedResource())
                 if (location.line < ((Program) location.program).countStatements())
-                    getSourceComponent().addHighlight(location.line);
-            }
-        }
+                    getSourceComponent().addHighlight(location.line, false);
     }
 
     @Override protected Object chooseResource() {

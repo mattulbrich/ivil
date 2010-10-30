@@ -54,7 +54,7 @@ public class ProofComponent extends JTree {
     private static final long serialVersionUID = 6352175425195393727L;
 
     /*
-     * somer user constants
+     * some user constants
      */
     public static final int DEFAULT_VERBOSITY = Settings.getInstance()
             .getInteger("pseudo.prooftree.defaultverbosity", 10);
