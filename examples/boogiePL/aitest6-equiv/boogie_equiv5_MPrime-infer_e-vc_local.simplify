@@ -1,0 +1,133 @@
+; Boogie universal background predicate
+; Copyright (c) 2004-2005, Microsoft Corp.
+(DEFPRED (<: t u))
+
+(BG_PUSH (AND
+
+  ; select/store axioms, 1 index argument
+
+  (FORALL (A i v)
+    (EQ (select1 (store1 A i v) i) v))
+
+  (FORALL (A i j v)
+    (IMPLIES (NEQ i j)
+      (EQ
+        (select1 (store1 A i v) j)
+        (select1 A j))))
+
+  ; select/store axioms, 2 index arguments
+
+  (FORALL (A o f v)
+    (EQ (select2 (store2 A o f v) o f) v))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ o p)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ f g)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  ; formula/term axioms
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolIff x y) |@true|)
+      (IFF (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolImplies x y) |@true|)
+      (IMPLIES (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolAnd x y) |@true|)
+      (AND (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolOr x y) |@true|)
+      (OR (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x)
+    (PATS (boolNot x))
+    (IFF
+      (EQ (boolNot x) |@true|)
+      (NEQ x |@true|)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (anyEqual x y) |@true|)
+      (EQ x y)))
+
+  (FORALL (x y)
+    (PATS (anyNeq x y))
+    (IFF
+      (EQ (anyNeq x y) |@true|)
+      (NEQ x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intLess x y) |@true|)
+      (< x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtMost x y) |@true|)
+      (<= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtLeast x y) |@true|)
+      (>= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intGreater x y) |@true|)
+      (> x y)))
+
+  ; false is not true
+
+  (DISTINCT |@false| |@true|)
+
+  ; <: is a partial order:  it is reflexive, transitive, and anti-symmetric
+
+  (FORALL (t)
+    (PATS (<: t t))
+    (<: t t))
+
+  (FORALL (t u v)
+    (PATS (MPAT (<: t u) (<: u v)))
+    (IMPLIES
+      (AND (<: t u ) (<: u v))
+      (<: t v)))
+
+  (FORALL (t u)
+    (PATS (MPAT (<: t u) (<: u t)))
+    (IMPLIES
+      (AND (<: t u) (<: u t))
+      (EQ t u)))
+
+  ;; The following axiom gives a way to typed produce verification conditions,
+  ;; that is, verification conditions where the terms are typable.  To use these,
+  ;; the VCExpressionGenerator.{CastTo,CastFrom} methods must be overridden.
+  ;; Look for USE_SORTED_LOGIC in VCGeneration/VCExpr.ssc.
+  ; (FORALL (val T U)
+  ;   (PATS (TypeConvert (TypeConvert val T U) U T))
+  ;   (EQ (TypeConvert (TypeConvert val T U) U T) val))
+
+))  ;; AND, BG_PUSH
+; End Boogie universal background predicate
+; -------------------------------------------------------------------------
+
+(BG_PUSH 
+(AND TRUE TRUE)
+)
+; MPrime
+(IMPLIES (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (IMPLIES (IMPLIES (LBLPOS |+123| TRUE) (IMPLIES TRUE (IMPLIES (EQ 3 3) TRUE))) (EQ |start_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+165| TRUE) (IMPLIES (EQ 3 3) (IMPLIES (EQ |x@1| (|$f| (|$f| 3))) (IMPLIES (EQ |x@1| 3) (IMPLIES (AND (EQ 3 |x@1|) (EQ 3 (|$f| (|$f| 3)))) TRUE))))) (EQ |else_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+179| TRUE) (IMPLIES (AND (EQ 3 |x@1|) (EQ 3 (|$f| (|$f| 3)))) (AND (LBLNEG |@809| (AND (EQ |x@1| 3) (EQ |x@1| (|$f| (|$f| 3))))) (IMPLIES (AND (EQ |x@1| 3) (EQ |x@1| (|$f| (|$f| 3)))) (IMPLIES (AND (EQ 3 |x@1|) (EQ 3 (|$f| (|$f| 3)))) TRUE))))) (EQ |ElseCheck_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+704| TRUE) (IMPLIES (EQ |x@3| |x@1|) TRUE)) (EQ |ElseCheck-2-GeneratedUnifiedExit_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+690| TRUE) TRUE) (EQ |GeneratedUnifiedExit_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+697| TRUE) TRUE) (EQ |ReallyLastGeneratedExit_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+700| TRUE) (IMPLIES (EQ |x@2| |x@1|) TRUE)) (EQ |else-2-join_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+187| TRUE) (IMPLIES (AND (EQ |x@2| (|$f| (|$f| |x@2|))) (EQ |x@2| 3)) (AND (LBLNEG |@887| (EQ |x@2| (|$f| |x@2|))) (IMPLIES (EQ |x@2| (|$f| |x@2|)) (IMPLIES (AND (EQ 3 |x@2|) (EQ 3 (|$f| 3))) TRUE))))) (EQ |join_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+706| TRUE) (IMPLIES (EQ |x@3| |x@2|) TRUE)) (EQ |join-2-GeneratedUnifiedExit_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+140| TRUE) (IMPLIES (EQ 3 3) (IMPLIES (EQ |x@0| (|$f| 3)) (IMPLIES (EQ |x@0| 3) (IMPLIES (AND (EQ 3 |x@0|) (EQ 3 (|$f| 3))) TRUE))))) (EQ |then_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+702| TRUE) (IMPLIES (EQ |x@2| |x@0|) TRUE)) (EQ |then-2-join_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+152| TRUE) (IMPLIES (AND (EQ 3 |x@0|) (EQ 3 (|$f| 3))) (AND (LBLNEG |@925| (AND (EQ |x@0| 3) (EQ |x@0| (|$f| 3)))) (IMPLIES (AND (EQ |x@0| 3) (EQ |x@0| (|$f| 3))) (IMPLIES (AND (EQ |x@0| (|$f| |x@0|)) (EQ |x@0| 3)) TRUE))))) (EQ |ThenCheck_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+708| TRUE) (IMPLIES (EQ |x@3| |x@0|) TRUE)) (EQ |ThenCheck-2-GeneratedUnifiedExit_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+129| TRUE) (IMPLIES (EQ 3 3) (AND (LBLNEG |@852| (EQ 3 3)) (IMPLIES (EQ 3 3) (IMPLIES (EQ 3 3) TRUE))))) (EQ |StartCheck_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+710| TRUE) (IMPLIES (EQ |x@3| 3) TRUE)) (EQ |StartCheck-2-GeneratedUnifiedExit_correct| |@true|))) (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (AND (EQ |start_correct| |@true|) (EQ |else_correct| |@true|)) (EQ |ElseCheck_correct| |@true|)) (EQ |ElseCheck-2-GeneratedUnifiedExit_correct| |@true|)) (EQ |GeneratedUnifiedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |else-2-join_correct| |@true|)) (EQ |join_correct| |@true|)) (EQ |join-2-GeneratedUnifiedExit_correct| |@true|)) (EQ |then_correct| |@true|)) (EQ |then-2-join_correct| |@true|)) (EQ |ThenCheck_correct| |@true|)) (EQ |ThenCheck-2-GeneratedUnifiedExit_correct| |@true|)) (EQ |StartCheck_correct| |@true|)) (EQ |StartCheck-2-GeneratedUnifiedExit_correct| |@true|)))
+; Undetermined

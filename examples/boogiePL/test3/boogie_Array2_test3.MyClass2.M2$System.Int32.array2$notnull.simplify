@@ -1,0 +1,133 @@
+; Boogie universal background predicate
+; Copyright (c) 2004-2005, Microsoft Corp.
+(DEFPRED (<: t u))
+
+(BG_PUSH (AND
+
+  ; select/store axioms, 1 index argument
+
+  (FORALL (A i v)
+    (EQ (select1 (store1 A i v) i) v))
+
+  (FORALL (A i j v)
+    (IMPLIES (NEQ i j)
+      (EQ
+        (select1 (store1 A i v) j)
+        (select1 A j))))
+
+  ; select/store axioms, 2 index arguments
+
+  (FORALL (A o f v)
+    (EQ (select2 (store2 A o f v) o f) v))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ o p)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ f g)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  ; formula/term axioms
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolIff x y) |@true|)
+      (IFF (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolImplies x y) |@true|)
+      (IMPLIES (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolAnd x y) |@true|)
+      (AND (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolOr x y) |@true|)
+      (OR (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x)
+    (PATS (boolNot x))
+    (IFF
+      (EQ (boolNot x) |@true|)
+      (NEQ x |@true|)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (anyEqual x y) |@true|)
+      (EQ x y)))
+
+  (FORALL (x y)
+    (PATS (anyNeq x y))
+    (IFF
+      (EQ (anyNeq x y) |@true|)
+      (NEQ x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intLess x y) |@true|)
+      (< x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtMost x y) |@true|)
+      (<= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtLeast x y) |@true|)
+      (>= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intGreater x y) |@true|)
+      (> x y)))
+
+  ; false is not true
+
+  (DISTINCT |@false| |@true|)
+
+  ; <: is a partial order:  it is reflexive, transitive, and anti-symmetric
+
+  (FORALL (t)
+    (PATS (<: t t))
+    (<: t t))
+
+  (FORALL (t u v)
+    (PATS (MPAT (<: t u) (<: u v)))
+    (IMPLIES
+      (AND (<: t u ) (<: u v))
+      (<: t v)))
+
+  (FORALL (t u)
+    (PATS (MPAT (<: t u) (<: u t)))
+    (IMPLIES
+      (AND (<: t u) (<: u t))
+      (EQ t u)))
+
+  ;; The following axiom gives a way to typed produce verification conditions,
+  ;; that is, verification conditions where the terms are typable.  To use these,
+  ;; the VCExpressionGenerator.{CastTo,CastFrom} methods must be overridden.
+  ;; Look for USE_SORTED_LOGIC in VCGeneration/VCExpr.ssc.
+  ; (FORALL (val T U)
+  ;   (PATS (TypeConvert (TypeConvert val T U) U T))
+  ;   (EQ (TypeConvert (TypeConvert val T U) U T) val))
+
+))  ;; AND, BG_PUSH
+; End Boogie universal background predicate
+; -------------------------------------------------------------------------
+
+(BG_PUSH 
+(AND (DISTINCT |$allocated| |$elements| |$inv| |$localinv| |$exposeVersion| |$sharingMode| |$SharingMode_Unshared| |$SharingMode_LockProtected| |$ownerRef| |$ownerFrame| |$PeerGroupPlaceholder| |$ArrayCategoryValue| |$ArrayCategoryRef| |$ArrayCategoryNonNullRef| |System.Array| |System.Object| |System.Type| |$BeingConstructed| |$NonNullFieldsAreInitialized| |System.String| |$FirstConsistentOwner| |System.SByte| |System.Byte| |System.Int16| |System.UInt16| |System.Int32| |System.UInt32| |System.Int64| |System.UInt64| |System.Char| |int#m2147483648| |int#2147483647| |int#4294967295| |int#m9223372036854775808| |int#9223372036854775807| |int#18446744073709551615| |$UnknownRef| |test3.MyClass2|) (AND (EQ (DeclType |$exposeVersion|) |System.Object|) (FORALL (c0 c1) (PATS (MPAT (ClassRepr c0) (ClassRepr c1))) (IMPLIES (NEQ c0 c1) (NEQ (ClassRepr c0) (ClassRepr c1)))) (FORALL (T) (NOT (EQ (<: (|$typeof| (ClassRepr T)) |System.Object|) |@true|))) (FORALL (T) (NEQ (ClassRepr T) nullObject)) (FORALL (T h) (PATS (select2 h (ClassRepr T) |$ownerFrame|)) (IMPLIES (EQ (IsHeap h) |@true|) (EQ (select2 h (ClassRepr T) |$ownerFrame|) |$PeerGroupPlaceholder|))) (NOT (EQ (IsDirectlyModifiableField |$allocated|) |@true|)) (EQ (IsDirectlyModifiableField |$elements|) |@true|) (NOT (EQ (IsDirectlyModifiableField |$inv|) |@true|)) (NOT (EQ (IsDirectlyModifiableField |$localinv|) |@true|)) (NOT (EQ (IsDirectlyModifiableField |$ownerRef|) |@true|)) (NOT (EQ (IsDirectlyModifiableField |$ownerFrame|) |@true|)) (NOT (EQ (IsDirectlyModifiableField |$exposeVersion|) |@true|)) (NOT (EQ (IsStaticField |$allocated|) |@true|)) (NOT (EQ (IsStaticField |$elements|) |@true|)) (NOT (EQ (IsStaticField |$inv|) |@true|)) (NOT (EQ (IsStaticField |$localinv|) |@true|)) (NOT (EQ (IsStaticField |$exposeVersion|) |@true|)) (FORALL (A i x) (EQ (ValueArrayGet (ValueArraySet A i x) i) x)) (FORALL (A i j x) (IMPLIES (NEQ i j) (EQ (ValueArrayGet (ValueArraySet A i x) j) (ValueArrayGet A j)))) (FORALL (A i x) (EQ (RefArrayGet (RefArraySet A i x) i) x)) (FORALL (A i j x) (IMPLIES (NEQ i j) (EQ (RefArrayGet (RefArraySet A i x) j) (RefArrayGet A j)))) (FORALL (a d x y |x'| |y'|) (PATS (MPAT (ArrayIndex a d x y) (ArrayIndex a d |x'| |y'|))) (IMPLIES (EQ (ArrayIndex a d x y) (ArrayIndex a d |x'| |y'|)) (AND (EQ x |x'|) (EQ y |y'|)))) (FORALL (a T i r heap) (PATS (MPAT (<: (|$typeof| a) (RefArray T r)) (RefArrayGet (select2 heap a |$elements|) i))) (IMPLIES (AND (EQ (IsHeap heap) |@true|) (EQ (<: (|$typeof| a) (RefArray T r)) |@true|)) (EQ (|$Is| (RefArrayGet (select2 heap a |$elements|) i) T) |@true|))) (FORALL (a T i r heap) (PATS (MPAT (<: (|$typeof| a) (NonNullRefArray T r)) (RefArrayGet (select2 heap a |$elements|) i))) (IMPLIES (AND (EQ (IsHeap heap) |@true|) (EQ (<: (|$typeof| a) (NonNullRefArray T r)) |@true|)) (EQ (|$IsNotNull| (RefArrayGet (select2 heap a |$elements|) i) T) |@true|))) (FORALL (a) (<= 1 (|$Rank| a))) (FORALL (a T r) (PATS (<: (|$typeof| a) (RefArray T r))) (IMPLIES (AND (NEQ a nullObject) (EQ (<: (|$typeof| a) (RefArray T r)) |@true|)) (EQ (|$Rank| a) r))) (FORALL (a T r) (PATS (<: (|$typeof| a) (NonNullRefArray T r))) (IMPLIES (AND (NEQ a nullObject) (EQ (<: (|$typeof| a) (NonNullRefArray T r)) |@true|)) (EQ (|$Rank| a) r))) (FORALL (a T r) (PATS (<: (|$typeof| a) (ValueArray T r))) (IMPLIES (AND (NEQ a nullObject) (EQ (<: (|$typeof| a) (ValueArray T r)) |@true|)) (EQ (|$Rank| a) r))) (FORALL (a) (PATS (|$Length| a)) (<= 0 (|$Length| a))) (FORALL (a i) (<= 0 (|$DimLength| a i))) (FORALL (a) (PATS (|$DimLength| a 0)) (IMPLIES (EQ (|$Rank| a) 1) (EQ (|$DimLength| a 0) (|$Length| a)))) (FORALL (a i) (PATS (|$LBound| a i)) (EQ (|$LBound| a i) 0)) (FORALL (a i) (PATS (|$UBound| a i)) (EQ (|$UBound| a i) (- (|$DimLength| a i) 1))) (FORALL (T ET r) (PATS (<: T (ValueArray ET r))) (IMPLIES (EQ (<: T (ValueArray ET r)) |@true|) (EQ (|$ArrayCategory| T) |$ArrayCategoryValue|))) (FORALL (T ET r) (PATS (<: T (RefArray ET r))) (IMPLIES (EQ (<: T (RefArray ET r)) |@true|) (EQ (|$ArrayCategory| T) |$ArrayCategoryRef|))) (FORALL (T ET r) (PATS (<: T (NonNullRefArray ET r))) (IMPLIES (EQ (<: T (NonNullRefArray ET r)) |@true|) (EQ (|$ArrayCategory| T) |$ArrayCategoryNonNullRef|))) (EQ (<: |System.Array| |System.Object|) |@true|) (FORALL (T r) (PATS (ValueArray T r)) (EQ (<: (ValueArray T r) |System.Array|) |@true|)) (FORALL (T r) (PATS (RefArray T r)) (EQ (<: (RefArray T r) |System.Array|) |@true|)) (FORALL (T r) (PATS (NonNullRefArray T r)) (EQ (<: (NonNullRefArray T r) |System.Array|) |@true|)) (FORALL (T U r) (IMPLIES (EQ (<: U T) |@true|) (EQ (<: (RefArray U r) (RefArray T r)) |@true|))) (FORALL (T U r) (IMPLIES (EQ (<: U T) |@true|) (EQ (<: (NonNullRefArray U r) (NonNullRefArray T r)) |@true|))) (FORALL (A r) (EQ (|$ElementType| (ValueArray A r)) A)) (FORALL (A r) (EQ (|$ElementType| (RefArray A r)) A)) (FORALL (A r) (EQ (|$ElementType| (NonNullRefArray A r)) A)) (FORALL (A r T) (PATS (<: T (RefArray A r))) (IMPLIES (EQ (<: T (RefArray A r)) |@true|) (AND (EQ T (RefArray (|$ElementType| T) r)) (EQ (<: (|$ElementType| T) A) |@true|)))) (FORALL (A r T) (PATS (<: T (NonNullRefArray A r))) (IMPLIES (EQ (<: T (NonNullRefArray A r)) |@true|) (AND (EQ T (NonNullRefArray (|$ElementType| T) r)) (EQ (<: (|$ElementType| T) A) |@true|)))) (FORALL (A r T) (PATS (<: T (ValueArray A r))) (IMPLIES (EQ (<: T (ValueArray A r)) |@true|) (EQ T (ValueArray A r)))) (FORALL (A r T) (IMPLIES (EQ (<: (RefArray A r) T) |@true|) (OR (EQ (<: |System.Array| T) |@true|) (AND (EQ T (RefArray (|$ElementType| T) r)) (EQ (<: A (|$ElementType| T)) |@true|))))) (FORALL (A r T) (IMPLIES (EQ (<: (NonNullRefArray A r) T) |@true|) (OR (EQ (<: |System.Array| T) |@true|) (AND (EQ T (NonNullRefArray (|$ElementType| T) r)) (EQ (<: A (|$ElementType| T)) |@true|))))) (FORALL (A r T) (IMPLIES (EQ (<: (ValueArray A r) T) |@true|) (OR (EQ (<: |System.Array| T) |@true|) (EQ T (ValueArray A r))))) (FORALL (s f x) (EQ (|$StructGet| (|$StructSet| s f x) f) x)) (FORALL (s f |f'| x) (IMPLIES (NEQ f |f'|) (EQ (|$StructGet| (|$StructSet| s f x) |f'|) (|$StructGet| s |f'|)))) (FORALL (A B C) (PATS (<: C (AsDirectSubClass B A))) (IMPLIES (EQ (<: C (AsDirectSubClass B A)) |@true|) (EQ (OneClassDown C A) B))) (FORALL (T) (IMPLIES (EQ (|$IsValueType| T) |@true|) (AND (FORALL (U) (IMPLIES (EQ (<: T U) |@true|) (EQ T U))) (FORALL (U) (IMPLIES (EQ (<: U T) |@true|) (EQ T U)))))) (EQ (<: |System.Type| |System.Object|) |@true|) (FORALL (T) (PATS (TypeObject T)) (EQ (|$IsNotNull| (TypeObject T) |System.Type|) |@true|)) (FORALL (T) (PATS (TypeObject T)) (EQ (TypeName (TypeObject T)) T)) (FORALL (o T) (PATS (|$Is| o T)) (IFF (EQ (|$Is| o T) |@true|) (OR (EQ o nullObject) (EQ (<: (|$typeof| o) T) |@true|)))) (FORALL (o T) (PATS (|$IsNotNull| o T)) (IFF (EQ (|$IsNotNull| o T) |@true|) (AND (NEQ o nullObject) (EQ (|$Is| o T) |@true|)))) (FORALL (o T) (IMPLIES (EQ (|$Is| o T) |@true|) (EQ (|$As| o T) o))) (FORALL (o T) (IMPLIES (NOT (EQ (|$Is| o T) |@true|)) (EQ (|$As| o T) nullObject))) (FORALL (h o) (PATS (MPAT (<: (|$typeof| o) |System.Array|) (select2 h o |$inv|))) (IMPLIES (AND (AND (EQ (IsHeap h) |@true|) (NEQ o nullObject)) (EQ (<: (|$typeof| o) |System.Array|) |@true|)) (AND (EQ (select2 h o |$inv|) (|$typeof| o)) (EQ (select2 h o |$localinv|) (|$typeof| o))))) (FORALL (h o f) (PATS (IsAllocated h (select2 h o f))) (IMPLIES (AND (EQ (IsHeap h) |@true|) (EQ (select2 h o |$allocated|) |@true|)) (EQ (IsAllocated h (select2 h o f)) |@true|))) (FORALL (h o f) (PATS (select2 h (select2 h o f) |$allocated|)) (IMPLIES (AND (EQ (IsHeap h) |@true|) (EQ (select2 h o |$allocated|) |@true|)) (EQ (select2 h (select2 h o f) |$allocated|) |@true|))) (FORALL (h s f) (PATS (IsAllocated h (|$StructGet| s f))) (IMPLIES (EQ (IsAllocated h s) |@true|) (EQ (IsAllocated h (|$StructGet| s f)) |@true|))) (FORALL (h e i) (PATS (IsAllocated h (RefArrayGet e i))) (IMPLIES (EQ (IsAllocated h e) |@true|) (EQ (IsAllocated h (RefArrayGet e i)) |@true|))) (FORALL (h e i) (PATS (IsAllocated h (ValueArrayGet e i))) (IMPLIES (EQ (IsAllocated h e) |@true|) (EQ (IsAllocated h (ValueArrayGet e i)) |@true|))) (FORALL (h o) (PATS (select2 h o |$allocated|)) (IMPLIES (EQ (IsAllocated h o) |@true|) (EQ (select2 h o |$allocated|) |@true|))) (FORALL (h c) (PATS (select2 h (ClassRepr c) |$allocated|)) (IMPLIES (EQ (IsHeap h) |@true|) (EQ (select2 h (ClassRepr c) |$allocated|) |@true|))) (FORALL (f T) (PATS (AsNonNullRefField f T)) (IMPLIES (EQ (AsNonNullRefField f T) f) (EQ (AsRefField f T) f))) (FORALL (h o f T) (PATS (select2 h o (AsRefField f T))) (IMPLIES (EQ (IsHeap h) |@true|) (EQ (|$Is| (select2 h o (AsRefField f T)) T) |@true|))) (FORALL (h o f T) (PATS (select2 h o (AsNonNullRefField f T))) (IMPLIES (AND (AND (EQ (IsHeap h) |@true|) (NEQ o nullObject)) (OR (NEQ o |$BeingConstructed|) (IFF (EQ (select2 h |$BeingConstructed| |$NonNullFieldsAreInitialized|) |@true|) TRUE))) (NEQ (select2 h o (AsNonNullRefField f T)) nullObject))) (FORALL (h o f T) (PATS (select2 h o (AsRangeField f T))) (IMPLIES (EQ (IsHeap h) |@true|) (EQ (InRange (select2 h o (AsRangeField f T)) T) |@true|))) (FORALL (o) (PATS (|$IsMemberlessType| (|$typeof| o))) (NOT (EQ (|$IsMemberlessType| (|$typeof| o)) |@true|))) (NOT (EQ (|$IsImmutable| |System.Object|) |@true|)) (FORALL (T U) (PATS (<: U (|$AsImmutable| T))) (IMPLIES (EQ (<: U (|$AsImmutable| T)) |@true|) (AND (EQ (|$IsImmutable| U) |@true|) (EQ (|$AsImmutable| U) U)))) (FORALL (T U) (PATS (<: U (|$AsMutable| T))) (IMPLIES (EQ (<: U (|$AsMutable| T)) |@true|) (AND (NOT (EQ (|$IsImmutable| U) |@true|)) (EQ (|$AsMutable| U) U)))) (FORALL (o T) (PATS (<: (|$typeof| o) (|$AsImmutable| T))) (IMPLIES (AND (AND (NEQ o nullObject) (NEQ o |$BeingConstructed|)) (EQ (<: (|$typeof| o) (|$AsImmutable| T)) |@true|)) (FORALL (h) (PATS (IsHeap h)) (IMPLIES (EQ (IsHeap h) |@true|) (AND (AND (AND (AND (EQ (select2 h o |$inv|) (|$typeof| o)) (EQ (select2 h o |$localinv|) (|$typeof| o))) (EQ (select2 h o |$ownerFrame|) |$PeerGroupPlaceholder|)) (EQ (AsOwner o (select2 h o |$ownerRef|)) o)) (FORALL (t) (PATS (AsOwner o (select2 h t |$ownerRef|))) (IMPLIES (EQ (AsOwner o (select2 h t |$ownerRef|)) o) (OR (EQ t o) (NEQ (select2 h t |$ownerFrame|) |$PeerGroupPlaceholder|))))))))) (FORALL (s) (PATS (|$StringLength| s)) (<= 0 (|$StringLength| s))) (FORALL (h o f T) (PATS (select2 h o (AsRepField f T))) (IMPLIES (AND (EQ (IsHeap h) |@true|) (NEQ (select2 h o (AsRepField f T)) nullObject)) (AND (EQ (select2 h (select2 h o (AsRepField f T)) |$ownerRef|) o) (EQ (select2 h (select2 h o (AsRepField f T)) |$ownerFrame|) T)))) (FORALL (h o f) (PATS (select2 h o (AsPeerField f))) (IMPLIES (AND (EQ (IsHeap h) |@true|) (NEQ (select2 h o (AsPeerField f)) nullObject)) (AND (EQ (select2 h (select2 h o (AsPeerField f)) |$ownerRef|) (select2 h o |$ownerRef|)) (EQ (select2 h (select2 h o (AsPeerField f)) |$ownerFrame|) (select2 h o |$ownerFrame|))))) (FORALL (h o) (PATS (<: (select2 h (select2 h o |$ownerRef|) |$inv|) (select2 h o |$ownerFrame|))) (IMPLIES (AND (AND (AND (EQ (IsHeap h) |@true|) (NEQ (select2 h o |$ownerFrame|) |$PeerGroupPlaceholder|)) (EQ (<: (select2 h (select2 h o |$ownerRef|) |$inv|) (select2 h o |$ownerFrame|)) |@true|)) (NEQ (select2 h (select2 h o |$ownerRef|) |$localinv|) (|$BaseClass| (select2 h o |$ownerFrame|)))) (AND (EQ (select2 h o |$inv|) (|$typeof| o)) (EQ (select2 h o |$localinv|) (|$typeof| o))))) (FORALL (o f h) (PATS (select2 h (|$AsPureObject| o) f)) (IMPLIES (AND (AND (AND (AND (AND (EQ (IsHeap h) |@true|) (NEQ o nullObject)) (IFF (EQ (select2 h o |$allocated|) |@true|) TRUE)) (NEQ (select2 h o |$ownerFrame|) |$PeerGroupPlaceholder|)) (EQ (<: (select2 h (select2 h o |$ownerRef|) |$inv|) (select2 h o |$ownerFrame|)) |@true|)) (NEQ (select2 h (select2 h o |$ownerRef|) |$localinv|) (|$BaseClass| (select2 h o |$ownerFrame|)))) (EQ (select2 h o f) (|##FieldDependsOnFCO| o f (select2 h (select2 h o |$FirstConsistentOwner|) |$exposeVersion|))))) (FORALL (o h) (PATS (select2 h o |$FirstConsistentOwner|)) (IMPLIES (AND (AND (AND (AND (AND (EQ (IsHeap h) |@true|) (NEQ o nullObject)) (IFF (EQ (select2 h o |$allocated|) |@true|) TRUE)) (NEQ (select2 h o |$ownerFrame|) |$PeerGroupPlaceholder|)) (EQ (<: (select2 h (select2 h o |$ownerRef|) |$inv|) (select2 h o |$ownerFrame|)) |@true|)) (NEQ (select2 h (select2 h o |$ownerRef|) |$localinv|) (|$BaseClass| (select2 h o |$ownerFrame|)))) (AND (AND (NEQ (select2 h o |$FirstConsistentOwner|) nullObject) (IFF (EQ (select2 h (select2 h o |$FirstConsistentOwner|) |$allocated|) |@true|) TRUE)) (OR (OR (EQ (select2 h (select2 h o |$FirstConsistentOwner|) |$ownerFrame|) |$PeerGroupPlaceholder|) (NOT (EQ (<: (select2 h (select2 h (select2 h o |$FirstConsistentOwner|) |$ownerRef|) |$inv|) (select2 h (select2 h o |$FirstConsistentOwner|) |$ownerFrame|)) |@true|))) (EQ (select2 h (select2 h (select2 h o |$FirstConsistentOwner|) |$ownerRef|) |$localinv|) (|$BaseClass| (select2 h (select2 h o |$FirstConsistentOwner|) |$ownerFrame|))))))) (FORALL (x p) (PATS (Unbox (Box x p))) (EQ (Unbox (Box x p)) x)) (FORALL (p) (PATS (|$IsValueType| (UnboxedType p))) (IMPLIES (EQ (|$IsValueType| (UnboxedType p)) |@true|) (FORALL (heap x) (PATS (select2 heap (Box x p) |$inv|)) (IMPLIES (EQ (IsHeap heap) |@true|) (AND (EQ (select2 heap (Box x p) |$inv|) (|$typeof| (Box x p))) (EQ (select2 heap (Box x p) |$localinv|) (|$typeof| (Box x p)))))))) (FORALL (x p) (PATS (<: (UnboxedType (Box x p)) |System.Object|)) (IMPLIES (AND (EQ (<: (UnboxedType (Box x p)) |System.Object|) |@true|) (EQ (Box x p) p)) (EQ x p))) (FORALL (p typ) (PATS (BoxTester p typ)) (IFF (EQ (UnboxedType p) typ) (NEQ (BoxTester p typ) nullObject))) (EQ (|$IsValueType| |System.SByte|) |@true|) (EQ (|$IsValueType| |System.Byte|) |@true|) (EQ (|$IsValueType| |System.Int16|) |@true|) (EQ (|$IsValueType| |System.UInt16|) |@true|) (EQ (|$IsValueType| |System.Int32|) |@true|) (EQ (|$IsValueType| |System.UInt32|) |@true|) (EQ (|$IsValueType| |System.Int64|) |@true|) (EQ (|$IsValueType| |System.UInt64|) |@true|) (EQ (|$IsValueType| |System.Char|) |@true|) (< |int#m9223372036854775808| |int#m2147483648|) (< |int#m2147483648| (- 0 100000)) (< 100000 |int#2147483647|) (< |int#2147483647| |int#4294967295|) (< |int#4294967295| |int#9223372036854775807|) (< |int#9223372036854775807| |int#18446744073709551615|) (FORALL (i) (IFF (EQ (InRange i |System.SByte|) |@true|) (AND (<= (- 0 128) i) (< i 128)))) (FORALL (i) (IFF (EQ (InRange i |System.Byte|) |@true|) (AND (<= 0 i) (< i 256)))) (FORALL (i) (IFF (EQ (InRange i |System.Int16|) |@true|) (AND (<= (- 0 32768) i) (< i 32768)))) (FORALL (i) (IFF (EQ (InRange i |System.UInt16|) |@true|) (AND (<= 0 i) (< i 65536)))) (FORALL (i) (IFF (EQ (InRange i |System.Int32|) |@true|) (AND (<= |int#m2147483648| i) (<= i |int#2147483647|)))) (FORALL (i) (IFF (EQ (InRange i |System.UInt32|) |@true|) (AND (<= 0 i) (<= i |int#4294967295|)))) (FORALL (i) (IFF (EQ (InRange i |System.Int64|) |@true|) (AND (<= |int#m9223372036854775808| i) (<= i |int#9223372036854775807|)))) (FORALL (i) (IFF (EQ (InRange i |System.UInt64|) |@true|) (AND (<= 0 i) (<= i |int#18446744073709551615|)))) (FORALL (i) (IFF (EQ (InRange i |System.Char|) |@true|) (AND (<= 0 i) (< i 65536)))) (FORALL (b x y) (PATS (|$IfThenElse| b x y)) (IMPLIES (EQ b |@true|) (EQ (|$IfThenElse| b x y) x))) (FORALL (b x y) (PATS (|$IfThenElse| b x y)) (IMPLIES (NOT (EQ b |@true|)) (EQ (|$IfThenElse| b x y) y))) (FORALL (x y) (PATS (% x y) (/ x y)) (EQ (% x y) (- x (* (/ x y) y)))) (FORALL (x y) (PATS (% x y)) (IMPLIES (AND (<= 0 x) (< 0 y)) (AND (<= 0 (% x y)) (< (% x y) y)))) (FORALL (x y) (PATS (% x y)) (IMPLIES (AND (<= 0 x) (< y 0)) (AND (<= 0 (% x y)) (< (% x y) (- 0 y))))) (FORALL (x y) (PATS (% x y)) (IMPLIES (AND (<= x 0) (< 0 y)) (AND (< (- 0 y) (% x y)) (<= (% x y) 0)))) (FORALL (x y) (PATS (% x y)) (IMPLIES (AND (<= x 0) (< y 0)) (AND (< y (% x y)) (<= (% x y) 0)))) (FORALL (x y) (PATS (% (+ x y) y)) (IMPLIES (AND (<= 0 x) (<= 0 y)) (EQ (% (+ x y) y) (% x y)))) (FORALL (x y) (PATS (% (+ y x) y)) (IMPLIES (AND (<= 0 x) (<= 0 y)) (EQ (% (+ y x) y) (% x y)))) (FORALL (x y) (PATS (% (- x y) y)) (IMPLIES (AND (<= 0 (- x y)) (<= 0 y)) (EQ (% (- x y) y) (% x y)))) (FORALL (a b d) (PATS (MPAT (% a d) (% b d))) (IMPLIES (AND (AND (<= 2 d) (EQ (% a d) (% b d))) (< a b)) (<= (+ a d) b))) (FORALL (x y) (PATS (|#and| x y)) (IMPLIES (OR (<= 0 x) (<= 0 y)) (<= 0 (|#and| x y)))) (FORALL (x y) (PATS (|#or| x y)) (IMPLIES (AND (<= 0 x) (<= 0 y)) (AND (<= 0 (|#or| x y)) (<= (|#or| x y) (+ x y))))) (FORALL (i) (PATS (|#shl| i 0)) (EQ (|#shl| i 0) i)) (FORALL (i j) (IMPLIES (<= 0 j) (EQ (|#shl| i (+ j 1)) (* (|#shl| i j) 2)))) (FORALL (i) (PATS (|#shr| i 0)) (EQ (|#shr| i 0) i)) (FORALL (i j) (IMPLIES (<= 0 j) (EQ (|#shr| i (+ j 1)) (/ (|#shr| i j) 2)))) (FORALL (a b) (PATS (|#System.String.Equals$System.String| a b)) (IFF (EQ (|#System.String.Equals$System.String| a b) |@true|) (EQ (|#System.String.Equals$System.String$System.String| a b) |@true|))) (FORALL (a b) (PATS (|#System.String.Equals$System.String$System.String| a b)) (IFF (EQ (|#System.String.Equals$System.String$System.String| a b) |@true|) (EQ (|#System.String.Equals$System.String$System.String| b a) |@true|))) (FORALL (a b) (PATS (|#System.String.Equals$System.String$System.String| a b)) (IMPLIES (AND (AND (NEQ a nullObject) (NEQ b nullObject)) (EQ (|#System.String.Equals$System.String$System.String| a b) |@true|)) (EQ (|#System.String.IsInterned$System.String$notnull| a) (|#System.String.IsInterned$System.String$notnull| b)))) (EQ (<: |test3.MyClass2| |test3.MyClass2|) |@true|) (EQ (|$BaseClass| |test3.MyClass2|) |System.Object|) (AND (EQ (<: |test3.MyClass2| (|$BaseClass| |test3.MyClass2|)) |@true|) (EQ (AsDirectSubClass |test3.MyClass2| (|$BaseClass| |test3.MyClass2|)) |test3.MyClass2|)) (AND (NOT (EQ (|$IsImmutable| |test3.MyClass2|) |@true|)) (EQ (|$AsMutable| |test3.MyClass2|) |test3.MyClass2|))))
+)
+; test3.MyClass2.M2$System.Int32.array2$notnull
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1827| TRUE) (IMPLIES (EQ (IsHeap |$Heap|) |@true|) (IMPLIES (EQ (|$IsNotNull| |a$in| (ValueArray |System.Int32| 2)) |@true|) (IMPLIES (EQ |$BeingConstructed| nullObject) (IMPLIES (AND (OR (EQ (select2 |$Heap| |a$in| |$ownerFrame|) |$PeerGroupPlaceholder|) (OR (NOT (EQ (<: (select2 |$Heap| (select2 |$Heap| |a$in| |$ownerRef|) |$inv|) (select2 |$Heap| |a$in| |$ownerFrame|)) |@true|)) (EQ (select2 |$Heap| (select2 |$Heap| |a$in| |$ownerRef|) |$localinv|) (|$BaseClass| (select2 |$Heap| |a$in| |$ownerFrame|))))) (FORALL (|$pc|) (IMPLIES (AND (AND (NEQ |$pc| nullObject) (IFF (EQ (select2 |$Heap| |$pc| |$allocated|) |@true|) TRUE)) (AND (EQ (select2 |$Heap| |$pc| |$ownerRef|) (select2 |$Heap| |a$in| |$ownerRef|)) (EQ (select2 |$Heap| |$pc| |$ownerFrame|) (select2 |$Heap| |a$in| |$ownerFrame|)))) (AND (EQ (select2 |$Heap| |$pc| |$inv|) (|$typeof| |$pc|)) (EQ (select2 |$Heap| |$pc| |$localinv|) (|$typeof| |$pc|)))))) (IMPLIES (AND (OR (EQ (select2 |$Heap| this |$ownerFrame|) |$PeerGroupPlaceholder|) (OR (NOT (EQ (<: (select2 |$Heap| (select2 |$Heap| this |$ownerRef|) |$inv|) (select2 |$Heap| this |$ownerFrame|)) |@true|)) (EQ (select2 |$Heap| (select2 |$Heap| this |$ownerRef|) |$localinv|) (|$BaseClass| (select2 |$Heap| this |$ownerFrame|))))) (FORALL (|$pc|) (IMPLIES (AND (AND (NEQ |$pc| nullObject) (IFF (EQ (select2 |$Heap| |$pc| |$allocated|) |@true|) TRUE)) (AND (EQ (select2 |$Heap| |$pc| |$ownerRef|) (select2 |$Heap| this |$ownerRef|)) (EQ (select2 |$Heap| |$pc| |$ownerFrame|) (select2 |$Heap| this |$ownerFrame|)))) (AND (EQ (select2 |$Heap| |$pc| |$inv|) (|$typeof| |$pc|)) (EQ (select2 |$Heap| |$pc| |$localinv|) (|$typeof| |$pc|)))))) (IMPLIES (EQ (|$Length| |a$in|) 12) (IMPLIES (IFF (EQ (select2 |$Heap| |a$in| |$allocated|) |@true|) TRUE) (IMPLIES TRUE (IMPLIES (EQ (|$IsNotNull| this |test3.MyClass2|) |@true|) (IMPLIES (IFF (EQ (select2 |$Heap| this |$allocated|) |@true|) TRUE) (IMPLIES TRUE (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1853| TRUE) (IMPLIES TRUE (IMPLIES TRUE (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1855| TRUE) (IMPLIES TRUE (AND (LBLNEG |@15751| (NEQ |a$in| nullObject)) (IMPLIES (NEQ |a$in| nullObject) (AND (LBLNEG |@15757| (<= 0 2)) (IMPLIES (<= 0 2) (AND (LBLNEG |@15763| (< 2 (|$DimLength| |a$in| 0))) (IMPLIES (< 2 (|$DimLength| |a$in| 0)) (AND (LBLNEG |@15773| (<= 0 3)) (IMPLIES (<= 0 3) (AND (LBLNEG |@15779| (< 3 (|$DimLength| |a$in| 1))) (IMPLIES (< 3 (|$DimLength| |a$in| 1)) (IMPLIES (EQ |return.value@0| (ValueArrayGet (select2 |$Heap| |a$in| |$elements|) (ArrayIndex |a$in| 1 3 2))) (IMPLIES (AND (AND (<= 2 2) (<= 2 2)) (AND (<= 3 3) (<= 3 3))) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1913| TRUE) (IMPLIES (AND (AND (<= 2 2) (<= 2 2)) (AND (<= 3 3) (<= 3 3))) (IMPLIES (AND (<= 3 3) (<= 3 3)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+15220| TRUE) (AND (LBLNEG |@15878| (FORALL (|$o|) (IMPLIES (AND (NEQ |$o| nullObject) (IFF (EQ (select2 |$Heap| |$o| |$allocated|) |@true|) TRUE)) (AND (EQ (select2 |$Heap| |$o| |$ownerRef|) (select2 |$Heap| |$o| |$ownerRef|)) (EQ (select2 |$Heap| |$o| |$ownerFrame|) (select2 |$Heap| |$o| |$ownerFrame|)))))) (IMPLIES (FORALL (|$o|) (IMPLIES (AND (NEQ |$o| nullObject) (IFF (EQ (select2 |$Heap| |$o| |$allocated|) |@true|) TRUE)) (AND (EQ (select2 |$Heap| |$o| |$ownerRef|) (select2 |$Heap| |$o| |$ownerRef|)) (EQ (select2 |$Heap| |$o| |$ownerFrame|) (select2 |$Heap| |$o| |$ownerFrame|))))) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|))))) (EQ |block4760_correct| |@true|)) (EQ |block4760_correct| |@true|)))))))))))))))) (EQ |block4743_correct| |@true|)) (EQ |block4743_correct| |@true|))))) (EQ |block4590_correct| |@true|)) (EQ |block4590_correct| |@true|)))))))))))))) (EQ |entry_correct| |@true|)) (EQ |entry_correct| |@true|))
+; Undetermined

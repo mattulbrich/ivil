@@ -1,0 +1,167 @@
+; Spec# Program Verifier Version 0.80, Copyright (c) 2003-2006, Microsoft.
+; Command Line Options: -nologo /prover:blank /print:boogie_tmp.@TIME@.bpl /proverLog:boogie_tmp.@TIME@.simplify /noinfer Passification.bpl
+; -------------------------------------------------------------------------
+; Boogie universal background predicate
+; Copyright (c) 2004-2005, Microsoft Corp.
+(DEFPRED (<: t u))
+
+(BG_PUSH (AND
+
+  ; select/store axioms, 1 index argument
+
+  (FORALL (A i v)
+    (EQ (select1 (store1 A i v) i) v))
+
+  (FORALL (A i j v)
+    (IMPLIES (NEQ i j)
+      (EQ
+        (select1 (store1 A i v) j)
+        (select1 A j))))
+
+  ; select/store axioms, 2 index arguments
+
+  (FORALL (A o f v)
+    (EQ (select2 (store2 A o f v) o f) v))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ o p)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  (FORALL (A o f p g v)
+    (IMPLIES (NEQ f g)
+      (EQ
+        (select2 (store2 A o f v) p g)
+        (select2 A p g))))
+
+  ; formula/term axioms
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolIff x y) |@true|)
+      (IFF (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolImplies x y) |@true|)
+      (IMPLIES (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolAnd x y) |@true|)
+      (AND (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (boolOr x y) |@true|)
+      (OR (EQ x |@true|) (EQ y |@true|))))
+
+  (FORALL (x)
+    (PATS (boolNot x))
+    (IFF
+      (EQ (boolNot x) |@true|)
+      (NEQ x |@true|)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (anyEqual x y) |@true|)
+      (EQ x y)))
+
+  (FORALL (x y)
+    (PATS (anyNeq x y))
+    (IFF
+      (EQ (anyNeq x y) |@true|)
+      (NEQ x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intLess x y) |@true|)
+      (< x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtMost x y) |@true|)
+      (<= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intAtLeast x y) |@true|)
+      (>= x y)))
+
+  (FORALL (x y)
+    (IFF
+      (EQ (intGreater x y) |@true|)
+      (> x y)))
+
+  ; false is not true
+
+  (DISTINCT |@false| |@true|)
+
+  ; <: is a partial order:  it is reflexive, transitive, and anti-symmetric
+
+  (FORALL (t)
+    (PATS (<: t t))
+    (<: t t))
+
+  (FORALL (t u v)
+    (PATS (MPAT (<: t u) (<: u v)))
+    (IMPLIES
+      (AND (<: t u ) (<: u v))
+      (<: t v)))
+
+  (FORALL (t u)
+    (PATS (MPAT (<: t u) (<: u t)))
+    (IMPLIES
+      (AND (<: t u) (<: u t))
+      (EQ t u)))
+
+  ;; The following axiom gives a way to typed produce verification conditions,
+  ;; that is, verification conditions where the terms are typable.  To use these,
+  ;; the VCExpressionGenerator.{CastTo,CastFrom} methods must be overridden.
+  ;; Look for USE_SORTED_LOGIC in VCGeneration/VCExpr.ssc.
+  ; (FORALL (val T U)
+  ;   (PATS (TypeConvert (TypeConvert val T U) U T))
+  ;   (EQ (TypeConvert (TypeConvert val T U) U T) val))
+
+))  ;; AND, BG_PUSH
+; End Boogie universal background predicate
+; -------------------------------------------------------------------------
+
+(BG_PUSH 
+(AND (DISTINCT A0 A1 A2) TRUE)
+)
+; Initialized all axioms.
+; good0
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+48| TRUE) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+55| TRUE) (IMPLIES (EQ |z@0| (+ 3 x)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+508| TRUE) (IMPLIES (EQ |z@1| |z@0|) (IMPLIES TRUE (EQ |D_correct| |@true|)))) (EQ |B-2-D_correct| |@true|)) (EQ |B-2-D_correct| |@true|)))) (EQ |B_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+57| TRUE) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+506| TRUE) (IMPLIES (EQ |z@1| 3) (IMPLIES TRUE (EQ |D_correct| |@true|)))) (EQ |C-2-D_correct| |@true|)) (EQ |C-2-D_correct| |@true|))) (EQ |C_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+67| TRUE) (IMPLIES (EQ |z@2| (+ |z@1| 1)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+483| TRUE) (AND (LBLNEG |@540| (OR (EQ |z@2| 4) (EQ |z@2| (+ 4 x)))) (IMPLIES (OR (EQ |z@2| 4) (EQ |z@2| (+ 4 x))) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)))) (EQ |D_correct| |@true|))) (AND (EQ |B_correct| |@true|) (EQ |C_correct| |@true|)))) (EQ |A_correct| |@true|)) (EQ |A_correct| |@true|))
+; Undetermined
+; good1
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+112| TRUE) (IMPLIES (EQ |z@0| (+ 3 x)) (IMPLIES (EQ |z@1| (+ |z@0| 1)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+578| TRUE) (AND (LBLNEG |@613| (EQ |z@1| (+ x 4))) (IMPLIES (EQ |z@1| (+ x 4)) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|))))) (EQ |A_correct| |@true|)) (EQ |A_correct| |@true|))
+; Undetermined
+; bad0
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+150| TRUE) (IMPLIES (EQ |z@0| (+ 3 1)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+632| TRUE) (AND (LBLNEG |@653| (EQ z 4)) (IMPLIES (EQ z 4) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)))) (EQ |A_correct| |@true|)) (EQ |A_correct| |@true|))
+; Undetermined
+; Loop
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+154| TRUE) (IMPLIES FALSE (IMPLIES TRUE TRUE))) (EQ |start_correct| |@true|)) (EQ |start_correct| |@true|))
+; Undetermined
+; UnreachableBlock
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+158| TRUE) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+675| TRUE) (IMPLIES TRUE TRUE)) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|))) (EQ |start_correct| |@true|)) (EQ |start_correct| |@true|))
+; Undetermined
+; Loop0
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+178| TRUE) (IMPLIES (AND (IMPLIES (IMPLIES (LBLPOS |+189| TRUE) (IMPLIES (< |x@0| 10) (IMPLIES (EQ |x@1| (+ |x@0| 1)) (IMPLIES FALSE (IMPLIES TRUE TRUE))))) (EQ |B_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+199| TRUE) (IMPLIES (NOT (< |x@0| 10)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+701| TRUE) (IMPLIES (EQ |z@0| |x@0|) (IMPLIES (EQ |x@2| |x@0|) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+686| TRUE) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+691| TRUE) (AND (LBLNEG |@753| (<= 10 |z@0|)) (IMPLIES (<= 10 |z@0|) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|))) (EQ |GeneratedUnifiedExit_correct| |@true|)) (EQ |GeneratedUnifiedExit_correct| |@true|))))) (EQ |C-2-GeneratedUnifiedExit_correct| |@true|)) (EQ |C-2-GeneratedUnifiedExit_correct| |@true|)))) (EQ |C_correct| |@true|))) (AND (EQ |B_correct| |@true|) (EQ |C_correct| |@true|)))) (EQ |A_correct| |@true|)) (EQ |A_correct| |@true|))
+; Undetermined
+; Array0
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+249| TRUE) (IMPLIES (EQ |a@0| (store2 a A0 A2 5)) (IMPLIES (EQ |a@1| (store2 |a@0| A0 A1 20)) (AND (LBLNEG |@816| (EQ (select2 |a@1| A0 A1) 20)) (IMPLIES (EQ (select2 |a@1| A0 A1) 20) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+784| TRUE) (IMPLIES (EQ |a@3| |a@1|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L0-2-L2_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+263| TRUE) (IMPLIES (EQ |a@2| (store2 |a@1| A0 A2 18)) (AND (LBLNEG |@842| (EQ (select2 |a@2| A0 A2) 18)) (IMPLIES (EQ (select2 |a@2| A0 A2) 18) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+786| TRUE) (IMPLIES (EQ |a@3| |a@2|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L1-2-L2_correct| |@true|)) (EQ |L1-2-L2_correct| |@true|)))))) (EQ |L1_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+278| TRUE) (AND (LBLNEG |@863| (EQ (select2 |a@3| A0 A1) 20)) (IMPLIES (EQ (select2 |a@3| A0 A1) 20) (IMPLIES (EQ |z@0| (select2 |a@3| A0 A2)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+774| TRUE) (AND (LBLNEG |@886| (>= |z@0| 5)) (IMPLIES (>= |z@0| 5) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)))))) (EQ |L2_correct| |@true|))) (AND (EQ |L1_correct| |@true|) (EQ |L0-2-L2_correct| |@true|)))))))) (EQ |L0_correct| |@true|)) (EQ |L0_correct| |@true|))
+; Undetermined
+; Array1
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+324| TRUE) (IMPLIES (EQ |a@0| (store2 a o1 A0 5)) (IMPLIES (EQ |a@1| (store2 |a@0| o0 A0 20)) (AND (LBLNEG |@950| (EQ (select2 |a@1| o0 A0) 20)) (IMPLIES (EQ (select2 |a@1| o0 A0) 20) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+918| TRUE) (IMPLIES (EQ |a@3| |a@1|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L0-2-L2_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+338| TRUE) (IMPLIES (EQ |a@2| (store2 |a@1| o1 A0 18)) (AND (LBLNEG |@976| (EQ (select2 |a@2| o1 A0) 18)) (IMPLIES (EQ (select2 |a@2| o1 A0) 18) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+920| TRUE) (IMPLIES (EQ |a@3| |a@2|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L1-2-L2_correct| |@true|)) (EQ |L1-2-L2_correct| |@true|)))))) (EQ |L1_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+353| TRUE) (AND (LBLNEG |@997| (EQ (select2 |a@3| o0 A0) 20)) (IMPLIES (EQ (select2 |a@3| o0 A0) 20) (IMPLIES (EQ |z@0| (select2 |a@3| o1 A0)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+908| TRUE) (AND (LBLNEG |@1020| (>= |z@0| 5)) (IMPLIES (>= |z@0| 5) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)))))) (EQ |L2_correct| |@true|))) (AND (EQ |L1_correct| |@true|) (EQ |L0-2-L2_correct| |@true|)))))))) (EQ |L0_correct| |@true|)) (EQ |L0_correct| |@true|))
+; Undetermined
+; Array2
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+403| TRUE) (IMPLIES (NEQ o1 o0) (IMPLIES (EQ |a@0| (store2 a o1 A0 5)) (IMPLIES (EQ |a@1| (store2 |a@0| o0 A0 20)) (AND (LBLNEG |@1091| (EQ (select2 |a@1| o0 A0) 20)) (IMPLIES (EQ (select2 |a@1| o0 A0) 20) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+1052| TRUE) (IMPLIES (EQ |a@3| |a@1|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L0-2-L2_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+417| TRUE) (IMPLIES (EQ |a@2| (store2 |a@1| o1 A0 18)) (AND (LBLNEG |@1117| (EQ (select2 |a@2| o1 A0) 18)) (IMPLIES (EQ (select2 |a@2| o1 A0) 18) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1054| TRUE) (IMPLIES (EQ |a@3| |a@2|) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L1-2-L2_correct| |@true|)) (EQ |L1-2-L2_correct| |@true|)))))) (EQ |L1_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+432| TRUE) (AND (LBLNEG |@1138| (EQ (select2 |a@3| o0 A0) 20)) (IMPLIES (EQ (select2 |a@3| o0 A0) 20) (IMPLIES (EQ |z@0| (select2 |a@3| o1 A0)) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1042| TRUE) (AND (LBLNEG |@1161| (>= |z@0| 5)) (IMPLIES (>= |z@0| 5) (IMPLIES TRUE TRUE)))) (EQ |ReallyLastGeneratedExit_correct| |@true|)) (EQ |ReallyLastGeneratedExit_correct| |@true|)))))) (EQ |L2_correct| |@true|))) (AND (EQ |L1_correct| |@true|) (EQ |L0-2-L2_correct| |@true|))))))))) (EQ |L0_correct| |@true|)) (EQ |L0_correct| |@true|))
+; Undetermined
+; P
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+443| TRUE) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+1183| TRUE) (IMPLIES (EQ |t@0| 0) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L0-2-L2_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+448| TRUE) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1185| TRUE) (IMPLIES (EQ |t@0| 1) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L1-2-L2_correct| |@true|)) (EQ |L1-2-L2_correct| |@true|))) (EQ |L1_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+454| TRUE) (AND (LBLNEG |@1197| (EQ |t@0| 1)) (IMPLIES (EQ |t@0| 1) (IMPLIES TRUE TRUE)))) (EQ |L2_correct| |@true|))) (AND (EQ |L1_correct| |@true|) (EQ |L0-2-L2_correct| |@true|)))) (EQ |L0_correct| |@true|)) (EQ |L0_correct| |@true|))
+; Undetermined
+; Q
+(IMPLIES (IMPLIES (IMPLIES (LBLPOS |+465| TRUE) (IMPLIES (AND (AND (IMPLIES (IMPLIES (LBLPOS |+1217| TRUE) (IMPLIES (EQ |t@0| 0) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L0-2-L2_correct| |@true|)) (IMPLIES (IMPLIES (LBLPOS |+470| TRUE) (IMPLIES (IMPLIES (IMPLIES (LBLPOS |+1219| TRUE) (IMPLIES (EQ |t@0| 1) (IMPLIES TRUE (EQ |L2_correct| |@true|)))) (EQ |L1-2-L2_correct| |@true|)) (EQ |L1-2-L2_correct| |@true|))) (EQ |L1_correct| |@true|))) (IMPLIES (IMPLIES (LBLPOS |+476| TRUE) (AND (LBLNEG |@1231| (EQ |t@0| 0)) (IMPLIES (EQ |t@0| 0) (IMPLIES TRUE TRUE)))) (EQ |L2_correct| |@true|))) (AND (EQ |L1_correct| |@true|) (EQ |L0-2-L2_correct| |@true|)))) (EQ |L0_correct| |@true|)) (EQ |L0_correct| |@true|))
+; Undetermined
