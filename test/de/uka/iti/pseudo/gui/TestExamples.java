@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.gui;
 import java.io.File;
 
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
@@ -40,11 +41,17 @@ public class TestExamples extends TestCaseWithEnv {
             MainWindow main = proofCenter.getMainWindow();
             main.setVisible(true);
 
-            Action auto = proofCenter.getBarManager().getAction("proof.auto");
-            assertTrue("failed to load AutoProofAction", auto != null);
+            {
+                final Action auto = proofCenter.getBarManager().getAction("proof.auto");
+                assertTrue("failed to load AutoProofAction", auto != null);
 
-            auto.actionPerformed(null);
-            assertFalse("Proof could not be found automatically for " + path, proofCenter.getProof().hasOpenGoals());
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        auto.actionPerformed(null);
+                    }
+                });
+                assertFalse("Proof could not be found automatically for " + path, proofCenter.getProof().hasOpenGoals());
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeListenerProxy;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -172,7 +173,7 @@ public class ProofCenter implements Observer {
      * general notification mechanism to allow for listening to events.
      */
     private NotificationSupport notificationSupport = new NotificationSupport(this);
-    
+
     /**
      * Instantiates a new proof center.
      * 
@@ -189,9 +190,9 @@ public class ProofCenter implements Observer {
      *             the {@link BarManager} cannot find resources
      * @throws StrategyException
      *             signals that the strategy manager could not be properly
-     *             initialised.
+     *             initialized.
      */
-    public ProofCenter(@NonNull Proof proof, @NonNull Environment env)  throws IOException, StrategyException {
+    public ProofCenter(@NonNull final Proof proof, @NonNull Environment env) throws IOException, StrategyException {
         this.proof = proof;
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
@@ -201,11 +202,28 @@ public class ProofCenter implements Observer {
         
         proof.addObserver(this);
 
-        firePropertyChange(ONGOING_PROOF, false);
-        
         mainWindow = new MainWindow(this, env.getResourceName());
-        mainWindow.makeGUI();
-        fireSelectedProofNode(proof.getRoot());
+
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    firePropertyChange(ONGOING_PROOF, false);
+
+
+                    try {
+                        mainWindow.makeGUI();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    fireSelectedProofNode(proof.getRoot());
+                }
+            });
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        
         
         prepareRuleLists();
     }
@@ -477,9 +495,8 @@ public class ProofCenter implements Observer {
      *            value after the change.
      */
     public void firePropertyChange(String propertyName, Object newValue) {
-        // FIXME decide whether or not to remove this assertion, as it can't be
-        // used together with unit tests
-        // assert SwingUtilities.isEventDispatchThread();
+        assert SwingUtilities.isEventDispatchThread();
+
         Object oldValue = generalProperties.get(propertyName);
         Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
         generalProperties.put(propertyName, newValue);
