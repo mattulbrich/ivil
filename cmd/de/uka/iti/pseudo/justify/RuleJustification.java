@@ -136,11 +136,11 @@ public class RuleJustification {
 //        
 //	}
 
-	private Term universalClosure(Collection<Variable> variables, Term term) throws TermException {
-	    for (Variable variable : variables) {
+    private Term universalClosure(Collection<Variable> variables, Term term) throws TermException {
+        for (Variable variable : variables) {
             term = tf.forall(variable, term);
         }
-	    return term;
+        return term;
     }
 
     /**

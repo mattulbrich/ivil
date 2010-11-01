@@ -21,6 +21,11 @@ import java.util.Observable;
  * {@link Observable#notifyObservers(Object)}.
  * 
  * A pair is immutable.
+ * 
+ * @param <E>
+ *            Type of the first component
+ * @param <F>
+ *            Type of the second component
  */
 
 public class Pair<E,F> {
@@ -50,17 +55,23 @@ public class Pair<E,F> {
         this.fstComponent = fst;
         this.sndComponent = snd;
     }
-    
+
     /**
-     * Alternative way to create a pair. Java is able to infer type arguments for
-     * methods (like this) but not for constructors. It is therefore easier to 
-     * use this
+     * Alternative way to create a pair. Java is able to infer type arguments
+     * for methods (like this) but not for constructors. It is therefore easier
+     * to use this
      * 
      * @param fst
      *            the first component
      * @param snd
      *            the second component
-     * @return a freshle created pair
+     * 
+     * @param <E>
+     *            Type of the first component
+     * @param <F>
+     *            Type of the second component
+     * 
+     * @return a freshly created pair
      */
     public static <E,F> Pair<E,F> make(E fst, F snd) {
         return new Pair<E, F>(fst, snd);

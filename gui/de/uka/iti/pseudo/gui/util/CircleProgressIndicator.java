@@ -121,7 +121,7 @@ public class CircleProgressIndicator extends JComponent implements HierarchyList
         
         f.getContentPane().add(new CircleProgressIndicator(Color.green.darker()));
         f.pack();
-        f.show();
+        f.setVisible(true);
     }
     
  // we don't want the animation to keep running if we're not displayable
