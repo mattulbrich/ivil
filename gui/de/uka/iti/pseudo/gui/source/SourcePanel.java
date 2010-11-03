@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.ComboBoxModel;
@@ -77,29 +78,29 @@ public class SourcePanel extends CodePanel {
         //print trace
         for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent()) {
             for (CodeLocation location : node.getSequent().getSourceCodeLocations()) {
-                if (location.program == getDisplayedResource() && location.line > 0) {
+                if (location.getProgram() == getDisplayedResource() && location.getLine() > 0) {
                     // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(location.line - 1, true);
+                    getSourceComponent().addHighlight(location.getLine() - 1, true);
                 }
             }
         }
         
         //print current lines
         for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
-            if (location.program == getDisplayedResource() && location.line > 0) {
+            if (location.getProgram() == getDisplayedResource() && location.getLine() > 0) {
                 // line numbers start at 1 in code and at 0 in component.
-                getSourceComponent().addHighlight(location.line - 1, false);
+                getSourceComponent().addHighlight(location.getLine() - 1, false);
             }
         }
     }
 
     @Override
     protected Object chooseResource() {
-        CodeLocation[] locations = proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations();
-        if (locations.length == 0) {
+        List<CodeLocation> locations = proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations();
+        if (locations.size() == 0) {
             return null;
         }
-        return locations[0].program;
+        return locations.get(0).getProgram();
     }
 
 }

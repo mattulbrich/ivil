@@ -68,23 +68,23 @@ public class ProgramPanel extends CodePanel {
         // print trace
         for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent())
             for (CodeLocation location : node.getSequent().getNativeCodeLocations())
-                if (location.program == getDisplayedResource())
-                    if (location.line < ((Program) location.program).countStatements())
-                        getSourceComponent().addHighlight(location.line, true);
+                if (location.getProgram() == getDisplayedResource())
+                    if (location.getLine() < ((Program) location.getProgram()).countStatements())
+                        getSourceComponent().addHighlight(location.getLine(), true);
 
 
         for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations())
-            if (location.program == getDisplayedResource())
-                if (location.line < ((Program) location.program).countStatements())
-                    getSourceComponent().addHighlight(location.line, false);
+            if (location.getProgram() == getDisplayedResource())
+                if (location.getLine() < ((Program) location.getProgram()).countStatements())
+                    getSourceComponent().addHighlight(location.getLine(), false);
     }
 
     @Override protected Object chooseResource() {
-        CodeLocation[] locations = proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations();
-        if (locations.length == 0) {
+        List<CodeLocation> locations = proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations();
+        if (locations.size() == 0) {
             return null;
         }
-        return locations[0].program;
+        return locations.get(0).getProgram();
     }
 
     @Override protected ComboBoxModel getAllResources() {
