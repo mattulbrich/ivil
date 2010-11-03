@@ -107,7 +107,7 @@
   </target>
 
   <target name="sys.jar" description="create the file sys.jar">
-    <jar jarfile="sys.jar" basedir="sys">
+    <jar jarfile="sys.jar" basedir="." includes="sys/*.p">
     </jar>
   </target>
 
