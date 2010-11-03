@@ -69,7 +69,7 @@ import de.uka.iti.pseudo.util.Util;
  * {@link #getApplicableRules(Sequent, TermSelector)}.
  * 
  * A general PropertyChange mechanism is installed to provide an opportunity to
- * work with general properties on the proof process. 
+ * work with general properties on the proof process.
  */
 public class ProofCenter implements Observer {
 
@@ -79,22 +79,21 @@ public class ProofCenter implements Observer {
      * Type: Boolean
      */
     public static final String ONGOING_PROOF = "pseudo.ongoing_proof";
-    
+
     /**
-     * Property key to indicate that a proof node has been selected.
-     * Type: ProofNode
+     * Property key to indicate that a proof node has been selected. Type:
+     * ProofNode
      */
     public static final String SELECTED_PROOFNODE = "pseudo.selectedProofNode";
-    
+
     /**
-     * Property key to indicate that a rule application has been selected.
-     * Type: RuleApplication
+     * Property key to indicate that a rule application has been selected. Type:
+     * RuleApplication
      */
     public static final String SELECTED_RULEAPPLICATION = "pseudo.selectedRuleApplication";
-    
+
     /**
-     * Property key to denote the verbosity of the display
-     * Type: int 
+     * Property key to denote the verbosity of the display Type: int
      */
     public static final String TREE_VERBOSITY = "pseudo.tree.verbosity";
 
@@ -112,57 +111,57 @@ public class ProofCenter implements Observer {
     public static final String CODE_PANE_SHOW_TRACE = "pseudo.program.showtrace";
 
     /**
-     * Notification signal to indicate that a node in the proof has been changed.
-     * Activated every time that the proof is changed (observing the proof)
+     * Notification signal to indicate that a node in the proof has been
+     * changed. Activated every time that the proof is changed (observing the
+     * proof)
      */
     public static final String PROOFNODE_HAS_CHANGED = "pseudo.proofnode_changed";
-    
+
     /**
-     * Notification signal to indicate that the proof has changed.
-     * This is called after an action on the proof has finished. This notification
-     * may come after 0, 1 or several proof node changes to the proof. 
+     * Notification signal to indicate that the proof has changed. This is
+     * called after an action on the proof has finished. This notification may
+     * come after 0, 1 or several proof node changes to the proof.
      */
     public static final String PROOFTREE_HAS_CHANGED = "pseudo.prooftree_changed";
-    
+
     /**
      * The main window.
      */
     private MainWindow mainWindow;
-    
+
     /**
      * The used environment.
      */
     private Environment env;
-    
+
     /**
-     * The proof showed in the main window. 
+     * The proof showed in the main window.
      */
     private Proof proof;
-    
+
     /**
-     * The strategy manager which is used throughout this proof for
-     * automated deduction
+     * The strategy manager which is used throughout this proof for automated
+     * deduction
      */
     private StrategyManager strategyManager;
-    
+
     /**
-     * All rules of the environment, sorted for interaction.
-     * (at the moment not sorted at all)
+     * All rules of the environment, sorted for interaction. (at the moment not
+     * sorted at all)
      */
     private List<Rule> rulesSortedForInteraction;
-    
+
     /**
-     * the system pretty printer used by components, 
-     * configured by menu
+     * the system pretty printer used by components, configured by menu
      */
     private PrettyPrint prettyPrinter;
-    
+
     /**
      * general property mechnism to allow listening w/o declaration of new
      * elements here. This is the listener support
      */
     private PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
-    
+
     /**
      * general property mechnism to allow listening w/o declaration of new
      * elements here.This is the value support.
@@ -196,35 +195,23 @@ public class ProofCenter implements Observer {
         this.proof = proof;
         this.env = env;
         this.prettyPrinter = new PrettyPrint(env);
-        
+
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
-        
+
         proof.addObserver(this);
 
         mainWindow = new MainWindow(this, env.getResourceName());
 
+        firePropertyChange(ONGOING_PROOF, false);
+
         try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    firePropertyChange(ONGOING_PROOF, false);
-
-
-                    try {
-                        mainWindow.makeGUI();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    fireSelectedProofNode(proof.getRoot());
-                }
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
+            mainWindow.makeGUI();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        
+        fireSelectedProofNode(proof.getRoot());
+
         prepareRuleLists();
     }
 
@@ -235,15 +222,15 @@ public class ProofCenter implements Observer {
      */
     private void prepareRuleLists() {
         rulesSortedForInteraction = env.getAllRules();
-        
+
         Iterator<Rule> it = rulesSortedForInteraction.iterator();
         while (it.hasNext()) {
             Rule rule = it.next();
-            if(rule.getProperty(RuleTagConstants.KEY_AUTOONLY) != null)
+            if (rule.getProperty(RuleTagConstants.KEY_AUTOONLY) != null)
                 it.remove();
         }
         Collections.sort(rulesSortedForInteraction, new RulePriorityComparator());
-        
+
         // other rule lists: simplifications with priority codes.
     }
 
@@ -262,7 +249,8 @@ public class ProofCenter implements Observer {
      * 
      * @return the proof
      */
-    public @NonNull Proof getProof() {
+    public @NonNull
+    Proof getProof() {
         return proof;
     }
 
@@ -271,7 +259,8 @@ public class ProofCenter implements Observer {
      * 
      * @return the main window
      */
-    public @NonNull MainWindow getMainWindow() {
+    public @NonNull
+    MainWindow getMainWindow() {
         return mainWindow;
     }
 
@@ -306,11 +295,11 @@ public class ProofCenter implements Observer {
      */
     public void fireProoftreeChangedNotification(final boolean selectNextGoal) {
         fireNotification(PROOFTREE_HAS_CHANGED);
-        if(selectNextGoal) {
+        if (selectNextGoal) {
             selectNextGoal();
         }
     }
-    
+
     /**
      * Gets the List of possible rule applications for a term within the
      * currently selected proof node. The term is given by its selector.
@@ -321,14 +310,14 @@ public class ProofCenter implements Observer {
      * 
      * @param termSelector
      *            the reference of the selected term.
-     *            
+     * 
      * @return a list of rule applications that match the selected term
      * 
      * @throws ProofException
      */
-    public @NonNull List<RuleApplication> getApplicableRules(
-            @NonNull TermSelector termSelector) throws ProofException {
-        
+    public @NonNull
+    List<RuleApplication> getApplicableRules(@NonNull TermSelector termSelector) throws ProofException {
+
         Log.enter(termSelector);
 
         ProofNode node = getCurrentProofNode();
@@ -357,7 +346,7 @@ public class ProofCenter implements Observer {
      * 
      * @param ruleApp
      *            the rule application to apply onto the proof.
-     *            
+     * 
      * @throws ProofException
      *             if the application fails.
      */
@@ -386,9 +375,10 @@ public class ProofCenter implements Observer {
      * 
      * @return the currently selected proof node
      */
-    public @Nullable ProofNode getCurrentProofNode() {
+    public @Nullable
+    ProofNode getCurrentProofNode() {
         Object currentPN = getProperty(SELECTED_PROOFNODE);
-        return (currentPN instanceof ProofNode) ? (ProofNode)currentPN : null;   
+        return (currentPN instanceof ProofNode) ? (ProofNode) currentPN : null;
     }
 
     /**
@@ -417,29 +407,30 @@ public class ProofCenter implements Observer {
 
     /**
      * Get the strategy manager for this proof surrounding.
-     *  
-     * @return the system strategy manager 
+     * 
+     * @return the system strategy manager
      */
-    public @NonNull StrategyManager getStrategyManager() {
+    public @NonNull
+    StrategyManager getStrategyManager() {
         return strategyManager;
     }
-    
+
     /**
      * get the BreakpointManager for the surrounding.
      * 
-     * The BreakpointManager is not necessarily part of the system.
-     * This will fail if {@link BreakpointStrategy} is not available since
-     * this class is asked to provide that instance.
+     * The BreakpointManager is not necessarily part of the system. This will
+     * fail if {@link BreakpointStrategy} is not available since this class is
+     * asked to provide that instance.
      * 
-     * <p>We cannot keep the instance here because the strategies are part
-     * of the core system and cannot access proof centers.
+     * <p>
+     * We cannot keep the instance here because the strategies are part of the
+     * core system and cannot access proof centers.
      * 
      * @return the breakpoint manager of the {@link BreakpointStrategy}.
-     * @see BreakpointStrategy#getBreakpointManager() 
+     * @see BreakpointStrategy#getBreakpointManager()
      */
     public BreakpointManager getBreakpointManager() {
-        return getStrategyManager().getStrategy(BreakpointStrategy.class)
-                .getBreakpointManager();
+        return getStrategyManager().getStrategy(BreakpointStrategy.class).getBreakpointManager();
     }
 
     /**
@@ -448,18 +439,18 @@ public class ProofCenter implements Observer {
      */
     @Override
     public void update(Observable o, Object arg) {
-        
+
         final ProofNode pn = (ProofNode) arg;
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 fireNotification(PROOFNODE_HAS_CHANGED, pn);
             }
         });
     }
-    
+
     // Delegations to changeSupport!
-    
+
     /**
      * Adds a listener loooking for a certain kind of changes.
      * 
@@ -471,11 +462,10 @@ public class ProofCenter implements Observer {
      * @param listener
      *            the listener to handle changes
      */
-    public void addPropertyChangeListener(String propertyName,
-            PropertyChangeListener listener) {
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(propertyName, listener);
     }
-    
+
     public void addNotificationListener(String signal, NotificationListener listener) {
         notificationSupport.addNotificationListener(signal, listener);
     }
@@ -523,7 +513,7 @@ public class ProofCenter implements Observer {
         Log.enter(signal, Util.readOnlyArrayList(parameters));
         notificationSupport.fireNotification(signal, parameters);
     }
-    
+
     /**
      * Gets the value of a property.
      * 
@@ -535,7 +525,7 @@ public class ProofCenter implements Observer {
     public Object getProperty(String propertyName) {
         return generalProperties.get(propertyName);
     }
-    
+
     /**
      * Removes a listener loooking for a certain kind of changes.
      * 
@@ -547,27 +537,24 @@ public class ProofCenter implements Observer {
      * @param listener
      *            the listener to handle changes
      */
-    public void removePropertyChangeListener(String propertyName,
-            PropertyChangeListener listener) {
+    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(propertyName, listener);
     }
-    
+
     public void removeNotificationListener(String signal, NotificationListener listener) {
         notificationSupport.removeNotificationListener(signal, listener);
     }
-    
+
     /**
-     * This method prints all registered {@link PropertyChangeListener}s 
-     * to System.err. It is solely for debug purposes.
+     * This method prints all registered {@link PropertyChangeListener}s to
+     * System.err. It is solely for debug purposes.
      */
     public void dumpPropertyListeners() {
-        PropertyChangeListener[] listeners = changeSupport
-                .getPropertyChangeListeners();
+        PropertyChangeListener[] listeners = changeSupport.getPropertyChangeListeners();
         for (PropertyChangeListener listener : listeners) {
             if (listener instanceof PropertyChangeListenerProxy) {
                 PropertyChangeListenerProxy proxy = (PropertyChangeListenerProxy) listener;
-                System.err.println(proxy.getPropertyName() + ": "
-                        + proxy.getListener());
+                System.err.println(proxy.getPropertyName() + ": " + proxy.getListener());
             } else {
                 System.err.println("*: " + listener);
             }
@@ -577,12 +564,12 @@ public class ProofCenter implements Observer {
 
     private void selectNextGoal() {
         ProofNode res = findGoal(getCurrentProofNode());
-        
-        if(res == null) {
+
+        if (res == null) {
             res = findGoal(proof.getRoot());
         }
-        
-        if(res == null) {
+
+        if (res == null) {
             Log.log(Log.DEBUG, "No goal to select, selected root");
             fireSelectedProofNode(proof.getRoot());
         } else {
@@ -590,17 +577,17 @@ public class ProofCenter implements Observer {
             fireSelectedProofNode(res);
         }
     }
-    
+
     private ProofNode findGoal(ProofNode p) {
-        if(p.getChildren() == null)
+        if (p.getChildren() == null)
             return p;
-        
+
         for (ProofNode pn : p.getChildren()) {
             ProofNode res = findGoal(pn);
-            if(res != null)
+            if (res != null)
                 return res;
         }
-        
+
         return null;
     }
 

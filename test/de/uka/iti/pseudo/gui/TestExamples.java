@@ -29,6 +29,8 @@ public class TestExamples extends TestCaseWithEnv {
                 "examples/simple/fakultaet.p", "examples/simple/properties.p" };
         for (String path : paths) {
 
+            // FIXME move completely to event dispatcher thread!
+
             ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
             Parser fp = new Parser();
 
