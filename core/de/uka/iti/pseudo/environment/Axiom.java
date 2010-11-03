@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.environment;
 import java.util.Collection;
 import java.util.Map;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Term;
@@ -30,8 +31,9 @@ public class Axiom {
      */
     private ASTLocatedElement location;
 
-    public Axiom(String name, Term term, Map<String, String> properties,
-            ASTLocatedElement location) throws EnvironmentException {
+    public Axiom(@NonNull String name, @NonNull Term term,
+            @NonNull Map<String, String> properties,
+            @NonNull ASTLocatedElement location) throws EnvironmentException {
         super();
         this.name = name;
         this.properties = properties;

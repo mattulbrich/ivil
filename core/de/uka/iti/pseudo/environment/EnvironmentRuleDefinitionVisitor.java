@@ -320,12 +320,13 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         // do nothing
     }
 
-    @Override
-    public void visit(ASTProperties plugins) throws ASTVisitException {
-    }
-
-    @Override
-    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
-    }
+    // Can this be commented out?
+//    @Override
+//    public void visit(ASTProperties plugins) throws ASTVisitException {
+//    }
+//
+//    @Override
+//    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
+//    }
     
 }

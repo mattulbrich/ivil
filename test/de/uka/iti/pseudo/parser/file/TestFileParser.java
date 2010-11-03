@@ -29,7 +29,7 @@ public class TestFileParser extends TestCase {
         de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
-        env.dump();
+        // env.dump();
         return env;
     }
     

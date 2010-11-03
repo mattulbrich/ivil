@@ -20,6 +20,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.RuleFormulaExtractor;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
@@ -211,18 +212,7 @@ public class RuleProblemExtractor {
     public @NonNull Term extractProblem() throws TermException, RuleException,
             EnvironmentException {
 
-        //
-        // create the formula context from the assumptions.
-        makeContext();
-
-        //
-        // formulate rule as a term with schema vars.
-        // incorporates the context.
-        Term problem0;
-        if (isRewrite())
-            problem0 = extractRewriteProblem();
-        else
-            problem0 = extractLocatedProblem();
+        Term problem0 = new RuleFormulaExtractor(env).extractMeaningFormula(rule);
         
         //
         // check for type quantification absence
@@ -267,128 +257,6 @@ public class RuleProblemExtractor {
         Term problem = termInst.instantiate(problem0);
 
         return problem;
-    }
-
-    /**
-     * Check whether rule is a rewrite rule: The matching location of
-     * {@link Rule#getFindClause()} must be {@link MatchingLocation#BOTH}.
-     * 
-     * @return true iff the rule is a rewrite rule
-     */
-    private boolean isRewrite() {
-        LocatedTerm find = rule.getFindClause();
-        return find != null
-                && find.getMatchingLocation() == MatchingLocation.BOTH;
-    }
-
-    private Term extractLocatedProblem() throws RuleException, TermException {
-
-        LocatedTerm findClause = rule.getFindClause();
-
-        // having no find is not assuming anything --> empty sequence --> false
-        if (findClause == null)
-            findClause = new LocatedTerm(FALSE, MatchingLocation.SUCCEDENT);
-
-        boolean findInAntecedent = findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT;
-        Term findTerm = findClause.getTerm();
-
-        Term result = TRUE;
-        List<GoalAction> actions = rule.getGoalActions();
-        for (GoalAction action : actions) {
-
-            if (action.getKind() != Kind.COPY)
-                throw new RuleException(
-                        "ProblemExtraction works only for copy goals at the moment");
-
-            Term add = FALSE;
-            for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
-            }
-            for (Term t : action.getAddSuccedent()) {
-                add = disj(add, t);
-
-            }
-            Term replace = action.getReplaceWith();
-
-            // copy original term if not remove
-            if (replace == null && !action.isRemoveOriginalTerm())
-                replace = findTerm;
-
-            if (replace != null) {
-                if (findInAntecedent) {
-                    add = disj(add, tf.not(replace));
-                } else {
-                    add = disj(add, replace);
-                }
-            }
-
-            result = conj(result, add);
-        }
-
-        Term findAndContext = context;
-        if (findInAntecedent) {
-            findAndContext = disj(findAndContext, tf.not(findTerm));
-        } else {
-            findAndContext = disj(findAndContext, findTerm);
-        }
-
-        result = tf.impl(result, findAndContext);
-        return result;
-    }
-
-    /**
-     * Given a rewrite rule, extract the verification condition from it. The
-     * resulting term will still contain all original schema variables and type
-     * variables, which must be skolemised later.
-     * 
-     * <p>
-     * The resulting term looks like:
-     * 
-     * <pre>
-     *     ( replace1 = find -&gt; OR(adds1))
-     *   &amp; ...
-     *   &amp; (  replacek = find -&gt; OR(addsk))
-     *   -&gt;  context
-     * </pre>
-     * 
-     * in which the context has already been precalculated.
-     * 
-     * @return the meaning formula of the rule, with schema variables
-     */
-    private Term extractRewriteProblem() throws TermException, RuleException {
-
-        assert context != null : "Context must have been processed earlier";
-
-        Term find = rule.getFindClause().getTerm();
-        Term result = TRUE;
-
-        List<GoalAction> actions = rule.getGoalActions();
-        for (GoalAction action : actions) {
-
-            if (action.getKind() != Kind.COPY)
-                throw new RuleException(
-                        "ProblemExtraction works only for copy goals at the moment");
-
-            Term add = FALSE;
-            for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
-            }
-            for (Term t : action.getAddSuccedent()) {
-                add = disj(add, t);
-            }
-
-            Term replace = action.getReplaceWith();
-            if (replace == null)
-                replace = find;
-
-            Term eq = tf.eq(replace, find);
-            Term imp = tf.impl(eq, add);
-            result = conj(result, imp);
-        }
-
-        result = tf.impl(result, context);
-
-        return result;
     }
 
     /**
@@ -514,76 +382,6 @@ public class RuleProblemExtractor {
             "Ensure no free schema type in skolemisation";
 
         mapVars.put(sv.getName(), sk);
-    }
-
-    /*
-     * make the context term as a disjunction of all assumptions (either
-     * positive or negative).
-     * 
-     * Context still contains schema entities!
-     */
-    private void makeContext() throws TermException, RuleException {
-        context = FALSE;
-
-        List<LocatedTerm> assumptions = rule.getAssumptions();
-        for (LocatedTerm assume : assumptions) {
-            switch (assume.getMatchingLocation()) {
-            case ANTECEDENT:
-                context = disj(context, tf.not(assume.getTerm()));
-                break;
-            case SUCCEDENT:
-                context = disj(context, assume.getTerm());
-                break;
-            default:
-                throw new RuleException("Error in assumption statement");
-            }
-        }
-    }
-
-    /**
-     * create a conjunction term.
-     * 
-     * If at least one of the arguments is syntactically <code>true</code>, the
-     * result is the other term.
-     * 
-     * @param t1
-     *            a boolean term.
-     * @param t2
-     *            another boolean term
-     * @return t1 &and; t2 (or true)
-     * @throws TermException
-     *             if the terms are not boolean
-     */
-    private @NonNull Term conj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (t1 == TRUE)
-            return t2;
-        else if (t2 == TRUE)
-            return t1;
-        else
-            return tf.and(t1, t2);
-    }
-
-    /**
-     * create a disjunction term.
-     * 
-     * If at least one of the arguments is syntactically <code>false</code>, the
-     * result is the other term.
-     * 
-     * @param t1
-     *            a boolean term.
-     * @param t2
-     *            another boolean term
-     * @return t1 &or; t2 (or false)
-     * @throws TermException
-     *             if the terms are not boolean
-     */
-    private Term disj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (t1 == FALSE)
-            return t2;
-        else if (t2 == FALSE)
-            return t1;
-        else
-            return tf.or(t1, t2);
     }
 
 }
