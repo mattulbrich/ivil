@@ -5,7 +5,10 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermUnification;
 
@@ -87,7 +90,7 @@ public class Axiom {
     }
     
     public String toString() {
-        return "Rule[" + name + "]";
+        return "Axiom[" + name + "]";
     }
 
     public ASTLocatedElement getDeclaration() {
@@ -96,5 +99,10 @@ public class Axiom {
 
     public Term getTerm() {
         return term;
+    }
+
+    public void dump() {
+        System.out.println("  Axiom " + name);
+        System.out.println("        " + term);
     }
 }
