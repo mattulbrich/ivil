@@ -13,16 +13,11 @@ package de.uka.iti.pseudo.auto;
 import static de.uka.iti.pseudo.auto.SMTLibTranslator.ExpressionType.FORMULA;
 import static de.uka.iti.pseudo.auto.SMTLibTranslator.ExpressionType.INT;
 import static de.uka.iti.pseudo.auto.SMTLibTranslator.ExpressionType.UNIVERSE;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;

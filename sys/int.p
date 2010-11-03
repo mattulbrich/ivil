@@ -96,7 +96,17 @@ rule gte_to_gt
   replace %a > %b | %a = %b
   tags verbosity "8"
 
-rule lte_to_gt
+rule gte_to_nlt
+  find %a >= %b
+  replace !%a < %b
+  tags verbosity "8"
+
+rule lte_to_ngt
+  find %a <= %b
+  replace !%a > %b
+  tags verbosity "8"
+
+rule lte_to_lt
   find %a <= %b
   replace %a < %b | %a = %b
   tags verbosity "8"

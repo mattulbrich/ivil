@@ -26,9 +26,12 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TermFactory;
+import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
+import de.uka.iti.pseudo.util.Log;
 
 
 //not threadsafe
+// TODO DOC
 public class RuleAxiomExtractor {
 
     private static final String AXIOM_EXTRACT_KEY = "asAxiom";
@@ -149,6 +152,11 @@ public class RuleAxiomExtractor {
 
         Axiom axiom = new Axiom(rule.getName(), term, GENERATED, ASTLocatedElement.CREATED);
 
+        // DEBUG
+//        axiom.getTerm().visit(new ToplevelCheckVisitor());
+//        Term.SHOW_TYPES = true;
+//        axiom.dump();
+        
         env.addAxiom(axiom);
     }
 
