@@ -40,11 +40,11 @@ public class PruneAction extends BarAction implements InitialisingAction, Proper
     }
     
     public void actionPerformed(ActionEvent e) {
-        // pruning in closed proofs is mostly undesired, so better ask if thats
+        // pruning in closed proofs is mostly undesired, so better ask if that's
         // really intended
         if (!getProofCenter().getProof().hasOpenGoals()) {
             int answer = JOptionPane.showOptionDialog(getParentFrame(),
-                    "The proof is allready closed, do you really want to prune?", "Really?", JOptionPane.YES_NO_OPTION,
+                    "The proof is already closed, do you really want to prune?", "Really?", JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE, null, null, JOptionPane.NO_OPTION);
             
             if (JOptionPane.NO_OPTION == answer)
