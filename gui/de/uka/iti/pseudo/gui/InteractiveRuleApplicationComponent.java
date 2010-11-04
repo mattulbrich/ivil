@@ -17,6 +17,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -297,7 +299,7 @@ class InteractiveRuleApplicationPopup extends JWindow {
 
     private static final long serialVersionUID = 251617174624191216L;
 
-    public InteractiveRuleApplicationPopup(ProofCenter proofCenter,
+    public InteractiveRuleApplicationPopup(final ProofCenter proofCenter,
             List<RuleApplication> ruleApps, Point location) {
         super(proofCenter.getMainWindow());
         
@@ -318,5 +320,14 @@ class InteractiveRuleApplicationPopup extends JWindow {
         Border bevelBorder = BorderFactory.createBevelBorder(BevelBorder.RAISED);
         sp.setBorder(BorderFactory.createCompoundBorder(bevelBorder, windowMover));
         new PopupDisappearListener(rac, this);
+        
+        // bugfix 1042
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                Log.enter(e);
+                proofCenter.firePropertyChange(ProofCenter.SELECTED_RULEAPPLICATION, null);
+            }
+        });
     }
 }
