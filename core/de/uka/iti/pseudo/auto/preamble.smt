@@ -1,7 +1,3 @@
-;
-; Have extra sorts for boolean terms
-;   taken from microsoft examples
-;
 
 :extrasorts ( Universe )
 :extrasorts ( Type )
@@ -38,6 +34,7 @@
 :assumption
   (forall ((?x Int) (?y Int)) (implies (= (i2u ?x) (i2u ?y)) (= ?x ?y)))
   
+; used to haven "iff" here
 :assumption
-  (forall (?x Universe) (iff (= (ty ?x) ty.int) (exists (?y Int) (= ?y (u2i ?x)))))
+  (forall (?x Universe) (implies (= (ty ?x) ty.int) (exists (?y Int) (= (i2u ?y) ?x))))
 
