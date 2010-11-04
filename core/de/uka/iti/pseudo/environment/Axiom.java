@@ -10,7 +10,7 @@ import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 public class Axiom {
 
@@ -46,7 +46,7 @@ public class Axiom {
         if(!term.getType().equals(Environment.getBoolType()))
             throw new EnvironmentException("Axioms must have boolean type");
         
-        if(TermUnification.containsSchemaVariables(term))
+        if(TermMatcher.containsSchemaVariables(term))
             throw new EnvironmentException("Axiom contains schema identifier");
     }
 

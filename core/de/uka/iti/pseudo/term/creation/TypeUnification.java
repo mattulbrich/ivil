@@ -250,7 +250,7 @@ public class TypeUnification implements Cloneable {
     
     private Unifier leftUnifier = new Unifier(false);
     private Unifier unifier = new Unifier(true);
-    
+
     /**
      * Do unification in which only type variables in the first type argument
      * are matched. A type variable in the second argument does not match a
@@ -272,7 +272,11 @@ public class TypeUnification implements Cloneable {
      * 
      * @throws UnificationException
      *             if the unification fails.
+     *             
+     * @deprecated use {@link TypeMatchVisitor} instead which runs in linear
+     *             rather than with potentially exponential overhead
      */
+    @Deprecated
     public @NonNull Type leftUnify(@NonNull Type adaptingType,
             @NonNull Type fixType) throws UnificationException {
 

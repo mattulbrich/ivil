@@ -34,7 +34,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -199,7 +199,7 @@ public class EnvironmentMaker {
         if(term != null) {
             problemTerm = TermMaker.makeTerm(term, env);
 
-            if(TermUnification.containsSchemaVariables(problemTerm))
+            if(TermMatcher.containsSchemaVariables(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
 
             try {

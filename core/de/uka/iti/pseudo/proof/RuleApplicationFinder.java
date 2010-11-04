@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 // Introduce an extra class to match a single rule (??)
 
@@ -200,7 +200,7 @@ public class RuleApplicationFinder {
                 ruleAppMaker.setFindSelector(termSelector);
 
                 LocatedTerm findClause = rule.getFindClause();
-                TermUnification mc = new TermUnification(env);
+                TermMatcher mc = new TermMatcher(env);
                 ruleAppMaker.setTermUnification(mc);
 
                 if(findClause != null) {
@@ -215,7 +215,7 @@ public class RuleApplicationFinder {
                         continue;
 
 
-                    if (!mc.leftUnify(findClause.getTerm(), termSelector
+                    if (!mc.leftMatch(findClause.getTerm(), termSelector
                             .selectSubterm(sequent)))
                         continue;
                 }
@@ -252,7 +252,7 @@ public class RuleApplicationFinder {
      * @throws EnoughException if enough applications have been found
      */
     private void matchAssumptions(List<LocatedTerm> assumptions,
-            TermUnification mc, int assIdx) throws RuleException,
+            TermMatcher mc, int assIdx) throws RuleException,
             EnoughException {
 
         if (assIdx >= assumptions.size()) {
@@ -276,10 +276,10 @@ public class RuleApplicationFinder {
             branch = sequent.getSuccedent();
         }
         
-        TermUnification mcCopy = mc.clone();
+        TermMatcher mcCopy = mc.clone();
         int termNo = 0;
         for (Term t : branch) {
-            if(mc.leftUnify(assumption.getTerm(), t)) {
+            if(mc.leftMatch(assumption.getTerm(), t)) {
                 ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
                 matchAssumptions(assumptions, mc, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();
@@ -299,7 +299,7 @@ public class RuleApplicationFinder {
      * 
      * @throws RuleException may be thrown by the where condition
      */
-    private boolean matchWhereClauses(TermUnification mc) throws RuleException {
+    private boolean matchWhereClauses(TermMatcher mc) throws RuleException {
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for (WhereClause wc : whereClauses) {
             if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, goal, env))
