@@ -46,7 +46,7 @@ SKIP : { " " | "\t" | "\n" | "\r" }
 // TODO NESTING
 SKIP :
 {
-  < SINGLE_LINE_COMMENT: "//" ( ~[] )* ( "\n" | "\r" | "\r\n" ) >
+  < SINGLE_LINE_COMMENT: "//" ( ~["\n", "\r"] )* >
 | < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
 }
 
@@ -54,8 +54,8 @@ SKIP :
 TOKEN : {
   < VAR: "var">
 | < WHERE: "where">
-| < INT: "int">
-| < BOOL: "bool">
+//| < INT: "int">  cant be used as tokens, as that would brake parsing of quantifiers
+//| < BOOL: "bool"> cant be used as tokens, as that would brake parsing of quantifiers
 | < CONST: "const">
 | < UNIQUE: "unique">
 | < EXTENDS: "extends">

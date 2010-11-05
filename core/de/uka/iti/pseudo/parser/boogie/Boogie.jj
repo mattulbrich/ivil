@@ -50,7 +50,7 @@ SKIP : { " " | "\t" | "\n" | "\r" }
 // TODO NESTING
 SKIP :
 {
-  < SINGLE_LINE_COMMENT: "//" ( ~[] )* ( "\n" | "\r" | "\r\n" ) >
+  < SINGLE_LINE_COMMENT: "//" ( ~["\n", "\r"] )* >
 | < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
 }
 

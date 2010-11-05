@@ -6,7 +6,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * Creates unit tests out of .bpl files in ./examples/boogie/test/*
+ * Creates unit tests out of .bpl files in ./examples/boogie/test/*<br>
+ * <b>NOTE:</b> It looks as if some examples were intended to fail. This will
+ * cause the Testcases to fail, although everything is fine. Maybe we can
+ * implment a way to tell the creator which tests should fail and which
+ * shouldnt.
  * 
  * @author timm.felden@felden.com
  * 

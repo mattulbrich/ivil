@@ -39,7 +39,8 @@ procedure T_from_E(a,b: int) returns (q,r: int)
 
   q := if 0 <= a || rr == 0 then qq else if 0 <= b then qq+1 else qq-1;
   r := if 0 <= a || rr == 0 then rr else if 0 <= b then rr-b else rr+b;
-  assume {:captureState "end of T_from_E"} true;
+// (TFE) NOTE: The following expression seems not to be a valid piece of code
+//  assume {:captureState "end of T_from_E"} true;
 }
 
 procedure E_from_T(a,b: int) returns (q,r: int)

@@ -359,12 +359,22 @@ Parser.main(new String[] { "examples/boogie/test/test0/AttributeResolution.bpl"}
 
 // generated test for examples/boogie/test/test0/LineResolve.bpl
 public void testBoogieParseexamples_boogie_test_test0_LineResolve() throws Exception {
+        try {
 Parser.main(new String[] { "examples/boogie/test/test0/LineResolve.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/test0/WhereParsing2.bpl
 public void testBoogieParseexamples_boogie_test_test0_WhereParsing2() throws Exception {
+        try {
 Parser.main(new String[] { "examples/boogie/test/test0/WhereParsing2.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/test0/Triggers0.bpl
@@ -379,7 +389,12 @@ Parser.main(new String[] { "examples/boogie/test/test0/Quoting.bpl"});
 
 // generated test for examples/boogie/test/test0/LineParse.bpl
 public void testBoogieParseexamples_boogie_test_test0_LineParse() throws Exception {
+        try {
 Parser.main(new String[] { "examples/boogie/test/test0/LineParse.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/test0/AttributeParsingErr.bpl
@@ -429,7 +444,12 @@ Parser.main(new String[] { "examples/boogie/test/test0/Types0.bpl"});
 
 // generated test for examples/boogie/test/test0/WhereParsing1.bpl
 public void testBoogieParseexamples_boogie_test_test0_WhereParsing1() throws Exception {
+        try {
 Parser.main(new String[] { "examples/boogie/test/test0/WhereParsing1.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/test0/ModifiedBag.bpl
@@ -459,7 +479,12 @@ Parser.main(new String[] { "examples/boogie/test/test0/LargeLiterals0.bpl"});
 
 // generated test for examples/boogie/test/test0/BadQuantifier.bpl
 public void testBoogieParseexamples_boogie_test_test0_BadQuantifier() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/test0/BadQuantifier.bpl"});
+        try {
+        Parser.main(new String[] { "examples/boogie/test/test0/BadQuantifier.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/test0/PrettyPrint.bpl
