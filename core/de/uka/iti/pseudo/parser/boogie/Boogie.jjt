@@ -1,0 +1,967 @@
+
+options {
+    STATIC = false;
+    UNICODE_INPUT = true;
+    LOOKAHEAD = 2;
+}
+
+/*---------------------------------------------------------------------------
+// BoogiePL -
+//--------------------------------------------------------------------------*/
+
+
+PARSER_BEGIN(Parser)
+package de.uka.iti.pseudo.parser.boogie;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
+public class Parser {
+
+    public static void main(String args[]) throws FileNotFoundException {
+        Parser p = new Parser(new FileInputStream(args[0]));
+        p.BoogiePL();
+    }
+}
+
+PARSER_END(Parser)
+
+TOKEN : {
+  < #LETTER : ["A" - "Z", "a" - "z"] >
+| < #DIGIT : ["0" - "9"] >
+| < #SPECIAL : ["'", "~", "#", "$", "^", "_", ".", "?", "`"] >
+| < #GLYPH : ["`", "~", "!", "@", "#", "$", "%", "^", "&", "*", 
+              "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", 
+	      "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", 
+	      "\\"] >
+| < #NONDIGIT : (<LETTER> | <SPECIAL>) >
+}
+
+/* Skip whitespace */
+SKIP : { " " | "\t" | "\n" | "\r" }
+
+/* Reserved words */
+TOKEN : {
+  < VAR: "var">
+| < WHERE: "where">
+| < INT: "int">
+| < BOOL: "bool">
+| < CONST: "const">
+| < UNIQUE: "unique">
+| < EXTENDS: "extends">
+| < COMPLETE: "complete">
+| < FUNCTION: "function">
+| < RETURNS: "returns">
+| < INLINE: "inline">
+| < AXIOM: "axiom">
+| < TYPE: "type">
+| < PROCEDURE: "procedure">
+| < IMPLEMENTATION: "implementation">
+| < MODIFIES: "modifies">
+| < FREE: "free">
+| < REQUIRES: "requires">
+| < ENSURES: "ensures">
+| < GOTO: "goto">
+| < RETURN: "return">
+| < IF: "if">
+| < THEN: "then" >
+| < ELSE: "else">
+| < WHILE: "while">
+| < INVARIANT: "invariant">
+| < BREAK: "break">
+| < ASSERT: "assert">
+| < ASSUME: "assume">
+| < HAVOC: "havoc">
+| < CALL: "call">
+| < FORALL: "forall">
+| < FALSE: "false">
+| < TRUE: "true">
+| < OLD: "old">
+| < EXISTS: "exists">
+| < LAMBDA: "lambda">
+}
+
+/* Literals / Identifiers*/
+TOKEN: {
+  < IDENT: ("\\")? <NONDIGIT> ( <NONDIGIT> | <DIGIT> )* >
+| < BVLIT: ( <DIGIT> )+ "b" "v" ( <DIGIT> )+ >
+| < STRING: "\"" ( ~["\"","\\","\n","\r"] )* "\"" >
+| < FLOAT: ( <DIGIT> )+ "." ( <DIGIT> )+ > 
+| < DIGITS : ( <DIGIT> )+ >
+}
+
+/* Operators */
+/*
+TOKEN: {
+  < ASSIGN: "=" >
+| < MUL: "*" >
+}
+*/
+
+// TODO NESTING
+SKIP :
+{
+  < SINGLE_LINE_COMMENT: "//" ( ~[] )* ( "\n" | "\r" | "\r\n" ) >
+|
+  < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
+}
+
+/*---------------------------------------------------------------------------
+// BoogiePL -
+//--------------------------------------------------------------------------*/
+
+/*------------------------------------------------------------------------*/
+void BoogiePL()
+:{} { 
+  ( Consts()             
+  | Function()           
+  | Axiom()              
+  | UserDefinedTypes()   
+  | GlobalVars()         
+  | Procedure()  
+  | Implementation()   
+  )*
+  <EOF> 
+}
+
+/*------------------------------------------------------------------------*/
+void GlobalVars()
+:{} { 
+  "var"
+  ( Attribute() )*
+  IdsTypeWheres() ";"
+  
+}
+
+void LocalVars()
+:{} { 
+  "var"
+  ( Attribute() )*
+  IdsTypeWheres() ";"
+  
+}
+
+void ProcFormals()
+:{} { 
+  "("
+  ( IdsTypeWheres() )?
+  ")"
+  
+}
+
+void BoundVars()
+:{} { 
+  IdsTypeWheres()
+  
+}
+
+/*------------------------------------------------------------------------*/
+/* IdsType is used with const declarations */
+void IdsType()
+:{} { 
+  Idents() ":" Type()
+  
+}
+
+/* IdsTypeWheres is used with the declarations of global and local variables,
+   procedure parameters, and quantifier bound variables. */
+void IdsTypeWheres()
+:{} {
+  IdsTypeWhere()
+  ( "," IdsTypeWhere() )*
+}
+
+void IdsTypeWhere()
+:{} { 
+  Idents() ":" Type()
+  ( "where" Expression()  
+  )?
+  
+}
+
+/*------------------------------------------------------------------------*/
+void Type()
+:{} { 
+  (
+    TypeAtom()
+  |
+    Ident()       
+    ( TypeArgs() )?   
+  |
+    MapType()
+  )
+}
+
+void TypeArgs()
+:{} { 
+  (
+    TypeAtom()     
+    ( TypeArgs() )?
+  |
+    Ident()       
+    ( TypeArgs() )?
+  |
+    MapType()      
+  )
+}
+
+void TypeAtom()
+:{} { 
+  ( "int"              
+  | "bool"             
+  /* note: bitvectors are handled in UnresolvedTypeIdentifier */
+  |
+  "("
+  Type()
+  ")"
+  )
+}
+
+void MapType()
+:{} { 
+  ( TypeParams()  )?
+  "["                                         
+    ( Types() )?
+  "]"
+  Type()
+  
+}
+
+void TypeParams()
+:{} { 
+  "<"    
+    Idents()
+  ">"
+  
+}
+
+void Types()
+:{} { 
+  Type()                 
+  ( "," Type()           
+  )*
+}
+
+
+/*------------------------------------------------------------------------*/
+void Consts() 
+:{} { 
+  "const"                 
+  ( Attribute() )*
+  ( "unique"              
+  )?
+  IdsType()
+  ( OrderSpec() )?
+  
+  ";"
+}
+
+void OrderSpec()
+:{} { 
+  "extends"                
+  (
+    ( "unique"             
+    )?
+    Ident()      
+    (
+      ","                  
+      ( "unique"           
+      )?
+      Ident()    
+    )*
+  )?
+  ( "complete"             
+  )?
+}
+
+/*------------------------------------------------------------------------*/
+void Function()
+:{} { 
+  "function" ( Attribute() )* Ident() 
+  ( TypeParams() )?
+  "("
+  ( VarOrType()      
+  ( "," VarOrType()  
+  )* )? ")"
+  ( 
+    "returns" "(" VarOrType() ")" 
+    | 
+    ":" Type()    
+  )
+  ( "{" Expression()  "}" | ";" )
+  
+}
+
+void VarOrType()
+:{} { 
+  Type()    
+  ( ":"           
+    Type()
+  )?
+  
+}
+
+/*------------------------------------------------------------------------*/
+void Axiom()
+:{} { 
+  "axiom"
+   ( Attribute() )*
+   
+  Proposition() ";"  
+}
+
+/*------------------------------------------------------------------------*/
+void UserDefinedTypes()
+:{} { 
+  "type"
+  ( Attribute() )*
+  UserDefinedType()          
+  ( "," UserDefinedType()     )*
+  ";"
+}
+
+void UserDefinedType()
+:{} { 
+  Ident()
+  ( WhiteSpaceIdents() )?
+  (
+    "=" Type()
+    
+  )?
+  
+}
+
+
+/*------------------------------------------------------------------------*/
+void Procedure()
+:{} { 
+
+  "procedure"
+  ProcSignature()
+  ( ";"
+    ( Spec() )*
+  | ( Spec() )*
+    ImplBody()
+    
+  )
+  
+}
+
+
+void Implementation()
+:{} { 
+
+  "implementation"
+  ProcSignature()
+  ImplBody()
+    
+}
+
+
+void ProcSignature()
+:{} { 
+  ( Attribute() )*
+  Ident()
+  ( TypeParams() )?
+  ProcFormals()
+  ( "returns" ProcFormals() )?
+}
+
+
+void Spec()
+:{} { 
+  ( "modifies"
+    ( Idents()        
+    )? ";"
+  | "free" SpecPrePost()
+  | SpecPrePost()
+  )
+}
+
+void SpecPrePost()
+:{} { 
+  ( "requires"              
+    ( Attribute() )*
+    Proposition() ";"  
+  | "ensures"               
+    ( Attribute() )*
+    Proposition() ";"  
+  )
+}
+
+/*------------------------------------------------------------------------*/
+
+void ImplBody()
+:{} { 
+  "{"
+  ( LocalVars() )*
+  StmtList()
+}
+
+/* the StmtList also reads the final curly brace */
+void StmtList()
+:{} { 
+
+  (
+  ( LabelOrCmd()
+    
+
+  | StructuredCmd()
+    
+
+  | TransferCmd()
+    
+
+  )
+  )*
+  "}"
+  
+}
+
+void TransferCmd()
+:{} { 
+  ( "goto"             
+    Idents()     
+  | "return"           
+  ) ";"
+}
+
+void StructuredCmd()
+:{} { 
+  ( IfCmd()    
+  | WhileCmd()  
+  | BreakCmd()  
+  )
+}
+
+void IfCmd()
+:{} { 
+  "if"                       
+  Guard()
+  "{" StmtList()
+  ( "else"
+    ( IfCmd()      
+    | "{"
+      StmtList()      
+    )
+  )?
+  
+}
+
+void WhileCmd()
+:{} { 
+  "while"             
+  Guard()    
+  (                   
+    ( "free"          
+    )?
+    "invariant"
+    Expression() 
+    ";"
+  )*
+  "{"
+  StmtList()  
+}
+
+void Guard()
+:{} { 
+  "("
+  ( "*"                   
+  | Expression()    
+  )
+  ")"
+}
+
+void BreakCmd()
+:{} { 
+  "break"             
+  ( Ident()      
+  )? ";"               
+}
+
+/*------------------------------------------------------------------------*/
+
+void LabelOrCmd()
+/* ensures (c == null) != (label != null) */
+:{} { 
+  ( LabelOrAssign()
+  | "assert"              
+    ( Attribute() )*
+    Proposition()    
+    ";"
+  | "assume"              
+    Proposition()    
+    ";"
+  | "havoc"               
+    Idents() ";"    
+  | CallCmd() ";"   
+  )
+}
+
+/*------------------------------------------------------------------------*/
+
+void LabelOrAssign()
+/* ensures (c == null) != (label != null) */
+:{} { 
+  Ident()              
+  ( ":"                      
+
+  | 
+    
+
+    ( MapAssignIndex()     )*
+    
+
+    ( ","
+      Ident()
+      
+      ( MapAssignIndex()     )*
+      
+    )*
+
+    ":="                     
+    Expression()       
+    ( ","
+      Expression()     
+    )*
+    ";"                      
+  )
+}
+
+void MapAssignIndex()
+:{} { 
+  "["                        
+    (
+      Expression()      
+      ( ","
+        Expression()    
+      )*
+    )?
+  "]"
+}
+
+/*------------------------------------------------------------------------*/
+void CallCmd()
+:{} { 
+  "call"                          
+  ( Attribute() )*
+  ( Ident()
+    ( "("
+      ( CallForallArg()       
+        ( "," CallForallArg() 
+        )*
+      )?
+      ")"                         
+    |
+                                  
+      ( "," CallOutIdent()  
+        ( "," CallOutIdent()  
+        )*
+      )? ":="
+      Ident() "("
+      ( CallForallArg()       
+        ( "," CallForallArg() 
+        )*
+      )?
+      ")"                         
+    )
+  | "forall"
+    Ident() "("              
+    ( CallForallArg()       
+      ( "," CallForallArg() 
+      )*
+    )?
+    ")"                           
+  | "*"
+                                  
+      ( "," CallOutIdent()  
+        ( "," CallOutIdent()  
+        )*
+      )? ":="
+      Ident() "("
+      ( CallForallArg()       
+        ( "," CallForallArg() 
+        )*
+      )?
+      ")"                         
+  )
+}
+
+void CallOutIdent()
+:{} { 
+  ( "*"
+  | Ident()                   
+  )
+}
+
+void CallForallArg()
+:{} { 
+  ( "*"
+  | Expression()             
+  )
+}
+
+/*------------------------------------------------------------------------*/
+void Proposition()
+:{} {
+  Expression()
+}
+
+/*------------------------------------------------------------------------*/
+void Idents()
+:{} { 
+  Ident()                 
+  ( "," Ident()           
+  )*
+}
+
+/*------------------------------------------------------------------------*/
+void WhiteSpaceIdents()
+:{} { 
+  Ident()                 
+  ( Ident()               
+  )*
+}
+
+/*------------------------------------------------------------------------*/
+void Expressions()
+:{} { 
+  Expression()             
+  ( "," Expression()       
+  )*
+}
+
+/*------------------------------------------------------------------------*/
+void Expression()
+:{} { 
+  ImpliesExpression()
+  ( EquivOp()        
+    ImpliesExpression()
+                   
+  )*
+}
+
+void EquivOp(): {}
+{
+  ("<==>" | "\u21d4")
+}
+
+/*------------------------------------------------------------------------*/
+void ImpliesExpression()
+:{} { 
+  LogicalExpression()
+  (
+    ImpliesOp()      
+    /* recurse because implication is right-associative */
+    ImpliesExpression()
+                   
+  |
+    ExpliesOp()      
+    LogicalExpression() 
+                   
+    /* loop because explies is left-associative */
+    (
+      ExpliesOp()    
+      LogicalExpression() 
+                   
+    )*
+  )?
+}
+
+void ImpliesOp() 
+:{}{
+ ( "==>" | "\u21d2" )
+}
+
+void ExpliesOp()
+:{}{
+ ( "<==" | "\u21d0" )
+}
+
+/*------------------------------------------------------------------------*/
+void LogicalExpression()
+:{} { 
+  RelationalExpression()
+  ( AndOp()          
+    RelationalExpression()
+    
+    ( AndOp()        
+      RelationalExpression()
+      
+    )*
+  | OrOp()           
+    RelationalExpression()
+    
+    ( OrOp()         
+      RelationalExpression()
+      
+    )*
+  )?
+}
+
+void AndOp()
+:{}{
+ ( "&&" | "\u2227" )
+}
+
+void OrOp()
+:{}{
+ ( "||" | "\u2228" )
+}
+
+/*------------------------------------------------------------------------*/
+void RelationalExpression()
+:{} { 
+  BvTerm()
+  ( RelOp()
+    BvTerm()            
+  )?
+}
+
+void RelOp()
+:{} {                  
+  ( "=="           
+  | "<"            
+  | ">"            
+  | "<="           
+  | ">="           
+  | "!="           
+  | "<:"           
+  | "\u2260"       
+  | "\u2264"       
+  | "\u2265"       
+  )
+}
+
+/*------------------------------------------------------------------------*/
+void BvTerm()
+:{} { 
+  Term()
+  ( "++"                  
+    Term()          
+  )*
+}
+
+
+/*------------------------------------------------------------------------*/
+void Term()
+:{} { 
+  Factor()
+  ( AddOp()
+    Factor()          
+  )*
+}
+
+void AddOp()
+:{} {                  
+  ( "+"            
+  | "-"            
+  )
+}
+
+/*------------------------------------------------------------------------*/
+void Factor()
+:{} { 
+  UnaryExpression()
+  ( MulOp()
+    UnaryExpression() 
+  )*
+}
+
+void MulOp()
+:{} {                  
+  ( "*"            
+  | "/"            
+  | "%"            
+  )
+}
+
+/*------------------------------------------------------------------------*/
+void UnaryExpression()
+:{} { 
+  ( "-"                        
+    UnaryExpression()     
+  | NegOp()                      
+    UnaryExpression()     
+  | CoercionExpression()
+  )
+}
+
+void NegOp()
+:{} {
+ ( "!" | "\u00ac" )
+}
+
+/*------------------------------------------------------------------------*/
+
+/* This production creates ambiguities, because types can start with "<"
+   (polymorphic map types), but can also be followed by "<" (inequalities).
+   Coco deals with these ambiguities in a reasonable way by preferring to read
+   further types (type arguments) over relational symbols. E.g., "5 : C */
+void CoercionExpression() :{} { 
+  ArrayExpression()
+  ( ":"                     
+    (
+      Type()   
+    |
+      Nat()           /* This means that we really look at a bitvector
+                               expression t(a:b)? */
+                            
+    )
+  )*
+}
+
+/*------------------------------------------------------------------------*/
+void ArrayExpression()
+:{} { 
+  AtomExpression()
+  ( "["        
+      (
+        Expression() 
+               
+        ( "," Expression() 
+               
+        )*
+        ( ":=" Expression() 
+               
+        )?
+      | ":=" Expression()       
+      )?
+    "]"
+    
+  )*
+}
+
+
+/*------------------------------------------------------------------------*/
+void AtomExpression()
+:{} { 
+  ( "false"           
+  | "true"            
+  | Nat()            
+  | BvLit() 
+
+  | Ident()            
+    ( "("
+      ( Expressions() )? // MU: was empty choice
+      ")"
+    )?
+
+  | "old"                   
+    "("
+    Expression()
+    ")"                     
+
+  | "(" ( Expression()                 
+        | Forall()                            
+          QuantifierBody()
+                                            
+        | Exists()                            
+          QuantifierBody() 
+                                            
+        | Lambda()                            
+          QuantifierBody() 
+                                            
+        )
+    ")"
+  | IfThenElseExpression()
+  | CodeExpression() 
+  )
+}
+
+void CodeExpression()
+:{} { 
+  "|{"
+  ( LocalVars() )*
+  SpecBlock()          
+  ( SpecBlock()        
+  )*
+  "}|"
+}
+
+void SpecBlock()
+:{} { 
+  Ident() ":"
+  ( LabelOrCmd()
+                       
+  )*
+  ( "goto"             
+    Idents()     
+  | "return" Expression()
+                       
+  )
+  ";"
+}
+
+void Attribute()
+:{} { 
+  AttributeOrTrigger() 
+}
+
+void AttributeOrTrigger()
+:{} { 
+  "{"                                         
+     (
+       ":" <IDENT>                              
+       ( AttributeParameter()        
+         ( "," AttributeParameter()  
+         )*
+       )?
+       
+     |
+       Expression()       
+       ( "," Expression() 
+       )*                       
+     )
+  "}"
+}
+
+void AttributeParameter()
+:{} { 
+  ( <STRING>                
+  | Expression()     
+  )
+}
+
+void IfThenElseExpression()
+:{} { 
+  "if"  Expression() "then" Expression() "else" Expression()
+  
+}
+
+
+void QuantifierBody()
+:{} { 
+  (
+     TypeParams()
+     ( BoundVars() )?
+  |
+     BoundVars()
+  )
+  QSep()
+  ( AttributeOrTrigger() )*
+  Expression()
+}
+
+void Forall() :{} { ("forall" | "\u2200") }
+void Exists() :{} { ("exists" | "\u2203") }
+void Lambda() :{} { ("lambda" | "\u03bb") }
+void QSep() :{} { ("::" | "\u2022") }
+
+/*------------------------------------------------------------------------*/
+void Ident()
+:{} {
+  <IDENT>
+}
+
+/*------------------------------------------------------------------------*/
+void Nat()
+:{} {
+  <IDENT>
+}
+
+/*------------------------------------------------------------------------*/
+void BvLit()
+:{} {
+  <BVLIT>
+}
