@@ -2,7 +2,8 @@
 options {
     STATIC = false;
     UNICODE_INPUT = true;
-    LOOKAHEAD = 2;
+    JAVA_UNICODE_ESCAPE = true;
+    //LOOKAHEAD = 2;
 }
 
 /*---------------------------------------------------------------------------
@@ -18,7 +19,7 @@ import java.io.FileNotFoundException;
 
 public class Parser {
 
-    public static void main(String args[]) throws FileNotFoundException {
+    public static void main(String args[]) throws FileNotFoundException, ParseException {
         Parser p = new Parser(new FileInputStream(args[0]));
         p.BoogiePL();
     }
@@ -40,6 +41,15 @@ TOKEN : {
 /* Skip whitespace */
 SKIP : { " " | "\t" | "\n" | "\r" }
 
+
+/* Comments */
+// TODO NESTING
+SKIP :
+{
+  < SINGLE_LINE_COMMENT: "//" ( ~[] )* ( "\n" | "\r" | "\r\n" ) >
+| < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
+}
+
 /* Reserved words */
 TOKEN : {
   < VAR: "var">
@@ -52,7 +62,7 @@ TOKEN : {
 | < COMPLETE: "complete">
 | < FUNCTION: "function">
 | < RETURNS: "returns">
-| < INLINE: "inline">
+//| < INLINE: "inline">   seems not to be a keyword anymore
 | < AXIOM: "axiom">
 | < TYPE: "type">
 | < PROCEDURE: "procedure">
@@ -73,12 +83,28 @@ TOKEN : {
 | < ASSUME: "assume">
 | < HAVOC: "havoc">
 | < CALL: "call">
-| < FORALL: "forall">
 | < FALSE: "false">
 | < TRUE: "true">
 | < OLD: "old">
-| < EXISTS: "exists">
-| < LAMBDA: "lambda">
+}
+
+
+/* Operators */
+TOKEN: {
+  < OP_ASSIGN: ":=" >
+| < OP_MUL: "*" >
+| < OP_FORALL: "forall" | "\u2200" >
+| < OP_EXISTS: "exists" | "\u2203" >
+| < OP_LAMBDA: "lambda" | "\u03bb" >
+| < OP_SEP: "::" | "\u2022" >
+}
+
+/* Separators */
+TOKEN: {
+  < SEP_RCURLY: "}" >
+| < SEP_LCURLY: "{" >
+| < SEP_RBRACKET: "]" >
+| < SEP_LBRACKET: "[" >
 }
 
 /* Literals / Identifiers*/
@@ -87,23 +113,7 @@ TOKEN: {
 | < BVLIT: ( <DIGIT> )+ "b" "v" ( <DIGIT> )+ >
 | < STRING: "\"" ( ~["\"","\\","\n","\r"] )* "\"" >
 | < FLOAT: ( <DIGIT> )+ "." ( <DIGIT> )+ > 
-| < DIGITS : ( <DIGIT> )+ >
-}
-
-/* Operators */
-/*
-TOKEN: {
-  < ASSIGN: "=" >
-| < MUL: "*" >
-}
-*/
-
-// TODO NESTING
-SKIP :
-{
-  < SINGLE_LINE_COMMENT: "//" ( ~[] )* ( "\n" | "\r" | "\r\n" ) >
-|
-  < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
+| < INTEGER : ( <DIGIT> )+ >
 }
 
 /*---------------------------------------------------------------------------
@@ -185,7 +195,7 @@ void Type()
   (
     TypeAtom()
   |
-    Ident()       
+    <IDENT>       
     ( TypeArgs() )?   
   |
     MapType()
@@ -198,7 +208,7 @@ void TypeArgs()
     TypeAtom()     
     ( TypeArgs() )?
   |
-    Ident()       
+    <IDENT>       
     ( TypeArgs() )?
   |
     MapType()      
@@ -262,12 +272,12 @@ void OrderSpec()
   (
     ( "unique"             
     )?
-    Ident()      
+    <IDENT>    
     (
       ","                  
       ( "unique"           
       )?
-      Ident()    
+      <IDENT>    
     )*
   )?
   ( "complete"             
@@ -277,7 +287,7 @@ void OrderSpec()
 /*------------------------------------------------------------------------*/
 void Function()
 :{} { 
-  "function" ( Attribute() )* Ident() 
+  "function" ( Attribute() )* <IDENT> 
   ( TypeParams() )?
   "("
   ( VarOrType()      
@@ -322,7 +332,7 @@ void UserDefinedTypes()
 
 void UserDefinedType()
 :{} { 
-  Ident()
+  <IDENT>
   ( WhiteSpaceIdents() )?
   (
     "=" Type()
@@ -338,11 +348,9 @@ void Procedure()
 
   "procedure"
   ProcSignature()
-  ( ";"
-    ( Spec() )*
-  | ( Spec() )*
-    ImplBody()
-    
+  ( (";")?
+    (Spec())*
+    (ImplBody())?
   )
   
 }
@@ -361,7 +369,7 @@ void Implementation()
 void ProcSignature()
 :{} { 
   ( Attribute() )*
-  Ident()
+  <IDENT>
   ( TypeParams() )?
   ProcFormals()
   ( "returns" ProcFormals() )?
@@ -403,19 +411,12 @@ void StmtList()
 :{} { 
 
   (
-  ( LabelOrCmd()
-    
-
+    LabelOrCmd()
   | StructuredCmd()
-    
-
   | TransferCmd()
-    
-
-  )
   )*
-  "}"
   
+  "}"
 }
 
 void TransferCmd()
@@ -475,7 +476,7 @@ void Guard()
 void BreakCmd()
 :{} { 
   "break"             
-  ( Ident()      
+  ( <IDENT>      
   )? ";"               
 }
 
@@ -503,7 +504,7 @@ void LabelOrCmd()
 void LabelOrAssign()
 /* ensures (c == null) != (label != null) */
 :{} { 
-  Ident()              
+  <IDENT>          
   ( ":"                      
 
   | 
@@ -513,7 +514,7 @@ void LabelOrAssign()
     
 
     ( ","
-      Ident()
+      <IDENT>
       
       ( MapAssignIndex()     )*
       
@@ -545,7 +546,7 @@ void CallCmd()
 :{} { 
   "call"                          
   ( Attribute() )*
-  ( Ident()
+  ( <IDENT>
     ( "("
       ( CallForallArg()       
         ( "," CallForallArg() 
@@ -558,15 +559,15 @@ void CallCmd()
         ( "," CallOutIdent()  
         )*
       )? ":="
-      Ident() "("
+      <IDENT> "("
       ( CallForallArg()       
         ( "," CallForallArg() 
         )*
       )?
       ")"                         
     )
-  | "forall"
-    Ident() "("              
+  | <OP_FORALL>
+    <IDENT> "("              
     ( CallForallArg()       
       ( "," CallForallArg() 
       )*
@@ -578,7 +579,7 @@ void CallCmd()
         ( "," CallOutIdent()  
         )*
       )? ":="
-      Ident() "("
+      <IDENT> "("
       ( CallForallArg()       
         ( "," CallForallArg() 
         )*
@@ -590,7 +591,7 @@ void CallCmd()
 void CallOutIdent()
 :{} { 
   ( "*"
-  | Ident()                   
+  | <IDENT>                   
   )
 }
 
@@ -610,16 +611,16 @@ void Proposition()
 /*------------------------------------------------------------------------*/
 void Idents()
 :{} { 
-  Ident()                 
-  ( "," Ident()           
+  <IDENT>           
+  ( "," <IDENT>           
   )*
 }
 
 /*------------------------------------------------------------------------*/
 void WhiteSpaceIdents()
 :{} { 
-  Ident()                 
-  ( Ident()               
+  <IDENT>               
+  ( <IDENT>               
   )*
 }
 
@@ -636,8 +637,7 @@ void Expression()
 :{} { 
   ImpliesExpression()
   ( EquivOp()        
-    ImpliesExpression()
-                   
+    ImpliesExpression()                   
   )*
 }
 
@@ -797,16 +797,16 @@ void NegOp()
 /* This production creates ambiguities, because types can start with "<"
    (polymorphic map types), but can also be followed by "<" (inequalities).
    Coco deals with these ambiguities in a reasonable way by preferring to read
-   further types (type arguments) over relational symbols. E.g., "5 : C */
+   further types (type arguments) over relational symbols. E.g., "5 : C < 0"
+   will cause a parse error because "<" is treated as the beginning of a
+   map type. */
+   
 void CoercionExpression() :{} { 
   ArrayExpression()
   ( ":"                     
     (
       Type()   
-    |
-      Nat()           /* This means that we really look at a bitvector
-                               expression t(a:b)? */
-                            
+    | <INTEGER>           /* This means that we really look at a bitvector expression t(a:b)? */
     )
   )*
 }
@@ -828,7 +828,6 @@ void ArrayExpression()
       | ":=" Expression()       
       )?
     "]"
-    
   )*
 }
 
@@ -838,10 +837,9 @@ void AtomExpression()
 :{} { 
   ( "false"           
   | "true"            
-  | Nat()            
-  | BvLit() 
-
-  | Ident()            
+  | <INTEGER>          
+  | <BVLIT> 
+  | <IDENT>            
     ( "("
       ( Expressions() )? // MU: was empty choice
       ")"
@@ -853,13 +851,13 @@ void AtomExpression()
     ")"                     
 
   | "(" ( Expression()                 
-        | Forall()                            
+        | <OP_FORALL>                            
           QuantifierBody()
                                             
-        | Exists()                            
+        | <OP_EXISTS>                            
           QuantifierBody() 
                                             
-        | Lambda()                            
+        | <OP_LAMBDA>                         
           QuantifierBody() 
                                             
         )
@@ -881,7 +879,7 @@ void CodeExpression()
 
 void SpecBlock()
 :{} { 
-  Ident() ":"
+  <IDENT> ":"
   ( LabelOrCmd()
                        
   )*
@@ -938,30 +936,7 @@ void QuantifierBody()
   |
      BoundVars()
   )
-  QSep()
+  <OP_SEP>
   ( AttributeOrTrigger() )*
   Expression()
-}
-
-void Forall() :{} { ("forall" | "\u2200") }
-void Exists() :{} { ("exists" | "\u2203") }
-void Lambda() :{} { ("lambda" | "\u03bb") }
-void QSep() :{} { ("::" | "\u2022") }
-
-/*------------------------------------------------------------------------*/
-void Ident()
-:{} {
-  <IDENT>
-}
-
-/*------------------------------------------------------------------------*/
-void Nat()
-:{} {
-  <IDENT>
-}
-
-/*------------------------------------------------------------------------*/
-void BvLit()
-:{} {
-  <BVLIT>
 }

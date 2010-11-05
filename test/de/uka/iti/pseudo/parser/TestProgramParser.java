@@ -10,7 +10,6 @@
  */
 package de.uka.iti.pseudo.parser;
 
-import java.io.File;
 import java.io.StringReader;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
