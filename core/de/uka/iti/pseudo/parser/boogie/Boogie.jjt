@@ -3,7 +3,6 @@ options {
     STATIC = false;
     UNICODE_INPUT = true;
     JAVA_UNICODE_ESCAPE = true;
-    //LOOKAHEAD = 2;
 }
 
 /*---------------------------------------------------------------------------
@@ -14,10 +13,36 @@ options {
 PARSER_BEGIN(Parser)
 package de.uka.iti.pseudo.parser.boogie;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+
+import de.uka.iti.pseudo.parser.boogie.ast.*;
 
 public class Parser {
+
+public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
+       return parseFile(new FileReader(file), file.getPath());
+    }
+    
+    public CompilationUnit parseURL(URL url) throws ParseException, IOException {
+        Reader reader = new InputStreamReader(url.openStream());
+        return parseFile(reader, url.toString());
+     }
+    
+    public CompilationUnit parseFile(Reader reader, String filename) throws ParseException {
+        ReInit(reader);
+        CompilationUnit result = BoogiePL();
+        result.setFilename(filename);
+        return result;
+    }
 
     public static void main(String args[]) throws FileNotFoundException, ParseException {
         Parser p = new Parser(new FileInputStream(args[0]));
@@ -54,8 +79,8 @@ SKIP :
 TOKEN : {
   < VAR: "var">
 | < WHERE: "where">
-//| < INT: "int">  cant be used as tokens, as that would brake parsing of quantifiers
-//| < BOOL: "bool"> cant be used as tokens, as that would brake parsing of quantifiers
+| < INT: "int"> // cant be used as tokens, as that would brake parsing of quantifiers
+| < BOOL: "bool"> // cant be used as tokens, as that would brake parsing of quantifiers
 | < CONST: "const">
 | < UNIQUE: "unique">
 | < EXTENDS: "extends">
@@ -90,6 +115,7 @@ TOKEN : {
 
 
 /* Operators */
+// TODO check operators for completeness and unicode escapes
 TOKEN: {
   < OP_ASSIGN: ":=" >
 | < OP_MUL: "*" >
@@ -121,17 +147,23 @@ TOKEN: {
 //--------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------*/
-void BoogiePL()
-:{} { 
-  ( Consts()             
-  | Function()           
-  | Axiom()              
-  | UserDefinedTypes()   
-  | GlobalVars()         
-  | Procedure()  
-  | Implementation()   
+CompilationUnit BoogiePL()
+:{
+    DeclarationBlock block=null;
+    List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();
+} { 
+  (
+      ( block=Consts()             
+      | block=Function()           
+      | block=Axiom()              
+      | UserDefinedTypes()   
+      | GlobalVars()         
+      | Procedure()  
+      | Implementation()   
+      ){if(null!=block)declarations.add(block);}
   )*
-  <EOF> 
+  <EOF>
+  { return new CompilationUnit(declarations); } 
 }
 
 /*------------------------------------------------------------------------*/
@@ -167,10 +199,19 @@ void BoundVars()
 
 /*------------------------------------------------------------------------*/
 /* IdsType is used with const declarations */
-void IdsType()
-:{} { 
-  Idents() ":" Type()
-  
+List<Variable> IdsType(boolean isConstant)
+:{
+    List<Token> names;
+    Type t;
+} { 
+  names=Idents() ":" t=Type()
+  {
+    List<Variable> rval = new LinkedList<Variable>();
+    for(Token name : names)
+        rval.add(new Variable(name, t, isConstant));
+        
+    return rval; 
+  }
 }
 
 /* IdsTypeWheres is used with the declarations of global and local variables,
@@ -190,7 +231,7 @@ void IdsTypeWhere()
 }
 
 /*------------------------------------------------------------------------*/
-void Type()
+Type Type()
 :{} { 
   (
     TypeAtom()
@@ -200,6 +241,7 @@ void Type()
   |
     MapType()
   )
+  { return new Type(); }
 }
 
 void TypeArgs()
@@ -254,16 +296,23 @@ void Types()
 
 
 /*------------------------------------------------------------------------*/
-void Consts() 
-:{} { 
-  "const"                 
-  ( Attribute() )*
-  ( "unique"              
+ConstantDeclaration Consts() 
+:{
+    Token first;
+    List<Attribute> attributes;
+    Boolean unique = false;
+    List<Variable> varnames;
+    //todo order specification
+} { 
+  first = "const"
+  attributes = AttributeList()
+  ( "unique" {unique = true;}
   )?
-  IdsType()
+  varnames = IdsType(true)
   ( OrderSpec() )?
   
   ";"
+  { return new ConstantDeclaration(first, attributes, unique, varnames); }
 }
 
 void OrderSpec()
@@ -285,21 +334,32 @@ void OrderSpec()
 }
 
 /*------------------------------------------------------------------------*/
-void Function()
-:{} { 
-  "function" ( Attribute() )* <IDENT> 
+FunctionDeclaration Function()
+:{
+    Token first;
+    List<Attribute> attributes;
+    Token name;
+    // TODO signature
+    Expression expression=null;
+} { 
+  first="function" attributes=AttributeList() name=<IDENT> 
   ( TypeParams() )?
+  
   "("
-  ( VarOrType()      
-  ( "," VarOrType()  
-  )* )? ")"
+      ( VarOrType()      
+        ( "," VarOrType())* 
+      )?
+  ")"
+  
   ( 
     "returns" "(" VarOrType() ")" 
     | 
     ":" Type()    
   )
-  ( "{" Expression()  "}" | ";" )
   
+  ( "{" expression=Expression()  "}" | ";" )
+  
+  { return new FunctionDeclaration(first, attributes, name, expression); }
 }
 
 void VarOrType()
@@ -312,12 +372,17 @@ void VarOrType()
 }
 
 /*------------------------------------------------------------------------*/
-void Axiom()
-:{} { 
-  "axiom"
-   ( Attribute() )*
+AxiomDeclaration Axiom()
+:{
+    Token first;
+    List<Attribute> attributes;
+    Expression axiom;
+} { 
+  (first = "axiom"
+    attributes=AttributeList()
    
-  Proposition() ";"  
+  axiom = Expression() ";")
+  { return new AxiomDeclaration(first, attributes, axiom); }
 }
 
 /*------------------------------------------------------------------------*/
@@ -390,10 +455,10 @@ void SpecPrePost()
 :{} { 
   ( "requires"              
     ( Attribute() )*
-    Proposition() ";"  
+    Expression() ";"  
   | "ensures"               
     ( Attribute() )*
-    Proposition() ";"  
+    Expression() ";"  
   )
 }
 
@@ -488,10 +553,10 @@ void LabelOrCmd()
   ( LabelOrAssign()
   | "assert"              
     ( Attribute() )*
-    Proposition()    
+    Expression()    
     ";"
   | "assume"              
-    Proposition()    
+    Expression()    
     ";"
   | "havoc"               
     Idents() ";"    
@@ -603,17 +668,15 @@ void CallForallArg()
 }
 
 /*------------------------------------------------------------------------*/
-void Proposition()
-:{} {
-  Expression()
-}
-
-/*------------------------------------------------------------------------*/
-void Idents()
-:{} { 
-  <IDENT>           
-  ( "," <IDENT>           
+List<Token> Idents()
+:{
+    Token n;
+    List<Token> rval = new LinkedList<Token>();
+} { 
+  n=<IDENT> { rval.add(n); }           
+  ( "," n=<IDENT> { rval.add(n); }
   )*
+  {return rval;}
 }
 
 /*------------------------------------------------------------------------*/
@@ -625,20 +688,24 @@ void WhiteSpaceIdents()
 }
 
 /*------------------------------------------------------------------------*/
-void Expressions()
-:{} { 
+Expression Expressions()
+:{
+ // TODO continue here!
+} { 
   Expression()             
   ( "," Expression()       
   )*
+  {return new Expression();}
 }
 
 /*------------------------------------------------------------------------*/
-void Expression()
+Expression Expression()
 :{} { 
   ImpliesExpression()
   ( EquivOp()        
     ImpliesExpression()                   
   )*
+  { return new Expression(); }
 }
 
 void EquivOp(): {}
@@ -891,9 +958,20 @@ void SpecBlock()
   ";"
 }
 
-void Attribute()
+List<Attribute> AttributeList()
+:{
+    Attribute attr;
+    List<Attribute> rval = new LinkedList<Attribute>();
+} {
+    ( attr=Attribute() {rval.add(attr);} )*
+    {return rval;}
+}
+
+// TODO implement
+Attribute Attribute()
 :{} { 
-  AttributeOrTrigger() 
+  AttributeOrTrigger()
+  { return new Attribute(); } 
 }
 
 void AttributeOrTrigger()

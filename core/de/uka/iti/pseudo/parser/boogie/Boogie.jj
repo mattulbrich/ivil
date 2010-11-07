@@ -4,7 +4,6 @@ options {
     STATIC = false;
     UNICODE_INPUT = true;
     JAVA_UNICODE_ESCAPE = true;
-    //LOOKAHEAD = 2;
 }
 
 /*---------------------------------------------------------------------------
@@ -15,13 +14,39 @@ options {
 PARSER_BEGIN(Parser)
 package de.uka.iti.pseudo.parser.boogie;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+
+import de.uka.iti.pseudo.parser.boogie.ast.*;
 
 public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/ {/*@bgen(jjtree)*/
   protected JJTParserState jjtree = new JJTParserState();
 
 /*@egen*/
+
+public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
+       return parseFile(new FileReader(file), file.getPath());
+    }
+    
+    public CompilationUnit parseURL(URL url) throws ParseException, IOException {
+        Reader reader = new InputStreamReader(url.openStream());
+        return parseFile(reader, url.toString());
+     }
+    
+    public CompilationUnit parseFile(Reader reader, String filename) throws ParseException {
+        ReInit(reader);
+        CompilationUnit result = BoogiePL();
+        result.setFilename(filename);
+        return result;
+    }
 
     public static void main(String args[]) throws FileNotFoundException, ParseException {
         Parser p = new Parser(new FileInputStream(args[0]));
@@ -58,8 +83,8 @@ SKIP :
 TOKEN : {
   < VAR: "var">
 | < WHERE: "where">
-| < INT: "int">
-| < BOOL: "bool">
+| < INT: "int"> // cant be used as tokens, as that would brake parsing of quantifiers
+| < BOOL: "bool"> // cant be used as tokens, as that would brake parsing of quantifiers
 | < CONST: "const">
 | < UNIQUE: "unique">
 | < EXTENDS: "extends">
@@ -94,6 +119,7 @@ TOKEN : {
 
 
 /* Operators */
+// TODO check operators for completeness and unicode escapes
 TOKEN: {
   < OP_ASSIGN: ":=" >
 | < OP_MUL: "*" >
@@ -125,23 +151,34 @@ TOKEN: {
 //--------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------*/
-void BoogiePL()
+CompilationUnit BoogiePL()
 :{/*@bgen(jjtree) BoogiePL */
-  SimpleNode jjtn000 = new SimpleNode(JJTBOOGIEPL);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) BoogiePL */
+    SimpleNode jjtn000 = new SimpleNode(JJTBOOGIEPL);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    DeclarationBlock block=null;
+    List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();
+} {/*@bgen(jjtree) BoogiePL */
   try {
 /*@egen*/ 
-  ( Consts()             
-  | Function()           
-  | Axiom()              
-  | UserDefinedTypes()   
-  | GlobalVars()         
-  | Procedure()  
-  | Implementation()   
+  (
+      ( block=Consts()             
+      | block=Function()           
+      | block=Axiom()              
+      | UserDefinedTypes()   
+      | GlobalVars()         
+      | Procedure()  
+      | Implementation()   
+      ){if(null!=block)declarations.add(block);}
   )*
   <EOF>/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new CompilationUnit(declarations); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -301,15 +338,30 @@ void BoundVars()
 
 /*------------------------------------------------------------------------*/
 /* IdsType is used with const declarations */
-void IdsType()
+List<Variable> IdsType(boolean isConstant)
 :{/*@bgen(jjtree) IdsType */
-  SimpleNode jjtn000 = new SimpleNode(JJTIDSTYPE);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) IdsType */
+    SimpleNode jjtn000 = new SimpleNode(JJTIDSTYPE);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    List<Token> names;
+    Type t;
+} {/*@bgen(jjtree) IdsType */
   try {
 /*@egen*/ 
-  Idents() ":" Type()/*@bgen(jjtree)*/
+  names=Idents() ":" t=Type()/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  {
+    List<Variable> rval = new LinkedList<Variable>();
+    for(Token name : names)
+        rval.add(new Variable(name, t, isConstant));
+        
+    return rval; 
+  }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -330,7 +382,6 @@ void IdsType()
     }
   }
 /*@egen*/
-  
 }
 
 /* IdsTypeWheres is used with the declarations of global and local variables,
@@ -402,7 +453,7 @@ void IdsTypeWhere()
 }
 
 /*------------------------------------------------------------------------*/
-void Type()
+Type Type()
 :{/*@bgen(jjtree) Type */
   SimpleNode jjtn000 = new SimpleNode(JJTTYPE);
   boolean jjtc000 = true;
@@ -418,6 +469,12 @@ void Type()
   |
     MapType()
   )/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new Type(); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -622,22 +679,34 @@ void Types()
 
 
 /*------------------------------------------------------------------------*/
-void Consts() 
+ConstantDeclaration Consts() 
 :{/*@bgen(jjtree) Consts */
-  SimpleNode jjtn000 = new SimpleNode(JJTCONSTS);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Consts */
+    SimpleNode jjtn000 = new SimpleNode(JJTCONSTS);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Token first;
+    List<Attribute> attributes;
+    Boolean unique = false;
+    List<Variable> varnames;
+    //todo order specification
+} {/*@bgen(jjtree) Consts */
   try {
 /*@egen*/ 
-  "const"                 
-  ( Attribute() )*
-  ( "unique"              
+  first = "const"
+  attributes = AttributeList()
+  ( "unique" {unique = true;}
   )?
-  IdsType()
+  varnames = IdsType(true)
   ( OrderSpec() )?
   
   ";"/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new ConstantDeclaration(first, attributes, unique, varnames); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -691,26 +760,43 @@ void OrderSpec()
 }
 
 /*------------------------------------------------------------------------*/
-void Function()
+FunctionDeclaration Function()
 :{/*@bgen(jjtree) Function */
-  SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Function */
+    SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Token first;
+    List<Attribute> attributes;
+    Token name;
+    // TODO signature
+    Expression expression=null;
+} {/*@bgen(jjtree) Function */
   try {
 /*@egen*/ 
-  "function" ( Attribute() )* <IDENT> 
+  first="function" attributes=AttributeList() name=<IDENT> 
   ( TypeParams() )?
+  
   "("
-  ( VarOrType()      
-  ( "," VarOrType()  
-  )* )? ")"
+      ( VarOrType()      
+        ( "," VarOrType())* 
+      )?
+  ")"
+  
   ( 
     "returns" "(" VarOrType() ")" 
     | 
     ":" Type()    
   )
-  ( "{" Expression()  "}" | ";" )/*@bgen(jjtree)*/
+  
+  ( "{" expression=Expression()  "}" | ";" )/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  
+  { return new FunctionDeclaration(first, attributes, name, expression); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -731,7 +817,6 @@ void Function()
     }
   }
 /*@egen*/
-  
 }
 
 void VarOrType()
@@ -770,18 +855,28 @@ void VarOrType()
 }
 
 /*------------------------------------------------------------------------*/
-void Axiom()
+AxiomDeclaration Axiom()
 :{/*@bgen(jjtree) Axiom */
-  SimpleNode jjtn000 = new SimpleNode(JJTAXIOM);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Axiom */
+    SimpleNode jjtn000 = new SimpleNode(JJTAXIOM);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Token first;
+    List<Attribute> attributes;
+    Expression axiom;
+} {/*@bgen(jjtree) Axiom */
   try {
 /*@egen*/ 
-  "axiom"
-   ( Attribute() )*
+  (first = "axiom"
+    attributes=AttributeList()
    
-  Proposition() ";"/*@bgen(jjtree)*/
+  axiom = Expression() ";")/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new AxiomDeclaration(first, attributes, axiom); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -801,7 +896,7 @@ void Axiom()
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/  
+/*@egen*/
 }
 
 /*------------------------------------------------------------------------*/
@@ -1036,10 +1131,10 @@ void SpecPrePost()
 /*@egen*/ 
   ( "requires"              
     ( Attribute() )*
-    Proposition() ";"  
+    Expression() ";"  
   | "ensures"               
     ( Attribute() )*
-    Proposition() ";"  
+    Expression() ";"  
   )/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
@@ -1354,10 +1449,10 @@ void LabelOrCmd()
   ( LabelOrAssign()
   | "assert"              
     ( Attribute() )*
-    Proposition()    
+    Expression()    
     ";"
   | "assume"              
-    Proposition()    
+    Expression()    
     ";"
   | "havoc"               
     Idents() ";"    
@@ -1605,49 +1700,26 @@ void CallForallArg()
 }
 
 /*------------------------------------------------------------------------*/
-void Proposition()
-:{/*@bgen(jjtree) Proposition */
-  SimpleNode jjtn000 = new SimpleNode(JJTPROPOSITION);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Proposition */
-  try {
-/*@egen*/
-  Expression()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
-}
-
-/*------------------------------------------------------------------------*/
-void Idents()
+List<Token> Idents()
 :{/*@bgen(jjtree) Idents */
-  SimpleNode jjtn000 = new SimpleNode(JJTIDENTS);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Idents */
+    SimpleNode jjtn000 = new SimpleNode(JJTIDENTS);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Token n;
+    List<Token> rval = new LinkedList<Token>();
+} {/*@bgen(jjtree) Idents */
   try {
 /*@egen*/ 
-  <IDENT>           
-  ( "," <IDENT>           
+  n=<IDENT> { rval.add(n); }           
+  ( "," n=<IDENT> { rval.add(n); }
   )*/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  {return rval;}/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -1677,17 +1749,25 @@ void WhiteSpaceIdents()
 }
 
 /*------------------------------------------------------------------------*/
-void Expressions()
+Expression Expressions()
 :{/*@bgen(jjtree) Expressions */
   SimpleNode jjtn000 = new SimpleNode(JJTEXPRESSIONS);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
-/*@egen*/} {/*@bgen(jjtree) Expressions */
+/*@egen*/
+ // TODO continue here!
+} {/*@bgen(jjtree) Expressions */
   try {
 /*@egen*/ 
   Expression()             
   ( "," Expression()       
   )*/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  {return new Expression();}/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1711,7 +1791,7 @@ void Expressions()
 }
 
 /*------------------------------------------------------------------------*/
-void Expression()
+Expression Expression()
 :{/*@bgen(jjtree) Expression */
   SimpleNode jjtn000 = new SimpleNode(JJTEXPRESSION);
   boolean jjtc000 = true;
@@ -1723,6 +1803,12 @@ void Expression()
   ( EquivOp()        
     ImpliesExpression()                   
   )*/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new Expression(); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2415,7 +2501,48 @@ void SpecBlock()
 /*@egen*/
 }
 
-void Attribute()
+List<Attribute> AttributeList()
+:{/*@bgen(jjtree) AttributeList */
+    SimpleNode jjtn000 = new SimpleNode(JJTATTRIBUTELIST);
+    boolean jjtc000 = true;
+    jjtree.openNodeScope(jjtn000);
+/*@egen*/
+    Attribute attr;
+    List<Attribute> rval = new LinkedList<Attribute>();
+} {/*@bgen(jjtree) AttributeList */
+    try {
+/*@egen*/
+    ( attr=Attribute() {rval.add(attr);} )*/*@bgen(jjtree)*/
+    {
+      jjtree.closeNodeScope(jjtn000, true);
+      jjtc000 = false;
+    }
+/*@egen*/
+    {return rval;}/*@bgen(jjtree)*/
+    } catch (Throwable jjte000) {
+      if (jjtc000) {
+        jjtree.clearNodeScope(jjtn000);
+        jjtc000 = false;
+      } else {
+        jjtree.popNode();
+      }
+      if (jjte000 instanceof RuntimeException) {
+        throw (RuntimeException)jjte000;
+      }
+      if (jjte000 instanceof ParseException) {
+        throw (ParseException)jjte000;
+      }
+      throw (Error)jjte000;
+    } finally {
+      if (jjtc000) {
+        jjtree.closeNodeScope(jjtn000, true);
+      }
+    }
+/*@egen*/
+}
+
+// TODO implement
+Attribute Attribute()
 :{/*@bgen(jjtree) Attribute */
   SimpleNode jjtn000 = new SimpleNode(JJTATTRIBUTE);
   boolean jjtc000 = true;
@@ -2424,6 +2551,12 @@ void Attribute()
   try {
 /*@egen*/ 
   AttributeOrTrigger()/*@bgen(jjtree)*/
+  {
+    jjtree.closeNodeScope(jjtn000, true);
+    jjtc000 = false;
+  }
+/*@egen*/
+  { return new Attribute(); }/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
