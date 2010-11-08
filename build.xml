@@ -43,6 +43,9 @@
       <compilerarg value="-Xlint"/>
     </javac>
  </target>
+ 
+  <target name="rebuild" depends="clean, build" description="rebuilding...">
+  </target>
 	
   <target name="nonnull" depends="build" 
 	  description="patches the class files with r/t checks" 
@@ -67,6 +70,11 @@
       <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
     </exec>
     <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
+    
+    <exec executable="javacc">
+      <arg value="-OUTPUT_DIRECTORY=core/de/uka/iti/pseudo/parser/boogie"/>
+      <arg value="core/de/uka/iti/pseudo/parser/boogie/Boogie.jj"/>
+    </exec>
   </target>
 	
   <target name="copy" depends="init">
