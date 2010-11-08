@@ -40,14 +40,14 @@ public class Sequent {
     /**
      * Native code locations, i.e. ivil byte code oder BoogiePL code
      */
-    private final CodeLocation[] nativeCodeLocations;
+    private CodeLocation[] nativeCodeLocations = null;
 
     /**
      * Source code locations, i.e. any code that was used to generate the
      * corresponding native code. Source code will be empty if no corresponding
      * source code can be found.
      */
-    private final CodeLocation[] sourceCodeLocations;
+    private CodeLocation[] sourceCodeLocations = null;
 
     /**
      * Instantiates a new sequent.
@@ -86,52 +86,55 @@ public class Sequent {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
         check();
+    }
 
-        // collectCodeLocations
-        {
-            final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
+    /*
+     * Calculates both native and source code locations.
+     */
+    private void calculateCodeLocations() {
+        assert nativeCodeLocations == null && sourceCodeLocations == null;
 
-            TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-                public void visit(LiteralProgramTerm progTerm) throws TermException {
-                    progTerms.add(progTerm);
-                }
-            };
-            try {
-                for (Term t : antecedent) {
-                    t.visit(programFindVisitor);
-                }
+        final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
 
-                for (Term t : succedent) {
-                    t.visit(programFindVisitor);
-                }
-            } catch (TermException e) {
-                // never thrown
-                throw new Error(e);
+        TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+            public void visit(LiteralProgramTerm progTerm) throws TermException {
+                progTerms.add(progTerm);
+            }
+        };
+        try {
+            for (Term t : antecedent) {
+                t.visit(programFindVisitor);
             }
 
-            if (progTerms.isEmpty()) {
-                nativeCodeLocations = sourceCodeLocations = new CodeLocation[0];
-            } else {
-                Set<CodeLocation> nativ = new HashSet<CodeLocation>();
-                Set<CodeLocation> source = new HashSet<CodeLocation>();
-
-                for (LiteralProgramTerm t : progTerms) {
-                    nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
-                    if (null != t.getProgram().getSourceFile())
-                        source.add(new CodeLocation(t.getStatement().getSourceLineNumber()
-                                , t.getProgram().getSourceFile()));
-                }
-
-                nativeCodeLocations = new CodeLocation[nativ.size()];
-                int i = 0;
-                for (CodeLocation c : nativ)
-                    nativeCodeLocations[i++] = c;
-
-                sourceCodeLocations = new CodeLocation[source.size()];
-                i = 0;
-                for (CodeLocation c : source)
-                    sourceCodeLocations[i++] = c;
+            for (Term t : succedent) {
+                t.visit(programFindVisitor);
             }
+        } catch (TermException e) {
+            // never thrown
+            throw new Error(e);
+        }
+
+        if (progTerms.isEmpty()) {
+            nativeCodeLocations = sourceCodeLocations = new CodeLocation[0];
+        } else {
+            Set<CodeLocation> nativ = new HashSet<CodeLocation>();
+            Set<CodeLocation> source = new HashSet<CodeLocation>();
+
+            for (LiteralProgramTerm t : progTerms) {
+                nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
+                if (null != t.getProgram().getSourceFile())
+                    source.add(new CodeLocation(t.getStatement().getSourceLineNumber(), t.getProgram().getSourceFile()));
+            }
+
+            nativeCodeLocations = new CodeLocation[nativ.size()];
+            int i = 0;
+            for (CodeLocation c : nativ)
+                nativeCodeLocations[i++] = c;
+
+            sourceCodeLocations = new CodeLocation[source.size()];
+            i = 0;
+            for (CodeLocation c : source)
+                sourceCodeLocations[i++] = c;
         }
     }
 
@@ -170,7 +173,10 @@ public class Sequent {
     /**
      * @return the native code locations
      */
-    public CodeLocation[] getNativeCodeLocations(){
+    public @NonNull
+    CodeLocation[] getNativeCodeLocations() {
+        if (null == nativeCodeLocations)
+            calculateCodeLocations();
         return nativeCodeLocations;
     }
 
@@ -178,7 +184,10 @@ public class Sequent {
      * @return the source code locations; these might be empty although native
      *         code locations exist
      */
-    public CodeLocation[] getSourceCodeLocations() {
+    public @NonNull
+    CodeLocation[] getSourceCodeLocations() {
+        if (null == sourceCodeLocations)
+            calculateCodeLocations();
         return sourceCodeLocations;
     }
 
