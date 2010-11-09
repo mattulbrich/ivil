@@ -11,16 +11,30 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  * 
  * @author timm.felden@felden.com
  */
-public class Variable extends ASTElement {
+final public class Variable extends ASTElement {
+    
+    private static class DefaultWhereExpression extends Expression {
+        // FIXME make this expression equal to "true"
+    }
 
     private final Token name;
     private final Type type;
     private final boolean constant;
+    private final Expression where;
 
-    public Variable(Token name, Type type, boolean constant) {
+    public Variable(Token name, Type type, boolean constant, Expression where) {
         this.name = name;
         this.type = type;
         this.constant = constant;
+
+        // any variable declaration has a where clause which defaults to true
+        if (null != where)
+            this.where = where;
+        else
+            this.where = new DefaultWhereExpression();
+
+        addChild(type);
+        addChild(this.where);
     }
 
     public Type getType() {
@@ -33,6 +47,10 @@ public class Variable extends ASTElement {
 
     public boolean isConstant() {
         return constant;
+    }
+
+    public Expression getWhereClause() {
+        return where;
     }
 
     @Override

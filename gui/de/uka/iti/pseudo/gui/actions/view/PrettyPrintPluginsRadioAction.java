@@ -19,7 +19,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.gui.actions.BarAction;
-import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 

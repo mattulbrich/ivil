@@ -33,6 +33,8 @@ import java.net.URL;
 
 import de.uka.iti.pseudo.util.Pair;
 
+// we dont want warnings here, as the code is created by a generator
+@SuppressWarnings("all")
 public class Parser {
 
     public Parser() {

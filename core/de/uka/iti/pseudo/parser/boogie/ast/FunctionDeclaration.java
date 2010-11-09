@@ -1,6 +1,5 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
-import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -9,7 +8,6 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public class FunctionDeclaration extends DeclarationBlock {
 
-    private final List<Attribute> attributes;
     private final String name;
 
     // ! @note: can be null if a function has no specification
@@ -21,19 +19,14 @@ public class FunctionDeclaration extends DeclarationBlock {
                                                                              * arguments
                                                                              * here
                                                                              */, Token name, Expression expression) {
-        super(firstToken);
-        this.attributes = attributes;
+        super(firstToken, attributes);
         this.name = name.image;
         this.expression = expression;
 
-        addChildren(attributes);
         if (null != expression)
             addChild(expression);
     }
 
-    public List<Attribute> getAttributes() {
-        return Collections.unmodifiableList(attributes);
-    }
 
     public String getName() {
         return name;

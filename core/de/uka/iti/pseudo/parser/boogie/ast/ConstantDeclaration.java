@@ -9,22 +9,15 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public class ConstantDeclaration extends DeclarationBlock {
 
-    private final List<Attribute> attributes;
     private final boolean unique;
     private final List<Variable> names;
 
     public ConstantDeclaration(Token firstToken, List<Attribute> attributes, boolean unique, List<Variable> names) {
-        super(firstToken);
-        this.attributes = attributes;
+        super(firstToken, attributes);
         this.unique = unique;
         this.names = names;
 
         addChildren(names);
-        addChildren(attributes);
-    }
-
-    public List<Attribute> getAttributes() {
-        return Collections.unmodifiableList(attributes);
     }
 
     public boolean isUnique() {

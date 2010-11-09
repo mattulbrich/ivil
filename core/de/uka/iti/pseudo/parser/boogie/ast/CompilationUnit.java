@@ -17,7 +17,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  * @author timm.felden@felden.com
  * 
  */
-public class CompilationUnit extends ASTElement {
+final public class CompilationUnit extends ASTElement {
 
     private List<DeclarationBlock> declarationBlocks;
 

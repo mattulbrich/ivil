@@ -26,6 +26,8 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ast.*;
 
+// we dont want warnings here, as the code is created by a generator
+@SuppressWarnings("all")
 public class Parser {
 
 public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
@@ -79,8 +81,9 @@ SKIP :
 TOKEN : {
   < VAR: "var">
 | < WHERE: "where">
-| < INT: "int"> // cant be used as tokens, as that would brake parsing of quantifiers
-| < BOOL: "bool"> // cant be used as tokens, as that would brake parsing of quantifiers
+| < INT: "int">
+| < BOOL: "bool">
+| < BVTYPE: "bv" ( <DIGIT> )+ >
 | < CONST: "const">
 | < UNIQUE: "unique">
 | < EXTENDS: "extends">
@@ -156,8 +159,8 @@ CompilationUnit BoogiePL()
       ( block=Consts()             
       | block=Function()           
       | block=Axiom()              
-      | UserDefinedTypes()   
-      | GlobalVars()         
+      | block=UserDefinedTypes()   
+      | block=GlobalVars()         
       | Procedure()  
       | Implementation()   
       ){if(null!=block)declarations.add(block);}
@@ -167,33 +170,38 @@ CompilationUnit BoogiePL()
 }
 
 /*------------------------------------------------------------------------*/
-void GlobalVars()
-:{} { 
-  "var"
-  ( Attribute() )*
-  IdsTypeWheres() ";"
+GlobalVariableDeclaration GlobalVars()
+:{
+    Token first;
+    List<Attribute> attr;
+    List<Variable> vars;
+} { 
+  first="var"  attr=AttributeList()
   
+  vars=IdsTypeWheres(false) ";"
+  
+  { return new GlobalVariableDeclaration(first, attr, vars); }
 }
 
 void LocalVars()
 :{} { 
   "var"
   ( Attribute() )*
-  IdsTypeWheres() ";"
+  IdsTypeWheres(false) ";"
   
 }
 
 void ProcFormals()
 :{} { 
   "("
-  ( IdsTypeWheres() )?
+  ( IdsTypeWheres(false) )?
   ")"
   
 }
 
 void BoundVars()
 :{} { 
-  IdsTypeWheres()
+  IdsTypeWheres(false)
   
 }
 
@@ -208,7 +216,7 @@ List<Variable> IdsType(boolean isConstant)
   {
     List<Variable> rval = new LinkedList<Variable>();
     for(Token name : names)
-        rval.add(new Variable(name, t, isConstant));
+        rval.add(new Variable(name, t, isConstant, null));
         
     return rval; 
   }
@@ -216,82 +224,131 @@ List<Variable> IdsType(boolean isConstant)
 
 /* IdsTypeWheres is used with the declarations of global and local variables,
    procedure parameters, and quantifier bound variables. */
-void IdsTypeWheres()
-:{} {
-  IdsTypeWhere()
-  ( "," IdsTypeWhere() )*
+List<Variable> IdsTypeWheres(boolean isConstant)
+:{
+    List<Variable> rval,tmp;
+} {
+  rval=IdsTypeWhere(isConstant)
+  ( "," tmp=IdsTypeWhere(isConstant) {rval.addAll(tmp);} )*
+  
+  { return rval; }
 }
 
-void IdsTypeWhere()
-:{} { 
-  Idents() ":" Type()
-  ( "where" Expression()  
+List<Variable> IdsTypeWhere(boolean isConstant)
+:{
+    List<Token> names;
+    Type t;
+    Expression e = null;
+} { 
+  names=Idents() ":" t=Type()
+  ( "where" e=Expression()  
   )?
   
+  {
+    List<Variable> rval = new LinkedList<Variable>();
+    for(Token name : names)
+        rval.add(new Variable(name, t, isConstant, e));
+        
+    return rval; 
+  }
 }
 
 /*------------------------------------------------------------------------*/
 Type Type()
-:{} { 
+:{
+    Type t;
+} { 
+  ( t=TypeAtom()
+  | (
+    {
+        Token name;
+        //types needs initialization because TypeArgs is optional
+        List<Type> types = new LinkedList<Type>();
+    }
+    name=<IDENT>       
+    ( types=TypeArgs() )?
+    { return new TemplateType(name, types); }
+    )   
+  | t=MapType()
+  )
+  { return t; }
+}
+
+List<Type> TypeArgs()
+:{
+    Type t;
+    List<Type> rval = new LinkedList<Type>(), tmp;
+} { 
   (
-    TypeAtom()
+    t=TypeAtom() { rval.add(t); }     
+    ( tmp=TypeArgs() {rval.addAll(tmp);} )?
   |
-    <IDENT>       
-    ( TypeArgs() )?   
+    // this is to be interpreted as an TemplateType without arguments
+    { Token name; }
+    name=<IDENT> {
+        rval.add(new TemplateType(name, new LinkedList<Type>()));
+    }      
+    ( tmp=TypeArgs() {rval.addAll(tmp);} )?
   |
-    MapType()
+    t=MapType() {rval.add(t);}
   )
-  { return new Type(); }
-}
-
-void TypeArgs()
-:{} { 
-  (
-    TypeAtom()     
-    ( TypeArgs() )?
-  |
-    <IDENT>       
-    ( TypeArgs() )?
-  |
-    MapType()      
-  )
-}
-
-void TypeAtom()
-:{} { 
-  ( "int"              
-  | "bool"             
-  /* note: bitvectors are handled in UnresolvedTypeIdentifier */
-  |
-  "("
-  Type()
-  ")"
-  )
-}
-
-void MapType()
-:{} { 
-  ( TypeParams()  )?
-  "["                                         
-    ( Types() )?
-  "]"
-  Type()
   
+  { return rval; }
 }
 
-void TypeParams()
-:{} { 
-  "<"    
-    Idents()
+Type TypeAtom()
+:{
+    Token t;
+    Type rval;
+} { 
+  (( t="int"
+  | t="bool"
+  | t=<BVTYPE>
+  ) { return new BuiltInType(t); }
+  | "(" rval=Type() ")" {return rval;}
+  )
+}
+
+MapType MapType()
+:{
+    Token first=null,tmp;
+    List<Token> params = new LinkedList<Token>();
+    List<Type> domain = new LinkedList<Type>();
+    Type range;
+} { 
+  ( 
+  first="<"
+    params=Idents()
   ">"
+  )?
+  tmp="[" {if(null==first)first=tmp;}                                 
+    ( domain=Types() )?
+  "]"
+  range=Type()
+ 
+  {return new MapType(first, params, domain, range);}
+}
+
+List<Token> TypeParams()
+:{
+    List<Token> L;
+} { 
+  "<"    
+    L=Idents()
+  ">"
+  {return L;}
   
 }
 
-void Types()
-:{} { 
-  Type()                 
-  ( "," Type()           
+List<Type> Types()
+:{
+    Type t;
+    List<Type> types = new LinkedList<Type>();
+} { 
+  t=Type() { types.add(t); }
+  ( "," t=Type() { types.add(t); }
   )*
+  {return types;}
 }
 
 
@@ -315,6 +372,7 @@ ConstantDeclaration Consts()
   { return new ConstantDeclaration(first, attributes, unique, varnames); }
 }
 
+// TODO implement later as explained in Boogie 2 Manual Chapter 10. It should be relatively easy to create the implied axioms.
 void OrderSpec()
 :{} { 
   "extends"                
@@ -334,12 +392,14 @@ void OrderSpec()
 }
 
 /*------------------------------------------------------------------------*/
+
+
 FunctionDeclaration Function()
 :{
     Token first;
     List<Attribute> attributes;
     Token name;
-    // TODO signature
+    // TODO add signotaure treatment
     Expression expression=null;
 } { 
   first="function" attributes=AttributeList() name=<IDENT> 
@@ -386,24 +446,36 @@ AxiomDeclaration Axiom()
 }
 
 /*------------------------------------------------------------------------*/
-void UserDefinedTypes()
-:{} { 
-  "type"
-  ( Attribute() )*
-  UserDefinedType()          
-  ( "," UserDefinedType()     )*
+UserDefinedTypeDeclaration UserDefinedTypes()
+:{
+    Token first;
+    List<Attribute> attr;
+    List<UserTypeDefinition> typedefs = new LinkedList<UserTypeDefinition>();
+    UserTypeDefinition t;
+} { 
+  first="type"
+  attr=AttributeList()
+  t=UserDefinedType() {typedefs.add(t);}          
+  ( "," t=UserDefinedType() {typedefs.add(t);} )*
   ";"
+  
+  { return new UserDefinedTypeDeclaration(first, attr, typedefs); }
 }
 
-void UserDefinedType()
-:{} { 
-  <IDENT>
-  ( WhiteSpaceIdents() )?
+UserTypeDefinition UserDefinedType()
+:{
+    Token name;
+    List<String> argnames = new LinkedList<String>();
+    Type parent = null;
+} { 
+  name=<IDENT>
+  ( argnames=WhiteSpaceIdents() )?
   (
-    "=" Type()
+    "=" parent=Type()
     
   )?
   
+  { return new UserTypeDefinition(name, argnames, parent); }
 }
 
 
@@ -680,11 +752,14 @@ List<Token> Idents()
 }
 
 /*------------------------------------------------------------------------*/
-void WhiteSpaceIdents()
-:{} { 
-  <IDENT>               
-  ( <IDENT>               
-  )*
+List<String> WhiteSpaceIdents()
+:{
+    Token t;
+    List<String> rval = new LinkedList<String>();
+} {                
+  (t=<IDENT> {rval.add(t.image);}               
+  )+
+  {return rval;}
 }
 
 /*------------------------------------------------------------------------*/

@@ -1,3 +1,11 @@
+type A _ _ _;
+type B x y = <T>[A x y T]T;
+type C A = B A A;
+
+var x : B int bool;
+var y : C int;
+
+
 var m: []int;
 var p: <a>[]a;
 

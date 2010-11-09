@@ -6,19 +6,13 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public class AxiomDeclaration extends DeclarationBlock {
+public class UserDefinedTypeDeclaration extends DeclarationBlock {
 
-    private final Expression axiom;
-
-    public AxiomDeclaration(Token firstToken, List<Attribute> attributes, Expression axiom) {
+    public UserDefinedTypeDeclaration(Token firstToken, List<Attribute> attributes, List<UserTypeDefinition> definitions) {
         super(firstToken, attributes);
-        this.axiom = axiom;
 
-        addChild(axiom);
-    }
-
-    public Expression getAxiom() {
-        return axiom;
+        addChildren(attributes);
+        addChildren(definitions);
     }
 
     @Override
