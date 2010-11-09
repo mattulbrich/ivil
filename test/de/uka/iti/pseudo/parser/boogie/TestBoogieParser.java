@@ -661,7 +661,12 @@ Parser.main(new String[] { "examples/boogie/test/bitvectors/bv5.bpl"});
 
 // generated test for examples/boogie/test/bitvectors/bv3.bpl
 public void testBoogieParseexamples_boogie_test_bitvectors_bv3() throws Exception {
+        try {
 Parser.main(new String[] { "examples/boogie/test/bitvectors/bv3.bpl"});
+        } catch (ParseException e) {
+            return;
+        }
+        assert false;
 }
 
 // generated test for examples/boogie/test/bitvectors/bv1.bpl
