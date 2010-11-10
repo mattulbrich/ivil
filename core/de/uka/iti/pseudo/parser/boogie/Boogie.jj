@@ -1,3 +1,12 @@
+/** README
+
+
+Token first
+l----------
+Sever rules have a Token first, which is used to generate usefull feedback in case of errors.
+
+*/
+
 
 options {
     STATIC = false;
@@ -129,6 +138,7 @@ TOKEN: {
 }
 
 /* Separators */
+// Separator tokens are only specified to make the generated parser more readable
 TOKEN: {
   < SEP_RCURLY: "}" >
 | < SEP_LCURLY: "{" >
@@ -152,7 +162,7 @@ TOKEN: {
 /*------------------------------------------------------------------------*/
 CompilationUnit BoogiePL()
 :{
-    DeclarationBlock block=null;
+    DeclarationBlock block;
     List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();
 } { 
   (
@@ -161,9 +171,9 @@ CompilationUnit BoogiePL()
       | block=Axiom()              
       | block=UserDefinedTypes()   
       | block=GlobalVars()         
-      | Procedure()  
-      | Implementation()   
-      ){if(null!=block)declarations.add(block);}
+      | block=Procedure()  
+      | block=Implementation()   
+      ){declarations.add(block);}
   )*
   <EOF>
   { return new CompilationUnit(declarations); } 
@@ -183,20 +193,27 @@ GlobalVariableDeclaration GlobalVars()
   { return new GlobalVariableDeclaration(first, attr, vars); }
 }
 
-void LocalVars()
-:{} { 
-  "var"
-  ( Attribute() )*
-  IdsTypeWheres(false) ";"
+LocalVariableDeclaration LocalVars()
+:{
+    Token first;
+    List<Attribute> attr;
+    List<Variable> vars;
+} { 
+  first="var"
+  attr=AttributeList()
+  vars=IdsTypeWheres(false) ";"
   
+  { return new LocalVariableDeclaration(first, attr, vars); }
 }
 
-void ProcFormals()
-:{} { 
+List<Variable> ProcFormals()
+:{
+List<Variable> vars = new LinkedList<Variable>();
+} { 
   "("
-  ( IdsTypeWheres(false) )?
+  ( vars=IdsTypeWheres(false) )?
   ")"
-  
+  {return vars;}
 }
 
 void BoundVars()
@@ -480,96 +497,149 @@ UserTypeDefinition UserDefinedType()
 
 
 /*------------------------------------------------------------------------*/
-void Procedure()
-:{} { 
-
-  "procedure"
-  ProcSignature()
-  ( (";")?
-    (Spec())*
-    (ImplBody())?
+ProcedureDeclaration Procedure()
+:{
+    Token first, name;
+    List<Attribute> attr;
+    List<Token> typeParameters = new LinkedList<Token>();
+    List<Variable> inParam, outParam = new LinkedList<Variable>();
+    
+    Specification S;
+    List<Specification> specs = new LinkedList<Specification>();
+    
+    ProcedureBody body=null;
+} {
+  first="procedure"
+  (
+      attr=AttributeList()
+      name=<IDENT>
+      ( typeParameters=TypeParams() )?
+      inParam=ProcFormals()
+      ( "returns" outParam=ProcFormals() )?
   )
   
-}
-
-
-void Implementation()
-:{} { 
-
-  "implementation"
-  ProcSignature()
-  ImplBody()
-    
-}
-
-
-void ProcSignature()
-:{} { 
-  ( Attribute() )*
-  <IDENT>
-  ( TypeParams() )?
-  ProcFormals()
-  ( "returns" ProcFormals() )?
-}
-
-
-void Spec()
-:{} { 
-  ( "modifies"
-    ( Idents()        
-    )? ";"
-  | "free" SpecPrePost()
-  | SpecPrePost()
+  (
+    // call by contract 
+    ";" (S=Spec(){specs.add(S);})*
+  | 
+    // call by implementation or contract
+    (S=Spec(){specs.add(S);})* (body=ImplBody())?
   )
+  
+  { return new ProcedureDeclaration(first, attr, name, typeParameters, inParam, outParam, specs, body); }
 }
 
-void SpecPrePost()
-:{} { 
-  ( "requires"              
-    ( Attribute() )*
-    Expression() ";"  
-  | "ensures"               
-    ( Attribute() )*
-    Expression() ";"  
+
+ProcedureImplementation Implementation()
+:{
+    Token first, name;
+    List<Attribute> attr;
+    List<Token> typeParameters = new LinkedList<Token>();
+    List<Variable> inParam, outParam = new LinkedList<Variable>();
+    ProcedureBody body;
+} { 
+
+  first="implementation"
+  (
+      attr=AttributeList()
+      name=<IDENT>
+      ( typeParameters=TypeParams() )?
+      inParam=ProcFormals()
+      ( "returns" outParam=ProcFormals() )?
+  )
+  body=ImplBody()
+  {return new ProcedureImplementation(first, attr, name, typeParameters, inParam, outParam, body);}
+}
+
+
+Specification Spec()
+:{
+    Token first=null, tmp;
+    List<Token> targets = null;
+    Expression expr;
+    List<Attribute> attr;
+} { 
+  ( 
+    first="modifies" ( targets=Idents() )? ";"
+    { return new ModifiesClause(first, targets); }
+  | 
+    (
+      ( first="free" )?
+ 
+      ( 
+        tmp="requires"
+        attr=AttributeList()
+        expr=Expression() ";"
+        {
+            if(null==first)
+                return new Precondition(tmp, false, attr, expr); // checked condition
+            else
+                return new Precondition(first, true, attr, expr);
+        }
+      | 
+        tmp="ensures"               
+        attr=AttributeList()
+        expr=Expression() ";"
+        {
+            if(null==first)
+                return new Postcondition(tmp, false, attr, expr); // checked condition
+            else
+                return new Postcondition(first, true, attr, expr);
+        }
+      )
+    )  
   )
 }
 
 /*------------------------------------------------------------------------*/
 
-void ImplBody()
-:{} { 
-  "{"
-  ( LocalVars() )*
-  StmtList()
+ProcedureBody ImplBody()
+:{
+    Token first;
+    LocalVariableDeclaration var;
+    List<LocalVariableDeclaration> vars = new LinkedList<LocalVariableDeclaration>();
+    List<Statement> statements; 
+} { 
+  first="{"
+  ( var=LocalVars() {vars.add(var);})*
+  statements=StmtList()
+  
+  {return new ProcedureBody(first,vars, statements);}
 }
 
 /* the StmtList also reads the final curly brace */
-void StmtList()
-:{} { 
+List<Statement> StmtList()
+:{
+    Statement s;
+    List<Statement> rval = new LinkedList<Statement>();
+} { 
 
-  (
-    LabelOrCmd()
-  | StructuredCmd()
-  | TransferCmd()
-  )*
+  ((
+    s=LabelOrCmd()
+  | s=StructuredCmd()
+  | s=TransferCmd()
+  ){rval.add(s);})*
   
   "}"
+  {return rval;}
 }
 
-void TransferCmd()
+Statement TransferCmd()
 :{} { 
   ( "goto"             
     Idents()     
   | "return"           
   ) ";"
+  { return new Statement(); }
 }
 
-void StructuredCmd()
+Statement StructuredCmd()
 :{} { 
-  ( IfCmd()    
+  ( IfCmd() 
   | WhileCmd()  
   | BreakCmd()  
   )
+  { return new Statement(); }
 }
 
 void IfCmd()
@@ -619,7 +689,7 @@ void BreakCmd()
 
 /*------------------------------------------------------------------------*/
 
-void LabelOrCmd()
+Statement LabelOrCmd()
 /* ensures (c == null) != (label != null) */
 :{} { 
   ( LabelOrAssign()
@@ -634,6 +704,8 @@ void LabelOrCmd()
     Idents() ";"    
   | CallCmd() ";"   
   )
+  
+  { return new Statement(); }
 }
 
 /*------------------------------------------------------------------------*/
