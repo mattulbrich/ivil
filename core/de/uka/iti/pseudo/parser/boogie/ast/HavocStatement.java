@@ -5,16 +5,16 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
-public final class ModifiesClause extends Specification {
-    
-    // tokens are needed to link havoc statements to boogie code
-    private final List<Token> targets;
+public final class HavocStatement extends Statement {
 
-    public ModifiesClause(Token first, List<Token> targets) {
+    private final List<String> varnames;
+
+    public HavocStatement(Token first, List<Token> vars) {
         super(first);
 
-        this.targets = targets;
+        varnames = ASTConversions.toStringList(vars);
     }
 
     @Override
@@ -22,8 +22,8 @@ public final class ModifiesClause extends Specification {
         v.visit(this);
     }
 
-    public List<Token> getTargets() {
-        return targets;
+    public List<String> getVarnames() {
+        return varnames;
     }
 
 }

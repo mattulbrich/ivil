@@ -8,16 +8,25 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 // TODO implement expressions
 public class Expression extends ASTElement {
 
+    private final Token first;
+
+    // TODO delete
+    public Expression() {
+        first = null;
+    }
+
+    Expression(Token first) {
+        this.first = first;
+    }
+
     @Override
     public Token getLocationToken() {
-        // TODO Auto-generated method stub
-        return null;
+        return first;
     }
 
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // TODO delete
     }
 
 }

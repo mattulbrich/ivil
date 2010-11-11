@@ -625,190 +625,305 @@ List<Statement> StmtList()
 }
 
 Statement TransferCmd()
-:{} { 
-  ( "goto"             
-    Idents()     
-  | "return"           
+:{
+    Statement rval;
+    Token first;
+} { 
+  (
+    {List<Token> destinations;}
+    first="goto"
+    destinations=Idents()
+    { rval = new GotoStatement(first, destinations); }     
+  | 
+    first="return"
+    { rval = new ReturnStatement(first); }
   ) ";"
-  { return new Statement(); }
+  { return rval; }
 }
 
 Statement StructuredCmd()
-:{} { 
-  ( IfCmd() 
-  | WhileCmd()  
-  | BreakCmd()  
+:{
+    Statement rval;
+} { 
+  ( rval=IfCmd() 
+  | rval=WhileCmd()  
+  | rval=BreakCmd()  
   )
-  { return new Statement(); }
+  { return rval; }
 }
 
-void IfCmd()
-:{} { 
-  "if"                       
-  Guard()
-  "{" StmtList()
+IfStatement IfCmd()
+:{
+    Token first;
+    List<Statement> then, _else = null;
+    Expression guard;
+} { 
+  first="if"
+  guard=Guard()
+  "{" then=StmtList()
   ( "else"
-    ( IfCmd()      
-    | "{"
-      StmtList()      
+    ( 
+      {Statement s;}
+      s=IfCmd()
+      {_else = new LinkedList<Statement>(); _else.add(s);}      
+    | 
+      "{"
+      _else=StmtList()      
     )
   )?
-  
+  { return new IfStatement(first, guard, then, _else); }
 }
 
-void WhileCmd()
-:{} { 
-  "while"             
-  Guard()    
-  (                   
-    ( "free"          
+WhileStatement WhileCmd()
+:{
+    Token first;
+    Expression guard;
+    List<LoopInvariant> invariants = new LinkedList<LoopInvariant>();
+    List<Statement> body;
+} { 
+  first="while"             
+  guard=Guard()
+  ( 
+    {
+      boolean free = false;
+      Expression expr;
+    }                  
+    ( "free" {free=true;}          
     )?
     "invariant"
-    Expression() 
+    expr=Expression() 
     ";"
+    {invariants.add(new LoopInvariant(free, expr));}
   )*
   "{"
-  StmtList()  
+  body=StmtList()
+  { return new WhileStatement(first, guard, invariants, body); }
 }
 
-void Guard()
-:{} { 
+//! returns null iff the guard is a wildcard and an expression else
+Expression Guard()
+:{
+    Token first;
+    Expression e;
+} { 
   "("
-  ( "*"                   
-  | Expression()    
+  ( first="*" {e=new WildcardExpression(first);}                   
+  | e=Expression()    
   )
   ")"
+  { return e; }
 }
 
-void BreakCmd()
-:{} { 
-  "break"             
-  ( <IDENT>      
-  )? ";"               
+BreakStatement BreakCmd()
+:{
+    Token first;
+    Token target=null;
+} { 
+  first="break"             
+  ( target=<IDENT>      
+  )? ";"   
+  { return new BreakStatement(first, target); }            
 }
 
 /*------------------------------------------------------------------------*/
 
 Statement LabelOrCmd()
 /* ensures (c == null) != (label != null) */
-:{} { 
-  ( LabelOrAssign()
-  | "assert"              
-    ( Attribute() )*
-    Expression()    
+:{
+    Statement rval;
+    Token first;
+    List<Attribute> attr;
+    Expression expr;
+    List<Token> vars;
+} { 
+  ( 
+    rval=LabelOrAssign()
+  | 
+    first="assert"              
+    attr=AttributeList()
+    expr=Expression()    
     ";"
-  | "assume"              
-    Expression()    
+    { rval = new AssertionStatement(first, attr, expr); }
+  | 
+    first="assume"              
+    expr=Expression()    
     ";"
-  | "havoc"               
-    Idents() ";"    
-  | CallCmd() ";"   
+    { rval = new AssumptionStatement(first, expr); } 
+  | 
+    first="havoc"               
+    vars=Idents() ";"
+    { rval = new HavocStatement(first, vars); }    
+  | 
+    rval=CallCmd() ";"  
   )
   
-  { return new Statement(); }
+  {return rval;}
 }
 
 /*------------------------------------------------------------------------*/
 
-void LabelOrAssign()
-/* ensures (c == null) != (label != null) */
-:{} { 
-  <IDENT>          
-  ( ":"                      
-
+Statement LabelOrAssign()
+:{
+    Token tmp;
+    List<Token> names = new LinkedList<Token>();
+    
+    Expression newVal;
+    List<Expression> arrayArg, newVals = new LinkedList<Expression>();
+    List<List<Expression>> arrayArgs  = new LinkedList<List<Expression>>();
+    List<List<List<Expression>>> allArrayArgs = new LinkedList<List<List<Expression>>>();
+} { 
+  tmp=<IDENT> {names.add(tmp);}
+  (
+    ":"                      
+    {return new LabelStatement(tmp); }
   | 
     
-
-    ( MapAssignIndex()     )*
-    
+    //push empty list if no args were supplied
+    {arrayArg = new LinkedList<Expression>();}
+    ( arrayArg=MapAssignIndex() {arrayArgs.add(arrayArg);})*
+    {allArrayArgs.add(arrayArgs);}
 
     ( ","
-      <IDENT>
+      tmp=<IDENT> {names.add(tmp);}
       
-      ( MapAssignIndex()     )*
+      //push empty list if no args were supplied
+      {arrayArg = new LinkedList<Expression>();}
+      ( arrayArg=MapAssignIndex() {arrayArgs.add(arrayArg);})*
+      {allArrayArgs.add(arrayArgs);}
       
     )*
 
     ":="                     
-    Expression()       
+    newVal=Expression() {newVals.add(newVal);}
     ( ","
-      Expression()     
+      newVal=Expression() {newVals.add(newVal);}     
     )*
-    ";"                      
+    ";"
+    {
+        if(names.size()!=newVals.size())
+            throw new ParseException("found missmatched AssignmentStatement");
+            
+        List<SimpleAssignment> rval = new LinkedList<SimpleAssignment>();
+        for(int i = 0; i < names.size(); i++)
+            rval.add(new SimpleAssignment(names.get(i),allArrayArgs.get(i),newVals.get(i)));
+    
+        return new AssignmentStatement(rval);
+    }                      
   )
 }
 
-void MapAssignIndex()
-:{} { 
+List<Expression> MapAssignIndex()
+:{
+    Expression ex;
+    List<Expression> rval = new LinkedList<Expression>();
+} { 
   "["                        
     (
-      Expression()      
-      ( ","
-        Expression()    
-      )*
+      ex=Expression() {rval.add(ex);}      
+      ( "," ex=Expression() {rval.add(ex);} )*
     )?
   "]"
+  
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void CallCmd()
-:{} { 
-  "call"                          
-  ( Attribute() )*
-  ( <IDENT>
-    ( "("
-      ( CallForallArg()       
-        ( "," CallForallArg() 
-        )*
-      )?
-      ")"                         
+
+/*
+  Note '*'s in outParams of ordinary call statements mean "dont care". They are
+  used to accsess single returnvalues of multidimensional results without storing
+  unwanted garbage anywhere.
+*/
+Statement CallCmd()
+:{
+    Token first;
+    List<Attribute> attr;
+    
+    String name;
+    
+    Token tmp;
+    Expression arg;
+    List<Expression> arglist = new LinkedList<Expression>();
+    
+    String out;
+    List<String> outParam = new LinkedList<String>();
+} { 
+    first="call"                          
+    attr=AttributeList()
+    (
+        tmp=<IDENT>
+        (
+            //tmp is name as we got arguments
+            { name = tmp.image; }
+            "("
+            (
+                CallForallArg()       
+                ( "," CallForallArg() )*
+            )?
+            ")"                         
+        |
+            //tmp is the first outParam, as name is specified after ":="
+            { outParam.add(tmp.image); }  
+            ( "," out=CallOutIdent() {outParam.add(out);} )*
+            ":="
+            tmp=<IDENT> "(" { name=tmp.image; }
+            (
+                arg=CallForallArg() {arglist.add(arg);}
+                ( "," arg=CallForallArg() {arglist.add(arg);} )*
+            )?
+            ")"                        
+        )
+        { return new CallStatement(first, attr, name, outParam, arglist); }
     |
-                                  
-      ( "," CallOutIdent()  
-        ( "," CallOutIdent()  
-        )*
-      )? ":="
-      <IDENT> "("
-      ( CallForallArg()       
-        ( "," CallForallArg() 
-        )*
-      )?
-      ")"                         
+        <OP_FORALL>
+        tmp=<IDENT> { name = tmp.image; }
+        "("              
+        (
+            arg=CallForallArg() {arglist.add(arg);}       
+            ( "," arg=CallForallArg() {arglist.add(arg);} )*
+        )?
+        ")"
+        { return new CallForallStatement(first, attr, name, arglist); }                           
+    |
+        "*" { outParam.add(null); }
+                              
+        ( "," out=CallOutIdent() { outParam.add(out); } )*
+        ":="
+        tmp=<IDENT> "(" { name=tmp.image; }
+        (
+            arg=CallForallArg() {arglist.add(arg);}
+            ( "," arg=CallForallArg() {arglist.add(arg);} )*
+        )?
+        ")"
+        { return new CallStatement(first, attr, name, outParam, arglist); }                         
     )
-  | <OP_FORALL>
-    <IDENT> "("              
-    ( CallForallArg()       
-      ( "," CallForallArg() 
-      )*
-    )?
-    ")"                           
-  | "*"
-                                  
-      ( "," CallOutIdent()  
-        ( "," CallOutIdent()  
-        )*
-      )? ":="
-      <IDENT> "("
-      ( CallForallArg()       
-        ( "," CallForallArg() 
-        )*
-      )?
-      ")"                         
+}
+
+/**
+<b>Note</b>: * means throw away variable here.
+*/
+String CallOutIdent()
+:{
+    Token t;
+} { 
+  ( 
+    "*"         {return null;}
+  | 
+    t=<IDENT>   {return t.image;}
   )
 }
 
-void CallOutIdent()
-:{} { 
-  ( "*"
-  | <IDENT>                   
+Expression CallForallArg()
+:{
+    Token first;
+    Expression expr;
+} { 
+  ( 
+    first="*" { expr = new WildcardExpression(first); }
+  | 
+    expr=Expression()             
   )
-}
-
-void CallForallArg()
-:{} { 
-  ( "*"
-  | Expression()             
-  )
+  { return expr; } 
 }
 
 /*------------------------------------------------------------------------*/
