@@ -7,17 +7,22 @@ import java.io.IOException;
 
 /**
  * Creates unit tests out of .bpl files in ./examples/boogie/test/*<br>
- * <b>NOTE:</b> It looks as if some examples were intended to fail. This will
- * cause the Testcases to fail, although everything is fine. Maybe we can
- * implment a way to tell the creator which tests should fail and which
- * shouldnt.
+ * 
+ * The direct subdirectory name tells the generator which type of Exception to
+ * expect.<br>
+ * 
+ * The special subdircetory closable tells the generator, that the example is
+ * intended to be automatically proven without human interaction.
  * 
  * @author timm.felden@felden.com
  * 
+ *         NOTE: performance is not an issue here, as the generator is only run
+ *         rarely to rebuild unittests
  */
 public class BoogieParserTestCreator {
 
-    private static void append(BufferedWriter out, String path) throws IOException {
+    // TODO impelement autoproving for tests
+    private static void append(BufferedWriter out, String path, String context) throws IOException {
         File f;
         if (path.endsWith(".bpl")) {
             // create a test
@@ -25,8 +30,19 @@ public class BoogieParserTestCreator {
 
             out.write("public void testBoogieParse" + path.replace("/", "_").replace(".bpl", "").replace("-", "_")
                     + "() throws Exception {\n");
+            
+            if(!context.equals("closable")){
+                out.write("try{\n");
+            }
 
             out.write("Parser.main(new String[] { \"" + path + "\"});\n");
+            
+            if(!context.equals("closable")){
+                out.write("} catch(" + context + " ex){\n" +
+                        "return;\n"+
+                        "}\n"+
+                        "assert false;");
+            }
 
             out.write("}\n\n");
 
@@ -34,7 +50,7 @@ public class BoogieParserTestCreator {
 
         } else if ((f = new File(path)).isDirectory())
             for (String sub : f.list())
-                append(out, path + "/" + sub);
+                append(out, path + "/" + sub, context);
 
     }
 
@@ -51,7 +67,10 @@ public class BoogieParserTestCreator {
                     + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
                     + "public class TestBoogieParser extends TestCaseWithEnv {\n\n");
 
-            append(out, "examples/boogie/test");
+            // create tests for each context
+            for(String context: new File("examples/boogie/test").list())
+                if (new File("examples/boogie/test/" + context).isDirectory())
+                    append(out, "examples/boogie/test/" + context, context);
 
             out.write("}");
             out.close();

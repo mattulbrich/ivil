@@ -3,7 +3,7 @@ type FieldName;
 var Heap: [Ref,FieldName]int;
 
 const unique F: FieldName;
-
+/* uncomment, as soon as captureState is to be inmplemented
 procedure P(this: Ref, x: int, y: int) returns (r: int)
   ensures 0 <= r;
 {
@@ -25,3 +25,4 @@ procedure P(this: Ref, x: int, y: int) returns (r: int)
   m := 7;
   assume {:captureState "end"} true;
 }
+*/
