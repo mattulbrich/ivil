@@ -1154,7 +1154,7 @@ Expression CoercionExpression()
   ( ":"                     
     (
       Type()
-      { throw new ParseException("coercionExpression unsupported"); }
+      { throw new UnsupportedFeature("coercionExpression unsupported"); }
     | 
       /* 
          This means that we really look at a bitvector expression t[a:b];
@@ -1194,7 +1194,7 @@ Expression ArrayExpression()
         ( ":=" update=Expression() )?
         
         {
-          if(null!=update)
+          if(null==update)
             rval = new MapAccessExpression(rval, arguments);
           else
             rval = new MapUpdateExpression(rval, arguments, update); 
@@ -1290,7 +1290,7 @@ CodeExpression CodeExpression()
   )*
   "}|"
   
-  { return new CodeExpression(); }
+  { throw new UnsupportedFeature("Code expressions"); }
 }
 
 void SpecBlock()
@@ -1316,39 +1316,57 @@ List<Attribute> AttributeList()
     {return rval;}
 }
 
-// TODO implement
 Attribute Attribute()
-:{} { 
-  AttributeOrTrigger()
-  { return new Attribute(); } 
+:{
+    ASTElement rval;
+} { 
+  rval=AttributeOrTrigger()
+  {
+    if(!(rval instanceof Attribute))
+        throw new ParseException("Attribute expected but found Trigger @" + rval.getLocation());
+    
+    return (Attribute)rval; 
+  } 
 }
 
-void AttributeOrTrigger()
+ASTElement AttributeOrTrigger()
 :{
+    ASTElement rval;
 } { 
   "{"                                         
      (
-       ":" <IDENT>                              
-       ( AttributeParameter()        
-         ( "," AttributeParameter()  
-         )*
+       {
+         Token name;
+         AttributeParameter param;
+         List<AttributeParameter> params = new LinkedList<AttributeParameter>();
+       }
+       ":" name=<IDENT>
+       ( param=AttributeParameter() {params.add(param);}        
+         ( "," param=AttributeParameter() {params.add(param);} )*
        )?
-       
+       { rval = new Attribute(name, params); }
      |
-       Expression()       
-       ( "," Expression() 
-       )*                       
+       { Expression expr; List<Expression> args = new LinkedList<Expression>(); }
+       expr=Expression() {args.add(expr);}       
+       ( "," expr=Expression() {args.add(expr);} )*
+       
+       { rval = new Trigger(args); }                       
      )
   "}"
-  {
-    throw new ParseException("Attributes and Triggers are currently unsupported");
-  }
+  { return rval; }
 }
 
-void AttributeParameter()
-:{} { 
-  ( <STRING>                
-  | Expression()     
+AttributeParameter AttributeParameter()
+:{
+    Token t;
+    Expression expr;
+} { 
+  ( 
+    t=<STRING>
+    { return new AttributeParameter(t); }
+  |
+    expr=Expression()
+    { return new AttributeParameter(expr); }     
   )
 }
 
@@ -1372,6 +1390,10 @@ QuantifierBody QuantifierBody()
     List<Token> typeArgs = new LinkedList<Token>();
     List<Variable> vars = new LinkedList<Variable>();
     
+    ASTElement attrOrTrigg;
+    List<Trigger> triggers = new LinkedList<Trigger>();
+    List<Attribute> attributes = new LinkedList<Attribute>();
+    
     Expression body;
 } { 
   (
@@ -1381,8 +1403,16 @@ QuantifierBody QuantifierBody()
      vars=BoundVars()
   )
   location=<OP_SEP>
-  ( AttributeOrTrigger() )*
+  ( 
+    attrOrTrigg=AttributeOrTrigger()
+    {
+        if(attrOrTrigg instanceof Attribute)
+            attributes.add((Attribute)attrOrTrigg);
+        else
+            triggers.add((Trigger)attrOrTrigg);
+    }  
+  )*
   body=Expression()
   
-  { return new QuantifierBody(location, null, typeArgs, vars, body); } 
+  { return new QuantifierBody(location, attributes, triggers, typeArgs, vars, body); } 
 }

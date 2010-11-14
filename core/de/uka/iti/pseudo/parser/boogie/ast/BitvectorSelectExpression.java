@@ -17,7 +17,7 @@ public class BitvectorSelectExpression extends Expression {
         super(first.getLocationToken());
         
         if (!(first instanceof IntegerExpression))
-            throw new ParseException("Expected IntegerExression as forst argument, but got " + first.toString());
+            throw new ParseException("Expected IntegerExression as first argument, but got " + first.toString());
 
         this.first = ((IntegerExpression) first).getValue();
         this.last = last.getValue();
