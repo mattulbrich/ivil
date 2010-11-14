@@ -110,9 +110,9 @@ TOKEN : {
 | < ENSURES: "ensures">
 | < GOTO: "goto">
 | < RETURN: "return">
-| < IF: "if">
+| < IF: "if" >
 | < THEN: "then" >
-| < ELSE: "else">
+| < ELSE: "else" >
 | < WHILE: "while">
 | < INVARIANT: "invariant">
 | < BREAK: "break">
@@ -127,7 +127,6 @@ TOKEN : {
 
 
 /* Operators */
-// TODO check operators for completeness and unicode escapes
 TOKEN: {
   < OP_ASSIGN: ":=" >
 | < OP_MUL: "*" >
@@ -135,6 +134,9 @@ TOKEN: {
 | < OP_EXISTS: "exists" | "\u2203" >
 | < OP_LAMBDA: "lambda" | "\u03bb" >
 | < OP_SEP: "::" | "\u2022" >
+| < OP_AND: "&&" | "\u2227" >
+| < OP_OR: "||" | "\u2228" >
+| < OP_NEGATION: "!" | "\u00ac" >
 }
 
 /* Separators */
@@ -149,7 +151,7 @@ TOKEN: {
 /* Literals / Identifiers*/
 TOKEN: {
   < IDENT: ("\\")? <NONDIGIT> ( <NONDIGIT> | <DIGIT> )* >
-| < BVLIT: ( <DIGIT> )+ "b" "v" ( <DIGIT> )+ >
+| < BVLIT: ( <DIGIT> )+ "bv" ( <DIGIT> )+ >
 | < STRING: "\"" ( ~["\"","\\","\n","\r"] )* "\"" >
 | < FLOAT: ( <DIGIT> )+ "." ( <DIGIT> )+ > 
 | < INTEGER : ( <DIGIT> )+ >
@@ -216,10 +218,13 @@ List<Variable> vars = new LinkedList<Variable>();
   {return vars;}
 }
 
-void BoundVars()
-:{} { 
-  IdsTypeWheres(false)
+List<Variable> BoundVars()
+:{
+    List<Variable> rval;
+} { 
+  rval=IdsTypeWheres(false)
   
+  {return rval;}  
 }
 
 /*------------------------------------------------------------------------*/
@@ -950,175 +955,186 @@ List<String> WhiteSpaceIdents()
 }
 
 /*------------------------------------------------------------------------*/
-Expression Expressions()
-:{
- // TODO continue here!
-} { 
-  Expression()             
-  ( "," Expression()       
-  )*
-  {return new Expression();}
-}
-
-/*------------------------------------------------------------------------*/
 Expression Expression()
-:{} { 
-  ImpliesExpression()
-  ( EquivOp()        
-    ImpliesExpression()                   
+:{
+    Token loc;
+    Expression rval, tmp;
+} { 
+  rval=ImpliesExpression()
+  (
+    (loc="<==>" | loc="\u21d4")
+    tmp=ImpliesExpression()
+    { rval = new EquivalenceExpression(loc,rval,tmp); }
   )*
-  { return new Expression(); }
-}
-
-void EquivOp(): {}
-{
-  ("<==>" | "\u21d4")
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void ImpliesExpression()
-:{} { 
-  LogicalExpression()
+Expression ImpliesExpression()
+:{
+    Token loc;
+    Expression rval, tmp;
+} { 
+  rval=LogicalExpression()
   (
-    ImpliesOp()      
+    ( loc="==>" | loc="\u21d2" )
+          
     /* recurse because implication is right-associative */
-    ImpliesExpression()
-                   
+    tmp=ImpliesExpression()
+    { rval = new ImpliesExpression(loc, rval, tmp); }            
   |
-    ExpliesOp()      
-    LogicalExpression() 
+    // NOTE: explies is implement using (x->y) <-> (y<-x) 
                    
     /* loop because explies is left-associative */
     (
-      ExpliesOp()    
-      LogicalExpression() 
-                   
-    )*
+      ( loc="<==" | loc="\u21d0" )    
+      tmp=LogicalExpression()
+      { rval = new ImpliesExpression(loc, tmp, rval); }
+    )+
   )?
-}
-
-void ImpliesOp() 
-:{}{
- ( "==>" | "\u21d2" )
-}
-
-void ExpliesOp()
-:{}{
- ( "<==" | "\u21d0" )
+  
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void LogicalExpression()
-:{} { 
-  RelationalExpression()
-  ( AndOp()          
-    RelationalExpression()
+Expression LogicalExpression()
+:{
+    Token loc;
+    Expression rval,tmp;
+} { 
+  rval=RelationalExpression()
+  ( 
+    (
+      loc=<OP_AND>        
+      tmp=RelationalExpression()
+      { rval = new AndExpression(loc, rval, tmp); }
+    )+
+  |
     
-    ( AndOp()        
-      RelationalExpression()
-      
-    )*
-  | OrOp()           
-    RelationalExpression()
-    
-    ( OrOp()         
-      RelationalExpression()
-      
-    )*
+    (
+      loc=<OP_OR>         
+      tmp=RelationalExpression()
+      { rval = new OrExpression(loc, rval, tmp); }
+    )+
   )?
-}
-
-void AndOp()
-:{}{
- ( "&&" | "\u2227" )
-}
-
-void OrOp()
-:{}{
- ( "||" | "\u2228" )
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void RelationalExpression()
-:{} { 
-  BvTerm()
-  ( RelOp()
-    BvTerm()            
+Expression RelationalExpression()
+:{
+    Token loc;
+    Expression rval, tmp;
+} { 
+  rval=BvTerm()
+  ( 
+    loc="=="
+    tmp=BvTerm()
+    { return new EqualsExpression(loc,rval,tmp); }
+  | 
+    (loc="!="|loc="\u2260")
+    tmp=BvTerm()
+    { return new EqualsNotExpression(loc,rval,tmp); }
+  | 
+    loc="<"
+    tmp=BvTerm()
+    { return new LessExpression(loc,rval,tmp); }
+  |    
+    (loc="<="|loc="\u2264")
+    tmp=BvTerm()
+    { return new LessThenExpression(loc,rval,tmp); }
+  | 
+    loc=">"
+    tmp=BvTerm()
+    { return new GreaterExpression(loc,rval,tmp); }
+  | 
+    (loc=">="|loc="\u2265")
+    tmp=BvTerm()
+    { return new GreaterThenExpression(loc,rval,tmp); }
+  | 
+    loc="<:"
+    tmp=BvTerm()
+    { return new PartialLessExpression(loc,rval,tmp); }
   )?
-}
-
-void RelOp()
-:{} {                  
-  ( "=="           
-  | "<"            
-  | ">"            
-  | "<="           
-  | ">="           
-  | "!="           
-  | "<:"           
-  | "\u2260"       
-  | "\u2264"       
-  | "\u2265"       
-  )
+  
+  {return rval;}
 }
 
 /*------------------------------------------------------------------------*/
-void BvTerm()
-:{} { 
-  Term()
-  ( "++"                  
-    Term()          
+Expression BvTerm()
+:{
+    Token loc;
+    Expression rval,tmp;
+} { 
+  rval=Term()
+  ( loc="++"                  
+    tmp=Term()
+    {rval = new ConcatenationExpression(loc,rval,tmp);}          
   )*
+  { return rval; }
 }
 
 
 /*------------------------------------------------------------------------*/
-void Term()
-:{} { 
-  Factor()
-  ( AddOp()
-    Factor()          
+Expression Term()
+:{
+    Token loc;
+    Expression rval, tmp;
+} { 
+  rval=Factor()
+  ( 
+    loc="+"
+    tmp=Factor()
+    {rval = new AdditionExpression(loc,rval,tmp);}
+  | 
+    loc="-"
+    tmp=Factor()
+    {rval = new SubtractionExpression(loc,rval,tmp);}      
   )*
-}
-
-void AddOp()
-:{} {                  
-  ( "+"            
-  | "-"            
-  )
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void Factor()
-:{} { 
-  UnaryExpression()
-  ( MulOp()
-    UnaryExpression() 
+Expression Factor()
+:{
+    Token loc;
+    Expression rval, tmp;
+} { 
+  rval=UnaryExpression()
+  ( 
+    loc="*"
+    tmp=UnaryExpression()
+    {rval = new MultiplicationExpression(loc,rval,tmp);}
+  | 
+    loc="/"
+    tmp=UnaryExpression()
+    {rval = new DivisionExpression(loc,rval,tmp);}
+  | 
+    loc="%"
+    tmp=UnaryExpression()
+    {rval = new ModuloExpression(loc,rval,tmp);} 
   )*
-}
-
-void MulOp()
-:{} {                  
-  ( "*"            
-  | "/"            
-  | "%"            
-  )
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void UnaryExpression()
-:{} { 
-  ( "-"                        
-    UnaryExpression()     
-  | NegOp()                      
-    UnaryExpression()     
-  | CoercionExpression()
+Expression UnaryExpression()
+:{
+    Token loc;
+    Expression rval;
+} { 
+  ( 
+    loc="-"                        
+    rval=UnaryExpression()
+    { rval = new UnaryMinusExpression(loc, rval); }     
+  | 
+    loc=<OP_NEGATION>                      
+    rval=UnaryExpression()
+    { rval = new NegationExpression(loc, rval); }
+  | 
+    rval=CoercionExpression()
   )
-}
-
-void NegOp()
-:{} {
- ( "!" | "\u00ac" )
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
@@ -1130,80 +1146,151 @@ void NegOp()
    will cause a parse error because "<" is treated as the beginning of a
    map type. */
    
-void CoercionExpression() :{} { 
-  ArrayExpression()
+Expression CoercionExpression()
+:{
+    Expression rval, tmp;
+} { 
+  rval=ArrayExpression()
   ( ":"                     
     (
-      Type()   
-    | <INTEGER>           /* This means that we really look at a bitvector expression t(a:b)? */
+      Type()
+      { throw new ParseException("coercionExpression unsupported"); }
+    | 
+      /* 
+         This means that we really look at a bitvector expression t[a:b];
+         the expression we create is rval:tmp, this will be supplied as 
+         arrayindex to an upper expression expr[?]
+      */
+      { Token i; }
+      i=<INTEGER>
+      // return direclty to ensure there are no other ':'s
+      { return new BitvectorSelectExpression(rval, new IntegerExpression(i)); }  
     )
   )*
+  
+  { return rval; }
 }
 
 /*------------------------------------------------------------------------*/
-void ArrayExpression()
-:{} { 
-  AtomExpression()
-  ( "["        
+Expression ArrayExpression()
+:{
+    Expression rval, tmp, update;
+    List<Expression> arguments;
+} { 
+  rval=AtomExpression()
+  ( "["
+      { tmp=update=null; arguments = new LinkedList<Expression>(); }
       (
-        Expression() 
+        tmp=Expression()
+        { 
+            if(tmp instanceof BitvectorSelectExpression)
+                rval = new BitvectorAccessSelectionExpression(tmp);
+            else
+                arguments.add(tmp);
+        } 
                
-        ( "," Expression() 
-               
-        )*
-        ( ":=" Expression() 
-               
-        )?
-      | ":=" Expression()       
+        ( "," tmp=Expression() { arguments.add(tmp); } )*
+        
+        ( ":=" update=Expression() )?
+        
+        {
+          if(null!=update)
+            rval = new MapAccessExpression(rval, arguments);
+          else
+            rval = new MapUpdateExpression(rval, arguments, update); 
+        }
+      | 
+        ":=" update=Expression()
+        { rval = new MapUpdateExpression(rval, arguments, update); }
       )?
     "]"
   )*
+  
+  { return rval; }
 }
 
 
 /*------------------------------------------------------------------------*/
-void AtomExpression()
-:{} { 
-  ( "false"           
-  | "true"            
-  | <INTEGER>          
-  | <BVLIT> 
-  | <IDENT>            
+Expression AtomExpression()
+:{
+    Token first;
+    Expression rval;
+} { 
+  ( 
+    first="false"
+    { return new FalseExpression(first); }           
+  | 
+    first="true"
+    { return new TrueExpression(first); }            
+  | 
+    first=<INTEGER>
+    { return new IntegerExpression(first); }          
+  | 
+    first=<BVLIT>
+    { return new BitvectorLiteralExpression(first); } 
+  | first=<IDENT>            
     ( "("
-      ( Expressions() )? // MU: was empty choice
+      {
+        Expression expr;
+        List<Expression> args = new LinkedList<Expression>();
+      } 
+      (
+          expr=Expression() {args.add(expr);}             
+          ( "," expr=Expression() {args.add(expr);} )*
+      )?
       ")"
+      { return new FunctionCallExpression(first, args); }
     )?
+    { return new VariableUsageExpression(first); }
 
-  | "old"                   
+  | 
+    first="old"
     "("
-    Expression()
-    ")"                     
-
-  | "(" ( Expression()                 
-        | <OP_FORALL>                            
-          QuantifierBody()
-                                            
-        | <OP_EXISTS>                            
-          QuantifierBody() 
-                                            
-        | <OP_LAMBDA>                         
-          QuantifierBody() 
-                                            
-        )
+    rval=Expression()
     ")"
-  | IfThenElseExpression()
-  | CodeExpression() 
+    { return new OldExpression(first, rval); }
+
+  | "("
+    { QuantifierBody body; }
+    ( 
+      rval=Expression()               
+    |
+      first=<OP_FORALL>                            
+      body=QuantifierBody()
+      { rval = new ForallExpression(first, body); }
+                                            
+    | 
+      first=<OP_EXISTS>                            
+      body=QuantifierBody()
+      { rval = new ExistsExpression(first, body); }
+    |
+      // unlike other quantifiers, lambdas have returntype [arglist]typeof(body)
+      first=<OP_LAMBDA>                         
+      body=QuantifierBody()
+      { rval = new LambdaExpression(first, body); }                   
+    )
+    ")"
+    {return rval;}
+  | 
+    rval=IfThenElseExpression()
+    { return rval; }
+  | 
+    rval=CodeExpression()
+    { return rval; } 
   )
 }
 
-void CodeExpression()
-:{} { 
+CodeExpression CodeExpression()
+:{
+} { 
   "|{"
   ( LocalVars() )*
   SpecBlock()          
   ( SpecBlock()        
   )*
   "}|"
+  
+  { return new CodeExpression(); }
 }
 
 void SpecBlock()
@@ -1237,7 +1324,8 @@ Attribute Attribute()
 }
 
 void AttributeOrTrigger()
-:{} { 
+:{
+} { 
   "{"                                         
      (
        ":" <IDENT>                              
@@ -1252,6 +1340,9 @@ void AttributeOrTrigger()
        )*                       
      )
   "}"
+  {
+    throw new ParseException("Attributes and Triggers are currently unsupported");
+  }
 }
 
 void AttributeParameter()
@@ -1261,22 +1352,37 @@ void AttributeParameter()
   )
 }
 
-void IfThenElseExpression()
-:{} { 
-  "if"  Expression() "then" Expression() "else" Expression()
+Expression IfThenElseExpression()
+:{
+    Token first;
+    Expression condition, _then, _else;
+} { 
+  first=<IF>  condition=Expression()
+  <THEN> _then=Expression()
+  <ELSE> _else=Expression()
   
+  { return new IfThenElseExpression(first, condition, _then, _else); }
 }
 
 
-void QuantifierBody()
-:{} { 
+QuantifierBody QuantifierBody()
+:{
+    Token location;
+
+    List<Token> typeArgs = new LinkedList<Token>();
+    List<Variable> vars = new LinkedList<Variable>();
+    
+    Expression body;
+} { 
   (
-     TypeParams()
-     ( BoundVars() )?
+     typeArgs=TypeParams()
+     ( vars=BoundVars() )?
   |
-     BoundVars()
+     vars=BoundVars()
   )
-  <OP_SEP>
+  location=<OP_SEP>
   ( AttributeOrTrigger() )*
-  Expression()
+  body=Expression()
+  
+  { return new QuantifierBody(location, null, typeArgs, vars, body); } 
 }

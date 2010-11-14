@@ -12,10 +12,6 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  * @author timm.felden@felden.com
  */
 final public class Variable extends ASTElement {
-    
-    private static class DefaultWhereExpression extends Expression {
-        // FIXME make this expression equal to "true"
-    }
 
     private final Token name;
     private final Type type;
@@ -31,7 +27,7 @@ final public class Variable extends ASTElement {
         if (null != where)
             this.where = where;
         else
-            this.where = new DefaultWhereExpression();
+            this.where = new TrueExpression(name);
 
         addChild(type);
         addChild(this.where);

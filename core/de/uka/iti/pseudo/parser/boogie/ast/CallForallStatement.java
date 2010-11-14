@@ -39,4 +39,8 @@ public final class CallForallStatement extends Statement {
         return arglist;
     }
 
+    public List<Attribute> getAttributes() {
+        return attr;
+    }
+
 }
