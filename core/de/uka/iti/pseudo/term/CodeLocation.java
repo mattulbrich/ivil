@@ -1,16 +1,26 @@
 package de.uka.iti.pseudo.term;
 
 
+// TODO DOC
 public class CodeLocation {
-    public final int line;
-    public final Object program;
+    private final int line;
+    private final Object program;
 
-    CodeLocation(int line, final Object program) {
+    public CodeLocation(int line, final Object program) {
         this.line = line;
         this.program = program;
     }
 
+    // FIXME Better rename that method since it might be confused with Object#equals(Object)
     public boolean equals(CodeLocation c) {
-        return c.program != null && program != null && c.line == line && c.program.equals(program);
+        return c.program != null && program != null && c.getLine() == getLine() && c.program.equals(program);
+    }
+
+    public Object getProgram() {
+        return program;
+    }
+
+    public int getLine() {
+        return line;
     }
 }

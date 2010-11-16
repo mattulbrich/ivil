@@ -777,9 +777,9 @@ public class BarManager {
         
         val = properties.getProperty(prefix + ".icon");
         if(val != null) {
-            String location = packagePrefix.replace('.', '/') + val;
+            String location = "/" + packagePrefix.replace('.', '/') + val;
             action.putValue(Action.SMALL_ICON, 
-                   GUIUtil.makeIcon(ClassLoader.getSystemResource(location)));
+                   GUIUtil.makeIcon(getClass().getResource(location)));
         }
         
         val = properties.getProperty(prefix + ".tooltip");

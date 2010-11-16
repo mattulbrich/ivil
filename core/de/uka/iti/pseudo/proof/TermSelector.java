@@ -218,6 +218,9 @@ public class TermSelector {
             if(getDepth() != ts.getDepth())
                 return false;
             
+            if(termNumber != ts.termNumber)
+                return false;
+            
             return subtermSelector.equals(ts.subtermSelector);
         }
         return false;

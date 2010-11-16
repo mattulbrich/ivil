@@ -16,6 +16,7 @@ import static de.uka.iti.pseudo.auto.SMTLibTranslator.ExpressionType.UNIVERSE;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
@@ -188,6 +189,18 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         assertEquals("Typing for function symbol fct.freeResult\n" +
                 "(forall (?Type.b Type) (?Type.a Type) (?x0 Universe) (implies (and (= (ty ?x0) ?Type.a))" +
                 " (= (ty (fct.freeResult ?Type.b ?x0)) ?Type.b)))", trans.assumptions.getLast());
+    }
+    
+    // from a bug - a very nasty one indeed!!
+    public void testFreeTypeVar() throws Exception {
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+        
+        env = new Environment("none:*test*", env);
+        env.addSort(new Sort("array", 1, ASTLocatedElement.CREATED));
+        String t2 = trans.translate(makeTerm("(\\forall j as int; (\\forall v as 'ty_v; (\\T_all 'ty_v;true)))"), FORMULA);
+        assertEquals("(forall (?Int.j Int) (forall (?Universe.v Universe) (implies (= (ty ?Universe.v) tyvar.ty_v) (forall (?Type.ty_v Type) true))))", t2);
+        assertTrue(trans.extrafuncs.contains("(tyvar.ty_v Type)"));
+        
     }
     
 }

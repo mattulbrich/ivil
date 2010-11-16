@@ -36,7 +36,7 @@ import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
@@ -193,7 +193,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
      */
     private boolean detectSchemaVariables(Statement statement) {
         for (Term subterm : statement.getSubterms()) {
-            if(TermUnification.containsSchemaVariables(subterm))
+            if(TermMatcher.containsSchemaVariables(subterm))
                 return true;
         }
         return false;

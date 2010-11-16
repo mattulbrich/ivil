@@ -213,15 +213,18 @@ public class SequentComponent extends JPanel implements
             }
         }
         
-        //
-        // set the current markings
-        TermSelector findSelector = ruleApplication.getFindSelector();
-        // might be a rule w/o find clause
-        if(findSelector != null) {
-            markTerm(findSelector, 0);
-        }
-        for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
-            markTerm(sel, 1);
+        // null indicates that nothing is to be highlighted
+        if(ruleApplication != null) {
+            
+            // set the current markings
+            TermSelector findSelector = ruleApplication.getFindSelector();
+            // might be a rule w/o find clause
+            if(findSelector != null) {
+                markTerm(findSelector, 0);
+            }
+            for (TermSelector sel : ruleApplication.getAssumeSelectors()) {
+                markTerm(sel, 1);
+            }
         }
     }
     

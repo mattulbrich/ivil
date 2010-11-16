@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 // TODO DOC
 // producer pattern?
@@ -32,12 +32,12 @@ public class RuleApplicationMaker implements RuleApplication {
     private ProofNode proofNode;
     private TermSelector findSelector;
     private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
-    private TermUnification termUnification;
+    private TermMatcher termUnification;
     private Map<String, String> properties = new HashMap<String, String>();
     
     public RuleApplicationMaker(Environment env) {
         // TODO Perhaps set this to null here?
-        termUnification = new TermUnification(env);
+        termUnification = new TermMatcher(env);
     }
 
     public void setProofNode(ProofNode proofNode) {
@@ -64,7 +64,7 @@ public class RuleApplicationMaker implements RuleApplication {
         assumeSelectors.pop();
     }
 
-    public void setTermUnification(TermUnification mc) {
+    public void setTermUnification(TermMatcher mc) {
         termUnification = mc;
     }
 
@@ -97,7 +97,7 @@ public class RuleApplicationMaker implements RuleApplication {
     }
 
     public Map<String, Type> getTypeVariableMapping() {
-        return termUnification.getTypeUnification().getInstantiation();
+        return termUnification.getTypeInstantiation();
     }
 
     public boolean hasMutableProperties() {
@@ -108,7 +108,7 @@ public class RuleApplicationMaker implements RuleApplication {
         getProperties().clear();
     }
 
-    public TermUnification getTermUnification() {
+    public TermMatcher getTermUnification() {
         return termUnification;
     }
 
@@ -133,14 +133,14 @@ public class RuleApplicationMaker implements RuleApplication {
         if(findClause != null && findSelector != null) {
             Term findRule = findClause.getTerm();
             Term findSeq = findSelector.selectSubterm(sequent);
-            termUnification.leftUnify(findRule, findSeq);
+            termUnification.leftMatch(findRule, findSeq);
         }
         
         int i=0;
         for (LocatedTerm assumption : rule.getAssumptions()) {
             Term assRule = assumption.getTerm();
             Term assSeq = assumeSelectors.get(i++).selectSubterm(sequent);
-            termUnification.leftUnify(assRule, assSeq);
+            termUnification.leftMatch(assRule, assSeq);
         }
         
     }

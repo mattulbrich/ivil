@@ -16,7 +16,7 @@
     <uptodate property="javacc.notRequired" targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
       <srcfiles dir="core/de/uka/iti/pseudo/parser/" includes="*.jj"/>
     </uptodate>
-    <echo file="classes/META-INF/VERSION" append="false">0.1 - ${NOW}</echo>
+    <echo file="classes/META-INF/VERSION" append="false">0.10 - ${NOW}</echo>
   </target>
 	
   <target name="build" depends="init, javacc, copy" description="compiles the sources">
@@ -114,8 +114,14 @@
     </jar>
   </target>
 
-  <target name="sign" depends="jar" description="signs the jar file">
+  <target name="sys.jar" description="create the file sys.jar">
+    <jar jarfile="sys.jar" basedir="." includes="sys/*.p">
+    </jar>
+  </target>
+
+  <target name="sign" depends="jar,sys.jar" description="signs the jar file">
     <signjar jar="ivil.jar" alias="mu2010" storepass="keystore" />
+    <signjar jar="sys.jar" alias="mu2010" storepass="keystore" />
   </target> 
 
   <target name="dist" depends="jar" description="package the software to deliver it">

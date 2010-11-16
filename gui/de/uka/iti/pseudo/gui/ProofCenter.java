@@ -81,14 +81,14 @@ public class ProofCenter implements Observer {
     public static final String ONGOING_PROOF = "pseudo.ongoing_proof";
 
     /**
-     * Property key to indicate that a proof node has been selected. Type:
-     * ProofNode
+     * Property key to indicate that a proof node has been selected.
+     * Type: ProofNode
      */
     public static final String SELECTED_PROOFNODE = "pseudo.selectedProofNode";
 
     /**
-     * Property key to indicate that a rule application has been selected. Type:
-     * RuleApplication
+     * Property key to indicate that a rule application has been selected.
+     * Type: RuleApplication
      */
     public static final String SELECTED_RULEAPPLICATION = "pseudo.selectedRuleApplication";
 
@@ -205,11 +205,7 @@ public class ProofCenter implements Observer {
 
         firePropertyChange(ONGOING_PROOF, false);
 
-        try {
-            mainWindow.makeGUI();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mainWindow.makeGUI();
         fireSelectedProofNode(proof.getRoot());
 
         prepareRuleLists();
@@ -239,8 +235,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the environment
      */
-    public @NonNull
-    Environment getEnvironment() {
+    public @NonNull Environment getEnvironment() {
         return env;
     }
 
@@ -249,8 +244,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the proof
      */
-    public @NonNull
-    Proof getProof() {
+    public @NonNull Proof getProof() {
         return proof;
     }
 
@@ -259,8 +253,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the main window
      */
-    public @NonNull
-    MainWindow getMainWindow() {
+    public @NonNull MainWindow getMainWindow() {
         return mainWindow;
     }
 
@@ -315,8 +308,7 @@ public class ProofCenter implements Observer {
      * 
      * @throws ProofException
      */
-    public @NonNull
-    List<RuleApplication> getApplicableRules(@NonNull TermSelector termSelector) throws ProofException {
+    public @NonNull List<RuleApplication> getApplicableRules(@NonNull TermSelector termSelector) throws ProofException {
 
         Log.enter(termSelector);
 
@@ -375,8 +367,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the currently selected proof node
      */
-    public @Nullable
-    ProofNode getCurrentProofNode() {
+    public @Nullable ProofNode getCurrentProofNode() {
         Object currentPN = getProperty(SELECTED_PROOFNODE);
         return (currentPN instanceof ProofNode) ? (ProofNode) currentPN : null;
     }
@@ -410,8 +401,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the system strategy manager
      */
-    public @NonNull
-    StrategyManager getStrategyManager() {
+    public @NonNull StrategyManager getStrategyManager() {
         return strategyManager;
     }
 

@@ -27,61 +27,39 @@ function
   int count(array('a), 'a)
 
 (*
- * definitions ... axioms
+ * definitions ... rules are axioms
  *)
-
-axiom array_theory
-  (\T_all 'a; (\forall a as array('a); (\forall i as int;
-    (\forall j as int; (\forall v as 'a;
-    read(write(a, i, v), j) = cond(i=j, v, read(a, j)))))))
-
-axiom write_length
-  (\T_all 'a; (\forall a as array('a); (\forall i; (\forall v;
-    length(write(a,i,v)) = length(a)))))
-
-axiom id_def
-  (\forall i as int; (\forall n as int;
-      read(id(n), i) = i))
-
-axiom id_len
-  (\forall n; length(id(n)) = n)
-
-axiom swap_def
-  (\T_all 'a; (\forall a as array('a); (\forall  i; (\forall j; 
-    swap(a,i,j) = write(write(a, i, read(a, j)), j, read(a,i))))))
-
-(*
- * direct consequences as taclets
- *)
-
+ 
 rule read_write
   find read(write(%a, %i, %v), %j)
   replace cond(%i=%j, %v, read(%a, %j))
-  tags derived
+  tags asAxiom
 
 rule swap_def
   find swap(%a, %i, %j)
   replace write(write(%a, %i, read(%a, %j)), %j, read(%a, %i))
-  tags derived
+  tags asAxiom
 
 rule length_write
   find length(write(%a, %i, %v))
   replace length(%a)
-  tags derived
+  tags asAxiom
 
 rule length_id
   find length(id(%n))
   replace %n
-  tags derived
+  tags asAxiom
   
 rule inDom_def
   find inDom(%a, %i)
   replace 1 <= %i & %i <= length(%a)
+  tags asAxiom
 
 rule isPermN_def
   find isPermN(%p)
   replace (\forall i; inDom(%p, i) -> 
       (\exists j; inDom(%p, j) & read(%p, i) = j))
+#  tags asAxiom
 
 rule isPerm_def
   find isPerm(%a, %b)
@@ -89,15 +67,18 @@ rule isPerm_def
     & (\exists p; isPermN(p) & length(p) = length(%a)
        & (\forall i; inDom(p, i) ->
             (\exists j; inDom(p, j) & read(%a, i) = read(%b, read(p, j)))))
+#  tags asAxiom
 
 rule id_def
   find read(id(%n), %i)
   replace %i
+  tags asAxiom
 
 rule isSorted_def
   find isSorted(%a)
   replace (\forall i; inDom(%a, i) -> 
      (\forall j; inDom(%a, j) & i < j -> read(%a, i) <= read(%a, j)))
+#  tags asAxiom
 
 (*
  * derived simplification rules
@@ -151,6 +132,17 @@ rule isPerm_id
   find isPermN(id(%n))
   replace true
   tags rewrite "concrete"
+
+rule isPerm_trans
+  assume isPerm(%a,%b) |-
+  find isPerm(%b,%c) |-
+  add isPerm(%a,%c) |-
+  tags asAxiom derived
+
+rule isPerm_symm
+  find isPerm(%b,%a)
+  replace isPerm(%a,%b)
+  tags asAxiom derived
 
 rule isPerm_refl
   assume %a = %b |-

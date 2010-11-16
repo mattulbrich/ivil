@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.gui.actions.auto;
 
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import javax.swing.KeyStroke;
 
@@ -25,8 +26,9 @@ public class StepInstructionAction extends StepCodeAction {
 
     @Override
     protected CodeLocation getCodeLocation(ProofNode node) {
-        if (node.getSequent().getNativeCodeLocations().length == 1)
-            return node.getSequent().getNativeCodeLocations()[0];
+        List<CodeLocation> nativeCodeLocations = node.getSequent().getNativeCodeLocations();
+        if (nativeCodeLocations.size() == 1)
+            return nativeCodeLocations.get(0);
         return null;
     }
 

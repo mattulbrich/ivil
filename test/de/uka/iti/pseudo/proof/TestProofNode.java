@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -36,9 +37,12 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setFindSelector(new TermSelector("S.0"));
         app.setProofNode(p.getRoot());
-        boolean b = app.getTermUnification().leftUnify(pattern, term);
+        boolean b = app.getTermUnification().leftMatch(pattern, term);
         assertTrue(b);
+        assertEquals(Environment.getBoolType(), app.getTypeVariableMapping().get("b"));
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
+        
+        
         
         p.apply(app, env);
         
@@ -64,7 +68,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setFindSelector(new TermSelector("A.0"));
         app.setProofNode(p.getRoot());
-        app.getTermUnification().leftUnify(pattern, term);
+        app.getTermUnification().leftMatch(pattern, term);
         app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         p.apply(app, env);
@@ -89,7 +93,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
-        app.getTermUnification().leftUnify(pattern, term);
+        app.getTermUnification().leftMatch(pattern, term);
         
         p.apply(app, env);
         p.prune(orgRoot);
@@ -137,7 +141,7 @@ public class TestProofNode extends TestCaseWithEnv {
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
         app.setProofNode(p.getRoot());
-        app.getTermUnification().leftUnify(rule.getFindClause().getTerm(), term);
+        app.getTermUnification().leftMatch(rule.getFindClause().getTerm(), term);
         app.setFindSelector(new TermSelector("S.0"));
         p.apply(app, env);
         

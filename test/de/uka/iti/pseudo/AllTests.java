@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
+import de.uka.iti.pseudo.environment.TestRuleAxiomExtractor;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
 import de.uka.iti.pseudo.gui.TestPrettyPrint;
 import de.uka.iti.pseudo.gui.parameters.TestParameterSheet;
@@ -66,6 +67,7 @@ public class AllTests {
         //$JUnit-BEGIN$
         suite.addTestSuite(TestValidXSD.class);
         suite.addTestSuite(TestFileParser.class);
+        suite.addTestSuite(TestRuleAxiomExtractor.class);
         suite.addTestSuite(TestTermParser.class);
         suite.addTestSuite(TestProgramParser.class);
         suite.addTestSuite(TestProgramChanger.class);

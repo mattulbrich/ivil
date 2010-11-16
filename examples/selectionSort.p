@@ -15,6 +15,8 @@ include
 
 properties
   BreakpointStrategy.stopAtLoop "false"
+  CompoundStrategy.strategies 
+    "SimplificationStrategy,BreakpointStrategy,KnowledgeStrategy,SMTStrategy"
 
 function
   array(int) a assignable

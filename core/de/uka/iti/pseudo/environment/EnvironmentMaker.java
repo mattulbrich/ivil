@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 
@@ -34,7 +34,7 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TermUnification;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -49,22 +49,22 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static final String SYS_DIR = 
+    private static final String SYS_DIR =
         Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
 
     /**
      * The environment that is being built.
      */
     private Environment env;
-    
+
     /**
      * The problem term possibly found in the {@link ASTFile}
      */
     private @Nullable Term problemTerm;
-    
+
     /**
      * remember the list of included files. This is not stored in the
-     * environment can only be retrieved here. 
+     * environment can only be retrieved here.
      */
     private List<String> importedFilenames = new ArrayList<String>();
 
@@ -75,17 +75,17 @@ public class EnvironmentMaker {
 
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * The file is parsed and the environment created automatically. The
      * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
      * as parent.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param file
      *            the file to parse, its name is used as name for the
      *            environment
-     * 
+     *
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
@@ -98,20 +98,20 @@ public class EnvironmentMaker {
     throws ParseException, ASTVisitException, MalformedURLException, IOException {
         this(parser, file.toURI().toURL(), Environment.BUILT_IN_ENV);
     }
-    
+
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * The file is parsed and the environment created automatically. The
      * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
      * as parent.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param url
      *            the url to parse, its name is used as name for the
      *            environment
-     * 
+     *
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
@@ -127,9 +127,9 @@ public class EnvironmentMaker {
 
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * The file is parsed and the environment created automatically.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param res
@@ -137,12 +137,12 @@ public class EnvironmentMaker {
      *            environment
      * @param parent
      *            the parent environment to rely upon
-     * 
+     *
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
      *             some error happened during ast traversal.
-     * @throws IOException 
+     * @throws IOException
      *             if the URL/file cannot be read successfully.
      */
     private EnvironmentMaker(Parser parser, URL res, Environment parent)
@@ -153,7 +153,7 @@ public class EnvironmentMaker {
 
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param astFile
@@ -162,7 +162,7 @@ public class EnvironmentMaker {
      *            the url to store in the environment
      * @param parent
      *            the parent environment to rely upon
-     * 
+     *
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
@@ -170,21 +170,23 @@ public class EnvironmentMaker {
             @NonNull ASTFile astFile, @NonNull String resource,
             @NonNull Environment parent) throws ASTVisitException {
         this.parser = parser;
-        
+
         try {
             this.env = new Environment(resource, parent);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(e);
         }
-        
+
         doIncludes(astFile);
         // first includes, then plugins!
         doPlugins(astFile);
-        
+
         astFile.visit(new EnvironmentDefinitionVisitor(env));
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
+
+        new RuleAxiomExtractor(env).extractAxioms();
 
         doProblem(astFile);
     }
@@ -197,9 +199,9 @@ public class EnvironmentMaker {
         if(term != null) {
             problemTerm = TermMaker.makeTerm(term, env);
 
-            if(TermUnification.containsSchemaVariables(problemTerm))
+            if(TermMatcher.containsSchemaVariables(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
-            
+
             try {
                 problemTerm.visit(new ToplevelCheckVisitor());
             } catch (TermException e) {
@@ -208,15 +210,15 @@ public class EnvironmentMaker {
         }
 
     }
-    
+
     /*
-     * register all defined plugins with the plugin manager. 
+     * register all defined plugins with the plugin manager.
      */
     private void doPlugins(ASTFile astFile) throws ASTVisitException {
 
         List<ASTPlugins> plugins = SelectList.select(ASTPlugins.class, astFile.getChildren());
         for (ASTPlugins block : plugins) {
-            List<ASTPluginDeclaration> pairs = SelectList.select(ASTPluginDeclaration.class, block.getChildren());        
+            List<ASTPluginDeclaration> pairs = SelectList.select(ASTPluginDeclaration.class, block.getChildren());
             for (ASTPluginDeclaration decl : pairs) {
                 String serviceName = decl.getServiceName().image;
                 String implementation = Util.stripQuotes(decl.getImplementationClass().image);
@@ -227,7 +229,7 @@ public class EnvironmentMaker {
                 }
             }
         }
-        
+
         try {
             env.registerPlugins();
         } catch (EnvironmentException e) {
@@ -249,7 +251,7 @@ public class EnvironmentMaker {
                         // System.err.println("WARNING: cyclicly including environments, involving: " + file);
                         continue;
                     }
-                    
+
                     EnvironmentMaker includeMaker = new EnvironmentMaker(
                             parser, res, env.getParent());
                     Environment innerEnv = includeMaker.getEnvironment();
@@ -273,14 +275,14 @@ public class EnvironmentMaker {
 
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param astFile
      *            the ast structure to traverse
      * @param name
      *            the name of the environment
-     * 
+     *
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
@@ -291,7 +293,7 @@ public class EnvironmentMaker {
 
     /**
      * Get the environment which has been created during the constructor call
-     * 
+     *
      * @return the environment
      */
     public @NonNull Environment getEnvironment() {
@@ -300,9 +302,9 @@ public class EnvironmentMaker {
 
     /**
      * Gets the problem term if there is any in the environment.
-     * 
+     *
      * Returns null if the environment does not define a problem term.
-     * 
+     *
      * @return the problem term, possibly null
      */
     public @Nullable Term getProblemTerm() {
@@ -316,10 +318,10 @@ public class EnvironmentMaker {
      * If not found, a resource of that name is searched for.
      */
     private URL mkFile(String toplevel, String filename) throws IOException {
-        
+
         if (filename.charAt(0) == '$') {
             filename = filename.substring(1);
-            
+
             // search in SYS_DIR
             String[] paths = SYS_DIR.split(File.pathSeparator);
             for (String path : paths) {
@@ -329,7 +331,7 @@ public class EnvironmentMaker {
                     return url;
                 }
             }
-            
+
             // then as resource
             URL resource = getClass().getResource("/sys/" + filename);
             if(resource != null)
@@ -347,13 +349,13 @@ public class EnvironmentMaker {
     /**
      * Get a list containing all filenames that have been included directly into this
      * environment.
-     * 
+     *
      * It contains the strings verbatim, not resolved file names
-     *  
+     *
      * @return an immutable view on the list of included filenames.
      */
     public List<String> getImportedFilenames() {
         return Collections.unmodifiableList(importedFilenames);
     }
-    
+
 }

@@ -1193,6 +1193,11 @@ public class Environment {
         for (Rule rule : rules) {
             rule.dump();
         }
+        
+        System.out.println("Axioms:");
+        for (Axiom axiom : axiomMap.values()) {
+            axiom.dump();
+        }
 
         System.out.println("Programs:");
         for (Entry<String, Program> entry : programMap.entrySet()) {

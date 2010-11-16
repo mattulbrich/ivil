@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -176,7 +177,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      * updated by {@link #visit(Binding)} and
      * {@link #visit(TypeVariableBinding)}
      */
-    private Queue<String> quantifiedVariables = new LinkedList<String>();
+    private Deque<String> quantifiedVariables = new LinkedList<String>();
 
     /**
      * the "cond" function from the environment must be treated separately. This
@@ -683,9 +684,9 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         String boundType = makeSort(varType);
         String bound = "?" + boundType + "." + variable.toString(false);
 
-        quantifiedVariables.add(bound);
+        quantifiedVariables.push(bound);
         String innerFormula = translate(binding.getSubterm(0), FORMULA);
-        quantifiedVariables.poll();
+        quantifiedVariables.pop();
 
         retval.append(" (").append(bound).append(" ").
                 append(boundType).append(") ");
@@ -720,10 +721,10 @@ public class SMTLibTranslator extends DefaultTermVisitor {
 
         String var = "?Type." + ((TypeVariable) bound).getVariableName();
 
-        quantifiedVariables.add(var);
+        quantifiedVariables.push(var);
         String innerFormula = translate(typeVariableBinding.getSubterm(),
                 FORMULA);
-        quantifiedVariables.poll();
+        quantifiedVariables.pop();
 
         result = "(" + quant + " (" + var + " Type) " + innerFormula + ")";
 

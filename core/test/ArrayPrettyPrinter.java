@@ -19,6 +19,17 @@ public class ArrayPrettyPrinter extends PrettyPrintPlugin {
             append("[");
             printSubterm(term, 1);
             append("]");
+        } else
+            
+        if("write".equals(name) && arity == 3) {
+            printSubterm(term, 0);
+            append("\u2295{");
+            // index
+            printSubterm(term, 1);
+            append("\u21A6");
+            // value
+            printSubterm(term, 2);
+            append("}");
         }
     }
 
