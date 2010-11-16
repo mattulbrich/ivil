@@ -19,9 +19,11 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  */
 final public class CompilationUnit extends ASTElement {
 
+    private final String name;
     private List<DeclarationBlock> declarationBlocks;
 
-    public CompilationUnit(List<DeclarationBlock> blocks) {
+    public CompilationUnit(String name, List<DeclarationBlock> blocks) {
+        this.name = name;
         this.declarationBlocks = blocks;
         addChildren(blocks);
     }
@@ -39,6 +41,11 @@ final public class CompilationUnit extends ASTElement {
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
+    }
+
+    @Override
+    public String toString(){
+        return "CompilationUnit" + (null == name ? "" : " [" + name + "]");
     }
 
 }

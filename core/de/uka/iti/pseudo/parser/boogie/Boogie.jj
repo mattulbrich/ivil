@@ -35,6 +35,9 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ast.*;
 
+// used for main
+import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
+
 // we dont want warnings here, as the code is created by a generator
 @SuppressWarnings("all")
 public class Parser {
@@ -50,14 +53,21 @@ public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseE
     
     public CompilationUnit parseFile(Reader reader, String filename) throws ParseException {
         ReInit(reader);
-        CompilationUnit result = BoogiePL();
+        CompilationUnit result = BoogiePL(filename);
         result.setFilename(filename);
         return result;
     }
 
+    /**
+    * Try to prove all problems supplied in args as paths to their defining files.
+    */
     public static void main(String args[]) throws FileNotFoundException, ParseException {
-        Parser p = new Parser(new FileInputStream(args[0]));
-        p.BoogiePL();
+        for(int i = 0; i < args.length; i++){    
+            Parser p = new Parser(new FileInputStream(args[i]));
+            EnvironmentCreationState creator = new EnvironmentCreationState(p.BoogiePL(args[i]));
+            
+            creator.createNamespaces();
+        }
     }
 }
 
@@ -162,7 +172,7 @@ TOKEN: {
 //--------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------*/
-CompilationUnit BoogiePL()
+CompilationUnit BoogiePL(String name)
 :{
     DeclarationBlock block;
     List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();
@@ -178,7 +188,7 @@ CompilationUnit BoogiePL()
       ){declarations.add(block);}
   )*
   <EOF>
-  { return new CompilationUnit(declarations); } 
+  { return new CompilationUnit(name, declarations); } 
 }
 
 /*------------------------------------------------------------------------*/
@@ -394,23 +404,30 @@ ConstantDeclaration Consts()
   { return new ConstantDeclaration(first, attributes, unique, varnames); }
 }
 
-// TODO implement later as explained in Boogie 2 Manual Chapter 10. It should be relatively easy to create the implied axioms.
-void OrderSpec()
-:{} { 
-  "extends"                
+
+OrderSpecification OrderSpec()
+:{
+    Token first,name;
+    List<OrderSpecParent> parents = new LinkedList<OrderSpecParent>();
+    boolean unique = false;
+    boolean complete = false;
+} { 
+  first="extends"                
   (
-    ( "unique"             
-    )?
-    <IDENT>    
+    ( "unique" {unique=true;} )?
+    name=<IDENT>
+    { parents.add(new OrderSpecParent(unique, name)); unique = false; }
     (
-      ","                  
-      ( "unique"           
-      )?
-      <IDENT>    
+      ","
+      ( "unique" {unique=true;} )?
+      name=<IDENT>
+      { parents.add(new OrderSpecParent(unique, name)); unique = false; } 
     )*
   )?
-  ( "complete"             
-  )?
+  
+  ("complete" {complete=true;})?
+  
+  { return new OrderSpecification(first, parents, complete); }
 }
 
 /*------------------------------------------------------------------------*/
@@ -418,39 +435,62 @@ void OrderSpec()
 
 FunctionDeclaration Function()
 :{
+    //throw new ParseException("implement signature");
+    
     Token first;
     List<Attribute> attributes;
     Token name;
-    // TODO add signotaure treatment
+    
+    List<Token> typeParameters = new LinkedList<Token>();
+    Variable var;
+    List<Variable> inParam = new LinkedList<Variable>();
+    Variable outParam;
+    
+    Type tmp;
+    
     Expression expression=null;
 } { 
   first="function" attributes=AttributeList() name=<IDENT> 
-  ( TypeParams() )?
+  ( typeParameters=TypeParams() )?
   
   "("
-      ( VarOrType()      
-        ( "," VarOrType())* 
+  
+      ( var=VarOrType("in_"+inParam.size()) {inParam.add(var);}    
+        ( "," var=VarOrType("in_"+inParam.size()) {inParam.add(var);})* 
       )?
   ")"
   
   ( 
-    "returns" "(" VarOrType() ")" 
+    "returns" "(" outParam=VarOrType("rval") ")" 
     | 
-    ":" Type()    
+    ":" tmp=Type() { outParam = new Variable("rval", tmp, false, null); }
   )
   
   ( "{" expression=Expression()  "}" | ";" )
   
-  { return new FunctionDeclaration(first, attributes, name, expression); }
+  { return new FunctionDeclaration(first, attributes, name, typeParameters, inParam, outParam, expression); }
 }
 
-void VarOrType()
-:{} { 
-  Type()    
+Variable VarOrType(String optName)
+:{
+    ASTElement rval;
+    Type tmp;
+} { 
+  rval=Type()
   ( ":"           
-    Type()
+    tmp=Type()
+    {
+        if(!(rval instanceof TemplateType))
+            throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString()); 
+            
+        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, null);
+    }
   )?
-  
+  {
+    if(!(rval instanceof Variable))
+        rval = new Variable(optName, (Type)rval, false, null);
+    return (Variable)rval;
+  }
 }
 
 /*------------------------------------------------------------------------*/
@@ -1149,12 +1189,13 @@ Expression UnaryExpression()
 Expression CoercionExpression()
 :{
     Expression rval, tmp;
+    Type T;
 } { 
   rval=ArrayExpression()
   ( ":"                     
     (
-      Type()
-      { throw new UnsupportedFeature("coercionExpression unsupported"); }
+      T=Type()
+      { return new CoercionExpression(rval,T); }
     | 
       /* 
          This means that we really look at a bitvector expression t[a:b];

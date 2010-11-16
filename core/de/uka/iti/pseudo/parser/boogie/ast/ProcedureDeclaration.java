@@ -72,4 +72,9 @@ public class ProcedureDeclaration extends DeclarationBlock {
     public boolean isImplemented() {
         return null != body;
     }
+
+    @Override
+    public String toString(){
+        return "ProcedureDeclaration [" + name + ", " + getLocation() + "]";
+    }
 }

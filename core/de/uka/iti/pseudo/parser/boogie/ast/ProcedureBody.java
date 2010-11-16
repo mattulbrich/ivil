@@ -20,7 +20,7 @@ public final class ProcedureBody extends ASTElement {
         this.statements = statements;
 
         addChildren(vars);
-        addChildren(vars);
+        addChildren(statements);
     }
 
     @Override

@@ -9,6 +9,9 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class SimpleAssignment extends ASTElement {
     public final Token name;
+
+    // TODO maybe change this to explicit mapaccess expressions to make update
+    // creation easier
     public final List<List<Expression>> arrayArgs; // e.g. [expr, expr][expr][]
                                                    // -> {{expr, expr},{expr},
                                                    // {}}
