@@ -66,7 +66,7 @@ public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseE
             Parser p = new Parser(new FileInputStream(args[i]));
             EnvironmentCreationState creator = new EnvironmentCreationState(p.BoogiePL(args[i]));
             
-            creator.createNamespaces();
+            creator.make();
         }
     }
 }

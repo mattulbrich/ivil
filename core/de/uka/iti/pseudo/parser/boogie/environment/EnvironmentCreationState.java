@@ -1,12 +1,16 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
+import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 
 /**
  * Objects of this class are used to hold state while creating an Environment
@@ -20,39 +24,51 @@ import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
  */
 public final class EnvironmentCreationState {
 
-    private final CompilationUnit root;
+    final CompilationUnit root;
 
-    private final Scope globalScope = new Scope(null, null);
-    private final Decoration<Scope> scopeMap = new Decoration<Scope>();
+    // scope information, that is used to determine, whether a name is visible
+    // or not
+    final Scope globalScope = new Scope(null, null);
+    final Decoration<Scope> scopeMap = new Decoration<Scope>();
 
-    // DEBUG
-    private final List<Decoration<?>> allDecorations = new LinkedList<Decoration<?>>();
+    // namespaces are used to map names to ASTElements, to allow for access of
+    // decorations by name and context
+    final HashMap<String, ASTElement> functionSpace = new HashMap<String, ASTElement>();
+    final HashMap<String, ASTElement> procedureSpace = new HashMap<String, ASTElement>();
+    final HashMap<String, ASTElement> attributeSpace = new HashMap<String, ASTElement>();
+    // contains identifiers that can start a named type, such as bool, int, S(if
+    // S is defined somewhere), ...
+    final HashMap<String, ASTElement> typeSpace = new HashMap<String, ASTElement>();
+    // variable names are scope sensitive
+    final HashMap<Pair<String, Scope>, ASTElement> variableSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+
+    // not directly a namespace, but very handy for goto usage; maps names and
+    // procedure bodies to Labelstatements
+    final HashMap<Pair<String, ProcedureBody>, ASTElement> labelSpace = new HashMap<Pair<String, ProcedureBody>, ASTElement>();
 
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
-
-        allDecorations.add(scopeMap);
     }
 
-    public void createNamespaces() throws EnvironmentCreationException {
+    public void createNamespaces() throws EnvironmentCreationException, ParseException {
 
-        // create scope annotation for ast nodes to be able to create all
-        // namespaces properly
         try {
+            // create scope annotation for ast nodes to be able to create all
+            // namespaces properly
             new ScopeBuilder(root, globalScope, scopeMap);
+
         } catch (ASTVisitException e) {
             throw new EnvironmentCreationException("Namespacecreation failed because of " + e.toString());
         }
 
-        // create maps for all five namespaces, which are scope sensitive to be
-        // able to resolve names to astelements and later to objects
+        try {
+            // create maps for all five namespaces, which are scope sensitive to
+            // be able to resolve names to astelements and later to objects
+            new NamespaceBuilder(this);
 
-        // ASTVisitor debug = new DebugVisitor(allDecorations);
-        // try {
-        // debug.visit(root);
-        // } catch (ASTVisitException e) {
-        // e.printStackTrace();
-        // }
+        } catch (ASTVisitException e) {
+            throw new TypeSystemException("Namespacecreation failed because of " + e.toString());
+        }
     }
 
     public void createTypesystem() throws EnvironmentCreationException {
@@ -62,10 +78,65 @@ public final class EnvironmentCreationState {
         // create a mapping from table types to ivil types
     }
 
-    public Environment make(){
+    /**
+     * Prints debug information to System.out
+     */
+    public void printDebugInformation() {
+        
+        //Print namespace information
+        System.out.println("function names:");
+        for (String n : functionSpace.keySet()) {
+            System.out.println("\t" + n);
+        }
+        System.out.println("");
+
+        System.out.println("procedure names:");
+        for (String n : procedureSpace.keySet()) {
+            System.out.println("\t" + n);
+        }
+        System.out.println("");
+
+        System.out.println("usable type names:");
+        for (String n : typeSpace.keySet()) {
+            System.out.println("\t" + n);
+        }
+        System.out.println("");
+
+
+        System.out.println("variable and constant declarations:");
+        for (Pair<String, Scope> n : variableSpace.keySet()) {
+            System.out.println("\t" + n.first + "\t\t<" + (n.second == globalScope ? "global" : n.second.toString())
+                    + ">");
+        }
+        System.out.println("");
+
+        System.out.println("explicit labels:");
+        for (Pair<String, ProcedureBody> n : labelSpace.keySet()) {
+            System.out.println("\t" + n.first + "\t\tinside body " + n.second.getLocation());
+        }
+        System.out.println("");
+
+        // Print decorated AST
+        List<Decoration<?>> allDecorations = new LinkedList<Decoration<?>>();
+
+        allDecorations.add(scopeMap);
+        
+        ASTVisitor debug = new DebugVisitor(allDecorations);
+        try {
+            debug.visit(root);
+        } catch (ASTVisitException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Environment make() throws ParseException {
         try{
-            throw new EnvironmentCreationException("make is not yet implemented");
+            createNamespaces();
             
+            // printDebugInformation();
+
+            return null;
+
         } catch(EnvironmentCreationException e) {
             throw new UnsupportedOperationException(
                     "An unexpected exception was thrown while making the environment.\n"

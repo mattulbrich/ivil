@@ -34,8 +34,8 @@ final public class UserTypeDefinition extends ASTElement {
         v.visit(this);
     }
 
-    public Token getName() {
-        return name;
+    public String getName() {
+        return name.image;
     }
 
     public List<String> getArgnames() {

@@ -13,6 +13,10 @@ public final class TemplateType extends NamedType {
     public TemplateType(Token name, List<Type> types) {
         super(name, types.size());
         arguments = types;
+
+        // dont add arguments as children, as noone should be interested in
+        // walking there by recursion
+        // addChildren(types);
     }
 
     @Override

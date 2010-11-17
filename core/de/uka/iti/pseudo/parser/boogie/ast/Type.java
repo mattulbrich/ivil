@@ -11,7 +11,8 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
  */
 public abstract class Type extends ASTElement {
     /**
-     * Synonyms print their refered type.
+     * Human readable Typerepresentation, that is also used as typeidentifier in
+     * the typeSpace table.
      * 
      * @return a pretty human readable type representation, that represents type
      *         arguments as <...>, map arguments as [...]

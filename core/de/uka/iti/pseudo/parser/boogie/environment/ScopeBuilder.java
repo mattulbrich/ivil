@@ -4,15 +4,20 @@ import java.util.Stack;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
+/**
+ * builds scope information when constructed
+ * 
+ * @author timm.felden@felden.com
+ */
 public final class ScopeBuilder extends DefaultASTVisitor {
 
     private final Scope globalScope;
@@ -67,18 +72,6 @@ public final class ScopeBuilder extends DefaultASTVisitor {
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
-    }
-
-    @Override
-    public void visit(Variable node) throws ASTVisitException {
-        scopeMap.add(node, activeScope());
-        
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-        
-        pop(node);
     }
 
     @Override

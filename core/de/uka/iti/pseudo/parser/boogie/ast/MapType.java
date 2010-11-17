@@ -18,12 +18,14 @@ public final class MapType extends Type {
         this.params = params;
         this.domain = domain;
         this.range = range;
+
+        // no children are added, as its not expected to be usefull to walk over
+        // them with a visitor
     }
 
     @Override
     public String getPrettyName() {
-        // TODO implement pretty names
-        return "some map type";
+        return "map types need implementation of pretty printed names";
     }
 
     @Override

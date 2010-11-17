@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie;
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.parser.boogie.environment.*;
 public class TestBoogieParser extends TestCaseWithEnv {
 
 // generated test for examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr1.bpl
@@ -25,6 +26,42 @@ public void testBoogieParseexamples_boogie_test_UnsupportedFeature_codeexpr_Code
 try{
 Parser.main(new String[] { "examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr2.bpl"});
 } catch(UnsupportedFeature ex){
+return;
+}
+assert false;}
+
+// generated test for examples/boogie/test/TypeSystemException/duplicateConst.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateConst() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/duplicateConst.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false;}
+
+// generated test for examples/boogie/test/TypeSystemException/boog22.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_boog22() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/boog22.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false;}
+
+// generated test for examples/boogie/test/TypeSystemException/TypeDecls0.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_TypeDecls0() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/TypeDecls0.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false;}
+
+// generated test for examples/boogie/test/TypeSystemException/duplicateVariable.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateVariable() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/duplicateVariable.bpl"});
+} catch(TypeSystemException ex){
 return;
 }
 assert false;}
@@ -117,11 +154,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/test20/ParallelAssignm
 // generated test for examples/boogie/test/closable/test20/PolyPolyPoly2.bpl
 public void testBoogieParseexamples_boogie_test_closable_test20_PolyPolyPoly2() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test20/PolyPolyPoly2.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/test20/TypeDecls0.bpl
-public void testBoogieParseexamples_boogie_test_closable_test20_TypeDecls0() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test20/TypeDecls0.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test20/Prog0.bpl
@@ -797,11 +829,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/z3api/boog18.bpl"});
 // generated test for examples/boogie/test/closable/z3api/boog1.bpl
 public void testBoogieParseexamples_boogie_test_closable_z3api_boog1() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/z3api/boog1.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/z3api/boog22.bpl
-public void testBoogieParseexamples_boogie_test_closable_z3api_boog22() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/z3api/boog22.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/z3api/boog28.bpl

@@ -65,6 +65,7 @@ public class BoogieParserTestCreator {
 
             out.write("package de.uka.iti.pseudo.parser.boogie;\n"
                     + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
+                    + "import de.uka.iti.pseudo.parser.boogie.environment.*;\n"
                     + "public class TestBoogieParser extends TestCaseWithEnv {\n\n");
 
             // create tests for each context

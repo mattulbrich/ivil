@@ -3,10 +3,15 @@ package de.uka.iti.pseudo.parser.boogie.environment;
 import java.util.HashMap;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
+import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 
 /**
  * Decorates information of Type T to ASTNodes. This behaves mostly like a map,
- * except for the fact, that annotations can only be written once.
+ * except for the fact, that annotations can only be written once. <b>
+ * 
+ * Note: ASTVisitException is used instead of ParseException, as the decorations
+ * should be used and created by ASTVisitors, which use ASTVisitExceptions to
+ * signal errors.
  * 
  * @author timm.felden@felden.com
  * 
@@ -25,9 +30,28 @@ public final class Decoration<T> {
         assert (has(key));
         return data.get(key);
     }
-    
-    public void add(ASTElement key, T annotation) {
-        assert(!has(key));
+
+    /**
+     * This method tries to find value in O(data.size()) time
+     * 
+     * @param value
+     *            value to be searched for
+     * @return the ASTElement e, that will satisfy "value == get(e)" or null, if
+     *         no such element exists. Its up to the creator of the Decoration
+     *         to ensure the returned value is useful
+     */
+    public ASTElement find(T value){
+        for (ASTElement e : data.keySet())
+            if (data.get(e).equals(value))
+                return e;
+
+        return null;
+    }
+
+    public void add(ASTElement key, T annotation) throws ASTVisitException {
+        if (has(key))
+            throw new ASTVisitException("Missing decoration for " + key.toString() + " defined @" + key.getLocation());
+
         data.put(key, annotation);
     }
 }
