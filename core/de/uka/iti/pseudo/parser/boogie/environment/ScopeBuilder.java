@@ -11,6 +11,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
@@ -120,6 +121,18 @@ public final class ScopeBuilder extends DefaultASTVisitor {
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
         scopeMap.add(node, globalScope);
+
+        push(node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        pop(node);
+    }
+
+    @Override
+    public void visit(Variable node) throws ASTVisitException {
+        scopeMap.add(node, activeScope());
 
         push(node);
 

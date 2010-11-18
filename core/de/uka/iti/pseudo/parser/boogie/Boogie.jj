@@ -137,6 +137,7 @@ TOKEN : {
 
 
 /* Operators */
+// TODO operator tokens, to make generated parser more readable
 TOKEN: {
   < OP_ASSIGN: ":=" >
 | < OP_MUL: "*" >

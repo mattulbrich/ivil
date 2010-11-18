@@ -31,6 +31,10 @@ public final class EnvironmentCreationState {
     final Scope globalScope = new Scope(null, null);
     final Decoration<Scope> scopeMap = new Decoration<Scope>();
 
+    // type information used for typechecking and lowering of expressions and
+    // declarations
+    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
+
     // namespaces are used to map names to ASTElements, to allow for access of
     // decorations by name and context
     final HashMap<String, ASTElement> functionSpace = new HashMap<String, ASTElement>();
@@ -58,7 +62,7 @@ public final class EnvironmentCreationState {
             new ScopeBuilder(root, globalScope, scopeMap);
 
         } catch (ASTVisitException e) {
-            throw new EnvironmentCreationException("Namespacecreation failed because of " + e.toString());
+            throw new EnvironmentCreationException("Scope creation failed because of " + e.toString());
         }
 
         try {
@@ -67,13 +71,18 @@ public final class EnvironmentCreationState {
             new NamespaceBuilder(this);
 
         } catch (ASTVisitException e) {
-            throw new TypeSystemException("Namespacecreation failed because of " + e.toString());
+            throw new TypeSystemException("Namespace creation failed because of " + e.toString());
         }
     }
 
-    public void createTypesystem() throws EnvironmentCreationException {
-        // create type table and check restrictions on type declarations and
-        // usage
+    public void createTypesystem() throws EnvironmentCreationException, TypeSystemException {
+        try {
+            new TypeMapBuilder(this);
+        } catch (ASTVisitException e) {
+            throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
+        }
+
+        // new TypeChecker(this);
 
         // create a mapping from table types to ivil types
     }
@@ -120,6 +129,7 @@ public final class EnvironmentCreationState {
         List<Decoration<?>> allDecorations = new LinkedList<Decoration<?>>();
 
         allDecorations.add(scopeMap);
+        allDecorations.add(typeMap);
         
         ASTVisitor debug = new DebugVisitor(allDecorations);
         try {
@@ -133,6 +143,8 @@ public final class EnvironmentCreationState {
         try{
             createNamespaces();
             
+            createTypesystem();
+
             // printDebugInformation();
 
             return null;

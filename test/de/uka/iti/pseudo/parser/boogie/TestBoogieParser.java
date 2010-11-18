@@ -201,6 +201,11 @@ public void testBoogieParseexamples_boogie_test_closable_test20_ProcParamReorder
 Parser.main(new String[] { "examples/boogie/test/closable/test20/ProcParamReordering.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/cyclicTypes.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_cyclicTypes() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/cyclicTypes.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/doomedContracts.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_doomedContracts() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/doomedContracts.bpl"});
