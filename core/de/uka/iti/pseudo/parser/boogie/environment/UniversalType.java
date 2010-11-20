@@ -13,6 +13,20 @@ import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
  */
 public class UniversalType {
 
+    // global instance for bool s
+    private static final UniversalType BOOL_T;
+    // global instance for int s
+    private static final UniversalType INT_T;
+
+    static {
+        // massive improvement, as it prevents a lot of bools and ints to be
+        // created
+
+        UniversalType[] tmp = new UniversalType[0];
+        BOOL_T = new UniversalType(false, "bool", null, tmp, tmp, tmp, null, 0);
+        INT_T = new UniversalType(false, "int", null, tmp, tmp, tmp, null, 0);
+    }
+
     /**
      * this is true iff this *type* is a placeholder for a polymorphic type
      * variable
@@ -57,18 +71,60 @@ public class UniversalType {
     final int rangeCount;
 
     /**
+     * As instances of this class can be created from a lot of objects,
+     * factories have been created to ensure intuitive usage and extension
+     * 
+     * @param isTypeVariable
+     *            true iff the type represents a variable used as type parameter
+     *            somewhere
+     * 
+     * @param name
+     *            a readable name of this type; in general the name should be
+     *            parsable to the defining type; exception to this rule are
+     *            procedure types, as they use rangeCounts which have no boogie
+     *            equivalent
+     * 
+     * @param aliasname
+     *            used by type synonyms to allow for pretty printing
+     * 
+     * @param parameters
+     *            list of type parameters declared at this level, all parameters
+     *            need to be type variables
+     * 
+     * @param templTypes
+     *            used for arguments to so called type constructors
+     * 
+     * @param domain
+     *            the domain of a map type
+     * 
+     * @param range
+     *            the range of a map type or function or procedure
+     * 
+     * @param rangeCount
+     *            number of results of procedures; for simplicity reasons, this
+     *            is also used for the other types with ranges
+     */
+    private UniversalType(boolean isTypeVariable, String name, String aliasname, UniversalType[] parameters,
+            UniversalType[] templTypes, UniversalType[] domain, UniversalType range, int rangeCount) {
+        this.isTypeVariable = isTypeVariable;
+        this.name = name;
+        this.aliasname = aliasname;
+        this.parameters = parameters;
+        this.templateArguments = templTypes;
+        this.domain = domain;
+        this.range = range;
+        this.rangeCount = rangeCount;
+    }
+
+    /**
      * Create typeparameter from String.
      * 
      * @param s
      *            name of the typeparameter
      */
-    UniversalType(String s) {
-        isTypeVariable = true;
-        name = s;
-        aliasname = null;
-        domain = templateArguments = parameters = new UniversalType[0];
-        range = null;
-        rangeCount = 0;
+    static UniversalType newTypeParameter(String s) {
+        UniversalType[] tmp = new UniversalType[0];
+        return new UniversalType(true, s, null, tmp, tmp, tmp, null, 0);
     }
 
     /**
@@ -76,45 +132,28 @@ public class UniversalType {
      * 
      * @param t
      */
-    public UniversalType(BuiltInType t){
-        isTypeVariable = false;
-        name = t.getPrettyName();
-        aliasname = null;
-        domain = templateArguments = parameters = new UniversalType[0];
-        range = null;
-        rangeCount = 0;
+    static UniversalType newBasicType(BuiltInType t) {
+        if (t.isBool())
+            return BOOL_T;
+        else if (t.isInt())
+            return INT_T;
+
+        UniversalType[] tmp = new UniversalType[0];
+        return new UniversalType(false, t.getPrettyName(), null, tmp, tmp, tmp, null, 0);
     }
 
     /**
-     * Creates a new bool. This constructor is needed, as some expressions
-     * always return bool.
-     * 
-     * @param b
-     *            only needed to change constructor signature
+     * Creates a new bool.
      */
-    public UniversalType(final boolean b) {
-        isTypeVariable = false;
-        name = "bool";
-        aliasname = null;
-        domain = templateArguments = parameters = new UniversalType[0];
-        range = null;
-        rangeCount = 0;
+    static UniversalType newBool() {
+        return BOOL_T;
     }
 
     /**
-     * Creates a new int. This constructor is needed, as some expressions always
-     * return int.
-     * 
-     * @param b
-     *            only needed to change constructor signature
+     * Creates a new int.
      */
-    public UniversalType(final int b) {
-        isTypeVariable = false;
-        name = "int";
-        aliasname = null;
-        domain = templateArguments = parameters = new UniversalType[0];
-        range = null;
-        rangeCount = 0;
+    static UniversalType newInt() {
+        return INT_T;
     }
 
     /**
@@ -125,53 +164,46 @@ public class UniversalType {
      * @param range
      * @param rangeCount
      */
-    public UniversalType(List<UniversalType> param, List<UniversalType> domain, UniversalType range, int rangeCount) {
-        isTypeVariable = false;
-        templateArguments = null;
-
-        this.parameters = param.toArray(new UniversalType[param.size()]);
-        this.domain = domain.toArray(new UniversalType[domain.size()]);
-        this.range = range;
-
-        this.rangeCount = rangeCount;
-
-        this.aliasname = null;
+    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
+            int rangeCount) {
 
         // construct a nice name a la <...>[...]...
         StringBuffer buf = new StringBuffer();
 
-        if (0 != this.parameters.length) {
+        if (0 != parameters.size()) {
 
             buf.append("< ");
-            for (int i = 0; i < this.parameters.length - 1; i++) {
-                buf.append(this.parameters[i].name);
+            for (int i = 0; i < parameters.size() - 1; i++) {
+                buf.append(parameters.get(i).name);
                 buf.append(", ");
             }
-            buf.append(this.parameters[this.parameters.length - 1].name);
+            buf.append(parameters.get(parameters.size() - 1).name);
             buf.append(" >");
         }
 
         buf.append("[");
-        if (0 != this.domain.length) {
+        if (0 != domain.size()) {
             buf.append(" ");
-            for (int i = 0; i < this.domain.length - 1; i++) {
-                buf.append(this.domain[i].name);
+            for (int i = 0; i < domain.size() - 1; i++) {
+                buf.append(domain.get(i).name);
                 buf.append(", ");
             }
-            buf.append(this.domain[this.domain.length - 1].name);
+            buf.append(domain.get(domain.size() - 1).name);
             buf.append(" ");
         }
         buf.append("]");
         if (1 == rangeCount)
-            buf.append(this.range.name);
+            buf.append(range.name);
         else {
             buf.append("returns (");
             for (int i = 0; i < rangeCount; i++)
-                buf.append(this.range.name);
+                buf.append(range.name);
             buf.append(")");
         }
 
-        this.name = buf.toString();
+        return new UniversalType(false, buf.toString(), null, parameters.toArray(new UniversalType[parameters.size()]),
+                null, domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
+
     }
 
     /**
@@ -187,7 +219,7 @@ public class UniversalType {
          * For example, the types [int]bool and α [α]bool are not compatible.
          * !!!
          */
-        
+
         // TODO implement
         return false;
     }

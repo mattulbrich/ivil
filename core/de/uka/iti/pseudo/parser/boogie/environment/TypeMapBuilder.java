@@ -12,23 +12,12 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
-import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
-import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
@@ -38,50 +27,35 @@ import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecParent;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
 import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
-import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UserDefinedTypeDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
@@ -126,7 +100,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null != getParameter(name, scope))
             throw new ASTVisitException("Typeparameter " + name + " is already defined.");
 
-        typeparameterMap.get(scope).add(new UniversalType(name));
+        typeparameterMap.get(scope).add(UniversalType.newTypeParameter(name));
     }
 
     private Scope pushNewScope(ASTElement node) {
@@ -152,11 +126,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      */
     private void setTypeSameAs(ASTElement node, ASTElement typeNode) throws ASTVisitException {
         if (state.typeMap.has(typeNode))
-                state.typeMap.add(node, state.typeMap.get(typeNode));
+            state.typeMap.add(node, state.typeMap.get(typeNode));
         else
             todo.add(node);
     }
-
 
     public TypeMapBuilder(EnvironmentCreationState environmentCreationState) throws TypeSystemException,
             ASTVisitException {
@@ -232,7 +205,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 }
 
-                state.typeMap.add(node, new UniversalType(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
+                state.typeMap.add(node,
+                        UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
             } else {
                 todo.add(node);
                 return;
@@ -245,7 +219,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BuiltInType node) throws ASTVisitException {
-        state.typeMap.add(node, new UniversalType(node));
+        state.typeMap.add(node, UniversalType.newBasicType(node));
     }
 
     @Override
@@ -265,7 +239,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             todo.add(node);
             return;
         }
-        
+
         if (0 == type.templateArguments.length) {
             state.typeMap.add(node, type);
         } else {
@@ -300,7 +274,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 }
 
-                state.typeMap.add(node, new UniversalType(param, domain, state.typeMap.get(node.getRange()), 1));
+                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), 1));
             } else {
                 todo.add(node);
                 return;
@@ -348,9 +322,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             // procedures can have return type void. as there is no void type, 0
             // bools are returned, what will have the same effect
-            state.typeMap.add(node, new UniversalType(param, domain, 0 == outLength ? new UniversalType(true)
-                    : state.typeMap.get(node.getOutParameters().get(0)),
-                    outLength));
+            state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
+                    : state.typeMap.get(node.getOutParameters().get(0)), outLength));
 
         } finally {
             paramScopeStack.pop();
@@ -394,7 +367,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             // procedures can have return type void. as there is no void type, 0
             // bools are returned, what will have the same effect
-            state.typeMap.add(node, new UniversalType(param, domain, 0 == outLength ? new UniversalType(true)
+            state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
                     : state.typeMap.get(node.getOutParameters().get(0)), outLength));
 
         } finally {
@@ -407,50 +380,56 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(Variable node) throws ASTVisitException {
         for (ASTElement n : node.getChildren())
             n.visit(this);
-        
+
         setTypeSameAs(node, node.getType());
     }
 
-
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        // das hier überarbeiten, vielleicht ist hier ein redesign notwendig
+        // TODO das hier überarbeiten, vielleicht ist hier ein redesign
+        // notwendig
     }
 
     @Override
     public void visit(PartialLessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        throw new ASTVisitException("implement types for bitvectors");
     }
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        throw new ASTVisitException("implement types for bitvectors");
 
     }
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        throw new ASTVisitException("implement types for bitvectors");
 
     }
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        // get base type from name expression
+
+        // get replace type parameters in base type by infered types from
+        // arguments
+
+        // decorate new type
+
+        // TODO implementation
     }
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // /
     }
 
     @Override
@@ -491,7 +470,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        state.typeMap.add(node, new UniversalType(true));
+        state.typeMap.add(node, UniversalType.newBool());
     }
 
     @Override
@@ -499,7 +478,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        state.typeMap.add(node, new UniversalType(true));
+        state.typeMap.add(node, UniversalType.newBool());
     }
 
     @Override
@@ -531,116 +510,114 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             todo.add(node);
     }
 
-
     @Override
     public void visit(LoopInvariant node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
-
 
     @Override
     public void visit(WildcardExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(AdditionExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(SubtractionExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(ImpliesExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(AndExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(OrExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(EqualsNotExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(LessExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(LessThenExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(GreaterExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(GreaterThenExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(MultiplicationExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(DivisionExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(ModuloExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(UnaryMinusExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(NegationExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(IntegerExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(0));
+        defaultAction(node, UniversalType.newInt());
     }
 
     @Override
     public void visit(TrueExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(FalseExpression node) throws ASTVisitException {
-        defaultAction(node, new UniversalType(true));
+        defaultAction(node, UniversalType.newBool());
     }
 
 }
