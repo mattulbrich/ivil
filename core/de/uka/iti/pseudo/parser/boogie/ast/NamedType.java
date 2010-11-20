@@ -34,4 +34,8 @@ public abstract class NamedType extends Type {
     public int getArity() {
         return arity;
     }
+
+    public String getName() {
+        return name.image;
+    }
 }

@@ -48,7 +48,7 @@ public class ProcedureDeclaration extends DeclarationBlock {
         return name;
     }
 
-    public List<String> getTypeParameterns() {
+    public List<String> getTypeParameters() {
         return Collections.unmodifiableList(typeParameters);
     }
 

@@ -33,7 +33,7 @@ public final class EnvironmentCreationState {
 
     // type information used for typechecking and lowering of expressions and
     // declarations
-    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
+    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>(true);
 
     // namespaces are used to map names to ASTElements, to allow for access of
     // decorations by name and context
@@ -79,10 +79,18 @@ public final class EnvironmentCreationState {
         try {
             new TypeMapBuilder(this);
         } catch (ASTVisitException e) {
+            printDebugInformation();
+            e.printStackTrace();
+
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
+        } catch (TypeSystemException e) {
+            printDebugInformation();
+            throw e;
         }
 
         // new TypeChecker(this);
+
+        // remove duplicates
 
         // create a mapping from table types to ivil types
     }
@@ -105,9 +113,16 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
-        System.out.println("usable type names:");
+        System.out.println("directly usable type names:");
         for (String n : typeSpace.keySet()) {
             System.out.println("\t" + n);
+        }
+        System.out.println("");
+
+        System.out.println("seen types:");
+        for (UniversalType t : typeMap.valueSet()) {
+            if (t != null)
+                System.out.println("\t" + t.name);
         }
         System.out.println("");
 
@@ -145,7 +160,7 @@ public final class EnvironmentCreationState {
             
             createTypesystem();
 
-            // printDebugInformation();
+            printDebugInformation();
 
             return null;
 

@@ -1,0 +1,5 @@
+AUTHOR: Timm Felden
+
+Most of the examples here were written to test the boogie integration, thus many cant be verified.
+
+Verifieable examples have copies in ../test/closable/tfe_test

@@ -1,6 +1,10 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -83,295 +87,334 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
  * This objects of this class have the only purpose of decorating ASTElements
- * with types. No typechecking is done.
+ * with types. No typechecking is done. After construction of a TypeMapBuilder
+ * it is safe to assume that typedefinitions are acyclic.
+ * 
+ * @note if this class consumes a lot of time, try to use a better datastructure
+ *       for todo
  * 
  * @author timm.felden@felden.com
  * 
  */
 public final class TypeMapBuilder extends DefaultASTVisitor {
-    final EnvironmentCreationState state;
+    private final EnvironmentCreationState state;
 
-    final Set<ASTElement> todo = new HashSet<ASTElement>();
+    private final Set<ASTElement> todo = new HashSet<ASTElement>();
 
-    final Stack<UniversalType> paramStack = new Stack<UniversalType>();
+    // stack of scopes used for parameter interpretation. this is needed, as
+    // types can be declared as <a>[<b>[b]a, <b>[b]a]a, where first b and socond
+    // b are different
+    private final Stack<Scope> paramScopeStack = new Stack<Scope>();
+
+    // access using getParameter
+    private final Map<Scope, List<UniversalType>> typeparameterMap = new HashMap<Scope, List<UniversalType>>();
+
+    private UniversalType getParameter(String name, Scope scope) {
+        while (null != scope.parent) {
+            for (UniversalType t : typeparameterMap.get(scope)) {
+                if (t.name.equals(name))
+                    return t;
+            }
+            scope = scope.parent;
+        }
+        assert scope == state.globalScope;
+        return null;
+    }
+
+    private void addParameter(String name, Scope scope) throws ASTVisitException {
+        assert paramScopeStack.peek() == scope;
+        if (null != getParameter(name, scope))
+            throw new ASTVisitException("Typeparameter " + name + " is already defined.");
+
+        typeparameterMap.get(scope).add(new UniversalType(name));
+    }
+
+    private Scope pushNewScope(ASTElement node) {
+        List<UniversalType> param = new LinkedList<UniversalType>();
+        Scope rval = new Scope(paramScopeStack.peek(), node);
+        paramScopeStack.push(rval);
+        typeparameterMap.put(paramScopeStack.peek(), param);
+        return rval;
+    }
+
+    /**
+     * this function will set the type of this node to the same type as child
+     * node and will enqueue node, if typeNode has no type decoration
+     * 
+     * @param node
+     *            the node that will receive type information
+     * @param typeNode
+     *            node to be queried for type information
+     * 
+     * @throws ASTVisitException
+     *             thrown in case of duplicate call with the same argument for
+     *             node, as the node will be decorated twice
+     */
+    private void setTypeSameAs(ASTElement node, ASTElement typeNode) throws ASTVisitException {
+        if (state.typeMap.has(typeNode))
+                state.typeMap.add(node, state.typeMap.get(typeNode));
+        else
+            todo.add(node);
+    }
+
 
     public TypeMapBuilder(EnvironmentCreationState environmentCreationState) throws TypeSystemException,
             ASTVisitException {
         state = environmentCreationState;
 
+        paramScopeStack.push(state.globalScope);
+
         // start from root
         visit(state.root);
 
+        assert paramScopeStack.peek() == state.globalScope && typeparameterMap.get(state.globalScope) == null;
+
         while (todo.size() != 0) {
-            ASTElement[] next = (ASTElement[]) todo.toArray();
+            ASTElement[] next = todo.toArray(new ASTElement[todo.size()]);
+            todo.clear();
+
             for (int i = 0; i < next.length; i++) {
                 next[i].visit(this);
             }
             if (next.length == todo.size()) {
-                String cycle = "{ ";
+                String problems = "\n";
                 for (int i = 0; i < next.length; i++)
-                    cycle += next[i].getLocation();
-                cycle += "}";
+                    problems += "\t" + next[i].getLocation() + "  " + next[i].toString() + "\n";
 
-                throw new TypeSystemException("types defined @" + cycle + " contain cycles!");
+                throw new TypeSystemException(
+                        "types of the following nodes contain cycles or are used without definition:" + problems);
             }
         }
     }
 
-    @Override
-    protected void defaultAction(ASTElement node) throws ASTVisitException {
-        state.typeMap.add(node, null);
+    /**
+     * Default action setting a static type, no matter where this node occurs or
+     * what its arguments are.
+     */
+    protected void defaultAction(ASTElement node, UniversalType type) throws ASTVisitException {
+        if (!state.typeMap.has(node))
+            state.typeMap.add(node, type);
 
         for (ASTElement n : node.getChildren()) {
             n.visit(this);
         }
     }
 
-
     @Override
-    public void visit(FunctionDeclaration node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+    protected void defaultAction(ASTElement node) throws ASTVisitException {
+        defaultAction(node, null);
     }
 
     @Override
-    public void visit(GlobalVariableDeclaration node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+    public void visit(FunctionDeclaration node) throws ASTVisitException {
+        // functions can have polymorphic types, so push typeargs
+        Scope scope = pushNewScope(node);
+        for (String s : node.getTypeParameters()) {
+            addParameter(s, scope);
+        }
+        List<UniversalType> param = typeparameterMap.get(scope);
 
+        try {
+
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
+
+            if (state.typeMap.has(node.getOutParemeter())) {
+                List<UniversalType> domain = new LinkedList<UniversalType>();
+
+                for (ASTElement n : node.getInParameters()) {
+                    if (state.typeMap.has(n))
+                        domain.add(state.typeMap.get(n));
+                    else {
+                        todo.add(node);
+                        return;
+                    }
+
+                }
+
+                state.typeMap.add(node, new UniversalType(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
+            } else {
+                todo.add(node);
+                return;
+            }
+
+        } finally {
+            paramScopeStack.pop();
+        }
     }
 
     @Override
     public void visit(BuiltInType node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        state.typeMap.add(node, new UniversalType(node));
     }
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(UserDefinedTypeDeclaration node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // has no children, do typechecking, duplicate arguments are only
+        // allowed, if no synonym is declared
     }
 
     @Override
     public void visit(TemplateType node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // if the type has arguments, create a new type, if not, return the
+        // already existing type
 
+        UniversalType type = getParameter(node.getName(), paramScopeStack.peek());
+
+        if (null == type) {
+            todo.add(node);
+            return;
+        }
+        
+        if (0 == type.templateArguments.length) {
+            state.typeMap.add(node, type);
+        } else {
+            // we have to create a new type
+        }
     }
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
+        Scope scope = pushNewScope(node);
+        for (String s : node.getTypeParameters()) {
+            addParameter(s, scope);
+        }
+        List<UniversalType> param = typeparameterMap.get(scope);
+
+        try {
+
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
+
+            if (state.typeMap.has(node.getRange())) {
+                List<UniversalType> domain = new LinkedList<UniversalType>();
+
+                for (ASTElement n : node.getDomain()) {
+                    if (state.typeMap.has(n))
+                        domain.add(state.typeMap.get(n));
+                    else {
+                        todo.add(node);
+                        return;
+                    }
+
+                }
+
+                state.typeMap.add(node, new UniversalType(param, domain, state.typeMap.get(node.getRange()), 1));
+            } else {
+                todo.add(node);
+                return;
+            }
+
+        } finally {
+            paramScopeStack.pop();
+        }
     }
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // functions can have polymorphic types, so push typeargs
+        Scope scope = pushNewScope(node);
+        for (String s : node.getTypeParameters()) {
+            addParameter(s, scope);
+        }
+        List<UniversalType> param = typeparameterMap.get(scope);
 
-    }
+        try {
 
-    @Override
-    public void visit(Precondition node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
 
-    }
+            for (ASTElement n : node.getOutParameters()) {
+                if (!state.typeMap.has(n)) {
+                    todo.add(node);
+                    return;
+                }
 
-    @Override
-    public void visit(ModifiesClause node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+            }
+            List<UniversalType> domain = new LinkedList<UniversalType>();
 
-    }
+            for (ASTElement n : node.getInParameters()) {
+                if (state.typeMap.has(n))
+                    domain.add(state.typeMap.get(n));
+                else {
+                    todo.add(node);
+                    return;
+                }
 
-    @Override
-    public void visit(Postcondition node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+            }
 
+            int outLength = node.getOutParameters().size();
+
+            // procedures can have return type void. as there is no void type, 0
+            // bools are returned, what will have the same effect
+            state.typeMap.add(node, new UniversalType(param, domain, 0 == outLength ? new UniversalType(true)
+                    : state.typeMap.get(node.getOutParameters().get(0)),
+                    outLength));
+
+        } finally {
+            paramScopeStack.pop();
+        }
     }
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // functions can have polymorphic types, so push typeargs
+        Scope scope = pushNewScope(node);
+        for (String s : node.getTypeParameters()) {
+            addParameter(s, scope);
+        }
+        List<UniversalType> param = typeparameterMap.get(scope);
+
+        try {
+
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
+
+            for (ASTElement n : node.getOutParameters()) {
+                if (!state.typeMap.has(n)) {
+                    todo.add(node);
+                    return;
+                }
+
+            }
+            List<UniversalType> domain = new LinkedList<UniversalType>();
+
+            for (ASTElement n : node.getInParameters()) {
+                if (state.typeMap.has(n))
+                    domain.add(state.typeMap.get(n));
+                else {
+                    todo.add(node);
+                    return;
+                }
+
+            }
+
+            int outLength = node.getOutParameters().size();
+
+            // procedures can have return type void. as there is no void type, 0
+            // bools are returned, what will have the same effect
+            state.typeMap.add(node, new UniversalType(param, domain, 0 == outLength ? new UniversalType(true)
+                    : state.typeMap.get(node.getOutParameters().get(0)), outLength));
+
+        } finally {
+            paramScopeStack.pop();
+        }
 
     }
 
     @Override
-    public void visit(LocalVariableDeclaration node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+    public void visit(Variable node) throws ASTVisitException {
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+        
+        setTypeSameAs(node, node.getType());
     }
 
-    @Override
-    public void visit(ProcedureBody node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(GotoStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ReturnStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(IfStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(LoopInvariant node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(WhileStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(BreakStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(AssertionStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(AssumptionStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(HavocStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(WildcardExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(CallForallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(CallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(LabelStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(AssignmentStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(AdditionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(SubtractionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EquivalenceExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ImpliesExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(AndExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(OrExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EqualsExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(EqualsNotExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(LessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(LessThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(GreaterExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(GreaterThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // das hier überarbeiten, vielleicht ist hier ein redesign notwendig
     }
 
     @Override
@@ -382,42 +425,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(MultiplicationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(DivisionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ModuloExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(UnaryMinusExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NegationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(IntegerExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
     }
@@ -441,18 +448,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(TrueExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(FalseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
@@ -466,8 +461,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(VariableUsageExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        // find declaration of this variable to get the type of the declaration
+        Scope scope = state.scopeMap.get(node);
+        ASTElement definition = null;
+        for (; definition == null && scope != null; scope = scope.parent) {
+            definition = state.variableSpace.get(new Pair<String, Scope>(node.getName(), scope));
+        }
+
+        setTypeSameAs(node, definition);
     }
 
     @Override
@@ -484,14 +488,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ForallExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        state.typeMap.add(node, new UniversalType(true));
     }
 
     @Override
     public void visit(ExistsExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        state.typeMap.add(node, new UniversalType(true));
     }
 
     @Override
@@ -507,18 +515,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(AttributeParameter node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(Attribute node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(Trigger node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
@@ -526,20 +522,125 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        if (state.typeMap.has(node.getType()))
+            state.typeMap.add(node, state.typeMap.get(node.getType()));
+        else
+            todo.add(node);
+    }
+
+
+    @Override
+    public void visit(LoopInvariant node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+
+    @Override
+    public void visit(WildcardExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
     }
 
     @Override
-    public void visit(OrderSpecParent node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+    public void visit(AdditionExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
     }
 
     @Override
-    public void visit(OrderSpecification node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+    public void visit(SubtractionExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
 
+    @Override
+    public void visit(EquivalenceExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(ImpliesExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(AndExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(OrExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(EqualsExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(EqualsNotExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(LessExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(LessThenExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(GreaterExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(GreaterThenExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(MultiplicationExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
+
+    @Override
+    public void visit(DivisionExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
+
+    @Override
+    public void visit(ModuloExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
+
+    @Override
+    public void visit(UnaryMinusExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
+
+    @Override
+    public void visit(NegationExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(IntegerExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(0));
+    }
+
+    @Override
+    public void visit(TrueExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
+    }
+
+    @Override
+    public void visit(FalseExpression node) throws ASTVisitException {
+        defaultAction(node, new UniversalType(true));
     }
 
 }

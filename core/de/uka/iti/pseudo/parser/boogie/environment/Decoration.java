@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
@@ -21,6 +22,15 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 public final class Decoration<T> {
     
     private final HashMap<ASTElement, T> data = new HashMap<ASTElement, T>();
+    private final boolean allowRedecoration;
+
+    public Decoration() {
+        allowRedecoration = false;
+    }
+
+    public Decoration(boolean allowRedecoration) {
+        this.allowRedecoration = allowRedecoration;
+    }
     
     public boolean has(ASTElement key){
         return data.containsKey(key);
@@ -49,9 +59,14 @@ public final class Decoration<T> {
     }
 
     public void add(ASTElement key, T annotation) throws ASTVisitException {
-        if (has(key))
-            throw new ASTVisitException("Missing decoration for " + key.toString() + " defined @" + key.getLocation());
+        if (!allowRedecoration && has(key))
+            throw new ASTVisitException("Unallowed redecoration for " + key.toString() + " defined @"
+                    + key.getLocation());
 
         data.put(key, annotation);
+    }
+
+    public Collection<T> valueSet() {
+        return data.values();
     }
 }

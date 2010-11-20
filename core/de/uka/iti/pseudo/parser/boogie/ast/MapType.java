@@ -5,22 +5,23 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class MapType extends Type {
 
     private final Token location;
-    private final List<Token> params;
+    private final List<String> params;
     private final List<Type> domain;
     private final Type range;
 
     public MapType(Token first, List<Token> params, List<Type> domain, Type range) {
         location = first;
-        this.params = params;
+        this.params = ASTConversions.toStringList(params);
         this.domain = domain;
         this.range = range;
 
-        // no children are added, as its not expected to be usefull to walk over
-        // them with a visitor
+        addChildren(domain);
+        addChild(range);
     }
 
     @Override
@@ -33,7 +34,7 @@ public final class MapType extends Type {
         v.visit(this);
     }
 
-    public List<Token> getParams() {
+    public List<String> getTypeParameters() {
         return params;
     }
 

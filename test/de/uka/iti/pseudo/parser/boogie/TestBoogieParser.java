@@ -201,9 +201,29 @@ public void testBoogieParseexamples_boogie_test_closable_test20_ProcParamReorder
 Parser.main(new String[] { "examples/boogie/test/closable/test20/ProcParamReordering.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/duplicateTypeArguments.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_duplicateTypeArguments() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/duplicateTypeArguments.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/cyclicTypes.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_cyclicTypes() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/cyclicTypes.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/duplicateTypeParameters.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_duplicateTypeParameters() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/duplicateTypeParameters.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams2.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams2() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams2.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/doomedContracts.bpl

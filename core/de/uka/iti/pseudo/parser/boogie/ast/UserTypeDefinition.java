@@ -19,9 +19,6 @@ final public class UserTypeDefinition extends ASTElement {
         this.name = name;
         this.argnames = argnames;
         this.definition = parent;
-
-        if (null != definition)
-            addChild(definition);
     }
 
     @Override

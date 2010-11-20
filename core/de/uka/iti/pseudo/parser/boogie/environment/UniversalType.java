@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 
 /**
@@ -23,7 +25,7 @@ public class UniversalType {
     final String name;
 
     /**
-     * this field will be nonnull if the type equals a type synonym
+     * this field will be nonnull iff the type equals a type synonym
      */
     final String aliasname;
 
@@ -43,14 +45,133 @@ public class UniversalType {
      */
     final UniversalType[] domain;
 
+    /**
+     * contains the range type
+     */
     final UniversalType range;
 
+    /**
+     * as procedures can return multiple results of type range, we need a
+     * rangeCount to express that fact
+     */
+    final int rangeCount;
+
+    /**
+     * Create typeparameter from String.
+     * 
+     * @param s
+     *            name of the typeparameter
+     */
+    UniversalType(String s) {
+        isTypeVariable = true;
+        name = s;
+        aliasname = null;
+        domain = templateArguments = parameters = new UniversalType[0];
+        range = null;
+        rangeCount = 0;
+    }
+
+    /**
+     * Create universal equivalent of built in types.
+     * 
+     * @param t
+     */
     public UniversalType(BuiltInType t){
         isTypeVariable = false;
         name = t.getPrettyName();
         aliasname = null;
         domain = templateArguments = parameters = new UniversalType[0];
         range = null;
+        rangeCount = 0;
+    }
+
+    /**
+     * Creates a new bool. This constructor is needed, as some expressions
+     * always return bool.
+     * 
+     * @param b
+     *            only needed to change constructor signature
+     */
+    public UniversalType(final boolean b) {
+        isTypeVariable = false;
+        name = "bool";
+        aliasname = null;
+        domain = templateArguments = parameters = new UniversalType[0];
+        range = null;
+        rangeCount = 0;
+    }
+
+    /**
+     * Creates a new int. This constructor is needed, as some expressions always
+     * return int.
+     * 
+     * @param b
+     *            only needed to change constructor signature
+     */
+    public UniversalType(final int b) {
+        isTypeVariable = false;
+        name = "int";
+        aliasname = null;
+        domain = templateArguments = parameters = new UniversalType[0];
+        range = null;
+        rangeCount = 0;
+    }
+
+    /**
+     * Create a map out of parameter, domain and range.
+     * 
+     * @param param
+     * @param domain
+     * @param range
+     * @param rangeCount
+     */
+    public UniversalType(List<UniversalType> param, List<UniversalType> domain, UniversalType range, int rangeCount) {
+        isTypeVariable = false;
+        templateArguments = null;
+
+        this.parameters = param.toArray(new UniversalType[param.size()]);
+        this.domain = domain.toArray(new UniversalType[domain.size()]);
+        this.range = range;
+
+        this.rangeCount = rangeCount;
+
+        this.aliasname = null;
+
+        // construct a nice name a la <...>[...]...
+        StringBuffer buf = new StringBuffer();
+
+        if (0 != this.parameters.length) {
+
+            buf.append("< ");
+            for (int i = 0; i < this.parameters.length - 1; i++) {
+                buf.append(this.parameters[i].name);
+                buf.append(", ");
+            }
+            buf.append(this.parameters[this.parameters.length - 1].name);
+            buf.append(" >");
+        }
+
+        buf.append("[");
+        if (0 != this.domain.length) {
+            buf.append(" ");
+            for (int i = 0; i < this.domain.length - 1; i++) {
+                buf.append(this.domain[i].name);
+                buf.append(", ");
+            }
+            buf.append(this.domain[this.domain.length - 1].name);
+            buf.append(" ");
+        }
+        buf.append("]");
+        if (1 == rangeCount)
+            buf.append(this.range.name);
+        else {
+            buf.append("returns (");
+            for (int i = 0; i < rangeCount; i++)
+                buf.append(this.range.name);
+            buf.append(")");
+        }
+
+        this.name = buf.toString();
     }
 
     /**
@@ -59,7 +180,7 @@ public class UniversalType {
      * "<a>[a]int" or as "<a>[a]a"
      * 
      * @param t
-     * @return
+     * @return true, iff one could completely replace t with this
      */
     public boolean compatible(UniversalType t) {
         /*
@@ -71,8 +192,20 @@ public class UniversalType {
         return false;
     }
 
-    public boolean comparable(UniversalType t) {
+    /**
+     * One can assign into or from polymorphic types, as Objects of type <a>
+     * might be ints or <b>s
+     * 
+     * @param t
+     * @return true, if one could assign t to a variable of type this
+     */
+    public boolean assignable(UniversalType t) {
 
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

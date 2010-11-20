@@ -30,9 +30,10 @@ public final class DebugVisitor extends DefaultASTVisitor {
         System.out.println(prefix + node.toString());
 
         for (Decoration<?> decor : decorations) {
-            if (decor.has(node))
-                System.out.println(prefix + "\u21B3" + decor.get(node).toString());
-            else
+            if (decor.has(node)) {
+                Object d = decor.get(node);
+                System.out.println(prefix + "\u21B3" + (null == d ? "(null)" : d.toString()));
+            } else
                 System.out.println(prefix + "\u21B3\u2205");
         }
 
