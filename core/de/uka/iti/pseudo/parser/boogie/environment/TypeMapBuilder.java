@@ -125,6 +125,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      *             node, as the node will be decorated twice
      */
     private void setTypeSameAs(ASTElement node, ASTElement typeNode) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
+
         if (state.typeMap.has(typeNode))
             state.typeMap.add(node, state.typeMap.get(typeNode));
         else
@@ -540,18 +543,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ForallExpression node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        state.typeMap.add(node, UniversalType.newBool());
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override
     public void visit(ExistsExpression node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        state.typeMap.add(node, UniversalType.newBool());
+        defaultAction(node, UniversalType.newBool());
     }
 
     @Override

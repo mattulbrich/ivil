@@ -50,9 +50,7 @@ public final class Decoration<T> {
     }
 
     public void add(ASTElement key, T annotation) throws ASTVisitException {
-        if (has(key))
-            throw new ASTVisitException("Unallowed redecoration for " + key.toString() + " defined @"
-                    + key.getLocation());
+        assert !has(key);
 
         data.put(key, annotation);
     }
