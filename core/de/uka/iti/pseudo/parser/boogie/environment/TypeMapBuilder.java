@@ -167,6 +167,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     protected void defaultAction(ASTElement node, UniversalType type) throws ASTVisitException {
         if (!state.typeMap.has(node))
             state.typeMap.add(node, type);
+        else
+            return;
 
         for (ASTElement n : node.getChildren()) {
             n.visit(this);
@@ -219,11 +221,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BuiltInType node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
+
         state.typeMap.add(node, UniversalType.newBasicType(node));
     }
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
 
         if (null == node.getDefinition()) {
             // simple case, a new type with template arguments is defined
@@ -261,21 +268,24 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(TemplateType node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
+
         // FIXME testBoogieParseexamples_boogie_test_closable_test1_Family
 
         // if the type has arguments, create a new type, if not, return the
         // already existing type
 
-        UniversalType type;
-        ASTElement declaration;
-        if (null != (declaration = state.typeSpace.get(node.getName()))) {
-            if(state.typeMap.has(declaration))
-                type = state.typeMap.get(declaration);
-            else
-                type = null;
+        UniversalType type = getParameter(node.getName(), paramScopeStack.peek());
+        if (null == type) {
+            ASTElement declaration = state.typeSpace.get(node.getName());
+            if (null != declaration) {
+                if (state.typeMap.has(declaration))
+                    type = state.typeMap.get(declaration);
+                else
+                    type = null;
+            }
         }
-        else
-            type = getParameter(node.getName(), paramScopeStack.peek());
 
         if (null == type) {
             todo.add(node);
@@ -290,12 +300,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 e.visit(this);
                 if (!state.typeMap.has(e)) {
                     todo.add(node);
+                    return;
                 }
             }
 
             List<UniversalType> arguments = new LinkedList<UniversalType>();
-            for (Type t : node.getArguments())
+            for (Type t : node.getArguments()) {
                 arguments.add(state.typeMap.get(t));
+            }
 
             state.typeMap.add(node, UniversalType.newTemplateType(type, arguments));
         }
@@ -303,6 +315,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
 
         Scope scope = pushNewScope(node);
         for (String s : node.getTypeParameters()) {
@@ -454,18 +468,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        throw new ASTVisitException("implement types for bitvectors");
+        // FIXME bitvector
     }
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        throw new ASTVisitException("implement types for bitvectors");
-
+        defaultAction(node, UniversalType.newBitvector(1 + node.getFirst() - node.getLast()));
     }
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        throw new ASTVisitException("implement types for bitvectors");
+        // FIXME bitvector
 
     }
 
@@ -486,7 +499,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        throw new ASTVisitException("implement types for bitvectors");
+        defaultAction(node, UniversalType.newBitvector(node.getDimension()));
     }
 
     @Override

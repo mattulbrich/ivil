@@ -22,15 +22,6 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 public final class Decoration<T> {
     
     private final HashMap<ASTElement, T> data = new HashMap<ASTElement, T>();
-    private final boolean allowRedecoration;
-
-    public Decoration() {
-        allowRedecoration = false;
-    }
-
-    public Decoration(boolean allowRedecoration) {
-        this.allowRedecoration = allowRedecoration;
-    }
     
     public boolean has(ASTElement key){
         return data.containsKey(key);
@@ -59,7 +50,7 @@ public final class Decoration<T> {
     }
 
     public void add(ASTElement key, T annotation) throws ASTVisitException {
-        if (!allowRedecoration && has(key))
+        if (has(key))
             throw new ASTVisitException("Unallowed redecoration for " + key.toString() + " defined @"
                     + key.getLocation());
 

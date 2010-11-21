@@ -159,6 +159,20 @@ public class UniversalType {
     }
 
     /**
+     * Creates a new bitvector type.
+     * 
+     * @param dimension
+     *            the dimension the new type will have
+     * @return a fresh universal type
+     */
+    static UniversalType newBitvector(int dimension) {
+        assert dimension > 0;
+
+        UniversalType[] tmp = new UniversalType[0];
+        return new UniversalType(false, "bv" + dimension, null, tmp, tmp, tmp, null, 0);
+    }
+
+    /**
      * Create a new anonymous template type definition.
      * 
      * @param name
@@ -184,10 +198,13 @@ public class UniversalType {
      */
     static UniversalType newTemplateType(UniversalType definition, List<UniversalType> arguments)
             throws ASTVisitException {
+        // ensure a valid number of arguments
         if (arguments.size() < definition.templateArguments.length)
             throw new ASTVisitException("you have to supply more arguments: expected "
                     + definition.templateArguments.length + " but got only " + arguments.size());
 
+
+        // copy interisting arguments
         UniversalType[] args = definition.templateArguments.clone();
         for (int i = 0; i < args.length; i++)
             args[i] = arguments.get(i);
@@ -394,6 +411,6 @@ public class UniversalType {
 
     @Override
     public String toString() {
-        return name;
+        return (isTypeVariable ? "'" : "") + name;
     }
 }

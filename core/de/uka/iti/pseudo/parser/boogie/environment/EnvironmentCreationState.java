@@ -33,7 +33,7 @@ public final class EnvironmentCreationState {
 
     // type information used for typechecking and lowering of expressions and
     // declarations
-    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>(true);
+    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
 
     // namespaces are used to map names to ASTElements, to allow for access of
     // decorations by name and context
@@ -79,12 +79,12 @@ public final class EnvironmentCreationState {
         try {
             new TypeMapBuilder(this);
         } catch (ASTVisitException e) {
-            e.printStackTrace();
 
+            // this exception is expected
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
-        } catch (RuntimeException e) {
-            printDebugInformation();
-            throw e;
+
+        } finally {
+            // printDebugInformation();
         }
 
         // new TypeChecker(this);
