@@ -79,11 +79,10 @@ public final class EnvironmentCreationState {
         try {
             new TypeMapBuilder(this);
         } catch (ASTVisitException e) {
-            printDebugInformation();
             e.printStackTrace();
 
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
-        } catch (TypeSystemException e) {
+        } catch (RuntimeException e) {
             printDebugInformation();
             throw e;
         }
@@ -160,7 +159,7 @@ public final class EnvironmentCreationState {
             
             createTypesystem();
 
-            printDebugInformation();
+            // printDebugInformation();
 
             return null;
 

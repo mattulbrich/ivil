@@ -19,6 +19,9 @@ final public class UserTypeDefinition extends ASTElement {
         this.name = name;
         this.argnames = argnames;
         this.definition = parent;
+
+        if (null != parent)
+            addChild(parent);
     }
 
     @Override
@@ -43,4 +46,8 @@ final public class UserTypeDefinition extends ASTElement {
         return definition;
     }
 
+    @Override
+    public String toString() {
+        return "UserTypeDefinition [" + name + "]";
+    }
 }

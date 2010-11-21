@@ -14,9 +14,7 @@ public final class TemplateType extends NamedType {
         super(name, types.size());
         arguments = types;
 
-        // dont add arguments as children, as noone should be interested in
-        // walking there by recursion
-        // addChildren(types);
+        addChildren(types);
     }
 
     @Override

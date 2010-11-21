@@ -50,8 +50,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
-import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.Type;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
@@ -152,7 +152,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             if (next.length == todo.size()) {
                 String problems = "\n";
                 for (int i = 0; i < next.length; i++)
-                    problems += "\t" + next[i].getLocation() + "  " + next[i].toString() + "\n";
+                    problems += "\tline " + next[i].getLocation() + "  " + next[i].toString() + "\n";
 
                 throw new TypeSystemException(
                         "types of the following nodes contain cycles or are used without definition:" + problems);
@@ -224,16 +224,58 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
-        // has no children, do typechecking, duplicate arguments are only
-        // allowed, if no synonym is declared
+
+        if (null == node.getDefinition()) {
+            // simple case, a new type with template arguments is defined
+
+            state.typeMap.add(node, UniversalType.newTemplateType(node.getName(), node.getArgnames().size()));
+        } else {
+
+            // more complex case, we have to push type parameters and then to
+            // put them into the template type field
+
+            Scope scope = pushNewScope(node);
+            for (String s : node.getArgnames()) {
+                addParameter(s, scope);
+            }
+            List<UniversalType> param = typeparameterMap.get(scope);
+
+            try {
+
+                for (ASTElement n : node.getChildren())
+                    n.visit(this);
+
+                if (state.typeMap.has(node.getDefinition())) {
+                    state.typeMap.add(node, UniversalType.newTypeSynonym(node.getName(), param,
+                            state.typeMap.get(node.getDefinition())));
+                } else {
+                    todo.add(node);
+                    return;
+                }
+
+            } finally {
+                paramScopeStack.pop();
+            }
+        }
     }
 
     @Override
     public void visit(TemplateType node) throws ASTVisitException {
+        // FIXME testBoogieParseexamples_boogie_test_closable_test1_Family
+
         // if the type has arguments, create a new type, if not, return the
         // already existing type
 
-        UniversalType type = getParameter(node.getName(), paramScopeStack.peek());
+        UniversalType type;
+        ASTElement declaration;
+        if (null != (declaration = state.typeSpace.get(node.getName()))) {
+            if(state.typeMap.has(declaration))
+                type = state.typeMap.get(declaration);
+            else
+                type = null;
+        }
+        else
+            type = getParameter(node.getName(), paramScopeStack.peek());
 
         if (null == type) {
             todo.add(node);
@@ -243,7 +285,19 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (0 == type.templateArguments.length) {
             state.typeMap.add(node, type);
         } else {
-            // we have to create a new type
+
+            for (ASTElement e : node.getChildren()) {
+                e.visit(this);
+                if (!state.typeMap.has(e)) {
+                    todo.add(node);
+                }
+            }
+
+            List<UniversalType> arguments = new LinkedList<UniversalType>();
+            for (Type t : node.getArguments())
+                arguments.add(state.typeMap.get(t));
+
+            state.typeMap.add(node, UniversalType.newTemplateType(type, arguments));
         }
     }
 
@@ -332,6 +386,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
+        // FIXME bug revealed by
+        // testBoogieParseexamples_boogie_test_closable_test20_ProcParamReordering
+
         // functions can have polymorphic types, so push typeargs
         Scope scope = pushNewScope(node);
         for (String s : node.getTypeParameters()) {
@@ -429,7 +486,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        // /
+        throw new ASTVisitException("implement types for bitvectors");
     }
 
     @Override
@@ -455,13 +512,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(OldExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        setTypeSameAs(node, node.getOperands().get(0));
     }
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // the quantifier body has a maptype, that maps the quantified variables
+        // to the result of the expression
 
     }
 
@@ -483,20 +543,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(LambdaExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
+        setTypeSameAs(node, node.getBody());
     }
 
     @Override
     public void visit(IfThenElseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
-    }
-
-    @Override
-    public void visit(Trigger node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        setTypeSameAs(node, node.getThen());
     }
 
     @Override
@@ -504,10 +562,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        if (state.typeMap.has(node.getType()))
-            state.typeMap.add(node, state.typeMap.get(node.getType()));
-        else
-            todo.add(node);
+        setTypeSameAs(node, node.getType());
     }
 
     @Override

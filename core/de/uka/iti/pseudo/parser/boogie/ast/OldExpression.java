@@ -9,6 +9,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class OldExpression extends Expression {
 
+    // has exactly one operand
     private final List<Expression> operands;
 
     public OldExpression(Token first, Expression rval) {
