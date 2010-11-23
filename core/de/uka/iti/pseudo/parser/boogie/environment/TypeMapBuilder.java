@@ -401,8 +401,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
-        // FIXME bug revealed by
-        // testBoogieParseexamples_boogie_test_closable_test20_ProcParamReordering
 
         List<UniversalType> param = addParameters(node.getTypeParameters(), node);
 
@@ -474,17 +472,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
+
         for (ASTElement n : node.getChildren())
             n.visit(this);
-
-        // get base type from name expression
-
-        // get replace type parameters in base type by infered types from
-        // arguments
-
-        // decorate new type
-
-        // TODO implementation
+        
+        if (!state.typeMap.has(node.getName())) {
+            todo.add(node);
+                return;
+        }
+        
+        state.typeMap.add(node, state.typeMap.get(node.getName()).range);
     }
 
     @Override

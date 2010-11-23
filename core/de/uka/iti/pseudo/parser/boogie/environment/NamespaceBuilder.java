@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
+import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
@@ -150,6 +151,17 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
+        // dont add name, as the name has to be declared elsewhere
+
+        for (String s : node.getTypeParameters())
+            addTypeParameter(node, s);
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
+    }
+
+    @Override
+    public void visit(QuantifierBody node) throws ASTVisitException {
         // dont add name, as the name has to be declared elsewhere
 
         for (String s : node.getTypeParameters())

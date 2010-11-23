@@ -1,3 +1,6 @@
+/*
+  can be verified.
+*/
 
 
 type Set a = [a]bool;

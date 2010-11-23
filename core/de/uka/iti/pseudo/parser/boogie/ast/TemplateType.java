@@ -42,4 +42,9 @@ public final class TemplateType extends NamedType {
     public List<Type> getArguments() {
         return arguments;
     }
+
+    @Override
+    public String toString(){
+        return "TemplateType [" + getPrettyName() + "]";
+    }
 }
