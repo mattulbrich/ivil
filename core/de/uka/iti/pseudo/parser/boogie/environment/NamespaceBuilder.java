@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
@@ -205,5 +206,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
+    }
+
+    @Override
+    public void visit(MapUpdateExpression node) throws ASTVisitException {
+        // TODO Auto-generated method stub
+
     }
 }

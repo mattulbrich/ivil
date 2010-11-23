@@ -1,3 +1,7 @@
+// fix: somehow z3api examples expect this type to be present
+type ref,name;
+
+
 type byte;
 function OneByteToInt(byte) returns (int);
 function TwoBytesToInt(byte, byte) returns (int);

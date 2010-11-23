@@ -1,6 +1,11 @@
 // Spec# program verifier version 0.90, Copyright (c) 2003-2008, Microsoft.
 // Command Line Options: /print:debug.txt AddMethod.dll
 
+//fixes needed to make this compile:
+type ref;
+const unique null:ref;
+
+
 type real;
 
 type elements;
@@ -1324,6 +1329,7 @@ implementation Bag.Add$System.Int32(this: ref, x$in: int)
     goto block4658;
 
   block4522:
+
     // ----- load constant 2  ----- AddMethod.ssc(26,15)
     stack0i := 2;
     // ----- load field  ----- AddMethod.ssc(26,15)

@@ -1,3 +1,7 @@
+// fix: somehow z3api examples expect this type to be present
+type name=int;
+
+
 const unique g : int;
 axiom(g != 0);
 

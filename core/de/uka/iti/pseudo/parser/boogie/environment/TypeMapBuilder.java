@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
@@ -188,9 +190,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 next[i].visit(this);
             }
             if (next.length == todo.size()) {
-                String problems = "\n";
+                // we got errors
+
+                List<String> msgs = new LinkedList<String>();
                 for (int i = 0; i < next.length; i++)
-                    problems += "\tline " + next[i].getLocation() + "  " + next[i].toString() + "\n";
+                    msgs.add("\tline " + next[i].getLocation() + "  " + next[i].toString() + "\n");
+
+                Collections.sort(msgs);
+
+                StringBuilder problems = new StringBuilder();
+                problems.append("\n");
+                for (String s : msgs)
+                    problems.append(s);
 
                 throw new TypeSystemException(
                         "types of the following nodes contain cycles or are used without definition:" + problems);
@@ -487,14 +498,36 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
+    public void visit(MapUpdateExpression node) throws ASTVisitException {
+        if (state.typeMap.has(node))
+            return;
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        setTypeSameAs(node, node.getName());
+    }
+
+    @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBitvector(node.getDimension()));
     }
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        if (state.typeMap.has(node))
+            return;
 
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+        
+        ASTElement decl = state.functionSpace.get(node.getName());
+        if (!state.typeMap.has(decl)) {
+            todo.add(node);
+            return;
+        }
+
+        state.typeMap.add(node, state.typeMap.get(decl).range);
     }
 
     @Override
@@ -695,5 +728,4 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(FalseExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBool());
     }
-
 }

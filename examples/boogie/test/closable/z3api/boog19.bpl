@@ -1,3 +1,7 @@
+// fix: somehow z3api examples expect this type to be present
+type name=int;
+
+
 var alloc:[int]name;
 
 

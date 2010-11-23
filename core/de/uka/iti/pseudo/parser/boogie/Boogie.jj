@@ -1223,20 +1223,16 @@ Expression ArrayExpression()
   ( "["
       { tmp=update=null; arguments = new LinkedList<Expression>(); }
       (
-        tmp=Expression()
-        { 
-            if(tmp instanceof BitvectorSelectExpression)
-                rval = new BitvectorAccessSelectionExpression(tmp);
-            else
-                arguments.add(tmp);
-        } 
+        tmp=Expression() {arguments.add(tmp);} 
                
         ( "," tmp=Expression() { arguments.add(tmp); } )*
         
         ( ":=" update=Expression() )?
         
         {
-          if(null==update)
+          if(arguments.size() == 1 && tmp instanceof BitvectorSelectExpression)
+            rval = new BitvectorAccessSelectionExpression(tmp); 
+          else if(null==update)
             rval = new MapAccessExpression(rval, arguments);
           else
             rval = new MapUpdateExpression(rval, arguments, update); 

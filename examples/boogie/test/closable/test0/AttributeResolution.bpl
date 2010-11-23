@@ -4,7 +4,7 @@ function {:source bar} f(int) returns (int);
 
 const {:description baz} unique MAXINT: int;
 
-axiom {:naming qux} (forall i: int :: {f(ij)} f(i) == i+1);
+axiom {:naming qux} (forall i: int :: {f(i)} f(i) == i+1);
 
 var {:description mux} $Heap: [ref, int]bool;
 

@@ -1,3 +1,6 @@
+// fix: somehow z3api examples expect this type to be present
+type ref=int;
+
 type Wicket;
 const w: Wicket;
 var favorite: Wicket;
@@ -6,7 +9,8 @@ function age(Wicket) returns (int);
 axiom age(w)==7;
 
 procedure NewFavorite(p: Wicket);
-  modifies favorite;
+  modifies favorite
+;
 
   ensures favorite==p;
 
@@ -19,7 +23,8 @@ const myRef: ref;
 const v: Wicket;
 
 axiom 7 < 8;
-axiom 7 <= 8;
+axiom 7 <= 8;
+
 axiom 8 > 7;
 axiom 8 >= 7;
 axiom 6 != 7;
@@ -37,7 +42,8 @@ axiom ((7==7) && (8==8));
 
 var favorite2: Wicket;
 procedure SwapFavorites() 
-  modifies favorite,favorite2;
+  modifies favorite,favorite2
+;
 
   ensures (favorite==old(favorite2)) && (favorite2==old(favorite));
 {

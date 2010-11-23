@@ -36,8 +36,7 @@ public final class MapUpdateExpression extends Expression {
 
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        v.visit(this);
     }
 
     public Expression getUpdate() {

@@ -48,6 +48,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
@@ -442,6 +443,11 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(OrderSpecification node) throws ASTVisitException {
+        defaultAction(node);
+    }
+
+    @Override
+    public void visit(MapUpdateExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 }

@@ -1,3 +1,9 @@
+// fix: somehow these types are expected
+type ref,name;
+// fix: adding this constant definition made the example usable
+const null:ref;
+
+
 type ptr;
 function Ptr(ref, int) returns (ptr);
 function Obj(ptr) returns (ref);
@@ -529,6 +535,7 @@ axiom (forall x:ptr :: {MINUS_LEFT_PTR(x, 1, Ptr(null,0))} MINUS_LEFT_PTR(x, 1, 
 function ListSpinLock__DISKETTE_EXTENSION(ptr) returns (ptr);
 function home_ListSpinLock__DISKETTE_EXTENSION(ptr) returns (ptr);
 function _S_ListSpinLock__DISKETTE_EXTENSION([ptr]bool) returns ([ptr]bool);
+
 function _S_home_ListSpinLock__DISKETTE_EXTENSION([ptr]bool) returns ([ptr]bool);
 
 axiom (forall x:ptr :: {ListSpinLock__DISKETTE_EXTENSION(x)} home_ListSpinLock__DISKETTE_EXTENSION(ListSpinLock__DISKETTE_EXTENSION(x)) == x);
