@@ -6,9 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -176,7 +173,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             ASTVisitException {
         state = environmentCreationState;
 
-        todo.add(state.root);
+        // try to annotate all problems and create todo list; if you want to
+        // change this to todo.add you would have to change the way of todo
+        // list change detection
+        visit(state.root);
 
         // try to translate all types, that could not be translated yet because
         // of missing dependencies

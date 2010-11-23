@@ -39,6 +39,15 @@ return;
 }
 assert false;}
 
+// generated test for examples/boogie/test/TypeSystemException/nestedTypeParemeters.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_nestedTypeParemeters() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/nestedTypeParemeters.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false;}
+
 // generated test for examples/boogie/test/TypeSystemException/duplicateConst.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateConst() throws Exception {
 try{
@@ -263,11 +272,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImpl
 // generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/tfe_test/nestedTypeParemeters.bpl
-public void testBoogieParseexamples_boogie_test_closable_tfe_test_nestedTypeParemeters() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/nestedTypeParemeters.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams3.bpl

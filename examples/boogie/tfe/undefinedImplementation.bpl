@@ -6,7 +6,7 @@ var z : M int;
 
 implementation P <a>(x: a)
 {
-    var y: <a>[a] a;
+    var y: [a] a;
     	
     y[x] := 0;
 	

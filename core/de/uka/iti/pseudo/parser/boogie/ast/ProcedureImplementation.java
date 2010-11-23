@@ -1,12 +1,12 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class ProcedureImplementation extends DeclarationBlock {
 
@@ -24,9 +24,11 @@ public final class ProcedureImplementation extends DeclarationBlock {
         this.outParam = outParam;
         this.body = body;
 
-        this.typeParameters = new ArrayList<String>(typeParameters.size());
-        for (Token t : typeParameters)
-            this.typeParameters.add(t.image);
+        this.typeParameters = ASTConversions.toStringList(typeParameters);
+
+        addChildren(inParam);
+        addChildren(outParam);
+        addChild(body);
     }
 
     @Override
