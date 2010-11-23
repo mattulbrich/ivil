@@ -10,27 +10,34 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 public final class SimpleAssignment extends ASTElement {
     public final Token name;
 
-    // TODO maybe change this to explicit mapaccess expressions to make update
-    // creation easier
-    public final List<List<Expression>> arrayArgs; // e.g. [expr, expr][expr][]
-                                                   // -> {{expr, expr},{expr},
-                                                   // {}}
+    public final Expression target;
+
     public final Expression newVal;
 
+    // args are in form of e.g. [expr,expr][expr][] and will be translatet to
+    // mapaccessexpressions like {{expr, expr},{expr},{}}
     public SimpleAssignment(Token name, List<List<Expression>> args, Expression val) {
         this.name = name;
-        this.arrayArgs = args;
         this.newVal = val;
+        
+        Expression rval = new VariableUsageExpression(name);
+        
+        for (List<Expression> argument : args)
+            rval = new MapAccessExpression(rval, argument);
 
-        for (List<Expression> L : arrayArgs)
-            addChildren(L);
+        this.target = rval;
 
+        addChild(target);
         addChild(val);
     }
 
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
+    }
+
+    public Expression getTarget() {
+        return target;
     }
 
     @Override

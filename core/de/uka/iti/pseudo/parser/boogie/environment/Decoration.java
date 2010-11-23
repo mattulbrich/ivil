@@ -58,4 +58,8 @@ public final class Decoration<T> {
     public Collection<T> valueSet() {
         return data.values();
     }
+
+    public int size() {
+        return data.size();
+    }
 }

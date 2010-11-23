@@ -91,9 +91,10 @@ public final class EnvironmentCreationState {
             // this exception is expected
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
 
-        } finally {
-            // printDebugInformation();
         }
+        
+        //make sure we did not forget something
+        assert scopeMap.size() == typeMap.size() || printDebugInformation();
 
         // new TypeChecker(this);
 
@@ -104,8 +105,11 @@ public final class EnvironmentCreationState {
 
     /**
      * Prints debug information to System.out
+     * 
+     * @return false to enable printing of debuginformation on failing
+     *         assertions via "|| printDebugInformation()"
      */
-    public void printDebugInformation() {
+    public boolean printDebugInformation() {
         
         //Print namespace information
         System.out.println("function names:");
@@ -163,6 +167,8 @@ public final class EnvironmentCreationState {
         } catch (ASTVisitException e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     public Environment make() throws ParseException {

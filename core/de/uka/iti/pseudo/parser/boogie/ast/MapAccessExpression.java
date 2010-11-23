@@ -15,10 +15,10 @@ public final class MapAccessExpression extends Expression {
     private final Expression name;
     private final List<Expression> arguments;
 
-    public MapAccessExpression(Expression rval, List<Expression> arguments) {
-        super(rval.getLocationToken());
+    public MapAccessExpression(Expression name, List<Expression> arguments) {
+        super(name.getLocationToken());
 
-        name = rval;
+        this.name = name;
         this.arguments = arguments;
 
         addChild(name);

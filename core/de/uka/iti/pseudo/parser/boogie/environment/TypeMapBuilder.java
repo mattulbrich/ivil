@@ -190,7 +190,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 next[i].visit(this);
             }
             if (next.length == todo.size()) {
-                // we got errors
+                // we got errors, so print a hopefully usefull error report
 
                 List<String> msgs = new LinkedList<String>();
                 for (int i = 0; i < next.length; i++)
@@ -456,8 +456,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        // TODO das hier überarbeiten, vielleicht ist hier ein redesign
-        // notwendig
+        if (state.typeMap.has(node))
+            return;
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        if (!state.typeMap.has(node.getTarget())) {
+            todo.add(node);
+            return;
+        }
+
+        state.typeMap.add(node, state.typeMap.get(node.getTarget()).range);
     }
 
     @Override
