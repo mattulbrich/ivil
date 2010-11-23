@@ -2,55 +2,16 @@ package de.uka.iti.pseudo.parser.boogie.environment;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
-import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecParent;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
-import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
-import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
@@ -71,6 +32,23 @@ public class NamespaceBuilder extends DefaultASTVisitor {
         visit(state.root);
     }
 
+    /**
+     * Pushes a type parameter and checks for duplicates.
+     * 
+     * @throws ASTVisitException
+     *             thrown if a type parameter with name is already defined
+     */
+    private void addTypeParameter(ASTElement node, String name) throws ASTVisitException {
+        Scope scope = state.scopeMap.get(node);
+
+        for (Scope s = scope; s != null; s = s.parent)
+            if (state.typeParameterSpace.containsKey(new Pair<String, Scope>(name, s)))
+                throw new ASTVisitException("Tried to add type parameter " + name + " allready defined @"
+                        + state.typeParameterSpace.get(new Pair<String, Scope>(name, s)).getLocation());
+
+        state.typeParameterSpace.put(new Pair<String, Scope>(name, state.scopeMap.get(node)), node);
+    }
+
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
         for (ASTElement e : node.getChildren())
@@ -80,11 +58,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     @Override
     public void visit(Variable node) throws ASTVisitException {
         Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
-        
+
         if (state.variableSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
                     + state.variableSpace.get(key).getLocation());
-        
+
         state.variableSpace.put(key, node);
 
         for (ASTElement e : node.getChildren())
@@ -99,9 +77,12 @@ public class NamespaceBuilder extends DefaultASTVisitor {
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
                     + state.functionSpace.get(key).getLocation());
 
-                state.functionSpace.put(key, node);
+        state.functionSpace.put(key, node);
 
-for (ASTElement e : node.getChildren())
+        for (String s : node.getTypeParameters())
+            addTypeParameter(node, s);
+
+        for (ASTElement e : node.getChildren())
             e.visit(this);
     }
 
@@ -130,6 +111,22 @@ for (ASTElement e : node.getChildren())
 
         state.typeSpace.put(key, node);
 
+        if (node.getDefinition() != null) {
+            // we have to add type arguments as they will be used like type
+            // parameters
+            for (String name : node.getTypeParameters())
+                addTypeParameter(node, name);
+        }
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
+    }
+
+    @Override
+    public void visit(MapType node) throws ASTVisitException {
+        for (String name : node.getTypeParameters())
+            addTypeParameter(node, name);
+
         for (ASTElement e : node.getChildren())
             e.visit(this);
     }
@@ -143,6 +140,20 @@ for (ASTElement e : node.getChildren())
                     + state.procedureSpace.get(key).getLocation());
 
         state.procedureSpace.put(key, node);
+
+        for (String s : node.getTypeParameters())
+            addTypeParameter(node, s);
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
+    }
+
+    @Override
+    public void visit(ProcedureImplementation node) throws ASTVisitException {
+        // dont add name, as the name has to be declared elsewhere
+
+        for (String s : node.getTypeParameters())
+            addTypeParameter(node, s);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -161,7 +172,7 @@ for (ASTElement e : node.getChildren())
     @Override
     public void visit(LabelStatement node) throws ASTVisitException {
         assert currentBody != null;
-        
+
         Pair<String, ProcedureBody> key = new Pair<String, ProcedureBody>(node.getName(), currentBody);
 
         if (state.variableSpace.containsKey(key))

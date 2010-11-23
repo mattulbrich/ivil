@@ -66,6 +66,15 @@ return;
 }
 assert false;}
 
+// generated test for examples/boogie/test/TypeSystemException/Prog0.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_Prog0() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/Prog0.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false;}
+
 // generated test for examples/boogie/test/TypeSystemException/cyclicTypes.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_cyclicTypes() throws Exception {
 try{
@@ -201,11 +210,6 @@ public void testBoogieParseexamples_boogie_test_closable_test20_PolyPolyPoly2() 
 Parser.main(new String[] { "examples/boogie/test/closable/test20/PolyPolyPoly2.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test20/Prog0.bpl
-public void testBoogieParseexamples_boogie_test_closable_test20_Prog0() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test20/Prog0.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test20/PolyFuns0.bpl
 public void testBoogieParseexamples_boogie_test_closable_test20_PolyFuns0() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test20/PolyFuns0.bpl"});
@@ -246,9 +250,29 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_partialTemplat
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/partialTemplates.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/polymorphicProcedures.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_polymorphicProcedures() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/polymorphicProcedures.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_undefinedImplementation() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/nestedTypeParemeters.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_nestedTypeParemeters() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/nestedTypeParemeters.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams3.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams3() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams3.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/bitvectors.bpl
@@ -1392,6 +1416,15 @@ assert false;}
 public void testBoogieParseexamples_boogie_test_ParseException_bv2() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/ParseException/bv2.bpl"});
+} catch(ParseException ex){
+return;
+}
+assert false;}
+
+// generated test for examples/boogie/test/ParseException/nestedTypeParemeters.bpl
+public void testBoogieParseexamples_boogie_test_ParseException_nestedTypeParemeters() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/ParseException/nestedTypeParemeters.bpl"});
 } catch(ParseException ex){
 return;
 }

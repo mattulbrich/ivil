@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
@@ -75,39 +77,61 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     private final Set<ASTElement> todo = new HashSet<ASTElement>();
 
-    // stack of scopes used for parameter interpretation. this is needed, as
-    // types can be declared as <a>[<b>[b]a, <b>[b]a]a, where first b and socond
-    // b are different
-    private final Stack<Scope> paramScopeStack = new Stack<Scope>();
+    private final Map<ASTElement, List<UniversalType>> typeParameterMap = new HashMap<ASTElement, List<UniversalType>>();
 
-    // access using getParameter
-    private final Map<Scope, List<UniversalType>> typeparameterMap = new HashMap<Scope, List<UniversalType>>();
+    /**
+     * Searches for declaration of typevariable name.
+     * 
+     * @param name
+     *            name of the typevariable to be searched
+     * @param scope
+     *            scope to start search from
+     * @return null if the typevariable is not defined, the defining node else;
+     */
+    private ASTElement getParameterDeclaration(String name, Scope scope) {
+        Pair<String, Scope> key;
+        ASTElement rval;
 
-    private UniversalType getParameter(String name, Scope scope) {
-        while (null != scope.parent) {
-            for (UniversalType t : typeparameterMap.get(scope)) {
-                if (t.name.equals(name))
-                    return t;
-            }
+        while (scope != null) {
+            key = new Pair<String, Scope>(name, scope);
+            rval = state.typeParameterSpace.get(key);
+            if (null != rval)
+                return rval;
+
             scope = scope.parent;
         }
-        assert scope == state.globalScope;
         return null;
     }
 
-    private void addParameter(String name, Scope scope) throws ASTVisitException {
-        assert paramScopeStack.peek() == scope;
-        if (null != getParameter(name, scope))
-            throw new ASTVisitException("Typeparameter " + name + " is already defined.");
+    /**
+     * Get the translated type parameter for name defined in decl.
+     * 
+     * @param decl
+     *            defining node, this is needed to locate the definition
+     * 
+     * @param name
+     *            name of the typeparameter
+     * 
+     * @return the universal type equivalent to name
+     */
+    private UniversalType getParameter(ASTElement decl, String name) {
+        if (null == typeParameterMap.get(decl))
+            return null;
 
-        typeparameterMap.get(scope).add(UniversalType.newTypeParameter(name));
+        for (UniversalType t : typeParameterMap.get(decl))
+            if (t.name.equals(name))
+                return t;
+
+        return null;
     }
 
-    private Scope pushNewScope(ASTElement node) {
-        List<UniversalType> param = new LinkedList<UniversalType>();
-        Scope rval = new Scope(paramScopeStack.peek(), node);
-        paramScopeStack.push(rval);
-        typeparameterMap.put(paramScopeStack.peek(), param);
+    private List<UniversalType> addParameters(List<String> names, ASTElement node) throws ASTVisitException {
+        List<UniversalType> rval = new LinkedList<UniversalType>();
+
+        for (String s : names)
+            rval.add(UniversalType.newTypeParameter(s));
+
+        typeParameterMap.put(node, rval);
         return rval;
     }
 
@@ -134,17 +158,28 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             todo.add(node);
     }
 
+    /**
+     * Fills the typemap decoration and detects errors of type cyclic or
+     * undefinded type declaration.
+     * 
+     * @param environmentCreationState
+     *            the state to be updated
+     * 
+     * @throws TypeSystemException
+     *             raised if there are would be cyclic or undefined universal
+     *             types, which is not allowed
+     * 
+     * @throws ASTVisitException
+     *             thrown in case of bugs in this class
+     */
     public TypeMapBuilder(EnvironmentCreationState environmentCreationState) throws TypeSystemException,
             ASTVisitException {
         state = environmentCreationState;
 
-        paramScopeStack.push(state.globalScope);
+        todo.add(state.root);
 
-        // start from root
-        visit(state.root);
-
-        assert paramScopeStack.peek() == state.globalScope && typeparameterMap.get(state.globalScope) == null;
-
+        // try to translate all types, that could not be translated yet because
+        // of missing dependencies
         while (todo.size() != 0) {
             ASTElement[] next = todo.toArray(new ASTElement[todo.size()]);
             todo.clear();
@@ -185,40 +220,30 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        // functions can have polymorphic types, so push typeargs
-        Scope scope = pushNewScope(node);
-        for (String s : node.getTypeParameters()) {
-            addParameter(s, scope);
-        }
-        List<UniversalType> param = typeparameterMap.get(scope);
 
-        try {
+        // translate typeparameters first, as children depend on them
+        List<UniversalType> param = this.addParameters(node.getTypeParameters(), node);
 
-            for (ASTElement n : node.getChildren())
-                n.visit(this);
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
-            if (state.typeMap.has(node.getOutParemeter())) {
-                List<UniversalType> domain = new LinkedList<UniversalType>();
+        if (state.typeMap.has(node.getOutParemeter())) {
+            List<UniversalType> domain = new LinkedList<UniversalType>();
 
-                for (ASTElement n : node.getInParameters()) {
-                    if (state.typeMap.has(n))
-                        domain.add(state.typeMap.get(n));
-                    else {
-                        todo.add(node);
-                        return;
-                    }
-
+            for (ASTElement n : node.getInParameters()) {
+                if (state.typeMap.has(n))
+                    domain.add(state.typeMap.get(n));
+                else {
+                    todo.add(node);
+                    return;
                 }
 
-                state.typeMap.add(node,
-                        UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
-            } else {
-                todo.add(node);
-                return;
             }
 
-        } finally {
-            paramScopeStack.pop();
+            state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
+        } else {
+            todo.add(node);
+            return;
         }
     }
 
@@ -238,33 +263,23 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null == node.getDefinition()) {
             // simple case, a new type with template arguments is defined
 
-            state.typeMap.add(node, UniversalType.newTemplateType(node.getName(), node.getArgnames().size()));
+            state.typeMap.add(node, UniversalType.newTemplateType(node.getName(), node.getTypeParameters().size()));
         } else {
 
             // more complex case, we have to push type parameters and then to
             // put them into the template type field
 
-            Scope scope = pushNewScope(node);
-            for (String s : node.getArgnames()) {
-                addParameter(s, scope);
-            }
-            List<UniversalType> param = typeparameterMap.get(scope);
+            List<UniversalType> param = addParameters(node.getTypeParameters(), node);
 
-            try {
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
 
-                for (ASTElement n : node.getChildren())
-                    n.visit(this);
-
-                if (state.typeMap.has(node.getDefinition())) {
-                    state.typeMap.add(node, UniversalType.newTypeSynonym(node.getName(), param,
-                            state.typeMap.get(node.getDefinition())));
-                } else {
-                    todo.add(node);
-                    return;
-                }
-
-            } finally {
-                paramScopeStack.pop();
+            if (state.typeMap.has(node.getDefinition())) {
+                state.typeMap.add(node,
+                        UniversalType.newTypeSynonym(node.getName(), param, state.typeMap.get(node.getDefinition())));
+            } else {
+                todo.add(node);
+                return;
             }
         }
     }
@@ -274,20 +289,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (state.typeMap.has(node))
             return;
 
-        // FIXME testBoogieParseexamples_boogie_test_closable_test1_Family
 
-        // if the type has arguments, create a new type, if not, return the
-        // already existing type
-
-        UniversalType type = getParameter(node.getName(), paramScopeStack.peek());
-        if (null == type) {
-            ASTElement declaration = state.typeSpace.get(node.getName());
-            if (null != declaration) {
-                if (state.typeMap.has(declaration))
-                    type = state.typeMap.get(declaration);
-                else
-                    type = null;
-            }
+        // resolve type name
+        ASTElement declaration = getParameterDeclaration(node.getName(), state.scopeMap.get(node));
+        UniversalType type = null;
+        if (null != declaration) {
+            // this type refers to a typeparameter or typeargument
+            type = getParameter(declaration, node.getName());
+        } else {
+            // this type refers to a regular type
+            declaration = state.typeSpace.get(node.getName());
+            if (state.typeMap.has(declaration))
+                type = state.typeMap.get(declaration);
         }
 
         if (null == type) {
@@ -295,16 +308,21 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             return;
         }
 
+        // if the type has arguments, create a new type, if not, return the
+        // already existing type
         if (0 == type.templateArguments.length) {
             state.typeMap.add(node, type);
         } else {
 
+            boolean failed = false;
             for (ASTElement e : node.getChildren()) {
                 e.visit(this);
-                if (!state.typeMap.has(e)) {
-                    todo.add(node);
-                    return;
-                }
+                if (!state.typeMap.has(e))
+                    failed = true;
+            }
+            if (failed) {
+                todo.add(node);
+                return;
             }
 
             List<UniversalType> arguments = new LinkedList<UniversalType>();
@@ -321,65 +339,15 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (state.typeMap.has(node))
             return;
 
-        Scope scope = pushNewScope(node);
-        for (String s : node.getTypeParameters()) {
-            addParameter(s, scope);
-        }
-        List<UniversalType> param = typeparameterMap.get(scope);
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node);
 
-        try {
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
-            for (ASTElement n : node.getChildren())
-                n.visit(this);
-
-            if (state.typeMap.has(node.getRange())) {
-                List<UniversalType> domain = new LinkedList<UniversalType>();
-
-                for (ASTElement n : node.getDomain()) {
-                    if (state.typeMap.has(n))
-                        domain.add(state.typeMap.get(n));
-                    else {
-                        todo.add(node);
-                        return;
-                    }
-
-                }
-
-                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), 1));
-            } else {
-                todo.add(node);
-                return;
-            }
-
-        } finally {
-            paramScopeStack.pop();
-        }
-    }
-
-    @Override
-    public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        // functions can have polymorphic types, so push typeargs
-        Scope scope = pushNewScope(node);
-        for (String s : node.getTypeParameters()) {
-            addParameter(s, scope);
-        }
-        List<UniversalType> param = typeparameterMap.get(scope);
-
-        try {
-
-            for (ASTElement n : node.getChildren())
-                n.visit(this);
-
-            for (ASTElement n : node.getOutParameters()) {
-                if (!state.typeMap.has(n)) {
-                    todo.add(node);
-                    return;
-                }
-
-            }
+        if (state.typeMap.has(node.getRange())) {
             List<UniversalType> domain = new LinkedList<UniversalType>();
 
-            for (ASTElement n : node.getInParameters()) {
+            for (ASTElement n : node.getDomain()) {
                 if (state.typeMap.has(n))
                     domain.add(state.typeMap.get(n));
                 else {
@@ -389,16 +357,46 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             }
 
-            int outLength = node.getOutParameters().size();
-
-            // procedures can have return type void. as there is no void type, 0
-            // bools are returned, what will have the same effect
-            state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
-                    : state.typeMap.get(node.getOutParameters().get(0)), outLength));
-
-        } finally {
-            paramScopeStack.pop();
+            state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), 1));
+        } else {
+            todo.add(node);
+            return;
         }
+    }
+
+    @Override
+    public void visit(ProcedureDeclaration node) throws ASTVisitException {
+        // functions can have polymorphic types, so push typeargs
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        for (ASTElement n : node.getOutParameters()) {
+            if (!state.typeMap.has(n)) {
+                todo.add(node);
+                return;
+            }
+
+        }
+        List<UniversalType> domain = new LinkedList<UniversalType>();
+
+        for (ASTElement n : node.getInParameters()) {
+            if (state.typeMap.has(n))
+                domain.add(state.typeMap.get(n));
+            else {
+                todo.add(node);
+                return;
+            }
+
+        }
+
+        int outLength = node.getOutParameters().size();
+
+        // procedures can have return type void. as there is no void type, 0
+        // bools are returned, what will have the same effect
+        state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
+                : state.typeMap.get(node.getOutParameters().get(0)), outLength));
     }
 
     @Override
@@ -406,47 +404,36 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         // FIXME bug revealed by
         // testBoogieParseexamples_boogie_test_closable_test20_ProcParamReordering
 
-        // functions can have polymorphic types, so push typeargs
-        Scope scope = pushNewScope(node);
-        for (String s : node.getTypeParameters()) {
-            addParameter(s, scope);
-        }
-        List<UniversalType> param = typeparameterMap.get(scope);
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node);
 
-        try {
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
-            for (ASTElement n : node.getChildren())
-                n.visit(this);
-
-            for (ASTElement n : node.getOutParameters()) {
-                if (!state.typeMap.has(n)) {
-                    todo.add(node);
-                    return;
-                }
-
-            }
-            List<UniversalType> domain = new LinkedList<UniversalType>();
-
-            for (ASTElement n : node.getInParameters()) {
-                if (state.typeMap.has(n))
-                    domain.add(state.typeMap.get(n));
-                else {
-                    todo.add(node);
-                    return;
-                }
-
+        for (ASTElement n : node.getOutParameters()) {
+            if (!state.typeMap.has(n)) {
+                todo.add(node);
+                return;
             }
 
-            int outLength = node.getOutParameters().size();
-
-            // procedures can have return type void. as there is no void type, 0
-            // bools are returned, what will have the same effect
-            state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
-                    : state.typeMap.get(node.getOutParameters().get(0)), outLength));
-
-        } finally {
-            paramScopeStack.pop();
         }
+        List<UniversalType> domain = new LinkedList<UniversalType>();
+
+        for (ASTElement n : node.getInParameters()) {
+            if (state.typeMap.has(n))
+                domain.add(state.typeMap.get(n));
+            else {
+                todo.add(node);
+                return;
+            }
+
+        }
+
+        int outLength = node.getOutParameters().size();
+
+        // procedures can have return type void. as there is no void type, 0
+        // bools are returned, what will have the same effect
+        state.typeMap.add(node, UniversalType.newMap(param, domain, 0 == outLength ? UniversalType.newBool()
+                : state.typeMap.get(node.getOutParameters().get(0)), outLength));
 
     }
 
@@ -538,7 +525,32 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(QuantifierBody node) throws ASTVisitException {
         // the quantifier body has a maptype, that maps the quantified variables
         // to the result of the expression
+        if (state.typeMap.has(node))
+            return;
 
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        if (state.typeMap.has(node.getBody())) {
+            List<UniversalType> domain = new LinkedList<UniversalType>();
+
+            for (ASTElement n : node.getQuantifiedVariables()) {
+                if (state.typeMap.has(n))
+                    domain.add(state.typeMap.get(n));
+                else {
+                    todo.add(node);
+                    return;
+                }
+
+            }
+
+            state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getBody()), 1));
+        } else {
+            todo.add(node);
+            return;
+        }
     }
 
     @Override

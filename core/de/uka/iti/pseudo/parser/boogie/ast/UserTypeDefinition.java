@@ -38,7 +38,7 @@ final public class UserTypeDefinition extends ASTElement {
         return name.image;
     }
 
-    public List<String> getArgnames() {
+    public List<String> getTypeParameters() {
         return argnames;
     }
 

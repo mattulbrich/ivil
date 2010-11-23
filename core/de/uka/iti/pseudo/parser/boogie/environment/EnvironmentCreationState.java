@@ -17,7 +17,11 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
  * that can be used by the proofer. Stages of creation are separated into
  * different functions to allow for better testing and for easier implementation
  * of new features. If you are only interested in converting a CompilationUnit
- * into an ivil Environment, use make()
+ * into an ivil Environment, use make().<br>
+ * 
+ * 
+ * In order to understand the design behind the various builders, look at them
+ * as functions with closures.
  * 
  * @author timm.felden@felden.com
  * 
@@ -43,6 +47,10 @@ public final class EnvironmentCreationState {
     // contains identifiers that can start a named type, such as bool, int, S(if
     // S is defined somewhere), ...
     final HashMap<String, ASTElement> typeSpace = new HashMap<String, ASTElement>();
+    // as type parameters can shadow types, we have to put them into their own
+    // space
+    final HashMap<Pair<String, Scope>, ASTElement> typeParameterSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+
     // variable names are scope sensitive
     final HashMap<Pair<String, Scope>, ASTElement> variableSpace = new HashMap<Pair<String, Scope>, ASTElement>();
 
@@ -118,6 +126,12 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
+        System.out.println("type parameters:");
+        for (Pair<String, Scope> n : typeParameterSpace.keySet()) {
+            System.out.println("\t" + n.first + "\t\t" + n.second.toString());
+        }
+        System.out.println("");
+
         System.out.println("seen types:");
         for (UniversalType t : typeMap.valueSet()) {
             if (t != null)
@@ -125,11 +139,9 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
-
         System.out.println("variable and constant declarations:");
         for (Pair<String, Scope> n : variableSpace.keySet()) {
-            System.out.println("\t" + n.first + "\t\t<" + (n.second == globalScope ? "global" : n.second.toString())
-                    + ">");
+            System.out.println("\t" + n.first + "\t\t" + n.second.toString());
         }
         System.out.println("");
 

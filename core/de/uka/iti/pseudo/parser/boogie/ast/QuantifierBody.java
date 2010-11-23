@@ -13,7 +13,7 @@ public final class QuantifierBody extends ASTElement {
     private final Token location;
     private final List<Attribute> attributes;
     private final List<Trigger> triggers;
-    private final List<String> typeArgs;
+    private final List<String> typeParameters;
     private final List<Variable> quantifiedVariables;
     private final Expression body;
 
@@ -23,7 +23,7 @@ public final class QuantifierBody extends ASTElement {
         this.location = location;
         this.attributes = attributes;
         this.triggers = triggers;
-        this.typeArgs = ASTConversions.toStringList(typeArgs);
+        this.typeParameters = ASTConversions.toStringList(typeArgs);
         this.quantifiedVariables = vars;
         this.body = body;
 
@@ -43,8 +43,8 @@ public final class QuantifierBody extends ASTElement {
         return location;
     }
 
-    public List<String> getTypeArgs() {
-        return typeArgs;
+    public List<String> getTypeParameters() {
+        return typeParameters;
     }
 
     public List<Variable> getQuantifiedVariables() {

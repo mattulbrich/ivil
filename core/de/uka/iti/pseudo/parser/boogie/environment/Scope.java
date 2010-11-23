@@ -18,4 +18,12 @@ public class Scope {
         this.parent = parent;
         this.creator = creator;
     }
+
+    @Override
+    public String toString() {
+        if(null!=parent)
+            return creator.toString() + " -> " + parent.toString();
+        else
+            return "<global>";
+    }
 }

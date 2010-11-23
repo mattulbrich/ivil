@@ -4,14 +4,13 @@ import java.util.Stack;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
@@ -57,6 +56,17 @@ public final class ScopeBuilder extends DefaultASTVisitor {
         return scopeStack.peek();
     }
 
+    private void defaultChange(ASTElement node) throws ASTVisitException {
+        push(node);
+
+        scopeMap.add(node, activeScope());
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        pop(node);
+    }
+
     /**
      * The usual behavior is to add the element to the parents scope.
      * 
@@ -77,14 +87,7 @@ public final class ScopeBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        scopeMap.add(node, globalScope);
-
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
+        defaultChange(node);
     }
 
     /**
@@ -96,63 +99,26 @@ public final class ScopeBuilder extends DefaultASTVisitor {
      */
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        scopeMap.add(node, activeScope());
+        defaultChange(node);
+    }
 
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
+    @Override
+    public void visit(UserTypeDefinition node) throws ASTVisitException {
+        defaultChange(node);
     }
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        scopeMap.add(node, globalScope);
-
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
+        defaultChange(node);
     }
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
-        scopeMap.add(node, globalScope);
-
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
-    }
-
-    @Override
-    public void visit(Variable node) throws ASTVisitException {
-        scopeMap.add(node, activeScope());
-
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
+        defaultChange(node);
     }
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        scopeMap.add(node, activeScope());
-
-        push(node);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        pop(node);
+        defaultChange(node);
     }
-
-
 }
