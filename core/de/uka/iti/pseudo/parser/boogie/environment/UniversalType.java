@@ -166,7 +166,7 @@ public class UniversalType {
      * @return a fresh universal type
      */
     static UniversalType newBitvector(int dimension) {
-        assert dimension > 0;
+        assert dimension >= 0;
 
         UniversalType[] tmp = new UniversalType[0];
         return new UniversalType(false, "bv" + dimension, null, tmp, tmp, tmp, null, 0);
@@ -412,5 +412,43 @@ public class UniversalType {
     @Override
     public String toString() {
         return (isTypeVariable ? "'" : "") + name;
+    }
+
+    /**
+     * Gets the dimension out of an this, if this will evaluate to bitvector.
+     * 
+     * @return the dimension of the corresponding bitvector type
+     * @throws IllegalArgumentException
+     *             if this will not evaluate to bitvector
+     */
+    public int getBVDimension() throws IllegalArgumentException {
+        String name;
+
+        // FIXME if typevariables are used in concatenation statements, its hard
+        // to determine the bitvectors dimension, maybe bitvector dimensions
+        // should be determined at runtime
+        if (isTypeVariable)
+            return 0;
+
+        if (null == this.range)
+            name = this.name;
+        else {
+            if (null != this.range.range)
+                throw new IllegalArgumentException();
+
+            if (range.isTypeVariable)
+                return 0;
+
+            name = this.range.name;
+        }
+
+        if (!name.subSequence(0, 2).equals("bv"))
+            throw new IllegalArgumentException();
+
+        try {
+            return Integer.parseInt(name.substring(2));
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException();
+        }
     }
 }

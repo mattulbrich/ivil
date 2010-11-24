@@ -479,7 +479,31 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // FIXME bitvector
+        if (state.typeMap.has(node))
+            return;
+
+        boolean failed = false;
+        for (ASTElement n : node.getChildren()) {
+            n.visit(this);
+            if (!state.typeMap.has(n))
+                failed = true;
+        }
+
+        if (failed) {
+            todo.add(node);
+            return;
+        }
+
+        try {
+            int d1 = state.typeMap.get(node.getOperands().get(0)).getBVDimension();
+            int d2 = state.typeMap.get(node.getOperands().get(1)).getBVDimension();
+
+            state.typeMap.add(node, UniversalType.newBitvector(d1 + d2));
+
+        } catch (IllegalArgumentException e) {
+            throw new ASTVisitException("tried to concatenate something, that is not a bitvector @"
+                    + node.getLocation());
+        }
     }
 
     @Override
@@ -489,8 +513,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        // FIXME bitvector
+        if (state.typeMap.has(node))
+            return;
 
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        setTypeSameAs(node, node.getOperands().get(0));
     }
 
     @Override
