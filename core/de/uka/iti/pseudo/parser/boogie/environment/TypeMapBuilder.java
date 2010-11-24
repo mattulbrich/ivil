@@ -467,7 +467,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             return;
         }
 
-        state.typeMap.add(node, state.typeMap.get(node.getTarget()).range);
+        UniversalType t = state.typeMap.get(node.getTarget());
+
+        state.typeMap.add(node, null == t.range ? t : t.range);
     }
 
     @Override

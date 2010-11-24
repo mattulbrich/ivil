@@ -16,16 +16,10 @@ public final class SimpleAssignment extends ASTElement {
 
     // args are in form of e.g. [expr,expr][expr][] and will be translatet to
     // mapaccessexpressions like {{expr, expr},{expr},{}}
-    public SimpleAssignment(Token name, List<List<Expression>> args, Expression val) {
+    public SimpleAssignment(Token name, Expression target, Expression val) {
         this.name = name;
         this.newVal = val;
-        
-        Expression rval = new VariableUsageExpression(name);
-        
-        for (List<Expression> argument : args)
-            rval = new MapAccessExpression(rval, argument);
-
-        this.target = rval;
+        this.target = target;
 
         addChild(target);
         addChild(val);
@@ -43,5 +37,10 @@ public final class SimpleAssignment extends ASTElement {
     @Override
     public Token getLocationToken() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleAssignment [" + name.image + ", " + getLocation() + "]";
     }
 }

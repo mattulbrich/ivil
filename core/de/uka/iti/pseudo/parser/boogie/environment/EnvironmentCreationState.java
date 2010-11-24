@@ -185,6 +185,11 @@ public final class EnvironmentCreationState {
             throw new UnsupportedOperationException(
                     "An unexpected exception was thrown while making the environment.\n"
                             + "Please tell the developers how you got here.", e);
+
+        } catch (RuntimeException e) {
+
+            printDebugInformation();
+            throw e;
         }
     }
 }

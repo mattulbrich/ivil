@@ -811,47 +811,48 @@ Statement LabelOrCmd()
 Statement LabelOrAssign()
 :{
     Token tmp;
-    List<Token> names = new LinkedList<Token>();
+    List<Token> locations = new LinkedList<Token>();
     
-    Expression newVal;
-    List<Expression> arrayArg, newVals = new LinkedList<Expression>();
-    List<List<Expression>> arrayArgs  = new LinkedList<List<Expression>>();
-    List<List<List<Expression>>> allArrayArgs = new LinkedList<List<List<Expression>>>();
+    Expression expr;
+    List<Expression> arguments, RValues = new LinkedList<Expression>(), LValues = new LinkedList<Expression>();
 } { 
-  tmp=<IDENT> {names.add(tmp);}
+  tmp=<IDENT>
   (
     ":"                      
     {return new LabelStatement(tmp); }
   | 
-    
-    //push empty list if no args were supplied
-    {arrayArg = new LinkedList<Expression>();}
-    ( arrayArg=MapAssignIndex() {arrayArgs.add(arrayArg);})*
-    {allArrayArgs.add(arrayArgs);}
+    {
+      locations.add(tmp);
+      expr = new VariableUsageExpression(tmp);
+    }
+    ( arguments=MapAssignIndex() { expr = new MapAccessExpression(expr, arguments);})*
+    { LValues.add(expr); }
 
     ( ","
-      tmp=<IDENT> {names.add(tmp);}
+      tmp=<IDENT>
       
-      //push empty list if no args were supplied
-      {arrayArg = new LinkedList<Expression>();}
-      ( arrayArg=MapAssignIndex() {arrayArgs.add(arrayArg);})*
-      {allArrayArgs.add(arrayArgs);}
+    {
+      locations.add(tmp);
+      expr = new VariableUsageExpression(tmp);
+    }
+    ( arguments=MapAssignIndex() { expr = new MapAccessExpression(expr, arguments);})*
+    { LValues.add(expr); }
       
     )*
 
     ":="                     
-    newVal=Expression() {newVals.add(newVal);}
+    expr=Expression() {RValues.add(expr);}
     ( ","
-      newVal=Expression() {newVals.add(newVal);}     
+      expr=Expression() {RValues.add(expr);}     
     )*
     ";"
     {
-        if(names.size()!=newVals.size())
+        if(LValues.size()!=RValues.size())
             throw new ParseException("found missmatched AssignmentStatement");
             
         List<SimpleAssignment> rval = new LinkedList<SimpleAssignment>();
-        for(int i = 0; i < names.size(); i++)
-            rval.add(new SimpleAssignment(names.get(i),allArrayArgs.get(i),newVals.get(i)));
+        for(int i = 0; i < LValues.size(); i++)
+            rval.add(new SimpleAssignment(locations.get(i),LValues.get(i),RValues.get(i)));
     
         return new AssignmentStatement(rval);
     }                      
