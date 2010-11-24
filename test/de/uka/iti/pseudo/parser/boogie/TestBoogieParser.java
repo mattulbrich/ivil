@@ -262,6 +262,11 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_bitvectors() t
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/bitvectors.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/integerCodeExpr.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_integerCodeExpr() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/integerCodeExpr.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams2.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams2() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams2.bpl"});

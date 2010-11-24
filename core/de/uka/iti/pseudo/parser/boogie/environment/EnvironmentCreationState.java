@@ -177,7 +177,7 @@ public final class EnvironmentCreationState {
             
             createTypesystem();
 
-            printDebugInformation();
+            // printDebugInformation();
 
             return null;
 
