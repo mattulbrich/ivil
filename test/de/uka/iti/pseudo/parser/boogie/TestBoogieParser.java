@@ -3,33 +3,6 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.boogie.environment.*;
 public class TestBoogieParser extends TestCaseWithEnv {
 
-// generated test for examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr1.bpl
-public void testBoogieParseexamples_boogie_test_UnsupportedFeature_codeexpr_CodeExpr1() throws Exception {
-try{
-Parser.main(new String[] { "examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr1.bpl"});
-} catch(UnsupportedFeature ex){
-return;
-}
-assert false;}
-
-// generated test for examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr0.bpl
-public void testBoogieParseexamples_boogie_test_UnsupportedFeature_codeexpr_CodeExpr0() throws Exception {
-try{
-Parser.main(new String[] { "examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr0.bpl"});
-} catch(UnsupportedFeature ex){
-return;
-}
-assert false;}
-
-// generated test for examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr2.bpl
-public void testBoogieParseexamples_boogie_test_UnsupportedFeature_codeexpr_CodeExpr2() throws Exception {
-try{
-Parser.main(new String[] { "examples/boogie/test/UnsupportedFeature/codeexpr/CodeExpr2.bpl"});
-} catch(UnsupportedFeature ex){
-return;
-}
-assert false;}
-
 // generated test for examples/boogie/test/TypeSystemException/duplicateTypeArguments.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateTypeArguments() throws Exception {
 try{
@@ -269,6 +242,11 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_undefinedImple
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/polymap.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_polymap() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/polymap.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl"});
@@ -292,6 +270,11 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsPar
 // generated test for examples/boogie/test/closable/tfe_test/doomedContracts.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_doomedContracts() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/doomedContracts.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/polymorphicConcatenation.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_polymorphicConcatenation() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/polymorphicConcatenation.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/aitest0/constants.bpl
@@ -487,6 +470,21 @@ Parser.main(new String[] { "examples/boogie/test/closable/test7/MultipleErrors.b
 // generated test for examples/boogie/test/closable/test13/ErrorTraceTestLoopInvViolationBPL.bpl
 public void testBoogieParseexamples_boogie_test_closable_test13_ErrorTraceTestLoopInvViolationBPL() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test13/ErrorTraceTestLoopInvViolationBPL.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/codeexpr/CodeExpr1.bpl
+public void testBoogieParseexamples_boogie_test_closable_codeexpr_CodeExpr1() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/codeexpr/CodeExpr1.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/codeexpr/CodeExpr0.bpl
+public void testBoogieParseexamples_boogie_test_closable_codeexpr_CodeExpr0() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/codeexpr/CodeExpr0.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/codeexpr/CodeExpr2.bpl
+public void testBoogieParseexamples_boogie_test_closable_codeexpr_CodeExpr2() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/codeexpr/CodeExpr2.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test0/EmptyCallArgs.bpl

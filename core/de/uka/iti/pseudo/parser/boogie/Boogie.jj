@@ -1321,29 +1321,50 @@ Expression AtomExpression()
 
 CodeExpression CodeExpression()
 :{
+  Token loc;
+  
+  LocalVariableDeclaration var;
+  List<LocalVariableDeclaration> vars = new LinkedList<LocalVariableDeclaration>();
+
+  SpecBlock spec;
+  List<SpecBlock > specs = new LinkedList<SpecBlock >();
 } { 
-  "|{"
-  ( LocalVars() )*
-  SpecBlock()          
-  ( SpecBlock()        
-  )*
+  loc="|{"
+  ( var=LocalVars() {vars.add(var);} )*
+  
+  ( spec=SpecBlock() {specs.add(spec);} )+
   "}|"
   
-  { throw new UnsupportedFeature("Code expressions"); }
+  { return new CodeExpression(loc, vars, specs); }
 }
 
-void SpecBlock()
-:{} { 
-  <IDENT> ":"
-  ( LabelOrCmd()
-                       
-  )*
-  ( "goto"             
-    Idents()     
-  | "return" Expression()
-                       
+/*
+  Spec blocks are used to form the program that specifies the desired property. 
+*/
+SpecBlock SpecBlock()
+:{
+  Token tmp;
+
+  List<Token> targets;
+
+  Expression expr;
+
+  Statement cmd;
+  List<Statement> body = new LinkedList<Statement >();
+
+} { 
+  tmp=<IDENT> ":"
+  {    cmd = new LabelStatement(tmp);
+    body.add(cmd);
+  }
+  ( cmd=LabelOrCmd() { body.add(cmd); } )*
+  ( tmp="goto"
+    targets=Idents()    {
+      body.add(new GotoStatement(tmp, targets));    }
+  | "return" expr=Expression()    {
+      body.add(new SpecReturnStatement(expr));    }
   )
-  ";"
+  ";"  {    return new SpecBlock(body);  }
 }
 
 List<Attribute> AttributeList()

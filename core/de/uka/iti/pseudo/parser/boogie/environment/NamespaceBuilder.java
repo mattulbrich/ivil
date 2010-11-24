@@ -4,6 +4,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
@@ -12,6 +13,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
@@ -24,9 +27,6 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 public class NamespaceBuilder extends DefaultASTVisitor {
 
     private final EnvironmentCreationState state;
-
-    // used to create labelSpace
-    private ProcedureBody currentBody = null;
 
     public NamespaceBuilder(EnvironmentCreationState environmentCreationState) throws ASTVisitException {
         state = environmentCreationState;
@@ -173,20 +173,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(ProcedureBody node) throws ASTVisitException {
-        currentBody = node;
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-
-        currentBody = null;
-    }
-
-    @Override
     public void visit(LabelStatement node) throws ASTVisitException {
-        assert currentBody != null;
-
-        Pair<String, ProcedureBody> key = new Pair<String, ProcedureBody>(node.getName(), currentBody);
+        Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
 
         if (state.variableSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
@@ -206,11 +194,5 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
-    }
-
-    @Override
-    public void visit(MapUpdateExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
     }
 }

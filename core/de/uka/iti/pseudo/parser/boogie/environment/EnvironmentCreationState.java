@@ -56,7 +56,7 @@ public final class EnvironmentCreationState {
 
     // not directly a namespace, but very handy for goto usage; maps names and
     // procedure bodies to Labelstatements
-    final HashMap<Pair<String, ProcedureBody>, ASTElement> labelSpace = new HashMap<Pair<String, ProcedureBody>, ASTElement>();
+    final HashMap<Pair<String, Scope>, ASTElement> labelSpace = new HashMap<Pair<String, Scope>, ASTElement>();
 
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
@@ -94,7 +94,7 @@ public final class EnvironmentCreationState {
         }
         
         //make sure we did not forget something
-        assert scopeMap.size() == typeMap.size() || printDebugInformation();
+        assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found untyped ASTElements";
 
         // new TypeChecker(this);
 
@@ -150,8 +150,8 @@ public final class EnvironmentCreationState {
         System.out.println("");
 
         System.out.println("explicit labels:");
-        for (Pair<String, ProcedureBody> n : labelSpace.keySet()) {
-            System.out.println("\t" + n.first + "\t\tinside body " + n.second.getLocation());
+        for (Pair<String, Scope> n : labelSpace.keySet()) {
+            System.out.println("\t" + n.first + "\t\tinside body scope " + n.second);
         }
         System.out.println("");
 
@@ -177,7 +177,7 @@ public final class EnvironmentCreationState {
             
             createTypesystem();
 
-            // printDebugInformation();
+            printDebugInformation();
 
             return null;
 

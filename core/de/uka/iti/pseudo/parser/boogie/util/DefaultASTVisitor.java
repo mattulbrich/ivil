@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
@@ -66,6 +67,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
@@ -448,6 +451,21 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
+        defaultAction(node);
+    }
+
+    @Override
+    public void visit(SpecBlock node) throws ASTVisitException {
+        defaultAction(node);
+    }
+
+    @Override
+    public void visit(CodeExpression node) throws ASTVisitException {
+        defaultAction(node);
+    }
+
+    @Override
+    public void visit(SpecReturnStatement node) throws ASTVisitException {
         defaultAction(node);
     }
 }

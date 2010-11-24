@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
@@ -11,6 +12,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
@@ -21,14 +24,12 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
  */
 public final class ScopeBuilder extends DefaultASTVisitor {
 
-    private final Scope globalScope;
     private final Decoration<Scope> scopeMap;
 
     private Stack<Scope> scopeStack;
 
     public ScopeBuilder(CompilationUnit root, Scope globalScope, Decoration<Scope> scopeMap)
             throws ASTVisitException {
-        this.globalScope = globalScope;
         this.scopeMap = scopeMap;
 
         /**
@@ -40,6 +41,8 @@ public final class ScopeBuilder extends DefaultASTVisitor {
         scopeStack.push(globalScope);
 
         visit(root);
+
+        assert scopeStack.peek() == globalScope;
     }
 
     private void push(ASTElement node) {
@@ -120,6 +123,11 @@ public final class ScopeBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
+        defaultChange(node);
+    }
+
+    @Override
+    public void visit(CodeExpression node) throws ASTVisitException {
         defaultChange(node);
     }
 }

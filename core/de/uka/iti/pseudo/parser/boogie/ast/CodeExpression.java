@@ -1,29 +1,36 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
+import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class CodeExpression extends Expression {
 
-    public CodeExpression() throws ParseException {
-        super(null);
+    final private List<SpecBlock> specs;
+    final private List<Expression> operands = new LinkedList<Expression>();
 
-        throw new ParseException("Code expressions are not supported yet.");
+    public CodeExpression(Token location, List<LocalVariableDeclaration> vars, List<SpecBlock> specs)
+            throws ParseException {
+        super(location);
+
+        this.specs = specs;
+
+        addChildren(vars);
+        addChildren(specs);
     }
 
     @Override
     public List<Expression> getOperands() {
-        // TODO Auto-generated method stub
-        return null;
+        return operands;
     }
 
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        v.visit(this);
     }
 
 }

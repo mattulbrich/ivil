@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
@@ -49,6 +50,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
@@ -300,7 +303,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (state.typeMap.has(node))
             return;
 
-
         // resolve type name
         ASTElement declaration = getParameterDeclaration(node.getName(), state.scopeMap.get(node));
         UniversalType type = null;
@@ -529,12 +531,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
-        
+
         if (!state.typeMap.has(node.getName())) {
             todo.add(node);
-                return;
+            return;
         }
-        
+
         state.typeMap.add(node, state.typeMap.get(node.getName()).range);
     }
 
@@ -561,7 +563,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
-        
+
         ASTElement decl = state.functionSpace.get(node.getName());
         if (!state.typeMap.has(decl)) {
             todo.add(node);
@@ -768,5 +770,40 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(FalseExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBool());
+    }
+
+    @Override
+    public void visit(SpecBlock node) throws ASTVisitException {
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        setTypeSameAs(node, node.getChildren().get(node.getChildren().size() - 1));
+    }
+
+    @Override
+    public void visit(CodeExpression node) throws ASTVisitException {
+        for (ASTElement n : node.getChildren()) {
+            n.visit(this);
+            if (!state.typeMap.has(n)) {
+                todo.add(node);
+                return;
+            }
+        }
+
+        for (ASTElement n : node.getChildren()) {
+            if (state.typeMap.get(n) != null) {
+                state.typeMap.add(node, state.typeMap.get(n));
+                return;
+            }
+        }
+        throw new ASTVisitException("CodeExpression @" + node.getLocation() + " has no return statement!");
+    }
+
+    @Override
+    public void visit(SpecReturnStatement node) throws ASTVisitException {
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        setTypeSameAs(node, node.getChildren().get(0));
     }
 }
