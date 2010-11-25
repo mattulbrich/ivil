@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
@@ -199,12 +200,12 @@ public class TypeUnification implements Cloneable {
                             adaptApp, fixApp);
                 }
 
-                Type[] adaptArguments = adaptApp.getArguments();
-                Type[] fixArguments = fixApp.getArguments();
+                List<Type> adaptArguments = adaptApp.getArguments();
+                List<Type> fixArguments = fixApp.getArguments();
 
-                for (int i = 0; i < fixArguments.length; i++) {
+                for (int i = 0; i < fixArguments.size(); i++) {
                     // possibly wrap in try/catch to add detail information
-                    adaptArguments[i].accept(this, fixArguments[i]);
+                    adaptArguments.get(i).accept(this, fixArguments.get(i));
                 }
             } else {
                 

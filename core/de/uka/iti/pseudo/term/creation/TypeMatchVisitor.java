@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
@@ -7,6 +9,8 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+
+// TODO DOC
 
 public class TypeMatchVisitor extends DefaultTypeVisitor<Type> {
     
@@ -49,10 +53,10 @@ public class TypeMatchVisitor extends DefaultTypeVisitor<Type> {
                 throw new UnificationException("Incomparable sorts", typeApp, argument);
             }
             
-            Type[] args = typeApp.getArguments();
-            Type[] otherArgs = otherApp.getArguments();
+            List<Type> args = typeApp.getArguments();
+            List<Type> otherArgs = otherApp.getArguments();
             for(int i = 0; i < sort.getArity(); i++) {
-                args[i].accept(this, otherArgs[i]);
+                args.get(i).accept(this, otherArgs.get(i));
             }
             
         } else {

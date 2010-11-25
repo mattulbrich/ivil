@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
@@ -24,10 +26,10 @@ public class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
 
     public Type visit(TypeApplication typeApplication, A parameter) throws TermException {
         Sort sort = typeApplication.getSort();
-        Type[] arguments = typeApplication.getArguments();
-        Type result[] = new Type[arguments.length];
+        List<Type> arguments = typeApplication.getArguments();
+        Type result[] = new Type[arguments.size()];
         for (int i = 0; i < result.length; i++) {
-            result[i] = arguments[i].accept(this, parameter);
+            result[i] = arguments.get(i).accept(this, parameter);
         }
         
         return new TypeApplication(sort, result);

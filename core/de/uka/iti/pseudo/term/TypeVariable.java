@@ -11,16 +11,6 @@ package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
 
-/*
- * Special type variables
- * 
- * '#<id> used by TypeUnification to make variants
- * '%<id> type of a schema variable
- * '%%<id> type of a schema identifier
- * '[0-9]+ temporily created types during type inference
- * '<id> usual type variables, entered by user
- */
-
 /**
  * This class encapsulates a type variable type with an arbitrary name.
  * 

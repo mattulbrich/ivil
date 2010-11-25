@@ -216,7 +216,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
 
-            if (typeApplication.getArguments().length > 0) {
+            if (typeApplication.getArguments().size() > 0) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("(ty.").append(typeApplication.getSort().getName());
                 for (Type ty : typeApplication.getArguments()) {

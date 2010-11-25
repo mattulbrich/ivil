@@ -34,7 +34,7 @@ public abstract class Type {
 
     /**
      * This method is the 'accept' method of the visitor pattern. It can be used
-     * to call a specific method of the visitpr for a certain subtype of this
+     * to call a specific method of the visitor for a certain subtype of this
      * class.
      * 
      * @param visitor
@@ -51,7 +51,7 @@ public abstract class Type {
      * {@inheritDoc}
      * 
      * <p>The string representation of a type has to ensure that if two types are equal
-     * there strings are equal as well.
+     * their strings are equal as well.
      */
     @Override
     public abstract @NonNull String toString();
