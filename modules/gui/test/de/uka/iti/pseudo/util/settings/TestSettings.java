@@ -23,10 +23,11 @@ public class TestSettings extends TestCase {
         s = Settings.getInstance();
     }
     
-    public void testSysDir() throws Exception {
-        String dir = s.getExpandedProperty(Main.SYSTEM_DIRECTORY_KEY);
-        assertEquals("./sys", dir);
-    }
+    // no longer the case
+//    public void testSysDir() throws Exception {
+//        String dir = s.getExpandedProperty(Main.SYSTEM_DIRECTORY_KEY);
+//        assertEquals("./sys", dir);
+//    }
     
     public void testGetExpandedString() throws Exception {
         
