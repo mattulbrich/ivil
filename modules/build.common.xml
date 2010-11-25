@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="ivil - common tasks" default="nonnull" basedir=".">
+  
+  <target name="init">
+    <mkdir dir="classes"/>
+    <mkdir dir="classes-test"/>
+    <condition property="ivil.active.nonnull">
+      <equals arg1="${ivil.nonnullChecks}" arg2="true" />
+    </condition>
+  </target>
+  
+  <path id="ivil.sourcepath.compile">
+    <pathelement path="src"/>
+  </path>
+  
+  <target name="build" depends="compile, nonnull" />
+
+  <target name="build-test" depends="compile-test, nonnull-test" 
+          if="ivil.testclass"/>
+  
+  <target name="compile-init" />
+  <target name="compile" depends="init, compile-init, copy"
+          description="compiles the sources">
+    <javac destdir="classes" debug="${compile.debug}">
+      <src refid="ivil.sourcepath.compile" />
+      <compilerarg value="-Xlint"/>
+      <classpath refid="ivil.classpath.compile"/>
+    </javac>
+  </target>
+  
+  <target name="compile-test" depends="init" 
+	  description="build test cases">
+    <echo message="Compiling tests in ${ant.file}"/>
+    <javac srcdir="test" destdir="classes-test" 
+	   debug="${compile.debug}" sourcepath="test">
+      <classpath>
+        <pathelement location="lib/junit.jar" />
+      	<pathelement path="classes" />
+        <pathelement path="../core/classes" />
+        <pathelement path="../core/classes-test" />
+      </classpath>
+      <classpath refid="ivil.classpath.compile"/>
+    </javac>
+  </target>
+
+  <!-- invokes the nonnull checker if the switch is set -->	
+  <target name="nonnull" depends="compile" 
+	  description="patches the class files with r/t checks" 
+	  if="ivil.active.nonnull">
+    <java classname="nonnull.NonNullPatch">
+      <arg value="${basedir}/classes"/>
+      <!--<sysproperty key="verbose" value="true"/>-->
+      <classpath>
+        <pathelement location="../../lib/nonnull.jar"/>
+      </classpath>
+    </java> 
+  </target>
+
+  <target name="nonnull-test" depends="compile-test" 
+	  description="patches the class files with r/t checks" 
+	  if="ivil.active.nonnull">
+    <java classname="nonnull.NonNullPatch">
+      <arg value="${basedir}/classes-test"/>
+      <!--<sysproperty key="verbose" value="true"/>-->
+      <classpath>
+        <pathelement location="../../lib/nonnull.jar"/>
+      </classpath>
+    </java> 
+  </target>
+	
+  <target name="copy" depends="init">
+    <copy todir="classes">
+      <fileset dir="src">
+        <include name="**/*.properties" />
+        <include name="**/*.smt" />
+        <include name="**/*.xsd" />
+        <include name="META-INF/**" />     
+        <include name="**/*.gif" />
+        <include name="**/*.png" />
+    	<include name="**/*.properties" />
+    	<include name="**/*.xml" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="copy-test" depends="init">
+    <copy todir="classes-test">
+      <fileset dir="test">
+        <include name="**/*.properties" />
+        <include name="**/*.p" />
+        <include name="**/*.txt" />
+        <include name="**/*.xsd" />
+      </fileset>
+    </copy>
+  </target>
+	
+  <target name="test" 
+	  depends="build, build-test, nonnull-test, nonnull, copy-test" 
+	  description="run junit tests"
+	  if="ivil.testclass">
+    <echo message="Testing in ${ant.file}"/>
+    <junit printsummary="yes" fork="yes" haltonfailure="yes">
+      <sysproperty key="pseudo.baseDir" value="${basedir}/../.." />
+      <classpath>
+        <pathelement path="classes"/>
+        <pathelement path="classes-test"/>
+        <pathelement path="../core/classes-test"/>
+        <pathelement path="../core/classes"/>
+        <pathelement location="../../lib/nonnull.jar"/>
+        <pathelement path="../../lib/junit.jar"/>
+      </classpath>
+      <test name="${ivil.testclass}"/>
+      <formatter type="plain" />
+    </junit>
+  </target>
+
+  <target name="clean">
+    <delete dir="classes" />
+    <delete dir="classes-test" />
+    <delete dir="genSrc" />
+  </target>
+
+</project>

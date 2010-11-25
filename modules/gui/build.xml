@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="ivil-GUI" default="build" basedir=".">
+
+  <import file="../build.common.xml" />
+  
+  <property name="ivil.testclass" value="de.uka.iti.pseudo.AllGuiTests"/>
+  
+    <path id="ivil.classpath.compile">
+      <pathelement path="../core/classes"/>
+      <pathelement path="../../lib/javadocking.jar"/>
+      <pathelement path="../../lib/rsyntaxtextarea.jar"/>
+    </path>
+
+</project>

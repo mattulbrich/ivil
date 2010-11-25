@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="ivil-core" default="build" basedir=".">
+
+  <import file="../build.common.xml" />
+
+  <property name="ivil.testclass" value="de.uka.iti.pseudo.AllCoreTests"/>
+  <path id="ivil.classpath.compile">
+    <pathelement path="classes"/>
+  </path>
+  <path id="ivil.sourcepath.compile">
+    <pathelement path="src"/>
+    <pathelement path="genSrc"/>
+  </path>
+
+  <target name="build" depends="javacc, compile, nonnull" />
+
+  <target name="initJavaCC">
+    <mkdir dir="genSrc"/>
+    <uptodate property="javacc.notRequired" 
+              targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
+        <srcfiles dir="src/de/uka/iti/pseudo/parser/" includes="*.jj"/>
+    </uptodate>
+  </target>
+
+
+  <target name="javacc" depends="initJavaCC" unless="javacc.notRequired">
+    <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
+      <fileset file="src/de/uka/iti/pseudo/parser/ParserHead.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/FileParser.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
+      <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
+    </concat>
+    <exec executable="javacc">
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
+      <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
+    </exec>
+    <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
+  </target>
+  
+</project>

@@ -1,94 +1,61 @@
 <?xml version="1.0"?>
 <!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
 
-<project name="ivil - Interactive verification on intermediate language" default="nonnull" basedir=".">
+<project name="ivil" 
+         default="build" basedir=".">
 
-  <property name="compile.debug" value="true" />
-<!--  <property name="compile.nonnullchecks" value="remove this line to switchoff" />
- -->
+  <!-- the list of all submodules. Order is of importance here -->
+  <filelist id="modules" dir=".">
+    <file name="./modules/core/build.xml"/>
+    <file name="./modules/gui/build.xml"/>
+    <file name="./modules/cmd/build.xml"/>
+    <file name="./modules/boogie/build.xml"/> 
+    <file name="./modules/exp/build.xml"/>
+  </filelist>
+
+  <!-- YOU MAY CHANGE THIS -->
+  
+  <property name="ivil.debug" value="true" />
+  <property name="ivil.nonnullChecks" value="true" />
+  <property name="ivil.version" value="0.10" />
+  <property name="ivil.keystoreAlias" value="mu2010" />
+  <property name="ivil.keystorePassword" value="keystore" />
+  <!-- UP TO HERE -->
+
+  <condition property="ivil.active.nonnull">
+    <equals arg1="${ivil.nonnullChecks}" arg2="true" />
+  </condition>
+
   <target name="init">
-    <mkdir dir="classes/META-INF"/>
-    <mkdir dir="classes-test"/>
-    <mkdir dir="genSrc"/> 
     <tstamp> 
       <format property="NOW" pattern="yyyy-MM-dd kk:mm" locale="en,UK"/>
     </tstamp>
-    <uptodate property="javacc.notRequired" targetFile="genSrc/de/uka/iti/pseudo/parser/Parser.java">
-      <srcfiles dir="core/de/uka/iti/pseudo/parser/" includes="*.jj"/>
-    </uptodate>
-    <echo file="classes/META-INF/VERSION" append="false">0.10 - ${NOW}</echo>
+    <echo file="VERSION" append="false">${version} - ${NOW}</echo>
   </target>
-	
-  <target name="build" depends="init, javacc, copy" description="compiles the sources">
-    <javac destdir="classes" debug="${compile.debug}">
-      <src path="core" />
-      <src path="genSrc" />
-      <compilerarg value="-Xlint"/>
-      <classpath>
-      	<pathelement path="classes" />
-      </classpath>
-    </javac>
-    <javac srcdir="cmd" destdir="classes" debug="${compile.debug}">
-      <classpath>
-      	<pathelement path="classes" />
-      </classpath>
-      <compilerarg value="-Xlint"/>
-    </javac>
-     <javac srcdir="gui" destdir="classes" debug="${compile.debug}">
-      <classpath>
-        <pathelement path="lib/javadocking.jar" />
-        <pathelement path="lib/rsyntaxtextarea.jar" />
-      	<pathelement path="classes" />
-      </classpath>
-      <compilerarg value="-Xlint"/>
-    </javac>
- </target>
-	
-  <target name="nonnull" depends="build" 
-	  description="patches the class files with r/t checks" 
-	  if="compile.nonnullchecks">
-    <java classname="nonnull.NonNullPatch">
-      <arg value="classes"/>
-      <classpath>
-        <pathelement location="lib/nonnull.jar"/>
-      </classpath>
-    </java> 
+  
+  <target name="build" depends="init" description="builds the modules">
+    <subant target="build" verbose="true">
+      <propertyset> <propertyref prefix="ivil."/> </propertyset>
+      <filelist refid="modules" />
+    </subant>
   </target>
-	
-  <target name="javacc" depends="init" unless="javacc.notRequired">
-    <concat destfile="genSrc/de/uka/iti/pseudo/parser/Parser.jj">
-      <fileset file="core/de/uka/iti/pseudo/parser/ParserHead.jj"/>
-      <fileset file="core/de/uka/iti/pseudo/parser/FileParser.jj"/>
-      <fileset file="core/de/uka/iti/pseudo/parser/TermParser.jj"/>
-      <fileset file="core/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
-    </concat>
-    <exec executable="javacc">
-      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
-      <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
-    </exec>
-    <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
+  
+  <target name="test" depends="init"
+          description="run the tests in all modules">
+    <subant target="test" verbose="true">
+      <propertyset> <propertyref prefix="ivil."/> </propertyset>
+      <filelist refid="modules" />
+    </subant>
   </target>
-	
-  <target name="copy" depends="init">
-    <copy todir="classes">
-      <fileset dir="core">
-        <include name="**/*.properties" />
-        <include name="**/*.smt" />
-        <include name="**/*.xsd" />
-        <include name="META-INF/**" />     
-      </fileset>
-      <fileset dir="gui">
-        <include name="**/*.gif" />
-        <include name="**/*.png" />
-    	<include name="**/*.properties" />
-    	<include name="**/*.xml" />
-      </fileset>  
-    </copy>
-  </target>
-
-  <target name="jar" depends="build, nonnull" 
-	  description="creates the jar file">
-    <jar jarfile="ivil.jar" basedir="classes">
+   
+  <target name="jar" depends="build" description="creates the jar file">
+    <jar jarfile="ivil.jar">
+      <fileset dir="modules/core/classes/" />
+      <fileset dir="modules/gui/classes/" />
+      <fileset dir="modules/cmd/classes/" />
+      <fileset dir="modules/boogie/classes/" />
+      <fileset dir="modules/exp/classes/" />
+      <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
       <manifest>
         <!-- Who is building this jar? -->
         <attribute name="Built-By" value="${user.name}"/>
@@ -96,7 +63,7 @@
         <attribute name="Implementation-Vendor" value="ITI, Universitaet Karlsruhe"/>
         <attribute name="Implementation-Title" 
 		   value="ivil - Interactive Verification on Intermediate Language"/>
-        <attribute name="Implementation-Version" value="0.0"/>
+        <attribute name="Implementation-Version" value="${version} - ${NOW}"/>
         <!-- log4j is an optional library, the runtime env will not complain if
              the file is absent -->
         <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar"/>
@@ -112,8 +79,8 @@
   </target>
 
   <target name="sign" depends="jar,sys.jar" description="signs the jar file">
-    <signjar jar="ivil.jar" alias="mu2010" storepass="keystore" />
-    <signjar jar="sys.jar" alias="mu2010" storepass="keystore" />
+    <signjar jar="ivil.jar" alias="${ivil.keystoreAlias}" storepass="${ivil.keystorePassword}" />
+    <signjar jar="sys.jar" alias="${ivil.keystoreAlias}" storepass="${ivil.keystorePassword}" />
   </target> 
 
   <target name="dist" depends="jar" description="package the software to deliver it">
@@ -133,87 +100,38 @@
       <fileset dir="." includes="examples/**" excludes="**/*~*" />
       <fileset dir="." includes="sys/**" excludes="**/*~*" />
       <fileset dir="." includes="lib/**" />
-      <fileset dir="." includes="core/**" />
-      <fileset dir="." includes="gui/**" />
-      <fileset dir="." includes="test/**" />
-      <fileset dir="." includes="cmd/**" />
+      <fileset dir="." includes="modules/**" />
       <fileset dir="." includes="doc/**" />
       <fileset dir=".">
 	<include name="LICENSE.TXT" />
 	<include name="LICENSE.header" />
 	<include name="build.xml" />
 	<include name=".classpath" />
+	<include name="ivil" />
+	<include name="ivilc" />
       </fileset>
     </zip>
-  </target>
-
-  <target name="build-test" depends="build" 
-	  description="build test cases">
-    <javac srcdir="test" destdir="classes-test" 
-	   debug="${compile.debug}" sourcepath="test">
-      <classpath>
-        <pathelement location="lib/junit.jar" />
-      	<pathelement path="classes" />
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="copy-test" depends="init">
-    <copy todir="classes-test">
-      <fileset dir="test">
-        <include name="**/*.properties" />
-        <include name="**/*.p" />
-        <include name="**/*.txt" />
-        <include name="**/*.xsd" />
-      </fileset>
-    </copy>
-  </target>
-
-  <target name="nonnull-test" depends="build-test" 
-	  description="patches the class files with r/t checks" 
-	  if="compile.nonnullchecks">
-    <java classname="nonnull.NonNullPatch">
-      <arg value="classes-test"/>
-      <classpath>
-        <pathelement location="lib/nonnull.jar"/>
-      </classpath>
-    </java> 
-  </target>
-	
-  <target name="test" 
-	  depends="build-test, nonnull-test, nonnull, copy-test" 
-	  description="run junit tests">
-    <junit printsummary="yes" fork="yes" haltonfailure="yes">
-      <classpath>
-        <pathelement path="classes"/>
-        <pathelement path="classes-test"/>
-        <!--<pathelement location="lib/javadocking.jar"/>-->
-        <pathelement location="lib/nonnull.jar"/>
-        <pathelement path="lib/junit.jar"/>
-      </classpath>
-      <test name="de.uka.iti.pseudo.AllTests"/>
-      <formatter type="plain" />
-    </junit>
   </target>
 
   <target name="javadoc" depends="init" description="Build Javadoc.">
     <mkdir dir="javadoc"/>
     <javadoc destdir="javadoc" linksource="yes">
       <sourcepath>
-        <pathelement location="core"/>
-        <pathelement location="gui"/>
+        <pathelement location="modules/core/src"/>
+        <pathelement location="modules/gui/src"/>
+        <pathelement location="modules/cmd/src"/>
+        <pathelement location="modules/boogie/src"/>
+        <pathelement location="modules/exp/src"/>
       </sourcepath>
-<!--      <fileset dir="core">
-        <include name="**/*.java"/>
-      </fileset>-->
       <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
     </javadoc>
   </target>
 
   <target name="clean">
-    <delete dir="classes" />
-    <delete dir="classes-test" />
-    <delete dir="genSrc" />
+    <subant target="clean">
+      <propertyset> <propertyref prefix="ivil."/> </propertyset>
+      <filelist refid="modules" />
+    </subant>
   </target>
 
   <target name="clean-bak" 
@@ -228,12 +146,8 @@
 	  description="Update copyright notes in java files">
     <taskdef name="copyright" classname="CopyrightTask" classpath="lib" />
     <copyright file="LICENSE.header">
-      <fileset dir="core" includes="**/*.java"/>
-      <fileset dir="test" includes="**/*.java"/>
-      <fileset dir="gui" includes="**/*.java"/>
-      <fileset dir="cmd" includes="**/*.java"/>
+      <fileset dir="modules" includes="*/src/**/*.java"/>
     </copyright>
   </target>
-
 
 </project>

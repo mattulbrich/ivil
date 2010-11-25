@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="ivil-GUI" default="build" basedir=".">
+
+  <import file="../build.common.xml" />
+  
+  <property name="ivil.testclass" value="de.uka.iti.pseudo.AllCmdTests"/>
+  
+  <path id="ivil.classpath.compile">
+    <pathelement path="../core/classes"/>
+  </path>
+
+</project>

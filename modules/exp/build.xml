@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--!DOCTYPE project PUBLIC "-//ANT//DTD project//EN" "project.dtd"-->
+
+<project name="ivil-experimental" default="build" basedir=".">
+
+  <import file="../build.common.xml" />
+  
+  <path id="ivil.classpath.compile">
+    <pathelement path="../core/classes"/>
+  </path>
+
+</project>
