@@ -4,6 +4,7 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 
 /**
  * This type class is used to represent used types in the boogie file. It is
@@ -48,6 +49,14 @@ public class UniversalType {
      * linkage of types is done using pointers
      */
     final UniversalType[] parameters;
+
+    /**
+     * paths that can be used to infer i'th parameter this uses heavily the
+     * structure of generated ASTs: template and domain parameters will be the
+     * i'th child; for range -1 will be used, as it is needed for checking but
+     * not for inference.
+     */
+    private final List<InferencePath>[] paths;
 
     /**
      * if the type was created by a typeconstructor, there can be template
@@ -106,16 +115,21 @@ public class UniversalType {
      *            number of results of procedures; for simplicity reasons, this
      *            is also used for the other types with ranges
      */
+    @SuppressWarnings("unchecked")
     private UniversalType(boolean isTypeVariable, String name, String aliasname, UniversalType[] parameters,
             UniversalType[] templateArguments, UniversalType[] domain, UniversalType range, int rangeCount) {
         this.isTypeVariable = isTypeVariable;
         this.name = name;
         this.aliasname = aliasname;
         this.parameters = parameters;
-        this.templateArguments = templateArguments;
-        this.domain = domain;
+        this.templateArguments = null != templateArguments ? templateArguments : new UniversalType[0];
+        this.domain = null != domain ? domain : new UniversalType[0];
         this.range = range;
         this.rangeCount = rangeCount;
+
+        paths = new List[parameters.length];
+        for (int i = 0; i < paths.length; i++)
+            paths[i] = InferencePath.getPaths(this, parameters[i]);
     }
 
     /**
@@ -202,7 +216,6 @@ public class UniversalType {
         if (arguments.size() < definition.templateArguments.length)
             throw new ASTVisitException("you have to supply more arguments: expected "
                     + definition.templateArguments.length + " but got only " + arguments.size());
-
 
         // copy interisting arguments
         UniversalType[] args = definition.templateArguments.clone();
@@ -337,7 +350,8 @@ public class UniversalType {
      * @param range
      * @param rangeCount
      */
-    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
+    static UniversalType newMap(List<UniversalType> parameters,
+            List<UniversalType> domain, UniversalType range,
             int rangeCount) {
 
         // construct a nice name a la <...>[...]...
@@ -380,6 +394,39 @@ public class UniversalType {
     }
 
     /**
+     * Infers parameter types
+     * 
+     * @param map
+     *            base type
+     * @param node
+     *            occurance of type usage
+     * 
+     * @param typeMap
+     *            needed to resolve types of children
+     * 
+     * @return type of the result of this access
+     */
+    // FIXME check all inference points to make sure no problems like <a>[a, a]a
+    // -> [int, bool]??? occur
+    public static UniversalType newInferedType(UniversalType map, MapAccessExpression node,
+            final EnvironmentCreationState state) {
+        if (0 == map.parameters.length)
+            return map;
+        
+        
+        UniversalType[] is = new UniversalType[map.parameters.length];
+
+        for (int i = 0; i < map.parameters.length; i++) {
+            is[i] = map.paths[i].get(0).inferType(node, state);
+        }
+        
+        UniversalType rval = new UniversalType(false, map.name, map.aliasname, new UniversalType[0],
+                map.templateArguments, map.domain, map.range, map.rangeCount);
+
+        return replaceInType(rval, map.parameters, is);
+    }
+
+    /**
      * This can be used e.g. to check a := [5]5. this statement is valid, if
      * [int]int is a subtype of a, thus a can be declared as "[int]int" or as
      * "<a>[a]int" or as "<a>[a]a"
@@ -393,6 +440,9 @@ public class UniversalType {
          * !!!
          */
 
+        if (this == t)
+            return true;
+
         // TODO implement
         return false;
     }
@@ -405,6 +455,8 @@ public class UniversalType {
      * @return true, if one could assign t to a variable of type this
      */
     public boolean assignable(UniversalType t) {
+
+        // todo implement
 
         return false;
     }
@@ -450,5 +502,23 @@ public class UniversalType {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException();
         }
+    }
+
+    /**
+     * @return true iff there is a subtype, that has nonzero template arguments
+     */
+    public boolean isConstructor() {
+        if (isTypeVariable)
+            return false;
+
+        if (null != domain)
+            for (int i = 0; i < domain.length; i++)
+                if (domain[i].isConstructor())
+                    return true;
+
+        if (null != range)
+            return range.isConstructor();
+        else
+            return false;
     }
 }

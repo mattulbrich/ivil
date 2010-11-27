@@ -28,6 +28,10 @@ public final class Precondition extends Specification {
         v.visit(this);
     }
 
+    public Expression getCondition() {
+        return condition;
+    }
+
     public boolean isFree() {
         return isFree;
     }

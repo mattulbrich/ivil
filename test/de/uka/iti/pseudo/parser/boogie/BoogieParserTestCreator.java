@@ -41,7 +41,8 @@ public class BoogieParserTestCreator {
                 out.write("} catch(" + context + " ex){\n" +
                         "return;\n"+
                         "}\n"+
-                        "assert false;");
+                        "assert false: \"expected "
+                        + context + " to be trown\";");
             }
 
             out.write("}\n\n");

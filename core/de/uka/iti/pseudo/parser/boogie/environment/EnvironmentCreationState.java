@@ -92,13 +92,21 @@ public final class EnvironmentCreationState {
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
 
         }
-        
-        //make sure we did not forget something
+
+        // make sure we did not forget something
         assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found untyped ASTElements";
 
-        // new TypeChecker(this);
+        try {
+            new TypeChecker(this);
+        } catch (TypeSystemException e) {
 
-        // remove duplicates
+            printDebugInformation();
+
+            throw e;
+        }
+
+        // remove duplicates @note: this is maybe unneded, as it could be
+        // integrated to ivil type creation
 
         // create a mapping from table types to ivil types
     }
@@ -136,12 +144,12 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
-        System.out.println("seen types:");
-        for (UniversalType t : typeMap.valueSet()) {
-            if (t != null)
-                System.out.println("\t" + t.name);
-        }
-        System.out.println("");
+        // System.out.println("seen types:");
+        // for (UniversalType t : typeMap.valueSet()) {
+        // if (t != null)
+        // System.out.println("\t" + t.name);
+        // }
+        // System.out.println("");
 
         System.out.println("variable and constant declarations:");
         for (Pair<String, Scope> n : variableSpace.keySet()) {
@@ -177,8 +185,6 @@ public final class EnvironmentCreationState {
             
             createTypesystem();
 
-            // printDebugInformation();
-
             return null;
 
         } catch(EnvironmentCreationException e) {
@@ -190,6 +196,9 @@ public final class EnvironmentCreationState {
 
             printDebugInformation();
             throw e;
+        } finally {
+
+            // printDebugInformation();
         }
     }
 }

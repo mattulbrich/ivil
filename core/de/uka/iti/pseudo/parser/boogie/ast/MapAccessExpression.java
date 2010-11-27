@@ -21,8 +21,8 @@ public final class MapAccessExpression extends Expression {
         this.name = name;
         this.arguments = arguments;
 
-        addChild(name);
         addChildren(arguments);
+        addChild(name);
     }
 
     /**

@@ -33,4 +33,8 @@ public final class CodeExpression extends Expression {
         v.visit(this);
     }
 
+    public List<SpecBlock> getSpecs() {
+        return specs;
+    }
+
 }
