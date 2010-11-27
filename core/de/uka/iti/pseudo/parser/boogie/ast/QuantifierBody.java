@@ -27,10 +27,10 @@ public final class QuantifierBody extends ASTElement {
         this.quantifiedVariables = vars;
         this.body = body;
 
-        addChildren(attributes);
-        addChildren(triggers);
         addChildren(vars);
         addChild(body);
+        addChildren(attributes);
+        addChildren(triggers);
     }
 
     @Override

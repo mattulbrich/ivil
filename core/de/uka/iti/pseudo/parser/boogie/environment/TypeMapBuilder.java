@@ -254,7 +254,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             }
 
+            try {
             state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter()), 1));
+            } catch (IllegalArgumentException e) {
+                // can happen if the maptype is illformed like <a>[]int or
+                // <a>[int]a
+                throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
+            }
         } else {
             todo.add(node);
             return;
@@ -369,8 +375,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 }
 
             }
+            try {
+                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), 1));
+            } catch (IllegalArgumentException e) {
+                // can happen if the maptype is illformed like <a>[]int or
+                // <a>[int]a
+                throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
+            }
 
-            state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), 1));
         } else {
             todo.add(node);
             return;
@@ -529,15 +541,23 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (state.typeMap.has(node))
             return;
 
-        for (ASTElement n : node.getChildren())
+        boolean failed = false;
+        for (ASTElement n : node.getChildren()) {
             n.visit(this);
+            if (!state.typeMap.has(n))
+                failed = true;
+        }
 
-        if (!state.typeMap.has(node.getName())) {
+        if (failed) {
             todo.add(node);
             return;
         }
 
+        try {
         state.typeMap.add(node, UniversalType.newInferedType(state.typeMap.get(node.getName()), node, state).range);
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(e.getMessage());
+        }
     }
 
     @Override
@@ -621,7 +641,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             }
 
+            try {
             state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getBody()), 1));
+            } catch (IllegalArgumentException e) {
+                // can happen if the maptype is illformed like <a>[]int or
+                // <a>[int]a
+                throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
+            }
+
         } else {
             todo.add(node);
             return;

@@ -128,8 +128,12 @@ public class UniversalType {
         this.rangeCount = rangeCount;
 
         paths = new List[parameters.length];
-        for (int i = 0; i < paths.length; i++)
+        for (int i = 0; i < paths.length; i++) {
             paths[i] = InferencePath.getPaths(this, parameters[i]);
+            if (paths[i].size() == 0)
+                throw new IllegalArgumentException("Type variable " + parameters[i]
+                        + " is not mentioned in the domain!");
+        }
     }
 
     /**
@@ -405,11 +409,15 @@ public class UniversalType {
      *            needed to resolve types of children
      * 
      * @return type of the result of this access
+     * 
+     * @throws TypeSystemException
+     *             thrown if type can not be infered because wrong arguments
+     *             were supplied
      */
     // FIXME check all inference points to make sure no problems like <a>[a, a]a
     // -> [int, bool]??? occur
     public static UniversalType newInferedType(UniversalType map, MapAccessExpression node,
-            final EnvironmentCreationState state) {
+            final EnvironmentCreationState state) throws TypeSystemException {
         if (0 == map.parameters.length)
             return map;
         

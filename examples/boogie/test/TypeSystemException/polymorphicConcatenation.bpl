@@ -3,7 +3,7 @@
   this examples is provable using boogie, but currently unsupported in ivil.
 */
 
-function god<T>() returns (T);
+function god<T>() returns (T); // fails because T can not be safely inferred, EVER
 
 procedure P() returns(){
 	var x:bv32;
