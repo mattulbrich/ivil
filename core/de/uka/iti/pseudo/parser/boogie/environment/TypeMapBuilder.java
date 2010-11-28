@@ -349,7 +349,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 arguments.add(state.typeMap.get(t));
             }
 
+            try {
             state.typeMap.add(node, UniversalType.newTemplateType(type, arguments));
+            } catch (IllegalArgumentException e) {
+                // can happen if the maptype is illformed like <a>[]int or
+                // <a>[int]a
+                throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
+            }
+            
+            // FIXME bug revealed by:
+            // testBoogieParseexamples_boogie_test_closable_test20_TypeSynonyms1
         }
     }
 

@@ -10,7 +10,6 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 
 /**
  * Objects of this class are used to hold state while creating an Environment

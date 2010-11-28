@@ -266,9 +266,10 @@ public class UniversalType {
         for (int i = 0; i < old.parameters.length; i++) {
             touched = false;
             for (int j = 0; j < was.length; j++) {
-                if (was[j] == parameters[i]) {
+                if (was[j] == parameters[i] || was[j].name.equals(parameters[i].name)) {
                     parameters[i] = is[j];
                     touched = true;
+                    break;
                 }
             }
             if (!touched)
@@ -280,9 +281,10 @@ public class UniversalType {
         for (int i = 0; i < old.templateArguments.length; i++) {
             touched = false;
             for (int j = 0; j < was.length; j++) {
-                if (was[j] == templateArguments[i]) {
+                if (was[j] == templateArguments[i] || was[j].name.equals(templateArguments[i].name)) {
                     templateArguments[i] = is[j];
                     touched = true;
+                    break;
                 }
             }
             if (!touched)
@@ -293,9 +295,10 @@ public class UniversalType {
         for (int i = 0; i < old.domain.length; i++) {
             touched = false;
             for (int j = 0; j < was.length; j++) {
-                if (was[j] == domain[i]) {
+                if (was[j] == domain[i] || was[j].name.equals(domain[i].name)) {
                     domain[i] = is[j];
                     touched = true;
+                    break;
                 }
             }
             if (!touched)
@@ -304,17 +307,21 @@ public class UniversalType {
                 changes = true;
         }
 
-        touched = false;
-        for (int j = 0; j < was.length; j++) {
-            if (was[j] == range) {
-                range = is[j];
-                touched = true;
+        if (null != range)
+        {
+            touched = false;
+            for (int j = 0; j < was.length; j++) {
+                if (was[j] == range || was[j].name.equals(range.name)) {
+                    range = is[j];
+                    touched = true;
+                    break;
+                }
             }
+            if (!touched)
+                range = replaceInType(range, was, is);
+            if (range != old.range)
+                changes = true;
         }
-        if (!touched)
-            range = replaceInType(range, was, is);
-        if (range != old.range)
-            changes = true;
 
         if (!changes)
             return old;
@@ -376,15 +383,15 @@ public class UniversalType {
         if (0 != domain.size()) {
             buf.append(" ");
             for (int i = 0; i < domain.size() - 1; i++) {
-                buf.append(domain.get(i).name);
+                buf.append(domain.get(i).toString());
                 buf.append(", ");
             }
-            buf.append(domain.get(domain.size() - 1).name);
+            buf.append(domain.get(domain.size() - 1).toString());
             buf.append(" ");
         }
         buf.append("]");
         if (1 == rangeCount)
-            buf.append(range.name);
+            buf.append(range.toString());
         else {
             buf.append("returns (");
             for (int i = 0; i < rangeCount; i++)
@@ -431,7 +438,12 @@ public class UniversalType {
         UniversalType rval = new UniversalType(false, map.name, map.aliasname, new UniversalType[0],
                 map.templateArguments, map.domain, map.range, map.rangeCount);
 
-        return replaceInType(rval, map.parameters, is);
+        rval = replaceInType(rval, map.parameters, is);
+        if (rval.range.isTypeVariable && rval.range == map.range)
+            throw new TypeSystemException("\n" + node.getLocation() + " could not infer type for variable "
+                    + rval.range);
+
+        return rval;
     }
 
     /**
@@ -467,11 +479,6 @@ public class UniversalType {
         // todo implement
 
         return false;
-    }
-
-    @Override
-    public String toString() {
-        return (isTypeVariable ? "'" : "") + name;
     }
 
     /**
@@ -528,5 +535,23 @@ public class UniversalType {
             return range.isConstructor();
         else
             return false;
+    }
+
+    public String toString(){
+        StringBuffer s = new StringBuffer();
+        if (isTypeVariable)
+            s.append("'");
+
+        if(null!=aliasname)
+            s.append(aliasname + " = ");
+        
+        s.append(name);
+        
+        for (int i = 0; i < templateArguments.length; i++) {
+            s.append(" ");
+            s.append(templateArguments[i]);
+        }
+
+        return s.toString();
     }
 }
