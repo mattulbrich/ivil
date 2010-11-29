@@ -50,6 +50,23 @@ public final class InferencePath {
         return t;
     }
 
+    @Override
+    public boolean equals(Object t) {
+        if (!(t instanceof InferencePath))
+            return false;
+
+        InferencePath p = (InferencePath) t;
+
+        if (path.size() != p.path.size())
+            return false;
+
+        for (int i = 0; i < path.size(); i++)
+            if (!path.get(i).equals(p.path.get(i)))
+                return false;
+
+        return true;
+    }
+
     static List<InferencePath> getPaths(UniversalType root, UniversalType target) {
         assert !root.isTypeVariable && target.isTypeVariable : "Type missmatch";
 

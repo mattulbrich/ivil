@@ -3,6 +3,15 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.boogie.environment.*;
 public class TestBoogieParser extends TestCaseWithEnv {
 
+// generated test for examples/boogie/test/TypeSystemException/UpdateExprTyping.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_UpdateExprTyping() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/UpdateExprTyping.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/Coercions2.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_Coercions2() throws Exception {
 try{
@@ -66,6 +75,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/typeArgsVsParams.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_typeArgsVsParams() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/typeArgsVsParams.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/MapsTypeErrors.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_MapsTypeErrors() throws Exception {
 try{
@@ -88,6 +106,15 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_FunBody() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/TypeSystemException/FunBody.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/Triggers1.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_Triggers1() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/Triggers1.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -219,6 +246,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/WhereResolution.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_WhereResolution() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/WhereResolution.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/TypeSynonyms0.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_TypeSynonyms0() throws Exception {
 try{
@@ -268,6 +304,15 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_strings_where() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/TypeSystemException/strings-where.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/badCoercion.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_badCoercion() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/badCoercion.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -349,6 +394,24 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_PolyProcs0() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/TypeSystemException/PolyProcs0.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/Coercions.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_Coercions() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/Coercions.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/IfThenElse0.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_IfThenElse0() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/IfThenElse0.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -492,9 +555,9 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_undefinedImple
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl
-public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsParams() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams.bpl"});
+// generated test for examples/boogie/test/closable/tfe_test/goodCoercion.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_goodCoercion() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/goodCoercion.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/inferenceTest2.bpl
@@ -525,6 +588,11 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsPar
 // generated test for examples/boogie/test/closable/tfe_test/doomedContracts.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_doomedContracts() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/doomedContracts.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/typecast.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_typecast() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typecast.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/aitest0/constants.bpl
@@ -587,11 +655,6 @@ public void testBoogieParseexamples_boogie_test_closable_textbook_Find() throws 
 Parser.main(new String[] { "examples/boogie/test/closable/textbook/Find.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test1/UpdateExprTyping.bpl
-public void testBoogieParseexamples_boogie_test_closable_test1_UpdateExprTyping() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test1/UpdateExprTyping.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test1/EmptyCallArgs.bpl
 public void testBoogieParseexamples_boogie_test_closable_test1_EmptyCallArgs() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test1/EmptyCallArgs.bpl"});
@@ -627,19 +690,9 @@ public void testBoogieParseexamples_boogie_test_closable_test1_LogicalExprs() th
 Parser.main(new String[] { "examples/boogie/test/closable/test1/LogicalExprs.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test1/IfThenElse0.bpl
-public void testBoogieParseexamples_boogie_test_closable_test1_IfThenElse0() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test1/IfThenElse0.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test16/LoopUnroll.bpl
 public void testBoogieParseexamples_boogie_test_closable_test16_LoopUnroll() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test16/LoopUnroll.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/coercions/Coercions.bpl
-public void testBoogieParseexamples_boogie_test_closable_coercions_Coercions() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/coercions/Coercions.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test7/UnreachableBlocks.bpl
@@ -687,11 +740,6 @@ public void testBoogieParseexamples_boogie_test_closable_test0_Orderings() throw
 Parser.main(new String[] { "examples/boogie/test/closable/test0/Orderings.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test0/Triggers1.bpl
-public void testBoogieParseexamples_boogie_test_closable_test0_Triggers1() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test0/Triggers1.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test0/AttributeResolution.bpl
 public void testBoogieParseexamples_boogie_test_closable_test0_AttributeResolution() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test0/AttributeResolution.bpl"});
@@ -735,11 +783,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/test0/WhereParsing.bpl
 // generated test for examples/boogie/test/closable/test0/BadLabels1.bpl
 public void testBoogieParseexamples_boogie_test_closable_test0_BadLabels1() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test0/BadLabels1.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/test0/WhereResolution.bpl
-public void testBoogieParseexamples_boogie_test_closable_test0_WhereResolution() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test0/WhereResolution.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test0/ModifiedBag.bpl
@@ -1622,6 +1665,15 @@ assert false: "expected ParseException to be trown";}
 public void testBoogieParseexamples_boogie_test_ParseException_Types0() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/ParseException/Types0.bpl"});
+} catch(ParseException ex){
+return;
+}
+assert false: "expected ParseException to be trown";}
+
+// generated test for examples/boogie/test/ParseException/bitvectors2.bpl
+public void testBoogieParseexamples_boogie_test_ParseException_bitvectors2() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/ParseException/bitvectors2.bpl"});
 } catch(ParseException ex){
 return;
 }

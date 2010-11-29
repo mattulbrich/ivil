@@ -356,9 +356,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 // <a>[int]a
                 throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
             }
-            
-            // FIXME bug revealed by:
-            // testBoogieParseexamples_boogie_test_closable_test20_TypeSynonyms1
         }
     }
 
@@ -531,7 +528,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        defaultAction(node, UniversalType.newBitvector(1 + node.getFirst() - node.getLast()));
+        defaultAction(node, UniversalType.newBitvector(node.getFirst() - node.getLast()));
     }
 
     @Override

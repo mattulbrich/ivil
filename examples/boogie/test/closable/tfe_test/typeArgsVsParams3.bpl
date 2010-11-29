@@ -1,5 +1,5 @@
 /*
-  Tests propper treatment of arrays and templates.
+  Tests propper treatment of arrays and templates. Should be provable.
 */
 
 var z : M int;

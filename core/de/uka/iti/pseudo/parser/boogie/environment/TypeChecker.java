@@ -14,7 +14,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
 import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
@@ -27,19 +26,15 @@ import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
@@ -56,19 +51,16 @@ import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
-import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
-import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 public final class TypeChecker extends DefaultASTVisitor {
@@ -98,6 +90,23 @@ public final class TypeChecker extends DefaultASTVisitor {
         }
     }
 
+    private void expect(ASTElement node, ASTElement type) {
+        expect(node, state.typeMap.get(type));
+    }
+
+    /**
+     * Expects node to be of type type; reports error on mismatch.
+     * 
+     * @param node
+     *            target node
+     * @param type
+     *            expected type
+     */
+    private void expect(ASTElement node, UniversalType type) {
+        if (!state.typeMap.get(node).compatible(type))
+            error("expected node to be of type " + type + ", but found " + state.typeMap.get(node), node);
+    }
+
     /**
      * Pushes a new error
      * 
@@ -108,14 +117,14 @@ public final class TypeChecker extends DefaultASTVisitor {
      *            the node, that revealed the error
      */
     private void error(String message, ASTElement node) {
-        errorMessages.add(message + "\n\tcaused by node " + node + " defined @" + node.getLocation() + "\n\n");
+        errorMessages.add(message + "\n\tcaused by node " + node + "\n");
     }
 
     protected void defaultAction(ASTElement node) throws ASTVisitException {
         if (!state.typeMap.has(node))
             error("found untyped element", node); // this would indicate
-                                                        // an error in scope and
-                                                        // type decorations
+                                                  // an error in scope and
+                                                  // type decorations
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -123,8 +132,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(AxiomDeclaration node) throws ASTVisitException {
-        if (!state.typeMap.get(node.getAxiom()).compatible(UniversalType.newBool()))
-            error("axioms have to be of type bool", node);
+        expect(node.getAxiom(), UniversalType.BOOL_T);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -132,8 +140,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(Variable node) throws ASTVisitException {
-        if (!state.typeMap.get(node.getWhereClause()).compatible(UniversalType.newBool()))
-            error("wheres have to be of type bool", node);
+        expect(node.getWhereClause(), UniversalType.BOOL_T);
 
         if (state.typeMap.get(node).isConstructor())
             error("it is not allowed to create variables of incomplete type", node);
@@ -146,18 +153,22 @@ public final class TypeChecker extends DefaultASTVisitor {
     public void visit(TemplateType node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(Precondition node) throws ASTVisitException {
-        if (!state.typeMap.get(node.getCondition()).compatible(UniversalType.newBool()))
-            error("preconditions have to be of type bool", node);
+        expect(node.getCondition(), UniversalType.BOOL_T);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -165,276 +176,325 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(Postcondition node) throws ASTVisitException {
-        if (!state.typeMap.get(node.getCondition()).compatible(UniversalType.newBool()))
-            error("postconditions have to be of type bool", node);
+        expect(node.getCondition(), UniversalType.BOOL_T);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
     }
 
-
     @Override
     public void visit(ProcedureBody node) throws ASTVisitException {
+        // procedure needs to be declared and of compatible type
+
         // TODO Auto-generated method stub
+        // compatible iff paths equal and rest compatbile? free order!
 
-    }
 
-    @Override
-    public void visit(GotoStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(ReturnStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
 
     }
 
     @Override
     public void visit(IfStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getGuard(), UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(LoopInvariant node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getExpression(), UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(WhileStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getGuard(), UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(BreakStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        if (node.hasTarget())
+            if (!state.labelSpace.containsKey(new Pair<String, Scope>(node.getTarget(), state.scopeMap.get(node))))
+                error("unable to jumpt to unknown label:" + node.getTarget(), node);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(AssertionStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getAssertion(), UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(AssumptionStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getAssertion(), UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(HavocStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (String name : node.getVarnames()) {
+            Scope scope;
+            for (scope = state.scopeMap.get(node); scope != null; scope = scope.parent)
+                if (state.variableSpace.containsKey(new Pair<String, Scope>(name, scope)))
+                    break;
 
-    }
+            if (null == scope)
+                error("can not havoc unknown variable " + name, node);
+        }
 
-    @Override
-    public void visit(WildcardExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void visit(LabelStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(AssignmentStatement node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(AdditionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(SubtractionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(ImpliesExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(AndExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(OrExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.BOOL_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getOperands().get(0), node.getOperands().get(1));
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(EqualsNotExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getOperands().get(0), node.getOperands().get(1));
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(LessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(LessThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(GreaterExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(GreaterThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(PartialLessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getOperands().get(0), node.getOperands().get(1));
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        try {
+            for(ASTElement n : node.getOperands())
+                state.typeMap.get(n).getBVDimension();
+        } catch (IllegalArgumentException e) {
+            error("concatenation is only allowed on bitvectors", node);
+        }
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(MultiplicationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(DivisionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(ModuloExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(UnaryMinusExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.INT_T);
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(NegationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        for (Expression op : node.getOperands())
+            expect(op, UniversalType.BOOL_T);
 
-    }
-
-    @Override
-    public void visit(IntegerExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void visit(TrueExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(FalseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public void visit(VariableUsageExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
@@ -457,68 +517,69 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(IfThenElseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
-    }
+        expect(node.getCondition(), UniversalType.BOOL_T);
+        expect(node.getThen(), node.getElse());
 
-    @Override
-    public void visit(AttributeParameter node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(Attribute node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(Trigger node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
+        expect(node.getOperands().get(0), node.getType());
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(OrderSpecParent node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(OrderSpecification node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(SpecBlock node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
     @Override
     public void visit(SpecReturnStatement node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
     }
 
 }

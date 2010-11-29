@@ -1,5 +1,5 @@
 /*
-  Tests for check of nested type parameter shadowing, which is forbidden.
+  Tests for procedure implementation without definition, which is forbidden.
 */
 
 var z : M int;

@@ -16,15 +16,18 @@ import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 public class UniversalType {
 
     // global instance for bool s
-    private static final UniversalType BOOL_T;
+    static final UniversalType BOOL_T;
     // global instance for int s
-    private static final UniversalType INT_T;
+    static final UniversalType INT_T;
+
+    // to allow for nonnull attributes, this is used a lot
+    static final UniversalType[] voidMap = new UniversalType[0];
 
     static {
         // massive improvement, as it prevents a lot of bools and ints to be
         // created
 
-        UniversalType[] tmp = new UniversalType[0];
+        UniversalType[] tmp = voidMap;
         BOOL_T = new UniversalType(false, "bool", null, tmp, tmp, tmp, null, 0);
         INT_T = new UniversalType(false, "int", null, tmp, tmp, tmp, null, 0);
     }
@@ -122,8 +125,8 @@ public class UniversalType {
         this.name = name;
         this.aliasname = aliasname;
         this.parameters = parameters;
-        this.templateArguments = null != templateArguments ? templateArguments : new UniversalType[0];
-        this.domain = null != domain ? domain : new UniversalType[0];
+        this.templateArguments = null != templateArguments ? templateArguments : voidMap;
+        this.domain = null != domain ? domain : voidMap;
         this.range = range;
         this.rangeCount = rangeCount;
 
@@ -143,7 +146,7 @@ public class UniversalType {
      *            name of the typeparameter
      */
     static UniversalType newTypeParameter(String s) {
-        UniversalType[] tmp = new UniversalType[0];
+        UniversalType[] tmp = voidMap;
         return new UniversalType(true, s, null, tmp, tmp, tmp, null, 0);
     }
 
@@ -158,7 +161,7 @@ public class UniversalType {
         else if (t.isInt())
             return INT_T;
 
-        UniversalType[] tmp = new UniversalType[0];
+        UniversalType[] tmp = voidMap;
         return new UniversalType(false, t.getPrettyName(), null, tmp, tmp, tmp, null, 0);
     }
 
@@ -186,7 +189,7 @@ public class UniversalType {
     static UniversalType newBitvector(int dimension) {
         assert dimension >= 0;
 
-        UniversalType[] tmp = new UniversalType[0];
+        UniversalType[] tmp = voidMap;
         return new UniversalType(false, "bv" + dimension, null, tmp, tmp, tmp, null, 0);
     }
 
@@ -198,7 +201,7 @@ public class UniversalType {
      * @return
      */
     static UniversalType newTemplateType(String name, int argumentCount) {
-        UniversalType[] tmp = new UniversalType[0], args = new UniversalType[argumentCount];
+        UniversalType[] tmp = voidMap, args = new UniversalType[argumentCount];
         UniversalType _ = newTypeParameter("_");
         for (int i = 0; i < args.length; i++)
             args[i] = _;
@@ -226,8 +229,13 @@ public class UniversalType {
         for (int i = 0; i < args.length; i++)
             args[i] = arguments.get(i);
 
-        UniversalType rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters,
-                args, definition.domain, definition.range, definition.rangeCount);
+        UniversalType rval;
+        if (null != definition.range)
+            rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters,
+                voidMap, definition.domain, definition.range, definition.rangeCount);
+        else
+            rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters, args,
+                    definition.domain, definition.range, definition.rangeCount);
 
         if (null != definition.aliasname) {
             // we have to replace occurances to pointers in
@@ -307,8 +315,7 @@ public class UniversalType {
                 changes = true;
         }
 
-        if (null != range)
-        {
+        if (null != range) {
             touched = false;
             for (int j = 0; j < was.length; j++) {
                 if (was[j] == range || was[j].name.equals(range.name)) {
@@ -340,16 +347,7 @@ public class UniversalType {
      */
     static UniversalType newTypeSynonym(String alias, List<UniversalType> templateArguments, UniversalType parent) {
 
-        StringBuffer buf = new StringBuffer();
-        buf.append(alias);
-        for (UniversalType t : templateArguments) {
-            buf.append(" ");
-            buf.append(t.name);
-        }
-        buf.append(" = ");
-        buf.append(parent.name);
-
-        return new UniversalType(false, buf.toString(), alias, parent.parameters,
+        return new UniversalType(false, parent.name, alias, parent.parameters,
                 templateArguments.toArray(new UniversalType[templateArguments.size()]), parent.domain, parent.range, 1);
     }
 
@@ -361,46 +359,11 @@ public class UniversalType {
      * @param range
      * @param rangeCount
      */
-    static UniversalType newMap(List<UniversalType> parameters,
-            List<UniversalType> domain, UniversalType range,
+    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
             int rangeCount) {
 
-        // construct a nice name a la <...>[...]...
-        StringBuffer buf = new StringBuffer();
-
-        if (0 != parameters.size()) {
-
-            buf.append("< ");
-            for (int i = 0; i < parameters.size() - 1; i++) {
-                buf.append(parameters.get(i).name);
-                buf.append(", ");
-            }
-            buf.append(parameters.get(parameters.size() - 1).name);
-            buf.append(" >");
-        }
-
-        buf.append("[");
-        if (0 != domain.size()) {
-            buf.append(" ");
-            for (int i = 0; i < domain.size() - 1; i++) {
-                buf.append(domain.get(i).toString());
-                buf.append(", ");
-            }
-            buf.append(domain.get(domain.size() - 1).toString());
-            buf.append(" ");
-        }
-        buf.append("]");
-        if (1 == rangeCount)
-            buf.append(range.toString());
-        else {
-            buf.append("returns (");
-            for (int i = 0; i < rangeCount; i++)
-                buf.append(range.name);
-            buf.append(")");
-        }
-
-        return new UniversalType(false, buf.toString(), null, parameters.toArray(new UniversalType[parameters.size()]),
-                null, domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
+        return new UniversalType(false, "", null, parameters.toArray(new UniversalType[parameters.size()]), null,
+                domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
 
     }
 
@@ -412,8 +375,8 @@ public class UniversalType {
      * @param node
      *            occurance of type usage
      * 
-     * @param typeMap
-     *            needed to resolve types of children
+     * @param state
+     *            state is needed to get typeinformation from nodes
      * 
      * @return type of the result of this access
      * 
@@ -427,15 +390,14 @@ public class UniversalType {
             final EnvironmentCreationState state) throws TypeSystemException {
         if (0 == map.parameters.length)
             return map;
-        
-        
+
         UniversalType[] is = new UniversalType[map.parameters.length];
 
         for (int i = 0; i < map.parameters.length; i++) {
             is[i] = map.paths[i].get(0).inferType(node, state);
         }
-        
-        UniversalType rval = new UniversalType(false, map.name, map.aliasname, new UniversalType[0],
+
+        UniversalType rval = new UniversalType(false, map.name, map.aliasname, voidMap,
                 map.templateArguments, map.domain, map.range, map.rangeCount);
 
         rval = replaceInType(rval, map.parameters, is);
@@ -460,25 +422,71 @@ public class UniversalType {
          * !!!
          */
 
+        // same types are compatible
         if (this == t)
             return true;
 
-        // TODO implement
-        return false;
-    }
+        // if one type is a typevariable, both are compatible, as the variable
+        // can be instantiated with a matching type
+        if (this.isTypeVariable || t.isTypeVariable)
+            return true;
 
-    /**
-     * One can assign into or from polymorphic types, as Objects of type <a>
-     * might be ints or <b>s
-     * 
-     * @param t
-     * @return true, if one could assign t to a variable of type this
-     */
-    public boolean assignable(UniversalType t) {
+        // if we have a missmatching number of arguments, parameters, ..., we
+        // can never be compatible
+        if (!(name.equals(name) && parameters.length == t.parameters.length
+                && templateArguments.length == t.templateArguments.length && domain.length == t.domain.length && rangeCount == t.rangeCount))
+            return false;
 
-        // todo implement
+        if (range == null)
+            return name.equals(t.name);
 
-        return false;
+        // we are compatible, iff we can match paths of typevariables and our
+        // children are compatible after we replaced typevariables in the
+        // matched way
+
+        if (parameters.length != 0) {
+            int[] rotation = new int[parameters.length];
+            for (int i = 0; i < rotation.length; i++) {
+                boolean match = false;
+
+                int j;
+
+                for (j = 0; !match && j < paths.length; j++) {
+                    if (paths[i].size() != paths[j].size())
+                        continue;
+
+                    match = true;
+                    for (int k = 0; match && k < paths[j].size(); k++) {
+                        if (!paths[i].get(k).equals(t.paths[j].get(k)))
+                            match = false;
+                    }
+                }
+
+                if (!match) {
+                    return false;
+                }
+                rotation[i] = j - 1; // -1 needed to compensate j++
+            }
+            UniversalType[] params = new UniversalType[rotation.length];
+            for (int i = 0; i < rotation.length; i++)
+                params[i] = parameters[rotation[i]];
+
+            t = replaceInType(t, t.parameters, params);
+        }
+
+        for (int i = 0; i < templateArguments.length; i++)
+            if (!templateArguments[i].compatible(t.templateArguments[i]))
+                return false;
+
+        for (int i = 0; i < domain.length; i++)
+            if (!domain[i].compatible(t.domain[i]))
+                return false;
+
+        if (range != null || t.range != null)
+            if (range == null || t.range == null || !range.compatible(t.range))
+                return false;
+
+        return true;
     }
 
     /**
@@ -491,9 +499,6 @@ public class UniversalType {
     public int getBVDimension() throws IllegalArgumentException {
         String name;
 
-        // FIXME if typevariables are used in concatenation statements, its hard
-        // to determine the bitvectors dimension, maybe bitvector dimensions
-        // should be determined at runtime
         if (isTypeVariable)
             return 0;
 
@@ -537,21 +542,72 @@ public class UniversalType {
             return false;
     }
 
-    public String toString(){
-        StringBuffer s = new StringBuffer();
-        if (isTypeVariable)
-            s.append("'");
+    public void toIvilType() {
+        // to allow for compatibility with the ivil typesystem, type arguments
+        // have to be sorted, such that all types, that are compatible, will
+        // result in the same translation? maybe its easier to remove all
+        // duplicates from the tree
 
-        if(null!=aliasname)
-            s.append(aliasname + " = ");
-        
-        s.append(name);
-        
-        for (int i = 0; i < templateArguments.length; i++) {
-            s.append(" ");
-            s.append(templateArguments[i]);
+        // TODO implement
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer();
+        if (isTypeVariable)
+            buf.append("'");
+
+        if (null != aliasname) {
+            buf.append(aliasname);
+            buf.append(" = ");
+        } else {
+            buf.append(name);
         }
 
-        return s.toString();
+        if (templateArguments.length != 0) {
+            buf.append(" <<");
+            for (int i = 0; i < templateArguments.length; i++) {
+                if (i != 0)
+                    buf.append(" ");
+                buf.append(templateArguments[i]);
+            }
+            buf.append(">>");
+        }
+
+        // construct a nice name a la <...>[...]...
+        if (!isTypeVariable && (0 != parameters.length || 0 != domain.length || range != null)) {
+            if (0 != parameters.length) {
+
+                buf.append("< ");
+                for (int i = 0; i < parameters.length - 1; i++) {
+                    buf.append(parameters[i].name);
+                    buf.append(", ");
+                }
+                buf.append(parameters[parameters.length - 1].name);
+                buf.append(" >");
+            }
+
+            buf.append("[");
+            if (0 != domain.length) {
+                buf.append(" ");
+                for (int i = 0; i < domain.length - 1; i++) {
+                    buf.append(domain[i].toString());
+                    buf.append(", ");
+                }
+                buf.append(domain[domain.length - 1].toString());
+                buf.append(" ");
+            }
+            buf.append("]");
+
+            if (1 == rangeCount) {
+                buf.append(range.toString());
+            } else {
+                buf.append("returns (");
+                for (int i = 0; i < rangeCount; i++)
+                    buf.append(range.name);
+                buf.append(")");
+            }
+        }
+
+        return buf.toString();
     }
 }

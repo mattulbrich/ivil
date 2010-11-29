@@ -99,7 +99,7 @@ public final class EnvironmentCreationState {
             new TypeChecker(this);
         } catch (TypeSystemException e) {
 
-            printDebugInformation();
+            // printDebugInformation();
 
             throw e;
         }
@@ -193,7 +193,7 @@ public final class EnvironmentCreationState {
 
         } catch (RuntimeException e) {
 
-            printDebugInformation();
+            // printDebugInformation();
             throw e;
         } finally {
 
