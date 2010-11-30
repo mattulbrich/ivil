@@ -10,8 +10,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
@@ -41,8 +39,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecParent;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
 import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
@@ -434,7 +430,14 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        UniversalType type = state.typeMap.get(state.functionSpace.get(node.getName()));
+
+        if (node.getOperands().size() != type.domain.length)
+            error("wrong number of arguments. got: " + node.getOperands().size() + " needs: " + type.domain.length,
+                    node);
+        else
+            for (int i = 0; i < node.getOperands().size(); i++)
+                expect(node.getOperands().get(i), type.domain[i]);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -479,7 +482,14 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        if (node.getOperands().size() != state.typeMap.get(node.getName()).domain.length)
+            error("wrong number of arguments. got: " + node.getOperands().size() + " needs: "
+                    + state.typeMap.get(node.getName()).domain.length, node);
+        else
+            for (int i = 0; i < node.getOperands().size(); i++)
+                expect(node.getOperands().get(i), state.typeMap.get(node.getName()).domain[i]);
+
+        expect(node.getUpdate(), state.typeMap.get(node.getName()).range);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
