@@ -36,6 +36,10 @@ public final class ProcedureBody extends ASTElement {
         return Collections.unmodifiableList(statements);
     }
 
+    public String getName() {
+        return first.image;
+    }
+
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);

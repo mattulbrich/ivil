@@ -1,7 +1,10 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
@@ -219,20 +222,26 @@ public class UniversalType {
      */
     static UniversalType newTemplateType(UniversalType definition, List<UniversalType> arguments)
             throws ASTVisitException {
-        // ensure a valid number of arguments
-        if (arguments.size() < definition.templateArguments.length)
-            throw new ASTVisitException("you have to supply more arguments: expected "
-                    + definition.templateArguments.length + " but got only " + arguments.size());
 
         // copy interisting arguments
         UniversalType[] args = definition.templateArguments.clone();
-        for (int i = 0; i < args.length; i++)
-            args[i] = arguments.get(i);
+        int pos = 0;
+        for (int i = 0; i < args.length; i++) {
+            if (definition.templateArguments[i].isTypeVariable) {
+                if (pos >= arguments.size())
+                    throw new ASTVisitException("you have to supply more arguments");
+
+                args[i] = arguments.get(pos);
+                pos++;
+            } else {
+                args[i] = definition.templateArguments[i];
+            }
+        }
 
         UniversalType rval;
         if (null != definition.range)
-            rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters,
-                voidMap, definition.domain, definition.range, definition.rangeCount);
+            rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters, voidMap,
+                    definition.domain, definition.range, definition.rangeCount);
         else
             rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters, args,
                     definition.domain, definition.range, definition.rangeCount);
@@ -246,6 +255,107 @@ public class UniversalType {
 
         return rval;
     }
+
+    /**
+     * Returns a new type synonym definition
+     * 
+     * @param alias
+     * @param templateArguments
+     * @param parent
+     * @return
+     */
+    static UniversalType newTypeSynonym(String alias, List<UniversalType> templateArguments, UniversalType parent,
+            Map<String, ASTElement> typeSpace) {
+
+        List<UniversalType> args = new LinkedList<UniversalType>();
+
+        int pos = 0;
+        for (int i = 0; i < parent.templateArguments.length; i++) {
+            if (!parent.templateArguments[i].isTypeVariable) {
+                args.add(parent.templateArguments[i]);
+            } else {
+                if (pos >= templateArguments.size()) {
+                    for (UniversalType t : parent.templateArguments)
+                        System.out.println(t);
+
+                    throw new IllegalArgumentException("you supplied not enaugh arguments for this synonym");
+                }
+
+                if (typeSpace.containsKey(templateArguments.get(pos).name))
+                    args.add(templateArguments.get(pos));
+                else
+                    args.add(newTypeParameter(templateArguments.get(pos).name));
+                pos++;
+            }
+        }
+        for (; pos < templateArguments.size(); pos++)
+            if (typeSpace.containsKey(templateArguments.get(pos).name))
+                args.add(templateArguments.get(pos));
+            else
+                args.add(newTypeParameter(templateArguments.get(pos).name));
+
+        return new UniversalType(false, parent.name, alias, parent.parameters, args.toArray(new UniversalType[args
+                .size()]), parent.domain, parent.range, parent.rangeCount);
+    }
+
+    /**
+     * Create a map out of parameter, domain and range.
+     * 
+     * @param param
+     * @param domain
+     * @param range
+     * @param rangeCount
+     */
+    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
+            int rangeCount) {
+
+        return new UniversalType(false, "", null, parameters.toArray(new UniversalType[parameters.size()]), null,
+                domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
+
+    }
+
+    /**
+     * Infers parameter types
+     * 
+     * @param map
+     *            base type
+     * @param node
+     *            occurance of type usage
+     * 
+     * @param state
+     *            state is needed to get typeinformation from nodes
+     * 
+     * @return type of the result of this access
+     * 
+     * @throws TypeSystemException
+     *             thrown if type can not be infered because wrong arguments
+     *             were supplied
+     */
+    // FIXME check all inference points to make sure no problems like <a>[a, a]a
+    // -> [int, bool]??? occur
+    public static UniversalType newInferedType(UniversalType map, MapAccessExpression node,
+            final EnvironmentCreationState state) throws TypeSystemException {
+        if (0 == map.parameters.length)
+            return map;
+
+        UniversalType[] is = new UniversalType[map.parameters.length];
+
+        for (int i = 0; i < map.parameters.length; i++) {
+            is[i] = map.paths[i].get(0).inferType(node, state);
+        }
+
+        UniversalType rval = new UniversalType(false, map.name, map.aliasname, voidMap, map.templateArguments,
+                map.domain, map.range, map.rangeCount);
+
+        rval = replaceInType(rval, map.parameters, is);
+        if (rval.range.isTypeVariable && rval.range == map.range)
+            throw new TypeSystemException("\n" + node.getLocation() + " could not infer type for variable "
+                    + rval.range);
+
+        return rval;
+    }
+    
+
 
     /**
      * Usufull recursive occurance replacement for types used by template type
@@ -335,77 +445,6 @@ public class UniversalType {
         else
             return new UniversalType(old.isTypeVariable, old.name, old.aliasname, parameters, templateArguments,
                     domain, range, old.rangeCount);
-    }
-
-    /**
-     * Returns a new type synonym definition
-     * 
-     * @param alias
-     * @param templateArguments
-     * @param parent
-     * @return
-     */
-    static UniversalType newTypeSynonym(String alias, List<UniversalType> templateArguments, UniversalType parent) {
-
-        return new UniversalType(false, parent.name, alias, parent.parameters,
-                templateArguments.toArray(new UniversalType[templateArguments.size()]), parent.domain, parent.range, 1);
-    }
-
-    /**
-     * Create a map out of parameter, domain and range.
-     * 
-     * @param param
-     * @param domain
-     * @param range
-     * @param rangeCount
-     */
-    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
-            int rangeCount) {
-
-        return new UniversalType(false, "", null, parameters.toArray(new UniversalType[parameters.size()]), null,
-                domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
-
-    }
-
-    /**
-     * Infers parameter types
-     * 
-     * @param map
-     *            base type
-     * @param node
-     *            occurance of type usage
-     * 
-     * @param state
-     *            state is needed to get typeinformation from nodes
-     * 
-     * @return type of the result of this access
-     * 
-     * @throws TypeSystemException
-     *             thrown if type can not be infered because wrong arguments
-     *             were supplied
-     */
-    // FIXME check all inference points to make sure no problems like <a>[a, a]a
-    // -> [int, bool]??? occur
-    public static UniversalType newInferedType(UniversalType map, MapAccessExpression node,
-            final EnvironmentCreationState state) throws TypeSystemException {
-        if (0 == map.parameters.length)
-            return map;
-
-        UniversalType[] is = new UniversalType[map.parameters.length];
-
-        for (int i = 0; i < map.parameters.length; i++) {
-            is[i] = map.paths[i].get(0).inferType(node, state);
-        }
-
-        UniversalType rval = new UniversalType(false, map.name, map.aliasname, voidMap,
-                map.templateArguments, map.domain, map.range, map.rangeCount);
-
-        rval = replaceInType(rval, map.parameters, is);
-        if (rval.range.isTypeVariable && rval.range == map.range)
-            throw new TypeSystemException("\n" + node.getLocation() + " could not infer type for variable "
-                    + rval.range);
-
-        return rval;
     }
 
     /**
@@ -559,9 +598,9 @@ public class UniversalType {
         if (null != aliasname) {
             buf.append(aliasname);
             buf.append(" = ");
-        } else {
-            buf.append(name);
         }
+
+        buf.append(name);
 
         if (templateArguments.length != 0) {
             buf.append(" <<");

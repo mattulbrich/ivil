@@ -32,6 +32,10 @@ public final class SimpleAssignment extends ASTElement {
         return target;
     }
 
+    public Expression getNewValue() {
+        return newVal;
+    }
+
     @Override
     public Token getLocationToken() {
         return name;

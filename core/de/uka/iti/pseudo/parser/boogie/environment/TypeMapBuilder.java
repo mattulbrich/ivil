@@ -295,8 +295,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 n.visit(this);
 
             if (state.typeMap.has(node.getDefinition())) {
-                state.typeMap.add(node,
-                        UniversalType.newTypeSynonym(node.getName(), param, state.typeMap.get(node.getDefinition())));
+                state.typeMap.add(node, UniversalType.newTypeSynonym(node.getName(), param,
+                        state.typeMap.get(node.getDefinition()), state.typeSpace));
             } else {
                 todo.add(node);
                 return;

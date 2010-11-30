@@ -8,10 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
@@ -39,7 +36,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
@@ -50,16 +46,12 @@ import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
 import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
-import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
@@ -150,23 +142,6 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(TemplateType node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
-    public void visit(MapType node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
     public void visit(Precondition node) throws ASTVisitException {
         expect(node.getCondition(), UniversalType.BOOL_T);
 
@@ -180,19 +155,6 @@ public final class TypeChecker extends DefaultASTVisitor {
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
-    }
-
-    @Override
-    public void visit(ProcedureBody node) throws ASTVisitException {
-        // procedure needs to be declared and of compatible type
-
-        // TODO Auto-generated method stub
-        // compatible iff paths equal and rest compatbile? free order!
-
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-
     }
 
     @Override
@@ -279,15 +241,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
-    public void visit(AssignmentStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node.getNewValue(), node.getTarget());
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -410,7 +364,7 @@ public final class TypeChecker extends DefaultASTVisitor {
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
         try {
-            for(ASTElement n : node.getOperands())
+            for (ASTElement n : node.getOperands())
                 state.typeMap.get(n).getBVDimension();
         } catch (IllegalArgumentException e) {
             error("concatenation is only allowed on bitvectors", node);
@@ -466,24 +420,13 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
-    public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        if (node.getOperands().size() != state.typeMap.get(node.getName()).domain.length)
+            error("wrong number of arguments. got: " + node.getOperands().size() + " needs: "
+                    + state.typeMap.get(node.getName()).domain.length, node);
+        else
+            for (int i = 0; i < node.getOperands().size(); i++)
+                expect(node.getOperands().get(i), state.typeMap.get(node.getName()).domain[i]);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -535,22 +478,6 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(OrderSpecParent node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
-    public void visit(OrderSpecification node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
 
@@ -559,16 +486,13 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(SpecBlock node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-    }
-
-    @Override
     public void visit(CodeExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        if (state.typeMap.get(node) == null)
+            error("codeexpression has no return statement!", node);
+
+        for (SpecBlock b : node.getSpecs())
+            if (null != state.typeMap.get(b))
+                expect(node, b);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -576,7 +500,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(SpecReturnStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        expect(node, node.getParent());
 
         for (ASTElement e : node.getChildren())
             e.visit(this);

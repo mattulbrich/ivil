@@ -129,6 +129,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/badMap.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_badMap() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/badMap.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/integerWhere.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_integerWhere() throws Exception {
 try{
@@ -178,6 +187,15 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateConst() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/TypeSystemException/duplicateConst.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/ParallelAssignment.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_ParallelAssignment() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/ParallelAssignment.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -515,11 +533,6 @@ public void testBoogieParseexamples_boogie_test_closable_test20_test3_AddMethod_
 Parser.main(new String[] { "examples/boogie/test/closable/test20/test3_AddMethod_conv.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test20/ParallelAssignment.bpl
-public void testBoogieParseexamples_boogie_test_closable_test20_ParallelAssignment() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test20/ParallelAssignment.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test20/PolyFuns0.bpl
 public void testBoogieParseexamples_boogie_test_closable_test20_PolyFuns0() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test20/PolyFuns0.bpl"});
@@ -558,6 +571,11 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImpl
 // generated test for examples/boogie/test/closable/tfe_test/goodCoercion.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_goodCoercion() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/goodCoercion.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/badCodeexpression.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_badCodeexpression() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/badCodeexpression.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/inferenceTest2.bpl
