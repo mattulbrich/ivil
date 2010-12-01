@@ -1,3 +1,4 @@
+
 type C;
 
 procedure P(x:int, y:bool) returns (z:C);
@@ -31,3 +32,4 @@ procedure CallQ() {
   call * := Q(x, *);  // problem: type parameter cannot be inferred
   call * := Q(*, *);  // problem: type parameter cannot be inferred
 }
+
