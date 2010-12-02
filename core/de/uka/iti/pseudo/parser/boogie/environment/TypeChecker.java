@@ -223,8 +223,22 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        ASTElement decl = state.procedureSpace.get(node.getName());
 
+        List<Variable> domain;
+        if (decl instanceof ProcedureDeclaration)
+            domain = ((ProcedureDeclaration) decl).getInParameters();
+        else
+            domain = ((ProcedureImplementation) decl).getInParameters();
+
+        // check arguments
+        if (node.getArguments().size() != domain.size())
+            error("wrong number of arguments, got: " + node.getArguments().size() + " expected: " + domain.size(), node);
+        else {
+
+            for (int i = 0; i < domain.size(); i++)
+                expect(node.getArguments().get(i), domain.get(i));
+        }
         for (ASTElement e : node.getChildren())
             e.visit(this);
     }
@@ -541,6 +555,18 @@ public final class TypeChecker extends DefaultASTVisitor {
     @Override
     public void visit(SpecReturnStatement node) throws ASTVisitException {
         expect(node, node.getParent());
+
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
+    }
+
+    @Override
+    public void visit(ProcedureImplementation node) throws ASTVisitException {
+        ProcedureDeclaration decl = state.procedureSpace.get(node.getName());
+        if (null == decl)
+            error("found undeclared procedure implementation", node);
+        else
+            expect(node, decl);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);

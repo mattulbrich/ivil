@@ -400,17 +400,19 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
         // functions can have polymorphic types, so push typeargs
-        addParameters(node.getTypeParameters(), node);
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node), empty = new LinkedList<UniversalType>();
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
+        List<UniversalType> range = new LinkedList<UniversalType>();
         for (ASTElement n : node.getOutParameters()) {
-            if (!state.typeMap.has(n)) {
+            if (state.typeMap.has(n))
+                range.add(state.typeMap.get(n));
+            else {
                 todo.add(node);
                 return;
             }
-
         }
         List<UniversalType> domain = new LinkedList<UniversalType>();
 
@@ -424,24 +426,29 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         }
 
-        state.typeMap.add(node, null);
+        // this is bit of a hack to represent types of procedures, but it workes
+        state.typeMap.add(node,
+                UniversalType.newMap(param, domain, UniversalType.newMap(empty, range, UniversalType.newBool())));
     }
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
 
-        addParameters(node.getTypeParameters(), node);
+        List<UniversalType> param = addParameters(node.getTypeParameters(), node), empty = new LinkedList<UniversalType>();
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
+        List<UniversalType> range = new LinkedList<UniversalType>();
         for (ASTElement n : node.getOutParameters()) {
-            if (!state.typeMap.has(n)) {
+            if (state.typeMap.has(n))
+                range.add(state.typeMap.get(n));
+            else {
                 todo.add(node);
                 return;
             }
-
         }
+
         List<UniversalType> domain = new LinkedList<UniversalType>();
 
         for (ASTElement n : node.getInParameters()) {
@@ -454,7 +461,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         }
 
-        state.typeMap.add(node, null);
+        // this is bit of a hack to represent types of procedures, but it workes
+        state.typeMap.add(node,
+                UniversalType.newMap(param, domain, UniversalType.newMap(empty, range, UniversalType.newBool())));
     }
 
     @Override

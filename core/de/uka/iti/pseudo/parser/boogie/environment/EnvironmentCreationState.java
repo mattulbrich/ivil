@@ -97,14 +97,8 @@ public final class EnvironmentCreationState {
         assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found "
                 + (scopeMap.size() - typeMap.size()) + " untyped ASTElements";
 
-        try {
-            new TypeChecker(this);
-        } catch (TypeSystemException e) {
 
-            // printDebugInformation();
-
-            throw e;
-        }
+        new TypeChecker(this);
 
         // remove duplicates @note: this is maybe unneded, as it could be
         // integrated to ivil type creation

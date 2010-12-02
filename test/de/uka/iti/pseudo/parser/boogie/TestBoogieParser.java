@@ -57,6 +57,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/undefinedImplementation.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_undefinedImplementation() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/undefinedImplementation.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/polymap.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_polymap() throws Exception {
 try{
@@ -88,6 +97,15 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_typeArgsVsParams() throws Exception {
 try{
 Parser.main(new String[] { "examples/boogie/test/TypeSystemException/typeArgsVsParams.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/Frame1.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_Frame1() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/Frame1.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -453,6 +471,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/ProcParamReordering.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_ProcParamReordering() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/ProcParamReordering.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/expansion.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_expansion() throws Exception {
 try{
@@ -583,11 +610,6 @@ public void testBoogieParseexamples_boogie_test_closable_test20_PolyFuns0() thro
 Parser.main(new String[] { "examples/boogie/test/closable/test20/PolyFuns0.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test20/ProcParamReordering.bpl
-public void testBoogieParseexamples_boogie_test_closable_test20_ProcParamReordering() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test20/ProcParamReordering.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/tfe_test/inferenceTest.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_inferenceTest() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/inferenceTest.bpl"});
@@ -601,11 +623,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/partialTempla
 // generated test for examples/boogie/test/closable/tfe_test/polymorphicProcedures.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_polymorphicProcedures() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/polymorphicProcedures.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl
-public void testBoogieParseexamples_boogie_test_closable_tfe_test_undefinedImplementation() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/undefinedImplementation.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/goodCoercion.bpl
@@ -716,11 +733,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/textbook/Find.bpl"});
 // generated test for examples/boogie/test/closable/test1/Orderings.bpl
 public void testBoogieParseexamples_boogie_test_closable_test1_Orderings() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test1/Orderings.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/test1/Frame1.bpl
-public void testBoogieParseexamples_boogie_test_closable_test1_Frame1() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test1/Frame1.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test1/Frame0.bpl
