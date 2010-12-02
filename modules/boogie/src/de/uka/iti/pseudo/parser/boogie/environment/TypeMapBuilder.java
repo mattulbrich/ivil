@@ -98,7 +98,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         while (scope != null) {
             key = new Pair<String, Scope>(name, scope);
-            rval = state.typeParameterSpace.get(key);
+            rval = state.names.typeParameterSpace.get(key);
             if (null != rval)
                 return rval;
 
@@ -298,7 +298,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             if (state.typeMap.has(node.getDefinition())) {
                 state.typeMap.add(node, UniversalType.newTypeSynonym(node.getName(), param,
-                        state.typeMap.get(node.getDefinition()), state.typeSpace));
+                        state.typeMap.get(node.getDefinition()), state.names.typeSpace));
             } else {
                 todo.add(node);
                 return;
@@ -319,7 +319,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             type = getParameter(declaration, node.getName());
         } else {
             // this type refers to a regular type
-            declaration = state.typeSpace.get(node.getName());
+            declaration = state.names.typeSpace.get(node.getName());
             if (state.typeMap.has(declaration))
                 type = state.typeMap.get(declaration);
         }
@@ -590,7 +590,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        ASTElement decl = state.functionSpace.get(node.getName());
+        ASTElement decl = state.names.functionSpace.get(node.getName());
         if (!state.typeMap.has(decl)) {
             todo.add(node);
             return;
@@ -619,7 +619,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             Scope scope = state.scopeMap.get(node);
             ASTElement definition = null;
             for (; definition == null && scope != null; scope = scope.parent) {
-                definition = state.variableSpace.get(new Pair<String, Scope>(node.getName(), scope));
+                definition = state.names.variableSpace.get(new Pair<String, Scope>(node.getName(), scope));
             }
 
             setTypeSameAs(node, definition);
@@ -714,9 +714,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(WildcardExpression node) throws ASTVisitException {
-        // FIXME can also have other types, if used in call statements; then the
-        // type decoration has to be done in call statement, as we cant possibly
-        // know the type
+        // note: this method will only be called on boolean wildcards, if
+        // wildcard occurs in call statements, the parent already typed this
+
         if (state.typeMap.has(node))
             return;
 
@@ -861,7 +861,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
         // this type is null, but it ensures, that children are typed
-        if (!state.typeMap.has(state.procedureSpace.get(node.getName()))) {
+        if (!state.typeMap.has(state.names.procedureSpace.get(node.getName()))) {
             todo.add(node);
             return;
         }
@@ -870,8 +870,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (int i = 0; i < node.getArguments().size(); i++) {
             ASTElement n = node.getArguments().get(i);
             if (n instanceof WildcardExpression) {
-                setTypeSameAs(n, state.procedureSpace.get(node.getName()).getInParameters().get(i));
-                if (state.typeMap.get(state.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
+                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getInParameters().get(i));
+                if (state.typeMap.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
                     throw new ASTVisitException("\n" + node.getLocation() + "argument #" + (i + 1)
                             + " has unresolvable type");
             }
@@ -881,7 +881,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (int i = 0; i < node.getOutParam().size(); i++) {
             VariableUsageExpression n = node.getOutParam().get(i);
             if (n.getName().equals("*")) {
-                setTypeSameAs(n, state.procedureSpace.get(node.getName()).getOutParameters().get(i));
+                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getOutParameters().get(i));
             }
         }
 
@@ -891,7 +891,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
         // this type is null, but it ensures, that children are typed
-        if (!state.typeMap.has(state.procedureSpace.get(node.getName()))) {
+        if (!state.typeMap.has(state.names.procedureSpace.get(node.getName()))) {
             todo.add(node);
             return;
         }
@@ -900,8 +900,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (int i = 0; i < node.getArguments().size(); i++) {
             ASTElement n = node.getArguments().get(i);
             if (n instanceof WildcardExpression) {
-                setTypeSameAs(n, state.procedureSpace.get(node.getName()).getInParameters().get(i));
-                if (state.typeMap.get(state.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
+                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getInParameters().get(i));
+                if (state.typeMap.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
                     throw new ASTVisitException("\n" + node.getLocation() + "argument #" + (i + 1)
                             + " has unresolvable type");
             }

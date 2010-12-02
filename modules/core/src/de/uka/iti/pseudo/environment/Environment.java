@@ -915,10 +915,10 @@ public class Environment {
     }
 
     /**
-     * Convenience mathod to produce Type expressions.
+     * Convenience method to produce Type expressions.
      * 
      * @param name
-     *            name of the toplevel sort
+     *            name of the top level sort
      * @param domTy
      *            the arguments to the top level sort
      * 

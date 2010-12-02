@@ -1,16 +1,13 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 
 /**
  * Objects of this class are used to hold state while creating an Environment
@@ -39,71 +36,35 @@ public final class EnvironmentCreationState {
     // declarations
     final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
 
-    // namespaces are used to map names to ASTElements, to allow for access of
-    // decorations by name and context
-    final HashMap<String, ASTElement> functionSpace = new HashMap<String, ASTElement>();
-    final HashMap<String, ProcedureDeclaration> procedureSpace = new HashMap<String, ProcedureDeclaration>();
-    final HashMap<String, ASTElement> attributeSpace = new HashMap<String, ASTElement>();
-    // contains identifiers that can start a named type, such as bool, int, S(if
-    // S is defined somewhere), ...
-    final HashMap<String, ASTElement> typeSpace = new HashMap<String, ASTElement>();
-    // as type parameters can shadow types, we have to put them into their own
-    // space
-    final HashMap<Pair<String, Scope>, ASTElement> typeParameterSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+    // Phase 1: namespace and scope creation
+    NamingPhase names = null;
 
-    // variable names are scope sensitive
-    final HashMap<Pair<String, Scope>, ASTElement> variableSpace = new HashMap<Pair<String, Scope>, ASTElement>();
-
-    // not directly a namespace, but very handy for goto usage; maps names and
-    // procedure bodies to Labelstatements
-    final HashMap<Pair<String, Scope>, ASTElement> labelSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+    // Phase 2: type decoration and sort creation
+    TypingPhase types = null;
 
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
     }
 
     public void createNamespaces() throws EnvironmentCreationException, ParseException {
+        if (null != names)
+            return;
+        else
+            names = new NamingPhase();
 
-        try {
-            // create scope annotation for ast nodes to be able to create all
-            // namespaces properly
-            new ScopeBuilder(root, globalScope, scopeMap);
-
-        } catch (ASTVisitException e) {
-            throw new EnvironmentCreationException("Scope creation failed because of " + e.toString());
-        }
-
-        try {
-            // create maps for all five namespaces, which are scope sensitive to
-            // be able to resolve names to astelements and later to objects
-            new NamespaceBuilder(this);
-
-        } catch (ASTVisitException e) {
-            throw new TypeSystemException("Namespace creation failed because of " + e.toString());
-        }
+        names.create(this);
     }
 
-    public void createTypesystem() throws EnvironmentCreationException, TypeSystemException {
-        try {
-            new TypeMapBuilder(this);
-        } catch (ASTVisitException e) {
+    public void createTypesystem() throws ParseException {
+        if (null == names)
+            createNamespaces();
 
-            // this exception is expected
-            throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
+        if (null != types)
+            return;
+        else
+            types = new TypingPhase();
 
-        }
-
-        // make sure we did not forget something
-        assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found "
-                + (scopeMap.size() - typeMap.size()) + " untyped ASTElements";
-
-
-        new TypeChecker(this);
-
-        // remove duplicates @note: this is maybe unneded, as it could be
-        // integrated to ivil type creation
-
-        // create a mapping from table types to ivil types
+        types.create(this);
     }
 
     /**
@@ -118,25 +79,25 @@ public final class EnvironmentCreationState {
 
         // Print namespace information
         System.out.println("function names:");
-        for (String n : functionSpace.keySet()) {
+        for (String n : names.functionSpace.keySet()) {
             System.out.println("\t" + n);
         }
         System.out.println("");
 
         System.out.println("procedure names:");
-        for (String n : procedureSpace.keySet()) {
+        for (String n : names.procedureSpace.keySet()) {
             System.out.println("\t" + n);
         }
         System.out.println("");
 
         System.out.println("directly usable type names:");
-        for (String n : typeSpace.keySet()) {
+        for (String n : names.typeSpace.keySet()) {
             System.out.println("\t" + n);
         }
         System.out.println("");
 
         System.out.println("type parameters:");
-        for (Pair<String, Scope> n : typeParameterSpace.keySet()) {
+        for (Pair<String, Scope> n : names.typeParameterSpace.keySet()) {
             System.out.println("\t" + n.first + "\t\t" + n.second.toString());
         }
         System.out.println("");
@@ -149,13 +110,13 @@ public final class EnvironmentCreationState {
         // System.out.println("");
 
         System.out.println("variable and constant declarations:");
-        for (Pair<String, Scope> n : variableSpace.keySet()) {
+        for (Pair<String, Scope> n : names.variableSpace.keySet()) {
             System.out.println("\t" + n.first + "\t\t" + n.second.toString());
         }
         System.out.println("");
 
         System.out.println("explicit labels:");
-        for (Pair<String, Scope> n : labelSpace.keySet()) {
+        for (Pair<String, Scope> n : names.labelSpace.keySet()) {
             System.out.println("\t" + n.first + "\t\tinside body scope " + n.second);
         }
         System.out.println("");

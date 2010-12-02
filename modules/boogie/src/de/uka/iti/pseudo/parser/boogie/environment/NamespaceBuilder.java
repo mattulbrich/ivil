@@ -4,17 +4,12 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
@@ -44,11 +39,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
         Scope scope = state.scopeMap.get(node);
 
         for (Scope s = scope; s != null; s = s.parent)
-            if (state.typeParameterSpace.containsKey(new Pair<String, Scope>(name, s)))
+            if (state.names.typeParameterSpace.containsKey(new Pair<String, Scope>(name, s)))
                 throw new ASTVisitException("Tried to add type parameter " + name + " allready defined @"
-                        + state.typeParameterSpace.get(new Pair<String, Scope>(name, s)).getLocation());
+                        + state.names.typeParameterSpace.get(new Pair<String, Scope>(name, s)).getLocation());
 
-        state.typeParameterSpace.put(new Pair<String, Scope>(name, state.scopeMap.get(node)), node);
+        state.names.typeParameterSpace.put(new Pair<String, Scope>(name, state.scopeMap.get(node)), node);
     }
 
     @Override
@@ -61,11 +56,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(Variable node) throws ASTVisitException {
         Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
 
-        if (state.variableSpace.containsKey(key))
+        if (state.names.variableSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.variableSpace.get(key).getLocation());
+                    + state.names.variableSpace.get(key).getLocation());
 
-        state.variableSpace.put(key, node);
+        state.names.variableSpace.put(key, node);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -75,11 +70,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(FunctionDeclaration node) throws ASTVisitException {
         final String key = node.getName();
 
-        if (state.functionSpace.containsKey(key))
+        if (state.names.functionSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.functionSpace.get(key).getLocation());
+                    + state.names.functionSpace.get(key).getLocation());
 
-        state.functionSpace.put(key, node);
+        state.names.functionSpace.put(key, node);
 
         for (String s : node.getTypeParameters())
             addTypeParameter(node, s);
@@ -94,7 +89,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
         // do this, we could not insert bv-Types into the typeSpace as they
         // would create an infinite amount of entries
 
-        state.typeSpace.put(node.getPrettyName(), node);
+        state.names.typeSpace.put(node.getPrettyName(), node);
 
         // no check needed here, grammar does not allow to create harmful
         // duplicates
@@ -107,11 +102,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(UserTypeDefinition node) throws ASTVisitException {
         final String key = node.getName();
 
-        if (state.typeSpace.containsKey(key))
+        if (state.names.typeSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.typeSpace.get(key).getLocation());
+                    + state.names.typeSpace.get(key).getLocation());
 
-        state.typeSpace.put(key, node);
+        state.names.typeSpace.put(key, node);
 
         if (node.getDefinition() != null) {
             // we have to add type arguments as they will be used like type
@@ -137,11 +132,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
         final String key = node.getName();
 
-        if (state.procedureSpace.containsKey(key))
+        if (state.names.procedureSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.procedureSpace.get(key).getLocation());
+                    + state.names.procedureSpace.get(key).getLocation());
 
-        state.procedureSpace.put(key, node);
+        state.names.procedureSpace.put(key, node);
 
         for (String s : node.getTypeParameters())
             addTypeParameter(node, s);
@@ -176,11 +171,11 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(LabelStatement node) throws ASTVisitException {
         Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
 
-        if (state.variableSpace.containsKey(key))
+        if (state.names.variableSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.variableSpace.get(key).getLocation());
+                    + state.names.variableSpace.get(key).getLocation());
 
-        state.labelSpace.put(key, node);
+        state.names.labelSpace.put(key, node);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -190,7 +185,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(Attribute node) throws ASTVisitException {
         final String key = node.getName();
 
-        state.attributeSpace.put(key, node);
+        state.names.attributeSpace.put(key, node);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);

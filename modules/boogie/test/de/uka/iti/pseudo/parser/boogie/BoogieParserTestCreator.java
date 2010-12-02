@@ -56,12 +56,14 @@ public class BoogieParserTestCreator {
     }
 
     public static void main(String[] args) {
+        final String PATH = "modules/boogie/test/de/uka/iti/pseudo/parser/boogie/TestBoogieParser.java";
+
         {
-            File tests = new File("test/de/uka/iti/pseudo/parser/boogie/TestBoogieParser.java");
+            File tests = new File(PATH);
             tests.delete();
         }
         try {
-            FileWriter fstream = new FileWriter("test/de/uka/iti/pseudo/parser/boogie/TestBoogieParser.java");
+            FileWriter fstream = new FileWriter(PATH);
             BufferedWriter out = new BufferedWriter(fstream);
 
             out.write("package de.uka.iti.pseudo.parser.boogie;\n"

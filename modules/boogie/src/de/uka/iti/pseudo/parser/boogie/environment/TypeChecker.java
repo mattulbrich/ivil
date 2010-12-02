@@ -182,7 +182,8 @@ public final class TypeChecker extends DefaultASTVisitor {
     @Override
     public void visit(BreakStatement node) throws ASTVisitException {
         if (node.hasTarget())
-            if (!state.labelSpace.containsKey(new Pair<String, Scope>(node.getTarget(), state.scopeMap.get(node))))
+            if (!state.names.labelSpace
+                    .containsKey(new Pair<String, Scope>(node.getTarget(), state.scopeMap.get(node))))
                 error("unable to jumpt to unknown label:" + node.getTarget(), node);
 
         for (ASTElement e : node.getChildren())
@@ -210,7 +211,7 @@ public final class TypeChecker extends DefaultASTVisitor {
         for (String name : node.getVarnames()) {
             Scope scope;
             for (scope = state.scopeMap.get(node); scope != null; scope = scope.parent)
-                if (state.variableSpace.containsKey(new Pair<String, Scope>(name, scope)))
+                if (state.names.variableSpace.containsKey(new Pair<String, Scope>(name, scope)))
                     break;
 
             if (null == scope)
@@ -223,7 +224,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
-        ASTElement decl = state.procedureSpace.get(node.getName());
+        ASTElement decl = state.names.procedureSpace.get(node.getName());
 
         List<Variable> domain;
         if (decl instanceof ProcedureDeclaration)
@@ -245,7 +246,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
-        ASTElement decl = state.procedureSpace.get(node.getName());
+        ASTElement decl = state.names.procedureSpace.get(node.getName());
 
         List<Variable> outParam, domain;
         if (decl instanceof ProcedureDeclaration) {
@@ -474,7 +475,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        UniversalType type = state.typeMap.get(state.functionSpace.get(node.getName()));
+        UniversalType type = state.typeMap.get(state.names.functionSpace.get(node.getName()));
 
         if (node.getOperands().size() != type.domain.length)
             error("wrong number of arguments. got: " + node.getOperands().size() + " needs: " + type.domain.length,
@@ -562,7 +563,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
-        ProcedureDeclaration decl = state.procedureSpace.get(node.getName());
+        ProcedureDeclaration decl = state.names.procedureSpace.get(node.getName());
         if (null == decl)
             error("found undeclared procedure implementation", node);
         else
