@@ -42,6 +42,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
@@ -229,7 +231,35 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        ASTElement decl = state.procedureSpace.get(node.getName());
+
+        List<Variable> outParam, domain;
+        if (decl instanceof ProcedureDeclaration) {
+            outParam = ((ProcedureDeclaration) decl).getOutParameters();
+            domain = ((ProcedureDeclaration) decl).getInParameters();
+        } else {
+            outParam = ((ProcedureImplementation) decl).getOutParameters();
+            domain = ((ProcedureImplementation) decl).getInParameters();
+        }
+
+        // check left hand side
+        if (node.getOutParam().size() != 0 && node.getOutParam().size() != outParam.size())
+            error("wrong number of lvalues, got: " + node.getOutParam().size() + "expected: " + outParam.size(), node);
+        else {
+
+            for (int i = 0; i < outParam.size(); i++)
+                expect(node.getOutParam().get(i), outParam.get(i));
+        }
+
+        // check arguments
+        if (node.getArguments().size() != domain.size())
+            error("wrong number of arguments, got: " + node.getArguments().size() + " expected: " + domain.size(),
+                    node);
+        else {
+
+            for (int i = 0; i < domain.size(); i++)
+                expect(node.getArguments().get(i), domain.get(i));
+        }
 
         for (ASTElement e : node.getChildren())
             e.visit(this);

@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 
 /**
  * Objects of this class are used to hold state while creating an Environment
@@ -41,7 +42,7 @@ public final class EnvironmentCreationState {
     // namespaces are used to map names to ASTElements, to allow for access of
     // decorations by name and context
     final HashMap<String, ASTElement> functionSpace = new HashMap<String, ASTElement>();
-    final HashMap<String, ASTElement> procedureSpace = new HashMap<String, ASTElement>();
+    final HashMap<String, ProcedureDeclaration> procedureSpace = new HashMap<String, ProcedureDeclaration>();
     final HashMap<String, ASTElement> attributeSpace = new HashMap<String, ASTElement>();
     // contains identifiers that can start a named type, such as bool, int, S(if
     // S is defined somewhere), ...
@@ -80,6 +81,9 @@ public final class EnvironmentCreationState {
         } catch (ASTVisitException e) {
             throw new TypeSystemException("Namespace creation failed because of " + e.toString());
         }
+
+        // make sure we did not forget something
+        assert root.getTreeSize() == scopeMap.size() || printDebugInformation() : "found unscoped ASTElements";
     }
 
     public void createTypesystem() throws EnvironmentCreationException, TypeSystemException {
@@ -93,7 +97,8 @@ public final class EnvironmentCreationState {
         }
 
         // make sure we did not forget something
-        assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found untyped ASTElements";
+        assert root.getTreeSize() == typeMap.size() || printDebugInformation() : "found "
+                + (root.getTreeSize() - typeMap.size()) + " untyped ASTElements";
 
         try {
             new TypeChecker(this);
@@ -118,6 +123,8 @@ public final class EnvironmentCreationState {
      */
     public boolean printDebugInformation() {
         
+        System.out.println("The tree contains " + root.getTreeSize() + " ASTElements\n");
+
         //Print namespace information
         System.out.println("function names:");
         for (String n : functionSpace.keySet()) {
@@ -197,7 +204,7 @@ public final class EnvironmentCreationState {
             throw e;
         } finally {
 
-            // printDebugInformation();
+            printDebugInformation();
         }
     }
 }

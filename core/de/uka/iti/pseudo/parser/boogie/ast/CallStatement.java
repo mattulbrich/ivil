@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -7,27 +8,30 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class CallStatement extends Statement {
-    
+
     private final List<Attribute> attr;
     private final String name;
 
     /**
-     * NOTE: outParam can contain null's, in which case the result has to be
-     * discarded.
+     * NOTE: can be empty if results are discarded.
      */
-    private final List<String> outParam;
+    private final List<VariableUsageExpression> outParam;
     private final List<Expression> arglist;
 
-    public CallStatement(Token first, List<Attribute> attr, String name, List<String> outParam, List<Expression> arglist) {
+    public CallStatement(Token first, List<Attribute> attr, String name, List<Token> outParam, List<Expression> arglist) {
         super(first);
 
         this.attr = attr;
         this.name = name;
-        this.outParam = outParam;
         this.arglist = arglist;
+
+        this.outParam = new LinkedList<VariableUsageExpression>();
+        for (int i = 0; i < outParam.size(); i++)
+            this.outParam.add(new VariableUsageExpression(outParam.get(i)));
 
         addChildren(attr);
         addChildren(arglist);
+        addChildren(this.outParam);
     }
 
     @Override
@@ -47,11 +51,11 @@ public final class CallStatement extends Statement {
      * @return the returned list can contain nulls to indicate that the
      *         respective result shall be discarded
      */
-    public List<String> getOutParam() {
+    public List<VariableUsageExpression> getOutParam() {
         return outParam;
     }
 
-    public List<Expression> getArglist() {
+    public List<Expression> getArguments() {
         return arglist;
     }
 

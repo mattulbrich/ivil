@@ -24,6 +24,7 @@ public final class CallForallStatement extends Statement {
         this.attr = attr;
 
         addChildren(attr);
+        addChildren(arglist);
     }
 
     @Override
@@ -35,7 +36,7 @@ public final class CallForallStatement extends Statement {
         return name;
     }
 
-    public List<Expression> getArglist() {
+    public List<Expression> getArguments() {
         return arglist;
     }
 

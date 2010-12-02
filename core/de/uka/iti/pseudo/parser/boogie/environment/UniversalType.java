@@ -31,8 +31,8 @@ public class UniversalType {
         // created
 
         UniversalType[] tmp = voidMap;
-        BOOL_T = new UniversalType(false, "bool", null, tmp, tmp, tmp, null, 0);
-        INT_T = new UniversalType(false, "int", null, tmp, tmp, tmp, null, 0);
+        BOOL_T = new UniversalType(false, "bool", null, tmp, tmp, tmp, null);
+        INT_T = new UniversalType(false, "int", null, tmp, tmp, tmp, null);
     }
 
     /**
@@ -82,12 +82,6 @@ public class UniversalType {
     final UniversalType range;
 
     /**
-     * as procedures can return multiple results of type range, we need a
-     * rangeCount to express that fact
-     */
-    final int rangeCount;
-
-    /**
      * As instances of this class can be created from a lot of objects,
      * factories have been created to ensure intuitive usage and extension
      * 
@@ -123,7 +117,7 @@ public class UniversalType {
      */
     @SuppressWarnings("unchecked")
     private UniversalType(boolean isTypeVariable, String name, String aliasname, UniversalType[] parameters,
-            UniversalType[] templateArguments, UniversalType[] domain, UniversalType range, int rangeCount) {
+            UniversalType[] templateArguments, UniversalType[] domain, UniversalType range) {
         this.isTypeVariable = isTypeVariable;
         this.name = name;
         this.aliasname = aliasname;
@@ -131,7 +125,6 @@ public class UniversalType {
         this.templateArguments = null != templateArguments ? templateArguments : voidMap;
         this.domain = null != domain ? domain : voidMap;
         this.range = range;
-        this.rangeCount = rangeCount;
 
         paths = new List[parameters.length];
         for (int i = 0; i < paths.length; i++) {
@@ -150,7 +143,7 @@ public class UniversalType {
      */
     static UniversalType newTypeParameter(String s) {
         UniversalType[] tmp = voidMap;
-        return new UniversalType(true, s, null, tmp, tmp, tmp, null, 0);
+        return new UniversalType(true, s, null, tmp, tmp, tmp, null);
     }
 
     /**
@@ -165,7 +158,7 @@ public class UniversalType {
             return INT_T;
 
         UniversalType[] tmp = voidMap;
-        return new UniversalType(false, t.getPrettyName(), null, tmp, tmp, tmp, null, 0);
+        return new UniversalType(false, t.getPrettyName(), null, tmp, tmp, tmp, null);
     }
 
     /**
@@ -193,7 +186,7 @@ public class UniversalType {
         assert dimension >= 0;
 
         UniversalType[] tmp = voidMap;
-        return new UniversalType(false, "bv" + dimension, null, tmp, tmp, tmp, null, 0);
+        return new UniversalType(false, "bv" + dimension, null, tmp, tmp, tmp, null);
     }
 
     /**
@@ -209,7 +202,7 @@ public class UniversalType {
         for (int i = 0; i < args.length; i++)
             args[i] = _;
 
-        return new UniversalType(false, name, null, tmp, args, tmp, null, 0);
+        return new UniversalType(false, name, null, tmp, args, tmp, null);
     }
 
     /**
@@ -241,10 +234,10 @@ public class UniversalType {
         UniversalType rval;
         if (null != definition.range)
             rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters, voidMap,
-                    definition.domain, definition.range, definition.rangeCount);
+                    definition.domain, definition.range);
         else
             rval = new UniversalType(false, definition.name, definition.aliasname, definition.parameters, args,
-                    definition.domain, definition.range, definition.rangeCount);
+                    definition.domain, definition.range);
 
         if (null != definition.aliasname) {
             // we have to replace occurances to pointers in
@@ -295,7 +288,7 @@ public class UniversalType {
                 args.add(newTypeParameter(templateArguments.get(pos).name));
 
         return new UniversalType(false, parent.name, alias, parent.parameters, args.toArray(new UniversalType[args
-                .size()]), parent.domain, parent.range, parent.rangeCount);
+                .size()]), parent.domain, parent.range);
     }
 
     /**
@@ -304,13 +297,11 @@ public class UniversalType {
      * @param param
      * @param domain
      * @param range
-     * @param rangeCount
      */
-    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
-            int rangeCount) {
+    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range) {
 
         return new UniversalType(false, "", null, parameters.toArray(new UniversalType[parameters.size()]), null,
-                domain.toArray(new UniversalType[domain.size()]), range, rangeCount);
+                domain.toArray(new UniversalType[domain.size()]), range);
 
     }
 
@@ -320,15 +311,15 @@ public class UniversalType {
      * @param map
      *            base type
      * @param node
-     *            occurance of type usage
+     *            Occurrence of type usage
      * 
      * @param state
-     *            state is needed to get typeinformation from nodes
+     *            state is needed to get type information from nodes
      * 
      * @return type of the result of this access
      * 
      * @throws TypeSystemException
-     *             thrown if type can not be infered because wrong arguments
+     *             thrown if type can not be inferred because wrong arguments
      *             were supplied
      */
     // FIXME check all inference points to make sure no problems like <a>[a, a]a
@@ -345,7 +336,7 @@ public class UniversalType {
         }
 
         UniversalType rval = new UniversalType(false, map.name, map.aliasname, voidMap, map.templateArguments,
-                map.domain, map.range, map.rangeCount);
+                map.domain, map.range);
 
         rval = replaceInType(rval, map.parameters, is);
         if (rval.range.isTypeVariable && rval.range == map.range)
@@ -354,8 +345,6 @@ public class UniversalType {
 
         return rval;
     }
-    
-
 
     /**
      * Usufull recursive occurance replacement for types used by template type
@@ -444,7 +433,7 @@ public class UniversalType {
             return old;
         else
             return new UniversalType(old.isTypeVariable, old.name, old.aliasname, parameters, templateArguments,
-                    domain, range, old.rangeCount);
+                    domain, range);
     }
 
     /**
@@ -465,15 +454,15 @@ public class UniversalType {
         if (this == t)
             return true;
 
-        // if one type is a typevariable, both are compatible, as the variable
+        // if one type is a type variable, both are compatible, as the variable
         // can be instantiated with a matching type
         if (this.isTypeVariable || t.isTypeVariable)
             return true;
 
-        // if we have a missmatching number of arguments, parameters, ..., we
+        // if we have a mismatching number of arguments, parameters, ..., we
         // can never be compatible
         if (!(name.equals(name) && parameters.length == t.parameters.length
-                && templateArguments.length == t.templateArguments.length && domain.length == t.domain.length && rangeCount == t.rangeCount))
+                && templateArguments.length == t.templateArguments.length && domain.length == t.domain.length))
             return false;
 
         if (range == null)
@@ -637,14 +626,7 @@ public class UniversalType {
             }
             buf.append("]");
 
-            if (1 == rangeCount) {
-                buf.append(range.toString());
-            } else {
-                buf.append("returns (");
-                for (int i = 0; i < rangeCount; i++)
-                    buf.append(range.name);
-                buf.append(")");
-            }
+            buf.append(range.toString());
         }
 
         return buf.toString();

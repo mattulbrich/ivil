@@ -892,8 +892,8 @@ Statement CallCmd()
     Expression arg;
     List<Expression> arglist = new LinkedList<Expression>();
     
-    String out;
-    List<String> outParam = new LinkedList<String>();
+    Token out;
+    List<Token> outParam = new LinkedList<Token>();
 } { 
     first="call"                          
     attr=AttributeList()
@@ -904,13 +904,13 @@ Statement CallCmd()
             { name = tmp.image; }
             "("
             (
-                CallForallArg()       
-                ( "," CallForallArg() )*
+                arg=CallForallArg() {arglist.add(arg);}
+                ( "," arg=CallForallArg() {arglist.add(arg);} )*
             )?
             ")"                         
         |
             //tmp is the first outParam, as name is specified after ":="
-            { outParam.add(tmp.image); }  
+            { outParam.add(tmp); }  
             ( "," out=CallOutIdent() {outParam.add(out);} )*
             ":="
             tmp=<IDENT> "(" { name=tmp.image; }
@@ -932,7 +932,7 @@ Statement CallCmd()
         ")"
         { return new CallForallStatement(first, attr, name, arglist); }                           
     |
-        "*" { outParam.add(null); }
+        out="*" { outParam.add(out); }
                               
         ( "," out=CallOutIdent() { outParam.add(out); } )*
         ":="
@@ -949,15 +949,16 @@ Statement CallCmd()
 /**
 <b>Note</b>: * means throw away variable here.
 */
-String CallOutIdent()
+Token CallOutIdent()
 :{
     Token t;
 } { 
   ( 
-    "*"         {return null;}
+    t="*"
   | 
-    t=<IDENT>   {return t.image;}
+    t=<IDENT>
   )
+  {return t;}
 }
 
 Expression CallForallArg()

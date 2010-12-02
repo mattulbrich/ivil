@@ -5,12 +5,9 @@ procedure Q<a>(x:int, y:a) returns (z:a);
 
 procedure CallP()
 {
-var x:
-    int;
-var y:
-    bool;
-var z:
-    C;
+var x: int;
+var y: bool;
+var z: C;
 
 call z := P(x, y);
 call * := P(x, y);
@@ -24,12 +21,9 @@ call * := P(*, *);
 
 procedure CallQ()
 {
-var x:
-    int;
-var y:
-    bool;
-var z:
-    bool;
+var x: int;
+var y: bool;
+var z: bool;
 
 call x := Q(x, y);   // type error
 call * := Q(x, y);
@@ -37,3 +31,4 @@ call x := Q(*, y);   // type error
 call x := Q(x, *);
 call * := Q(*, y);
 }
+

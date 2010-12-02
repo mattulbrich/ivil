@@ -37,5 +37,4 @@ public final class VariableUsageExpression extends Expression {
     public String getName() {
         return name;
     }
-
 }
