@@ -30,6 +30,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/EmptyCallArgs.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_EmptyCallArgs() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/EmptyCallArgs.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/duplicateTypeArguments.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_duplicateTypeArguments() throws Exception {
 try{
@@ -453,6 +462,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for examples/boogie/test/TypeSystemException/EmptyCallArgs0.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_EmptyCallArgs0() throws Exception {
+try{
+Parser.main(new String[] { "examples/boogie/test/TypeSystemException/EmptyCallArgs0.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/IfThenElse0.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_IfThenElse0() throws Exception {
 try{
@@ -695,11 +713,6 @@ public void testBoogieParseexamples_boogie_test_closable_textbook_Find() throws 
 Parser.main(new String[] { "examples/boogie/test/closable/textbook/Find.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test1/EmptyCallArgs.bpl
-public void testBoogieParseexamples_boogie_test_closable_test1_EmptyCallArgs() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test1/EmptyCallArgs.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test1/Orderings.bpl
 public void testBoogieParseexamples_boogie_test_closable_test1_Orderings() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/test1/Orderings.bpl"});
@@ -768,11 +781,6 @@ Parser.main(new String[] { "examples/boogie/test/closable/codeexpr/CodeExpr0.bpl
 // generated test for examples/boogie/test/closable/codeexpr/CodeExpr2.bpl
 public void testBoogieParseexamples_boogie_test_closable_codeexpr_CodeExpr2() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/codeexpr/CodeExpr2.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/test0/EmptyCallArgs.bpl
-public void testBoogieParseexamples_boogie_test_closable_test0_EmptyCallArgs() throws Exception {
-Parser.main(new String[] { "examples/boogie/test/closable/test0/EmptyCallArgs.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test0/Orderings.bpl

@@ -81,9 +81,6 @@ public final class EnvironmentCreationState {
         } catch (ASTVisitException e) {
             throw new TypeSystemException("Namespace creation failed because of " + e.toString());
         }
-
-        // make sure we did not forget something
-        assert root.getTreeSize() == scopeMap.size() || printDebugInformation() : "found unscoped ASTElements";
     }
 
     public void createTypesystem() throws EnvironmentCreationException, TypeSystemException {
@@ -97,8 +94,8 @@ public final class EnvironmentCreationState {
         }
 
         // make sure we did not forget something
-        assert root.getTreeSize() == typeMap.size() || printDebugInformation() : "found "
-                + (root.getTreeSize() - typeMap.size()) + " untyped ASTElements";
+        assert scopeMap.size() == typeMap.size() || printDebugInformation() : "found "
+                + (scopeMap.size() - typeMap.size()) + " untyped ASTElements";
 
         try {
             new TypeChecker(this);
@@ -122,10 +119,10 @@ public final class EnvironmentCreationState {
      *         assertions via "|| printDebugInformation()"
      */
     public boolean printDebugInformation() {
-        
+
         System.out.println("The tree contains " + root.getTreeSize() + " ASTElements\n");
 
-        //Print namespace information
+        // Print namespace information
         System.out.println("function names:");
         for (String n : functionSpace.keySet()) {
             System.out.println("\t" + n);
@@ -174,7 +171,7 @@ public final class EnvironmentCreationState {
 
         allDecorations.add(scopeMap);
         allDecorations.add(typeMap);
-        
+
         ASTVisitor debug = new DebugVisitor(allDecorations);
         try {
             debug.visit(root);
@@ -186,14 +183,14 @@ public final class EnvironmentCreationState {
     }
 
     public Environment make() throws ParseException {
-        try{
+        try {
             createNamespaces();
-            
+
             createTypesystem();
 
             return null;
 
-        } catch(EnvironmentCreationException e) {
+        } catch (EnvironmentCreationException e) {
             throw new UnsupportedOperationException(
                     "An unexpected exception was thrown while making the environment.\n"
                             + "Please tell the developers how you got here.", e);
@@ -204,7 +201,7 @@ public final class EnvironmentCreationState {
             throw e;
         } finally {
 
-            printDebugInformation();
+            // printDebugInformation();
         }
     }
 }
