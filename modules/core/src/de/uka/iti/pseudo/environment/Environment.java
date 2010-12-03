@@ -637,7 +637,7 @@ public class Environment {
      * Gets a number literal. It is dynamically added to the top level
      * environment if not already present.
      * 
-     * @param numberliteral
+     * @param value
      *            the literal, must be a positive number
      * 
      * @return the number literal as a function
@@ -900,11 +900,6 @@ public class Environment {
      * 
      * @return a sort with the name <code>name</code>, null if none found Gets
      *         the binder.
-     * 
-     * @param name
-     *            the name
-     * 
-     * @return the binder
      */
     public @Nullable
     Binder getBinder(@NonNull String name) {
@@ -985,11 +980,6 @@ public class Environment {
      *            the name to look up
      * 
      * @return a rule with the name <code>name</code>, null if none found
-     * 
-     * @param name
-     *            the name to lookup
-     * 
-     * @return a rule by that name
      */
     public @Nullable
     Rule getRule(@NonNull String name) {

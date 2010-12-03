@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +102,8 @@ public class UniversalType {
      * 
      * @param parameters
      *            list of type parameters declared at this level, all parameters
-     *            need to be type variables
+     *            need to be type variables; parameters will be reordered to
+     *            make <a,b>... and <b,a>... equal
      * 
      * @param templTypes
      *            used for arguments to so called type constructors
@@ -121,7 +124,6 @@ public class UniversalType {
         this.isTypeVariable = isTypeVariable;
         this.name = name;
         this.aliasname = aliasname;
-        this.parameters = parameters;
         this.templateArguments = null != templateArguments ? templateArguments : voidMap;
         this.domain = null != domain ? domain : voidMap;
         this.range = range;
@@ -132,7 +134,13 @@ public class UniversalType {
             if (paths[i].size() == 0)
                 throw new IllegalArgumentException("Type variable " + parameters[i]
                         + " is not mentioned in the domain!");
+
+            Collections.sort(paths[i]);
         }
+        Arrays.sort(paths, InferencePath.listComparator);
+        this.parameters = new UniversalType[parameters.length];
+        for (int i = 0; i < parameters.length; i++)
+            this.parameters[i] = paths[i].get(0).getVariable();
     }
 
     /**
@@ -473,33 +481,14 @@ public class UniversalType {
         // matched way
 
         if (parameters.length != 0) {
-            int[] rotation = new int[parameters.length];
-            for (int i = 0; i < rotation.length; i++) {
-                boolean match = false;
-
-                int j;
-
-                for (j = 0; !match && j < paths.length; j++) {
-                    if (paths[i].size() != paths[j].size())
-                        continue;
-
-                    match = true;
-                    for (int k = 0; match && k < paths[j].size(); k++) {
-                        if (!paths[i].get(k).equals(t.paths[j].get(k)))
-                            match = false;
-                    }
-                }
-
-                if (!match) {
+            for (int i = 0; i < paths.length; i++) {
+                if (paths[i].size() != t.paths[i].size())
                     return false;
-                }
-                rotation[i] = j - 1; // -1 needed to compensate j++
-            }
-            UniversalType[] params = new UniversalType[rotation.length];
-            for (int i = 0; i < rotation.length; i++)
-                params[i] = parameters[rotation[i]];
 
-            t = replaceInType(t, t.parameters, params);
+                for (int j = 0; j < paths[i].size(); j++)
+                    if (0 != paths[i].get(j).compareTo(t.paths[i].get(j)))
+                        return false;
+            }
         }
 
         for (int i = 0; i < templateArguments.length; i++)

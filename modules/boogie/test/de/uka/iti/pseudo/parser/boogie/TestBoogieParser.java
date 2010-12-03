@@ -635,6 +635,11 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_evilCodeexpres
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/evilCodeexpression.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/simple.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/inferenceTest2.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_inferenceTest2() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/inferenceTest2.bpl"});
@@ -668,6 +673,11 @@ Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/doomedContrac
 // generated test for examples/boogie/test/closable/tfe_test/typecast.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_typecast() throws Exception {
 Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/typecast.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/mapOrderTest.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_mapOrderTest() throws Exception {
+Parser.main(new String[] { "examples/boogie/test/closable/tfe_test/mapOrderTest.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/aitest0/constants.bpl

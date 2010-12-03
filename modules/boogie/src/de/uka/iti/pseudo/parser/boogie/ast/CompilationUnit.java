@@ -43,6 +43,10 @@ final public class CompilationUnit extends ASTElement {
         v.visit(this);
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString(){
         return "CompilationUnit" + (null == name ? "" : " [" + name + "]");

@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,12 +14,28 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
  * @author timm.felden@felden.com
  * 
  */
-public final class InferencePath {
+public final class InferencePath implements Comparable<InferencePath> {
+
+    static final class PathListComparator implements Comparator<List<InferencePath>> {
+
+        /**
+         * requires arguments to be sorted themselves.
+         */
+        @Override
+        public int compare(List<InferencePath> o1, List<InferencePath> o2) {
+            return o1.get(0).compareTo(o2.get(0));
+        }
+
+    }
+    
+    static public final PathListComparator listComparator = new PathListComparator();
 
     private final List<Integer> path;
+    private final UniversalType variable;
 
-    private InferencePath(List<Integer> path) throws TypeSystemException {
+    private InferencePath(List<Integer> path, UniversalType variable) throws TypeSystemException {
         this.path = path;
+        this.variable = variable;
 
         if (path.get(0) == -1)
             throw new TypeSystemException(
@@ -82,7 +99,7 @@ public final class InferencePath {
             LinkedList<InferencePath> rval) {
         if (root == target || root.name.equals(target.name)) {
             try {
-                rval.add(new InferencePath(new LinkedList<Integer>(path)));
+                rval.add(new InferencePath(new LinkedList<Integer>(path), target));
             } catch (TypeSystemException e) {
                 // dont do anything, this only happens if illegal paths would
                 // have been added
@@ -105,5 +122,25 @@ public final class InferencePath {
                 path.removeLast();
             }
         }
+    }
+
+    @Override
+    public int compareTo(InferencePath p) {
+
+        // its impossible, that one path is a prefix of another, so its safe to
+        // compare to the end of the shorter path
+        for (int i = 0; i < path.size() && i < p.path.size(); i++) {
+            if (path.get(i).intValue() != p.path.get(i).intValue())
+                return path.get(i) < p.path.get(i) ? -1 : 1;
+        }
+
+        if (path.size() == p.path.size())
+            return 0;
+        else
+            return path.size() < p.path.size() ? -1 : 1;
+    }
+
+    public UniversalType getVariable() {
+        return variable;
     }
 }

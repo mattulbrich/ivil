@@ -1,13 +1,17 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.term.Type;
 
 /**
  * Objects of this class are used to hold state while creating an Environment
@@ -19,6 +23,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
  * 
  * In order to understand the design behind the various builders, look at them
  * as functions with closures.
+ * 
+ * @note most translated names have prefixes to ensure, that there are no
+ *       collisions with system names, such as $eq and so on
  * 
  * @author timm.felden@felden.com
  * 
@@ -35,6 +42,9 @@ public final class EnvironmentCreationState {
     // type information used for typechecking and lowering of expressions and
     // declarations
     final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
+    final Decoration<Type> ivilTypeMap = new Decoration<Type>();
+
+    Environment env;
 
     // Phase 1: namespace and scope creation
     NamingPhase names = null;
@@ -42,8 +52,19 @@ public final class EnvironmentCreationState {
     // Phase 2: type decoration and sort creation
     TypingPhase types = null;
 
+    @SuppressWarnings("deprecation")
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
+        try {
+            File f = new File(root.getName());
+            env = new Environment(f.toURL().toString(), Environment.BUILT_IN_ENV);
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            assert false;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            assert false;
+        }
     }
 
     public void createNamespaces() throws EnvironmentCreationException, ParseException {
@@ -90,7 +111,7 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
-        System.out.println("directly usable type names:");
+        System.out.println("directly used type names:");
         for (String n : names.typeSpace.keySet()) {
             System.out.println("\t" + n);
         }
@@ -126,6 +147,7 @@ public final class EnvironmentCreationState {
 
         allDecorations.add(scopeMap);
         allDecorations.add(typeMap);
+        allDecorations.add(ivilTypeMap);
 
         ASTVisitor debug = new DebugVisitor(allDecorations);
         try {
@@ -133,6 +155,8 @@ public final class EnvironmentCreationState {
         } catch (ASTVisitException e) {
             e.printStackTrace();
         }
+
+        env.dump();
 
         return false;
     }
@@ -151,9 +175,9 @@ public final class EnvironmentCreationState {
                             + "Please tell the developers how you got here.", e);
 
         } catch (RuntimeException e) {
-
-            // printDebugInformation();
+            printDebugInformation();
             throw e;
+
         } finally {
 
             // printDebugInformation();

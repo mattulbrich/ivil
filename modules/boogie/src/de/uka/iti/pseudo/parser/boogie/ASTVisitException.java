@@ -24,9 +24,9 @@ public class ASTVisitException extends Exception {
 
     private static final long serialVersionUID = 6326168209506163512L;
     
-    private ASTLocatedElement location;
+    private ASTElement location;
 
-	public ASTVisitException(String message, ASTLocatedElement location) {
+    public ASTVisitException(String message, ASTElement location) {
 		super(message);
 		this.location = location;
 	}
@@ -43,12 +43,12 @@ public class ASTVisitException extends Exception {
 		super(cause);
 	}
 	
-	public ASTVisitException(String message, ASTLocatedElement location, Throwable cause) {
+    public ASTVisitException(String message, ASTElement location, Throwable cause) {
 		super(message, cause);
 		this.location = location;
 	}
 
-	public ASTVisitException(ASTLocatedElement location, Throwable cause) {
+    public ASTVisitException(ASTElement location, Throwable cause) {
 		super(cause);
 		this.location = location;
 	}
@@ -61,7 +61,7 @@ public class ASTVisitException extends Exception {
 			return super.getMessage() + " (" + location.getLocation() + ")";
 	}
 
-    public ASTLocatedElement getLocation() {
+    public ASTElement getLocation() {
         return location;
     }
 

@@ -16,6 +16,7 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 
 /**
  * The class ASTElement is the base class for all AST elements that arise
