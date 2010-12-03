@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public final class CodeExpression extends Expression {
+public final class CodeExpression extends Expression implements NamedASTElement {
 
     final private List<SpecBlock> specs;
     final private List<Expression> operands = new LinkedList<Expression>();
@@ -35,6 +35,11 @@ public final class CodeExpression extends Expression {
 
     public List<SpecBlock> getSpecs() {
         return specs;
+    }
+
+    @Override
+    public String getName() {
+        return "|{" + getLocation().replace(":", "_") + "}|";
     }
 
 }

@@ -1,16 +1,20 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 
 /**
@@ -52,16 +56,36 @@ public final class EnvironmentCreationState {
     // Phase 2: type decoration and sort creation
     TypingPhase types = null;
 
-    @SuppressWarnings("deprecation")
+    // Phase 3: translation of semantic constructs into ivil environment
+    TranslationPhase translation = null;
+
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
+        
+        // load sys/boogie.p
+        File file = new File("sys/boogie.p");
+        EnvironmentMaker em = null;
         try {
-            File f = new File(root.getName());
-            env = new Environment(f.toURL().toString(), Environment.BUILT_IN_ENV);
+            em = new EnvironmentMaker(new Parser(), file);
+
+        } catch (MalformedURLException e1) {
+            e1.printStackTrace();
+        } catch (de.uka.iti.pseudo.parser.ParseException e1) {
+            e1.printStackTrace();
+        } catch (de.uka.iti.pseudo.parser.ASTVisitException e1) {
+            e1.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        if(null==em)
+            return;
+        
+        em.getEnvironment().setFixed();
+
+        // create the environment where things from bpl file will be stored
+        try {
+            env = new Environment(root.getURL().toString(), em.getEnvironment());
         } catch (EnvironmentException e) {
-            e.printStackTrace();
-            assert false;
-        } catch (MalformedURLException e) {
             e.printStackTrace();
             assert false;
         }
@@ -86,6 +110,18 @@ public final class EnvironmentCreationState {
             types = new TypingPhase();
 
         types.create(this);
+    }
+
+    public void createEnvironment() throws ParseException {
+        if (null == types)
+            createTypesystem();
+
+        if (null != translation)
+            return;
+        else
+            translation = new TranslationPhase();
+
+        translation.create(this);
     }
 
     /**
@@ -167,8 +203,6 @@ public final class EnvironmentCreationState {
 
             createTypesystem();
 
-            return null;
-
         } catch (EnvironmentCreationException e) {
             throw new UnsupportedOperationException(
                     "An unexpected exception was thrown while making the environment.\n"
@@ -178,9 +212,12 @@ public final class EnvironmentCreationState {
             printDebugInformation();
             throw e;
 
-        } finally {
-
-            // printDebugInformation();
         }
+
+        createEnvironment();
+
+        printDebugInformation();
+
+        return env;
     }
 }

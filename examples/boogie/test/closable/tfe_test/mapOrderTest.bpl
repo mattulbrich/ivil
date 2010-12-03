@@ -2,6 +2,8 @@
   This tests ordering of map parameters in universal types.
 */
 
+var _G : int;
+
 procedure P()
 {
     var a :<a,b>[a, b]b;

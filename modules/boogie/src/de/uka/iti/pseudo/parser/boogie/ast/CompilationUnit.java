@@ -1,5 +1,8 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,11 +23,21 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 final public class CompilationUnit extends ASTElement {
 
     private final String name;
+    private URL url;
     private List<DeclarationBlock> declarationBlocks;
 
     public CompilationUnit(String name, List<DeclarationBlock> blocks) {
         this.name = name;
         this.declarationBlocks = blocks;
+
+        File f = new File(name);
+        try {
+            url = f.toURI().toURL();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            url = null;
+        }
+
         addChildren(blocks);
     }
 
@@ -43,13 +56,13 @@ final public class CompilationUnit extends ASTElement {
         v.visit(this);
     }
 
-    public String getName() {
-        return name;
-    }
-
     @Override
     public String toString(){
         return "CompilationUnit" + (null == name ? "" : " [" + name + "]");
+    }
+
+    public URL getURL() {
+        return url;
     }
 
 }

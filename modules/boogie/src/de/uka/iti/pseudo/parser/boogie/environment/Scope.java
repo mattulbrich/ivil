@@ -1,6 +1,6 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
-import de.uka.iti.pseudo.parser.boogie.ASTElement;
+import de.uka.iti.pseudo.parser.boogie.ast.NamedASTElement;
 
 /**
  * Several boogie constructs create nested scopes. A scope has a parent and a
@@ -12,9 +12,9 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 public class Scope {
 
     public final Scope parent;
-    public final ASTElement creator;
+    public final NamedASTElement creator;
 
-    Scope(Scope parent, ASTElement creator) {
+    Scope(Scope parent, NamedASTElement creator) {
         this.parent = parent;
         this.creator = creator;
     }

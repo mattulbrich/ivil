@@ -7,7 +7,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
-public class FunctionDeclaration extends DeclarationBlock {
+public class FunctionDeclaration extends DeclarationBlock implements NamedASTElement {
 
     private final String name;
 

@@ -2,6 +2,7 @@
   Very simple example to test lowering phases.
 */
 
+var _G : int;
 
 procedure P(){
     var x: int;

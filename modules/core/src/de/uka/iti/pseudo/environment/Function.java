@@ -59,9 +59,10 @@ public class Function {
      * A function can be tagged unique. This is a fact that can be used by rules.
      */
     private boolean unique;
-    
+
     /**
-     * A function can be tagges assignable. Only assignables can be used in assignments in modalities.
+     * A function can be tagged assignable. Only assignables can be used in
+     * assignments in modalities.
      */
     private boolean assignable;
     

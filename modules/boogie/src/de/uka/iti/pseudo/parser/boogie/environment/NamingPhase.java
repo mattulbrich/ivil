@@ -5,6 +5,8 @@ import java.util.HashMap;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 
 /**
  * Extracts naming and scoping information out of an AST.
@@ -13,6 +15,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
  * 
  */
 public final class NamingPhase {
+    EnvironmentCreationState state;
+
     // namespaces are used to map names to ASTElements, to allow for access of
     // decorations by name and context
     final HashMap<String, ASTElement> functionSpace = new HashMap<String, ASTElement>();
@@ -26,13 +30,16 @@ public final class NamingPhase {
     final HashMap<Pair<String, Scope>, ASTElement> typeParameterSpace = new HashMap<Pair<String, Scope>, ASTElement>();
 
     // variable names are scope sensitive
-    final HashMap<Pair<String, Scope>, ASTElement> variableSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+    final HashMap<Pair<String, Scope>, Variable> variableSpace = new HashMap<Pair<String, Scope>, Variable>();
 
     // not directly a namespace, but very handy for goto usage; maps names and
     // procedure bodies to Labelstatements
     final HashMap<Pair<String, Scope>, ASTElement> labelSpace = new HashMap<Pair<String, Scope>, ASTElement>();
 
     void create(EnvironmentCreationState state) throws EnvironmentCreationException, TypeSystemException {
+        assert null == this.state : "already created names!";
+        this.state = state;
+
         try {
             // create scope annotation for ast nodes to be able to create all
             // namespaces properly
@@ -50,5 +57,32 @@ public final class NamingPhase {
         } catch (ASTVisitException e) {
             throw new TypeSystemException("Namespace creation failed because of " + e.toString());
         }
+    }
+
+    /**
+     * Finds declaration of the corresponding variable. This is guaranteed to
+     * work after the namingphase only.
+     * 
+     * @param node
+     * 
+     * @return the declaration of the used variable
+     */
+    public Variable findVariable(VariableUsageExpression node) {
+        assert null != state;
+        Scope scope = state.scopeMap.get(node);
+        String name = node.getName();
+
+        Pair<String, Scope> key;
+        Variable rval;
+
+        while (scope != null) {
+            key = new Pair<String, Scope>(name, scope);
+            rval = state.names.variableSpace.get(key);
+            if (null != rval)
+                return rval;
+
+            scope = scope.parent;
+        }
+        return null;
     }
 }

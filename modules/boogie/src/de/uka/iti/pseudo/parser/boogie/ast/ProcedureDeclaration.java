@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public class ProcedureDeclaration extends DeclarationBlock {
+public class ProcedureDeclaration extends DeclarationBlock implements NamedASTElement {
 
     private final String name;
     private final List<String> typeParameters;

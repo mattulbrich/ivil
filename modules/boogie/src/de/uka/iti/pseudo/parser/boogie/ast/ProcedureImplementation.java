@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
-public final class ProcedureImplementation extends DeclarationBlock {
+public final class ProcedureImplementation extends DeclarationBlock implements NamedASTElement {
 
     private final String name;
     private final List<String> typeParameters;

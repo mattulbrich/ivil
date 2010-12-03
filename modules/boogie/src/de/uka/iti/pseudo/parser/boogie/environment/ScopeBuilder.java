@@ -8,12 +8,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.NamedASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
@@ -45,7 +43,7 @@ public final class ScopeBuilder extends DefaultASTVisitor {
         assert scopeStack.peek() == globalScope;
     }
 
-    private void push(ASTElement node) {
+    private void push(NamedASTElement node) {
         scopeStack.push(new Scope(scopeStack.peek(), node));
     }
 
@@ -61,7 +59,7 @@ public final class ScopeBuilder extends DefaultASTVisitor {
     }
 
     private void defaultChange(ASTElement node) throws ASTVisitException {
-        push(node);
+        push((NamedASTElement) node);
 
         scopeMap.add(node, activeScope());
 

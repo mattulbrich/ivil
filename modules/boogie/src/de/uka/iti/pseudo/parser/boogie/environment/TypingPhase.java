@@ -73,6 +73,7 @@ public final class TypingPhase {
         // create a mapping from table types to ivil types
         try {
             new TypeTranslator(state);
+
         } catch (ASTVisitException e) {
             e.printStackTrace();
             throw new TypeSystemException("Type translation failed because of:\n" + e.toString());

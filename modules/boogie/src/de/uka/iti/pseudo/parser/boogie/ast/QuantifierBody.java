@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
-public final class QuantifierBody extends ASTElement {
+public final class QuantifierBody extends ASTElement implements NamedASTElement {
 
     private final Token location;
     private final List<Attribute> attributes;
@@ -61,6 +61,11 @@ public final class QuantifierBody extends ASTElement {
 
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+    @Override
+    public String getName() {
+        return "body_at_" + getLocation().replace(":", "_");
     }
 
 }

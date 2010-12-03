@@ -6,10 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 
 /**
  * This type class is used to represent used types in the boogie file. It is
@@ -559,13 +562,27 @@ public class UniversalType {
             return false;
     }
 
-    public void toIvilType() {
+    public Type toIvilType(EnvironmentCreationState state) {
         // to allow for compatibility with the ivil typesystem, type arguments
         // have to be sorted, such that all types, that are compatible, will
         // result in the same translation? maybe its easier to remove all
         // duplicates from the tree
 
-        // TODO implement
+        try {
+            if (this == BOOL_T)
+                return state.env.mkType("bool");
+            else if (this == INT_T)
+                return state.env.mkType("int");
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            assert false;
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false;
+        }
+
+        // TODO implement rest
+        return null;
     }
 
     public String toString() {
