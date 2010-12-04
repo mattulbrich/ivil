@@ -61,7 +61,7 @@ public final class EnvironmentCreationState {
 
     public EnvironmentCreationState(CompilationUnit root) {
         this.root = root;
-        
+
         // load sys/boogie.p
         File file = new File("sys/boogie.p");
         EnvironmentMaker em = null;
@@ -77,9 +77,9 @@ public final class EnvironmentCreationState {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        if(null==em)
+        if (null == em)
             return;
-        
+
         em.getEnvironment().setFixed();
 
         // create the environment where things from bpl file will be stored
@@ -204,6 +204,7 @@ public final class EnvironmentCreationState {
             createTypesystem();
 
         } catch (EnvironmentCreationException e) {
+            printDebugInformation();
             throw new UnsupportedOperationException(
                     "An unexpected exception was thrown while making the environment.\n"
                             + "Please tell the developers how you got here.", e);
@@ -212,11 +213,19 @@ public final class EnvironmentCreationState {
             printDebugInformation();
             throw e;
 
+        } finally {
+            printDebugInformation();
         }
 
-        createEnvironment();
+        try {
+            createEnvironment();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
 
-        printDebugInformation();
+            printDebugInformation();
+
+            throw e;
+        }
 
         return env;
     }

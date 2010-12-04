@@ -354,7 +354,7 @@ public class Main {
                 }
             else
 
-                fileChooser[index].setFileFilter(new FileNameExtensionFilter("ivil files", "p"));
+                fileChooser[index].setFileFilter(new FileNameExtensionFilter("ivil files", "p", "bpl"));
         }
         return fileChooser[index];
     }

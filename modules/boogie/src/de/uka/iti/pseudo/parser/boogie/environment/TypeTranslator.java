@@ -1,8 +1,10 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
+import de.uka.iti.pseudo.term.TermException;
 
 /**
  * translates universal types to ivil types
@@ -22,7 +24,15 @@ public final class TypeTranslator extends DefaultASTVisitor {
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
         if (null != state.typeMap.get(node)) {
-            state.ivilTypeMap.add(node, state.typeMap.get(node).toIvilType(state));
+            try {
+                state.ivilTypeMap.add(node, state.typeMap.get(node).toIvilType(state));
+            } catch (EnvironmentException e1) {
+                e1.printStackTrace();
+                throw new ASTVisitException(e1);
+            } catch (TermException e1) {
+                e1.printStackTrace();
+                throw new ASTVisitException(e1);
+            }
         } else
             state.ivilTypeMap.add(node, null);
 

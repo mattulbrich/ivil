@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -562,26 +563,29 @@ public class UniversalType {
             return false;
     }
 
-    public Type toIvilType(EnvironmentCreationState state) {
-        // to allow for compatibility with the ivil typesystem, type arguments
-        // have to be sorted, such that all types, that are compatible, will
-        // result in the same translation? maybe its easier to remove all
-        // duplicates from the tree
+    public Type toIvilType(EnvironmentCreationState state) throws EnvironmentException, TermException {
 
-        try {
-            if (this == BOOL_T)
-                return state.env.mkType("bool");
-            else if (this == INT_T)
-                return state.env.mkType("int");
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            assert false;
-        } catch (TermException e) {
-            e.printStackTrace();
-            assert false;
+        if (this == BOOL_T)
+            return Environment.getBoolType();
+        else if (this == INT_T)
+            return Environment.getIntType();
+        
+        if (isTypeVariable)
+            return null;
+
+        if(null == range){
+            Type[] args = new Type[templateArguments.length];
+            for (int i = 0; i < templateArguments.length; i++) {
+                args[i] = templateArguments[i].toIvilType(state);
+                if (null == args[i])
+                    return null;
+            }
+            
+            return state.env.mkType("utt_" + name, args);
         }
 
-        // TODO implement rest
+        // FIXME implement maps
+
         return null;
     }
 
