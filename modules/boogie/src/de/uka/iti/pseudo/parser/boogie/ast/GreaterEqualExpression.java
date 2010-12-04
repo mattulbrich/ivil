@@ -7,11 +7,11 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public final class LessThenExpression extends Expression {
+public final class GreaterEqualExpression extends Expression {
 
     private final List<Expression> operands;
 
-    public LessThenExpression(Token loc, Expression rval, Expression tmp) {
+    public GreaterEqualExpression(Token loc, Expression rval, Expression tmp) {
         super(loc);
 
         operands = new ArrayList<Expression>(2);
@@ -30,6 +30,5 @@ public final class LessThenExpression extends Expression {
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
-
 
 }

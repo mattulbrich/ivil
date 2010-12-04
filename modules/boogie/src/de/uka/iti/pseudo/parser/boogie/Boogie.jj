@@ -1085,7 +1085,7 @@ Expression RelationalExpression()
   |    
     (loc="<="|loc="\u2264")
     tmp=BvTerm()
-    { return new LessThenExpression(loc,rval,tmp); }
+    { return new LessEqualExpression(loc,rval,tmp); }
   | 
     loc=">"
     tmp=BvTerm()
@@ -1093,7 +1093,7 @@ Expression RelationalExpression()
   | 
     (loc=">="|loc="\u2265")
     tmp=BvTerm()
-    { return new GreaterThenExpression(loc,rval,tmp); }
+    { return new GreaterEqualExpression(loc,rval,tmp); }
   | 
     loc="<:"
     tmp=BvTerm()

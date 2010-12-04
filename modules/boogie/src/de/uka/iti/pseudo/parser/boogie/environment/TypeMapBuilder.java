@@ -30,14 +30,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
@@ -769,7 +769,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(LessThenExpression node) throws ASTVisitException {
+    public void visit(LessEqualExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBool());
     }
 
@@ -779,7 +779,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(GreaterThenExpression node) throws ASTVisitException {
+    public void visit(GreaterEqualExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBool());
     }
 

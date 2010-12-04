@@ -1866,7 +1866,7 @@ List<Variable> vars = new LinkedList<Variable>();
           throw new ParseException();
         }
         tmp = BvTerm();
-      {if (true) return new LessThenExpression(loc,rval,tmp);}
+      {if (true) return new LessEqualExpression(loc,rval,tmp);}
         break;
       case 70:
         loc = jj_consume_token(70);
@@ -1888,7 +1888,7 @@ List<Variable> vars = new LinkedList<Variable>();
           throw new ParseException();
         }
         tmp = BvTerm();
-      {if (true) return new GreaterThenExpression(loc,rval,tmp);}
+      {if (true) return new GreaterEqualExpression(loc,rval,tmp);}
         break;
       case 85:
         loc = jj_consume_token(85);

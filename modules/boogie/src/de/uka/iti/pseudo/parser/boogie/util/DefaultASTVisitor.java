@@ -34,8 +34,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
@@ -43,8 +43,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
@@ -295,7 +295,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(LessThenExpression node) throws ASTVisitException {
+    public void visit(LessEqualExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 
@@ -305,7 +305,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(GreaterThenExpression node) throws ASTVisitException {
+    public void visit(GreaterEqualExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 

@@ -37,8 +37,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
@@ -46,8 +46,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessThenExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
@@ -83,6 +83,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
+import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 public final class ProgramMaker extends DefaultASTVisitor {
@@ -182,8 +183,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ModifiesClause node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
+        // TODO modifies is currently completely ignored, there are also
+        // compiletime checks missing -> SimpleAssignment
     }
 
     @Override
@@ -237,7 +239,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(AssertionStatement node) throws ASTVisitException {
         defaultAction(node);
-        
+
         try {
             statements.add(new AssertStatement(node.getLocationToken().beginLine, state.translation.terms.get(node
                     .getAssertion())));
@@ -246,13 +248,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
             throw new ASTVisitException(e);
         }
-
     }
 
     @Override
     public void visit(AssumptionStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        try {
+            statements.add(new AssumeStatement(node.getLocationToken().beginLine, state.translation.terms.get(node
+                    .getAssertion())));
+            statementAnnotations.add("");
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -312,38 +321,110 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(AdditionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$plus"), Environment.getIntType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(SubtractionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$minus"),
+                    Environment.getIntType(), args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("$equiv"), Environment.getBoolType(), args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(ImpliesExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$impl"),
+                    Environment.getBoolType(), args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(AndExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$and"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(OrExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$or"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -366,32 +447,93 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(EqualsNotExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+
+            state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment.getBoolType(),
+                    new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) }));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(LessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$lt"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
-    public void visit(LessThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+    public void visit(LessEqualExpression node) throws ASTVisitException {
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$lte"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(GreaterExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$gt"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
-    public void visit(GreaterThenExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+    public void visit(GreaterEqualExpression node) throws ASTVisitException {
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$gte"), Environment.getBoolType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -408,14 +550,38 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(MultiplicationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$mult"), Environment.getIntType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(DivisionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$div"), Environment.getIntType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -426,14 +592,28 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(UnaryMinusExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$neg"), Environment.getIntType(),
+                    new Term[] { state.translation.terms.get(node.getOperands().get(0)) }));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(NegationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment.getBoolType(),
+                    new Term[] { state.translation.terms.get(node.getOperands().get(0)) }));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -467,14 +647,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(TrueExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        state.translation.terms.put(node, Environment.getTrue());
     }
 
     @Override
     public void visit(FalseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        state.translation.terms.put(node, Environment.getFalse());
     }
 
     @Override
