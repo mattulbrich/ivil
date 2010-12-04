@@ -220,4 +220,11 @@ public final class EnvironmentCreationState {
 
         return env;
     }
+
+    public Term getProblem() throws ParseException {
+        if (null == translation)
+            createEnvironment();
+
+        return translation.getProblem();
+    }
 }

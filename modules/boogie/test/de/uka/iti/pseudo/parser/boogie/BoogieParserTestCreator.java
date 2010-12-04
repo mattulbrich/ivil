@@ -35,7 +35,7 @@ public class BoogieParserTestCreator {
                 out.write("try{\n");
             }
 
-            out.write("Parser.main(new String[] { \"" + path + "\"});\n");
+            out.write("BPLParser.main(new String[] { \"" + path + "\"});\n");
             
             if(!context.equals("closable")){
                 out.write("} catch(" + context + " ex){\n" +

@@ -123,7 +123,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(Variable node) throws ASTVisitException {
         Type[] arguments = new Type[0];
 
-        String name = node.getName();
+        // the prefix ends with __ so it is impossible to create duplicates of a
+        // variable
+        String name = "_" + node.getName();
 
         for (Scope scope = state.scopeMap.get(node); scope != state.globalScope; scope = scope.parent) {
             name = scope.creator.getName() + "_" + name;

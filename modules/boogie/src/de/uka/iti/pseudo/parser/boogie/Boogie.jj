@@ -19,7 +19,7 @@ options {
 //--------------------------------------------------------------------------*/
 
 
-PARSER_BEGIN(Parser)
+PARSER_BEGIN(BPLParser)
 package de.uka.iti.pseudo.parser.boogie;
 
 import java.io.File;
@@ -40,9 +40,9 @@ import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 
 // we dont want warnings here, as the code is created by a generator
 @SuppressWarnings("all")
-public class Parser {
+public class BPLParser {
 
-public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
+    public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
        return parseFile(new FileReader(file), file.getPath());
     }
     
@@ -53,7 +53,7 @@ public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseE
     
     public CompilationUnit parseFile(Reader reader, String filename) throws ParseException {
         ReInit(reader);
-        CompilationUnit result = BoogiePL(filename);
+        CompilationUnit result = parse(filename);
         result.setFilename(filename);
         return result;
     }
@@ -63,15 +63,15 @@ public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseE
     */
     public static void main(String args[]) throws FileNotFoundException, ParseException {
         for(int i = 0; i < args.length; i++){    
-            Parser p = new Parser(new FileInputStream(args[i]));
-            EnvironmentCreationState creator = new EnvironmentCreationState(p.BoogiePL(args[i]));
+            BPLParser p = new BPLParser(new FileInputStream(args[i]));
+            EnvironmentCreationState creator = new EnvironmentCreationState(p.parse(args[i]));
             
             creator.make();
         }
     }
 }
 
-PARSER_END(Parser)
+PARSER_END(BPLParser)
 
 TOKEN : {
   < #LETTER : ["A" - "Z", "a" - "z"] >
@@ -173,7 +173,7 @@ TOKEN: {
 //--------------------------------------------------------------------------*/
 
 /*------------------------------------------------------------------------*/
-CompilationUnit BoogiePL(String name)
+CompilationUnit parse(String name)
 :{
     DeclarationBlock block;
     List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();

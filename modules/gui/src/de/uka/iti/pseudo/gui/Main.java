@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -32,6 +33,8 @@ import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.parser.boogie.BPLParser;
+import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.Term;
@@ -41,21 +44,19 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-
 /**
  * Main entry point for the GUI application.
  * 
  * Reads arguments from command line, but checks also for other resources where
  * properties may have been set.
  * 
- * <h2>Command line options</h2>
- * See method {@link #makeCommandLine()} for all command line options or run the
- * program using the <code>-help</code> option.
+ * <h2>Command line options</h2> See method {@link #makeCommandLine()} for all
+ * command line options or run the program using the <code>-help</code> option.
  * 
  */
 
 public class Main {
-    
+
     private static final String CMDLINE_CONFIG = "-config";
 
     private static final String CMDLINE_HELP = "-help";
@@ -65,18 +66,18 @@ public class Main {
     private static Settings settings;
 
     private static StartupWindow startupWindow;
-    
+
     public static final String PROPERTIES_FILE_KEY = "pseudo.settingsFile";
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
     public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
-    
+
     private static final String VERSION_PATH = "/META-INF/VERSION";
 
     private static final List<ProofCenter> PROOF_CENTERS = new LinkedList<ProofCenter>();
     private static final List<PFileEditor> EDITORS = new LinkedList<PFileEditor>();
-    
+
     public static final int PROBLEM_FILE = 0;
     public static final int PROOF_FILE = 1;
 
@@ -87,38 +88,37 @@ public class Main {
     private static final int NUMBER_OF_RECENT_FILES = 10;
 
     private static JFileChooser fileChooser[] = new JFileChooser[2];
-    
+
     /*
-     * - setup the settings from default resource, file and command line.
-     * - set assertion state accordingly
-     * - set directories accordingly 
+     * - setup the settings from default resource, file and command line. - set
+     * assertion state accordingly - set directories accordingly
      */
     static {
         loadProperties();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
-        
+
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY, ".");
     }
-    
+
     public static void main(final String[] args) {
-        
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
-                printVersion();
+                    printVersion();
 
-                CommandLine commandLine = makeCommandLine();
-                commandLine.parse(args);
+                    CommandLine commandLine = makeCommandLine();
+                    commandLine.parse(args);
 
-                if(commandLine.isSet(CMDLINE_HELP)) {
-                    commandLine.printUsage(System.out);
-                    System.exit(0);
-                }
+                    if (commandLine.isSet(CMDLINE_HELP)) {
+                        commandLine.printUsage(System.out);
+                        System.exit(0);
+                    }
 
-                List<String> fileArguments = commandLine.getArguments();
+                    List<String> fileArguments = commandLine.getArguments();
 
-                if(fileArguments.isEmpty()) {
-                    startupWindow = new StartupWindow();
+                    if (fileArguments.isEmpty()) {
+                        startupWindow = new StartupWindow();
                         startupWindow.setVisible(true);
                     } else {
                         File file = new File(fileArguments.get(0));
@@ -130,15 +130,14 @@ public class Main {
                         }
                     }
                 } catch (Throwable ex) {
-                    Log.log(Log.ERROR, "Exception during startup: "
-                            + ex.getMessage());
+                    Log.log(Log.ERROR, "Exception during startup: " + ex.getMessage());
                     Log.stacktrace(ex);
                     System.exit(1);
                 }
             }
         });
     }
-    
+
     private static void printVersion() {
         String version = "<unknown version>";
         try {
@@ -150,7 +149,6 @@ public class Main {
         }
         System.out.println("This is ivil - " + version);
     }
-    
 
     private static CommandLine makeCommandLine() {
         CommandLine cl = new CommandLine();
@@ -160,82 +158,123 @@ public class Main {
         return cl;
     }
 
-
     public static void openEditor(File file) throws IOException {
         PFileEditor editor = new PFileEditor(file);
         editor.setSize(600, 800);
         showFileEditor(editor);
     }
-    
+
     private static void showFileEditor(PFileEditor editor) {
-        if(startupWindow != null) {
+        if (startupWindow != null) {
             startupWindow.dispose();
             startupWindow = null;
         }
         editor.setVisible(true);
         EDITORS.add(editor);
     }
-    
+
     public static void closeFileEditor(PFileEditor editor) {
         assert EDITORS.contains(editor);
-        
+
         editor.dispose();
         EDITORS.remove(editor);
-        
-        if(PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
+
+        if (PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
             System.exit(0);
     }
 
-    public static ProofCenter openProverFromURL(URL url)
-            throws FileNotFoundException, ParseException, ASTVisitException,
-            TermException, IOException, StrategyException, EnvironmentException {
+    public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
+            ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
 
-        Parser fp = new Parser();
+        Environment env;
+        Term problemTerm;
+        if (url.getPath().endsWith(".p")) {
 
-        EnvironmentMaker em = new EnvironmentMaker(fp, url);
-        Environment env = em.getEnvironment();
-        Term problemTerm = em.getProblemTerm();
+            Parser fp = new Parser();
+
+            EnvironmentMaker em = new EnvironmentMaker(fp, url);
+            env = em.getEnvironment();
+            problemTerm = em.getProblemTerm();
+
+        } else if (url.getPath().endsWith(".bpl")) {
+
+            // TODO test proper URL handling
+            BPLParser p = new BPLParser(new FileInputStream(url.getPath()));
+            EnvironmentCreationState creator;
+            try {
+                creator = new EnvironmentCreationState(p.parse(url.getPath()));
+
+                env = creator.make();
+                problemTerm = creator.getProblem();
+
+            } catch (de.uka.iti.pseudo.parser.boogie.ParseException e) {
+                e.printStackTrace();
+                throw new ParseException(e.getMessage());
+            }
+
+        } else {
+            throw new EnvironmentException(url.getPath() + "\nunknown file format; only *.p and *.bpl is supported");
+        }
 
         if (problemTerm == null)
-            throw new EnvironmentException(
-                    "Cannot load an environment without problem");
+            throw new EnvironmentException("Cannot load an environment without problem");
 
         Proof proof = new Proof(problemTerm);
         ProofCenter proofCenter = new ProofCenter(proof, env);
         showProofCenter(proofCenter);
-        
+
         addToRecentProblems(url);
-        
+
         return proofCenter;
-        
+
     }
 
-    public static ProofCenter openProver(File file)
-            throws FileNotFoundException, ParseException, ASTVisitException,
+    public static ProofCenter openProver(File file) throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
-        Parser fp = new Parser();
 
-        EnvironmentMaker em = new EnvironmentMaker(fp, file);
-        Environment env = em.getEnvironment();
-        Term problemTerm = em.getProblemTerm();
+        Environment env;
+        Term problemTerm;
+        if (file.getPath().endsWith(".p")) {
+            Parser fp = new Parser();
+
+            EnvironmentMaker em = new EnvironmentMaker(fp, file);
+            env = em.getEnvironment();
+            problemTerm = em.getProblemTerm();
+        } else if (file.getPath().endsWith(".bpl")) {
+
+            BPLParser p = new BPLParser(new FileInputStream(file.getPath()));
+            EnvironmentCreationState creator;
+            try {
+                creator = new EnvironmentCreationState(p.parse(file.getPath()));
+
+                env = creator.make();
+                problemTerm = creator.getProblem();
+
+            } catch (de.uka.iti.pseudo.parser.boogie.ParseException e) {
+                e.printStackTrace();
+                throw new ParseException(e.getMessage());
+            }
+        } else {
+            throw new EnvironmentException("unknown file format; only *.p and *.bpl is supported");
+        }
 
         if (problemTerm == null)
-            throw new EnvironmentException(
-                    "An environment without problem cannot be loaded");
+            throw new EnvironmentException("An environment without problem cannot be loaded");
 
         Proof proof = new Proof(problemTerm);
         ProofCenter proofCenter = new ProofCenter(proof, env);
         showProofCenter(proofCenter);
-        
+
         addToRecentProblems(file.toURI().toURL());
-        
+
         return proofCenter;
     }
 
     /**
      * adds a problem's URL to recent files; should be called after successfully
      * loading a problem. adding an url twice will remove the older duplicate;
-     * if more then 10 entries are in the recent list, the oldest one will perish
+     * if more then 10 entries are in the recent list, the oldest one will
+     * perish
      * 
      * @param url
      *            location of the problem file
@@ -243,7 +282,7 @@ public class Main {
     private static void addToRecentProblems(@NonNull URL url) {
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String recent[] = prefs.get("recent problems", "").split("\n");
-        List<String> newRecent = new ArrayList<String>(recent.length+1);
+        List<String> newRecent = new ArrayList<String>(recent.length + 1);
         String toAdd = url.toString();
         newRecent.add(toAdd);
 
@@ -259,12 +298,12 @@ public class Main {
             }
             next.append(newRecent.get(i));
         }
-        
+
         prefs.put("recent problems", next.toString());
     }
-    
+
     private static void showProofCenter(ProofCenter proofCenter) {
-        if(startupWindow != null) {
+        if (startupWindow != null) {
             startupWindow.dispose();
             startupWindow = null;
         }
@@ -273,37 +312,34 @@ public class Main {
         PROOF_CENTERS.add(proofCenter);
     }
 
-
-    
     public static void closeProofCenter(ProofCenter proofCenter) {
         assert PROOF_CENTERS.contains(proofCenter);
-        
+
         MainWindow main = proofCenter.getMainWindow();
         main.dispose();
         PROOF_CENTERS.remove(proofCenter);
-        
-        if(PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
+
+        if (PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
             System.exit(0);
     }
-    
+
     /**
-     * check whether at least one open proof center or one editor
-     * has unsaved changes
+     * check whether at least one open proof center or one editor has unsaved
+     * changes
+     * 
      * @return true iff there are changes in one window
      */
     public static boolean windowsHaveChanges() {
         for (ProofCenter pc : PROOF_CENTERS) {
-            if(pc.getProof().hasUnsafedChanges())
+            if (pc.getProof().hasUnsafedChanges())
                 return true;
         }
         for (PFileEditor editor : EDITORS) {
-            if(editor.hasUnsafedChanges())
+            if (editor.hasUnsafedChanges())
                 return true;
         }
         return false;
     }
-
-
 
     public static JFileChooser makeFileChooser(int index) {
 
@@ -314,21 +350,18 @@ public class Main {
 
             if (index == PROOF_FILE)
                 for (ProofExport export : ServiceLoader.load(ProofExport.class)) {
-                    fileChooser[index]
-                            .addChoosableFileFilter(new ExporterFileFilter(
-                                    export));
+                    fileChooser[index].addChoosableFileFilter(new ExporterFileFilter(export));
                 }
             else
 
-                fileChooser[index].setFileFilter(new FileNameExtensionFilter(
-                        "ivil files", "p"));
+                fileChooser[index].setFileFilter(new FileNameExtensionFilter("ivil files", "p"));
         }
         return fileChooser[index];
     }
 
     /**
-     * add all properties from the system and from a certain file to
-     * the properties in {@link ProofCenter}.
+     * add all properties from the system and from a certain file to the
+     * properties in {@link ProofCenter}.
      * 
      * Command line and system overwrite the file
      */

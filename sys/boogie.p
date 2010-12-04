@@ -14,4 +14,8 @@
  * files.
  *)
  
-include "$base.p"
+include 
+  "$base.p"
+  "$int.p"
+  "$symbex.p"
+  "$decproc.p"
