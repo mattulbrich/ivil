@@ -19,3 +19,5 @@ include
   "$int.p"
   "$symbex.p"
   "$decproc.p"
+  "$unicode.p"
+  "$fol.p"

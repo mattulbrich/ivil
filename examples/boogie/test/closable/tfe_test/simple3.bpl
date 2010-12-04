@@ -10,7 +10,7 @@ requires _G == 1;
     var x: int;
     var y: bool;
     x:= 0;
-    y:= (true ==> x > 0) && (!true ==> x <= 0);
+    y:= if true then x > 0 else x <= 0;
     
     assume !y; // true
     

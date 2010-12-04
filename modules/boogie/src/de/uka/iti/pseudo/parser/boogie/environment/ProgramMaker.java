@@ -716,8 +716,22 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(IfThenElseExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[3];
+
+        args[0] = state.translation.terms.get(node.getCondition());
+        args[1] = state.translation.terms.get(node.getThen());
+        args[2] = state.translation.terms.get(node.getElse());
+
+        try {
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("cond"), state.ivilTypeMap.get(node.getThen()),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override

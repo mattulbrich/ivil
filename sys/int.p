@@ -86,7 +86,6 @@ rule times_one
   find 1 * %a
   replace %a
 
-
 (*
  * Rules concerning >, <, >=, <=
  *)
