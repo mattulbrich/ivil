@@ -65,7 +65,7 @@ public final class QuantifierBody extends ASTElement implements NamedASTElement 
 
     @Override
     public String getName() {
-        return "body_at_" + getLocation().replace(":", "_");
+        return "body_at" + getLocation().replace(":", "_");
     }
 
 }

@@ -14,7 +14,7 @@ requires _G == 1;
     
     assume !y; // true
     
-    assume _G == 1; // will be true, when requires is implemented
+    assert _G == 1; // will be true, when requires is implemented
     
     assert (((_G * 2) / 2) - 1 == x) != y <==> true; // should be provable
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
@@ -61,7 +62,7 @@ public final class NamingPhase {
 
     /**
      * Finds declaration of the corresponding variable. This is guaranteed to
-     * work after the namingphase only.
+     * work after the naming phase only.
      * 
      * @param node
      * 
@@ -69,9 +70,24 @@ public final class NamingPhase {
      */
     public Variable findVariable(VariableUsageExpression node) {
         assert null != state;
-        Scope scope = state.scopeMap.get(node);
-        String name = node.getName();
+        return findVariable(node.getName(), node);
+    }
 
+    /**
+     * Finds declaration of the corresponding variable. This is guaranteed to
+     * work after the naming phase only.
+     * 
+     * @param name
+     *            the name of the variable to be searched
+     * 
+     * @param node
+     *            the node from where the variable is searched; this is used to
+     *            determine the initial scope to be searched
+     * 
+     * @return the declaration of the used variable
+     */
+    public Variable findVariable(String name, ASTElement node) {
+        Scope scope = state.scopeMap.get(node);
         Pair<String, Scope> key;
         Variable rval;
 
