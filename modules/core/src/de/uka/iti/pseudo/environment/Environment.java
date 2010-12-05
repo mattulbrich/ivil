@@ -633,6 +633,11 @@ public class Environment {
         return getNumberLiteral(new BigInteger(numberliteral));
     }
 
+    public @NonNull
+    NumberLiteral getNumberLiteral(@NonNull int numberliteral) {
+        return getNumberLiteral(BigInteger.valueOf(numberliteral));
+    }
+
     /**
      * Gets a number literal. It is dynamically added to the top level
      * environment if not already present.

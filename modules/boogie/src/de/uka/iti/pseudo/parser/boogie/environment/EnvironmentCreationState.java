@@ -213,8 +213,6 @@ public final class EnvironmentCreationState {
             printDebugInformation();
             throw e;
 
-        } finally {
-            printDebugInformation();
         }
 
         try {

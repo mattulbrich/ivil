@@ -88,6 +88,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
+import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 public final class ProgramMaker extends DefaultASTVisitor {
@@ -189,8 +190,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // add definition
-        if (null != node.getExpression())
-        {
+        if (null != node.getExpression()) {
             Term[] args = new Term[1];
 
             try {
@@ -253,6 +253,61 @@ public final class ProgramMaker extends DefaultASTVisitor {
             preStatements.addAll(postStatements);
             preAnnotations.addAll(postAnnotations);
 
+            // replace skip $label and skip $goto
+            Map<String, Integer> labels = new HashMap<String, Integer>();
+            for (int i = 0; i < preStatements.size(); i++) {
+                if (preStatements.get(i) instanceof SkipStatement) {
+                    String meta = preAnnotations.get(i);
+                    if (meta.startsWith("$label")) {
+                        meta = meta.replace("$label:", "");
+                        labels.put(meta, i);
+
+                    } else if (meta.startsWith("$return")) {
+
+                        try {
+
+                            preStatements.set(i, new de.uka.iti.pseudo.term.statement.GotoStatement(preStatements
+.get(i)
+                                            .getSourceLineNumber(), new Term[] { new Application(state.env
+                                            .getNumberLiteral(preStatements.size() - postStatements.size()),
+                                            Environment.getIntType())}));
+                            preAnnotations.set(i, "return");
+
+                        } catch (TermException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < preStatements.size(); i++) {
+                if (preStatements.get(i) instanceof SkipStatement) {
+                    String meta = preAnnotations.get(i);
+
+                    if (meta.startsWith("$goto")) {
+                        List<Integer> targets = new LinkedList<Integer>();
+                        for (String s : meta.replace("$goto;", "").split(";"))
+                            targets.add(labels.get(s));
+
+                        Term[] args = new Term[targets.size()];
+
+                        try {
+                            for (int index = 0; index < args.length; index++) {
+                                args[index] = new Application(
+                                        state.env.getNumberLiteral(targets.get(index).toString()),
+                                        Environment.getIntType());
+                            }
+
+                            preStatements.set(i, new de.uka.iti.pseudo.term.statement.GotoStatement(preStatements
+                                    .get(i).getSourceLineNumber(), args));
+                            preAnnotations.set(i, "");
+
+                        } catch (TermException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+
             try {
                 state.env.addProgram(new Program(node.getName(), state.root.getURL(), preStatements, preAnnotations,
                         node));
@@ -314,14 +369,37 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(GotoStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
+        // push skip statement, that will be replaced later
+        defaultAction(node);
+
+        try {
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+
+            StringBuffer target = new StringBuffer();
+            target.append("$goto");
+            for (String d : node.getDestinations()) {
+
+                target.append(";");
+                target.append(d);
+            }
+
+            statementAnnotations.add(target.toString());
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(ReturnStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        try {
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$return");
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -415,8 +493,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(LabelStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        try {
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$label:" + node.getName());
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
