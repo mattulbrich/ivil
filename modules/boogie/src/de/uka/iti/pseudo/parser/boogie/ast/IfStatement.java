@@ -66,6 +66,6 @@ public final class IfStatement extends Statement {
      *         exists.
      */
     public List<Statement> getElseBlock() {
-        return Collections.unmodifiableList(elseBlock);
+        return elseBlock;
     }
 }

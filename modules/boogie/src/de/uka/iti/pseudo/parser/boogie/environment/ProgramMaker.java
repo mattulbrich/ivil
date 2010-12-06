@@ -106,6 +106,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     private Map<String, de.uka.iti.pseudo.term.Variable> boundVars = new HashMap<String, de.uka.iti.pseudo.term.Variable>();
 
+    /**
+     * This String is nonnull iff breaks are meaningfull. In that case, they
+     * will contain the annotation of the label, which has to be jumped to on
+     * breaks.
+     */
+    private String breakLabel;
+
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
 
@@ -140,6 +147,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(ConstantDeclaration node) throws ASTVisitException {
         // TODO move unique to variables
+        // TODO implement extends
+        defaultAction(node);
     }
 
     @Override
@@ -241,6 +250,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
+        // ensure no illegal breaks can occur
+        breakLabel = null;
+
         if (node.isImplemented()) {
 
             statements = new LinkedList<Statement>();
@@ -278,11 +290,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                         try {
 
-                            preStatements.set(i, new de.uka.iti.pseudo.term.statement.GotoStatement(preStatements
-.get(i)
+                            preStatements.set(
+                                    i,
+                                    new de.uka.iti.pseudo.term.statement.GotoStatement(preStatements.get(i)
                                             .getSourceLineNumber(), new Term[] { new Application(state.env
                                             .getNumberLiteral(preStatements.size() - postStatements.size()),
-                                            Environment.getIntType())}));
+                                            Environment.getIntType()) }));
                             preAnnotations.set(i, "return");
 
                         } catch (TermException e) {
@@ -420,8 +433,64 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(IfStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // evaluate guard
+        node.getGuard().visit(this);
 
+        // create label names for then/else/end
+        String labelThen = "then" + node.getLocation();
+        String labelElse = "else" + node.getLocation();
+        String labelEnd = "end" + node.getLocation();
+
+        // jump to then and else
+        try {
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$goto;" + labelThen + ";" + labelElse);
+
+            // then assumes condition to be true
+            {
+                statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statementAnnotations.add("$label:" + labelThen);
+
+                statements.add(new AssumeStatement(node.getLocationToken().beginLine, state.translation.terms.get(node
+                        .getGuard())));
+                statementAnnotations.add("");
+
+                for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getThenBlock()) {
+                    s.visit(this);
+                }
+                statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statementAnnotations.add("$goto;" + labelEnd);
+            }
+
+            // else assumes condition to be false
+            {
+                statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statementAnnotations.add("$label:" + labelElse);
+
+
+                    statements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(state.env
+                            .getFunction("$not"), Environment.getBoolType(), new Term[] { state.translation.terms
+                            .get(node.getGuard()) })));
+                    statementAnnotations.add("");
+
+                if (node.getElseBlock() != null) {
+
+                    for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getElseBlock()) {
+                        s.visit(this);
+                    }
+                    statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                    statementAnnotations.add("$goto;" + labelEnd);
+                }
+            }
+
+            // add end label
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$label:" + labelEnd);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -432,14 +501,84 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(WhileStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // ! @note: maybe treatment of breaks has to be reworked
 
+        // evaluate guard
+        node.getGuard().visit(this);
+
+        String oldBreak = breakLabel;
+        // create label names for then/else/end
+        String labelBegin = "begin" + node.getLocation();
+        String labelBody = "body" + node.getLocation();
+        String labelEnd = "end" + node.getLocation();
+        // break label is behind the assume !condition, as it can not be
+        // assumed, that the condition wont hold any longer
+        breakLabel = "break" + node.getLocation();
+
+        // jump to then and else
+        try {
+
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$label:" + labelBegin);
+
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$goto;" + labelBody + ";" + labelEnd);
+
+            // TODO insert loop invariant here; free?
+
+            // loop body
+            {
+                statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statementAnnotations.add("$label:" + labelBody);
+
+                statements.add(new AssumeStatement(node.getLocationToken().beginLine, state.translation.terms.get(node
+                        .getGuard())));
+                statementAnnotations.add("");
+
+                for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getBody()) {
+                    s.visit(this);
+                }
+                statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statementAnnotations.add("$goto;" + labelBegin);
+            }
+
+            // end of the loop
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$label:" + labelEnd);
+
+            statements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(state.env
+                    .getFunction("$not"), Environment.getBoolType(), new Term[] { state.translation.terms.get(node
+                    .getGuard()) })));
+            statementAnnotations.add("");
+
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statementAnnotations.add("$label:" + breakLabel);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        } finally {
+            // restore break label, to allow for nested loops
+            breakLabel = oldBreak;
+        }
     }
 
     @Override
     public void visit(BreakStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // push skip statement, that will be replaced later
+        defaultAction(node);
 
+        try {
+            statements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+
+            String target = "$goto;" + (node.hasTarget() ? node.getTarget() : breakLabel);
+            statementAnnotations.add(target);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
