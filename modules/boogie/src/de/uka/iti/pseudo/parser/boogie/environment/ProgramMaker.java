@@ -269,6 +269,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     String meta = preAnnotations.get(i);
                     if (meta.startsWith("$label")) {
                         meta = meta.replace("$label:", "");
+                        if (labels.containsKey(meta))
+                            throw new ASTVisitException("duplicate definition of label " + meta);
+
                         labels.put(meta, i);
 
                     } else if (meta.startsWith("$return")) {
@@ -294,8 +297,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     if (meta.startsWith("$goto")) {
                         List<Integer> targets = new LinkedList<Integer>();
-                        for (String s : meta.replace("$goto;", "").split(";"))
+                        for (String s : meta.replace("$goto;", "").split(";")) {
+                            if (!labels.containsKey(s))
+                                throw new ASTVisitException("cannot jump to undefined label " + s);
+
                             targets.add(labels.get(s));
+                        }
 
                         Term[] args = new Term[targets.size()];
 

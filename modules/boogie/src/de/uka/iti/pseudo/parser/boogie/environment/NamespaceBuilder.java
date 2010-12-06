@@ -171,9 +171,9 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(LabelStatement node) throws ASTVisitException {
         Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
 
-        if (state.names.variableSpace.containsKey(key))
+        if (state.names.labelSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
-                    + state.names.variableSpace.get(key).getLocation());
+                    + state.names.labelSpace.get(key).getLocation());
 
         state.names.labelSpace.put(key, node);
 

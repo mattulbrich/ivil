@@ -4,10 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;

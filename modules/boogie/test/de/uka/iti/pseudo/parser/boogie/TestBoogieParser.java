@@ -3,6 +3,15 @@ import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.parser.boogie.environment.*;
 public class TestBoogieParser extends TestCaseWithEnv {
 
+// generated test for examples/boogie/test/EnvironmentCreationException/BadLabels1.bpl
+public void testBoogieParseexamples_boogie_test_EnvironmentCreationException_BadLabels1() throws Exception {
+try{
+BPLParser.main(new String[] { "examples/boogie/test/EnvironmentCreationException/BadLabels1.bpl"});
+} catch(EnvironmentCreationException ex){
+return;
+}
+assert false: "expected EnvironmentCreationException to be trown";}
+
 // generated test for examples/boogie/test/TypeSystemException/UpdateExprTyping.bpl
 public void testBoogieParseexamples_boogie_test_TypeSystemException_UpdateExprTyping() throws Exception {
 try{
@@ -232,6 +241,15 @@ assert false: "expected TypeSystemException to be trown";}
 public void testBoogieParseexamples_boogie_test_TypeSystemException_polyInline() throws Exception {
 try{
 BPLParser.main(new String[] { "examples/boogie/test/TypeSystemException/polyInline.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
+// generated test for examples/boogie/test/TypeSystemException/BadLabels0.bpl
+public void testBoogieParseexamples_boogie_test_TypeSystemException_BadLabels0() throws Exception {
+try{
+BPLParser.main(new String[] { "examples/boogie/test/TypeSystemException/BadLabels0.bpl"});
 } catch(TypeSystemException ex){
 return;
 }
@@ -625,6 +643,11 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_polymorphicPro
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/polymorphicProcedures.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/empty.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_empty() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/empty.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/goodCoercion.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_goodCoercion() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/goodCoercion.bpl"});
@@ -640,6 +663,16 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple() throw
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/emptyUniverse.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_emptyUniverse() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/emptyUniverse.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/simple5.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple5() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple5.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/inferenceTest2.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_inferenceTest2() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/inferenceTest2.bpl"});
@@ -650,9 +683,19 @@ public void testBoogieParseexamples_boogie_test_closable_tfe_test_typeArgsVsPara
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVsParams3.bpl"});
 }
 
+// generated test for examples/boogie/test/closable/tfe_test/simple3.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple3() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple3.bpl"});
+}
+
 // generated test for examples/boogie/test/closable/tfe_test/bitvectors.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_bitvectors() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/bitvectors.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/simple4.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple4() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple4.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/integerCodeExpr.bpl
@@ -668,6 +711,16 @@ BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/typeArgsVs
 // generated test for examples/boogie/test/closable/tfe_test/doomedContracts.bpl
 public void testBoogieParseexamples_boogie_test_closable_tfe_test_doomedContracts() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/doomedContracts.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/simple6.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple6() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple6.bpl"});
+}
+
+// generated test for examples/boogie/test/closable/tfe_test/simple2.bpl
+public void testBoogieParseexamples_boogie_test_closable_tfe_test_simple2() throws Exception {
+BPLParser.main(new String[] { "examples/boogie/test/closable/tfe_test/simple2.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/tfe_test/typecast.bpl
@@ -835,11 +888,6 @@ public void testBoogieParseexamples_boogie_test_closable_test0_Arrays1() throws 
 BPLParser.main(new String[] { "examples/boogie/test/closable/test0/Arrays1.bpl"});
 }
 
-// generated test for examples/boogie/test/closable/test0/BadLabels0.bpl
-public void testBoogieParseexamples_boogie_test_closable_test0_BadLabels0() throws Exception {
-BPLParser.main(new String[] { "examples/boogie/test/closable/test0/BadLabels0.bpl"});
-}
-
 // generated test for examples/boogie/test/closable/test0/Prog0.bpl
 public void testBoogieParseexamples_boogie_test_closable_test0_Prog0() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/test0/Prog0.bpl"});
@@ -848,11 +896,6 @@ BPLParser.main(new String[] { "examples/boogie/test/closable/test0/Prog0.bpl"});
 // generated test for examples/boogie/test/closable/test0/WhereParsing.bpl
 public void testBoogieParseexamples_boogie_test_closable_test0_WhereParsing() throws Exception {
 BPLParser.main(new String[] { "examples/boogie/test/closable/test0/WhereParsing.bpl"});
-}
-
-// generated test for examples/boogie/test/closable/test0/BadLabels1.bpl
-public void testBoogieParseexamples_boogie_test_closable_test0_BadLabels1() throws Exception {
-BPLParser.main(new String[] { "examples/boogie/test/closable/test0/BadLabels1.bpl"});
 }
 
 // generated test for examples/boogie/test/closable/test0/ModifiedBag.bpl

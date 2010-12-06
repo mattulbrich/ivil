@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
