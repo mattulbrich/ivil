@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -36,10 +35,13 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 @SuppressWarnings("serial")
 public class InsertAxiomAction extends BarAction implements InitialisingAction,
-        PropertyChangeListener {
+ PropertyChangeListener,
+        NotificationListener {
 
     private Rule axiomRule;
 
@@ -60,6 +62,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
                 setEnabled(false);
             } else {
                 proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+                proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
             }
         }
         
@@ -110,6 +113,12 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
         }
     }
 
+    @Override
+    public void handleNotification(NotificationEvent evt) {
+        if (evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+            setEnabled(getProofCenter().getProof().hasOpenGoals());
+        }
+    }
 
 }
 
