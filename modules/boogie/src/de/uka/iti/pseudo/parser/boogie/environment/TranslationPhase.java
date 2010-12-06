@@ -32,9 +32,33 @@ public final class TranslationPhase {
 
         // create a problem
         {
+            // for (ASTElement e : state.root.getChildren()) {
+            // if (e instanceof ProcedureImplementation) {
+            // ProcedureImplementation decl = (ProcedureImplementation) e;
+            // try {
+            // if (problem == null) {
+            //
+            // problem = new LiteralProgramTerm(0, false,
+            // state.env.getProgram(decl.getName()));
+            // } else {
+            // Term[] args = new Term[2];
+            // args[0] = problem;
+            // args[1] = new LiteralProgramTerm(0, false,
+            // state.env.getProgram(decl.getName()));
+            //
+            // problem = new Application(state.env.getFunction("$and"),
+            // Environment.getBoolType(), args);
+            // }
+            //
+            // } catch (TermException e1) {
+            // e1.printStackTrace();
+            // }
+            // }
+            // }
             for (ProcedureDeclaration decl : state.names.procedureSpace.values()) {
-                if (decl.getBody() != null) {
+                if (decl.isImplemented()) {
                     try {
+
                         if (problem == null) {
 
                             problem = new LiteralProgramTerm(0, false, state.env.getProgram(decl.getName()));
@@ -50,21 +74,10 @@ public final class TranslationPhase {
                     }
                 }
             }
-            for(ASTElement e : state.root.getChildren()){
-                if(e instanceof ProcedureImplementation){
-                    ProcedureImplementation decl = (ProcedureImplementation)e;                   
-                    try {
-                        Term[] args = new Term[2];
-                        args[0] = problem;
-                        args[1] = new LiteralProgramTerm(0, false, state.env.getProgram(decl.getName()));
-
-                        problem = new Application(state.env.getFunction("$and"), Environment.getBoolType(), args);
-                            
-                    } catch (TermException e1) {
-                        e1.printStackTrace();
-                    }
-                }
-            }
+            // the boogie file does not contain implemented procedures and is
+            // thus trivially valid
+            if (null == problem)
+                problem = Environment.getTrue();
         }
 
         // fix the environment?

@@ -209,6 +209,7 @@ public class UniversalType {
      * @return
      */
     static UniversalType newTemplateType(String name, int argumentCount) {
+
         UniversalType[] tmp = voidMap, args = new UniversalType[argumentCount];
         UniversalType _ = newTypeParameter("_");
         for (int i = 0; i < args.length; i++)
@@ -565,13 +566,21 @@ public class UniversalType {
 
     public Type toIvilType(EnvironmentCreationState state) throws EnvironmentException, TermException {
 
-        if (this == BOOL_T)
+        if (this == BOOL_T || name.equals("bool"))
             return Environment.getBoolType();
-        else if (this == INT_T)
+        else if (this == INT_T || name.equals("int"))
             return Environment.getIntType();
         
         if (isTypeVariable)
             return null;
+
+        try {
+            getBVDimension();
+            return state.env.mkType("bitvector");
+        } catch (Exception e) {
+            // if an exception is thrown, we are not a bitvector, so continue
+            // normaly
+        }
 
         if(null == range){
             Type[] args = new Type[templateArguments.length];

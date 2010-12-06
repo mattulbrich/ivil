@@ -126,6 +126,15 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(AxiomDeclaration node) throws ASTVisitException {
+        defaultAction(node);
+
+        // add axiom
+        try {
+            state.env.addAxiom(new Axiom("axiom_" + state.env.getAllAxioms().size(), state.translation.terms.get(node
+                    .getAxiom()), new HashMap<String, String>(), node));
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -232,7 +241,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        if (node.getBody() != null) {
+        if (node.isImplemented()) {
 
             statements = new LinkedList<Statement>();
             statementAnnotations = new LinkedList<String>();

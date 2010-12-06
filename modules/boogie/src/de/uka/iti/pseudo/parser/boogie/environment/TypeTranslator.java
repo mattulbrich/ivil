@@ -23,6 +23,9 @@ public final class TypeTranslator extends DefaultASTVisitor {
 
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
+        if (state.ivilTypeMap.has(node))
+            return;
+
         if (null != state.typeMap.get(node)) {
             try {
                 state.ivilTypeMap.add(node, state.typeMap.get(node).toIvilType(state));
