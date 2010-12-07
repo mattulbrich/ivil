@@ -18,6 +18,7 @@ import java.util.Observer;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -61,7 +62,7 @@ public class Proof {
      * notification.
      */
     private Observable observable = new Observable() {
-        public void notifyObservers(Object arg) {
+        public void notifyObservers(@Nullable Object arg) {
             setChanged();
             super.notifyObservers(arg);
         };
@@ -163,6 +164,7 @@ public class Proof {
             goal.apply(ruleApp, env);
     
             openGoals.remove(goalno);
+            assert goal.getChildren() != null : "nullness: children after proofnode.apply";
             openGoals.addAll(goalno, goal.getChildren());
     
             fireNodeChanged(goal);
@@ -187,7 +189,7 @@ public class Proof {
      *             the implementation may choose to throw this is no goal of
      *             this number exists.
      */
-    public ProofNode getGoalbyNumber(int nodeNumber) throws NoSuchElementException {
+    public @Nullable ProofNode getGoalbyNumber(int nodeNumber) throws NoSuchElementException {
         for (ProofNode goal : openGoals) {
             if(goal.getNumber() == nodeNumber) {
                 return goal;

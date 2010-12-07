@@ -49,7 +49,6 @@ public class MutableRuleApplication implements RuleApplication {
         this.schemaUpdateMapping = new HashMap<String, Update>();
         this.typeVariableMapping = new HashMap<String, Type>();
         this.assumeSelectors = new ArrayList<TermSelector>();
-        this.proofNode = null;
     }
 
     public void setFindSelector(TermSelector findSelector) {

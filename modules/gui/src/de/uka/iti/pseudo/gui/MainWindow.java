@@ -32,6 +32,7 @@ import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
 import com.javadocking.model.FloatDockModel;
 
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
@@ -79,7 +80,7 @@ public class MainWindow extends JFrame {
         this.proofCenter = proofCenter;
     }
 
-    void makeGUI() throws IOException {
+    void makeGUI() throws IOException, StrategyException {
 
         // setup the bar manager
         URL resource = getClass().getResource("actions/menu.xml");

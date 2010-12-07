@@ -56,7 +56,7 @@ public class GoalAction {
     /**
      * The term to replace the found term with.
      */
-    private Term replaceWith;
+    private @Nullable Term replaceWith;
 
     /**
      * The terms to be added to the antecedent.

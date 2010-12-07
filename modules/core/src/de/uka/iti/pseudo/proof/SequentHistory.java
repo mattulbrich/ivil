@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
 
+import checkers.nullness.quals.AssertNonNullAfter;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
@@ -50,13 +52,13 @@ public class SequentHistory {
         /**
          * The proof node due to which the change has been made.
          */
-        private ProofNode creatingProofNode;
+        private @Nullable ProofNode creatingProofNode;
 
         /**
          * The parent annotation. The one with which the formula was previously
          * tagged.
          */
-        private Annotation parentAnnotation;
+        private @Nullable Annotation parentAnnotation;
 
         /**
          * Instantiates a new annotation.
@@ -68,8 +70,8 @@ public class SequentHistory {
          * @param parentAnnotation
          *            the parent annotation
          */
-        public Annotation(String text, ProofNode creatingProofNode,
-                Annotation parentAnnotation) {
+        public Annotation(String text, @Nullable ProofNode creatingProofNode,
+                @Nullable Annotation parentAnnotation) {
             this.text = text;
             this.creatingProofNode = creatingProofNode;
             this.parentAnnotation = parentAnnotation;
@@ -127,8 +129,7 @@ public class SequentHistory {
      * modify the history information. It is set to null when the object is
      * fixed.
      */
-    private Annotation protoType;
-    //private String ruleAppText;
+    private @Nullable Annotation protoType;
 
     /**
      * Indicates that the sequent history has been marked fixed, i.e., made
@@ -159,8 +160,8 @@ public class SequentHistory {
      * @param creatingProofNode
      *            the creating proof node used for new annotations
      */
-    public SequentHistory(String ruleAppText, Annotation reasonAnnotation,
-            ProofNode creatingProofNode) {
+    public SequentHistory(String ruleAppText, @Nullable Annotation reasonAnnotation,
+            @Nullable ProofNode creatingProofNode) {
         this.protoType = new Annotation(ruleAppText, creatingProofNode, reasonAnnotation);
         this.antecedent = new ArrayList<Annotation>();
         this.succedent = new ArrayList<Annotation>();
@@ -181,7 +182,7 @@ public class SequentHistory {
      *            the creating proof node used for new annotations
      */
     public SequentHistory(SequentHistory sequentHistory, String ruleAppText,
-            Annotation reasonAnnotation, ProofNode proofNode) {
+            @Nullable Annotation reasonAnnotation, @Nullable ProofNode proofNode) {
         this(ruleAppText, reasonAnnotation, proofNode);
         antecedent.addAll(sequentHistory.antecedent);
         succedent.addAll(sequentHistory.succedent);
@@ -232,6 +233,7 @@ public class SequentHistory {
     /**
      * Throws an exception if the history has been fixed already.
      */
+    @AssertNonNullAfter({"protoType"})
     private void checkNotFixed() {
         if (fixed)
             throw new IllegalStateException(
@@ -298,6 +300,7 @@ public class SequentHistory {
      */
     public void replaced(@NonNull TermSelector selector) {
         checkNotFixed();
+        assert protoType != null : "nullness: the prototype must not be null.";
 
         if (selector.isAntecedent())
             antecedent.set(selector.getTermNo(), protoType);
@@ -308,18 +311,17 @@ public class SequentHistory {
     /**
      * Retrieve an annotation for certain position.
      * 
-     * Returns <code>null</code> only if the argument is <code>null</code>.
-     * 
      * @param selector
      *            a term selector indicating the index of the annotation to
      *            retrieve.
      * 
-     * @return the annotation at the given position or null
+     * @return the annotation at the given position
      */
-    public Annotation select(TermSelector selector) {
-        if (selector == null)
-            return null;
-        else if (selector.isAntecedent())
+    public @NonNull Annotation select(@NonNull TermSelector selector) {
+//        if (selector == null)
+//            return null;
+//        else
+        if (selector.isAntecedent())
             return antecedent.get(selector.getTermNo());
         else
             return succedent.get(selector.getTermNo());

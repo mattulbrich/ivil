@@ -417,9 +417,11 @@ public class ProofCenter implements Observer {
      * core system and cannot access proof centers.
      * 
      * @return the breakpoint manager of the {@link BreakpointStrategy}.
+     * @throws StrategyException
+     *             if the breakpoint strategy is not available
      * @see BreakpointStrategy#getBreakpointManager()
      */
-    public BreakpointManager getBreakpointManager() {
+    public BreakpointManager getBreakpointManager() throws StrategyException {
         return getStrategyManager().getStrategy(BreakpointStrategy.class).getBreakpointManager();
     }
 

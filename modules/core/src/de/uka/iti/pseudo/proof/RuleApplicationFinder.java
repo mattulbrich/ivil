@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.ArrayList;
 import java.util.List;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -112,7 +113,7 @@ public class RuleApplicationFinder {
      * @throws ProofException
      *             may be thrown during the search of applicable rules
      */
-    public RuleApplicationMaker findOne(TermSelector termSelector,  
+    public @Nullable RuleApplicationMaker findOne(TermSelector termSelector,  
             List<Rule> rules) throws ProofException {
         stopAtSize = 1;
         

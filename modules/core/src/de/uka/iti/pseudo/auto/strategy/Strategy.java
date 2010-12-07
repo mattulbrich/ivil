@@ -140,7 +140,7 @@ public interface Strategy {
      *            the ruleApplication that has been applied to
      * @throws StrategyException
      */
-    void notifyRuleApplication(RuleApplication ruleApp)
+    void notifyRuleApplication(@NonNull RuleApplication ruleApp)
             throws StrategyException;
 
     /**

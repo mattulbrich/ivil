@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -24,6 +25,7 @@ import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.proof.RuleApplicationFinder;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
@@ -119,7 +121,7 @@ public class RewriteRuleCollection {
      * 
      * @return a rule application maker if we can find something, null otherwise
      */
-    public RuleApplicationMaker findRuleApplication(ProofNode node) {
+    public @Nullable RuleApplicationMaker findRuleApplication(ProofNode node) {
 
         Proof proof = node.getProof();
         
@@ -191,11 +193,12 @@ public class RewriteRuleCollection {
             if (rwProperty == null || !category.equals(rwProperty))
                 continue;
 
-            if (!checkRule(rule))
+            LocatedTerm findClause = rule.getFindClause();
+            
+            if (findClause == null)
                 continue;
 
-            String classification = getClassification(rule.getFindClause()
-                    .getTerm());
+            String classification = getClassification(findClause.getTerm());
 
             List<Rule> targetList = classificationMap.get(classification);
             if (targetList == null) {
@@ -206,16 +209,6 @@ public class RewriteRuleCollection {
             targetList.add(rule);
             size++;
         }
-
-    }
-
-    /*
-     * checks on the rules which can be used in this pattern: - need to have a
-     * find clause
-     */
-    private boolean checkRule(Rule rule) throws RuleException {
-
-        return rule.getFindClause() != null;
 
     }
 
@@ -263,7 +256,7 @@ public class RewriteRuleCollection {
      * the generic ones) and try to match one against the term. return this
      * match if it exists, null otherwise
      */
-    private RuleApplicationMaker findRuleApplication(
+    private @Nullable RuleApplicationMaker findRuleApplication(
             RuleApplicationFinder finder, List<Term> terms, boolean side) {
         for (int termno = 0; termno < terms.size(); termno++) {
             Term term = terms.get(termno);
@@ -275,7 +268,7 @@ public class RewriteRuleCollection {
             return null;
     }
         
-    private RuleApplicationMaker findRuleApplication(
+    private @Nullable RuleApplicationMaker findRuleApplication(
             RuleApplicationFinder finder, Term term, TermSelector selector) {
         
         try {
@@ -318,7 +311,7 @@ public class RewriteRuleCollection {
      * Gets the collection of rules which is applicable to a term (apart from
      * the generic ones)
      */
-    private List<Rule> getRuleSet(Term term) {
+    private @Nullable List<Rule> getRuleSet(Term term) {
         String classif = getClassification(term);
         return classificationMap.get(classif);
     }

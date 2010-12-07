@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Term;
 
 
@@ -184,7 +185,7 @@ public class SubtermSelector {
      *            object to compare to
      * @return true iff obj refers to the same term as this
      */
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof SubtermSelector) {
             SubtermSelector ts = (SubtermSelector) obj;
             if(getDepth() != ts.getDepth())

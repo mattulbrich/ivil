@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -49,7 +50,7 @@ public abstract class AbstractStrategy implements Strategy {
     }
 
     @Override
-    public RuleApplication findRuleApplication()
+    public @Nullable RuleApplication findRuleApplication()
             throws StrategyException {
         List<ProofNode> openGoals = proof.getOpenGoals();
         

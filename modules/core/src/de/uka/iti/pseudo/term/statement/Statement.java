@@ -166,7 +166,7 @@ public abstract class Statement {
      * 
      * @return <code>true</code> if this object is equal to the argument.
      */
-    public boolean equals(Object object) {
+    public boolean equals(@NonNull Object object) {
         if (object instanceof Statement) {
             Statement statement = (Statement) object;
             return statement.getClass() == getClass() &&

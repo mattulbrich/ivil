@@ -19,6 +19,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
@@ -93,7 +94,7 @@ public class Rule {
      *            name of the property to retrieve
      * @return the property if it is defined, null otherwise
      */
-    public String getProperty(String string) {
+    public @Nullable String getProperty(String string) {
         return properties.get(string);
     }
 
@@ -212,15 +213,16 @@ public class Rule {
         // remove only if find is top level
         for (GoalAction goalAction : getGoalActions()) {
             if(goalAction.isRemoveOriginalTerm() && 
-                    (getFindClause() == null ||
-                            getFindClause().getMatchingLocation() == MatchingLocation.BOTH)) {
+                    (findClause == null ||
+                            findClause.getMatchingLocation() == MatchingLocation.BOTH)) {
                 throw new RuleException("Goal action contains remove element where find is not present or not top level");
             }
             
-            if(goalAction.getReplaceWith() != null) {
-                if(getFindClause() == null)
+            Term replaceWith = goalAction.getReplaceWith();
+            if(replaceWith != null) {
+                if(findClause == null)
                     throw new RuleException("Find-less rules must not have a replace clause");
-                if(!getFindClause().getTerm().getType().equals(goalAction.getReplaceWith().getType()))
+                if(!findClause.getTerm().getType().equals(replaceWith.getType()))
                     throw new RuleException("Find clause and replace clause must have the same type");
             }
         }
