@@ -10,6 +10,7 @@
     <path id="ivil.classpath.compile">
       <pathelement path="../core/classes"/>
       <pathelement path="../../lib/javadocking.jar"/>
+      <pathelement path="../../lib/checkers-quals.jar"/>
       <pathelement path="../../lib/rsyntaxtextarea.jar"/>
     </path>
 

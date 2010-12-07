@@ -23,7 +23,7 @@
   <target name="compile-init" />
   <target name="compile" depends="init, compile-init, copy"
           description="compiles the sources">
-    <javac destdir="classes" debug="${compile.debug}">
+    <javac destdir="classes" debug="${ivil.debug}">
       <src refid="ivil.sourcepath.compile" />
       <compilerarg value="-Xlint"/>
       <classpath refid="ivil.classpath.compile"/>

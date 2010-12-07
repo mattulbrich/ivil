@@ -24,6 +24,10 @@ import de.uka.iti.pseudo.util.Log;
  * The Class TermComparator allows for comparison of terms. It implements a
  * total order on all terms.
  * 
+ * The method {@link #compare(Term, Term)} returns a positive value if the order
+ * of the second argument is larger than of the first; a negative value if the
+ * first is larger than the second. It returns 0 iff the terms are equal.
+ * 
  * <h4>Order properties</h4>
  * 
  * For a function symbol <code>f</code> one can specify in a ivil-input-file a
