@@ -128,6 +128,11 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         assertEvalsTo("$$intEval(2+3)", "5");
         assertEvalsTo("$$intEval(2-3)", "-1");
         
+        assertEvalsTo("$$intEval(3/2)", "1");
+        assertEvalsTo("$$intEval(2/3)", "0");
+        assertEvalsTo("$$intEval(2*3)", "6");
+        assertEvalsTo("$$intEval($mod(7,3))", "1");
+        
         try {
             Term t = makeTerm("$$intEval(i1+3)");
             Term result = eval.evalutate(t);

@@ -30,13 +30,14 @@ plugin
 function  # infixes
         int $pow(int, int)      infix ^  80
         int $div(int, int)      infix /  70 
+        int $mod(int, int)      
         int $mult(int, int)     infix *  70 
         int $plus(int, int)     infix +  60 
         int $minus(int, int)    infix -  60
 
         int $shl(int, int)      infix << 55
         int $shr(int, int)      infix >> 55
-        int $ushr(int, int)      infix >>> 55
+        int $ushr(int, int)     infix >>> 55
        
         bool $lt(int, int)      infix <  50
         bool $gt(int, int)      infix >  50
@@ -80,12 +81,24 @@ rule minus_is_plus
   replace %a + (-%b)
 
 (*
- * Rules concerning * and /
+ * Rules concerning *
  *)
 rule times_one
   find 1 * %a
   replace %a
 
+
+(*
+ * Rules concerning /
+ *)
+rule divide_by_one
+  find %a / 1
+  replace %a
+
+rule divide_by_self
+  assume |- %a = 0
+  find %a / %a
+  replace 1
 
 (*
  * Rules concerning >, <, >=, <=

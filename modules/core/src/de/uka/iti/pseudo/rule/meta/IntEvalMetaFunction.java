@@ -72,6 +72,18 @@ public class IntEvalMetaFunction extends MetaFunction {
             return makeInt(val1.add(val2), env);
         }
         
+        if(fctname.equals("$mult")) {
+            return makeInt(val1.multiply(val2), env);
+        }
+        
+        if(fctname.equals("$div")) {
+            return makeInt(val1.divide(val2), env);
+        }
+        
+        if(fctname.equals("$mod")) {
+            return makeInt(val1.divideAndRemainder(val2)[1], env);
+        }
+        
         if(fctname.equals("$minus")) {
             return makeInt(val1.subtract(val2), env);
         }
