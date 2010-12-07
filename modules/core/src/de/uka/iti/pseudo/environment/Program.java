@@ -88,12 +88,13 @@ public class Program {
      * @param statements
      *            the sequence of statements statements
      * @param statementAnnotations
-     *            the sequence of statement annotations
+     *            the sequence of statement annotations. The collection may
+     *            contain <code>null</code> values.
      * @param declaration
      *            the reference to the source declaration
      * 
      * @throws EnvironmentException
-     *             if the parameters do not specify a program 
+     *             if the parameters do not specify a program
      */
     public Program(@NonNull String name, 
             @Nullable URL sourceFile,
