@@ -213,23 +213,9 @@ public class Main {
     public static ProofCenter openProver(File file)
             throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
-        Parser fp = new Parser();
-
-        EnvironmentMaker em = new EnvironmentMaker(fp, file);
-        Environment env = em.getEnvironment();
-        Term problemTerm = em.getProblemTerm();
-
-        if (problemTerm == null)
-            throw new EnvironmentException(
-                    "An environment without problem cannot be loaded");
-
-        Proof proof = new Proof(problemTerm);
-        ProofCenter proofCenter = new ProofCenter(proof, env);
-        showProofCenter(proofCenter);
         
-        addToRecentProblems(file.toURI().toURL());
+        return openProverFromURL(file.toURI().toURL());
         
-        return proofCenter;
     }
 
     /**
