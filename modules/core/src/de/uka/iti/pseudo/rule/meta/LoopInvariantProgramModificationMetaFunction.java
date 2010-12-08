@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.environment.ProgramChanger;
+import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;

@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.environment;
+package de.uka.iti.pseudo.environment.creation;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.MetaFunction;
+import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.rule.Rule;

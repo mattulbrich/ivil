@@ -18,9 +18,9 @@ import junit.framework.AssertionFailedError;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;

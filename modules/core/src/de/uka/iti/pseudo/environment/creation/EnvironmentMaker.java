@@ -9,7 +9,7 @@
  * See LICENSE.TXT (distributed with this file) for details.
  */
 
-package de.uka.iti.pseudo.environment;
+package de.uka.iti.pseudo.environment.creation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -22,6 +22,8 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;

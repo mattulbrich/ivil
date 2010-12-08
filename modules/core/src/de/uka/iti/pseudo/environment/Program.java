@@ -16,6 +16,7 @@ import java.util.List;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.EndStatement;
