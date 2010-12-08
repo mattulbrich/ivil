@@ -13,6 +13,8 @@ package de.uka.iti.pseudo.util;
 
 import java.util.Observable;
 
+import checkers.nullness.quals.Pure;
+
 /**
  * The pair class can be used to combine two objects to one.
  * 
@@ -28,7 +30,7 @@ import java.util.Observable;
  *            Type of the second component
  */
 
-public class Pair<E,F> {
+public class Pair<E extends /*@Nullable*/ Object, F extends /*@Nullable*/ Object> {
 	
 	/**
      * the object at the first component.
@@ -83,7 +85,7 @@ public class Pair<E,F> {
      * 
      * @return the stored object, may be null
      */
-	public E fst() {
+	public @Pure E fst() {
 		return fstComponent;
 	}
 	
@@ -93,7 +95,7 @@ public class Pair<E,F> {
      * 
      * @return the stored object, may be null
      */
-	public F snd() {
+	public @Pure F snd() {
 		return sndComponent;
 	}
 
@@ -106,11 +108,11 @@ public class Pair<E,F> {
      * @param obj
      *            object to test equality against.
      */
-	public boolean equals(Object obj) {
+	public @Pure boolean equals(Object obj) {
 		if (obj instanceof Pair<?,?>) {
 			Pair<?,?> pair = (Pair<?,?>) obj;
-			return (fst() == null ? pair.fst() == null : fst().equals(pair.fst())) &&
-				(snd() == null ? pair.snd() == null : snd().equals(pair.snd()));
+			return (Util.equalOrNull(pair.fst(), fst()) &&
+			        Util.equalOrNull(pair.snd(), snd()));
 		} else {
 			return false;
 		}
@@ -132,7 +134,8 @@ public class Pair<E,F> {
      * The hash code of a pair is the exclusive or of the hashcode of the first
      * and second component
      */
-	@Override public int hashCode() {
+	@Override @SuppressWarnings("nullness")
+	public int hashCode() {
 	    int h1 = fst() == null ? 0 : fst().hashCode();
 	    int h2 = snd() == null ? 0 : snd().hashCode();
 	    return h1 ^ h2;

@@ -24,6 +24,7 @@ import java.util.RandomAccess;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Term;
 
 /**
@@ -303,7 +304,7 @@ public class Util {
      * @return true if both are null references or o1.equals(o2) holds on
      *         non-null references
      */
-    public static boolean equalOrNull(Object o1, Object o2) {
+    public static boolean equalOrNull(@Nullable Object o1, @Nullable Object o2) {
         if(o1 == null)
             return o2 == null;
         else if(o2 == null)

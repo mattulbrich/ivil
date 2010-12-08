@@ -27,6 +27,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -38,6 +39,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -189,19 +191,17 @@ public class Main {
     public static ProofCenter openProverFromURL(URL url)
             throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
+        
+        Pair<Environment, Term> result =
+            EnvironmentCreationService.createEnvironmentByExtension(url);
 
-        Parser fp = new Parser();
-
-        EnvironmentMaker em = new EnvironmentMaker(fp, url);
-        Environment env = em.getEnvironment();
-        Term problemTerm = em.getProblemTerm();
-
-        if (problemTerm == null)
+       
+        if (result.snd() == null)
             throw new EnvironmentException(
                     "Cannot load an environment without problem");
 
-        Proof proof = new Proof(problemTerm);
-        ProofCenter proofCenter = new ProofCenter(proof, env);
+        Proof proof = new Proof(result.snd());
+        ProofCenter proofCenter = new ProofCenter(proof, result.fst());
         showProofCenter(proofCenter);
         
         addToRecentProblems(url);
@@ -304,10 +304,12 @@ public class Main {
                             .addChoosableFileFilter(new ExporterFileFilter(
                                     export));
                 }
-            else
-
-                fileChooser[index].setFileFilter(new FileNameExtensionFilter(
-                        "ivil files", "p"));
+            else {
+                for(EnvironmentCreationService service : EnvironmentCreationService.getServices()) {
+                    fileChooser[index].addChoosableFileFilter(new FileNameExtensionFilter(
+                        service.getDescription(), service.getDefaultExtension()));
+                }
+            }
         }
         return fileChooser[index];
     }
