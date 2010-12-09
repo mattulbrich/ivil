@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
@@ -95,7 +96,7 @@ public class Update {
      * This is equal to another Update if the assignments coincide verbatim
      * (including their order!)
      */
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof Update) {
             Update up = (Update) obj;
             return Arrays.equals(assignments, up.assignments);

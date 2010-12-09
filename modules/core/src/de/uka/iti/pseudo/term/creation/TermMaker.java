@@ -98,6 +98,7 @@ import de.uka.iti.pseudo.util.SelectList;
  * It can handle single statements which appear in program terms but cannot deal
  * with statement lists which may have symbolic labels and other stuff.
  */
+@SuppressWarnings("nullness")
 public class TermMaker extends ASTDefaultVisitor {
 
     //

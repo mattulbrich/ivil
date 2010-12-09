@@ -12,6 +12,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Util;
@@ -143,7 +144,7 @@ public class Application extends Term {
      * and has the same function symbol and same arguments.
      */
     @Override 
-    public boolean equals(@NonNull Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof Application) {
             Application app = (Application) object;
             if(app.getFunction() != getFunction())

@@ -14,12 +14,13 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
+import nonnull.NonNull;
 
 public class ASTRuleReplace extends ASTRuleElement {
 
 	private ASTTerm rawTerm;
 
-	public ASTRuleReplace(Token first, ASTTerm rawTerm) {
+	public ASTRuleReplace(@NonNull Token first, @NonNull ASTTerm rawTerm) {
 		super(first);
 		this.rawTerm = rawTerm;
 		addChild(rawTerm);

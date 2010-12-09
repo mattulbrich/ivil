@@ -35,6 +35,7 @@ import de.uka.iti.pseudo.term.UnificationException;
  * @see TypingResolver
  * @see TypeUnification
  */
+@SuppressWarnings("nullness")
 public class TypingContext extends TypeUnification {
 
     /**

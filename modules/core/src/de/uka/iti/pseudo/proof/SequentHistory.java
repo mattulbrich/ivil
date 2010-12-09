@@ -135,7 +135,7 @@ public class SequentHistory {
      * Indicates that the sequent history has been marked fixed, i.e., made
      * immutable.
      */
-    private boolean fixed;
+    private boolean fixed = false;
 
     /**
      * The list of annotations for the antecedent.

@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
@@ -20,7 +22,7 @@ public class ASTAsType extends ASTTerm {
 
     private ASTType asType;
 
-    public ASTAsType(ASTTerm term, ASTType type) {
+    public ASTAsType(@NonNull ASTTerm term, @NonNull ASTType type) {
         super(Collections.<ASTTerm>singletonList(term));
         addChild(type);
         this.asType = type;

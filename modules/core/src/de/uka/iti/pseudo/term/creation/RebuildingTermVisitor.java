@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
@@ -44,7 +45,7 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * The mechanism does not traverse schema programs terms
  */
-
+@SuppressWarnings({"nullness"})
 public class RebuildingTermVisitor extends DefaultTermVisitor {
 
     /**
@@ -53,7 +54,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
      * May contain null to indicate that the last subterm has not changed due to 
      * the rebuilding. 
      */
-    protected Term resultingTerm;
+    protected @Nullable Term resultingTerm;
     
     /**
      * {@inheritDoc}

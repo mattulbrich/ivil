@@ -27,7 +27,7 @@ public class ASTLocatedTerm extends ASTElement {
 
     @Override 
     public Token getLocationToken() {
-        return getChildren().get(0).getLocationToken();
+        return getTerm().getLocationToken();
     }
 
     public void visit(ASTVisitor v) throws ASTVisitException {

@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import checkers.nullness.quals.AssertNonNullAfter;
+import checkers.nullness.quals.AssertNonNullIfTrue;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.term.statement.Statement;
@@ -29,7 +31,7 @@ public class SchemaProgramTerm extends ProgramTerm {
     /**
      * The matching statement to match against.
      */
-    private Statement matchingStatement;
+    private @Nullable Statement matchingStatement;
 
     /**
      * Instantiates a new schema program term.
@@ -62,7 +64,7 @@ public class SchemaProgramTerm extends ProgramTerm {
      * <li>their matching statements are equal or both null
      * </ol>
      */
-    public boolean equals(Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof SchemaProgramTerm) {
             SchemaProgramTerm sch = (SchemaProgramTerm) object;
             return getSchemaVariable().equals(sch.getSchemaVariable())
@@ -97,6 +99,7 @@ public class SchemaProgramTerm extends ProgramTerm {
      * 
      * @return true, if it has a matching statement different from null
      */
+    @AssertNonNullIfTrue({"matchingStatement", "getMatchingStatement()"})
     public boolean hasMatchingStatement() {
         return matchingStatement != null;
     }

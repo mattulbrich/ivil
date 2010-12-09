@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * This class encapsulates a named instantiatable type placeholder.
@@ -83,7 +84,7 @@ public class SchemaType extends Type {
      * Two type variables are equal iff their names are equal.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof SchemaType) {
             SchemaType tyv = (SchemaType) obj;
             return name.equals(tyv.name);

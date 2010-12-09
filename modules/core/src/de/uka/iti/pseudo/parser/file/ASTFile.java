@@ -13,6 +13,8 @@ package de.uka.iti.pseudo.parser.file;
 import java.util.Collections;
 import java.util.List;
 
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
@@ -41,7 +43,7 @@ public class ASTFile extends ASTElement {
 		}
 	}
 
-	public void visit(ASTVisitor v) throws ASTVisitException{
+	public void visit(ASTVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
 
@@ -53,12 +55,12 @@ public class ASTFile extends ASTElement {
 		return Collections.unmodifiableList(declarationBlocks);
 	}
 
-	public ASTTerm getProblemTerm() {
+	public @Nullable ASTTerm getProblemTerm() {
 	    return (ASTTerm) (problemIndex > 0 ? getChildren().get(problemIndex) : null);
 	}
 	
-	@Override
-	public Token getLocationToken() {
+	@Override 
+	public @Nullable Token getLocationToken() {
 		return null;
 	}
 

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Util;
@@ -201,7 +202,7 @@ public class Binding extends Term {
      * 
      * TODO implement alpha-invariance?
      */
-    @Override public boolean equals(@NonNull Object object) {
+    @Override public boolean equals(@Nullable Object object) {
         if (object instanceof Binding) {
             Binding bind = (Binding) object;
             if (bind.getBinder() != getBinder())

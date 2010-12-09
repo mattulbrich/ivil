@@ -115,6 +115,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
      * @param env
      *            environment to use for information lookup.
      */
+    @SuppressWarnings("nullness")
     public TermComparator(@NonNull Environment env) {
         this.env = env;
     }

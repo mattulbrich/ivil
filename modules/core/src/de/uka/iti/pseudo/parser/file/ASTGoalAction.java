@@ -22,19 +22,21 @@ import de.uka.iti.pseudo.parser.Token;
 public class ASTGoalAction extends ASTElement {
     
     @Nullable Token goalKindToken;
-    Token name;
+    @Nullable Token name;
 
     public ASTGoalAction(@NonNull Token t) {
         goalKindToken = t;
+	name = null;
     }
 
     public ASTGoalAction(Token t, Token name, List<ASTRuleElement> list) {
         goalKindToken = t;
         this.name = name;
+	assert list.size() > 0;
         addChildren(list);
     }
 
-    public Token getLocationToken() {
+    public @Nullable Token getLocationToken() {
         if(goalKindToken != null)
             return goalKindToken;
         else
@@ -49,7 +51,7 @@ public class ASTGoalAction extends ASTElement {
         return goalKindToken;
     }
 
-    public Token getName() {
+    public @Nullable Token getName() {
         return name;
     }
 

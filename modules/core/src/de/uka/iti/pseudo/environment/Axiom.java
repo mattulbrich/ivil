@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -64,7 +65,7 @@ public class Axiom {
      *            name of the property to retrieve
      * @return the property if it is defined, null otherwise
      */
-    public String getProperty(String string) {
+    public @Nullable String getProperty(String string) {
         return properties.get(string);
     }
     

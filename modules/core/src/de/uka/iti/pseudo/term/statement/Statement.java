@@ -15,6 +15,7 @@ import java.util.List;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.term.Term;
@@ -166,7 +167,7 @@ public abstract class Statement {
      * 
      * @return <code>true</code> if this object is equal to the argument.
      */
-    public boolean equals(@NonNull Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof Statement) {
             Statement statement = (Statement) object;
             return statement.getClass() == getClass() &&

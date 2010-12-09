@@ -10,7 +10,7 @@
  */
 package de.uka.iti.pseudo.term;
 
-import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class Variable captures a bound variable in a term
@@ -55,7 +55,7 @@ public class Variable extends BindableIdentifier {
 	}
 
     @Override
-    public boolean equals(@NonNull Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof Variable) {
             Variable v = (Variable) object;
             return v.getName().equals(getName())

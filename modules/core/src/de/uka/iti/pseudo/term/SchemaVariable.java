@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class SchemaVariable describes a syntactical entity which is used to stand as a placeholder for
@@ -84,7 +85,7 @@ public class SchemaVariable extends BindableIdentifier {
      * <p>Two schema variables are equal if they have the same name and the same type.
      */
     @Override 
-    public boolean equals(@NonNull Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof SchemaVariable) {
             SchemaVariable sv = (SchemaVariable) object;
             return sv.getName().equals(getName()) && getType().equals(sv.getType());

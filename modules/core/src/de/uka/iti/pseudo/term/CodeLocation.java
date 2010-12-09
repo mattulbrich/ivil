@@ -11,7 +11,7 @@ public class CodeLocation {
         this.program = program;
     }
 
-    // FIXME Better rename that method since it might be confused with Object#equals(Object)
+    // FIXME Better rename that method since it might be confused with Object#equals(@Nullable Object)
     public boolean equals(CodeLocation c) {
         return c.program != null && program != null && c.getLine() == getLine() && c.program.equals(program);
     }

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.term.statement.Statement;
 
@@ -103,7 +104,7 @@ public class LiteralProgramTerm extends ProgramTerm {
      *            Object to compare with
      * @return true iff object and this are identical literal program terms.
      */
-    public boolean equals(Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
             return programIndex == prog.programIndex && program == prog.program

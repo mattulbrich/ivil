@@ -70,6 +70,8 @@ class TermMatchVisitor extends DefaultTermVisitor {
     public TermMatchVisitor(TermMatcher termMatcher, Environment env) {
         this.termUnification = termMatcher;
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
+	// compareTerm is a non-null element
+	this.compareTerm = Environment.getTrue();
     }
 
     /**

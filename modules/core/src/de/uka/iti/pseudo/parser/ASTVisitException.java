@@ -11,7 +11,7 @@
 package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.parser.file.ASTFileVisitor;
-
+import nonnull.Nullable;
 /**
  * This class of exceptions may be thrown during visiting using a
  * {@link ASTFileVisitor} or a {@link ASTVisitor}.
@@ -24,7 +24,7 @@ public class ASTVisitException extends Exception {
 
     private static final long serialVersionUID = 6326168209506163512L;
     
-    private ASTLocatedElement location;
+    private @Nullable ASTLocatedElement location = null;
 
 	public ASTVisitException(String message, ASTLocatedElement location) {
 		super(message);
@@ -54,14 +54,14 @@ public class ASTVisitException extends Exception {
 	}
 
 	@Override
-	public String getMessage() {
+	public @Nullable String getMessage() {
 		if(location == null)
 			return super.getMessage();
 		else
 			return super.getMessage() + " (" + location.getLocation() + ")";
 	}
 
-    public ASTLocatedElement getLocation() {
+    public @Nullable ASTLocatedElement getLocation() {
         return location;
     }
 

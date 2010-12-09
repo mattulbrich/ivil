@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.util;
 
 import java.util.Observable;
 
+import nonnull.Nullable;
 import checkers.nullness.quals.Pure;
 
 /**
@@ -108,7 +109,7 @@ public class Pair<E extends /*@Nullable*/ Object, F extends /*@Nullable*/ Object
      * @param obj
      *            object to test equality against.
      */
-	public @Pure boolean equals(Object obj) {
+	public @Pure boolean equals(@Nullable Object obj) {
 		if (obj instanceof Pair<?,?>) {
 			Pair<?,?> pair = (Pair<?,?>) obj;
 			return (Util.equalOrNull(pair.fst(), fst()) &&

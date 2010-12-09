@@ -2,6 +2,8 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
 
+import nonnull.Nullable;
+import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
@@ -10,7 +12,7 @@ import de.uka.iti.pseudo.term.creation.Typing;
 public class ASTTypevarBinderTerm extends ASTTerm {
     
     private Token binderToken;
-    private Typing boundTyping;
+    private @LazyNonNull Typing boundTyping = null;
 
     public ASTTypevarBinderTerm(Token binderToken,
             ASTType type, ASTTerm subterm) {
@@ -45,7 +47,7 @@ public class ASTTypevarBinderTerm extends ASTTerm {
         return getSubterms().get(0);
     }
     
-    public Typing getBoundTyping() {
+    public @Nullable Typing getBoundTyping() {
         return boundTyping;
     }
 

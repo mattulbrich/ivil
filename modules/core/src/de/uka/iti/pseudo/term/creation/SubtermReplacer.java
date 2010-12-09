@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term.creation;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
@@ -29,7 +30,7 @@ public class SubtermReplacer extends RebuildingTermVisitor {
     /**
      * The counter of processed subterms
      */
-    private int counter;
+    private int counter = 0;
     
     /**
      * The number of the subterm to replace
@@ -72,7 +73,7 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *             for instance if the new term cannot be typed or construction
      *             fails otherwise.
      */
-    public static Term replace(Term term, int subtermNo, Term replaceWith) throws TermException {
+    public static @Nullable Term replace(Term term, int subtermNo, Term replaceWith) throws TermException {
         SubtermReplacer str = new SubtermReplacer(subtermNo, replaceWith);
         term.visit(str);
         return str.resultingTerm;
@@ -97,7 +98,7 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *             for instance if the new term cannot be typed or construction
      *             fails otherwise.
      */
-    public static Term replace(Term term, SubtermSelector sel, Term replaceWith) throws TermException {
+    public static @Nullable Term replace(Term term, SubtermSelector sel, Term replaceWith) throws TermException {
         return replace(term, sel.getLinearIndex(term), replaceWith);
     }
     

@@ -46,7 +46,7 @@ import de.uka.iti.pseudo.util.AppendMap;
  * recorded substitution. This map is updated when unifying pairs of types.
  * 
  */
-
+@SuppressWarnings("nullness")
 public class TypeUnification implements Cloneable {
 
     /**

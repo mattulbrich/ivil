@@ -88,7 +88,7 @@ public class Proof {
      * Proof nodes get unique numbers. It is the job of the proof to enumerate
      * the nodes using this counter.
      */
-    private int proofNodeCounter;
+    private int proofNodeCounter = 0;
     
     /**
      * This mutex is used to ensure apply and prune are atomic operations.
