@@ -87,6 +87,19 @@ rule times_one
   find 1 * %a
   replace %a
 
+
+(*
+ * Rules concerning /
+ *)
+rule divide_by_one
+  find %a / 1
+  replace %a
+
+rule divide_by_self
+  assume |- %a = 0
+  find %a / %a
+  replace 1
+
 (*
  * Rules concerning /
  *)
