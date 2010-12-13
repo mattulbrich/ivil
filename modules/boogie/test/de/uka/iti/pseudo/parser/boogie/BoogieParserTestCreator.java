@@ -57,6 +57,7 @@ public class BoogieParserTestCreator {
 
     public static void main(String[] args) {
         final String PATH = "modules/boogie/test/de/uka/iti/pseudo/parser/boogie/TestBoogieParser.java";
+        final String DATA = "modules/boogie/test/data";
 
         {
             File tests = new File(PATH);
@@ -72,9 +73,9 @@ public class BoogieParserTestCreator {
                     + "public class TestBoogieParser extends TestCaseWithEnv {\n\n");
 
             // create tests for each context
-            for(String context: new File("examples/boogie/test").list())
-                if (new File("examples/boogie/test/" + context).isDirectory())
-                    append(out, "examples/boogie/test/" + context, context);
+            for (String context : new File(DATA).list())
+                if (new File(DATA + "/" + context).isDirectory())
+                    append(out, DATA + "/" + context, context);
 
             out.write("}");
             out.close();

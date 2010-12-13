@@ -244,7 +244,7 @@ public class ProgramChanger {
         statements.remove(index);
         statementAnnotations.remove(index);
     }
-    
+
     /**
      * Reads a statement from the statement list
      * 
@@ -265,6 +265,25 @@ public class ProgramChanger {
         return statements.get(index);
     }
 
+    /**
+     * Reads a statement annotation from the statement list
+     * 
+     * @param index
+     *            the index into the statement list
+     * 
+     * @return the annotation at index
+     * 
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or beyond the end of the statement
+     *             list.
+     */
+    public String getAnnotationAt(int index) {
+        if (index < 0 || index >= statementAnnotations.size())
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
+
+        return statementAnnotations.get(index);
+    }
+
 
     /**
      * Given the modified statement list and annotations, create a new program.
@@ -281,6 +300,13 @@ public class ProgramChanger {
         Program p = new Program(name, sourceFile, statements,
                 statementAnnotations, ASTLocatedElement.CREATED);
         return p;
+    }
+
+    /**
+     * @return the length of the program, if one would assemble it right now.
+     */
+    public int getProgramLength() {
+        return statements.size();
     }
 
     /**
@@ -378,5 +404,4 @@ public class ProgramChanger {
         }
         throw new TermException("The term " + term + " is not a number literal");
     }
-
 }

@@ -21,3 +21,9 @@ include
   "$decproc.p"
   "$unicode.p"
   "$fol.p"
+
+
+(*  Dont use prettyprinter.
+ * plugin
+ *   prettyPrinter : "de.uka.iti.pseudo.parser.boogie.environment.BoogiePrettyPrinter"
+ *)

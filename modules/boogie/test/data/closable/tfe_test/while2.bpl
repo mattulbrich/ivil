@@ -6,7 +6,8 @@ procedure P()
 {
     var x: int;
     x:= 0;
-    while(true){
+    while(true)
+    {
       while(true){
     	x := x + 1;
     	if(x >= 5){
