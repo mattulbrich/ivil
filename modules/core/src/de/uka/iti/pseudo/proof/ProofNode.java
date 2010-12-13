@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import checkers.nullness.quals.AssertNonNullAfter;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -79,12 +81,12 @@ public class ProofNode implements Comparable<ProofNode> {
     /**
      * The children nodes. This is null if this does not have any child nodes yet
      */
-    private ProofNode[] children = null;
+    private ProofNode /*@Nullable*/ [] children = null;
 
     /**
      * The parent of this node in the proof tree
      */
-    private ProofNode parent;
+    private @Nullable ProofNode parent;
     
     /*@ invariant (\forall ProofNode n; n != null && 
      *@  (\exists int i; i >= 0 & i < children.length; children[i] == n);
@@ -94,7 +96,7 @@ public class ProofNode implements Comparable<ProofNode> {
      * The applied rule.
      * This is set iff children have been calculated
      */
-    private ImmutableRuleApplication appliedRuleApp = null;
+    private @Nullable ImmutableRuleApplication appliedRuleApp = null;
     
     /*@ invariant appliedRule == null <==> children == null; @*/  
     
@@ -164,7 +166,7 @@ public class ProofNode implements Comparable<ProofNode> {
      * 
      * @return an unmodifiable list of proof nodes or null
      */
-    public List<ProofNode> getChildren() {
+    public @Nullable List<ProofNode> getChildren() {
         if(children != null)
             return Util.readOnlyArrayList(children);
         else
@@ -376,7 +378,10 @@ public class ProofNode implements Comparable<ProofNode> {
         List<Term> succedent = new ArrayList<Term>();
         MetaEvaluator metaEval = new MetaEvaluator(ruleApp, env);
         String ruleAppText = makeRuleAppAnnotation(rule, inst);
-        Annotation reasonAnnotation = sequentHistory.select(ruleApp.getFindSelector());
+        TermSelector findSelector = ruleApp.getFindSelector();
+        Annotation reasonAnnotation = null;
+        if(findSelector != null)
+            reasonAnnotation = sequentHistory.select(findSelector);
         
         try {
             
@@ -394,13 +399,12 @@ public class ProofNode implements Comparable<ProofNode> {
                             reasonAnnotation, this);
                     break;
                 default:
-                    history = new SequentHistory(ruleAppText, reasonAnnotation,
-                            this);
+                    history = new SequentHistory(ruleAppText, reasonAnnotation, this);
                 break;
                 }
                 
                 Term replaceWith = action.getReplaceWith();
-                TermSelector findSelector = ruleApp.getFindSelector();
+                
                 if(replaceWith != null) {
                     Term instantiated = inst.instantiate(replaceWith);
                     instantiated = metaEval.evalutate(instantiated);
@@ -477,6 +481,8 @@ public class ProofNode implements Comparable<ProofNode> {
             newTerm = replaceWith;
         }
 
+	assert newTerm != null : "nullness: the new turn cannot be null";
+
         int index = sel.getTermNo();
         if (sel.isAntecedent()) {
             antecedent.set(index, newTerm);
@@ -535,8 +541,8 @@ public class ProofNode implements Comparable<ProofNode> {
         if(!findSubTerm.equals(instantiated))
             throw new ProofException("find clause does not match: \nfind: " + findSubTerm + " \ninstantiated: " + instantiated);
         
-        if(!rule.getFindClause().isFittingSelect(findSelector))
-            throw new ProofException("find selector does match find clase: \n" + rule.getFindClause() + 
+        if(!findClause.isFittingSelect(findSelector))
+            throw new ProofException("find selector does match find clase: \n" + findClause + 
                     "\n" + instantiated + " - " + findSelector);
     }
 

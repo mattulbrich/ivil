@@ -17,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class AppendMap is an implementation of the Map interface which performs
@@ -61,12 +62,12 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         /*
          * The reference to the next entry in the list. Null if it is the tail
          */
-        private LinkedEntry<K,V> next;
+        private @Nullable LinkedEntry<K,V> next;
 
         /*
          * Instantiates a new linked entry from some values.
          */
-        private LinkedEntry(K key, V value, LinkedEntry<K, V> next) {
+        private LinkedEntry(K key, V value, @Nullable LinkedEntry<K, V> next) {
             this.key = key;
             this.value = value;
             this.next = next;
@@ -101,7 +102,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
     /**
      * The head of the linked list of entries
      */
-    private LinkedEntry<K,V> head;
+    private @Nullable LinkedEntry<K,V> head;
     
     //@ invariant head == null ==> size == 0;
     
@@ -135,7 +136,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         return new AbstractSet<Entry<K,V>>() {
             public Iterator<java.util.Map.Entry<K, V>> iterator() {
                 return new Iterator<Entry<K,V>>() {
-                    LinkedEntry<K,V> current = head; 
+                    @Nullable LinkedEntry<K,V> current = head; 
                     public boolean hasNext() {
                         return current != null;
                     }
@@ -175,15 +176,17 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
      * @param value
      *            nullable key
      */
-    public V put(K key, V value) {
+    public @Nullable V put(K key, V value) {
         
         if(key == null)
             throw new NullPointerException("this map does not support null keys");
         
         if(containsKey(key)) {
+            assert head != null : "nullness: key is there, hence, non-null head";
             head = new LinkedEntry<K, V>(head);
             LinkedEntry<K, V> current = head;
             while(!current.key.equals(key)) {
+                assert current.next != null : "nullness: the key must be somewhere, we cannot reach the end";
                 current.next = new LinkedEntry<K, V>(current.next);
                 current = current.next;
             }
@@ -200,13 +203,13 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
         }
     };
     
-    public V remove(Object key) {
+    public @Nullable V remove(@Nullable Object key) {
         
         if(key == null)
             throw new NullPointerException("this map does not support null keys");
         
         if(containsKey(key)) {
-            
+            assert head != null : "nullness: key is there, hence, non-null head";
             if(head.key.equals(key)) {
                 V value = head.value;
                 head = head.next;
@@ -215,9 +218,11 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
             } else {            
                 head = new LinkedEntry<K, V>(head);
                 LinkedEntry<K, V> current = head;
+                assert current.next != null : "nullness: the key must be somewhere, we cannot reach the end";
                 while(!current.next.key.equals(key)) {
                     current.next = new LinkedEntry<K, V>(current.next);
                     current = current.next;
+                    assert current.next != null : "nullness: the key must be somewhere, we cannot reach the end";
                 }
             
                 assert current != null;

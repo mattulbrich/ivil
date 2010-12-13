@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -92,7 +93,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    public RuleApplicationMaker findRuleApplication(ProofNode target) {
+    public @Nullable RuleApplicationMaker findRuleApplication(ProofNode target) {
         
         // TODO changes as soon as proof nodes are stored in rule applications
         // int goalNumber = getProof().getOpenGoals().indexOf(target);

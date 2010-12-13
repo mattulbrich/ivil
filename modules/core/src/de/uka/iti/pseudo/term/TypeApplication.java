@@ -13,6 +13,7 @@ import java.util.List;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.util.Util;
 
@@ -92,7 +93,7 @@ public class TypeApplication extends Type {
         return sb.toString();
     }
     
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof TypeApplication) {
             TypeApplication tya = (TypeApplication) obj;
             if (tya.sort != sort)

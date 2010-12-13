@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.term;
 
 import java.util.List;
 
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
 /**
@@ -61,7 +63,7 @@ public class UpdateTerm extends Term {
      * equal to another update term if they have equal assignment sets
      * and equal subterms
      */
-    public boolean equals(Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof UpdateTerm) {
             UpdateTerm ut = (UpdateTerm) object;
             return update.equals(ut.update)

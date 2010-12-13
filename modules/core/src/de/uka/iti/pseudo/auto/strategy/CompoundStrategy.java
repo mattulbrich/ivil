@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -135,7 +136,7 @@ public class CompoundStrategy extends AbstractStrategy {
      * 
      * @return null if no problem, a problem description otherwise
      */
-    private String strategiesError() {
+    private @Nullable String strategiesError() {
         for (Strategy strategy : strategies) {
             if(strategy == null)
                 return "A strategy is null";
@@ -240,7 +241,7 @@ public class CompoundStrategy extends AbstractStrategy {
      * first hit.
      */
     @Override 
-    public RuleApplication findRuleApplication(ProofNode target)
+    public @Nullable RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
         
         for (Strategy strategy : strategies) {

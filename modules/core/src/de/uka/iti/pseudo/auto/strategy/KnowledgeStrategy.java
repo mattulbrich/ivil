@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.DeepNonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.proof.Proof;
@@ -28,7 +29,6 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Knowledge Strategy can be used as a specialised simplification strategy for the three rules:
  * <ol><li>replace_known_right
@@ -45,19 +45,19 @@ public class KnowledgeStrategy extends AbstractStrategy {
      * The "replace_known_right" rule. Is null if this rule is not available in
      * the environment.
      */
-    private Rule ruleReplaceKnownRight;
+    private @Nullable Rule ruleReplaceKnownRight;
     
     /**
      * The rule "replace_known_left". Is null if this rule is not available in
      * the environment.
      */
-    private Rule ruleReplaceKnownLeft;
+    private @Nullable Rule ruleReplaceKnownLeft;
     
     /**
      * The rule "apply_equality". Is null if this rule is not available in
      * the environment.
      */
-    private Rule ruleApplyEquality;
+    private @Nullable Rule ruleApplyEquality;
     
     /**
      * The environment in which the strategy works.
@@ -192,7 +192,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
          * @throws ProofException
          *             if matching does not work.
          */
-        public RuleApplication detect() throws ProofException {
+        private @Nullable RuleApplication detect() throws ProofException {
 
             path.clear();
             
@@ -217,7 +217,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
             return null;
         }
 
-        private RuleApplication findRA(TermSelector toplevelSelector, Term term) throws ProofException {
+        private @Nullable RuleApplication findRA(TermSelector toplevelSelector, Term term) throws ProofException {
             TermSelector refind = antecedentMap.get(term);
             if(refind != null && ruleReplaceKnownLeft != null) {
                 TermSelector find = new TermSelector(toplevelSelector, toIntArray(path));
@@ -227,6 +227,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
                     ra.setFindSelector(new TermSelector(toplevelSelector, toIntArray(path)));
                     ra.pushAssumptionSelector(refind);
                     ra.setFindSelector(find);
+                    assert ruleReplaceKnownLeft != null : "nullness conviction, still not null";
                     ra.setRule(ruleReplaceKnownLeft);
                     ra.matchInstantiations();
                     return ra;
@@ -242,6 +243,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
                     ra.setFindSelector(new TermSelector(toplevelSelector, toIntArray(path)));
                     ra.getAssumeSelectors().add(refind);
                     ra.setFindSelector(find);
+                    assert ruleReplaceKnownRight != null : "nullness conviction, still not null";
                     ra.setRule(ruleReplaceKnownRight);
                     ra.matchInstantiations();
                     return ra;
@@ -256,6 +258,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
                     ra.setProofNode(target);
                     ra.setFindSelector(find);
                     ra.getAssumeSelectors().add(refind);
+                    assert ruleApplyEquality != null : "nullness conviction, still not null";
                     ra.setRule(ruleApplyEquality);
                     ra.matchInstantiations();
                     return ra;
@@ -281,7 +284,7 @@ public class KnowledgeStrategy extends AbstractStrategy {
      * @see de.uka.iti.pseudo.auto.strategy.Strategy#findRuleApplication(de.uka.iti.pseudo.proof.ProofNode)
      */
     @Override
-    public RuleApplication findRuleApplication(ProofNode target)
+    public @Nullable RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
         
         Detector detector = new Detector(target);

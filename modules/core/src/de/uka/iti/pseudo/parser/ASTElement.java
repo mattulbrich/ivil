@@ -21,14 +21,13 @@ import nonnull.Nullable;
  * The class ASTElement is the base class for all AST elements that arise
  * when parsing files, programs or terms.
  */
-@NonNull
 public abstract class ASTElement implements ASTLocatedElement {
 
     /**
      * The name of the file in which this element is defined.
      * If not read from a file, this can be the resource
      */
-    private String fileName;
+    private @Nullable String fileName;
 
     /**
      * The children in the syntax tree
@@ -38,7 +37,11 @@ public abstract class ASTElement implements ASTLocatedElement {
     /**
      * The parent element (counterpart to children), is null for a root element
      */
-    private ASTElement parent = null;
+    private @Nullable ASTElement parent = null;
+
+    // mention the constructor for type checking reasons
+    @SuppressWarnings("nullness")
+    public ASTElement() {};
 
     /**
      * The "accept" method of the visitor pattern. Any extending class will call
@@ -59,7 +62,7 @@ public abstract class ASTElement implements ASTLocatedElement {
      * 
      * @param fileName the filename or resource name
      */
-    public void setFilename(String fileName) {
+    public void setFilename(@Nullable String fileName) {
         this.fileName = fileName;
         for (ASTElement element : getChildren()) {
             element.setFilename(fileName);
@@ -169,7 +172,7 @@ public abstract class ASTElement implements ASTLocatedElement {
 	 * 
 	 * @return the location token
 	 */
-	public abstract Token getLocationToken();
+	public abstract @Nullable Token getLocationToken();
 
     /**
      * Gets the parent element, null if there is no such element
@@ -190,7 +193,7 @@ public abstract class ASTElement implements ASTLocatedElement {
      * @param replacement
      *            the replacement element to put in its place
      */
-    public void replaceChild(ASTElement org, ASTElement replacement) {
+    public void replaceChild(@NonNull ASTElement org, @NonNull ASTElement replacement) {
         int index = children.indexOf(org);
         if(index != -1) {
             children.set(index, replacement);

@@ -10,7 +10,6 @@
 package de.uka.iti.pseudo.gui;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -28,19 +27,17 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
-import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.parser.boogie.BPLParser;
-import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -183,44 +180,21 @@ public class Main {
             System.exit(0);
     }
 
-    public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
-            ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
 
-        Environment env;
-        Term problemTerm;
-        if (url.getPath().endsWith(".p")) {
+    public static ProofCenter openProverFromURL(URL url)
+            throws FileNotFoundException, ParseException, ASTVisitException,
+            TermException, IOException, StrategyException, EnvironmentException {
+        
+        Pair<Environment, Term> result =
+            EnvironmentCreationService.createEnvironmentByExtension(url);
 
-            Parser fp = new Parser();
+       
+        if (result.snd() == null)
+            throw new EnvironmentException(
+                    "Cannot load an environment without problem");
 
-            EnvironmentMaker em = new EnvironmentMaker(fp, url);
-            env = em.getEnvironment();
-            problemTerm = em.getProblemTerm();
-
-        } else if (url.getPath().endsWith(".bpl")) {
-
-            // TODO test proper URL handling
-            BPLParser p = new BPLParser(new FileInputStream(url.getPath()));
-            EnvironmentCreationState creator;
-            try {
-                creator = new EnvironmentCreationState(p.parse(url.getPath()));
-
-                env = creator.make();
-                problemTerm = creator.getProblem();
-
-            } catch (de.uka.iti.pseudo.parser.boogie.ParseException e) {
-                e.printStackTrace();
-                throw new ParseException(e.getMessage());
-            }
-
-        } else {
-            throw new EnvironmentException(url.getPath() + "\nunknown file format; only *.p and *.bpl is supported");
-        }
-
-        if (problemTerm == null)
-            throw new EnvironmentException("Cannot load an environment without problem");
-
-        Proof proof = new Proof(problemTerm);
-        ProofCenter proofCenter = new ProofCenter(proof, env);
+        Proof proof = new Proof(result.snd());
+        ProofCenter proofCenter = new ProofCenter(proof, result.fst());
         showProofCenter(proofCenter);
 
         addToRecentProblems(url);
@@ -231,43 +205,8 @@ public class Main {
 
     public static ProofCenter openProver(File file) throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
-
-        Environment env;
-        Term problemTerm;
-        if (file.getPath().endsWith(".p")) {
-            Parser fp = new Parser();
-
-            EnvironmentMaker em = new EnvironmentMaker(fp, file);
-            env = em.getEnvironment();
-            problemTerm = em.getProblemTerm();
-        } else if (file.getPath().endsWith(".bpl")) {
-
-            BPLParser p = new BPLParser(new FileInputStream(file.getPath()));
-            EnvironmentCreationState creator;
-            try {
-                creator = new EnvironmentCreationState(p.parse(file.getPath()));
-
-                env = creator.make();
-                problemTerm = creator.getProblem();
-
-            } catch (de.uka.iti.pseudo.parser.boogie.ParseException e) {
-                e.printStackTrace();
-                throw new ParseException(e.getMessage());
-            }
-        } else {
-            throw new EnvironmentException("unknown file format; only *.p and *.bpl is supported");
-        }
-
-        if (problemTerm == null)
-            throw new EnvironmentException("An environment without problem cannot be loaded");
-
-        Proof proof = new Proof(problemTerm);
-        ProofCenter proofCenter = new ProofCenter(proof, env);
-        showProofCenter(proofCenter);
-
-        addToRecentProblems(file.toURI().toURL());
-
-        return proofCenter;
+        
+        return openProverFromURL(file.toURI().toURL());
     }
 
     /**
@@ -352,9 +291,12 @@ public class Main {
                 for (ProofExport export : ServiceLoader.load(ProofExport.class)) {
                     fileChooser[index].addChoosableFileFilter(new ExporterFileFilter(export));
                 }
-            else
-
-                fileChooser[index].setFileFilter(new FileNameExtensionFilter("ivil files", "p", "bpl"));
+            else {
+                for(EnvironmentCreationService service : EnvironmentCreationService.getServices()) {
+                    fileChooser[index].addChoosableFileFilter(new FileNameExtensionFilter(
+                        service.getDescription(), service.getDefaultExtension()));
+                }
+            }
         }
         return fileChooser[index];
     }

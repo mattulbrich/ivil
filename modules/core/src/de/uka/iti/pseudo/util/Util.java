@@ -24,6 +24,7 @@ import java.util.RandomAccess;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Term;
 
 /**
@@ -177,21 +178,24 @@ public class Util {
      * 
      * @see Arrays#asList(Object...)
      */
-	public static <E> List<E> readOnlyArrayList(@NonNull E[] array) {
+	public static <E> List<E> readOnlyArrayList(@Nullable E /*@NonNull*/ [] array) {
 	    return new ReadOnlyArrayList<E>(array);
 	}
 	
-	private static class ReadOnlyArrayList<E> extends AbstractList<E> implements RandomAccess {
-		E[] array;
+	// TODO The list interface does not allow for null values, we do
+	@SuppressWarnings({"nullness"})
+	private static class ReadOnlyArrayList<E extends /*@Nullable*/ Object> 
+	                extends AbstractList<E> implements RandomAccess {
+		@Nullable E[] array;
 
-		private ReadOnlyArrayList(E[] array) {
+		private ReadOnlyArrayList(@Nullable E[] array) {
 		    if(array == null)
 		        throw new NullPointerException();
 			this.array = array;
 		}
 
 		@Override
-		public E get(int index) {
+		public @Nullable E get(int index) {
 			return array[index];
 		}
 
@@ -201,7 +205,7 @@ public class Util {
 		}
 		
 		@Override
-		public E[] toArray() {
+		public @Nullable E[] toArray() {
 			return array.clone();
 		}
 		
@@ -282,7 +286,7 @@ public class Util {
      *         the collection as if retrieved by
      *         {@link Collection#toArray(Object[])}.
      */
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings({"unchecked", "nullness"}) 
     public static <E> E[] listToArray(@NonNull Collection<? extends E> collection, @NonNull Class<E> clss) {
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
@@ -303,7 +307,7 @@ public class Util {
      * @return true if both are null references or o1.equals(o2) holds on
      *         non-null references
      */
-    public static boolean equalOrNull(Object o1, Object o2) {
+    public static boolean equalOrNull(@Nullable Object o1, @Nullable Object o2) {
         if(o1 == null)
             return o2 == null;
         else if(o2 == null)

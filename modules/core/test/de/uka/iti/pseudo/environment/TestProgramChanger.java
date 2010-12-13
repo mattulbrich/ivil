@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.environment;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 

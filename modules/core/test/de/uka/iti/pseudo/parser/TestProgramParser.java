@@ -14,7 +14,7 @@ import java.io.StringReader;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 
 public class TestProgramParser extends TestCaseWithEnv {

@@ -6,6 +6,7 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 
+@SuppressWarnings("nullness")
 public class DefaultTypeVisitor<A> implements TypeVisitor<Void, A> {
 
     @Override

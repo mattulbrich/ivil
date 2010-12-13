@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.NumberLiteral;
@@ -98,7 +99,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     }
 
     @Override
-    public RuleApplication findRuleApplication(ProofNode target) {
+    public @Nullable RuleApplication findRuleApplication(ProofNode target) {
         
         RuleApplication ra = ruleCollection.findRuleApplication(target);
         return ra;

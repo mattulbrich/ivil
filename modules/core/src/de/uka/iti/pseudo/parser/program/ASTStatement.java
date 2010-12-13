@@ -10,13 +10,15 @@
  */
 package de.uka.iti.pseudo.parser.program;
 
+import nonnull.Nullable;
+import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.Token;
 
 public abstract class ASTStatement extends ASTElement {
     
     protected Token firstToken;
-    private Token textAnnotation;
+    private @LazyNonNull Token textAnnotation;
 
     public ASTStatement(Token firstToken) {
         this.firstToken = firstToken;
@@ -31,7 +33,7 @@ public abstract class ASTStatement extends ASTElement {
      * 
      * @return the set annotation, if set. Null otherwise
      */
-    public Token getTextAnnotation() {
+    public @Nullable Token getTextAnnotation() {
         return textAnnotation;
     }
 

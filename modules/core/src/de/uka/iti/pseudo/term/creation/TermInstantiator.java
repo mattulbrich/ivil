@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.Util;
 
 // Instantiation is not applied on the instantiated terms or types.
+@SuppressWarnings({"nullness"})
 public class TermInstantiator extends RebuildingTermVisitor {
 
     private Map<String, Term> termMap;

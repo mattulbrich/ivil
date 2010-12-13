@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.proof;
 import java.util.List;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 
@@ -209,7 +210,7 @@ public class TermSelector {
      *            object to compare to
      * @return true iff obj refers to the same term as this
      */
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof TermSelector) {
             TermSelector ts = (TermSelector) obj;
             if(isAntecedent() != ts.isAntecedent())

@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -31,6 +33,8 @@ import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.util.AppendMap;
 import de.uka.iti.pseudo.util.AppendSet;
 
+
+// TODO DOC
 /**
  * The Class TermUnification is the recording instance of a term matching.
  * 
@@ -183,13 +187,13 @@ public class TermMatcher implements Cloneable {
      * 
      * @return the instantiation stored in the mapping if there is any, null otherwise.
      */
-    public Term getTermFor(@NonNull SchemaVariable sv) {
+    public @Nullable Term getTermFor(@NonNull SchemaVariable sv) {
         return instantiation.get(sv.getName());
     }
 
     // TODO DOC upto here
     
-    public Update getUpdateFor(String schemaIdentifier) {
+    public @Nullable Update getUpdateFor(String schemaIdentifier) {
         return updateInst.get(schemaIdentifier);
     }
 
@@ -204,7 +208,7 @@ public class TermMatcher implements Cloneable {
      * @throws TermException
      *             the term exception
      */
-    public Term instantiate(Term toInst) throws TermException {
+    public @Nullable Term instantiate(Term toInst) throws TermException {
         return getTermInstantiator().instantiate(toInst);
     }
     
@@ -317,7 +321,7 @@ public class TermMatcher implements Cloneable {
         return typeInstantiation;
     }
 
-    public Type getTypeFor(String variableName) {
+    public @Nullable Type getTypeFor(String variableName) {
         return typeInstantiation.get(variableName);
     }
 

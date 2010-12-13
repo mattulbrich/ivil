@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -161,11 +162,17 @@ public class StrategyManager {
      *            the implementing class for which the strategy is to be
      *            returned
      * 
-     * @return the strategy, or null if the class is not registered
+     * @throws StrategyException
+     *             if the argument has not been registered previously.
+     * 
+     * @return the strategy
      */
     @SuppressWarnings("unchecked")
-    public <T extends Strategy> T getStrategy(Class<T> clss) {
-        return (T) registeredStrategies.get(clss);
+    public <T extends  Strategy> T getStrategy(Class<T> clss) throws StrategyException {
+        Strategy strategy = registeredStrategies.get(clss);
+        if(strategy == null)
+            throw new StrategyException("Unregistered strategy " + clss);
+        return (T) strategy;
     }
 
     /**

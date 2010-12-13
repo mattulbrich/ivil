@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * This class encapsulates a type variable type with an arbitrary name.
@@ -83,7 +84,7 @@ public class TypeVariable extends Type {
 	 * Two type variables are equal iff their names are equal.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof TypeVariable) {
 			TypeVariable tyv = (TypeVariable) obj;
 			return name.equals(tyv.name);

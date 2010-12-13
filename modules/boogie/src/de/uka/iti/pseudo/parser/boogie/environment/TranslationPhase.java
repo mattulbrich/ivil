@@ -8,7 +8,7 @@ import java.util.Map;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.environment.ProgramChanger;
+import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;

@@ -10,18 +10,10 @@
 	<classpathentry kind="src" path="modules/cmd/test"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
 	<classpathentry kind="src" path="modules/boogie/test"/>
-	<classpathentry kind="lib" path="lib/nonnull.jar"/>
-	<classpathentry kind="lib" path="lib/javadocking.jar" sourcepath="/export/home/i12pc3/mattias/local/lib/java/javadocking/src">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/export/home/i12pc3/mattias/local/lib/java/javadocking/docs/javadoc/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/javadocking.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea.jar"/>
-	<classpathentry kind="lib" path="lib/CopyrightTask.java"/>
-	<classpathentry kind="lib" path="lib/Log4JLogImplementation.java"/>
-	<classpathentry kind="lib" path="lib/syntax.jar"/>
+	<classpathentry kind="lib" path="lib/checkers-quals.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 /**
@@ -97,9 +98,9 @@ public class Environment {
     private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
-    private PluginManager pluginManager = null;
+    private @Nullable PluginManager pluginManager = null;
     // literal map is created lazily.
-    private Map<BigInteger, NumberLiteral> numberMap = null;
+    private @Nullable  Map<BigInteger, NumberLiteral> numberMap = null;
 
     /**
      * The rules are kept as a sorted set and as a map
@@ -112,6 +113,7 @@ public class Environment {
      */
     private Environment() {
         this.resourceName = "none:built-in";
+	this.fixed = false;
     }
 
     /**
@@ -130,6 +132,7 @@ public class Environment {
             @NonNull Environment parentEnvironment) throws EnvironmentException {
         this.resourceName = resourceName;
         this.parentEnvironment = parentEnvironment;
+	this.fixed = false;
 
         // to find errors in the usage of resourceName
         try {
@@ -190,7 +193,7 @@ public class Environment {
      * 
      * @return the parent environment, possibly null
      */
-    public Environment getParent() {
+    public @Nullable Environment getParent() {
         return parentEnvironment;
     }
 
@@ -252,7 +255,7 @@ public class Environment {
      * 
      * @return a program or null
      */
-    public Program getProgram(@NonNull String programName) {
+    public @Nullable Program getProgram(@NonNull String programName) {
         Program program = programMap.get(programName);
 
         if (program == null && parentEnvironment != null)
@@ -377,7 +380,7 @@ public class Environment {
      *            
      * @return <code>null</code> if property was not specified
      */
-    public String getProperty(@NonNull String name) {
+    public @Nullable String getProperty(@NonNull String name) {
         String rval = propertiesMap.get(name);
         if(rval == null && parentEnvironment != null) {
             rval = parentEnvironment.getProperty(name);
@@ -391,7 +394,7 @@ public class Environment {
      * 
      * @return an unmodifiable map of properties.
      */
-    public Map<String, String> getLocalProperties() {
+    public @NonNull Map<String, String> getLocalProperties() {
         return Collections.unmodifiableMap(propertiesMap);
     }
 
@@ -511,7 +514,9 @@ public class Environment {
     public static @NonNull
     Type getIntType() {
         try {
-            return new TypeApplication(BUILT_IN_ENV.getSort("int"));
+            Sort intSort = BUILT_IN_ENV.getSort("int");
+            assert intSort != null : "nullness: guaranteed by construction of BUILT_IN_ENV";
+            return new TypeApplication(intSort);
         } catch (TermException e) {
             // "int" is present since builtin
             throw new Error(e);
@@ -523,10 +528,11 @@ public class Environment {
      * 
      * @return the type for booleans
      */
-    public static @NonNull
-    Type getBoolType() {
+    public static @NonNull Type getBoolType() {
         try {
-            return new TypeApplication(BUILT_IN_ENV.getSort("bool"));
+            Sort boolSort = BUILT_IN_ENV.getSort("bool");
+            assert boolSort != null : "nullness: guaranteed by construction of BUILT_IN_ENV";
+            return new TypeApplication(boolSort);
         } catch (TermException e) {
             // "boolean" is presend since builtin
             throw new Error(e);
@@ -709,8 +715,9 @@ public class Environment {
     public static @NonNull
     Term getTrue() {
         try {
-            return new Application(BUILT_IN_ENV.getFunction("true"),
-                    getBoolType());
+            Function cnstTrue = BUILT_IN_ENV.getFunction("true");
+            assert cnstTrue != null : "nullness: existence guaranteed by construction";
+            return new Application(cnstTrue, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -724,8 +731,9 @@ public class Environment {
     public static @NonNull
     Term getFalse() {
         try {
-            return new Application(BUILT_IN_ENV.getFunction("false"),
-                    getBoolType());
+            Function cnstFalse= BUILT_IN_ENV.getFunction("false");
+            assert cnstFalse != null : "nullness: existence guaranteed by construction";
+            return new Application(cnstFalse, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -1131,8 +1139,10 @@ public class Environment {
                 throw new EnvironmentException(
                         "cannot create the plugin manager for this environment, it has been fixed already");
 
-            PluginManager parentManger = parentEnvironment != null ? parentEnvironment.pluginManager
-                    : null;
+            PluginManager parentManger = 
+                parentEnvironment != null ? 
+                        parentEnvironment.pluginManager : null;
+            
             pluginManager = new PluginManager(parentManger);
         }
 

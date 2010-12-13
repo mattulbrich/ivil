@@ -8,11 +8,18 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.environment;
+package de.uka.iti.pseudo.environment.creation;
 
 import java.util.List;
 import java.util.Set;
 
+import de.uka.iti.pseudo.environment.Binder;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.FixOperator;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Sort;
+import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;

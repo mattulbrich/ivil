@@ -12,9 +12,12 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.List;
 
+import checkers.nullness.quals.LazyNonNull;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTElement;
+import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.term.creation.Typing;
 import de.uka.iti.pseudo.util.SelectList;
 
@@ -23,14 +26,14 @@ import de.uka.iti.pseudo.util.SelectList;
  * Every ASTTerm has a {@link Typing} element associated which is used to determine
  * the type of the term during the phase of type inference.
  */
-@NonNull
+
 public abstract class ASTTerm extends ASTElement {
     
     /**
      * The typing object which is used to infer types.
      * This is null unless set explicitly
      */
-    private Typing typing;
+    private @LazyNonNull Typing typing = null;
 
     /**
      * Instantiates a new AST term, the provided subterms are set
@@ -69,5 +72,12 @@ public abstract class ASTTerm extends ASTElement {
     public void setTyping(@NonNull Typing typing) {
         assert this.typing == null;
         this.typing = typing;
-    }
+    }	
+    
+    /**
+     * Terms always do have a location token, hence the NonNull return type.
+     * 
+     * @return the location token
+     */
+    public abstract @NonNull Token getLocationToken();
 }

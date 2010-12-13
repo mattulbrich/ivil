@@ -25,7 +25,7 @@ public abstract class ASTRuleElement extends ASTElement {
         return firstToken;
     }
     
-    public Token getLocationToken() {
+    @Override public Token getLocationToken() {
         return getFirstToken();
     }
 }

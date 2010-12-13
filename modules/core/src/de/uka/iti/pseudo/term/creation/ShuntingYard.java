@@ -189,10 +189,10 @@ public class ShuntingYard {
         assert opStack.empty();
         assert termStack.size() == 1;
         
-        ASTTerm term = termStack.pop();
+        @NonNull ASTTerm term = termStack.pop();
+	assert term != null : "nullness";
+
         term.setFilename(listTerm.getFileName());
-        
-        assert term != null;
         
         return term;
     }

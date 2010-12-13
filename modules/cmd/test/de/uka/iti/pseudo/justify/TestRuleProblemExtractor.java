@@ -12,7 +12,7 @@ package de.uka.iti.pseudo.justify;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;

@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 
 // TODO DOC
@@ -40,7 +41,7 @@ public class TypeVariableBinding extends Term {
     }
 
     @Override
-    public boolean equals(Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof TypeVariableBinding){
             TypeVariableBinding tvb = (TypeVariableBinding) object;
             if(tvb.getKind() != getKind())

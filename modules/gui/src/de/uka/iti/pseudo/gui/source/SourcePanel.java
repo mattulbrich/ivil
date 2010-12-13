@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -37,7 +38,7 @@ public class SourcePanel extends CodePanel {
     private static final Color SOURCE_COLOR = 
         Settings.getInstance().getColor("pseudo.program.sourcecolor", Color.BLACK);
 
-    public SourcePanel(ProofCenter proofCenter) throws IOException {
+    public SourcePanel(ProofCenter proofCenter) throws IOException, StrategyException {
         super(proofCenter, true, SOURCE_COLOR);
     }
 

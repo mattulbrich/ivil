@@ -13,6 +13,8 @@ package de.uka.iti.pseudo.util;
 
 import java.util.Observable;
 
+import nonnull.Nullable;
+
 /**
  * The Triple class can be used to combine three objects to one.
  * 
@@ -114,7 +116,7 @@ public class Triple<E,F,G> {
      * @param obj
      *            object to test equality against.
      */
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (obj instanceof Triple<?,?,?>) {
 			Triple<?,?,?> triple = (Triple<?,?,?>) obj;
 			return (fst() == null ? triple.fst() == null : fst().equals(triple.fst())) &&

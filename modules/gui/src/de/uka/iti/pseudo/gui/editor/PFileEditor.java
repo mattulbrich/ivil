@@ -52,7 +52,7 @@ import org.fife.ui.rsyntaxtextarea.TokenMaker;
 import org.fife.ui.rsyntaxtextarea.modes.PlainTextTokenMaker;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.parser.ASTElement;

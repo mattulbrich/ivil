@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class Type is used to model types of terms. Types are immutable objects.
@@ -30,7 +31,7 @@ public abstract class Type {
     /**
      * The stored hash code.
      */
-    private int storedHashCode;
+    private int storedHashCode = 0;
 
     /**
      * This method is the 'accept' method of the visitor pattern. It can be used
@@ -62,7 +63,7 @@ public abstract class Type {
      * <p>Two types are equals if they are of the same class and structurally equal.
      */
     @Override
-    public abstract boolean equals(@NonNull Object object);
+    public abstract boolean equals(@Nullable Object object);
     
     /**
      * {@inheritDoc}

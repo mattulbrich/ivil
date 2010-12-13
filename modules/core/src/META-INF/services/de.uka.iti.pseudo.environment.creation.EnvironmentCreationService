@@ -1,0 +1,8 @@
+#
+# The default service to create environments from .p files
+de.uka.iti.pseudo.environment.creation.PFileEnvironmentCreationService
+
+# The default service to create environments from .bpl files
+de.uka.iti.pseudo.parser.boogie.BPLFileEnvironmentCreationService
+
+# Add your service to create environments here

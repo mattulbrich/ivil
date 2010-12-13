@@ -30,8 +30,7 @@
     <tstamp> 
       <format property="NOW" pattern="yyyy-MM-dd kk:mm" locale="en,UK"/>
     </tstamp>
-
-    <echo file="VERSION" append="false">${version} - ${NOW}</echo>
+    <echo file="VERSION" append="false">${ivil.version} - ${NOW}</echo>
   </target>
   
   <target name="build" depends="init" description="builds the modules">
@@ -65,10 +64,10 @@
         <attribute name="Implementation-Vendor" value="ITI, Universitaet Karlsruhe"/>
         <attribute name="Implementation-Title" 
 		   value="ivil - Interactive Verification on Intermediate Language"/>
-        <attribute name="Implementation-Version" value="${version} - ${NOW}"/>
+        <attribute name="Implementation-Version" value="${ivil.version} - ${NOW}"/>
         <!-- log4j is an optional library, the runtime env will not complain if
              the file is absent -->
-        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar"/>
+        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar lib/checkers-quals.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
         <attribute name="SplashScreen-Image" value="de/uka/iti/pseudo/gui/img/logo.png"/>
       </manifest>

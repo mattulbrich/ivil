@@ -10,11 +10,15 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import checkers.nullness.quals.AssertNonNullAfter;
+import checkers.nullness.quals.Nullable;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -43,14 +47,14 @@ public class Sequent {
     /**
      * Native code locations, i.e. ivil byte code oder BoogiePL code
      */
-    private CodeLocation[] nativeCodeLocations = null;
+    private CodeLocation /*@Nullable*/ [] nativeCodeLocations = null;
 
     /**
      * Source code locations, i.e. any code that was used to generate the
      * corresponding native code. Source code will be empty if no corresponding
      * source code can be found.
      */
-    private CodeLocation[] sourceCodeLocations = null;
+    private CodeLocation /*@Nullable*/ [] sourceCodeLocations = null;
 
     /**
      * Instantiates a new sequent.
@@ -126,8 +130,9 @@ public class Sequent {
 
             for (LiteralProgramTerm t : progTerms) {
                 nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
-                if (null != t.getProgram().getSourceFile())
-                    source.add(new CodeLocation(t.getStatement().getSourceLineNumber(), t.getProgram().getSourceFile()));
+                URL sourceFile = t.getProgram().getSourceFile();
+                if (null != sourceFile)
+                    source.add(new CodeLocation(t.getStatement().getSourceLineNumber(), sourceFile));
             }
 
             nativeCodeLocations = new CodeLocation[nativ.size()];
@@ -181,6 +186,8 @@ public class Sequent {
         if (null == nativeCodeLocations)
             calculateCodeLocations();
 
+        assert nativeCodeLocations != null : "nullness";
+        
         return Util.readOnlyArrayList(nativeCodeLocations);
     }
 
@@ -199,6 +206,8 @@ public class Sequent {
         if (null == sourceCodeLocations)
             calculateCodeLocations();
 
+        assert sourceCodeLocations != null : "nullness";
+        
         return Util.readOnlyArrayList(sourceCodeLocations);
     }
 
@@ -232,7 +241,7 @@ public class Sequent {
      * terms in antecedent and succedent are pairwise equal.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
 
         if (obj instanceof Sequent) {
             Sequent other = (Sequent) obj;

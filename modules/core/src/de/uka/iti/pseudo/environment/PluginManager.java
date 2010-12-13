@@ -113,6 +113,11 @@ public class PluginManager {
          * The list holding all registered plugins for that service.
          */
         List<Object> list = new LinkedList<Object>();
+
+        Service(Class<?> type) {
+            this.type = type;
+        }
+
     }
 
     /**
@@ -126,8 +131,9 @@ public class PluginManager {
      * @throws EnvironmentException
      *             if reading the configuration fails
      */
-    public PluginManager(PluginManager parentManager)
+    public PluginManager(@Nullable PluginManager parentManager)
             throws EnvironmentException {
+        
         this.parentManager = parentManager;
         try {
             makeServiceTable();
@@ -154,8 +160,7 @@ public class PluginManager {
 
         for (Map.Entry<Object, Object> entry : prop.entrySet()) {
             Class<?> clss = Class.forName(entry.getValue().toString());
-            Service service = new Service();
-            service.type = clss;
+            Service service = new Service(clss);
             serviceMap.put(entry.getKey().toString(), service);
         }
     }

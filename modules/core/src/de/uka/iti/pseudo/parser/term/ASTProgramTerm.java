@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.ParserConstants;
@@ -22,12 +23,13 @@ public class ASTProgramTerm extends ASTTerm {
 
     private boolean terminating;
     private Token position;
-    private Token programReference;
+    private @Nullable Token programReference;
     
     private ASTProgramTerm(Token position, boolean terminating) {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
         this.position = position;
+	this.programReference = null;
     }
 
     public ASTProgramTerm(Token label, boolean termination,
@@ -50,7 +52,7 @@ public class ASTProgramTerm extends ASTTerm {
     
     public Token getProgramReferenceToken() {
         assert !isSchema() : "Schema programs have no such token";
-        assert programReference != null;
+        assert programReference != null : "nullness";
         return programReference;
     }
     

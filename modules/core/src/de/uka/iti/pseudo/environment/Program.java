@@ -16,6 +16,7 @@ import java.util.List;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.EndStatement;
@@ -88,12 +89,13 @@ public class Program {
      * @param statements
      *            the sequence of statements statements
      * @param statementAnnotations
-     *            the sequence of statement annotations
+     *            the sequence of statement annotations. The collection may
+     *            contain <code>null</code> values.
      * @param declaration
      *            the reference to the source declaration
      * 
      * @throws EnvironmentException
-     *             if the parameters do not specify a program 
+     *             if the parameters do not specify a program
      */
     public Program(@NonNull String name, 
             @Nullable URL sourceFile,

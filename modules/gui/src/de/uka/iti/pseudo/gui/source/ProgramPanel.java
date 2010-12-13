@@ -18,6 +18,7 @@ import java.util.List;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
@@ -35,7 +36,7 @@ public class ProgramPanel extends CodePanel {
 
     private PrettyPrint prettyPrinter;
 
-    public ProgramPanel(ProofCenter proofCenter) throws IOException {
+    public ProgramPanel(ProofCenter proofCenter) throws IOException, StrategyException {
         super(proofCenter, false, PROGRAM_COLOR);
     }
 

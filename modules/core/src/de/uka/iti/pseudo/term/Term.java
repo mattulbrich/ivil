@@ -12,9 +12,9 @@ package de.uka.iti.pseudo.term;
 
 import java.util.List;
 
-import nonnull.NonNull;
 import nonnull.DeepNonNull;
-
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -52,7 +52,7 @@ public abstract class Term {
     /**
      * The hashcode is stored in here once it has been calculated.
      */
-    private int storedHashCode;
+    private int storedHashCode = 0;
 
 	/**
 	 * Instantiates a new term with subterms
@@ -200,7 +200,7 @@ public abstract class Term {
      * 
      * @return true iff object is a term and structually equal to this term.
      */
-	public abstract boolean equals(@NonNull Object object);
+	public abstract boolean equals(@Nullable Object object);
 	
 	/**
 	 * This is the "accept" method of the visitor pattern.

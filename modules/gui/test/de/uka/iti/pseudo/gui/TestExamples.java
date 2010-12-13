@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 

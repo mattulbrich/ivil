@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.util.Pair;
  * <p>The location may be one of the constants of the enum {@link MatchingLocation}.
  * 
  */
-public class LocatedTerm extends Pair<Term, MatchingLocation> {
+public class LocatedTerm extends Pair</*@NonNull*/ Term, /*@NonNull*/MatchingLocation> {
 
     /**
      * Instantiates a new located term.

@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.Nullable;
+
 public class SchemaUpdateTerm extends Term {
 
     private String schemaIdentifier;
@@ -19,7 +21,7 @@ public class SchemaUpdateTerm extends Term {
         this.schemaIdentifier = schemaUpdateId;
     }
 
-    public boolean equals(Object object) {
+    public boolean equals(@Nullable Object object) {
         if (object instanceof SchemaUpdateTerm) {
             SchemaUpdateTerm schemaUp = (SchemaUpdateTerm) object;
             return schemaIdentifier.equals(schemaUp.getSchemaIdentifier()) &&
