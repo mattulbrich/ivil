@@ -7,7 +7,8 @@ function age(Wicket) returns (int);
 axiom age(w)==7;
 
 procedure NewFavorite(p: Wicket);
-  modifies favorite;
+  modifies favorite
+;
 
   ensures favorite==p;
 

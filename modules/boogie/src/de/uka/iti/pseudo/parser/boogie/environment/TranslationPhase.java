@@ -1,16 +1,26 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.ProgramChanger;
+import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.environment.ProgramMaker.StatementTripel;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.SkipStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public final class TranslationPhase {
 
@@ -19,64 +29,211 @@ public final class TranslationPhase {
      * namespace.
      */
     public final Map<Variable, String> variableNames = new HashMap<Variable, String>();
+
+    /**
+     * Terms, that correspond to expressions.
+     */
     public final Map<Expression, Term> terms = new HashMap<Expression, Term>();
+
+    /**
+     * Statement triples for procedure declarations. Body might be empty.
+     */
+    public final Map<ProcedureDeclaration, ProgramMaker.StatementTripel> declarations = new HashMap<ProcedureDeclaration, ProgramMaker.StatementTripel>();
+
+    /**
+     * Statement triples for procedure implementations.
+     */
+    public final Map<ProcedureImplementation, ProgramMaker.StatementTripel> implementations = new HashMap<ProcedureImplementation, ProgramMaker.StatementTripel>();
 
     private Term problem = null;
 
-    public void create(EnvironmentCreationState state) throws EnvironmentCreationException {
+    /**
+     * Creates a program out of statements and annotations and registers the
+     * result in the environment as name.
+     * 
+     * @param statements
+     * @param annotations
+     * @param name
+     * @throws EnvironmentCreationException
+     */
+    private void registerProgram(EnvironmentCreationState state, List<Statement> statements, List<String> annotations,
+            String name, ASTElement node, int returnIndex) throws EnvironmentCreationException {
+        Map<String, Integer> labels = new HashMap<String, Integer>();
+        for (int i = 0; i < statements.size(); i++) {
+            if (statements.get(i) instanceof SkipStatement) {
+                String meta = annotations.get(i);
+                if (null == meta)
+                    continue;
 
-        // fill environment with programs
-        new ProgramMaker(state);
+                if (meta.startsWith("$label")) {
+                    meta = meta.replace("$label:", "");
+                    if (labels.containsKey(meta))
+                        throw new EnvironmentCreationException("duplicate definition of label " + meta);
 
-        // create a problem
-        {
-            // for (ASTElement e : state.root.getChildren()) {
-            // if (e instanceof ProcedureImplementation) {
-            // ProcedureImplementation decl = (ProcedureImplementation) e;
-            // try {
-            // if (problem == null) {
-            //
-            // problem = new LiteralProgramTerm(0, false,
-            // state.env.getProgram(decl.getName()));
-            // } else {
-            // Term[] args = new Term[2];
-            // args[0] = problem;
-            // args[1] = new LiteralProgramTerm(0, false,
-            // state.env.getProgram(decl.getName()));
-            //
-            // problem = new Application(state.env.getFunction("$and"),
-            // Environment.getBoolType(), args);
-            // }
-            //
-            // } catch (TermException e1) {
-            // e1.printStackTrace();
-            // }
-            // }
-            // }
-            for (ProcedureDeclaration decl : state.names.procedureSpace.values()) {
-                if (decl.isImplemented()) {
+                    labels.put(meta, i);
+
+                } else if (meta.startsWith("$return")) {
+
                     try {
 
-                        if (problem == null) {
+                        statements.set(
+                                i,
+                                new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
+                                        .getSourceLineNumber(), new Term[] { new Application(state.env
+                                        .getNumberLiteral(returnIndex), Environment
+                                        .getIntType()) }));
+                        annotations.set(i, "return");
 
-                            problem = new LiteralProgramTerm(0, false, state.env.getProgram(decl.getName()));
-                        } else {
-                            Term[] args = new Term[2];
-                            args[0] = problem;
-                            args[1] = new LiteralProgramTerm(0, false, state.env.getProgram(decl.getName()));
-
-                            problem = new Application(state.env.getFunction("$and"), Environment.getBoolType(), args);
-                        }
                     } catch (TermException e) {
                         e.printStackTrace();
                     }
                 }
             }
-            // the boogie file does not contain implemented procedures and is
-            // thus trivially valid
-            if (null == problem)
-                problem = Environment.getTrue();
         }
+        // replace skip $goto
+        for (int i = 0; i < statements.size(); i++) {
+            if (statements.get(i) instanceof SkipStatement) {
+                String meta = annotations.get(i);
+                if (null == meta)
+                    continue;
+
+                if (meta.startsWith("$goto")) {
+                    List<Integer> targets = new LinkedList<Integer>();
+                    for (String s : meta.replace("$goto;", "").split(";")) {
+                        if (!labels.containsKey(s))
+                            throw new EnvironmentCreationException("cannot jump to undefined label " + s);
+
+                        targets.add(labels.get(s));
+                    }
+
+                    Term[] args = new Term[targets.size()];
+
+                    try {
+                        for (int index = 0; index < args.length; index++) {
+                            args[index] = new Application(state.env.getNumberLiteral(targets.get(index).toString()),
+                                    Environment.getIntType());
+                        }
+
+                        statements.set(i, new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
+                                .getSourceLineNumber(), args));
+                        annotations.set(i, "");
+
+                    } catch (TermException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        try {
+            Program rval = new Program(name, state.root.getURL(), statements, annotations, node);
+
+            // remove skips $label:
+            ProgramChanger changer = new ProgramChanger(rval, state.env);
+            for (int i = 0; i < changer.getProgramLength();) {
+                String meta = changer.getAnnotationAt(i);
+                if (meta != null && meta.startsWith("$label:") && changer.getStatementAt(i) instanceof SkipStatement)
+                    changer.deleteAt(i);
+                else
+                    i++;
+            }
+
+            state.env.addProgram(changer.makeProgram(rval.getName()));
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+
+            throw new EnvironmentCreationException("Program creation failed:\n" + e.getMessage());
+
+        } catch (TermException e) {
+            e.printStackTrace();
+
+            throw new EnvironmentCreationException("Program creation failed:\n" + e.getMessage());
+        }
+    }
+
+    public void create(EnvironmentCreationState state) throws EnvironmentCreationException {
+
+        // fill environment with information and declarations/implementations
+        new ProgramMaker(state);
+
+        // create programs out of statement triples
+        for (ProcedureDeclaration decl : declarations.keySet())
+        {
+            if (!decl.isImplemented())
+                continue;
+
+            StatementTripel tripel = declarations.get(decl);
+
+            // assemble statements and annotations
+            List<Statement> statements = new LinkedList<Statement>();
+            statements.addAll(tripel.preStatements);
+            statements.addAll(tripel.bodyStatements);
+            statements.addAll(tripel.postStatements);
+
+            List<String> annotations = new LinkedList<String>();
+            annotations.addAll(tripel.preAnnotations);
+            annotations.addAll(tripel.bodyAnnotations);
+            annotations.addAll(tripel.postAnnotations);
+
+            registerProgram(state, statements, annotations, "procedure_" + decl.getName(), decl, statements.size()
+                    - tripel.postStatements.size());
+        }
+        for (ProcedureImplementation decl : implementations.keySet()) {
+            StatementTripel tripel = implementations.get(decl);
+
+            StatementTripel contract = null;
+            for (ProcedureDeclaration d : declarations.keySet()) {
+                if (d.getName().equals(decl.getName())) {
+                    contract = declarations.get(d);
+                    break;
+                }
+            }
+            assert null != contract : "undeclared procedure implementation, should be checked earlier";
+
+            // add contract from declaration
+            tripel.preAnnotations.addAll(contract.preAnnotations);
+            tripel.postAnnotations.addAll(contract.postAnnotations);
+            tripel.preStatements.addAll(contract.preStatements);
+            tripel.postStatements.addAll(contract.postStatements);
+
+            // assemble statements and annotations
+            List<Statement> statements = new LinkedList<Statement>();
+            statements.addAll(tripel.preStatements);
+            statements.addAll(tripel.bodyStatements);
+            statements.addAll(tripel.postStatements);
+
+            List<String> annotations = new LinkedList<String>();
+            annotations.addAll(tripel.preAnnotations);
+            annotations.addAll(tripel.bodyAnnotations);
+            annotations.addAll(tripel.postAnnotations);
+
+            registerProgram(state, statements, annotations,
+                    "implementation" + decl.getImplementationID() + "_" + decl.getName(), decl, statements.size()
+                    - tripel.postStatements.size());
+        }
+
+        // create a problem out of all programs defined in the environment
+        for (Program program : state.env.getAllPrograms()) {
+            try {
+                if (problem == null) {
+                    problem = new LiteralProgramTerm(0, false, program);
+
+                } else {
+                    Term[] args = new Term[2];
+                    args[0] = problem;
+                    args[1] = new LiteralProgramTerm(0, false, program);
+
+                    problem = new Application(state.env.getFunction("$and"), Environment.getBoolType(), args);
+                }
+
+            } catch (TermException e) {
+                e.printStackTrace();
+            }
+        }
+        // the boogie file does not contain implemented procedures and is
+        // thus trivially valid
+        if (null == problem)
+            problem = Environment.getTrue();
 
         // fix the environment?
     }
