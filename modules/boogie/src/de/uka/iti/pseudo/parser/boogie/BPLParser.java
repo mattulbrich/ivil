@@ -132,12 +132,12 @@ public class BPLParser implements BPLParserConstants {
     throw new Error("Missing return statement in function");
   }
 
-  final public List<Variable> ProcFormals() throws ParseException {
+  final public List<Variable> ProcFormals(boolean isConstant) throws ParseException {
 List<Variable> vars = new LinkedList<Variable>();
     jj_consume_token(65);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENT:
-      vars = IdsTypeWheres(false);
+      vars = IdsTypeWheres(isConstant);
       break;
     default:
       jj_la1[2] = jj_gen;
@@ -727,11 +727,11 @@ List<Variable> vars = new LinkedList<Variable>();
       jj_la1[31] = jj_gen;
       ;
     }
-    inParam = ProcFormals();
+    inParam = ProcFormals(true);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case RETURNS:
       jj_consume_token(RETURNS);
-      outParam = ProcFormals();
+      outParam = ProcFormals(false);
       break;
     default:
       jj_la1[32] = jj_gen;
@@ -805,11 +805,11 @@ List<Variable> vars = new LinkedList<Variable>();
       jj_la1[37] = jj_gen;
       ;
     }
-    inParam = ProcFormals();
+    inParam = ProcFormals(true);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case RETURNS:
       jj_consume_token(RETURNS);
-      outParam = ProcFormals();
+      outParam = ProcFormals(false);
       break;
     default:
       jj_la1[38] = jj_gen;

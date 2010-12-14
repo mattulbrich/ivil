@@ -219,12 +219,12 @@ LocalVariableDeclaration LocalVars()
   { return new LocalVariableDeclaration(first, attr, vars); }
 }
 
-List<Variable> ProcFormals()
+List<Variable> ProcFormals(boolean isConstant)
 :{
 List<Variable> vars = new LinkedList<Variable>();
 } { 
   "("
-  ( vars=IdsTypeWheres(false) )?
+  ( vars=IdsTypeWheres(isConstant) )?
   ")"
   {return vars;}
 }
@@ -560,8 +560,8 @@ ProcedureDeclaration Procedure()
       attr=AttributeList()
       name=<IDENT>
       ( typeParameters=TypeParams() )?
-      inParam=ProcFormals()
-      ( "returns" outParam=ProcFormals() )?
+      inParam=ProcFormals(true)
+      ( "returns" outParam=ProcFormals(false) )?
   )
   
   (
@@ -590,8 +590,8 @@ ProcedureImplementation Implementation()
       attr=AttributeList()
       name=<IDENT>
       ( typeParameters=TypeParams() )?
-      inParam=ProcFormals()
-      ( "returns" outParam=ProcFormals() )?
+      inParam=ProcFormals(true)
+      ( "returns" outParam=ProcFormals(false) )?
   )
   body=ImplBody()
   {return new ProcedureImplementation(first, attr, name, typeParameters, inParam, outParam, body);}

@@ -14,6 +14,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 
 /**
  * This type class is used to represent used types in the boogie file. It is
@@ -572,7 +573,7 @@ public class UniversalType {
             return Environment.getIntType();
         
         if (isTypeVariable)
-            return null;
+            return new TypeVariable(name);
 
         try {
             getBVDimension();

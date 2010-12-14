@@ -21,6 +21,7 @@ include
   "$decproc.p"
   "$unicode.p"
   "$fol.p"
+  "$maps.p"
 
 
 (*  Dont use prettyprinter.

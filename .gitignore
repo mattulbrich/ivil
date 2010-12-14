@@ -8,3 +8,4 @@ core/de/uka/iti/pseudo/parser/boogie/*.java
 docwarn
 doxyfile
 ivil.properties
+VERSION

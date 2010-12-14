@@ -3,10 +3,7 @@ package de.uka.iti.pseudo.parser.boogie.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.boogie.Token;
-import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
-import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 
 /**
  * This class provides some often used conversions, such as StringList2TokenList
