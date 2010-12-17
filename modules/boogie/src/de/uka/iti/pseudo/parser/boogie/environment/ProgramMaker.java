@@ -21,7 +21,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
@@ -886,8 +885,25 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("$bv_concat"), state.env.mkType("bitvector"),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
