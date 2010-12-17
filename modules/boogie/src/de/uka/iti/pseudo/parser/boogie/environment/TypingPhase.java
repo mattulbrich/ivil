@@ -59,7 +59,7 @@ public final class TypingPhase {
 
             for (Sort s : sortMap.values()) {
                 try {
-                    if (s != null)
+                    if (s != null && !s.getName().equals("bitvector"))
                         state.env.addSort(s);
                 } catch (EnvironmentException e) {
                     e.printStackTrace();

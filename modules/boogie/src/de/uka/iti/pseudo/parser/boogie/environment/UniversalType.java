@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -87,6 +88,12 @@ public class UniversalType {
      * contains the range type. if a typesynonym is declared
      */
     final UniversalType range;
+
+    /**
+     * Ivil type translation, used to ensure there are no duplicates. For
+     * typevariables.
+     */
+    private Type ivilType = null;
 
     /**
      * As instances of this class can be created from a lot of objects,
@@ -565,38 +572,57 @@ public class UniversalType {
             return false;
     }
 
+    // ! used only by this function to create unique type names
+    static private AtomicInteger tvarcounter = new AtomicInteger(0);
+
+    /**
+     * Translates UniversalTypes into the ivil Type system.
+     * 
+     * @param state
+     * @return will be nonnull, as soon as all types are supported
+     * @throws EnvironmentException
+     * @throws TermException
+     */
     public Type toIvilType(EnvironmentCreationState state) throws EnvironmentException, TermException {
+        if(null!=ivilType)
+            return ivilType;
 
-        if (this == BOOL_T || name.equals("bool"))
-            return Environment.getBoolType();
-        else if (this == INT_T || name.equals("int"))
-            return Environment.getIntType();
-        
-        if (isTypeVariable)
-            return new TypeVariable(name);
-
-        try {
-            getBVDimension();
-            return state.env.mkType("bitvector");
-        } catch (Exception e) {
-            // if an exception is thrown, we are not a bitvector, so continue
-            // normaly
-        }
-
-        if(null == range){
-            Type[] args = new Type[templateArguments.length];
-            for (int i = 0; i < templateArguments.length; i++) {
-                args[i] = templateArguments[i].toIvilType(state);
-                if (null == args[i])
-                    return null;
-            }
+        if (this == BOOL_T || name.equals("bool")){
+            ivilType = Environment.getBoolType();
             
-            return state.env.mkType("utt_" + name, args);
-        }
+        } else if (this == INT_T || name.equals("int")) {
+            ivilType = Environment.getIntType();
+            
+        } else if (isTypeVariable){
+            ivilType = new TypeVariable("tvar_" + tvarcounter.getAndIncrement() + "__" + name);
+            
+        } else {
 
+            try {
+                getBVDimension();
+                ivilType = state.env.mkType("bitvector");
+                return ivilType;
+
+            } catch (Exception e) {
+                // if an exception is thrown, we are not a bitvector, so continue
+                // normaly
+            }
+    
+            if(null == range){
+                Type[] args = new Type[templateArguments.length];
+                for (int i = 0; i < templateArguments.length; i++) {
+                    args[i] = templateArguments[i].toIvilType(state);
+                    if (null == args[i])
+                        return null;
+                }
+                
+                ivilType = state.env.mkType("utt_" + name, args);
+            }
+        }
         // FIXME implement maps
 
-        return null;
+
+        return ivilType;
     }
 
     public String toString() {

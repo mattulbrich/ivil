@@ -2164,7 +2164,7 @@ List<Variable> vars = new LinkedList<Variable>();
             ;
           }
           if(arguments.size() == 1 && tmp instanceof BitvectorSelectExpression)
-            rval = new BitvectorAccessSelectionExpression(tmp);
+            rval = new BitvectorAccessSelectionExpression(rval, tmp);
           else if(null==update)
             rval = new MapAccessExpression(rval, arguments);
           else

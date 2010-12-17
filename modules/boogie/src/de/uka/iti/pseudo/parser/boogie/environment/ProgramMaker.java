@@ -85,6 +85,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
@@ -234,11 +235,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 for (int i = 0; i < inArgs.length; i++)
                     inArgs[i] = boundVars.get(state.translation.variableNames.get(node.getInParameters().get(i)));
 
-                // add "expr == f(x)"
+                // add "f(x) == expr"
                 args = new Term[] {
-                        args[0],
                         new Application(state.env.getFunction("fun__" + node.getName()), state.ivilTypeMap.get(node
-                                .getOutParemeter()), inArgs) };
+                                .getOutParemeter()), inArgs), args[0] };
 
                 args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
 
@@ -248,7 +248,19 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             boundVars.get(state.translation.variableNames.get(v)), args) };
                 }
 
+                // FIXME polymorphic functions seem not to work as expected
+                // add type quantifiers before ordinary quantifiers
+                {
+                    UniversalType[] params = state.typeMap.get(node).parameters;
+                    for (int i = 0; i < params.length; i++) {
+                        args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+                                params[i].toIvilType(state), args[0]) };
+                    }
+                }
+
             } catch (TermException e) {
+                e.printStackTrace();
+            } catch (EnvironmentException e) {
                 e.printStackTrace();
             }
 
@@ -491,8 +503,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
             statements.bodyAnnotations.add("$goto;" + labelBody + ";" + labelEnd);
-
-            // TODO insert loop invariant here; free?
 
             // loop body
             {
@@ -918,8 +928,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ModuloExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node, new Application(state.env.getFunction("$mod"), Environment.getIntType(),
+                    args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -960,20 +982,37 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
 
+        node.getTarget().visit(this);
+
+        try {
+            state.translation.terms.put(
+                    node,
+                    new Application(state.env.getFunction("$bv_select"), state.env.mkType("bitvector"),
+                            new Term[] {
+                                    state.translation.terms.get(node.getTarget()),
+                                    new Application(state.env.getNumberLiteral(node.getFirst()), Environment
+                                            .getIntType()),
+                                    new Application(state.env.getNumberLiteral(node.getLast()), Environment
+                                            .getIntType()) }));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
+        
+        // FIXME maps werden automatisch unifiziert, man kann die also einfach
+        // als map(wicket a, a) hinschreiben
 
     }
 
@@ -989,8 +1028,25 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        try {
+            Term[] args = new Term[2];
+            args[0] = new Application(state.env.getNumberLiteral(node.getValue()), Environment.getIntType());
+            args[1] = new Application(state.env.getNumberLiteral(node.getDimension()), Environment.getIntType());
+
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("$bv_new"), state.env.mkType("bitvector"), args));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        }
     }
 
     @Override
@@ -1035,8 +1091,33 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(OldExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // create a new variable old_<location> insert an assignment statement
+        // into the precondition code and return the variable as resulting term
+        // here
 
+        defaultAction(node);
+
+        try {
+            Function oldval = new Function("old_" + node.getLocation().replace(':', '_'), state.ivilTypeMap.get(node),
+                    new Type[0], false, true, node);
+            state.env.addFunction(oldval);
+
+            Application old = new Application(oldval, state.ivilTypeMap.get(node));
+
+            statements.preStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                    .getLocationToken().beginLine, old, state.translation.terms.get(node.getOperands().get(0))));
+
+            statements.preAnnotations.add(null);
+
+            state.translation.terms.put(node, old);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -1132,6 +1213,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
         // TODO Auto-generated method stub
+        // anm.: die funktionsweise hiervon hängt sehr stark von der
+        // implementierung der maps ab
 
     }
 

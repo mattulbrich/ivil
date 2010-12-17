@@ -22,6 +22,7 @@ include
   "$unicode.p"
   "$fol.p"
   "$maps.p"
+  "$bitvector.p"
 
 
 (*  Dont use prettyprinter.
