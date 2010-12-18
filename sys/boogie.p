@@ -21,7 +21,7 @@ include
   "$decproc.p"
   "$unicode.p"
   "$fol.p"
-  "$maps.p"
+  "$map.p"
   "$bitvector.p"
 
 

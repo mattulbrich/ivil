@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.org.apache.xpath.internal.Expression;
+
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -187,8 +189,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         } else {
             try {
                 if (null == state.env.getFunction(name))
-                    state.env.addFunction(new Function(name, state.ivilTypeMap.get(node), arguments, false, !node
-                            .isConstant(), node));
+                    state.env.addFunction(new Function(name, state.ivilTypeMap.get(node), arguments, node.isUnique(),
+                            !node.isConstant(), node));
 
             } catch (EnvironmentException e) {
                 e.printStackTrace();
@@ -894,8 +896,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$bv_concat"), state.env.mkType("bitvector"),
-                    args));
+                    new Application(state.env.getFunction("$bv_concat"), state.env.mkType("bitvector"), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -1005,13 +1006,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             state.translation.terms.put(
                     node,
-                    new Application(state.env.getFunction("$bv_select"), state.env.mkType("bitvector"),
-                            new Term[] {
-                                    state.translation.terms.get(node.getTarget()),
-                                    new Application(state.env.getNumberLiteral(node.getFirst()), Environment
-                                            .getIntType()),
-                                    new Application(state.env.getNumberLiteral(node.getLast()), Environment
-                                            .getIntType()) }));
+                    new Application(state.env.getFunction("$bv_select"), state.env.mkType("bitvector"), new Term[] {
+                            state.translation.terms.get(node.getTarget()),
+                            new Application(state.env.getNumberLiteral(node.getFirst()), Environment.getIntType()),
+                            new Application(state.env.getNumberLiteral(node.getLast()), Environment.getIntType()) }));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1025,11 +1023,32 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-        
-        // FIXME maps werden automatisch unifiziert, man kann die also einfach
-        // als map(wicket a, a) hinschreiben
+        // translate to map_load(name, <pairs>(domain))
+        defaultAction(node);
 
+        List<de.uka.iti.pseudo.parser.boogie.ast.Expression> d = node.getOperands();
+        Term domain = state.translation.terms.get(d.get(d.size() - 1));
+
+        try {
+            for (int i = d.size() - 2; i >= 0; i--) {
+                Term next = state.translation.terms.get(d.get(i));
+                domain = new Application(state.env.getFunction("map_pair"), state.env.mkType("map_pair",
+                        domain.getType(), next.getType()), new Term[] { next, domain });
+            }
+
+            state.translation.terms.put(
+                    node,
+                    new Application(state.env.getFunction("map_load"), state.typeMap.get(node.getName()).range
+                            .toIvilType(state), new Term[] { state.translation.terms.get(node.getName()), domain }));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -1231,7 +1250,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // TODO Auto-generated method stub
         // anm.: die funktionsweise hiervon hängt sehr stark von der
         // implementierung der maps ab
-
     }
 
     @Override

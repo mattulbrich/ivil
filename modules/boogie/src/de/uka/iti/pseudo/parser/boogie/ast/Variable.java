@@ -17,13 +17,15 @@ final public class Variable extends ASTElement {
     private final String name;
     private final Type type;
     private final boolean constant;
+    private final boolean unique;
     private final Expression where;
 
-    public Variable(Token name, Type type, boolean constant, Expression where) {
+    public Variable(Token name, Type type, boolean constant, boolean unique, Expression where) {
         this.name = name.image;
         this.location = name;
         this.type = type;
         this.constant = constant;
+        this.unique = unique;
 
         // any variable declaration has a where clause which defaults to true
         if (null != where)
@@ -42,13 +44,15 @@ final public class Variable extends ASTElement {
      * @param name
      * @param type
      * @param constant
+     * @param unique
      * @param where
      */
-    public Variable(String name, Type type, boolean constant, Expression where) {
+    public Variable(String name, Type type, boolean constant, boolean unique, Expression where) {
         this.name = name;
         this.location = type.getLocationToken();
         this.type = type;
         this.constant = constant;
+        this.unique = unique;
 
         // any variable declaration has a where clause which defaults to true
         if (null != where)
@@ -70,6 +74,10 @@ final public class Variable extends ASTElement {
 
     public boolean isConstant() {
         return constant;
+    }
+
+    public boolean isUnique() {
+        return unique;
     }
 
     public Expression getWhereClause() {

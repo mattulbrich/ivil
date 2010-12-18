@@ -617,11 +617,24 @@ public class UniversalType {
                 }
                 
                 ivilType = state.env.mkType("utt_" + name, args);
+            } else {
+                // yeah we are a map
+                if(domain.length!=0){
+                    // build pairs of the form pair(a, pair(b, ...))
+                    Type t = domain[domain.length - 1].toIvilType(state);
+                    for (int i = domain.length - 2; i >= 0; i--) {
+                        t = state.env.mkType("map_pair", domain[i].toIvilType(state), t);
+                    }
+
+                    ivilType = state.env.mkType("map", t, range.toIvilType(state));
+
+                } else {
+                    // a nullary map is actually a variable of some fixed type
+                    ivilType = range.toIvilType(state);
+                }
             }
         }
-        // FIXME implement maps
-
-
+        
         return ivilType;
     }
 

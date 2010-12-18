@@ -114,7 +114,7 @@ public class BPLParser implements BPLParserConstants {
     List<Variable> vars;
     first = jj_consume_token(VAR);
     attr = AttributeList();
-    vars = IdsTypeWheres(false);
+    vars = IdsTypeWheres(false, false);
     jj_consume_token(64);
     {if (true) return new GlobalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
@@ -126,7 +126,7 @@ public class BPLParser implements BPLParserConstants {
     List<Variable> vars;
     first = jj_consume_token(VAR);
     attr = AttributeList();
-    vars = IdsTypeWheres(false);
+    vars = IdsTypeWheres(false, false);
     jj_consume_token(64);
     {if (true) return new LocalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
@@ -137,7 +137,7 @@ List<Variable> vars = new LinkedList<Variable>();
     jj_consume_token(65);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENT:
-      vars = IdsTypeWheres(isConstant);
+      vars = IdsTypeWheres(isConstant, false);
       break;
     default:
       jj_la1[2] = jj_gen;
@@ -150,14 +150,14 @@ List<Variable> vars = new LinkedList<Variable>();
 
   final public List<Variable> BoundVars() throws ParseException {
     List<Variable> rval;
-    rval = IdsTypeWheres(false);
+    rval = IdsTypeWheres(false, false);
    {if (true) return rval;}
     throw new Error("Missing return statement in function");
   }
 
 /*------------------------------------------------------------------------*/
 /* IdsType is used with const declarations */
-  final public List<Variable> IdsType(boolean isConstant) throws ParseException {
+  final public List<Variable> IdsType(boolean isConstant, boolean isUnique) throws ParseException {
     List<Token> names;
     Type t;
     names = Idents();
@@ -165,7 +165,7 @@ List<Variable> vars = new LinkedList<Variable>();
     t = Type();
     List<Variable> rval = new LinkedList<Variable>();
     for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, null));
+        rval.add(new Variable(name, t, isConstant, isUnique, null));
 
     {if (true) return rval;}
     throw new Error("Missing return statement in function");
@@ -173,9 +173,9 @@ List<Variable> vars = new LinkedList<Variable>();
 
 /* IdsTypeWheres is used with the declarations of global and local variables,
    procedure parameters, and quantifier bound variables. */
-  final public List<Variable> IdsTypeWheres(boolean isConstant) throws ParseException {
+  final public List<Variable> IdsTypeWheres(boolean isConstant, boolean isUnique) throws ParseException {
     List<Variable> rval,tmp;
-    rval = IdsTypeWhere(isConstant);
+    rval = IdsTypeWhere(isConstant, isUnique);
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -187,14 +187,14 @@ List<Variable> vars = new LinkedList<Variable>();
         break label_2;
       }
       jj_consume_token(68);
-      tmp = IdsTypeWhere(isConstant);
-                                      rval.addAll(tmp);
+      tmp = IdsTypeWhere(isConstant, isUnique);
+                                                rval.addAll(tmp);
     }
     {if (true) return rval;}
     throw new Error("Missing return statement in function");
   }
 
-  final public List<Variable> IdsTypeWhere(boolean isConstant) throws ParseException {
+  final public List<Variable> IdsTypeWhere(boolean isConstant, boolean isUnique) throws ParseException {
     List<Token> names;
     Type t;
     Expression e = null;
@@ -212,7 +212,7 @@ List<Variable> vars = new LinkedList<Variable>();
     }
     List<Variable> rval = new LinkedList<Variable>();
     for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, e));
+        rval.add(new Variable(name, t, isConstant, isUnique, e));
 
     {if (true) return rval;}
     throw new Error("Missing return statement in function");
@@ -446,7 +446,7 @@ List<Variable> vars = new LinkedList<Variable>();
       jj_la1[15] = jj_gen;
       ;
     }
-    varnames = IdsType(true);
+    varnames = IdsType(true, unique);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case EXTENDS:
       OrderSpec();
@@ -589,7 +589,7 @@ List<Variable> vars = new LinkedList<Variable>();
     case 67:
       jj_consume_token(67);
       tmp = Type();
-                     outParam = new Variable("rval", tmp, false, null);
+                     outParam = new Variable("rval", tmp, false, false, null);
       break;
     default:
       jj_la1[25] = jj_gen;
@@ -625,14 +625,14 @@ List<Variable> vars = new LinkedList<Variable>();
         if(!(rval instanceof TemplateType))
             {if (true) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());}
 
-        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, null);
+        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, false, null);
       break;
     default:
       jj_la1[27] = jj_gen;
       ;
     }
     if(!(rval instanceof Variable))
-        rval = new Variable(optName, (Type)rval, false, null);
+        rval = new Variable(optName, (Type)rval, false, false, null);
     {if (true) return (Variable)rval;}
     throw new Error("Missing return statement in function");
   }

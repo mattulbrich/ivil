@@ -50,7 +50,8 @@ public class AssignmentStatement extends Statement {
         }
         
         if(!getTarget().getType().equals(getValue().getType()))
-            throw new TermException("target and value need to have identical types");
+            throw new TermException("target and value need to have identical types:\n\t"
+                    + getTarget().getType().toString() + "\n\t" + getValue().getType().toString());
     }
 
     public String toString(boolean typed) {

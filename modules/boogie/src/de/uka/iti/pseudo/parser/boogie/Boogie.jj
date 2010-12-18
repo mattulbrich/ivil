@@ -201,7 +201,7 @@ GlobalVariableDeclaration GlobalVars()
 } { 
   first="var"  attr=AttributeList()
   
-  vars=IdsTypeWheres(false) ";"
+  vars=IdsTypeWheres(false, false) ";"
   
   { return new GlobalVariableDeclaration(first, attr, vars); }
 }
@@ -214,7 +214,7 @@ LocalVariableDeclaration LocalVars()
 } { 
   first="var"
   attr=AttributeList()
-  vars=IdsTypeWheres(false) ";"
+  vars=IdsTypeWheres(false, false) ";"
   
   { return new LocalVariableDeclaration(first, attr, vars); }
 }
@@ -224,7 +224,7 @@ List<Variable> ProcFormals(boolean isConstant)
 List<Variable> vars = new LinkedList<Variable>();
 } { 
   "("
-  ( vars=IdsTypeWheres(isConstant) )?
+  ( vars=IdsTypeWheres(isConstant, false) )?
   ")"
   {return vars;}
 }
@@ -233,14 +233,14 @@ List<Variable> BoundVars()
 :{
     List<Variable> rval;
 } { 
-  rval=IdsTypeWheres(false)
+  rval=IdsTypeWheres(false, false)
   
   {return rval;}  
 }
 
 /*------------------------------------------------------------------------*/
 /* IdsType is used with const declarations */
-List<Variable> IdsType(boolean isConstant)
+List<Variable> IdsType(boolean isConstant, boolean isUnique)
 :{
     List<Token> names;
     Type t;
@@ -249,7 +249,7 @@ List<Variable> IdsType(boolean isConstant)
   {
     List<Variable> rval = new LinkedList<Variable>();
     for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, null));
+        rval.add(new Variable(name, t, isConstant, isUnique, null));
         
     return rval; 
   }
@@ -257,17 +257,17 @@ List<Variable> IdsType(boolean isConstant)
 
 /* IdsTypeWheres is used with the declarations of global and local variables,
    procedure parameters, and quantifier bound variables. */
-List<Variable> IdsTypeWheres(boolean isConstant)
+List<Variable> IdsTypeWheres(boolean isConstant, boolean isUnique)
 :{
     List<Variable> rval,tmp;
 } {
-  rval=IdsTypeWhere(isConstant)
-  ( "," tmp=IdsTypeWhere(isConstant) {rval.addAll(tmp);} )*
+  rval=IdsTypeWhere(isConstant, isUnique)
+  ( "," tmp=IdsTypeWhere(isConstant, isUnique) {rval.addAll(tmp);} )*
   
   { return rval; }
 }
 
-List<Variable> IdsTypeWhere(boolean isConstant)
+List<Variable> IdsTypeWhere(boolean isConstant, boolean isUnique)
 :{
     List<Token> names;
     Type t;
@@ -280,7 +280,7 @@ List<Variable> IdsTypeWhere(boolean isConstant)
   {
     List<Variable> rval = new LinkedList<Variable>();
     for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, e));
+        rval.add(new Variable(name, t, isConstant, isUnique, e));
         
     return rval; 
   }
@@ -398,7 +398,7 @@ ConstantDeclaration Consts()
   attributes = AttributeList()
   ( "unique" {unique = true;}
   )?
-  varnames = IdsType(true)
+  varnames = IdsType(true, unique)
   ( OrderSpec() )?
   
   ";"
@@ -464,7 +464,7 @@ FunctionDeclaration Function()
   ( 
     "returns" "(" outParam=VarOrType("rval") ")" 
     | 
-    ":" tmp=Type() { outParam = new Variable("rval", tmp, false, null); }
+    ":" tmp=Type() { outParam = new Variable("rval", tmp, false, false, null); }
   )
   
   ( "{" expression=Expression()  "}" | ";" )
@@ -484,12 +484,12 @@ Variable VarOrType(String optName)
         if(!(rval instanceof TemplateType))
             throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString()); 
             
-        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, null);
+        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, false, null);
     }
   )?
   {
     if(!(rval instanceof Variable))
-        rval = new Variable(optName, (Type)rval, false, null);
+        rval = new Variable(optName, (Type)rval, false, false, null);
     return (Variable)rval;
   }
 }
