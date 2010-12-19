@@ -125,6 +125,18 @@ public final class ProgramMaker extends DefaultASTVisitor {
      */
     private String breakLabel;
 
+    /**
+     * If this is true, we are inside an old statement, thus we need to try to
+     * access old_ variables.
+     */
+    private boolean oldMode = false;
+
+    /**
+     * List of currently modifiable variables. This is needed to access
+     * variables in oldMode correctly.
+     */
+    private List<Variable> modifiable = null;
+
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
 
@@ -279,8 +291,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // ensure no illegal breaks can occur
         breakLabel = null;
         statements = new StatementTripel();
+        modifiable = state.types.modifiable.get(node);
 
-        // we wan in parameters as in0, in1, ... and out parameters in the same
+        // we want in parameters as in0, in1, ... and out parameters in the same
         // form, so we can simply join contracts from declarations and
         // implementations
 
@@ -311,7 +324,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             statements.preStatements.add(new AssumeStatement(node.getLocationToken().beginLine, state.translation.terms
                     .get(node.getCondition())));
-            statements.preAnnotations.add("");
+            statements.preAnnotations.add(null);
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -321,11 +334,41 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(ModifiesClause node) throws ASTVisitException {
 
-        // TODO modifies is currently completely ignored, there are also
-        // compiletime checks missing -> SimpleAssignment
+        for (String name : node.getTargets()) {
+            Variable v = state.names.findVariable(name, node);
 
-        // does this even create code? it should only be of interest in
-        // implementation of call statements
+            String oldName = "old_" + state.translation.variableNames.get(v);
+
+            try {
+                Function old;
+                if (null == state.env.getFunction(oldName)) {
+                    old = new Function(oldName, state.ivilTypeMap.get(v), new Type[0], false, true, node);
+                    state.env.addFunction(old);
+                } else {
+                    old = state.env.getFunction(oldName);
+                }
+
+                Function var = state.env.getFunction(state.translation.variableNames.get(v));
+
+                if (null == var) {
+                    var = new Function(state.translation.variableNames.get(v), state.ivilTypeMap.get(v), new Type[0],
+                            false, true, node);
+                    state.env.addFunction(var);
+                }
+
+                statements.preStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                        .getLocationToken().beginLine, new Application(old, old.getResultType()), new Application(var,
+                        var.getResultType())));
+                statements.preAnnotations.add(null);
+            } catch (TermException e) {
+                e.printStackTrace();
+                throw new ASTVisitException(node.getLocation(), e);
+
+            } catch (EnvironmentException e) {
+                e.printStackTrace();
+                throw new ASTVisitException(node.getLocation(), e);
+            }
+        }
     }
 
     @Override
@@ -347,6 +390,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // ensure no illegal breaks can occur
         breakLabel = null;
         statements = new StatementTripel();
+
+        modifiable = state.types.modifiable.get(state.names.procedureSpace.get(node.getName()));
 
         // we wan in parameters as in0, in1, ... and out parameters in the same
         // form, so we can simply join contracts from declarations and
@@ -1147,16 +1192,19 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(VariableUsageExpression node) throws ASTVisitException {
         Variable decl = state.names.findVariable(node);
+        String name = state.translation.variableNames.get(decl);
+        if (oldMode && modifiable.contains(decl))
+            name = "old_" + name;
 
         try {
             // unbound variable
-            if (null != state.env.getFunction(state.translation.variableNames.get(decl)))
+            if (null != state.env.getFunction(name))
                 state.translation.terms.put(node,
-                        new Application(state.env.getFunction(state.translation.variableNames.get(decl)),
-                                state.ivilTypeMap.get(node)));
+                        new Application(state.env.getFunction(name), state.ivilTypeMap.get(node)));
+
             // bound variable
             else
-                state.translation.terms.put(node, boundVars.get(state.translation.variableNames.get(decl)));
+                state.translation.terms.put(node, boundVars.get(name));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1167,38 +1215,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(OldExpression node) throws ASTVisitException {
-        // FIXME: evaluate statement where its written, but replace variable
-        // access by prefixes with old, therefore an isOld treatment is needed
-        // plus some treatment for modifies, as modified variables need to be
-        // saved in the prestate
-
-        // create a new variable old_<location> insert an assignment statement
-        // into the precondition code and return the variable as resulting term
-        // here
-
+        oldMode = true;
         defaultAction(node);
+        state.translation.terms.put(node, state.translation.terms.get(node.getOperands().get(0)));
 
-        try {
-            Function oldval = new Function("old_" + node.getLocation().replace(':', '_'), state.ivilTypeMap.get(node),
-                    new Type[0], false, true, node);
-            state.env.addFunction(oldval);
-
-            Application old = new Application(oldval, state.ivilTypeMap.get(node));
-
-            statements.preStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                    .getLocationToken().beginLine, old, state.translation.terms.get(node.getOperands().get(0))));
-
-            statements.preAnnotations.add(null);
-
-            state.translation.terms.put(node, old);
-
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
+        oldMode = false;
     }
 
     @Override

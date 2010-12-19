@@ -42,11 +42,8 @@ rule map_load_store_other
   replace map_load(%m, %d2)
   tags rewrite "concrete"
 
-
-rule map_load_store_other_cut
-  find map_load(map_store(%m, %d1, %v), %d2)
-  samegoal "Ignore store at {%d1}"
-  	replace map_load(%m, %d2)
-  	
-  samegoal "Ensure {%d1} != {%d2}"
-     add |- %d1 = %d2
+rule map_extensionality
+  find map_pair(%a, %b) = map_pair(%c, %d)
+  where toplevel
+  replace %a = %c & %b = %d
+  tags rewrite "concrete"
