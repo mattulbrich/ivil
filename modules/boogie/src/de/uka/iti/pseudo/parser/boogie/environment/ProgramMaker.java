@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.Expression;
-
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -641,15 +639,58 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
+            Term target = state.translation.terms.get(node.getTarget());
+            Term nval = state.translation.terms.get(node.getNewValue());
+
+            // we cannot assign map_load statements, so create similar
+            // map_store's
+            while (target instanceof Application && ((Application) target).getFunction().getName().equals("map_load")) {
+                // currently, terms[getTarget] is a map_load(name, domain),
+                // but
+                // we need:
+                // name := store(name, domain, newValue)
+
+                Term name = target.getSubterm(0);
+                Term domain = target.getSubterm(1);
+
+                if (name instanceof Application && ((Application) name).getFunction().getName().equals("map_load")) {
+                    // unroll by creating new inner variables
+
+                    Application tmp = new Application(new Function(state.env.createNewFunctionName("innerMap"),
+                            name.getType(), new Type[0], false, true, node), name.getType());
+                    state.env.addFunction(tmp.getFunction());
+
+                    statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                            .getLocationToken().beginLine, tmp, new Application(state.env.getFunction("map_store"), tmp
+                            .getType(), new Term[] { tmp, domain, nval })));
+
+                    statements.bodyAnnotations.add(null);
+
+                    target = name;
+                    nval = tmp;
+
+                } else {
+                    statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                            .getLocationToken().beginLine, name, new Application(state.env.getFunction("map_store"),
+                            name.getType(), new Term[] { name, domain, nval })));
+
+                    statements.bodyAnnotations.add(null);
+
+                    return;
+                }
+            }
+
             statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                    .getLocationToken().beginLine, state.translation.terms.get(node.getTarget()),
-                    state.translation.terms.get(node.getNewValue())));
+                    .getLocationToken().beginLine, target, nval));
 
             statements.bodyAnnotations.add(null);
 
         } catch (TermException e) {
             e.printStackTrace();
+            throw new ASTVisitException(e);
 
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
             throw new ASTVisitException(e);
         }
     }
@@ -1033,7 +1074,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             for (int i = d.size() - 2; i >= 0; i--) {
                 Term next = state.translation.terms.get(d.get(i));
                 domain = new Application(state.env.getFunction("map_pair"), state.env.mkType("map_pair",
-                        domain.getType(), next.getType()), new Term[] { next, domain });
+                        next.getType(), domain.getType()), new Term[] { next, domain });
             }
 
             state.translation.terms.put(
@@ -1043,11 +1084,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         } catch (TermException e) {
             e.printStackTrace();
-            throw new ASTVisitException(e);
+            throw new ASTVisitException(node.getLocation(), e);
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            throw new ASTVisitException(e);
+            throw new ASTVisitException(node.getLocation(), e);
         }
     }
 
@@ -1126,6 +1167,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(OldExpression node) throws ASTVisitException {
+        // FIXME: evaluate statement where its written, but replace variable
+        // access by prefixes with old, therefore an isOld treatment is needed
+        // plus some treatment for modifies, as modified variables need to be
+        // saved in the prestate
+
         // create a new variable old_<location> insert an assignment statement
         // into the precondition code and return the variable as resulting term
         // here

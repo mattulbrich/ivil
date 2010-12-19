@@ -1,6 +1,7 @@
 var Q: [int,int][int]int;
 
 procedure P()
+modifies Q;
 {
   var q: [int]int;
 

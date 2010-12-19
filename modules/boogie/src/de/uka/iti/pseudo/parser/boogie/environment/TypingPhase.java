@@ -1,12 +1,15 @@
 package de.uka.iti.pseudo.parser.boogie.environment;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 
 /**
  * Extracts type information out of an AST and creates sorts in the output
@@ -19,6 +22,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 public final class TypingPhase {
 
     final Map<String, Sort> sortMap = new HashMap<String, Sort>();
+    final Map<ProcedureDeclaration, List<Variable>> modifiable = new HashMap<ProcedureDeclaration, List<Variable>>();
 
     void create(EnvironmentCreationState state) throws TypeSystemException {
         try {
@@ -36,7 +40,10 @@ public final class TypingPhase {
 
         new TypeChecker(state);
 
-        // create sorts for nonmap types
+        // ensure correctness of modifies
+        new ModifiesChecker(state);
+
+        // create sorts
         {
             // create builtin, int and bool are allways defined in the built-in
             // environment, so dont add them
