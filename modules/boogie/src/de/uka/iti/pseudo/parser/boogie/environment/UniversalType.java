@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.parser.boogie.environment;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -9,10 +10,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
+import de.uka.iti.pseudo.parser.file.MatchingLocation;
+import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.LocatedTerm;
+import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.SchemaType;
+import de.uka.iti.pseudo.term.SchemaVariable;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
@@ -466,10 +479,6 @@ public class UniversalType {
      * @return true, iff one could completely replace t with this
      */
     public boolean compatible(UniversalType t) {
-        /*
-         * For example, the types [int]bool and α [α]bool are not compatible.
-         * !!!
-         */
 
         // same types are compatible
         if (this == t)
@@ -575,6 +584,328 @@ public class UniversalType {
     // ! used only by this function to create unique type names
     static private AtomicInteger tvarcounter = new AtomicInteger(0);
 
+    private void makeMapD(EnvironmentCreationState state) throws EnvironmentException, TermException {
+        String map_t = "map" + domain.length;
+
+        // create the sort ...
+        state.env.addSort(new Sort(map_t, domain.length + 1, state.root));
+
+        // ... types ...
+        Type domainRange[] = new Type[domain.length + 1];
+        Type mapDomainRange[] = new Type[domain.length + 2];
+        Type mapDomain[] = new Type[domain.length + 1];
+
+        for (int i = 0; i < domain.length; i++)
+            domainRange[i] = mapDomain[i + 1] = mapDomainRange[i + 1] = new TypeVariable("d" + i);
+
+        domainRange[domainRange.length - 1] = mapDomainRange[mapDomainRange.length - 1] = new TypeVariable("r");
+
+        mapDomainRange[0] = mapDomain[0] = state.env.mkType(map_t, domainRange);
+
+        // ... functions ...
+        state.env.addFunction(new Function(map_t + "_store", mapDomain[0], mapDomainRange, false, false, state.root));
+
+        state.env.addFunction(new Function(map_t + "_load", domainRange[domainRange.length - 1], mapDomain, false,
+                false, state.root));
+
+        // ... and rules
+        try { // /////////////// LOAD STORE SAME
+
+            String name = map_t + "_load_store_same";
+
+            SchemaType vt = new SchemaType("v");
+            SchemaVariable v = new SchemaVariable("%v", vt);
+
+            Term args1[] = new Term[domain.length + 2];
+            Term args2[] = new Term[domain.length + 1];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                args1[i + 1] = args2[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            args1[0] = m;
+            args1[args1.length - 1] = v;
+
+            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, v, new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
+                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
+                    state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+
+        try { // /////////////// LOAD STORE SAME ASSUME
+
+            String name = map_t + "_load_store_same_assume";
+
+            SchemaType vt = new SchemaType("v");
+            SchemaVariable v = new SchemaVariable("%v", vt);
+
+            Term args1[] = new Term[domain.length + 2];
+            Term args2[] = new Term[domain.length + 1];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+                args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
+
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            args1[0] = m;
+            args1[args1.length - 1] = v;
+
+            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, v, new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            state.env.addRule(new Rule(name, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
+                    new LinkedList<WhereClause>(), actions, tags, state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+
+        try { // /////////////// LOAD STORE OTHER
+
+            SchemaType vt = new SchemaType("v");
+            SchemaVariable v = new SchemaVariable("%v", vt);
+
+            Term args1[] = new Term[domain.length + 2];
+            Term args2[] = new Term[domain.length + 1];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+                args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            args1[0] = m;
+            args1[args1.length - 1] = v;
+
+            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+
+            Term[] args3 = args2.clone();
+            args3[0] = args1[0];
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, new Application(state.env.getFunction(map_t + "_load"),
+                    vt, args3), new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            for (int i = 0; i < domain.length; i++) {
+                String name = map_t + "_load_store_other_" + i;
+
+                List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { args1[i + 1], args2[i + 1] }), MatchingLocation.SUCCEDENT));
+
+                state.env.addRule(new Rule(name, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
+                        new LinkedList<WhereClause>(), actions, tags, state.root));
+            }
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+
+        try { // /////////////// LOAD STORE CUT ON DOMAIN
+            String name = map_t + "_load_store_cut_on_domain";
+
+            SchemaType vt = new SchemaType("v");
+            SchemaVariable v = new SchemaVariable("%v", vt);
+
+            Term args1[] = new Term[domain.length + 2];
+            Term args2[] = new Term[domain.length + 1];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+                args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            args1[0] = m;
+            args1[args1.length - 1] = v;
+
+            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+
+            Term[] args3 = args2.clone();
+            args3[0] = args1[0];
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "split");
+
+            List<Term> cut_same = new LinkedList<Term>();
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            for (int i = 0; i < domain.length; i++) {
+
+                List<Term> cut = new LinkedList<Term>();
+                cut.add((new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
+                        args1[i + 1], args2[i + 1] })));
+
+                actions.add(new GoalAction("samegoal", "different @" + i, false, find, new LinkedList<Term>(), cut));
+
+                cut_same.add(cut.get(0));
+            }
+
+            actions.add(new GoalAction("samegoal", "same", false, find, cut_same, new LinkedList<Term>()));
+
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
+                    new LocatedTerm(find, MatchingLocation.BOTH),
+                    new LinkedList<WhereClause>(), actions, tags, state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+
+        try { // /////////////// STORE LOAD SAME
+            String name = map_t + "_store_load_same";
+
+            SchemaType vt = new SchemaType("v");
+
+            Term argsL[] = new Term[domain.length + 1];
+            Term argsS[] = new Term[domain.length + 2];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                argsL[i + 1] = argsS[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            argsS[0] = argsL[0] = m;
+
+            argsS[argsL.length] = new Application(state.env.getFunction(map_t + "_load"), vt, argsL);
+            Term find = new Application(state.env.getFunction(map_t + "_store"), mt, argsS);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, m, new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
+                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
+                    state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+
+        try { // /////////////// STORE LOAD SAME ASSUME
+
+            String name = map_t + "_store_load_same_assume";
+
+            SchemaType vt = new SchemaType("v");
+
+            Term argsL[] = new Term[domain.length + 1];
+            Term argsS[] = new Term[domain.length + 2];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                argsL[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+                argsS[i + 1] = new SchemaVariable("%t" + i, drt[i]);
+
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { argsL[i + 1], argsS[i + 1] }), MatchingLocation.ANTECEDENT));
+            }
+
+            drt[domain.length] = vt;
+
+            Type mt = state.env.mkType(map_t, drt);
+            SchemaVariable m = new SchemaVariable("%m", mt);
+
+            argsS[0] = argsL[0] = m;
+
+            argsS[argsL.length] = new Application(state.env.getFunction(map_t + "_load"), vt, argsL);
+            Term find = new Application(state.env.getFunction(map_t + "_store"), mt, argsS);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, m, new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            state.env.addRule(new Rule(name, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
+                    new LinkedList<WhereClause>(), actions, tags, state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Translates UniversalTypes into the ivil Type system.
      * 
@@ -584,18 +915,18 @@ public class UniversalType {
      * @throws TermException
      */
     public Type toIvilType(EnvironmentCreationState state) throws EnvironmentException, TermException {
-        if(null!=ivilType)
+        if (null != ivilType)
             return ivilType;
 
-        if (this == BOOL_T || name.equals("bool")){
+        if (this == BOOL_T || name.equals("bool")) {
             ivilType = Environment.getBoolType();
-            
+
         } else if (this == INT_T || name.equals("int")) {
             ivilType = Environment.getIntType();
-            
-        } else if (isTypeVariable){
+
+        } else if (isTypeVariable) {
             ivilType = new TypeVariable("tvar_" + tvarcounter.getAndIncrement() + "__" + name);
-            
+
         } else {
 
             try {
@@ -604,37 +935,39 @@ public class UniversalType {
                 return ivilType;
 
             } catch (Exception e) {
-                // if an exception is thrown, we are not a bitvector, so continue
+                // if an exception is thrown, we are not a bitvector, so
+                // continue
                 // normaly
             }
-    
-            if(null == range){
+
+            if (null == range) {
                 Type[] args = new Type[templateArguments.length];
                 for (int i = 0; i < templateArguments.length; i++) {
                     args[i] = templateArguments[i].toIvilType(state);
                     if (null == args[i])
                         return null;
                 }
-                
+
                 ivilType = state.env.mkType("utt_" + name, args);
             } else {
-                // yeah we are a map
-                if(domain.length!=0){
-                    // build pairs of the form pair(a, pair(b, ...))
-                    Type t = domain[domain.length - 1].toIvilType(state);
-                    for (int i = domain.length - 2; i >= 0; i--) {
-                        t = state.env.mkType("map_pair", domain[i].toIvilType(state), t);
-                    }
 
-                    ivilType = state.env.mkType("map", t, range.toIvilType(state));
+                String map_t = "map" + domain.length;
 
-                } else {
-                    // a nullary map is actually a variable of some fixed type
-                    ivilType = range.toIvilType(state);
-                }
+                // ensure map<D> exists
+                if (state.env.getSort(map_t) == null)
+                    makeMapD(state);
+
+                Type domainRange[] = new Type[domain.length + 1];
+
+                for (int i = 0; i < domain.length; i++)
+                    domainRange[i] = domain[i].toIvilType(state);
+
+                domainRange[domainRange.length - 1] = range.toIvilType(state);
+
+                ivilType = state.env.mkType(map_t, domainRange);
             }
         }
-        
+
         return ivilType;
     }
 

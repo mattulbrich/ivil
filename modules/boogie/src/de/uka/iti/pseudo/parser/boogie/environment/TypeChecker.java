@@ -93,7 +93,11 @@ public final class TypeChecker extends DefaultASTVisitor {
      *            expected type
      */
     private void expect(ASTElement node, UniversalType type) {
-        if (!state.typeMap.get(node).compatible(type))
+        UniversalType nt = state.typeMap.get(node);
+        assert nt != null : node.getLocation() + "nt has illformed type";
+        assert type != null : node.getLocation() + "expected type is illformed";
+
+        if (!nt.compatible(type))
             error("expected node to be of type " + type + ", but found " + state.typeMap.get(node), node);
     }
 
@@ -268,8 +272,7 @@ public final class TypeChecker extends DefaultASTVisitor {
 
         // check arguments
         if (node.getArguments().size() != domain.size())
-            error("wrong number of arguments, got: " + node.getArguments().size() + " expected: " + domain.size(),
-                    node);
+            error("wrong number of arguments, got: " + node.getArguments().size() + " expected: " + domain.size(), node);
         else {
 
             for (int i = 0; i < domain.size(); i++)

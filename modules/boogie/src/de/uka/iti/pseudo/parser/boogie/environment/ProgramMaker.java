@@ -687,27 +687,42 @@ public final class ProgramMaker extends DefaultASTVisitor {
             Term target = state.translation.terms.get(node.getTarget());
             Term nval = state.translation.terms.get(node.getNewValue());
 
-            // we cannot assign map_load statements, so create similar
+            // we cannot assign map<D>_load statements, so create similar
             // map_store's
-            while (target instanceof Application && ((Application) target).getFunction().getName().equals("map_load")) {
+
+            // ! @note: this works, because we are transforming lvalues, thus no
+            // other map operation can occur here
+            while (target instanceof Application && ((Application) target).getFunction().getName().startsWith("map")
+                    && !((Application) target).getFunction().isAssignable()) {
                 // currently, terms[getTarget] is a map_load(name, domain),
                 // but
                 // we need:
                 // name := store(name, domain, newValue)
 
                 Term name = target.getSubterm(0);
-                Term domain = target.getSubterm(1);
 
-                if (name instanceof Application && ((Application) name).getFunction().getName().equals("map_load")) {
+                Term args[] = new Term[1 + target.getSubterms().size()];
+
+                args[0] = name;
+                for (int i = 1; i < target.getSubterms().size(); i++)
+                    args[i] = target.getSubterm(i);
+
+                args[args.length - 1] = nval;
+
+                Function store = state.env.getFunction("map" + (args.length - 2) + "_store");
+
+                if (name instanceof Application && ((Application) name).getFunction().getName().startsWith("map")
+                        && !((Application) name).getFunction().isAssignable()) {
+
                     // unroll by creating new inner variables
-
                     Application tmp = new Application(new Function(state.env.createNewFunctionName("innerMap"),
                             name.getType(), new Type[0], false, true, node), name.getType());
                     state.env.addFunction(tmp.getFunction());
 
+                    args[0] = tmp;
+
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, tmp, new Application(state.env.getFunction("map_store"), tmp
-                            .getType(), new Term[] { tmp, domain, nval })));
+                            .getLocationToken().beginLine, tmp, new Application(store, tmp.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -715,9 +730,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     nval = tmp;
 
                 } else {
+
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, name, new Application(state.env.getFunction("map_store"),
-                            name.getType(), new Term[] { name, domain, nval })));
+                            .getLocationToken().beginLine, name, new Application(store, name.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -1109,23 +1124,21 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        // translate to map_load(name, <pairs>(domain))
+        // translate to mapI_load(name, domain)
         defaultAction(node);
 
         List<de.uka.iti.pseudo.parser.boogie.ast.Expression> d = node.getOperands();
-        Term domain = state.translation.terms.get(d.get(d.size() - 1));
 
         try {
-            for (int i = d.size() - 2; i >= 0; i--) {
-                Term next = state.translation.terms.get(d.get(i));
-                domain = new Application(state.env.getFunction("map_pair"), state.env.mkType("map_pair",
-                        next.getType(), domain.getType()), new Term[] { next, domain });
-            }
+            Term args[] = new Term[d.size() + 1];
+            args[0] = state.translation.terms.get(node.getName());
+            for (int i = 0; i < d.size(); i++)
+                args[i + 1] = state.translation.terms.get(d.get(i));
 
-            state.translation.terms.put(
-                    node,
-                    new Application(state.env.getFunction("map_load"), state.typeMap.get(node.getName()).range
-                            .toIvilType(state), new Term[] { state.translation.terms.get(node.getName()), domain }));
+            Type range_t = state.typeMap.get(node.getName()).range.toIvilType(state);
+
+            state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_load"),
+                    range_t, args));
 
         } catch (TermException e) {
             e.printStackTrace();
