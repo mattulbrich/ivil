@@ -29,4 +29,8 @@ public final class OrderSpecParent extends de.uka.iti.pseudo.parser.boogie.ASTEl
         return name;
     }
 
+    public String getName() {
+        return name.image;
+    }
+
 }

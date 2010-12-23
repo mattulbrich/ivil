@@ -810,8 +810,8 @@ public class UniversalType {
             actions.add(new GoalAction("samegoal", "same", false, find, cut_same, new LinkedList<Term>()));
 
             state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
-                    new LocatedTerm(find, MatchingLocation.BOTH),
-                    new LinkedList<WhereClause>(), actions, tags, state.root));
+                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
+                    state.root));
 
         } catch (RuleException e) {
             e.printStackTrace();

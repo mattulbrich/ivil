@@ -11,13 +11,18 @@ public class ConstantDeclaration extends DeclarationBlock {
 
     private final boolean unique;
     private final List<Variable> names;
+    private final OrderSpecification spec;
 
-    public ConstantDeclaration(Token firstToken, List<Attribute> attributes, boolean unique, List<Variable> names) {
+    public ConstantDeclaration(Token firstToken, List<Attribute> attributes, boolean unique, List<Variable> names,
+            OrderSpecification spec) {
         super(firstToken, attributes);
         this.unique = unique;
         this.names = names;
+        this.spec = spec;
 
         addChildren(names);
+        if (spec != null)
+            addChild(spec);
     }
 
     public boolean isUnique() {
@@ -31,6 +36,15 @@ public class ConstantDeclaration extends DeclarationBlock {
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
+    }
+
+    public boolean hasOrderSpecification() {
+        return null != spec;
+    }
+
+    public OrderSpecification getOrderSpecification() {
+        assert null != spec : "you missed a check";
+        return spec;
     }
 
 }

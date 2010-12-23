@@ -65,7 +65,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
@@ -85,6 +84,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
@@ -170,9 +170,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(ConstantDeclaration node) throws ASTVisitException {
-        // TODO move unique to variables
-        // TODO implement extends
-        defaultAction(node);
+        for (ASTElement e : node.getAttributes())
+            e.visit(this);
+
+        for (ASTElement e : node.getNames())
+            e.visit(this);
+
+        if (node.hasOrderSpecification())
+            node.getOrderSpecification().visit(this);
     }
 
     @Override
@@ -193,7 +198,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // quantified variables differ from ordinary variables, as they aren't
         // functions
-        if (node.getParent() instanceof QuantifierBody || node.getParent() instanceof FunctionDeclaration) {
+        if (node.isQuantified()) {
             boundVars.put(name, new de.uka.iti.pseudo.term.Variable(name, state.ivilTypeMap.get(node)));
 
         } else {
@@ -982,8 +987,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(PartialLessExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        Term[] args = new Term[2];
+
+        for (int i = 0; i < 2; i++)
+            args[i] = state.translation.terms.get(node.getOperands().get(i));
+
+        try {
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("$extends"), Environment.getBoolType(), args));
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(e);
+        }
     }
 
     @Override
@@ -1334,14 +1351,68 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(OrderSpecParent node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // TODO maybe we have to create missing constants
     }
 
     @Override
     public void visit(OrderSpecification node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        ConstantDeclaration parent = (ConstantDeclaration) node.getParent();
+
+        try {
+            for (Variable c : parent.getNames()) {
+
+                if (node.isComplete()) {
+                    // ( ∀ w : Wicket • c <: w ⇒ c == w ∨ a <: w ∨ b <: w )
+
+                } else {
+                    // c <: b & ∀ x :: (c==x | b==x) -> (c <: x & x <: b)
+                    for (OrderSpecParent par : node.getParents()) {
+                        Variable b = state.names.findVariable(par.getName(), node);
+
+                        Term ac = new Application(state.env.getFunction(state.translation.variableNames.get(c)),
+
+                        state.ivilTypeMap.get(c));
+
+                        Term ab = new Application(
+
+                        state.env.getFunction(state.translation.variableNames.get(b)), state.ivilTypeMap.get(b));
+
+                        de.uka.iti.pseudo.term.Variable x = new de.uka.iti.pseudo.term.Variable("x", ac.getType());
+
+                        Term tmp = new Application(state.env.getFunction("$or"), Environment.getBoolType(), new Term[] {
+                                new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
+                                        x, ab }),
+                                new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
+                                        x, ac }) });
+
+                        tmp = new Application(state.env.getFunction("$impl"), Environment.getBoolType(), new Term[] {
+                                tmp,
+                                new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
+                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
+                                                new Term[] { ac, x }),
+                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
+                                                new Term[] { x, ab }) }) });
+
+                        tmp = new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(), x,
+                                new Term[] { tmp });
+
+                        state.env.addAxiom(new Axiom("orderSpec_" + state.env.getAllAxioms().size(), new Application(
+                                state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
+                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
+                                                new Term[] { ac, ab }), tmp }), new HashMap<String, String>(), node));
+                    }
+                }
+            }
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
     }
 
     @Override

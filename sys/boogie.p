@@ -42,3 +42,36 @@ rule toplevel_and_right
   samegoal "Conj2: {%b}"
     replace  %b 
   tags rewrite "prop simp"
+  
+  
+(*
+  Treatment of <:
+ *)
+ 
+function
+  bool  $extends('a, 'a)		infix <: 50
+  
+rule extends_trans
+	find $extends(%a, %b)
+	assume $extends(%b, %c) |-
+	replace $extends(%a, %c)
+
+# try to move extends formulas to the right side
+rule extends_refl
+	find $extends(%a, %a)
+	replace true
+	tags rewrite "concrete"
+
+rule extends_antisym
+	find |- $extends(%a, %b)
+	where toplevel
+	replace !$extends(%b, %a)
+	tags rewrite "concrete"
+
+rule extends_sanity
+     find $extends(%a, %b) |-
+     where toplevel
+     assume $extends(%b, %a) |-
+     assume |- %a = %b
+     replace false
+     tags rewrite "concrete"

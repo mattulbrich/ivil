@@ -18,14 +18,16 @@ final public class Variable extends ASTElement {
     private final Type type;
     private final boolean constant;
     private final boolean unique;
+    private final boolean isQuantified;
     private final Expression where;
 
-    public Variable(Token name, Type type, boolean constant, boolean unique, Expression where) {
+    public Variable(Token name, Type type, boolean constant, boolean unique, boolean isQuantified, Expression where) {
         this.name = name.image;
         this.location = name;
         this.type = type;
         this.constant = constant;
         this.unique = unique;
+        this.isQuantified = isQuantified;
 
         // any variable declaration has a where clause which defaults to true
         if (null != where)
@@ -45,14 +47,16 @@ final public class Variable extends ASTElement {
      * @param type
      * @param constant
      * @param unique
+     * @param isQuantified
      * @param where
      */
-    public Variable(String name, Type type, boolean constant, boolean unique, Expression where) {
+    public Variable(String name, Type type, boolean constant, boolean unique, boolean isQuantified, Expression where) {
         this.name = name;
         this.location = type.getLocationToken();
         this.type = type;
         this.constant = constant;
         this.unique = unique;
+        this.isQuantified = isQuantified;
 
         // any variable declaration has a where clause which defaults to true
         if (null != where)
@@ -97,6 +101,10 @@ final public class Variable extends ASTElement {
     @Override
     public String toString() {
         return (constant ? "Constant [" : "Variable [") + name + ", " + getLocation() + "]";
+    }
+
+    public boolean isQuantified() {
+        return isQuantified;
     }
 
 }
