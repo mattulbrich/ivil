@@ -84,7 +84,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
-import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
@@ -657,8 +656,24 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(WildcardExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
+        try {
+            String name = state.env.createNewFunctionName("wildcard");
+
+            Function w = new Function(name, state.ivilTypeMap.get(node), new Type[0], false, false, node);
+            state.env.addFunction(w);
+
+            state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            // TODO Auto-generated catch block
+        }
     }
 
     @Override

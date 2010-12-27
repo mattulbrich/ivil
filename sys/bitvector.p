@@ -27,7 +27,7 @@ function
 
 
 axiom bv_valid_value
-  (\forall val; (\forall dim; (\forall bv; bv = $bv_new(val, dim) -> val < 2^dim)))
+  (\forall val; (\forall dim; (\forall bv; bv as bitvector = $bv_new(val, dim) -> val < 2^dim)))
 
 
 rule bv_concat

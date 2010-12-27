@@ -25,7 +25,7 @@ function
     'a cond(bool, 'a, 'a)
 
 function  # infixes
-    bool $eq('a, 'a)        infix =  50
+    bool $eq('a, 'b)        infix =  50
     bool $and(bool, bool)   infix &  40 
     bool $or(bool, bool)    infix |  30 
     bool $impl(bool, bool)  infix ->  20 
