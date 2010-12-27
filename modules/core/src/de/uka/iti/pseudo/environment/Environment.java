@@ -32,7 +32,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
-import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 /**

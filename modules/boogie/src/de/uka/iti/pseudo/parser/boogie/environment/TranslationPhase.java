@@ -154,7 +154,7 @@ public final class TranslationPhase {
     public void create(EnvironmentCreationState state) throws EnvironmentCreationException {
 
         // fill environment with information and declarations/implementations
-        new ProgramMaker(state);
+        ProgramMaker pm = new ProgramMaker(state);
 
         // create programs out of statement triples
         for (ProcedureDeclaration decl : declarations.keySet())
@@ -166,11 +166,13 @@ public final class TranslationPhase {
 
             // assemble statements and annotations
             List<Statement> statements = new LinkedList<Statement>();
+            statements.addAll(pm.whereStatements);
             statements.addAll(tripel.preStatements);
             statements.addAll(tripel.bodyStatements);
             statements.addAll(tripel.postStatements);
 
             List<String> annotations = new LinkedList<String>();
+            annotations.addAll(pm.whereAnnotations);
             annotations.addAll(tripel.preAnnotations);
             annotations.addAll(tripel.bodyAnnotations);
             annotations.addAll(tripel.postAnnotations);
@@ -198,11 +200,13 @@ public final class TranslationPhase {
 
             // assemble statements and annotations
             List<Statement> statements = new LinkedList<Statement>();
+            statements.addAll(pm.whereStatements);
             statements.addAll(tripel.preStatements);
             statements.addAll(tripel.bodyStatements);
             statements.addAll(tripel.postStatements);
 
             List<String> annotations = new LinkedList<String>();
+            annotations.addAll(pm.whereAnnotations);
             annotations.addAll(tripel.preAnnotations);
             annotations.addAll(tripel.bodyAnnotations);
             annotations.addAll(tripel.postAnnotations);

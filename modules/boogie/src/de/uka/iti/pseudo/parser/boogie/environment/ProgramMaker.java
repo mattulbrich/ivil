@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
@@ -112,6 +113,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     private StatementTripel statements = null;
 
+    // wheres for global variables
+    final List<de.uka.iti.pseudo.term.statement.Statement> whereStatements = new LinkedList<Statement>();
+    // wheres for local variables
+    final List<String> whereAnnotations = new LinkedList<String>();
+
     // variables can get a desired name instead of the default ones
     private String desiredName = null;
 
@@ -182,12 +188,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(Variable node) throws ASTVisitException {
 
-        // TODO where clause?
-
         Type[] arguments = new Type[0];
 
         // names are somesort of magic, if no other name is desired, the name
-        // will be var_<line>_<colon>_name
+        // will be var_<line>_<colon>__name
 
         String name = null != desiredName ? desiredName : "var" + node.getLocation().replace(':', '_') + "__"
                 + node.getName();
@@ -206,9 +210,37 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     state.env.addFunction(new Function(name, state.ivilTypeMap.get(node), arguments, node.isUnique(),
                             !node.isConstant(), node));
 
+                // if where is not true, we have to add an assumption, that
+                // specifies the where clause
+                try {
+                node.getWhereClause().visit(this);
+                } catch (NullPointerException e) {
+                    // this will be caused by statements like x,y where x == y
+                    // when processing the first variable. one should find a
+                    // nicer solution to this problem later
+                    return;
+                }
+
+                Term where = state.translation.terms.get(node.getWhereClause());
+                if (where.equals(Environment.getTrue()))
+                    return; // Don't add assume true
+
+                if (node.getParent() instanceof GlobalVariableDeclaration) {
+                    whereStatements.add(new AssumeStatement(node.getLocationToken().beginLine, where));
+                    whereAnnotations.add("where global");
+                } else {
+                    statements.preStatements.add(new AssumeStatement(node.getLocationToken().beginLine, where));
+                    statements.preAnnotations.add("where");
+                }
+                // TODO where clause?
+
             } catch (EnvironmentException e) {
                 e.printStackTrace();
-                throw new ASTVisitException("Variable creation failed because of:\n", e);
+                throw new ASTVisitException(node.getLocation(), e);
+
+            } catch (TermException e) {
+                e.printStackTrace();
+                throw new ASTVisitException(node.getLocation(), e);
             }
         }
     }
@@ -263,7 +295,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             boundVars.get(state.translation.variableNames.get(v)), args) };
                 }
 
-                // FIXME polymorphic functions seem not to work as expected
                 // add type quantifiers before ordinary quantifiers
                 {
                     UniversalType[] params = state.typeMap.get(node).parameters;
