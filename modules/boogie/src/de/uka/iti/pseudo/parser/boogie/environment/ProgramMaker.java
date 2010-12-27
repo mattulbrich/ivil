@@ -28,6 +28,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.DeclarationBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
@@ -145,11 +146,40 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
 
+        // ! @note: the visit order is needed to resolve conflicts
         try {
-            state.root.visit(this);
+            // visit consts
+            for(DeclarationBlock d : state.root.getDeclarationBlocks())
+                if(d instanceof ConstantDeclaration)
+                    d.visit(this);
+            
+            // visit globalvars
+            for (DeclarationBlock d : state.root.getDeclarationBlocks())
+                if (d instanceof GlobalVariableDeclaration)
+                    d.visit(this);
+            
+            // visit functions
+            for (DeclarationBlock d : state.root.getDeclarationBlocks())
+                if (d instanceof FunctionDeclaration)
+                    d.visit(this);
+            
+            // visit axioms
+            for (DeclarationBlock d : state.root.getDeclarationBlocks())
+                if (d instanceof AxiomDeclaration)
+                    d.visit(this);
+            
+            // visit procedure declarations
+            for (DeclarationBlock d : state.root.getDeclarationBlocks())
+                if (d instanceof ProcedureDeclaration)
+                    d.visit(this);
+            
+            // visit procedure implementations
+            for (DeclarationBlock d : state.root.getDeclarationBlocks())
+                if (d instanceof ProcedureImplementation)
+                    d.visit(this);
+            
         } catch (ASTVisitException e) {
             e.printStackTrace();
-
             throw new EnvironmentCreationException(e.getMessage());
         }
     }
@@ -213,7 +243,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // if where is not true, we have to add an assumption, that
                 // specifies the where clause
                 try {
-                node.getWhereClause().visit(this);
+                    node.getWhereClause().visit(this);
                 } catch (NullPointerException e) {
                     // this will be caused by statements like x,y where x == y
                     // when processing the first variable. one should find a
@@ -232,7 +262,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     statements.preStatements.add(new AssumeStatement(node.getLocationToken().beginLine, where));
                     statements.preAnnotations.add("where");
                 }
-                // TODO where clause?
 
             } catch (EnvironmentException e) {
                 e.printStackTrace();
@@ -703,7 +732,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            // TODO Auto-generated catch block
+            throw new ASTVisitException(node.getLocation(), e);
         }
     }
 
@@ -1214,6 +1243,33 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
+    public void visit(MapUpdateExpression node) throws ASTVisitException {
+        // translate to mapI_store(name, domain, update)
+        defaultAction(node);
+
+        List<de.uka.iti.pseudo.parser.boogie.ast.Expression> d = node.getOperands();
+
+        try {
+            Term args[] = new Term[d.size() + 2];
+            args[0] = state.translation.terms.get(node.getName());
+            for (int i = 0; i < d.size(); i++)
+                args[i + 1] = state.translation.terms.get(d.get(i));
+
+            args[args.length - 1] = state.translation.terms.get(node.getUpdate());
+
+            Type type = state.ivilTypeMap.get(node.getName());
+
+            state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_store"), type,
+                    args));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+
+        }
+    }
+
+    @Override
     public void visit(TrueExpression node) throws ASTVisitException {
         state.translation.terms.put(node, Environment.getTrue());
     }
@@ -1372,27 +1428,22 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(AttributeParameter node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // attributes are currently ignored
     }
 
     @Override
     public void visit(Attribute node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // attributes are currently ignored
     }
 
     @Override
     public void visit(Trigger node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
+        // trigger are currently ignored
     }
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-        // anm.: die funktionsweise hiervon hängt sehr stark von der
-        // implementierung der maps ab
+        // tfe: to me it looks like nothing has to be done here
     }
 
     @Override
@@ -1459,12 +1510,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }
-    }
-
-    @Override
-    public void visit(MapUpdateExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
