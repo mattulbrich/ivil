@@ -82,18 +82,20 @@ public class RuleApplicationFinder {
      */
     private RuleApplicationFilter applicationFilter;
 
-
     /**
      * Instantiates a new interactive rule application finder.
      * 
-     * @param proof the proof to inspect
-     * @param nodeNumber the goal no of the inspected node in the proof
-     * @param env the environment in the background
+     * @param proof
+     *            the proof to inspect
+     * @param node
+     *            the inspected node in the proof
+     * @param env
+     *            the environment in the background
      */
     public RuleApplicationFinder(Proof proof, ProofNode node, Environment env) {
         this.goal = node;
         assert goal != null;
-        assert goal.getChildren() == null : "Must no have children";
+        assert goal.getChildren() == null : "Must not have children";
         this.sequent = goal.getSequent();
         this.env = env;
     }

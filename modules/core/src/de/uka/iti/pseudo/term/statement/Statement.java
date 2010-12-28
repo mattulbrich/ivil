@@ -27,11 +27,11 @@ import de.uka.iti.pseudo.util.Util;
  * sequence of statements.
  * 
  * Statements have {@link #subTerms} whose number and type varies from subclass
- * to subclasse. Statements are also immutable objects.
+ * to subclass. Statements are also immutable objects.
  * 
  * As a means for better user feedback, statements carry a source line number
  * with which they refer to the source statement which is the reason for their
- * existance. This information is purely for information purposes and may be in
+ * existence. This information is purely for information purposes and may be in
  * a later version moved to {@link Program} like the statement annotations.
  * 
  * There are four basic statement types which make up the programming language:
