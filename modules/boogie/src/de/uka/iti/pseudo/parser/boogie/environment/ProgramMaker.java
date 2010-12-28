@@ -86,12 +86,17 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.term.statement.UpdateStatement;
 
 public final class ProgramMaker extends DefaultASTVisitor {
+
+    static private final Type[] NO_TYPE = new Type[0];
+    static private final Term[] NO_ARGS = new Term[0];
 
     /**
      * This triple consist of (preconditions, body, postconditions). It is
@@ -218,8 +223,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(Variable node) throws ASTVisitException {
 
-        Type[] arguments = new Type[0];
-
         // names are somesort of magic, if no other name is desired, the name
         // will be var_<line>_<colon>__name
 
@@ -237,7 +240,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         } else {
             try {
                 if (null == state.env.getFunction(name))
-                    state.env.addFunction(new Function(name, state.ivilTypeMap.get(node), arguments, node.isUnique(),
+                    state.env.addFunction(new Function(name, state.ivilTypeMap.get(node), NO_TYPE, node.isUnique(),
                             !node.isConstant(), node));
 
                 // if where is not true, we have to add an assumption, that
@@ -406,7 +409,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             try {
                 Function old;
                 if (null == state.env.getFunction(oldName)) {
-                    old = new Function(oldName, state.ivilTypeMap.get(v), new Type[0], false, true, node);
+                    old = new Function(oldName, state.ivilTypeMap.get(v), NO_TYPE, false, true, node);
                     state.env.addFunction(old);
                 } else {
                     old = state.env.getFunction(oldName);
@@ -415,7 +418,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Function var = state.env.getFunction(state.translation.variableNames.get(v));
 
                 if (null == var) {
-                    var = new Function(state.translation.variableNames.get(v), state.ivilTypeMap.get(v), new Type[0],
+                    var = new Function(state.translation.variableNames.get(v), state.ivilTypeMap.get(v), NO_TYPE,
                             false, true, node);
                     state.env.addFunction(var);
                 }
@@ -484,7 +487,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
 
             StringBuffer target = new StringBuffer();
             target.append("$goto");
@@ -504,7 +507,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(ReturnStatement node) throws ASTVisitException {
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$return");
         } catch (TermException e) {
             e.printStackTrace();
@@ -524,12 +527,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // jump to then and else
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$goto;" + labelThen + ";" + labelElse);
 
             // then assumes condition to be true
             {
-                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$label:" + labelThen);
 
                 statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine,
@@ -539,13 +542,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getThenBlock()) {
                     s.visit(this);
                 }
-                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$goto;" + labelEnd);
             }
 
             // else assumes condition to be false
             {
-                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$label:" + labelElse);
 
                 statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(
@@ -558,13 +561,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getElseBlock()) {
                         s.visit(this);
                     }
-                    statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                    statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                     statements.bodyAnnotations.add("$goto;" + labelEnd);
                 }
             }
 
             // add end label
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + labelEnd);
 
         } catch (TermException e) {
@@ -591,7 +594,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // jump to then and else
         try {
 
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + labelBegin);
 
             // loopinvariant
@@ -609,12 +612,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 statements.bodyAnnotations.add(null);
             }
 
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$goto;" + labelBody + ";" + labelEnd);
 
             // loop body
             {
-                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$label:" + labelBody);
 
                 statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine,
@@ -624,12 +627,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 for (de.uka.iti.pseudo.parser.boogie.ast.Statement s : node.getBody()) {
                     s.visit(this);
                 }
-                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+                statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$goto;" + labelBegin);
             }
 
             // end of the loop
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + labelEnd);
 
             statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(
@@ -637,7 +640,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             .get(node.getGuard()) })));
             statements.bodyAnnotations.add(null);
 
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + breakLabel);
 
         } catch (TermException e) {
@@ -656,7 +659,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
 
             String target = "$goto;" + (node.hasTarget() ? node.getTarget() : breakLabel);
             statements.bodyAnnotations.add(target);
@@ -721,7 +724,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             String name = state.env.createNewFunctionName("wildcard");
 
-            Function w = new Function(name, state.ivilTypeMap.get(node), new Type[0], false, false, node);
+            Function w = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, false, false, node);
             state.env.addFunction(w);
 
             state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
@@ -751,7 +754,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(LabelStatement node) throws ASTVisitException {
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, new Term[0]));
+            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + node.getName());
         } catch (TermException e) {
             e.printStackTrace();
@@ -796,7 +799,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     // unroll by creating new inner variables
                     Application tmp = new Application(new Function(state.env.createNewFunctionName("innerMap"),
-                            name.getType(), new Type[0], false, true, node), name.getType());
+                            name.getType(), NO_TYPE, false, true, node), name.getType());
                     state.env.addFunction(tmp.getFunction());
 
                     args[0] = tmp;
@@ -837,10 +840,26 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(AssignmentStatement node) throws ASTVisitException {
-        // FIXME support for parallel assignment
-
         for (ASTElement e : node.getChildren())
             e.visit(this);
+
+        if (node.getAssignments().size() > 1) {
+            // the last #assignments Statements need to be merged into one
+            // update statement
+            de.uka.iti.pseudo.term.statement.AssignmentStatement[] children = new de.uka.iti.pseudo.term.statement.AssignmentStatement[node
+                    .getAssignments().size()];
+            int position = statements.bodyStatements.size() - 1;
+            for (int i = 0; i < children.length; i++) {
+                children[i] = (de.uka.iti.pseudo.term.statement.AssignmentStatement) statements.bodyStatements
+                        .remove(position);
+                statements.bodyAnnotations.remove(position);
+
+                position--;
+            }
+
+            statements.bodyStatements.add(new UpdateStatement(new Update(children), node.getLocationToken().beginLine));
+            statements.bodyAnnotations.add(null);
+        }
     }
 
     @Override
@@ -1257,7 +1276,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             args[args.length - 1] = state.translation.terms.get(node.getUpdate());
 
-            Type type = state.ivilTypeMap.get(node.getName());
+            Type type = state.ivilTypeMap.get(node);
 
             state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_store"), type,
                     args));

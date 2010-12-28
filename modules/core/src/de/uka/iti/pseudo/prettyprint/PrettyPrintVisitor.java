@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
+import de.uka.iti.pseudo.term.statement.UpdateStatement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 // TODO Documentation needed
@@ -452,6 +453,12 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append(" := ");
         currentSubTermIndex = 0;
         assignmentStatement.getValue().visit(this);
+        printer.resetPreviousStyle();
+    }
+
+    public void visit(UpdateStatement assignmentStatement) throws TermException {
+        printer.setStyle("statement");
+        printer.append(assignmentStatement.getUpdate().toString(false));
         printer.resetPreviousStyle();
     }
 
