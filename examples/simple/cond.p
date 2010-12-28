@@ -1,6 +1,8 @@
 include
   "$proposition.p"
   "$int.p"
+  "$fol.p"
   "$decproc.p"
+  
 problem
-  cond(true, 3, 2) > 2
+  (\forall x as int; (\forall x as int; x = x))

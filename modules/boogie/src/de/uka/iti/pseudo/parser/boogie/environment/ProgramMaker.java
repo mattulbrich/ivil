@@ -234,7 +234,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // quantified variables differ from ordinary variables, as they aren't
         // functions
-        if (node.isQuantified()) {
+        if (node.isQuantified() || node.getParent() instanceof FunctionDeclaration) {
             boundVars.put(name, new de.uka.iti.pseudo.term.Variable(name, state.ivilTypeMap.get(node)));
 
         } else {
@@ -747,8 +747,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // load parameters
+        
+        // overwrite variable names for in and out parameters
 
+        // assert precondition
+        // havoc modified values        
+        // assume postcondition
+        
+        // restore variable names for in and out parameters
+
+        // safe results
     }
 
     @Override

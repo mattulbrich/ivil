@@ -79,6 +79,7 @@ rule cut_cond
   samegoal "Assume false for {%c}"
     add |- %c
     replace %b
+  tags rewrite "split"
 
 (*
  * Equality
