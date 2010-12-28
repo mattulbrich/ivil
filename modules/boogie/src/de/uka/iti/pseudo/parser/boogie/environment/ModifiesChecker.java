@@ -12,7 +12,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
@@ -64,6 +63,10 @@ public final class ModifiesChecker extends DefaultASTVisitor {
 
         for (String name : node.getTargets()) {
             Variable v = state.names.findVariable(name, node);
+
+            if (!state.scopeMap.get(v).equals(state.globalScope))
+                throw new ASTVisitException(node.getLocation() + " only global variables may be modified");
+
             modifiable.add(v);
         }
     }

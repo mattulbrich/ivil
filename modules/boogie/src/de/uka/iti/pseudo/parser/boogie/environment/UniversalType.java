@@ -564,6 +564,22 @@ public class UniversalType {
     }
 
     /**
+     * @return true iff this type is a bitvector
+     */
+    public boolean isBitvector() {
+        if (isTypeVariable || !name.startsWith("bv"))
+            return false;
+
+        try {
+            getBVDimension();
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return true iff there is a subtype, that has nonzero template arguments
      */
     public boolean isConstructor() {
@@ -927,45 +943,34 @@ public class UniversalType {
         } else if (isTypeVariable) {
             ivilType = new TypeVariable("tvar_" + tvarcounter.getAndIncrement() + "__" + name);
 
+        } else if (isBitvector()) {
+            ivilType = state.env.mkType("bitvector");
+
+        } else if (null == range) {
+            Type[] args = new Type[templateArguments.length];
+            for (int i = 0; i < templateArguments.length; i++) {
+                args[i] = templateArguments[i].toIvilType(state);
+                if (null == args[i])
+                    return null;
+            }
+
+            ivilType = state.env.mkType("utt_" + name, args);
         } else {
 
-            try {
-                getBVDimension();
-                ivilType = state.env.mkType("bitvector");
-                return ivilType;
+            String map_t = "map" + domain.length;
 
-            } catch (Exception e) {
-                // if an exception is thrown, we are not a bitvector, so
-                // continue
-                // normaly
-            }
+            // ensure map<D> exists
+            if (state.env.getSort(map_t) == null)
+                makeMapD(state);
 
-            if (null == range) {
-                Type[] args = new Type[templateArguments.length];
-                for (int i = 0; i < templateArguments.length; i++) {
-                    args[i] = templateArguments[i].toIvilType(state);
-                    if (null == args[i])
-                        return null;
-                }
+            Type domainRange[] = new Type[domain.length + 1];
 
-                ivilType = state.env.mkType("utt_" + name, args);
-            } else {
+            for (int i = 0; i < domain.length; i++)
+                domainRange[i] = domain[i].toIvilType(state);
 
-                String map_t = "map" + domain.length;
+            domainRange[domainRange.length - 1] = range.toIvilType(state);
 
-                // ensure map<D> exists
-                if (state.env.getSort(map_t) == null)
-                    makeMapD(state);
-
-                Type domainRange[] = new Type[domain.length + 1];
-
-                for (int i = 0; i < domain.length; i++)
-                    domainRange[i] = domain[i].toIvilType(state);
-
-                domainRange[domainRange.length - 1] = range.toIvilType(state);
-
-                ivilType = state.env.mkType(map_t, domainRange);
-            }
+            ivilType = state.env.mkType(map_t, domainRange);
         }
 
         return ivilType;
