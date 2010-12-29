@@ -220,7 +220,7 @@ public final class EnvironmentCreationState {
         } catch (RuntimeException e) {
             e.printStackTrace();
 
-            printDebugInformation();
+            // printDebugInformation();
 
             throw e;
         } finally {

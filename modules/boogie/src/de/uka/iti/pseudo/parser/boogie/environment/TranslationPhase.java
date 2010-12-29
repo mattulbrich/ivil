@@ -45,6 +45,8 @@ public final class TranslationPhase {
      */
     public final Map<ProcedureImplementation, ProgramMaker.StatementTripel> implementations = new HashMap<ProcedureImplementation, ProgramMaker.StatementTripel>();
 
+    private List<Program> problematicPrograms = new LinkedList<Program>();
+
     private Term problem = null;
 
     /**
@@ -56,7 +58,7 @@ public final class TranslationPhase {
      * @param name
      * @throws EnvironmentCreationException
      */
-    private void registerProgram(EnvironmentCreationState state, List<Statement> statements, List<String> annotations,
+    Program registerProgram(EnvironmentCreationState state, List<Statement> statements, List<String> annotations,
             String name, ASTElement node, int returnIndex) throws EnvironmentCreationException {
         Map<String, Integer> labels = new HashMap<String, Integer>();
         for (int i = 0; i < statements.size(); i++) {
@@ -138,7 +140,9 @@ public final class TranslationPhase {
                     i++;
             }
 
-            state.env.addProgram(changer.makeProgram(rval.getName()));
+            state.env.addProgram(rval = changer.makeProgram(rval.getName()));
+            return rval;
+
         } catch (EnvironmentException e) {
             e.printStackTrace();
 
@@ -177,8 +181,8 @@ public final class TranslationPhase {
             annotations.addAll(tripel.bodyAnnotations);
             annotations.addAll(tripel.postAnnotations);
 
-            registerProgram(state, statements, annotations, "procedure_" + decl.getName(), decl, statements.size()
-                    - tripel.postStatements.size());
+            problematicPrograms.add(registerProgram(state, statements, annotations, "procedure_" + decl.getName(),
+                    decl, statements.size() - tripel.postStatements.size()));
         }
         for (ProcedureImplementation decl : implementations.keySet()) {
             StatementTripel tripel = implementations.get(decl);
@@ -211,13 +215,13 @@ public final class TranslationPhase {
             annotations.addAll(tripel.bodyAnnotations);
             annotations.addAll(tripel.postAnnotations);
 
-            registerProgram(state, statements, annotations,
+            problematicPrograms.add(registerProgram(state, statements, annotations,
                     "implementation" + decl.getImplementationID() + "_" + decl.getName(), decl, statements.size()
-                    - tripel.postStatements.size());
+                            - tripel.postStatements.size()));
         }
 
         // create a problem out of all programs defined in the environment
-        for (Program program : state.env.getAllPrograms()) {
+        for (Program program : problematicPrograms) {
             try {
                 if (problem == null) {
                     problem = new LiteralProgramTerm(0, false, program);
@@ -238,8 +242,6 @@ public final class TranslationPhase {
         // thus trivially valid
         if (null == problem)
             problem = Environment.getTrue();
-
-        // fix the environment?
     }
 
     final Term getProblem() {

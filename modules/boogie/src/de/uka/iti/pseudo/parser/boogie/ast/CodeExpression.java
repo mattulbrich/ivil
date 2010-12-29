@@ -10,6 +10,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class CodeExpression extends Expression implements NamedASTElement {
 
+    final private List<LocalVariableDeclaration> vars;
     final private List<SpecBlock> specs;
     final private List<Expression> operands = new LinkedList<Expression>();
 
@@ -18,6 +19,7 @@ public final class CodeExpression extends Expression implements NamedASTElement 
         super(location);
 
         this.specs = specs;
+        this.vars = vars;
 
         addChildren(vars);
         addChildren(specs);
@@ -40,6 +42,10 @@ public final class CodeExpression extends Expression implements NamedASTElement 
     @Override
     public String getName() {
         return "|{" + getLocation().replace(":", "_") + "}|";
+    }
+
+    public List<LocalVariableDeclaration> getVars() {
+        return vars;
     }
 
 }

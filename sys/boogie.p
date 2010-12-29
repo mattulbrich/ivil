@@ -51,7 +51,22 @@ rule some
   add $$subst(%x, $$skolem(%x), %b) |-
   replace  $$subst(%x, $$skolem(%x), %x)
   tags rewrite "fol simp"
+
+(*
+  $codeexpression
+ *)
   
+function
+  'a $codeexpression(bool, 'a)
+
+rule after_codeexpression
+  find $codeexpression(%b, %a)
+  where programFree %b
+  where noFreeVars %b
+  replace %a
+  add %b |-
+  tags rewrite "concrete"
+
   
 (*
   Treatment of <:
