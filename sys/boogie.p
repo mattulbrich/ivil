@@ -43,6 +43,15 @@ rule toplevel_and_right
     replace  %b 
   tags rewrite "prop simp"
   
+(*
+  \some
+*)
+rule some
+  find  (\some %x; %b) 
+  add $$subst(%x, $$skolem(%x), %b) |-
+  replace  $$subst(%x, $$skolem(%x), %x)
+  tags rewrite "fol simp"
+  
   
 (*
   Treatment of <:

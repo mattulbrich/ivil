@@ -68,6 +68,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
+import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
@@ -1610,10 +1611,43 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(LambdaExpression node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        defaultAction(node);
 
-        // note: translate to ∀args.rval[args]==λ-expr[args]; or maybe use
-        // \\some?
+        QuantifierBody b = node.getBody();
+
+        // \some map ; ∀domain; map = store(map, domain, expr(domain))
+        try {
+            Type map_t = state.ivilTypeMap.get(node);
+            de.uka.iti.pseudo.term.Variable map = new de.uka.iti.pseudo.term.Variable("map", map_t);
+
+            Term[] args = new Term[1 + b.getQuantifiedVariables().size() + 1];
+
+            args[0] = map;
+            for (int i = 0; i < b.getQuantifiedVariables().size(); i++)
+                args[1 + i] = boundVars.get(state.translation.variableNames.get(b.getQuantifiedVariables().get(i)));
+
+            args[args.length - 1] = state.translation.terms.get(b.getBody());
+
+            // {map, store}
+            args = new Term[] { map,
+                    new Application(state.env.getFunction("map" + (args.length - 2) + "_store"), map_t, args) };
+
+            // eq
+            args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
+
+            // ∀ domain
+            for (Variable v : b.getQuantifiedVariables()) {
+                args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
+                        boundVars.get(state.translation.variableNames.get(v)), args) };
+            }
+
+            // \some
+            state.translation.terms.put(node, new Binding(state.env.getBinder("\\some"), map_t, map, args));
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
     }
 
     @Override
