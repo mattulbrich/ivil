@@ -108,7 +108,7 @@ public class Program {
         this.sourceFile = sourceFile;
         this.name = name;
         
-        assert statementAnnotations.size() == statements.size();
+        assert statementAnnotations.size() == statements.size() : "illformed program: #annotations!=#statements";
         assert Util.notNullArray(this.statements);
     }
 

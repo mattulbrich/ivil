@@ -26,7 +26,8 @@ ensures f == fac(x);
   var i :int where i == 1, r :int where r == x;
   f := 1;
   while(i<=x)
-  invariant f*fac(r) == fac(x) && x + 1 == r + i;
+  invariant f*fac(r) == fac(x);
+  invariant x + 1 == r + i;
   {
     f := f * r;
     r := r - 1;
