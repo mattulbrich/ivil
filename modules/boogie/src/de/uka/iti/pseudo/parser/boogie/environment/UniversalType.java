@@ -153,6 +153,7 @@ public class UniversalType {
         this.domain = null != domain ? domain : voidMap;
         this.range = range;
 
+        // collect paths
         paths = new List[parameters.length];
         for (int i = 0; i < paths.length; i++) {
             paths[i] = InferencePath.getPaths(this, parameters[i]);
@@ -166,6 +167,10 @@ public class UniversalType {
         this.parameters = new UniversalType[parameters.length];
         for (int i = 0; i < parameters.length; i++)
             this.parameters[i] = paths[i].get(0).getVariable();
+
+        // create translated typenames for polymorphic type variables
+        for (int i = 0; i < parameters.length; i++)
+            parameters[i].ivilType = new TypeVariable("polytype_" + i);
     }
 
     /**
@@ -610,13 +615,19 @@ public class UniversalType {
         Type domainRange[] = new Type[domain.length + 1];
         Type mapDomainRange[] = new Type[domain.length + 2];
         Type mapDomain[] = new Type[domain.length + 1];
+        Type mapType[] = new Type[domain.length + 1];
+
+        for (int i = 0; i < domain.length; i++)
+            mapType[i] = new TypeVariable("D" + i);
+        mapType[mapType.length - 1] = new TypeVariable("R");
+
+        mapDomainRange[0] = mapDomain[0] = state.env.mkType(map_t, mapType);
 
         for (int i = 0; i < domain.length; i++)
             domainRange[i] = mapDomain[i + 1] = mapDomainRange[i + 1] = new TypeVariable("d" + i);
 
         domainRange[domainRange.length - 1] = mapDomainRange[mapDomainRange.length - 1] = new TypeVariable("r");
 
-        mapDomainRange[0] = mapDomain[0] = state.env.mkType(map_t, domainRange);
 
         // ... functions ...
         state.env.addFunction(new Function(map_t + "_store", mapDomain[0], mapDomainRange, false, false, state.root));

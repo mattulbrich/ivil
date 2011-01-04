@@ -35,6 +35,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
@@ -47,6 +48,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.Specification;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
@@ -228,13 +230,15 @@ public final class TypeChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
-        ASTElement decl = state.names.procedureSpace.get(node.getName());
+        ProcedureDeclaration decl = state.names.procedureSpace.get(node.getName());
+
+        // check if decl is a lemma procedure, i.e. it does not modify anything
+        for (Specification s : decl.getSpecification())
+            if (s instanceof ModifiesClause)
+                error(decl.getName() + " is not a lemma procedure, as it has a modifies clause", node);
 
         List<Variable> domain;
-        if (decl instanceof ProcedureDeclaration)
-            domain = ((ProcedureDeclaration) decl).getInParameters();
-        else
-            domain = ((ProcedureImplementation) decl).getInParameters();
+        domain = decl.getInParameters();
 
         // check arguments
         if (node.getArguments().size() != domain.size())

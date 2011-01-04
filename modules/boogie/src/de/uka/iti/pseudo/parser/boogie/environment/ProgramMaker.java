@@ -773,7 +773,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
             Function w = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, false, false, node);
             state.env.addFunction(w);
 
-            state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
+            // call forall will quantify wildcards
+            if (node.getParent() instanceof CallForallStatement) {
+                state.translation.terms.put(node, new de.uka.iti.pseudo.term.Variable(w.getName(), w.getResultType()));
+            } else {
+                state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
+            }
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -787,8 +792,153 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
-        // TODO Auto-generated method stub
+        // assume ∀wildcard PRE => POST
 
+        // ///// gather informations //////
+        ProcedureDeclaration P = state.names.procedureSpace.get(node.getName());
+
+        LinkedList<Precondition> assertions = new LinkedList<Precondition>();
+        LinkedList<Postcondition> assumptions = new LinkedList<Postcondition>();
+
+        for (Specification s : P.getSpecification()) {
+            if (s instanceof Precondition)
+                assertions.add((Precondition) s);
+            else if (s instanceof Postcondition)
+                assumptions.add((Postcondition) s);
+        }
+
+        String oldIns[] = new String[P.getInParameters().size()];
+        for (int i = 0; i < oldIns.length; i++)
+            oldIns[i] = state.translation.variableNames.get(P.getInParameters().get(i));
+
+        String oldOuts[] = new String[P.getOutParameters().size()];
+        for (int i = 0; i < oldOuts.length; i++)
+            oldOuts[i] = state.translation.variableNames.get(P.getOutParameters().get(i));
+
+        // create new variables for in and out parameters
+        Function newIns[] = new Function[oldIns.length];
+        Function newOuts[] = new Function[oldOuts.length];
+
+        try {
+            for (int i = 0; i < newIns.length; i++) {
+                newIns[i] = new Function(state.env.createNewFunctionName("call_in" + i + "_"), state.ivilTypeMap.get(P
+                        .getInParameters().get(i)), NO_TYPE, false, true, node);
+
+                state.env.addFunction(newIns[i]);
+            }
+
+            for (int i = 0; i < newOuts.length; i++) {
+                newOuts[i] = new Function(state.env.createNewFunctionName("call_out" + i + "_"),
+                        state.ivilTypeMap.get(P.getOutParameters().get(i)), NO_TYPE, false, true, node);
+
+                state.env.addFunction(newOuts[i]);
+            }
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
+
+        // ///// create terms ////////
+
+        List<de.uka.iti.pseudo.term.Variable> boundvars = new LinkedList<de.uka.iti.pseudo.term.Variable>();
+
+        // TODO load parameters
+        try {
+            List<de.uka.iti.pseudo.term.statement.AssignmentStatement> assignments = new LinkedList<de.uka.iti.pseudo.term.statement.AssignmentStatement>();
+            if (newIns.length > 0) {
+                for (int i = 0; i < newIns.length; i++) {
+                    Expression val = node.getArguments().get(i);
+
+                    val.visit(this);
+
+                    if (val instanceof WildcardExpression) {
+                        de.uka.iti.pseudo.term.Variable var = (de.uka.iti.pseudo.term.Variable) state.translation.terms
+                                .get(val);
+                        boundvars.add(var);
+                        boundVars.put(newIns[i].getName(), var);
+                    } else {
+                        assignments.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(new Application(
+                                newIns[i], newIns[i].getResultType()), state.translation.terms.get(val)));
+                    }
+                }
+
+                if (assignments.size() > 0) {
+                    statements.bodyStatements.add(new UpdateStatement(new Update(assignments),
+                            node.getLocationToken().beginLine));
+
+                    statements.bodyAnnotations.add(null);
+                }
+            }
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
+
+        // overwrite variable names for in and out parameters
+        for (int i = 0; i < newIns.length; i++)
+            state.translation.variableNames.put(P.getInParameters().get(i), newIns[i].getName());
+        for (int i = 0; i < newOuts.length; i++)
+            state.translation.variableNames.put(P.getOutParameters().get(i), newOuts[i].getName());
+
+        Term PRE = Environment.getTrue();
+        Term POST = Environment.getTrue();
+
+        // gather precondition
+        try {
+            for (Precondition cond : assertions) {
+                if (cond.isFree())
+                    continue;
+
+                cond.getCondition().visit(this);
+
+                PRE = new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { PRE,
+                        state.translation.terms.get(cond.getCondition()) });
+            }
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
+
+        // gather postcondition
+        try {
+            for (Postcondition cond : assumptions) {
+                cond.getCondition().visit(this);
+
+                POST = new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { POST,
+                        state.translation.terms.get(cond.getCondition()) });
+            }
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
+
+        // restore variable names for in and out parameters
+        for (int i = 0; i < newIns.length; i++){
+            state.translation.variableNames.put(P.getInParameters().get(i), oldIns[i]);
+        }
+        for (int i = 0; i < newOuts.length; i++)
+            state.translation.variableNames.put(P.getOutParameters().get(i), oldOuts[i]);
+
+        // add assumption
+        Term assumption;
+        try {
+            assumption = new Application(state.env.getFunction("$impl"), Environment.getBoolType(), new Term[] { PRE,
+                    POST });
+
+            while (boundvars.size() > 0)
+                assumption = new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
+                        boundvars.remove(0), new Term[] { assumption });
+
+            statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, assumption));
+            statements.bodyAnnotations.add(null);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
+        }
     }
 
     @Override
@@ -1448,18 +1598,26 @@ public final class ProgramMaker extends DefaultASTVisitor {
             for (int i = 0; i < d.size(); i++)
                 args[i + 1] = state.translation.terms.get(d.get(i));
 
-            Type range_t = state.typeMap.get(node.getName()).range.toIvilType(state);
+            Type range_t = state.ivilTypeMap.get(node);
 
-            state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_load"),
-                    range_t, args));
+            Term tmp = new Application(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
+
+            // TODO polymorphic binding
+            // for (UniversalType t :
+            // state.typeMap.get(node.getName()).parameters) {
+            // tmp = new TypeVariableBinding(TypeVariableBinding.Kind.EX,
+            // t.toIvilType(state), tmp);
+            // }
+
+            state.translation.terms.put(node, tmp);
 
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
 
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
+            // } catch (EnvironmentException e) {
+            // e.printStackTrace();
+            // throw new ASTVisitException(node.getLocation(), e);
         }
     }
 
@@ -1550,14 +1708,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
             name = "old_" + name;
 
         try {
-            // unbound variable
-            Function var = state.env.getFunction(name);
-            if (null != var)
-                state.translation.terms.put(node, new Application(var, state.ivilTypeMap.get(node)));
+            Term bound = boundVars.get(name);
 
-            // bound variable
+            if (null != bound)
+                state.translation.terms.put(node, bound);
             else
-                state.translation.terms.put(node, boundVars.get(name));
+                state.translation.terms.put(node,
+                        new Application(state.env.getFunction(name), state.ivilTypeMap.get(node)));
 
         } catch (TermException e) {
             e.printStackTrace();

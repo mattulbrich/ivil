@@ -53,6 +53,20 @@ rule some
   tags rewrite "fol simp"
 
 (*
+  \poly
+*)
+
+binder
+  'a (\poly 'var; 'a)
+
+(* this rule will be generated for each map<D>
+rule poly_load
+  find (\poly%v; map_load(%m, %d))
+  replace $$inferedLoad(%v, %m, %d)
+  tags rewrite "concrete"
+*)
+
+(*
   $codeexpression
  *)
   

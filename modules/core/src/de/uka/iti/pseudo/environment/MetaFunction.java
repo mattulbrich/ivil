@@ -76,7 +76,7 @@ public abstract class MetaFunction extends Function {
      * @return a term of the same type as the first argument.
      * 
      * @throws TermException
-     *             if the arguments do not fulfil all requirements.
+     *             if the arguments do not fulfill all requirements.
      */
     public abstract Term evaluate(Application application, Environment env, RuleApplication ruleApp)
        throws TermException;
