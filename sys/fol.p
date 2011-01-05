@@ -84,6 +84,17 @@ rule cut_cond
 (*
  * Equality
  *)
+plugin
+    # check whether two terms have different types, but returns false if typevariables are present
+    whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypesInEq"
+ 
+rule equality_type_mismatch
+  find  %a = %b
+  where differentTypesInEq %a, %b 
+  replace false
+  tags rewrite "concrete"
+       verbosity "6"
+ 
 rule equality_refl
   find  %t = %t 
   replace true
