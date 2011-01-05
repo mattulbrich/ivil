@@ -628,7 +628,6 @@ public class UniversalType {
 
         domainRange[domainRange.length - 1] = mapDomainRange[mapDomainRange.length - 1] = new TypeVariable("r");
 
-
         // ... functions ...
         state.env.addFunction(new Function(map_t + "_store", mapDomain[0], mapDomainRange, false, false, state.root));
 
@@ -636,12 +635,36 @@ public class UniversalType {
                 false, state.root));
 
         // ... and rules
+
+        // create some commonly used schema variables
+        SchemaType vt = new SchemaType("v");
+        SchemaVariable v = new SchemaVariable("%v", vt);
+
+        Term store_arg[] = new Term[domain.length + 2];
+        Term load_arg[] = new Term[domain.length + 1];
+
+        Type map_drt[] = new Type[domain.length + 1];
+
+        for (int i = 0; i < domain.length; i++) {
+            map_drt[i] = new SchemaType("D" + i);
+            store_arg[i + 1] = new SchemaVariable("%d1_" + i, new SchemaType("d1_" + i));
+            load_arg[i + 1] = new SchemaVariable("%d2_" + i, new SchemaType("d2_" + i));
+        }
+
+        map_drt[domain.length] = new SchemaType("R");
+
+        Type mt = state.env.mkType(map_t, map_drt);
+        SchemaVariable m = new SchemaVariable("%m", mt);
+
+        store_arg[0] = m;
+        store_arg[store_arg.length - 1] = v;
+
+        load_arg[0] = new Application(state.env.getFunction(map_t + "_store"), mt, store_arg);
+        Term default_find = new Application(state.env.getFunction(map_t + "_load"), new SchemaType("rt"), load_arg);
+
         try { // /////////////// LOAD STORE SAME
 
             String name = map_t + "_load_store_same";
-
-            SchemaType vt = new SchemaType("v");
-            SchemaVariable v = new SchemaVariable("%v", vt);
 
             Term args1[] = new Term[domain.length + 2];
             Term args2[] = new Term[domain.length + 1];
@@ -654,9 +677,6 @@ public class UniversalType {
             }
 
             drt[domain.length] = vt;
-
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
 
             args1[0] = m;
             args1[args1.length - 1] = v;
@@ -684,9 +704,6 @@ public class UniversalType {
 
             String name = map_t + "_load_store_same_assume";
 
-            SchemaType vt = new SchemaType("v");
-            SchemaVariable v = new SchemaVariable("%v", vt);
-
             Term args1[] = new Term[domain.length + 2];
             Term args2[] = new Term[domain.length + 1];
 
@@ -704,9 +721,6 @@ public class UniversalType {
             }
 
             drt[domain.length] = vt;
-
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
 
             args1[0] = m;
             args1[args1.length - 1] = v;
@@ -729,10 +743,43 @@ public class UniversalType {
             e.printStackTrace();
         }
 
+        // try { // /////////////// LOAD STORE OTHER
+        //
+        // Term[] args3 = load_arg.clone();
+        // args3[0] = store_arg[0];
+        //
+        // List<GoalAction> actions = new LinkedList<GoalAction>();
+        //
+        // actions.add(new GoalAction("samegoal", null, false, new
+        // Application(state.env.getFunction(map_t + "_load"),
+        // vt, args3), new LinkedList<Term>(), new LinkedList<Term>()));
+        //
+        // Map<String, String> tags = new HashMap<String, String>();
+        //
+        // tags.put("rewrite", "concrete");
+        //
+        // for (int i = 0; i < domain.length; i++) {
+        // String name = map_t + "_load_store_other_" + i;
+        //
+        // List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+        //
+        // assumes.add(new LocatedTerm(new
+        // Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+        // new Term[] { load_arg[i + 1], store_arg[i + 1] }),
+        // MatchingLocation.SUCCEDENT));
+        //
+        // state.env.addRule(new Rule(name, assumes, new
+        // LocatedTerm(default_find, MatchingLocation.BOTH),
+        // new LinkedList<WhereClause>(), actions, tags, state.root));
+        // }
+        //
+        // } catch (RuleException e) {
+        // e.printStackTrace();
+        // }
         try { // /////////////// LOAD STORE OTHER
 
-            SchemaType vt = new SchemaType("v");
-            SchemaVariable v = new SchemaVariable("%v", vt);
+            // SchemaType vt = new SchemaType("v");
+            // SchemaVariable v = new SchemaVariable("%v", vt);
 
             Term args1[] = new Term[domain.length + 2];
             Term args2[] = new Term[domain.length + 1];
@@ -747,8 +794,8 @@ public class UniversalType {
 
             drt[domain.length] = vt;
 
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
+            // Type mt = state.env.mkType(map_t, drt);
+            // SchemaVariable m = new SchemaVariable("%m", mt);
 
             args1[0] = m;
             args1[args1.length - 1] = v;
@@ -787,34 +834,6 @@ public class UniversalType {
         try { // /////////////// LOAD STORE CUT ON DOMAIN
             String name = map_t + "_load_store_cut_on_domain";
 
-            SchemaType vt = new SchemaType("v");
-            SchemaVariable v = new SchemaVariable("%v", vt);
-
-            Term args1[] = new Term[domain.length + 2];
-            Term args2[] = new Term[domain.length + 1];
-
-            Type drt[] = new Type[domain.length + 1];
-
-            for (int i = 0; i < domain.length; i++) {
-                drt[i] = new SchemaType("d" + i);
-                args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-                args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
-            }
-
-            drt[domain.length] = vt;
-
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
-
-            args1[0] = m;
-            args1[args1.length - 1] = v;
-
-            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
-            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
-
-            Term[] args3 = args2.clone();
-            args3[0] = args1[0];
-
             Map<String, String> tags = new HashMap<String, String>();
 
             tags.put("rewrite", "split");
@@ -827,18 +846,18 @@ public class UniversalType {
 
                 List<Term> cut = new LinkedList<Term>();
                 cut.add((new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
-                        args1[i + 1], args2[i + 1] })));
+                        load_arg[i + 1], store_arg[i + 1] })));
 
-                actions.add(new GoalAction("samegoal", "different @" + i, false, find, new LinkedList<Term>(), cut));
+                actions.add(new GoalAction("samegoal", "different @" + i, false, default_find, new LinkedList<Term>(),
+                        cut));
 
                 cut_same.add(cut.get(0));
             }
 
-            actions.add(new GoalAction("samegoal", "same", false, find, cut_same, new LinkedList<Term>()));
+            actions.add(new GoalAction("samegoal", "same", false, default_find, cut_same, new LinkedList<Term>()));
 
-            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
-                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
-                    state.root));
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(default_find,
+                    MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
 
         } catch (RuleException e) {
             e.printStackTrace();
@@ -846,8 +865,6 @@ public class UniversalType {
 
         try { // /////////////// STORE LOAD SAME
             String name = map_t + "_store_load_same";
-
-            SchemaType vt = new SchemaType("v");
 
             Term argsL[] = new Term[domain.length + 1];
             Term argsS[] = new Term[domain.length + 2];
@@ -860,9 +877,6 @@ public class UniversalType {
             }
 
             drt[domain.length] = vt;
-
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
 
             argsS[0] = argsL[0] = m;
 
@@ -889,8 +903,6 @@ public class UniversalType {
 
             String name = map_t + "_store_load_same_assume";
 
-            SchemaType vt = new SchemaType("v");
-
             Term argsL[] = new Term[domain.length + 1];
             Term argsS[] = new Term[domain.length + 2];
 
@@ -908,9 +920,6 @@ public class UniversalType {
             }
 
             drt[domain.length] = vt;
-
-            Type mt = state.env.mkType(map_t, drt);
-            SchemaVariable m = new SchemaVariable("%m", mt);
 
             argsS[0] = argsL[0] = m;
 

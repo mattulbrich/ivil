@@ -163,37 +163,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
 
-        // ! @note: the visit order is needed to resolve conflicts
         try {
-            // visit consts
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof ConstantDeclaration)
-                    d.visit(this);
-
-            // visit globalvars
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof GlobalVariableDeclaration)
-                    d.visit(this);
-
-            // visit functions
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof FunctionDeclaration)
-                    d.visit(this);
-
-            // visit axioms
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof AxiomDeclaration)
-                    d.visit(this);
-
-            // visit procedure declarations
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof ProcedureDeclaration)
-                    d.visit(this);
-
-            // visit procedure implementations
-            for (DeclarationBlock d : state.root.getDeclarationBlocks())
-                if (d instanceof ProcedureImplementation)
-                    d.visit(this);
+            state.root.visit(this);
 
         } catch (ASTVisitException e) {
             e.printStackTrace();
@@ -1182,11 +1153,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         } catch (TermException e) {
             e.printStackTrace();
-            throw new ASTVisitException(e);
+            throw new ASTVisitException(node.getLocation(), e);
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            throw new ASTVisitException(e);
+            throw new ASTVisitException(node.getLocation(), e);
         }
     }
 
