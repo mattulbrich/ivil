@@ -359,8 +359,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
             node.getOutParameters().get(i).visit(this);
         }
 
+        // first visit modifies clauses to ensure old names exist
         for (ASTElement e : node.getSpecification())
-            e.visit(this);
+            if (e instanceof ModifiesClause)
+                e.visit(this);
+
+        for (ASTElement e : node.getSpecification())
+            if (!(e instanceof ModifiesClause))
+                e.visit(this);
 
         if (node.isImplemented())
             node.getBody().visit(this);
@@ -1295,12 +1301,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        defaultAction(node);
-
         Term[] args = new Term[2];
 
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
+        for (int i = 0; i < 2; i++) {
+            Expression operand = node.getOperands().get(i);
+            operand.visit(this);
+            args[i] = state.translation.terms.get(operand);
+        }
 
         try {
             state.translation.terms.put(node, new Application(state.env.getFunction("$eq"), Environment.getBoolType(),

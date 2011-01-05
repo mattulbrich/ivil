@@ -224,7 +224,7 @@ public final class EnvironmentCreationState {
 
             throw e;
         } finally {
-            printDebugInformation();
+            // printDebugInformation();
         }
 
         return env;

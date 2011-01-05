@@ -19,6 +19,13 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 
+/**
+ * Checks if two arguments have the different type. In the presence of type
+ * variables it's in general unknown whether or not two objects have the same
+ * type, thus false is returned.
+ * 
+ * @author timm.felden@felden.com
+ */
 public class DifferentTypesInEq extends WhereCondition {
 
     public DifferentTypesInEq() {
