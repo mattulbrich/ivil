@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.parser.boogie.environment;
+package de.uka.iti.pseudo.environment.boogie;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;

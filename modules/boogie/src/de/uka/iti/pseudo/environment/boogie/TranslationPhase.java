@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.parser.boogie.environment;
+package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,13 +8,13 @@ import java.util.Map;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.boogie.ProgramMaker.StatementTripel;
 import de.uka.iti.pseudo.environment.creation.ProgramChanger;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.Variable;
-import de.uka.iti.pseudo.parser.boogie.environment.ProgramMaker.StatementTripel;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;

@@ -8,8 +8,8 @@ import java.net.URL;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
-import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 

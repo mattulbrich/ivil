@@ -10,9 +10,10 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+
+import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 import de.uka.iti.pseudo.parser.boogie.ast.*;
 // used for main
-import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
 
 /** Token Manager. */
 public class BPLParserTokenManager implements BPLParserConstants

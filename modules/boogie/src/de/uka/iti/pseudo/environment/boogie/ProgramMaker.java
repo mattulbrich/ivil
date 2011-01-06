@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.parser.boogie.environment;
+package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -29,7 +29,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.DeclarationBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
@@ -820,7 +819,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         List<de.uka.iti.pseudo.term.Variable> boundvars = new LinkedList<de.uka.iti.pseudo.term.Variable>();
 
-        // TODO load parameters
         try {
             List<de.uka.iti.pseudo.term.statement.AssignmentStatement> assignments = new LinkedList<de.uka.iti.pseudo.term.statement.AssignmentStatement>();
             if (newIns.length > 0) {
@@ -893,7 +891,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         // restore variable names for in and out parameters
-        for (int i = 0; i < newIns.length; i++){
+        for (int i = 0; i < newIns.length; i++) {
             state.translation.variableNames.put(P.getInParameters().get(i), oldIns[i]);
         }
         for (int i = 0; i < newOuts.length; i++)
@@ -1580,22 +1578,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Term tmp = new Application(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
 
-            // TODO polymorphic binding
-            // for (UniversalType t :
-            // state.typeMap.get(node.getName()).parameters) {
-            // tmp = new TypeVariableBinding(TypeVariableBinding.Kind.EX,
-            // t.toIvilType(state), tmp);
-            // }
-
             state.translation.terms.put(node, tmp);
 
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
-
-            // } catch (EnvironmentException e) {
-            // e.printStackTrace();
-            // throw new ASTVisitException(node.getLocation(), e);
         }
     }
 
@@ -1845,7 +1832,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        // tfe: to me it looks like nothing has to be done here
+        // tfe: to me, it looks like nothing has to be done here, as coercions
+        // have been evaluated during type annotation
     }
 
     @Override
