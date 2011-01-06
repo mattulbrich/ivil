@@ -99,6 +99,16 @@ import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.UpdateStatement;
 
+/**
+ * This is the heart of the loader. This Visitor transforms the gathered
+ * informations into IVIL equivalents. As expressions can contain code and code
+ * can contain expressions, there is no useful way to make this visitor smaller.
+ * 
+ * The treatment of most nodes is straight forward, the other nodes have
+ * individual comments, which hopefully explain how the translation is done.
+ * 
+ * @author timm.felden@felden.com
+ */
 public final class ProgramMaker extends DefaultASTVisitor {
 
     static private final Type[] NO_TYPE = new Type[0];
@@ -1719,6 +1729,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
         }
 
+        // TODO add typequantifiers
+
         state.translation.terms.put(node, args[0]);
     }
 
@@ -1744,6 +1756,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         } catch (TermException e) {
             e.printStackTrace();
         }
+
+        // TODO add typequantifiers
 
         state.translation.terms.put(node, args[0]);
     }
@@ -1902,6 +1916,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
     }
 
+    /*
+     * Code expressions are transformed into programs which can be executed by
+     * IVIL. As code expressions can occur in quantified contexts, these
+     * Programs may contain quantified variables.
+     */
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // save statements of the current function or code expression to allow
