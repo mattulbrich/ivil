@@ -168,7 +168,7 @@ public class EnvironmentMaker {
      * @throws ASTVisitException
      *             some error happened during ast traversal.
      */
-    private EnvironmentMaker(@NonNull Parser parser,
+    public EnvironmentMaker(@NonNull Parser parser,
             @NonNull ASTFile astFile, @NonNull String resource,
             @NonNull Environment parent) throws ASTVisitException {
         this.parser = parser;

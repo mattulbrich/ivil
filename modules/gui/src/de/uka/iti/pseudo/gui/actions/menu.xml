@@ -26,7 +26,7 @@
 		</toolbar>
 
 		<menubar>
-			prover.fileMenu prover.editorMenu prover.proofMenu prover.settingsMenu
+			prover.fileMenu prover.editorMenu prover.proofMenu prover.settingsMenu prover.experimentalMenu
 		</menubar>
 
 		<fileMenu text="File" mnemonic="F">
@@ -49,6 +49,10 @@
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
         </settingsMenu>
+        
+        <experimentalMenu text="Experimental" mnemonic="X">
+           experimental.exportSMT       
+        </experimentalMenu>
         
 	</prover>
 	
@@ -250,6 +254,12 @@
 			<mod>TOGGLE_ACTION view/PrettyPrintPluginsRadioAction				</mod>
 		</pp>
 	</settings>
+	
+	<experimental>
+		<exportSMT>ACTION experiments/ExportSMTAction
+			<text>Export SMT of current node</text>
+		</exportSMT>
+	</experimental>  
 		
 	<general>
 		<close>ACTION CloseAction
