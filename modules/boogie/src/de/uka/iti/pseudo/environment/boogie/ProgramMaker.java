@@ -1868,7 +1868,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     // ( ∀ w : Wicket • c <: w ⇒ c == w ∨ a <: w ∨ b <: w )
 
                 } else {
-                    // c <: b & ∀ x :: (c==x | b==x) -> (c <: x & x <: b)
+                    // c <: b & ∀ x :: (c==x | b==x) <-> (c <: x & x <: b)
                     for (OrderSpecParent par : node.getParents()) {
                         Variable b = state.names.findVariable(par.getName(), node);
 
@@ -1888,7 +1888,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                                 new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
                                         x, ac }) });
 
-                        tmp = new Application(state.env.getFunction("$impl"), Environment.getBoolType(), new Term[] {
+                        tmp = new Application(state.env.getFunction("$equiv"), Environment.getBoolType(), new Term[] {
                                 tmp,
                                 new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
                                         new Application(state.env.getFunction("$extends"), Environment.getBoolType(),

@@ -88,23 +88,39 @@ rule after_codeexpression
  
 function
   bool  $extends('a, 'a)		infix <: 50
-  
+
+
+rule extends_neq_from_unique_left
+     find $extends(%a, %b) |-
+     where isUnique %a
+     replace $extends(%a, %b) & !%a = %b
+
+rule extends_neq_from_unique_right
+     find $extends(%a, %b) |-
+     where isUnique %b
+     replace $extends(%a, %b) & !%a = %b
+
 rule extends_trans
 	find $extends(%a, %b)
 	assume $extends(%b, %c) |-
-	replace $extends(%a, %c)
+	replace $extends(%a, %b) & $extends(%a, %c)
 
-# try to move extends formulas to the right side
 rule extends_refl
 	find $extends(%a, %a)
 	replace true
 	tags rewrite "concrete"
 
-rule extends_antisym
+# try to move extends formulas to the left side
+rule extends_antisym_auto
 	find |- $extends(%a, %b)
 	where toplevel
 	replace !$extends(%b, %a)
 	tags rewrite "concrete"
+
+rule extends_antisym
+	find $extends(%a, %b)
+	where toplevel
+	replace !$extends(%b, %a)
 
 rule extends_sanity
      find $extends(%a, %b) |-
