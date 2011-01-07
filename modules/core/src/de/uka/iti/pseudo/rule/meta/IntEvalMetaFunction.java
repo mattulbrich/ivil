@@ -71,6 +71,10 @@ public class IntEvalMetaFunction extends MetaFunction {
         if(fctname.equals("$plus")) {
             return makeInt(val1.add(val2), env);
         }
+
+        if (fctname.equals("$minus")) {
+            return makeInt(val1.subtract(val2), env);
+        }
         
         if(fctname.equals("$mult")) {
             return makeInt(val1.multiply(val2), env);
@@ -83,11 +87,20 @@ public class IntEvalMetaFunction extends MetaFunction {
         if(fctname.equals("$mod")) {
             return makeInt(val1.divideAndRemainder(val2)[1], env);
         }
-        
-        if(fctname.equals("$minus")) {
-            return makeInt(val1.subtract(val2), env);
+
+        if (fctname.equals("$pow")) {
+            return makeInt(val1.pow(val2.intValue()), env);
+        }
+
+        if (fctname.equals("$shl")) {
+            return makeInt(val1.shiftLeft(val2.intValue()), env);
+        }
+
+        if (fctname.equals("$ushr")) {
+            return makeInt(val1.shiftRight(val2.intValue()), env);
         }
         
+
         throw new TermException("Uncalculable function: " + fctname);
     }
 
