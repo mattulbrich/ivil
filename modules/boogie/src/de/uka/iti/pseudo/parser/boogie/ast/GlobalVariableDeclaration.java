@@ -9,16 +9,16 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public class GlobalVariableDeclaration extends DeclarationBlock {
     
-    private final List<Variable> vars;
+    private final List<VariableDeclaration> vars;
 
-    public GlobalVariableDeclaration(Token first, List<Attribute> attr, List<Variable> vars) {
+    public GlobalVariableDeclaration(Token first, List<Attribute> attr, List<VariableDeclaration> vars) {
         super(first, attr);
         this.vars = vars;
 
         addChildren(vars);
     }
 
-    public List<Variable> getVariables() {
+    public List<VariableDeclaration> getVariables() {
         return Collections.unmodifiableList(vars);
     }
 

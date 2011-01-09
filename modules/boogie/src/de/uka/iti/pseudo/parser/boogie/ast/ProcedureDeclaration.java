@@ -12,12 +12,12 @@ public class ProcedureDeclaration extends DeclarationBlock implements NamedASTEl
 
     private final String name;
     private final List<String> typeParameters;
-    private final List<Variable> inParam, outParam;
+    private final List<VariableDeclaration> inParam, outParam;
     private final List<Specification> specification;
     private final ProcedureBody body;
 
     public ProcedureDeclaration(Token first, List<Attribute> attributes, Token name, List<Token> typeParameters,
-            List<Variable> inParam, List<Variable> outParam, List<Specification> specification,
+            List<VariableDeclaration> inParam, List<VariableDeclaration> outParam, List<Specification> specification,
  ProcedureBody body) {
         super(first, attributes);
 
@@ -52,11 +52,11 @@ public class ProcedureDeclaration extends DeclarationBlock implements NamedASTEl
         return Collections.unmodifiableList(typeParameters);
     }
 
-    public List<Variable> getOutParameters() {
+    public List<VariableDeclaration> getOutParameters() {
         return Collections.unmodifiableList(outParam);
     }
 
-    public List<Variable> getInParameters() {
+    public List<VariableDeclaration> getInParameters() {
         return Collections.unmodifiableList(inParam);
     }
 

@@ -18,7 +18,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
@@ -26,6 +28,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
@@ -47,20 +50,17 @@ import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Type;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
@@ -467,7 +467,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(Variable node) throws ASTVisitException {
+    public void visit(VariableDeclaration node) throws ASTVisitException {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
@@ -493,7 +493,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(PartialLessExpression node) throws ASTVisitException {
+    public void visit(ExtendsExpression node) throws ASTVisitException {
         defaultAction(node, UniversalType.newBool());
     }
 
@@ -824,7 +824,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(SpecBlock node) throws ASTVisitException {
+    public void visit(CodeBlock node) throws ASTVisitException {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
@@ -851,7 +851,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(SpecReturnStatement node) throws ASTVisitException {
+    public void visit(CodeExpressionReturn node) throws ASTVisitException {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 

@@ -13,15 +13,15 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 public final class ModifiesChecker extends DefaultASTVisitor {
 
     private final EnvironmentCreationState state;
-    private final LinkedList<Variable> locallyModifiable = new LinkedList<Variable>();
-    private List<Variable> modifiable = null;
+    private final LinkedList<VariableDeclaration> locallyModifiable = new LinkedList<VariableDeclaration>();
+    private List<VariableDeclaration> modifiable = null;
 
     private final LinkedList<ASTElement> todo = new LinkedList<ASTElement>();
 
@@ -44,7 +44,7 @@ public final class ModifiesChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        modifiable = new LinkedList<Variable>();
+        modifiable = new LinkedList<VariableDeclaration>();
         locallyModifiable.clear();
 
         locallyModifiable.addAll(node.getOutParameters());
@@ -62,7 +62,7 @@ public final class ModifiesChecker extends DefaultASTVisitor {
     public void visit(ModifiesClause node) throws ASTVisitException {
 
         for (String name : node.getTargets()) {
-            Variable v = state.names.findVariable(name, node);
+            VariableDeclaration v = state.names.findVariable(name, node);
 
             if (!state.scopeMap.get(v).equals(state.globalScope))
                 throw new ASTVisitException(node.getLocation() + " only global variables may be modified");
@@ -85,7 +85,7 @@ public final class ModifiesChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(LocalVariableDeclaration node) throws ASTVisitException {
-        locallyModifiable.addAll(node.getVariables());
+        locallyModifiable.addAll(node.getVariableDeclarations());
     }
 
     @Override
@@ -104,7 +104,7 @@ public final class ModifiesChecker extends DefaultASTVisitor {
         assert locallyModifiable != null : "locally modifiable variables are null?!?";
         assert modifiable != null : "globally modifiable variables are null?!?";
 
-        Variable v = state.names.findVariable(lvalue);
+        VariableDeclaration v = state.names.findVariable(lvalue);
         if (locallyModifiable.contains(v) || modifiable.contains(v))
             return;
 

@@ -14,7 +14,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
@@ -28,7 +28,7 @@ public final class TranslationPhase {
      * Name used in ivil; this is necessary, as ivil has only one global
      * namespace.
      */
-    public final Map<Variable, String> variableNames = new HashMap<Variable, String>();
+    public final Map<VariableDeclaration, String> variableNames = new HashMap<VariableDeclaration, String>();
 
     /**
      * Terms, that correspond to expressions.
@@ -82,8 +82,7 @@ public final class TranslationPhase {
                                 i,
                                 new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
                                         .getSourceLineNumber(), new Term[] { new Application(state.env
-                                        .getNumberLiteral(returnIndex), Environment
-                                        .getIntType()) }));
+                                        .getNumberLiteral(returnIndex), Environment.getIntType()) }));
                         annotations.set(i, "return");
 
                     } catch (TermException e) {
@@ -161,8 +160,7 @@ public final class TranslationPhase {
         ProgramMaker pm = new ProgramMaker(state);
 
         // create programs out of statement triples
-        for (ProcedureDeclaration decl : declarations.keySet())
-        {
+        for (ProcedureDeclaration decl : declarations.keySet()) {
             if (!decl.isImplemented())
                 continue;
 

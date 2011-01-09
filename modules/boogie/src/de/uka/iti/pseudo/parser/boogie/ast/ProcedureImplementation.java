@@ -13,7 +13,7 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
 
     private final String name;
     private final List<String> typeParameters;
-    private final List<Variable> inParam, outParam;
+    private final List<VariableDeclaration> inParam, outParam;
     private final ProcedureBody body;
 
     /**
@@ -23,7 +23,7 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
     private static final AtomicInteger implementationCounter = new AtomicInteger(0);
 
     public ProcedureImplementation(Token first, List<Attribute> attr, Token name, List<Token> typeParameters,
-            List<Variable> inParam, List<Variable> outParam, ProcedureBody body) {
+            List<VariableDeclaration> inParam, List<VariableDeclaration> outParam, ProcedureBody body) {
         super(first, attr);
 
         this.name = name.image;
@@ -51,11 +51,11 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
         return Collections.unmodifiableList(typeParameters);
     }
 
-    public List<Variable> getOutParameters() {
+    public List<VariableDeclaration> getOutParameters() {
         return Collections.unmodifiableList(outParam);
     }
 
-    public List<Variable> getInParameters() {
+    public List<VariableDeclaration> getInParameters() {
         return Collections.unmodifiableList(inParam);
     }
 

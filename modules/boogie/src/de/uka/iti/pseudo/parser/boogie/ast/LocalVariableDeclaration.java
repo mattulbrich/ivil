@@ -9,8 +9,8 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
 /**
- * A collection of local variable declarations. A Procedure can have many of
- * these blocks.
+ * A collection of local VariableDeclaration declarations. A Procedure can have
+ * many of these blocks.
  * 
  * @author timm.felden@felden.com
  */
@@ -18,9 +18,9 @@ public class LocalVariableDeclaration extends ASTElement {
 
     private final Token first;
     private final List<Attribute> attributes;
-    private final List<Variable> vars;
+    private final List<VariableDeclaration> vars;
 
-    public LocalVariableDeclaration(Token first, List<Attribute> attr, List<Variable> vars) {
+    public LocalVariableDeclaration(Token first, List<Attribute> attr, List<VariableDeclaration> vars) {
         this.first = first;
         this.attributes = attr;
         this.vars = vars;
@@ -29,7 +29,7 @@ public class LocalVariableDeclaration extends ASTElement {
         addChildren(vars);
     }
 
-    public List<Variable> getVariables() {
+    public List<VariableDeclaration> getVariableDeclarations() {
         return Collections.unmodifiableList(vars);
     }
 

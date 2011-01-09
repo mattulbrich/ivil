@@ -11,7 +11,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  * 
  * @author timm.felden@felden.com
  */
-final public class Variable extends ASTElement {
+final public class VariableDeclaration extends ASTElement {
 
     private final Token location;
     private final String name;
@@ -21,7 +21,8 @@ final public class Variable extends ASTElement {
     private final boolean isQuantified;
     private final Expression where;
 
-    public Variable(Token name, Type type, boolean constant, boolean unique, boolean isQuantified, Expression where) {
+    public VariableDeclaration(Token name, Type type, boolean constant, boolean unique, boolean isQuantified,
+            Expression where) {
         this.name = name.image;
         this.location = name;
         this.type = type;
@@ -50,7 +51,8 @@ final public class Variable extends ASTElement {
      * @param isQuantified
      * @param where
      */
-    public Variable(String name, Type type, boolean constant, boolean unique, boolean isQuantified, Expression where) {
+    public VariableDeclaration(String name, Type type, boolean constant, boolean unique, boolean isQuantified,
+            Expression where) {
         this.name = name;
         this.location = type.getLocationToken();
         this.type = type;

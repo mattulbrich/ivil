@@ -18,7 +18,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
@@ -28,6 +30,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
 import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
@@ -56,9 +60,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecParent;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
-import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
@@ -67,8 +68,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
@@ -76,7 +75,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UserDefinedTypeDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
@@ -100,7 +99,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(Variable node) throws ASTVisitException {
+    public void visit(VariableDeclaration node) throws ASTVisitException {
         defaultAction(node);
     }
 
@@ -310,7 +309,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(PartialLessExpression node) throws ASTVisitException {
+    public void visit(ExtendsExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 
@@ -440,12 +439,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(OrderSpecParent node) throws ASTVisitException {
-        defaultAction(node);
-    }
-
-    @Override
-    public void visit(OrderSpecification node) throws ASTVisitException {
+    public void visit(ExtendsParent node) throws ASTVisitException {
         defaultAction(node);
     }
 
@@ -455,7 +449,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(SpecBlock node) throws ASTVisitException {
+    public void visit(CodeBlock node) throws ASTVisitException {
         defaultAction(node);
     }
 
@@ -465,7 +459,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(SpecReturnStatement node) throws ASTVisitException {
+    public void visit(CodeExpressionReturn node) throws ASTVisitException {
         defaultAction(node);
     }
 }

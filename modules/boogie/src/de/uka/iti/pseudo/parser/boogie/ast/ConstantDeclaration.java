@@ -10,26 +10,28 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 public class ConstantDeclaration extends DeclarationBlock {
 
     private final boolean unique;
-    private final List<Variable> names;
-    private final OrderSpecification spec;
+    private final List<VariableDeclaration> names;
+    private final List<ExtendsParent> parents;
+    private final boolean complete;
 
-    public ConstantDeclaration(Token firstToken, List<Attribute> attributes, boolean unique, List<Variable> names,
-            OrderSpecification spec) {
+    public ConstantDeclaration(Token firstToken, List<Attribute> attributes, boolean unique,
+            List<VariableDeclaration> names,
+            List<ExtendsParent> parents, boolean complete) {
         super(firstToken, attributes);
         this.unique = unique;
         this.names = names;
-        this.spec = spec;
+        this.parents = parents;
+        this.complete = complete;
 
         addChildren(names);
-        if (spec != null)
-            addChild(spec);
+        addChildren(parents);
     }
 
     public boolean isUnique() {
         return unique;
     }
 
-    public List<Variable> getNames() {
+    public List<VariableDeclaration> getNames() {
         return Collections.unmodifiableList(names);
     }
 
@@ -38,13 +40,12 @@ public class ConstantDeclaration extends DeclarationBlock {
         v.visit(this);
     }
 
-    public boolean hasOrderSpecification() {
-        return null != spec;
+    public List<ExtendsParent> getParents() {
+        return parents;
     }
 
-    public OrderSpecification getOrderSpecification() {
-        assert null != spec : "you missed a check";
-        return spec;
+    public boolean isComplete() {
+        return complete;
     }
 
 }

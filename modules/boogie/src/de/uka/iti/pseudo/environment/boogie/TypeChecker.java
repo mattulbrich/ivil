@@ -13,7 +13,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
@@ -22,6 +24,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
@@ -40,18 +43,15 @@ import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
@@ -135,7 +135,7 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(Variable node) throws ASTVisitException {
+    public void visit(VariableDeclaration node) throws ASTVisitException {
         expect(node.getWhereClause(), UniversalType.BOOL_T);
 
         if (state.typeMap.get(node).isConstructor())
@@ -237,7 +237,7 @@ public final class TypeChecker extends DefaultASTVisitor {
             if (s instanceof ModifiesClause)
                 error(decl.getName() + " is not a lemma procedure, as it has a modifies clause", node);
 
-        List<Variable> domain;
+        List<VariableDeclaration> domain;
         domain = decl.getInParameters();
 
         // check arguments
@@ -256,7 +256,7 @@ public final class TypeChecker extends DefaultASTVisitor {
     public void visit(CallStatement node) throws ASTVisitException {
         ASTElement decl = state.names.procedureSpace.get(node.getName());
 
-        List<Variable> outParam, domain;
+        List<VariableDeclaration> outParam, domain;
         if (decl instanceof ProcedureDeclaration) {
             outParam = ((ProcedureDeclaration) decl).getOutParameters();
             domain = ((ProcedureDeclaration) decl).getInParameters();
@@ -402,7 +402,7 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(PartialLessExpression node) throws ASTVisitException {
+    public void visit(ExtendsExpression node) throws ASTVisitException {
         expect(node.getOperands().get(0), node.getOperands().get(1));
 
         for (ASTElement e : node.getChildren())
@@ -552,7 +552,7 @@ public final class TypeChecker extends DefaultASTVisitor {
         if (state.typeMap.get(node) == null)
             error("codeexpression has no return statement!", node);
 
-        for (SpecBlock b : node.getSpecs())
+        for (CodeBlock b : node.getCode())
             if (null != state.typeMap.get(b))
                 expect(node, b);
 
@@ -561,7 +561,7 @@ public final class TypeChecker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(SpecReturnStatement node) throws ASTVisitException {
+    public void visit(CodeExpressionReturn node) throws ASTVisitException {
         expect(node, node.getParent());
 
         for (ASTElement e : node.getChildren())

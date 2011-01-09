@@ -1,1479 +1,52 @@
-/** README
+ /** README
 
 
 Token first
 l----------
 Sever rules have a Token first, which is used to generate usefull feedback in case of errors.
 
-*/
-
-
-options {
-    STATIC = false;
-    UNICODE_INPUT = true;
-    JAVA_UNICODE_ESCAPE = true;
-}
-
-/*---------------------------------------------------------------------------
+*/options{  STATIC = false;  UNICODE_INPUT = true;  JAVA_UNICODE_ESCAPE = true;}/*---------------------------------------------------------------------------
 // BoogiePL -
-//--------------------------------------------------------------------------*/
-
-
-PARSER_BEGIN(BPLParser)
-package de.uka.iti.pseudo.parser.boogie;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-
-import de.uka.iti.pseudo.parser.boogie.ast.*;
-
-// used for main
-import de.uka.iti.pseudo.parser.boogie.environment.EnvironmentCreationState;
-
-// we dont want warnings here, as the code is created by a generator
-@SuppressWarnings("all")
-public class BPLParser {
-
-    public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException {
-       return parseFile(new FileReader(file), file.getPath());
-    }
-    
-    public CompilationUnit parseURL(URL url) throws ParseException, IOException {
-        Reader reader = new InputStreamReader(url.openStream());
-        return parseFile(reader, url.toString());
-     }
-    
-    public CompilationUnit parseFile(Reader reader, String filename) throws ParseException {
-        ReInit(reader);
-        CompilationUnit result = parse(filename);
-        result.setFilename(filename);
-        return result;
-    }
-
-    /**
+//--------------------------------------------------------------------------*/PARSER_BEGIN(BPLParser)package de.uka.iti.pseudo.parser.boogie;import java.io.File;import java.io.FileInputStream;import java.io.FileNotFoundException;import java.io.FileReader;import java.io.IOException;import java.io.InputStreamReader;import java.io.Reader;import java.net.URL;import java.util.LinkedList;import java.util.List;import de.uka.iti.pseudo.parser.boogie.ast.*;// used for main
+import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;// we dont want warnings here, as the code is created by a generator
+@ SuppressWarnings("all") public class BPLParser{  public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException  {    return parseFile(new FileReader(file), file.getPath());  }  public CompilationUnit parseURL(URL url) throws ParseException, IOException  {    Reader reader = new InputStreamReader(url.openStream());    return parseFile(reader, url.toString());  }  public CompilationUnit parseFile(Reader reader, String filename) throws ParseException  {    ReInit(reader);    CompilationUnit result = parse(filename);    result.setFilename(filename);    return result;  }  /**
     * Try to prove all problems supplied in args as paths to their defining files.
-    */
-    public static void main(String args[]) throws FileNotFoundException, ParseException {
-        for(int i = 0; i < args.length; i++){    
-            BPLParser p = new BPLParser(new FileInputStream(args[i]));
-            EnvironmentCreationState creator = new EnvironmentCreationState(p.parse(args[i]));
-            
-            creator.make();
-        }
-    }
-}
-
-PARSER_END(BPLParser)
-
-TOKEN : {
-  < #LETTER : ["A" - "Z", "a" - "z"] >
-| < #DIGIT : ["0" - "9"] >
-| < #SPECIAL : ["'", "~", "#", "$", "^", "_", ".", "?", "`"] >
-| < #GLYPH : ["`", "~", "!", "@", "#", "$", "%", "^", "&", "*", 
-              "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", 
-          "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", 
-          "\\"] >
-| < #NONDIGIT : (<LETTER> | <SPECIAL>) >
-}
-
-/* Skip whitespace */
-SKIP : { " " | "\t" | "\n" | "\r" }
-
-
-/* Comments */
-// TODO NESTING
-SKIP :
-{
-  < SINGLE_LINE_COMMENT: "//" ( ~["\n", "\r"] )* >
-| < MULTI_LINE_COMMENT: "/*" ( ~["*"] | ( ( "*" )+ ~["*", "/"] ) )* "*/" >
-}
-
-/* Reserved words */
-TOKEN : {
-  < VAR: "var">
-| < WHERE: "where">
-| < INT: "int">
-| < BOOL: "bool">
-| < BVTYPE: "bv" ( <DIGIT> )+ >
-| < CONST: "const">
-| < UNIQUE: "unique">
-| < EXTENDS: "extends">
-| < COMPLETE: "complete">
-| < FUNCTION: "function">
-| < RETURNS: "returns">
-//| < INLINE: "inline">   seems not to be a keyword anymore
-| < AXIOM: "axiom">
-| < TYPE: "type">
-| < PROCEDURE: "procedure">
-| < IMPLEMENTATION: "implementation">
-| < MODIFIES: "modifies">
-| < FREE: "free">
-| < REQUIRES: "requires">
-| < ENSURES: "ensures">
-| < GOTO: "goto">
-| < RETURN: "return">
-| < IF: "if" >
-| < THEN: "then" >
-| < ELSE: "else" >
-| < WHILE: "while">
-| < INVARIANT: "invariant">
-| < BREAK: "break">
-| < ASSERT: "assert">
-| < ASSUME: "assume">
-| < HAVOC: "havoc">
-| < CALL: "call">
-| < FALSE: "false">
-| < TRUE: "true">
-| < OLD: "old">
-}
-
-
-/* Operators */
-// TODO operator tokens, to make generated parser more readable
-TOKEN: {
-  < OP_ASSIGN: ":=" >
-| < OP_MUL: "*" >
-| < OP_FORALL: "forall" | "\u2200" >
-| < OP_EXISTS: "exists" | "\u2203" >
-| < OP_LAMBDA: "lambda" | "\u03bb" >
-| < OP_SEP: "::" | "\u2022" >
-| < OP_AND: "&&" | "\u2227" >
-| < OP_OR: "||" | "\u2228" >
-| < OP_NEGATION: "!" | "\u00ac" >
-}
-
-/* Separators */
-// Separator tokens are only specified to make the generated parser more readable
-TOKEN: {
-  < SEP_RCURLY: "}" >
-| < SEP_LCURLY: "{" >
-| < SEP_RBRACKET: "]" >
-| < SEP_LBRACKET: "[" >
-}
-
-/* Literals / Identifiers*/
-TOKEN: {
-  < IDENT: ("\\")? <NONDIGIT> ( <NONDIGIT> | <DIGIT> )* >
-| < BVLIT: ( <DIGIT> )+ "bv" ( <DIGIT> )+ >
-| < STRING: "\"" ( ~["\"","\\","\n","\r"] )* "\"" >
-| < FLOAT: ( <DIGIT> )+ "." ( <DIGIT> )+ > 
-| < INTEGER : ( <DIGIT> )+ >
-}
-
-/*---------------------------------------------------------------------------
+    */  public static void main(String args []) throws FileNotFoundException, ParseException  {    for (int i = 0; i < args.length; i++)    {      BPLParser p = new BPLParser(new FileInputStream(args [i]));      EnvironmentCreationState creator = new EnvironmentCreationState(p.parse(args [i]));      creator.make();    }  }}PARSER_END(BPLParser)TOKEN :{  < #LETTER : [ "A"-"Z", "a"-"z" ] >| < #DIGIT : [ "0"-"9" ] >| < #SPECIAL : [ "'", "~", "#", "$", "^", "_", ".", "?", "`" ] >| < #GLYPH : [ "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", "\\" ] >| < #NONDIGIT :    (      < LETTER >    | < SPECIAL >    ) >}/* Skip whitespace */SKIP :{  " "| "\t"| "\n"| "\r"}/* Comments */// TODO NESTING
+SKIP :{  < SINGLE_LINE_COMMENT : "//" (~[ "\n", "\r" ])* >| < MULTI_LINE_COMMENT :    "/*"    (      ~[ "*" ]    |      (        ("*")+ ~[ "*", "/" ]      )    )*    "*/" >}/* Reserved words */TOKEN :{  < VAR : "var" >| < WHERE : "where" >| < INT : "int" >| < BOOL : "bool" >| < BVTYPE : "bv" (< DIGIT >)+ >| < CONST : "const" >| < UNIQUE : "unique" >| < EXTENDS : "extends" >| < COMPLETE : "complete" >| < FUNCTION : "function" >| < RETURNS : "returns" >  //| < INLINE: "inline">   seems not to be a keyword anymore
+| < AXIOM : "axiom" >| < TYPE : "type" >| < PROCEDURE : "procedure" >| < IMPLEMENTATION : "implementation" >| < MODIFIES : "modifies" >| < FREE : "free" >| < REQUIRES : "requires" >| < ENSURES : "ensures" >| < GOTO : "goto" >| < RETURN : "return" >| < IF : "if" >| < THEN : "then" >| < ELSE : "else" >| < WHILE : "while" >| < INVARIANT : "invariant" >| < BREAK : "break" >| < ASSERT : "assert" >| < ASSUME : "assume" >| < HAVOC : "havoc" >| < CALL : "call" >| < FALSE : "false" >| < TRUE : "true" >| < OLD : "old" >}/* Operators */// TODO operator tokens, to make generated parser more readable
+TOKEN :{  < OP_ASSIGN : ":=" >| < OP_MUL : "*" >| < OP_FORALL :    "forall"  | "\u2200" >| < OP_EXISTS :    "exists"  | "\u2203" >| < OP_LAMBDA :    "lambda"  | "\u03bb" >| < OP_SEP :    "::"  | "\u2022" >| < OP_AND :    "&&"  | "\u2227" >| < OP_OR :    "||"  | "\u2228" >| < OP_NEGATION :    "!"  | "\u00ac" >}/* Separators */// Separator tokens are only specified to make the generated parser more readable
+TOKEN :{  < SEP_RCURLY : "}" >| < SEP_LCURLY : "{" >| < SEP_RBRACKET : "]" >| < SEP_LBRACKET : "[" >}/* Literals / Identifiers*/TOKEN :{  < IDENT :    ("\\")? < NONDIGIT >    (      < NONDIGIT >    | < DIGIT >    )* >| < BVLIT : (< DIGIT >)+ "bv" (< DIGIT >)+ >| < STRING : "\"" (~[ "\"", "\\", "\n", "\r" ])* "\"" >| < FLOAT : (< DIGIT >)+ "." (< DIGIT >)+ >| < INTEGER : (< DIGIT >)+ >}/*---------------------------------------------------------------------------
 // BoogiePL -
-//--------------------------------------------------------------------------*/
-
-/*------------------------------------------------------------------------*/
-CompilationUnit parse(String name)
-:{
-    DeclarationBlock block;
-    List<DeclarationBlock> declarations = new LinkedList<DeclarationBlock>();
-} { 
-  (
-      ( block=Consts()             
-      | block=Function()           
-      | block=Axiom()              
-      | block=UserDefinedTypes()   
-      | block=GlobalVars()         
-      | block=Procedure()  
-      | block=Implementation()   
-      ){declarations.add(block);}
-  )*
-  <EOF>
-  { return new CompilationUnit(name, declarations); } 
-}
-
-/*------------------------------------------------------------------------*/
-GlobalVariableDeclaration GlobalVars()
-:{
-    Token first;
-    List<Attribute> attr;
-    List<Variable> vars;
-} { 
-  first="var"  attr=AttributeList()
-  
-  vars=IdsTypeWheres(false, false, false) ";"
-  
-  { return new GlobalVariableDeclaration(first, attr, vars); }
-}
-
-LocalVariableDeclaration LocalVars()
-:{
-    Token first;
-    List<Attribute> attr;
-    List<Variable> vars;
-} { 
-  first="var"
-  attr=AttributeList()
-  vars=IdsTypeWheres(false, false, false) ";"
-  
-  { return new LocalVariableDeclaration(first, attr, vars); }
-}
-
-List<Variable> ProcFormals(boolean isConstant)
-:{
-List<Variable> vars = new LinkedList<Variable>();
-} { 
-  "("
-  ( vars=IdsTypeWheres(isConstant, false, false) )?
-  ")"
-  {return vars;}
-}
-
-List<Variable> BoundVars()
-:{
-    List<Variable> rval;
-} { 
-  rval=IdsTypeWheres(false, false, true)
-  
-  {return rval;}  
-}
-
-/*------------------------------------------------------------------------*/
-/* IdsType is used with const declarations */
-List<Variable> IdsType(boolean isConstant, boolean isUnique)
-:{
-    List<Token> names;
-    Type t;
-} { 
-  names=Idents() ":" t=Type()
-  {
-    List<Variable> rval = new LinkedList<Variable>();
-    for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, isUnique, false, null));
-        
-    return rval; 
-  }
-}
-
-/* IdsTypeWheres is used with the declarations of global and local variables,
-   procedure parameters, and quantifier bound variables. */
-List<Variable> IdsTypeWheres(boolean isConstant, boolean isUnique, boolean isQuantified)
-:{
-    List<Variable> rval,tmp;
-} {
-  rval=IdsTypeWhere(isConstant, isUnique, isQuantified)
-  ( "," tmp=IdsTypeWhere(isConstant, isUnique, isQuantified) {rval.addAll(tmp);} )*
-  
-  { return rval; }
-}
-
-List<Variable> IdsTypeWhere(boolean isConstant, boolean isUnique, boolean isQuantified)
-:{
-    List<Token> names;
-    Type t;
-    Expression e = null;
-} { 
-  names=Idents() ":" t=Type()
-  ( "where" e=Expression()  
-  )?
-  
-  {
-    List<Variable> rval = new LinkedList<Variable>();
-    for(Token name : names)
-        rval.add(new Variable(name, t, isConstant, isUnique, isQuantified, e));
-        
-    return rval; 
-  }
-}
-
-/*------------------------------------------------------------------------*/
-Type Type()
-:{
-    Type t;
-} { 
-  ( t=TypeAtom()
-  | (
-    {
-        Token name;
-        //types needs initialization because TypeArgs is optional
-        List<Type> types = new LinkedList<Type>();
-    }
-    name=<IDENT>       
-    ( types=TypeArgs() )?
-    { return new TemplateType(name, types); }
-    )   
-  | t=MapType()
-  )
-  { return t; }
-}
-
-List<Type> TypeArgs()
-:{
-    Type t;
-    List<Type> rval = new LinkedList<Type>(), tmp;
-} { 
-  (
-    t=TypeAtom() { rval.add(t); }     
-    ( tmp=TypeArgs() {rval.addAll(tmp);} )?
-  |
-    // this is to be interpreted as an TemplateType without arguments
-    { Token name; }
-    name=<IDENT> {
-        rval.add(new TemplateType(name, new LinkedList<Type>()));
-    }      
-    ( tmp=TypeArgs() {rval.addAll(tmp);} )?
-  |
-    t=MapType() {rval.add(t);}
-  )
-  
-  { return rval; }
-}
-
-Type TypeAtom()
-:{
-    Token t;
-    Type rval;
-} { 
-  (( t="int"
-  | t="bool"
-  | t=<BVTYPE>
-  ) { return new BuiltInType(t); }
-  | "(" rval=Type() ")" {return rval;}
-  )
-}
-
-MapType MapType()
-:{
-    Token first=null,tmp;
-    List<Token> params = new LinkedList<Token>();
-    List<Type> domain = new LinkedList<Type>();
-    Type range;
-} { 
-  ( 
-  first="<"
-    params=Idents()
-  ">"
-  )?
-  tmp="[" {if(null==first)first=tmp;}                                 
-    ( domain=Types() )?
-  "]"
-  range=Type()
- 
-  {return new MapType(first, params, domain, range);}
-}
-
-List<Token> TypeParams()
-:{
-    List<Token> L;
-} { 
-  "<"    
-    L=Idents()
-  ">"
-  {return L;}
-  
-}
-
-List<Type> Types()
-:{
-    Type t;
-    List<Type> types = new LinkedList<Type>();
-} { 
-  t=Type() { types.add(t); }
-  ( "," t=Type() { types.add(t); }
-  )*
-  {return types;}
-}
-
-
-/*------------------------------------------------------------------------*/
-ConstantDeclaration Consts() 
-:{
-    Token first;
-    List<Attribute> attributes;
-    Boolean unique = false;
-    List<Variable> varnames;
-    OrderSpecification spec = null;
-} { 
-  first = "const"
-  attributes = AttributeList()
-  ( "unique" {unique = true;}
-  )?
-  varnames = IdsType(true, unique)
-  ( spec=OrderSpec() )?
-  
-  ";"
-  { return new ConstantDeclaration(first, attributes, unique, varnames, spec); }
-}
-
-
-OrderSpecification OrderSpec()
-:{
-    Token first,name;
-    List<OrderSpecParent> parents = new LinkedList<OrderSpecParent>();
-    boolean unique = false;
-    boolean complete = false;
-} { 
-  first="extends"                
-  (
-    ( "unique" {unique=true;} )?
-    name=<IDENT>
-    { parents.add(new OrderSpecParent(unique, name)); unique = false; }
-    (
-      ","
-      ( "unique" {unique=true;} )?
-      name=<IDENT>
-      { parents.add(new OrderSpecParent(unique, name)); unique = false; } 
-    )*
-  )?
-  
-  ("complete" {complete=true;})?
-  
-  { return new OrderSpecification(first, parents, complete); }
-}
-
-/*------------------------------------------------------------------------*/
-
-
-FunctionDeclaration Function()
-:{
-    //throw new ParseException("implement signature");
-    
-    Token first;
-    List<Attribute> attributes;
-    Token name;
-    
-    List<Token> typeParameters = new LinkedList<Token>();
-    Variable var;
-    List<Variable> inParam = new LinkedList<Variable>();
-    Variable outParam;
-    
-    Type tmp;
-    
-    Expression expression=null;
-} { 
-  first="function" attributes=AttributeList() name=<IDENT> 
-  ( typeParameters=TypeParams() )?
-  
-  "("
-  
-      ( var=VarOrType("in_"+inParam.size()) {inParam.add(var);}    
-        ( "," var=VarOrType("in_"+inParam.size()) {inParam.add(var);})* 
-      )?
-  ")"
-  
-  ( 
-    "returns" "(" outParam=VarOrType("rval") ")" 
-    | 
-    ":" tmp=Type() { outParam = new Variable("rval", tmp, false, false, false, null); }
-  )
-  
-  ( "{" expression=Expression()  "}" | ";" )
-  
-  { return new FunctionDeclaration(first, attributes, name, typeParameters, inParam, outParam, expression); }
-}
-
-Variable VarOrType(String optName)
-:{
-    ASTElement rval;
-    Type tmp;
-} { 
-  rval=Type()
-  ( ":"           
-    tmp=Type()
-    {
-        if(!(rval instanceof TemplateType))
-            throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString()); 
-            
-        rval = new Variable(((TemplateType)rval).getLocationToken(), tmp, false, false, false, null);
-    }
-  )?
-  {
-    if(!(rval instanceof Variable))
-        rval = new Variable(optName, (Type)rval, false, false, false, null);
-    return (Variable)rval;
-  }
-}
-
-/*------------------------------------------------------------------------*/
-AxiomDeclaration Axiom()
-:{
-    Token first;
-    List<Attribute> attributes;
-    Expression axiom;
-} { 
-  (first = "axiom"
-    attributes=AttributeList()
-   
-  axiom = Expression() ";")
-  { return new AxiomDeclaration(first, attributes, axiom); }
-}
-
-/*------------------------------------------------------------------------*/
-UserDefinedTypeDeclaration UserDefinedTypes()
-:{
-    Token first;
-    List<Attribute> attr;
-    List<UserTypeDefinition> typedefs = new LinkedList<UserTypeDefinition>();
-    UserTypeDefinition t;
-} { 
-  first="type"
-  attr=AttributeList()
-  t=UserDefinedType() {typedefs.add(t);}          
-  ( "," t=UserDefinedType() {typedefs.add(t);} )*
-  ";"
-  
-  { return new UserDefinedTypeDeclaration(first, attr, typedefs); }
-}
-
-UserTypeDefinition UserDefinedType()
-:{
-    Token name;
-    List<String> argnames = new LinkedList<String>();
-    Type parent = null;
-} { 
-  name=<IDENT>
-  ( argnames=WhiteSpaceIdents() )?
-  (
-    "=" parent=Type()
-    
-  )?
-  
-  { return new UserTypeDefinition(name, argnames, parent); }
-}
-
-
-/*------------------------------------------------------------------------*/
-ProcedureDeclaration Procedure()
-:{
-    Token first, name;
-    List<Attribute> attr;
-    List<Token> typeParameters = new LinkedList<Token>();
-    List<Variable> inParam, outParam = new LinkedList<Variable>();
-    
-    Specification S;
-    List<Specification> specs = new LinkedList<Specification>();
-    
-    ProcedureBody body=null;
-} {
-  first="procedure"
-  (
-      attr=AttributeList()
-      name=<IDENT>
-      ( typeParameters=TypeParams() )?
-      inParam=ProcFormals(true)
-      ( "returns" outParam=ProcFormals(false) )?
-  )
-  
-  (
-    // call by contract 
-    ";" (S=Spec(){specs.add(S);})*
-  | 
-    // call by implementation or contract
-    (S=Spec(){specs.add(S);})* (body=ImplBody())?
-  )
-  
-  { return new ProcedureDeclaration(first, attr, name, typeParameters, inParam, outParam, specs, body); }
-}
-
-
-ProcedureImplementation Implementation()
-:{
-    Token first, name;
-    List<Attribute> attr;
-    List<Token> typeParameters = new LinkedList<Token>();
-    List<Variable> inParam, outParam = new LinkedList<Variable>();
-    ProcedureBody body;
-} { 
-
-  first="implementation"
-  (
-      attr=AttributeList()
-      name=<IDENT>
-      ( typeParameters=TypeParams() )?
-      inParam=ProcFormals(true)
-      ( "returns" outParam=ProcFormals(false) )?
-  )
-  body=ImplBody()
-  {return new ProcedureImplementation(first, attr, name, typeParameters, inParam, outParam, body);}
-}
-
-
-Specification Spec()
-:{
-    Token first=null, tmp;
-    List<Token> targets = null;
-    Expression expr;
-    List<Attribute> attr;
-} { 
-  ( 
-    first="modifies" ( targets=Idents() )? ";"
-    { return new ModifiesClause(first, targets); }
-  | 
-    (
-      ( first="free" )?
- 
-      ( 
-        tmp="requires"
-        attr=AttributeList()
-        expr=Expression() ";"
-        {
-            if(null==first)
-                return new Precondition(tmp, false, attr, expr); // checked condition
-            else
-                return new Precondition(first, true, attr, expr);
-        }
-      | 
-        tmp="ensures"               
-        attr=AttributeList()
-        expr=Expression() ";"
-        {
-            if(null==first)
-                return new Postcondition(tmp, false, attr, expr); // checked condition
-            else
-                return new Postcondition(first, true, attr, expr);
-        }
-      )
-    )  
-  )
-}
-
-/*------------------------------------------------------------------------*/
-
-ProcedureBody ImplBody()
-:{
-    Token first;
-    LocalVariableDeclaration var;
-    List<LocalVariableDeclaration> vars = new LinkedList<LocalVariableDeclaration>();
-    List<Statement> statements; 
-} { 
-  first="{"
-  ( var=LocalVars() {vars.add(var);})*
-  statements=StmtList()
-  
-  {return new ProcedureBody(first,vars, statements);}
-}
-
-/* the StmtList also reads the final curly brace */
-List<Statement> StmtList()
-:{
-    Statement s;
-    List<Statement> rval = new LinkedList<Statement>();
-} { 
-
-  ((
-    s=LabelOrCmd()
-  | s=StructuredCmd()
-  | s=TransferCmd()
-  ){rval.add(s);})*
-  
-  "}"
-  {return rval;}
-}
-
-Statement TransferCmd()
-:{
-    Statement rval;
-    Token first;
-} { 
-  (
-    {List<Token> destinations;}
-    first="goto"
-    destinations=Idents()
-    { rval = new GotoStatement(first, destinations); }     
-  | 
-    first="return"
-    { rval = new ReturnStatement(first); }
-  ) ";"
-  { return rval; }
-}
-
-Statement StructuredCmd()
-:{
-    Statement rval;
-} { 
-  ( rval=IfCmd() 
-  | rval=WhileCmd()  
-  | rval=BreakCmd()  
-  )
-  { return rval; }
-}
-
-IfStatement IfCmd()
-:{
-    Token first;
-    List<Statement> then, _else = null;
-    Expression guard;
-} { 
-  first="if"
-  guard=Guard()
-  "{" then=StmtList()
-  ( "else"
-    ( 
-      {Statement s;}
-      s=IfCmd()
-      {_else = new LinkedList<Statement>(); _else.add(s);}      
-    | 
-      "{"
-      _else=StmtList()      
-    )
-  )?
-  { return new IfStatement(first, guard, then, _else); }
-}
-
-WhileStatement WhileCmd()
-:{
-    Token first;
-    Expression guard;
-    List<LoopInvariant> invariants = new LinkedList<LoopInvariant>();
-    List<Statement> body;
-} { 
-  first="while"             
-  guard=Guard()
-  ( 
-    {
-      boolean free = false;
-      Expression expr;
-    }                  
-    ( "free" {free=true;}          
-    )?
-    "invariant"
-    expr=Expression() 
-    ";"
-    {invariants.add(new LoopInvariant(free, expr));}
-  )*
-  "{"
-  body=StmtList()
-  { return new WhileStatement(first, guard, invariants, body); }
-}
-
-//! returns null iff the guard is a wildcard and an expression else
-Expression Guard()
-:{
-    Token first;
-    Expression e;
-} { 
-  "("
-  ( first="*" {e=new WildcardExpression(first);}                   
-  | e=Expression()    
-  )
-  ")"
-  { return e; }
-}
-
-BreakStatement BreakCmd()
-:{
-    Token first;
-    Token target=null;
-} { 
-  first="break"             
-  ( target=<IDENT>      
-  )? ";"   
-  { return new BreakStatement(first, target); }            
-}
-
-/*------------------------------------------------------------------------*/
-
-Statement LabelOrCmd()
-/* ensures (c == null) != (label != null) */
-:{
-    Statement rval;
-    Token first;
-    List<Attribute> attr;
-    Expression expr;
-    List<Token> vars;
-} { 
-  ( 
-    rval=LabelOrAssign()
-  | 
-    first="assert"              
-    attr=AttributeList()
-    expr=Expression()    
-    ";"
-    { rval = new AssertionStatement(first, attr, expr); }
-  | 
-    first="assume"              
-    expr=Expression()    
-    ";"
-    { rval = new AssumptionStatement(first, expr); } 
-  | 
-    first="havoc"               
-    vars=Idents() ";"
-    { rval = new HavocStatement(first, vars); }    
-  | 
-    rval=CallCmd() ";"  
-  )
-  
-  {return rval;}
-}
-
-/*------------------------------------------------------------------------*/
-
-Statement LabelOrAssign()
-:{
-    Token tmp;
-    List<Token> locations = new LinkedList<Token>();
-    
-    Expression expr;
-    List<Expression> arguments, RValues = new LinkedList<Expression>(), LValues = new LinkedList<Expression>();
-} { 
-  tmp=<IDENT>
-  (
-    ":"                      
-    {return new LabelStatement(tmp); }
-  | 
-    {
-      locations.add(tmp);
-      expr = new VariableUsageExpression(tmp);
-    }
-    ( arguments=MapAssignIndex() { expr = new MapAccessExpression(expr, arguments);})*
-    { LValues.add(expr); }
-
-    ( ","
-      tmp=<IDENT>
-      
-    {
-      locations.add(tmp);
-      expr = new VariableUsageExpression(tmp);
-    }
-    ( arguments=MapAssignIndex() { expr = new MapAccessExpression(expr, arguments);})*
-    { LValues.add(expr); }
-      
-    )*
-
-    ":="                     
-    expr=Expression() {RValues.add(expr);}
-    ( ","
-      expr=Expression() {RValues.add(expr);}     
-    )*
-    ";"
-    {
-        if(LValues.size()!=RValues.size())
-            throw new ParseException("found missmatched AssignmentStatement");
-            
-        List<SimpleAssignment> rval = new LinkedList<SimpleAssignment>();
-        for(int i = 0; i < LValues.size(); i++)
-            rval.add(new SimpleAssignment(locations.get(i),LValues.get(i),RValues.get(i)));
-    
-        return new AssignmentStatement(rval);
-    }                      
-  )
-}
-
-List<Expression> MapAssignIndex()
-:{
-    Expression ex;
-    List<Expression> rval = new LinkedList<Expression>();
-} { 
-  "["                        
-    (
-      ex=Expression() {rval.add(ex);}      
-      ( "," ex=Expression() {rval.add(ex);} )*
-    )?
-  "]"
-  
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-
-/*
+//--------------------------------------------------------------------------*//*------------------------------------------------------------------------*/CompilationUnit parse(String name) :{  DeclarationBlock block;  List < DeclarationBlock > declarations = new LinkedList < DeclarationBlock > ();}{  (    (      block = Consts()    | block = Function()    | block = Axiom()    | block = UserDefinedTypes()    | block = GlobalVars()    | block = Procedure()    | block = Implementation()    )    {      declarations.add(block);    }  )*  < EOF >  {    return new CompilationUnit(name, declarations);  }}/*------------------------------------------------------------------------*/GlobalVariableDeclaration GlobalVars() :{  Token first;  List < Attribute > attr;  List < VariableDeclaration > vars;}{  first = "var" attr = AttributeList()   vars = IdsTypeWheres(false, false, false) ";"  {    return new GlobalVariableDeclaration(first, attr, vars);  }}LocalVariableDeclaration LocalVars() :{  Token first;  List < Attribute > attr;  List < VariableDeclaration > vars;}{  first = "var" attr = AttributeList() vars = IdsTypeWheres(false, false, false) ";"  {    return new LocalVariableDeclaration(first, attr, vars);  }}List < VariableDeclaration > ProcFormals(boolean isConstant) :{  List < VariableDeclaration > vars = new LinkedList < VariableDeclaration > ();}{  "("  (    vars = IdsTypeWheres(isConstant, false, false)  )?  ")"  {    return vars;  }}List < VariableDeclaration > BoundVars() :{  List < VariableDeclaration > rval;}{  rval = IdsTypeWheres(false, false, true)  {    return rval;  }}/*------------------------------------------------------------------------*//* IdsType is used with const declarations */List < VariableDeclaration > IdsType(boolean isConstant, boolean isUnique) :{  List < Token > names;  Type t;}{  names = Idents() ":" t = Type()  {    List < VariableDeclaration > rval = new LinkedList < VariableDeclaration > ();    for (Token name : names) rval.add(new VariableDeclaration(name, t, isConstant, isUnique, false, null));    return rval;  }}/* IdsTypeWheres is used with the declarations of global and local variables,
+   procedure parameters, and quantifier bound variables. */List < VariableDeclaration > IdsTypeWheres(boolean isConstant, boolean isUnique, boolean isQuantified) :{  List < VariableDeclaration > rval, tmp;}{  rval = IdsTypeWhere(isConstant, isUnique, isQuantified)  (    "," tmp = IdsTypeWhere(isConstant, isUnique, isQuantified)    {      rval.addAll(tmp);    }  )*  {    return rval;  }}List < VariableDeclaration > IdsTypeWhere(boolean isConstant, boolean isUnique, boolean isQuantified) :{  List < Token > names;  Type t;  Expression e = null;}{  names = Idents() ":" t = Type()  (    "where" e = Expression()  )?  {    List < VariableDeclaration > rval = new LinkedList < VariableDeclaration > ();    for (Token name : names) rval.add(new VariableDeclaration(name, t, isConstant, isUnique, isQuantified, e));    return rval;  }}/*------------------------------------------------------------------------*/Type Type() :{  Type t;}{  (    t = TypeAtom()  |    (      {        Token name;        //types needs initialization because TypeArgs is optional
+        List < Type > types = new LinkedList < Type > ();      }      name = < IDENT >      (        types = TypeArgs()      )?      {        return new TemplateType(name, types);      }    )  | t = MapType()  )  {    return t;  }}List < Type > TypeArgs() :{  Type t;  List < Type > rval = new LinkedList < Type > (), tmp;}{  (    t = TypeAtom()    {      rval.add(t);    }    (      tmp = TypeArgs()      {        rval.addAll(tmp);      }    )?  |    // this is to be interpreted as an TemplateType without arguments
+    {      Token name;    }    name = < IDENT >    {      rval.add(new TemplateType(name, new LinkedList < Type > ()));    }    (      tmp = TypeArgs()      {        rval.addAll(tmp);      }    )?  | t = MapType()    {      rval.add(t);    }  )  {    return rval;  }}Type TypeAtom() :{  Token t;  Type rval;}{  (    (      t = "int"    | t = "bool"    | t = < BVTYPE >    )    {      return new BuiltInType(t);    }  | "(" rval = Type() ")"    {      return rval;    }  )}MapType MapType() :{  Token first = null, tmp;  List < Token > params = new LinkedList < Token > ();  List < Type > domain = new LinkedList < Type > ();  Type range;}{  (    first = "<" params = Idents() ">"  )?  tmp = "["  {    if (null == first) first = tmp;  }  (    domain = Types()  )?  "]" range = Type()  {    return new MapType(first, params, domain, range);  }}List < Token > TypeParams() :{  List < Token > L;}{  "<" L = Idents() ">"  {    return L;  }}List < Type > Types() :{  Type t;  List < Type > types = new LinkedList < Type > ();}{  t = Type()  {    types.add(t);  }  (    "," t = Type()    {      types.add(t);    }  )*  {    return types;  }}/*------------------------------------------------------------------------*/ConstantDeclaration Consts() :{  Token first;  List < Attribute > attributes;  Boolean unique = false;  List < VariableDeclaration > varnames;  // used if extends is present
+  Token ext, name;  List < ExtendsParent > parents = new LinkedList < ExtendsParent > ();  boolean unique_edge = false;  boolean complete = false;}{  first = "const" attributes = AttributeList() ("unique"  {    unique = true;  }  )? varnames = IdsType(true, unique)  (    ext = "extends"    (      ("unique"      {        unique_edge = true;      }      )? name = < IDENT >      {        parents.add(new ExtendsParent(unique_edge, name));        unique_edge = false;      }      (        "," ("unique"        {          unique_edge = true;        }        )? name = < IDENT >        {          parents.add(new ExtendsParent(unique_edge, name));          unique_edge = false;        }      )*    )?    ("complete"    {      complete = true;    }    )?  )?  ";"  {    return new ConstantDeclaration(first, attributes, unique, varnames, parents, complete);  }}/*------------------------------------------------------------------------*/FunctionDeclaration Function() :{  //throw new ParseException("implement signature");
+  Token first;  List < Attribute > attributes;  Token name;  List < Token > typeParameters = new LinkedList < Token > ();  VariableDeclaration var;  List < VariableDeclaration > inParam = new LinkedList < VariableDeclaration > ();  VariableDeclaration outParam;  Type tmp;  Expression expression = null;}{  first = "function" attributes = AttributeList() name = < IDENT >  (    typeParameters = TypeParams()  )?  "("  (    var = VarOrType    (      "in_"+ inParam.size()    )    {      inParam.add(var);    }    (      "," var = VarOrType      (        "in_"+ inParam.size()      )      {        inParam.add(var);      }    )*  )?  ")"  (    "returns" "(" outParam = VarOrType("rval") ")"  | ":" tmp = Type()    {      outParam = new VariableDeclaration("rval", tmp, false, false, false, null);    }  )  (    "{" expression = Expression() "}"  | ";"  )  {    return new FunctionDeclaration(first, attributes, name, typeParameters, inParam, outParam, expression);  }}VariableDeclaration VarOrType(String optName) :{  ASTElement rval;  Type tmp;}{  rval = Type()  (    ":" tmp = Type()    {      if (!(rval instanceof TemplateType)) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());      rval = new VariableDeclaration(((TemplateType) rval).getLocationToken(), tmp, false, false, false, null);    }  )?  {    if (!(rval instanceof VariableDeclaration)) rval = new VariableDeclaration(optName, (Type) rval, false, false, false, null);    return (VariableDeclaration) rval;  }}/*------------------------------------------------------------------------*/AxiomDeclaration Axiom() :{  Token first;  List < Attribute > attributes;  Expression axiom;}{  (    first = "axiom" attributes = AttributeList()     axiom = Expression() ";"  )  {    return new AxiomDeclaration(first, attributes, axiom);  }}/*------------------------------------------------------------------------*/UserDefinedTypeDeclaration UserDefinedTypes() :{  Token first;  List < Attribute > attr;  List < UserTypeDefinition > typedefs = new LinkedList < UserTypeDefinition > ();  UserTypeDefinition t;}{  first = "type" attr = AttributeList() t = UserDefinedType()  {    typedefs.add(t);  }  (    "," t = UserDefinedType()    {      typedefs.add(t);    }  )*  ";"  {    return new UserDefinedTypeDeclaration(first, attr, typedefs);  }}UserTypeDefinition UserDefinedType() :{  Token name;  List < String > argnames = new LinkedList < String > ();  Type parent = null;}{  name = < IDENT >  (    argnames = WhiteSpaceIdents()  )?  (    "=" parent = Type()  )?  {    return new UserTypeDefinition(name, argnames, parent);  }}/*------------------------------------------------------------------------*/ProcedureDeclaration Procedure() :{  Token first, name;  List < Attribute > attr;  List < Token > typeParameters = new LinkedList < Token > ();  List < VariableDeclaration > inParam, outParam = new LinkedList < VariableDeclaration > ();  Specification S;  List < Specification > specs = new LinkedList < Specification > ();  ProcedureBody body = null;}{  first = "procedure"  (    attr = AttributeList() name = < IDENT >    (      typeParameters = TypeParams()    )?    inParam = ProcFormals(true)    (      "returns" outParam = ProcFormals(false)    )?  )  (    // call by contract 
+    ";"    (      S = Spec()      {        specs.add(S);      }    )*  |    // call by implementation or contract
+    (      S = Spec()      {        specs.add(S);      }    )*    (      body = ImplBody()    )?  )  {    return new ProcedureDeclaration(first, attr, name, typeParameters, inParam, outParam, specs, body);  }}ProcedureImplementation Implementation() :{  Token first, name;  List < Attribute > attr;  List < Token > typeParameters = new LinkedList < Token > ();  List < VariableDeclaration > inParam, outParam = new LinkedList < VariableDeclaration > ();  ProcedureBody body;}{  first = "implementation"  (    attr = AttributeList() name = < IDENT >    (      typeParameters = TypeParams()    )?    inParam = ProcFormals(true)    (      "returns" outParam = ProcFormals(false)    )?  )  body = ImplBody()  {    return new ProcedureImplementation(first, attr, name, typeParameters, inParam, outParam, body);  }}Specification Spec() :{  Token first = null, tmp;  List < Token > targets = null;  Expression expr;  List < Attribute > attr;}{  (    first = "modifies"    (      targets = Idents()    )?    ";"    {      return new ModifiesClause(first, targets);    }  |    (      (first = "free")?      (        tmp = "requires" attr = AttributeList() expr = Expression() ";"        {          if (null == first) return new Precondition(tmp, false, attr, expr); // checked condition
+          else return new Precondition(first, true, attr, expr);        }      | tmp = "ensures" attr = AttributeList() expr = Expression() ";"        {          if (null == first) return new Postcondition(tmp, false, attr, expr); // checked condition
+          else return new Postcondition(first, true, attr, expr);        }      )    )  )}/*------------------------------------------------------------------------*/ProcedureBody ImplBody() :{  Token first;  LocalVariableDeclaration var;  List < LocalVariableDeclaration > vars = new LinkedList < LocalVariableDeclaration > ();  List < Statement > statements;}{  first = "{"  (    var = LocalVars()    {      vars.add(var);    }  )*  statements = StmtList()  {    return new ProcedureBody(first, vars, statements);  }}/* the StmtList also reads the final curly brace */List < Statement > StmtList() :{  Statement s;  List < Statement > rval = new LinkedList < Statement > ();}{  (    (      s = LabelOrCmd()    | s = StructuredCmd()    | s = TransferCmd()    )    {      rval.add(s);    }  )*  "}"  {    return rval;  }}Statement TransferCmd() :{  Statement rval;  Token first;}{  (    {      List < Token > destinations;    }    first = "goto" destinations = Idents()    {      rval = new GotoStatement(first, destinations);    }  | first = "return"    {      rval = new ReturnStatement(first);    }  )  ";"  {    return rval;  }}Statement StructuredCmd() :{  Statement rval;}{  (    rval = IfCmd()  | rval = WhileCmd()  | rval = BreakCmd()  )  {    return rval;  }}IfStatement IfCmd() :{  Token first;  List < Statement > then, _else = null;  Expression guard;}{  first = "if" guard = Guard() "{" then = StmtList()  (    "else"    (      {        Statement s;      }      s = IfCmd()      {        _else = new LinkedList < Statement > ();        _else.add(s);      }    | "{" _else = StmtList()    )  )?  {    return new IfStatement(first, guard, then, _else);  }}WhileStatement WhileCmd() :{  Token first;  Expression guard;  List < LoopInvariant > invariants = new LinkedList < LoopInvariant > ();  List < Statement > body;}{  first = "while" guard = Guard()  (    {      boolean free = false;      Expression expr;    }    ("free"    {      free = true;    }    )? "invariant" expr = Expression() ";"    {      invariants.add(new LoopInvariant(free, expr));    }  )*  "{" body = StmtList()  {    return new WhileStatement(first, guard, invariants, body);  }}//! returns null iff the guard is a wildcard and an expression else
+Expression Guard() :{  Token first;  Expression e;}{  "("  (    first = "*"    {      e = new WildcardExpression(first);    }  | e = Expression()  )  ")"  {    return e;  }}BreakStatement BreakCmd() :{  Token first;  Token target = null;}{  first = "break" (target = < IDENT >)? ";"  {    return new BreakStatement(first, target);  }}/*------------------------------------------------------------------------*/Statement LabelOrCmd()  /* ensures (c == null) != (label != null) */:{  Statement rval;  Token first;  List < Attribute > attr;  Expression expr;  List < Token > vars;}{  (    rval = LabelOrAssign()  | first = "assert" attr = AttributeList() expr = Expression() ";"    {      rval = new AssertionStatement(first, attr, expr);    }  | first = "assume" expr = Expression() ";"    {      rval = new AssumptionStatement(first, expr);    }  | first = "havoc" vars = Idents() ";"    {      rval = new HavocStatement(first, vars);    }  | rval = CallCmd() ";"  )  {    return rval;  }}/*------------------------------------------------------------------------*/Statement LabelOrAssign() :{  Token tmp;  List < Token > locations = new LinkedList < Token > ();  Expression expr;  List < Expression > arguments, RValues = new LinkedList < Expression > (), LValues = new LinkedList < Expression > ();}{  tmp = < IDENT >  (    ":"    {      return new LabelStatement(tmp);    }  |    {      locations.add(tmp);      expr = new VariableUsageExpression(tmp);    }    (      arguments = MapAssignIndex()      {        expr = new MapAccessExpression(expr, arguments);      }    )*    {      LValues.add(expr);    }    (      "," tmp = < IDENT >      {        locations.add(tmp);        expr = new VariableUsageExpression(tmp);      }      (        arguments = MapAssignIndex()        {          expr = new MapAccessExpression(expr, arguments);        }      )*      {        LValues.add(expr);      }    )*    ":=" expr = Expression()    {      RValues.add(expr);    }    (      "," expr = Expression()      {        RValues.add(expr);      }    )*    ";"    {      if (LValues.size() != RValues.size()) throw new ParseException("found missmatched AssignmentStatement");      List < SimpleAssignment > rval = new LinkedList < SimpleAssignment > ();      for (int i = 0; i < LValues.size(); i++) rval.add(new SimpleAssignment(locations.get(i), LValues.get(i), RValues.get(i)));      return new AssignmentStatement(rval);    }  )}List < Expression > MapAssignIndex() :{  Expression ex;  List < Expression > rval = new LinkedList < Expression > ();}{  "["  (    ex = Expression()    {      rval.add(ex);    }    (      "," ex = Expression()      {        rval.add(ex);      }    )*  )?  "]"  {    return rval;  }}/*------------------------------------------------------------------------*//*
   Note '*'s in outParams of ordinary call statements mean "dont care". They are
   used to accsess single returnvalues of multidimensional results without storing
   unwanted garbage anywhere.
-*/
-Statement CallCmd()
-:{
-    Token first;
-    List<Attribute> attr;
-    
-    String name;
-    
-    Token tmp;
-    Expression arg;
-    List<Expression> arglist = new LinkedList<Expression>();
-    
-    Token out;
-    List<Token> outParam = new LinkedList<Token>();
-} { 
-    first="call"                          
-    attr=AttributeList()
-    (
-        tmp=<IDENT>
-        (
-            //tmp is name as we got arguments
-            { name = tmp.image; }
-            "("
-            (
-                arg=CallForallArg() {arglist.add(arg);}
-                ( "," arg=CallForallArg() {arglist.add(arg);} )*
-            )?
-            ")"                         
-        |
-            //tmp is the first outParam, as name is specified after ":="
-            { outParam.add(tmp); }  
-            ( "," out=CallOutIdent() {outParam.add(out);} )*
-            ":="
-            tmp=<IDENT> "(" { name=tmp.image; }
-            (
-                arg=CallForallArg() {arglist.add(arg);}
-                ( "," arg=CallForallArg() {arglist.add(arg);} )*
-            )?
-            ")"                        
-        )
-        { return new CallStatement(first, attr, name, outParam, arglist); }
-    |
-        <OP_FORALL>
-        tmp=<IDENT> { name = tmp.image; }
-        "("              
-        (
-            arg=CallForallArg() {arglist.add(arg);}       
-            ( "," arg=CallForallArg() {arglist.add(arg);} )*
-        )?
-        ")"
-        { return new CallForallStatement(first, attr, name, arglist); }                           
-    |
-        out="*" { outParam.add(out); }
-                              
-        ( "," out=CallOutIdent() { outParam.add(out); } )*
-        ":="
-        tmp=<IDENT> "(" { name=tmp.image; }
-        (
-            arg=CallForallArg() {arglist.add(arg);}
-            ( "," arg=CallForallArg() {arglist.add(arg);} )*
-        )?
-        ")"
-        { return new CallStatement(first, attr, name, outParam, arglist); }                         
-    )
-}
-
-/**
+*/Statement CallCmd() :{  Token first;  List < Attribute > attr;  String name;  Token tmp;  Expression arg;  List < Expression > arglist = new LinkedList < Expression > ();  Token out;  List < Token > outParam = new LinkedList < Token > ();}{  first = "call" attr = AttributeList()  (    tmp = < IDENT >    (      //tmp is name as we got arguments
+      {        name = tmp.image;      }      "("      (        arg = CallForallArg()        {          arglist.add(arg);        }        (          "," arg = CallForallArg()          {            arglist.add(arg);          }        )*      )?      ")"    |      //tmp is the first outParam, as name is specified after ":="
+      {        outParam.add(tmp);      }      (        "," out = CallOutIdent()        {          outParam.add(out);        }      )*      ":=" tmp = < IDENT > "("      {        name = tmp.image;      }      (        arg = CallForallArg()        {          arglist.add(arg);        }        (          "," arg = CallForallArg()          {            arglist.add(arg);          }        )*      )?      ")"    )    {      return new CallStatement(first, attr, name, outParam, arglist);    }  | < OP_FORALL > tmp = < IDENT >    {      name = tmp.image;    }    "("    (      arg = CallForallArg()      {        arglist.add(arg);      }      (        "," arg = CallForallArg()        {          arglist.add(arg);        }      )*    )?    ")"    {      return new CallForallStatement(first, attr, name, arglist);    }  | out = "*"    {      outParam.add(out);    }    (      "," out = CallOutIdent()      {        outParam.add(out);      }    )*    ":=" tmp = < IDENT > "("    {      name = tmp.image;    }    (      arg = CallForallArg()      {        arglist.add(arg);      }      (        "," arg = CallForallArg()        {          arglist.add(arg);        }      )*    )?    ")"    {      return new CallStatement(first, attr, name, outParam, arglist);    }  )}/**
 <b>Note</b>: * means throw away variable here.
-*/
-Token CallOutIdent()
-:{
-    Token t;
-} { 
-  ( 
-    t="*"
-  | 
-    t=<IDENT>
-  )
-  {return t;}
-}
-
-Expression CallForallArg()
-:{
-    Token first;
-    Expression expr;
-} { 
-  ( 
-    first="*" { expr = new WildcardExpression(first); }
-  | 
-    expr=Expression()             
-  )
-  { return expr; } 
-}
-
-/*------------------------------------------------------------------------*/
-List<Token> Idents()
-:{
-    Token n;
-    List<Token> rval = new LinkedList<Token>();
-} { 
-  n=<IDENT> { rval.add(n); }           
-  ( "," n=<IDENT> { rval.add(n); }
-  )*
-  {return rval;}
-}
-
-/*------------------------------------------------------------------------*/
-List<String> WhiteSpaceIdents()
-:{
-    Token t;
-    List<String> rval = new LinkedList<String>();
-} {                
-  (t=<IDENT> {rval.add(t.image);}               
-  )+
-  {return rval;}
-}
-
-/*------------------------------------------------------------------------*/
-Expression Expression()
-:{
-    Token loc;
-    Expression rval, tmp;
-} { 
-  rval=ImpliesExpression()
-  (
-    (loc="<==>" | loc="\u21d4")
-    tmp=ImpliesExpression()
-    { rval = new EquivalenceExpression(loc,rval,tmp); }
-  )*
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression ImpliesExpression()
-:{
-    Token loc;
-    Expression rval, tmp;
-} { 
-  rval=LogicalExpression()
-  (
-    ( loc="==>" | loc="\u21d2" )
-          
-    /* recurse because implication is right-associative */
-    tmp=ImpliesExpression()
-    { rval = new ImpliesExpression(loc, rval, tmp); }            
-  |
-    // NOTE: explies is implement using (x->y) <-> (y<-x) 
-                   
-    /* loop because explies is left-associative */
-    (
-      ( loc="<==" | loc="\u21d0" )    
-      tmp=LogicalExpression()
-      { rval = new ImpliesExpression(loc, tmp, rval); }
-    )+
-  )?
-  
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression LogicalExpression()
-:{
-    Token loc;
-    Expression rval,tmp;
-} { 
-  rval=RelationalExpression()
-  ( 
-    (
-      loc=<OP_AND>        
-      tmp=RelationalExpression()
-      { rval = new AndExpression(loc, rval, tmp); }
-    )+
-  |
-    
-    (
-      loc=<OP_OR>         
-      tmp=RelationalExpression()
-      { rval = new OrExpression(loc, rval, tmp); }
-    )+
-  )?
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression RelationalExpression()
-:{
-    Token loc;
-    Expression rval, tmp;
-} { 
-  rval=BvTerm()
-  ( 
-    loc="=="
-    tmp=BvTerm()
-    { return new EqualsExpression(loc,rval,tmp); }
-  | 
-    (loc="!="|loc="\u2260")
-    tmp=BvTerm()
-    { return new EqualsNotExpression(loc,rval,tmp); }
-  | 
-    loc="<"
-    tmp=BvTerm()
-    { return new LessExpression(loc,rval,tmp); }
-  |    
-    (loc="<="|loc="\u2264")
-    tmp=BvTerm()
-    { return new LessEqualExpression(loc,rval,tmp); }
-  | 
-    loc=">"
-    tmp=BvTerm()
-    { return new GreaterExpression(loc,rval,tmp); }
-  | 
-    (loc=">="|loc="\u2265")
-    tmp=BvTerm()
-    { return new GreaterEqualExpression(loc,rval,tmp); }
-  | 
-    loc="<:"
-    tmp=BvTerm()
-    { return new PartialLessExpression(loc,rval,tmp); }
-  )?
-  
-  {return rval;}
-}
-
-/*------------------------------------------------------------------------*/
-Expression BvTerm()
-:{
-    Token loc;
-    Expression rval,tmp;
-} { 
-  rval=Term()
-  ( loc="++"                  
-    tmp=Term()
-    {rval = new ConcatenationExpression(loc,rval,tmp);}          
-  )*
-  { return rval; }
-}
-
-
-/*------------------------------------------------------------------------*/
-Expression Term()
-:{
-    Token loc;
-    Expression rval, tmp;
-} { 
-  rval=Factor()
-  ( 
-    loc="+"
-    tmp=Factor()
-    {rval = new AdditionExpression(loc,rval,tmp);}
-  | 
-    loc="-"
-    tmp=Factor()
-    {rval = new SubtractionExpression(loc,rval,tmp);}      
-  )*
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression Factor()
-:{
-    Token loc;
-    Expression rval, tmp;
-} { 
-  rval=UnaryExpression()
-  ( 
-    loc="*"
-    tmp=UnaryExpression()
-    {rval = new MultiplicationExpression(loc,rval,tmp);}
-  | 
-    loc="/"
-    tmp=UnaryExpression()
-    {rval = new DivisionExpression(loc,rval,tmp);}
-  | 
-    loc="%"
-    tmp=UnaryExpression()
-    {rval = new ModuloExpression(loc,rval,tmp);} 
-  )*
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression UnaryExpression()
-:{
-    Token loc;
-    Expression rval;
-} { 
-  ( 
-    loc="-"                        
-    rval=UnaryExpression()
-    { rval = new UnaryMinusExpression(loc, rval); }     
-  | 
-    loc=<OP_NEGATION>                      
-    rval=UnaryExpression()
-    { rval = new NegationExpression(loc, rval); }
-  | 
-    rval=CoercionExpression()
-  )
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-
-/* This production creates ambiguities, because types can start with "<"
+*/Token CallOutIdent() :{  Token t;}{  (    t = "*"  | t = < IDENT >  )  {    return t;  }}Expression CallForallArg() :{  Token first;  Expression expr;}{  (    first = "*"    {      expr = new WildcardExpression(first);    }  | expr = Expression()  )  {    return expr;  }}/*------------------------------------------------------------------------*/List < Token > Idents() :{  Token n;  List < Token > rval = new LinkedList < Token > ();}{  n = < IDENT >  {    rval.add(n);  }  (    "," n = < IDENT >    {      rval.add(n);    }  )*  {    return rval;  }}/*------------------------------------------------------------------------*/List < String > WhiteSpaceIdents() :{  Token t;  List < String > rval = new LinkedList < String > ();}{  (    t = < IDENT >    {      rval.add(t.image);    }  )+  {    return rval;  }}/*------------------------------------------------------------------------*/Expression Expression() :{  Token loc;  Expression rval, tmp;}{  rval = ImpliesExpression()  (    (      loc = "<==>"    | loc = "\u21d4"    )    tmp = ImpliesExpression()    {      rval = new EquivalenceExpression(loc, rval, tmp);    }  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression ImpliesExpression() :{  Token loc;  Expression rval, tmp;}{  rval = LogicalExpression()  (    (      loc = "==>"    | loc = "\u21d2"    )    /* recurse because implication is right-associative */    tmp = ImpliesExpression()    {      rval = new ImpliesExpression(loc, rval, tmp);    }  |    // NOTE: explies is implement using (x->y) <-> (y<-x) 
+    /* loop because explies is left-associative */    (      (        loc = "<=="      | loc = "\u21d0"      )      tmp = LogicalExpression()      {        rval = new ImpliesExpression(loc, tmp, rval);      }    )+  )?  {    return rval;  }}/*------------------------------------------------------------------------*/Expression LogicalExpression() :{  Token loc;  Expression rval, tmp;}{  rval = RelationalExpression()  (    (      loc = < OP_AND > tmp = RelationalExpression()      {        rval = new AndExpression(loc, rval, tmp);      }    )+  |    (      loc = < OP_OR > tmp = RelationalExpression()      {        rval = new OrExpression(loc, rval, tmp);      }    )+  )?  {    return rval;  }}/*------------------------------------------------------------------------*/Expression RelationalExpression() :{  Token loc;  Expression rval, tmp;}{  rval = BvTerm()  (    loc = "==" tmp = BvTerm()    {      return new EqualsExpression(loc, rval, tmp);    }  |    (      loc = "!="    | loc = "\u2260"    )    tmp = BvTerm()    {      return new EqualsNotExpression(loc, rval, tmp);    }  | loc = "<" tmp = BvTerm()    {      return new LessExpression(loc, rval, tmp);    }  |    (      loc = "<="    | loc = "\u2264"    )    tmp = BvTerm()    {      return new LessEqualExpression(loc, rval, tmp);    }  | loc = ">" tmp = BvTerm()    {      return new GreaterExpression(loc, rval, tmp);    }  |    (      loc = ">="    | loc = "\u2265"    )    tmp = BvTerm()    {      return new GreaterEqualExpression(loc, rval, tmp);    }  | loc = "<:" tmp = BvTerm()    {      return new ExtendsExpression(loc, rval, tmp);    }  )?  {    return rval;  }}/*------------------------------------------------------------------------*/Expression BvTerm() :{  Token loc;  Expression rval, tmp;}{  rval = Term()  (    loc = "++" tmp = Term()    {      rval = new ConcatenationExpression(loc, rval, tmp);    }  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression Term() :{  Token loc;  Expression rval, tmp;}{  rval = Factor()  (    loc = "+" tmp = Factor()    {      rval = new AdditionExpression(loc, rval, tmp);    }  | loc = "-" tmp = Factor()    {      rval = new SubtractionExpression(loc, rval, tmp);    }  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression Factor() :{  Token loc;  Expression rval, tmp;}{  rval = UnaryExpression()  (    loc = "*" tmp = UnaryExpression()    {      rval = new MultiplicationExpression(loc, rval, tmp);    }  | loc = "/" tmp = UnaryExpression()    {      rval = new DivisionExpression(loc, rval, tmp);    }  | loc = "%" tmp = UnaryExpression()    {      rval = new ModuloExpression(loc, rval, tmp);    }  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression UnaryExpression() :{  Token loc;  Expression rval;}{  (    loc = "-" rval = UnaryExpression()    {      rval = new UnaryMinusExpression(loc, rval);    }  | loc = < OP_NEGATION > rval = UnaryExpression()    {      rval = new NegationExpression(loc, rval);    }  | rval = CoercionExpression()  )  {    return rval;  }}/*------------------------------------------------------------------------*//* This production creates ambiguities, because types can start with "<"
    (polymorphic map types), but can also be followed by "<" (inequalities).
    Coco deals with these ambiguities in a reasonable way by preferring to read
    further types (type arguments) over relational symbols. E.g., "5 : C < 0"
    will cause a parse error because "<" is treated as the beginning of a
-   map type. */
-   
-Expression CoercionExpression()
-:{
-    Expression rval, tmp;
-    Type T;
-} { 
-  rval=ArrayExpression()
-  ( ":"                     
-    (
-      T=Type()
-      { return new CoercionExpression(rval,T); }
-    | 
-      /* 
+   map type. */Expression CoercionExpression() :{  Expression rval, tmp;  Type T;}{  rval = ArrayExpression()  (    ":"    (      T = Type()      {        return new CoercionExpression(rval, T);      }    |      /* 
          This means that we really look at a bitvector expression t[a:b];
          the expression we create is rval:tmp, this will be supplied as 
          arrayindex to an upper expression expr[?]
-      */
-      { Token i; }
-      i=<INTEGER>
-      // return direclty to ensure there are no other ':'s
-      { return new BitvectorSelectExpression(rval, new IntegerExpression(i)); }  
-    )
-  )*
-  
-  { return rval; }
-}
-
-/*------------------------------------------------------------------------*/
-Expression ArrayExpression()
-:{
-    Expression rval, tmp, update;
-    List<Expression> arguments;
-} { 
-  rval=AtomExpression()
-  ( "["
-      { tmp=update=null; arguments = new LinkedList<Expression>(); }
-      (
-        tmp=Expression() {arguments.add(tmp);} 
-               
-        ( "," tmp=Expression() { arguments.add(tmp); } )*
-        
-        ( ":=" update=Expression() )?
-        
-        {
-          if(arguments.size() == 1 && tmp instanceof BitvectorSelectExpression)
-            rval = new BitvectorAccessSelectionExpression(rval, tmp); 
-          else if(null==update)
-            rval = new MapAccessExpression(rval, arguments);
-          else
-            rval = new MapUpdateExpression(rval, arguments, update); 
-        }
-      | 
-        ":=" update=Expression()
-        { rval = new MapUpdateExpression(rval, arguments, update); }
-      )?
-    "]"
-  )*
-  
-  { return rval; }
-}
-
-
-/*------------------------------------------------------------------------*/
-Expression AtomExpression()
-:{
-    Token first;
-    Expression rval;
-} { 
-  ( 
-    first="false"
-    { return new FalseExpression(first); }           
-  | 
-    first="true"
-    { return new TrueExpression(first); }            
-  | 
-    first=<INTEGER>
-    { return new IntegerExpression(first); }          
-  | 
-    first=<BVLIT>
-    { return new BitvectorLiteralExpression(first); } 
-  | first=<IDENT>            
-    ( "("
-      {
-        Expression expr;
-        List<Expression> args = new LinkedList<Expression>();
-      } 
-      (
-          expr=Expression() {args.add(expr);}             
-          ( "," expr=Expression() {args.add(expr);} )*
-      )?
-      ")"
-      { return new FunctionCallExpression(first, args); }
-    )?
-    { return new VariableUsageExpression(first); }
-
-  | 
-    first="old"
-    "("
-    rval=Expression()
-    ")"
-    { return new OldExpression(first, rval); }
-
-  | "("
-    { QuantifierBody body; }
-    ( 
-      rval=Expression()               
-    |
-      first=<OP_FORALL>                            
-      body=QuantifierBody()
-      { rval = new ForallExpression(first, body); }
-                                            
-    | 
-      first=<OP_EXISTS>                            
-      body=QuantifierBody()
-      { rval = new ExistsExpression(first, body); }
-    |
-      // unlike other quantifiers, lambdas have returntype [arglist]typeof(body)
-      first=<OP_LAMBDA>                         
-      body=QuantifierBody()
-      { rval = new LambdaExpression(first, body); }                   
-    )
-    ")"
-    {return rval;}
-  | 
-    rval=IfThenElseExpression()
-    { return rval; }
-  | 
-    rval=CodeExpression()
-    { return rval; } 
-  )
-}
-
-CodeExpression CodeExpression()
-:{
-  Token loc;
-  
-  LocalVariableDeclaration var;
-  List<LocalVariableDeclaration> vars = new LinkedList<LocalVariableDeclaration>();
-
-  SpecBlock spec;
-  List<SpecBlock > specs = new LinkedList<SpecBlock >();
-} { 
-  loc="|{"
-  ( var=LocalVars() {vars.add(var);} )*
-  
-  ( spec=SpecBlock() {specs.add(spec);} )+
-  "}|"
-  
-  { return new CodeExpression(loc, vars, specs); }
-}
-
-/*
-  Spec blocks are used to form the program that specifies the desired property. 
-*/
-SpecBlock SpecBlock()
-:{
-  Token tmp;
-
-  List<Token> targets;
-
-  Expression expr;
-
-  Statement cmd;
-  List<Statement> body = new LinkedList<Statement >();
-
-} { 
-  tmp=<IDENT> ":"
-  {    cmd = new LabelStatement(tmp);
-    body.add(cmd);
-  }
-  ( cmd=LabelOrCmd() { body.add(cmd); } )*
-  ( tmp="goto"
-    targets=Idents()    {
-      body.add(new GotoStatement(tmp, targets));    }
-  | "return" expr=Expression()    {
-      body.add(new SpecReturnStatement(expr));    }
-  )
-  ";"  {    return new SpecBlock(body);  }
-}
-
-List<Attribute> AttributeList()
-:{
-    Attribute attr;
-    List<Attribute> rval = new LinkedList<Attribute>();
-} {
-    ( attr=Attribute() {rval.add(attr);} )*
-    {return rval;}
-}
-
-Attribute Attribute()
-:{
-    ASTElement rval;
-} { 
-  rval=AttributeOrTrigger()
-  {
-    if(!(rval instanceof Attribute))
-        throw new ParseException("Attribute expected but found Trigger @" + rval.getLocation());
-    
-    return (Attribute)rval; 
-  } 
-}
-
-ASTElement AttributeOrTrigger()
-:{
-    ASTElement rval;
-} { 
-  "{"                                         
-     (
-       {
-         Token name;
-         AttributeParameter param;
-         List<AttributeParameter> params = new LinkedList<AttributeParameter>();
-       }
-       ":" name=<IDENT>
-       ( param=AttributeParameter() {params.add(param);}        
-         ( "," param=AttributeParameter() {params.add(param);} )*
-       )?
-       { rval = new Attribute(name, params); }
-     |
-       { Expression expr; List<Expression> args = new LinkedList<Expression>(); }
-       expr=Expression() {args.add(expr);}       
-       ( "," expr=Expression() {args.add(expr);} )*
-       
-       { rval = new Trigger(args); }                       
-     )
-  "}"
-  { return rval; }
-}
-
-AttributeParameter AttributeParameter()
-:{
-    Token t;
-    Expression expr;
-} { 
-  ( 
-    t=<STRING>
-    { return new AttributeParameter(t); }
-  |
-    expr=Expression()
-    { return new AttributeParameter(expr); }     
-  )
-}
-
-Expression IfThenElseExpression()
-:{
-    Token first;
-    Expression condition, _then, _else;
-} { 
-  first=<IF>  condition=Expression()
-  <THEN> _then=Expression()
-  <ELSE> _else=Expression()
-  
-  { return new IfThenElseExpression(first, condition, _then, _else); }
-}
-
-
-QuantifierBody QuantifierBody()
-:{
-    Token location;
-
-    List<Token> typeArgs = new LinkedList<Token>();
-    List<Variable> vars = new LinkedList<Variable>();
-    
-    ASTElement attrOrTrigg;
-    List<Trigger> triggers = new LinkedList<Trigger>();
-    List<Attribute> attributes = new LinkedList<Attribute>();
-    
-    Expression body;
-} { 
-  (
-     typeArgs=TypeParams()
-     ( vars=BoundVars() )?
-  |
-     vars=BoundVars()
-  )
-  location=<OP_SEP>
-  ( 
-    attrOrTrigg=AttributeOrTrigger()
-    {
-        if(attrOrTrigg instanceof Attribute)
-            attributes.add((Attribute)attrOrTrigg);
-        else
-            triggers.add((Trigger)attrOrTrigg);
-    }  
-  )*
-  body=Expression()
-  
-  { return new QuantifierBody(location, attributes, triggers, typeArgs, vars, body); } 
-}
+      */      {        Token i;      }      i = < INTEGER >      // return direclty to ensure there are no other ':'s
+      {        return new BitvectorSelectExpression(rval, new IntegerExpression(i));      }    )  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression ArrayExpression() :{  Expression rval, tmp, update;  List < Expression > arguments;}{  rval = AtomExpression()  (    "["    {      tmp = update = null;      arguments = new LinkedList < Expression > ();    }    (      tmp = Expression()      {        arguments.add(tmp);      }      (        "," tmp = Expression()        {          arguments.add(tmp);        }      )*      (        ":=" update = Expression()      )?      {        if (arguments.size() == 1 && tmp instanceof BitvectorSelectExpression) rval = new BitvectorAccessSelectionExpression(rval, tmp);        else if (null == update) rval = new MapAccessExpression(rval, arguments);        else rval = new MapUpdateExpression(rval, arguments, update);      }    | ":=" update = Expression()      {        rval = new MapUpdateExpression(rval, arguments, update);      }    )?    "]"  )*  {    return rval;  }}/*------------------------------------------------------------------------*/Expression AtomExpression() :{  Token first;  Expression rval;}{  (    first = "false"    {      return new FalseExpression(first);    }  | first = "true"    {      return new TrueExpression(first);    }  | first = < INTEGER >    {      return new IntegerExpression(first);    }  | first = < BVLIT >    {      return new BitvectorLiteralExpression(first);    }  | first = < IDENT >    (      "("      {        Expression expr;        List < Expression > args = new LinkedList < Expression > ();      }      (        expr = Expression()        {          args.add(expr);        }        (          "," expr = Expression()          {            args.add(expr);          }        )*      )?      ")"      {        return new FunctionCallExpression(first, args);      }    )?    {      return new VariableUsageExpression(first);    }  | first = "old" "(" rval = Expression() ")"    {      return new OldExpression(first, rval);    }  | "("    {      QuantifierBody body;    }    (      rval = Expression()    | first = < OP_FORALL > body = QuantifierBody()      {        rval = new ForallExpression(first, body);      }    | first = < OP_EXISTS > body = QuantifierBody()      {        rval = new ExistsExpression(first, body);      }    |  // unlike other quantifiers, lambdas have returntype [arglist]typeof(body)
+      first = < OP_LAMBDA > body = QuantifierBody()      {        rval = new LambdaExpression(first, body);      }    )    ")"    {      return rval;    }  | rval = IfThenElseExpression()    {      return rval;    }  | rval = CodeExpression()    {      return rval;    }  )}CodeExpression CodeExpression() :{  Token loc;  LocalVariableDeclaration var;  List < LocalVariableDeclaration > vars = new LinkedList < LocalVariableDeclaration > ();  CodeBlock block;  List < CodeBlock > blocks = new LinkedList < CodeBlock > ();}{  loc = "|{"  (    var = LocalVars()    {      vars.add(var);    }  )*  (    block = CodeBlock()    {      blocks.add(block);    }  )+  "}|"  {    return new CodeExpression(loc, vars, blocks);  }}/*
+  Code blocks are used to form the program that specifies the desired property. 
+*/CodeBlock CodeBlock() :{  Token tmp;  List < Token > targets;  Expression expr;  Statement cmd;  List < Statement > body = new LinkedList < Statement > ();}{  tmp = < IDENT > ":"  {    cmd = new LabelStatement(tmp);    body.add(cmd);  }  (    cmd = LabelOrCmd()    {      body.add(cmd);    }  )*  (    tmp = "goto" targets = Idents()    {      body.add(new GotoStatement(tmp, targets));    }  | "return" expr = Expression()    {      body.add(new CodeExpressionReturn(expr));    }  )  ";"  {    return new CodeBlock(body);  }}List < Attribute > AttributeList() :{  Attribute attr;  List < Attribute > rval = new LinkedList < Attribute > ();}{  (    attr = Attribute()    {      rval.add(attr);    }  )*  {    return rval;  }}Attribute Attribute() :{  ASTElement rval;}{  rval = AttributeOrTrigger()  {    if (!(rval instanceof Attribute)) throw new ParseException("Attribute expected but found Trigger @" + rval.getLocation());    return (Attribute) rval;  }}ASTElement AttributeOrTrigger() :{  ASTElement rval;}{  "{"  (    {      Token name;      AttributeParameter param;      List < AttributeParameter > params = new LinkedList < AttributeParameter > ();    }    ":" name = < IDENT >    (      param = AttributeParameter()      {        params.add(param);      }      (        "," param = AttributeParameter()        {          params.add(param);        }      )*    )?    {      rval = new Attribute(name, params);    }  |    {      Expression expr;      List < Expression > args = new LinkedList < Expression > ();    }    expr = Expression()    {      args.add(expr);    }    (      "," expr = Expression()      {        args.add(expr);      }    )*    {      rval = new Trigger(args);    }  )  "}"  {    return rval;  }}AttributeParameter AttributeParameter() :{  Token t;  Expression expr;}{  (    t = < STRING >    {      return new AttributeParameter(t);    }  | expr = Expression()    {      return new AttributeParameter(expr);    }  )}Expression IfThenElseExpression() :{  Token first;  Expression condition, _then, _else;}{  first = < IF > condition = Expression() < THEN > _then = Expression() < ELSE > _else = Expression()  {    return new IfThenElseExpression(first, condition, _then, _else);  }}QuantifierBody QuantifierBody() :{  Token location;  List < Token > typeArgs = new LinkedList < Token > ();  List < VariableDeclaration > vars = new LinkedList < VariableDeclaration > ();  ASTElement attrOrTrigg;  List < Trigger > triggers = new LinkedList < Trigger > ();  List < Attribute > attributes = new LinkedList < Attribute > ();  Expression body;}{  (    typeArgs = TypeParams()    (      vars = BoundVars()    )?  | vars = BoundVars()  )  location = < OP_SEP >  (    attrOrTrigg = AttributeOrTrigger()    {      if (attrOrTrigg instanceof Attribute) attributes.add((Attribute) attrOrTrigg);      else triggers.add((Trigger) attrOrTrigg);    }  )*  body = Expression()  {    return new QuantifierBody(location, attributes, triggers, typeArgs, vars, body);  }}

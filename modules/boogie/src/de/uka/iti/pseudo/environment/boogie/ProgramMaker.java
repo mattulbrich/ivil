@@ -25,7 +25,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
 import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
@@ -35,6 +37,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
 import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
@@ -62,9 +66,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecParent;
-import de.uka.iti.pseudo.parser.boogie.ast.OrderSpecification;
-import de.uka.iti.pseudo.parser.boogie.ast.PartialLessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
@@ -72,14 +73,12 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.SpecReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
@@ -162,10 +161,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
      * List of currently modifiable variables. This is needed to access
      * variables in oldMode correctly.
      */
-    private List<Variable> modifiable = null;
+    private List<VariableDeclaration> modifiable = null;
 
     /**
-     * Needed to store result variables of codeexpressions.
+     * Needed to store result variables of code expressions.
      */
     private Term codeexpressionResult = null;
 
@@ -208,12 +207,35 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for (ASTElement e : node.getNames())
             e.visit(this);
 
-        if (node.hasOrderSpecification())
-            node.getOrderSpecification().visit(this);
+        // TODO treatment of extends, there is uncommented code somewhere
+        // move axiomatization of constants to their own visitor
+
+        for (VariableDeclaration v : node.getNames()) {
+            for (ExtendsParent p : node.getParents()) {
+                try {
+                    Type t = state.ivilTypeMap.get(v);
+                    Term ext = new Application(state.env.getFunction("$extends_direct"), Environment.getBoolType(),
+                            new Term[] { new Application(state.env.getFunction(state.translation.variableNames.get(v)),
+ t),
+                            new Application(state.env.getFunction(state.translation.variableNames.get(state.names
+                                    .findVariable(p.getName(), node))), t) });
+
+                    state.env.addAxiom(new Axiom(v.getName() + "<:" + p.getName(), ext, new HashMap<String, String>(),
+                            node));
+                } catch (EnvironmentException e) {
+                    e.printStackTrace();
+                } catch (TermException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // if (node.hasOrderSpecification())
+        // node.getOrderSpecification().visit(this);
     }
 
     @Override
-    public void visit(Variable node) throws ASTVisitException {
+    public void visit(VariableDeclaration node) throws ASTVisitException {
 
         // names are somesort of magic, if no other name is desired, the name
         // will be var_<line>_<colon>__name
@@ -316,7 +338,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
 
                 // add quantifiers before body
-                for (Variable v : node.getInParameters()) {
+                for (VariableDeclaration v : node.getInParameters()) {
                     args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
                             boundVars.get(state.translation.variableNames.get(v)), args) };
                 }
@@ -402,7 +424,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(ModifiesClause node) throws ASTVisitException {
 
         for (String name : node.getTargets()) {
-            Variable v = state.names.findVariable(name, node);
+            VariableDeclaration v = state.names.findVariable(name, node);
 
             String oldName = "old_" + state.translation.variableNames.get(v);
 
@@ -736,7 +758,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         for (String name : node.getVarnames()) {
             try {
-                Variable decl = state.names.findVariable(name, node);
+                VariableDeclaration decl = state.names.findVariable(name, node);
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
                         .getLocationToken().beginLine, new Application(state.env
@@ -1030,7 +1052,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for (ModifiesClause clause : modifies) {
             for (String name : clause.getTargets())
                 try {
-                    Variable decl = state.names.findVariable(name, node);
+                    VariableDeclaration decl = state.names.findVariable(name, node);
 
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
                             .getLocationToken().beginLine, new Application(state.env
@@ -1418,7 +1440,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(PartialLessExpression node) throws ASTVisitException {
+    public void visit(ExtendsExpression node) throws ASTVisitException {
         defaultAction(node);
 
         Term[] args = new Term[2];
@@ -1677,7 +1699,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(VariableUsageExpression node) throws ASTVisitException {
-        Variable decl = state.names.findVariable(node);
+        VariableDeclaration decl = state.names.findVariable(node);
         String name = state.translation.variableNames.get(decl);
         if (oldMode && modifiable.contains(decl))
             name = "old_" + name;
@@ -1719,7 +1741,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // add quantifiers befor body
         try {
             String name;
-            for (Variable v : node.getBody().getQuantifiedVariables()) {
+            for (VariableDeclaration v : node.getBody().getQuantifiedVariables()) {
                 name = state.translation.variableNames.get(v);
                 args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
                         boundVars.get(name), args) };
@@ -1747,7 +1769,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // add quantifiers befor body
         try {
             String name;
-            for (Variable v : node.getBody().getQuantifiedVariables()) {
+            for (VariableDeclaration v : node.getBody().getQuantifiedVariables()) {
                 name = state.translation.variableNames.get(v);
                 args = new Term[] { new Binding(state.env.getBinder("\\exists"), Environment.getBoolType(),
                         boundVars.get(name), args) };
@@ -1791,7 +1813,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             // ∀ domain
             try {
                 String name;
-                for (Variable v : b.getQuantifiedVariables()) {
+                for (VariableDeclaration v : b.getQuantifiedVariables()) {
                     name = state.translation.variableNames.get(v);
                     args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
                             boundVars.get(name), args) };
@@ -1851,71 +1873,70 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(OrderSpecParent node) throws ASTVisitException {
+    public void visit(ExtendsParent node) throws ASTVisitException {
         // TODO maybe we have to create missing constants
     }
 
-    @Override
-    public void visit(OrderSpecification node) throws ASTVisitException {
-        defaultAction(node);
-
-        ConstantDeclaration parent = (ConstantDeclaration) node.getParent();
-
-        try {
-            for (Variable c : parent.getNames()) {
-
-                if (node.isComplete()) {
-                    // ( ∀ w : Wicket • c <: w ⇒ c == w ∨ a <: w ∨ b <: w )
-
-                } else {
-                    // c <: b & ∀ x :: (c==x | b==x) <-> (c <: x & x <: b)
-                    for (OrderSpecParent par : node.getParents()) {
-                        Variable b = state.names.findVariable(par.getName(), node);
-
-                        Term ac = new Application(state.env.getFunction(state.translation.variableNames.get(c)),
-
-                        state.ivilTypeMap.get(c));
-
-                        Term ab = new Application(
-
-                        state.env.getFunction(state.translation.variableNames.get(b)), state.ivilTypeMap.get(b));
-
-                        de.uka.iti.pseudo.term.Variable x = new de.uka.iti.pseudo.term.Variable("x", ac.getType());
-
-                        Term tmp = new Application(state.env.getFunction("$or"), Environment.getBoolType(), new Term[] {
-                                new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
-                                        x, ab }),
-                                new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
-                                        x, ac }) });
-
-                        tmp = new Application(state.env.getFunction("$equiv"), Environment.getBoolType(), new Term[] {
-                                tmp,
-                                new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
-                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
-                                                new Term[] { ac, x }),
-                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
-                                                new Term[] { x, ab }) }) });
-
-                        tmp = new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(), x,
-                                new Term[] { tmp });
-
-                        state.env.addAxiom(new Axiom("orderSpec_" + state.env.getAllAxioms().size(), new Application(
-                                state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
-                                        new Application(state.env.getFunction("$extends"), Environment.getBoolType(),
-                                                new Term[] { ac, ab }), tmp }), new HashMap<String, String>(), node));
-                    }
-                }
-            }
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
-
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
-        }
-    }
-
+    /*
+     * TODO constant declaration:
+     * 
+     * @Override public void visit(OrderSpecification node) throws
+     * ASTVisitException { defaultAction(node);
+     * 
+     * ConstantDeclaration parent = (ConstantDeclaration) node.getParent();
+     * 
+     * try { for (Variable c : parent.getNames()) {
+     * 
+     * if (node.isComplete()) { // ( ∀ w : Wicket • c <: w ⇒ c == w ∨ a <: w ∨ b
+     * <: w )
+     * 
+     * } else { // c <: b & ∀ x :: (c==x | b==x) <-> (c <: x & x <: b) for
+     * (OrderSpecParent par : node.getParents()) { Variable b =
+     * state.names.findVariable(par.getName(), node);
+     * 
+     * Term ac = new
+     * Application(state.env.getFunction(state.translation.variableNames
+     * .get(c)),
+     * 
+     * state.ivilTypeMap.get(c));
+     * 
+     * Term ab = new Application(
+     * 
+     * state.env.getFunction(state.translation.variableNames.get(b)),
+     * state.ivilTypeMap.get(b));
+     * 
+     * de.uka.iti.pseudo.term.Variable x = new
+     * de.uka.iti.pseudo.term.Variable("x", ac.getType());
+     * 
+     * Term tmp = new Application(state.env.getFunction("$or"),
+     * Environment.getBoolType(), new Term[] { new
+     * Application(state.env.getFunction("$eq"), Environment.getBoolType(), new
+     * Term[] { x, ab }), new Application(state.env.getFunction("$eq"),
+     * Environment.getBoolType(), new Term[] { x, ac }) });
+     * 
+     * tmp = new Application(state.env.getFunction("$equiv"),
+     * Environment.getBoolType(), new Term[] { tmp, new
+     * Application(state.env.getFunction("$and"), Environment.getBoolType(), new
+     * Term[] { new Application(state.env.getFunction("$extends"),
+     * Environment.getBoolType(), new Term[] { ac, x }), new
+     * Application(state.env.getFunction("$extends"), Environment.getBoolType(),
+     * new Term[] { x, ab }) }) });
+     * 
+     * tmp = new Binding(state.env.getBinder("\\forall"),
+     * Environment.getBoolType(), x, new Term[] { tmp });
+     * 
+     * state.env.addAxiom(new Axiom("orderSpec_" +
+     * state.env.getAllAxioms().size(), new Application(
+     * state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
+     * new Application(state.env.getFunction("$extends"),
+     * Environment.getBoolType(), new Term[] { ac, ab }), tmp }), new
+     * HashMap<String, String>(), node)); } } } } catch (EnvironmentException e)
+     * { e.printStackTrace(); throw new ASTVisitException(node.getLocation(),
+     * e);
+     * 
+     * } catch (TermException e) { e.printStackTrace(); throw new
+     * ASTVisitException(node.getLocation(), e); } }
+     */
     /*
      * Code expressions are transformed into programs which can be executed by
      * IVIL. As code expressions can occur in quantified contexts, these
@@ -1955,9 +1976,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
             var.visit(this);
 
         // create code
-        for (SpecBlock b : node.getSpecs())
+        for (CodeBlock b : node.getCode())
             b.visit(this);
 
+        // TODO create gadget to evaluate rval: '\some rval; [codeexpression;0]'
         String name = state.env.createNewProgramName("codeexpression" + node.getLocation().replace(":", "_"));
         Program C = null;
         try {
@@ -1968,7 +1990,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
             throw new ASTVisitException(node.getLocation() + "program creation failed", e);
         }
 
-        // $codeexpression(bound = unbound -> [0;C], rval)
         try {
             state.translation.terms.put(node, new Application(state.env.getFunction("$codeexpression"), result_t,
                     new Term[] { new LiteralProgramTerm(0, true, C), codeexpressionResult }));
@@ -1984,8 +2005,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(SpecReturnStatement node) throws ASTVisitException {
-        // end rval == expr
+    public void visit(CodeExpressionReturn node) throws ASTVisitException {
+        // 'end rval = expr'
         node.getRval().visit(this);
 
         try {

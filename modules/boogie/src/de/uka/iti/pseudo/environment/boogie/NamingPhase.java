@@ -5,7 +5,7 @@ import java.util.HashMap;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 
 /**
@@ -30,7 +30,7 @@ public final class NamingPhase {
     final HashMap<Pair<String, Scope>, ASTElement> typeParameterSpace = new HashMap<Pair<String, Scope>, ASTElement>();
 
     // variable names are scope sensitive
-    final HashMap<Pair<String, Scope>, Variable> variableSpace = new HashMap<Pair<String, Scope>, Variable>();
+    final HashMap<Pair<String, Scope>, VariableDeclaration> variableSpace = new HashMap<Pair<String, Scope>, VariableDeclaration>();
 
     // not directly a namespace, but very handy for goto usage; maps names and
     // procedure bodies to Labelstatements
@@ -67,7 +67,7 @@ public final class NamingPhase {
      * 
      * @return the declaration of the used variable
      */
-    public Variable findVariable(VariableUsageExpression node) {
+    public VariableDeclaration findVariable(VariableUsageExpression node) {
         assert null != state;
         return findVariable(node.getName(), node);
     }
@@ -85,10 +85,10 @@ public final class NamingPhase {
      * 
      * @return the declaration of the used variable
      */
-    public Variable findVariable(String name, ASTElement node) {
+    public VariableDeclaration findVariable(String name, ASTElement node) {
         Scope scope = state.scopeMap.get(node);
         Pair<String, Scope> key;
-        Variable rval;
+        VariableDeclaration rval;
 
         while (scope != null) {
             key = new Pair<String, Scope>(name, scope);

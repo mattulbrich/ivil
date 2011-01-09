@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 
 /**
  * Extracts type information out of an AST and creates sorts in the output
@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.Variable;
 public final class TypingPhase {
 
     final Map<String, Sort> sortMap = new HashMap<String, Sort>();
-    final Map<ProcedureDeclaration, List<Variable>> modifiable = new HashMap<ProcedureDeclaration, List<Variable>>();
+    final Map<ProcedureDeclaration, List<VariableDeclaration>> modifiable = new HashMap<ProcedureDeclaration, List<VariableDeclaration>>();
 
     void create(EnvironmentCreationState state) throws TypeSystemException {
         try {

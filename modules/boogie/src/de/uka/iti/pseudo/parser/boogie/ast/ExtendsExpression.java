@@ -7,11 +7,11 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public final class PartialLessExpression extends Expression {
+public final class ExtendsExpression extends Expression {
 
     private final List<Expression> operands;
 
-    public PartialLessExpression(Token loc, Expression rval, Expression tmp) {
+    public ExtendsExpression(Token loc, Expression rval, Expression tmp) {
         super(loc);
 
         operands = new ArrayList<Expression>(2);

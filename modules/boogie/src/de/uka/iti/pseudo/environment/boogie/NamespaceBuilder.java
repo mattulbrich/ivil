@@ -11,7 +11,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
-import de.uka.iti.pseudo.parser.boogie.ast.Variable;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
@@ -53,7 +53,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(Variable node) throws ASTVisitException {
+    public void visit(VariableDeclaration node) throws ASTVisitException {
         Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
 
         if (state.names.variableSpace.containsKey(key))

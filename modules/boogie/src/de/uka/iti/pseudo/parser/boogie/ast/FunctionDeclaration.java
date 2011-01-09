@@ -12,14 +12,14 @@ public class FunctionDeclaration extends DeclarationBlock implements NamedASTEle
     private final String name;
 
     private final List<String> typeParameters;
-    private final List<Variable> inParameters;
-    private final Variable outParemeter;
+    private final List<VariableDeclaration> inParameters;
+    private final VariableDeclaration outParemeter;
 
     // ! @note: can be null if a function has no specification
     private final Expression expression;
 
     public FunctionDeclaration(Token firstToken, List<Attribute> attributes, Token name, List<Token> typeParameters,
-            List<Variable> inParam, Variable outParam, Expression expression) {
+            List<VariableDeclaration> inParam, VariableDeclaration outParam, Expression expression) {
         super(firstToken, attributes);
         this.name = name.image;
 
@@ -56,12 +56,12 @@ public class FunctionDeclaration extends DeclarationBlock implements NamedASTEle
     }
 
 
-    public Variable getOutParemeter() {
+    public VariableDeclaration getOutParemeter() {
         return outParemeter;
     }
 
 
-    public List<Variable> getInParameters() {
+    public List<VariableDeclaration> getInParameters() {
         return inParameters;
     }
 

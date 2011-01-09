@@ -87,26 +87,61 @@ rule after_codeexpression
  *)
  
 function
+  bool  $extends_direct('a, 'a)
+  bool  $extends_unique('a, 'a)
   bool  $extends('a, 'a)		infix <: 50
 
+# extends_direct <-> (a <: b & \forall x ; (a==x | b==x) <-> (a <: x & x <: b))
+axiom extends_direct_simplification
+  (\T_all 't; (\forall a as 't; (\forall b; $extends_direct(a, b) <-> ( !a=b & a<:b & (\forall x; (a=x|b=x) <-> (a<:x & x<:b))) )))
 
-rule extends_neq_from_unique_left
-     find $extends(%a, %b) |-
-     where isUnique %a
-     replace $extends(%a, %b) & !%a = %b
+axiom extends_unique_simplification
+  (\T_all 't; (\forall a as 't; (\forall b; $extends_unique(a, b) -> $extends_direct(a, b))))
 
-rule extends_neq_from_unique_right
-     find $extends(%a, %b) |-
-     where isUnique %b
-     replace $extends(%a, %b) & !%a = %b
 
+#if two unique edges have the same origin, their children are distinct
+rule extends_unique_edges
+     find $extends_unique(%a, %b)
+     assume $extends_unique(%c, %d) |-
+     assume %b = %d |-
+     replace $extends_unique(%a, %b) & !%a = %c
+
+#if two unique edges have the same origin, their subtrees are distinct
+rule extends_unique_edges_trans
+     find $extends(%a, %P1)
+     assume $extends_unique(%A, %P1) |-
+     assume $extends_unique(%B, %P2) |-
+     assume $extends(%b, %P2) |-
+     assume %P1 = %P2 |-
+     replace $extends_unique(%a, %P1) & !%a = %b
+
+# transitivity for extends and inequality, as extends is acyclic
 rule extends_trans
 	find $extends(%a, %b)
 	assume $extends(%b, %c) |-
 	replace $extends(%a, %b) & $extends(%a, %c)
+	
+rule extends_trans_inequality_a
+	find $extends(%a, %b)
+	assume $extends(%b, %c) |-
+	assume |- %b = %c
+	replace $extends(%a, %b) & !%a = %c
+	
+rule extends_trans_inequality_b
+	find $extends(%a, %b)
+	assume $extends(%b, %c) |-
+	assume |- %a = %b
+	replace $extends(%a, %b) & !%a = %c
 
+#extends is reflexive
 rule extends_refl
 	find $extends(%a, %a)
+	replace true
+	tags rewrite "concrete"
+	
+rule extends_refl_assume
+	find $extends(%a, %b)
+	assume %a = %b |-
 	replace true
 	tags rewrite "concrete"
 
@@ -122,9 +157,9 @@ rule extends_antisym
 	where toplevel
 	replace !$extends(%b, %a)
 
+#if a cycle is found, break the cycle and replace the definition of one edge by false
 rule extends_sanity
      find $extends(%a, %b) |-
-     where toplevel
      assume $extends(%b, %a) |-
      assume |- %a = %b
      replace false

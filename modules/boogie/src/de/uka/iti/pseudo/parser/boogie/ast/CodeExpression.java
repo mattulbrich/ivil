@@ -11,18 +11,18 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 public final class CodeExpression extends Expression implements NamedASTElement {
 
     final private List<LocalVariableDeclaration> vars;
-    final private List<SpecBlock> specs;
+    final private List<CodeBlock> blocks;
     final private List<Expression> operands = new LinkedList<Expression>();
 
-    public CodeExpression(Token location, List<LocalVariableDeclaration> vars, List<SpecBlock> specs)
+    public CodeExpression(Token location, List<LocalVariableDeclaration> vars, List<CodeBlock> blocks)
             throws ParseException {
         super(location);
 
-        this.specs = specs;
+        this.blocks = blocks;
         this.vars = vars;
 
         addChildren(vars);
-        addChildren(specs);
+        addChildren(blocks);
     }
 
     @Override
@@ -35,8 +35,8 @@ public final class CodeExpression extends Expression implements NamedASTElement 
         v.visit(this);
     }
 
-    public List<SpecBlock> getSpecs() {
-        return specs;
+    public List<CodeBlock> getCode() {
+        return blocks;
     }
 
     @Override
