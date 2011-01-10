@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.EndStatement;
@@ -37,7 +38,6 @@ import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
-import de.uka.iti.pseudo.term.statement.UpdateStatement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 
 // TODO Documentation needed
@@ -368,7 +368,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.setStyle("update");
         printer.append("{ ");
         
-        List<AssignmentStatement> assignments = updateTerm.getAssignments();
+        List<Assignment> assignments = updateTerm.getAssignments();
         for (int i = 0; i < assignments.size(); i++) {
             if(i > 0)
                 printer.append(" || ");
@@ -449,16 +449,17 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(AssignmentStatement assignmentStatement)
             throws TermException {
         printer.setStyle("statement");
-        printer.append(assignmentStatement.getTarget().toString(false));
-        printer.append(" := ");
-        currentSubTermIndex = 0;
-        assignmentStatement.getValue().visit(this);
-        printer.resetPreviousStyle();
-    }
-
-    public void visit(UpdateStatement assignmentStatement) throws TermException {
-        printer.setStyle("statement");
-        printer.append(assignmentStatement.getUpdate().toString(false));
+        boolean first = true;
+        for (Assignment assignment : assignmentStatement.getAssignments()) {            
+            if(!first) {
+                printer.append(" || ");
+            }
+            printer.append(assignment.getTarget().toString(false));
+            printer.append(" := ");
+            currentSubTermIndex = 0;
+            assignment.getValue().visit(this);
+            first = false;
+        }
         printer.resetPreviousStyle();
     }
 

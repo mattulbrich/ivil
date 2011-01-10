@@ -14,7 +14,7 @@ import java.util.List;
 
 import nonnull.Nullable;
 
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 
 /**
  * The Class UpdateTerm encapsulates the application of an update (a list of
@@ -49,7 +49,7 @@ public class UpdateTerm extends Term {
      * First the updated term then all update values in order. 
      */
     private static Term[] prepareSubterms(Term term, Update update) {
-        List<AssignmentStatement> assignments = update.getAssignments();
+        List<Assignment> assignments = update.getAssignments();
         Term[] result = new Term[assignments.size() + 1];
         
         result[0] = term;
@@ -100,7 +100,7 @@ public class UpdateTerm extends Term {
      * 
      * @return an immutable list of assignments
      */
-    public List<AssignmentStatement> getAssignments() {
+    public List<Assignment> getAssignments() {
         return update.getAssignments();
     }
 

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.parser.term;
 
 import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.program.ASTAssignment;
 
 /**
  * The Interface ASTVisitor is part of the visitor pattern for Term ASTs.
@@ -45,6 +46,8 @@ public interface ASTTermVisitor {
 	void visit(ASTTypeVar typeVar) throws ASTVisitException;
 	
 	void visit(ASTSchemaType astSchemaType) throws ASTVisitException;
+	
+	void visit(ASTAssignment assignment) throws ASTVisitException;
 
 	void visit(ASTUpdateTerm updateTerm) throws ASTVisitException;
 	

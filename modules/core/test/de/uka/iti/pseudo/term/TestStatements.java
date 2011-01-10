@@ -11,7 +11,7 @@
 package de.uka.iti.pseudo.term;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 
 public class TestStatements extends TestCaseWithEnv {
@@ -48,7 +48,7 @@ public class TestStatements extends TestCaseWithEnv {
     
     public void testAssignment() throws Exception {
         try {
-            AssignmentStatement a = new AssignmentStatement(makeTerm("i1"), makeTerm("true"));
+            Assignment a = new Assignment(makeTerm("i1"), makeTerm("true"));
             System.out.println(a);
             fail("Should have failed: Invalid argument to constructor");
         } catch(TermException ex) {

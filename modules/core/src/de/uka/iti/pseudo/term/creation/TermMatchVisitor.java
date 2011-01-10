@@ -28,6 +28,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
@@ -144,6 +145,8 @@ class TermMatchVisitor extends DefaultTermVisitor {
      * match a schema program [ %a : stmt_with %schemavars ] to a literal
      * program term [ n ; P ] with n a number literal.
      * 
+     * A special case is [ %a : U ] for a schematic parallel assignment.
+     * 
      * The statements are extracted and compared by class. If the classes are
      * identical, then subterms are compared and matched pairwise.
      * 
@@ -153,29 +156,47 @@ class TermMatchVisitor extends DefaultTermVisitor {
         SchemaVariable sv = sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
         
+        if(sp.isTerminating() != litPrg.isTerminating())
+            throw new UnificationException("Incomparable termination", sp, litPrg);
+        
         if(inst != null) {
-            compare(inst, litPrg);
+            if(!inst.equals(litPrg)) {
+                UnificationException ex = new UnificationException("Schema program already matched against other program term", sp, litPrg);
+                ex.addDetail("Previous match: " + inst);
+                throw ex;
+            }
         } else {
-            if(sp.isTerminating() != litPrg.isTerminating())
-                throw new UnificationException("Incomparable termination", sp, litPrg);
-            
             termUnification.addInstantiation(sv, litPrg);
             typeMatchVisitor.tryInstantiation(sv.getName().substring(1), Environment.getBoolType());
-            if(sp.hasMatchingStatement()) {
-                Statement matchingSt = sp.getMatchingStatement();
-                Statement statement = litPrg.getStatement();
-                
-                if(matchingSt.getClass() != statement.getClass())
-                    throw new UnificationException("Incomparable types of statements", matchingSt, statement);
-                
-                if(matchingSt.countSubterms() != statement.countSubterms())
-                    throw new UnificationException("Incomparable count of subterms in statements", matchingSt, statement);
-                
-                List<Term> matchingSubterms = matchingSt.getSubterms();
-                List<Term> subterms = statement.getSubterms();
-                for (int i = 0; i < matchingSubterms.size(); i++) {
-                    compare(matchingSubterms.get(i), subterms.get(i));
+        }
+        
+        if(sp.hasMatchingStatement()) {
+            Statement matchingSt = sp.getMatchingStatement();
+            Statement statement = litPrg.getStatement();
+
+            if(matchingSt.getClass() != statement.getClass())
+                throw new UnificationException("Incomparable types of statements", matchingSt, statement);
+
+            // special case AssignmentStatements: if there is an "Update" identifier 
+            if(matchingSt instanceof AssignmentStatement) {
+                AssignmentStatement assignmentSt = (AssignmentStatement) matchingSt;
+                if(assignmentSt.isSchematic()) {
+                    // type safe because of above getClass -check
+                    AssignmentStatement otherAss = (AssignmentStatement)statement;
+                    Update upd = new Update(otherAss.getAssignments()); 
+                    termUnification.addUpdateInstantiation(assignmentSt.getSchemaIdentifier(), upd);
+                    return;
                 }
+            } 
+
+            // other cases
+            if(matchingSt.countSubterms() != statement.countSubterms())
+                throw new UnificationException("Incomparable count of subterms in statements", matchingSt, statement);
+
+            List<Term> matchingSubterms = matchingSt.getSubterms();
+            List<Term> subterms = statement.getSubterms();
+            for (int i = 0; i < matchingSubterms.size(); i++) {
+                compare(matchingSubterms.get(i), subterms.get(i));
             }
         }
     }

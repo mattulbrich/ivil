@@ -10,11 +10,14 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -40,7 +43,6 @@ import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
-import de.uka.iti.pseudo.term.statement.UpdateStatement;
 
 /**
  * Modify a program such that it can be used in an invariant rule application.
@@ -243,10 +245,10 @@ class LoopModifier {
             hasLoop |= collectAssignables0(stack);
             stack.pop();
         }
-
-        if (hasLoop && analyser.assignedVar != null)
-            modifiedAssignables.add(analyser.assignedVar);
-
+        
+        if(hasLoop && analyser.assignedVars != null)
+            modifiedAssignables.addAll(analyser.assignedVars);
+        
         return hasLoop;
 
     }
@@ -338,8 +340,8 @@ class StatementAnalyser implements StatementVisitor {
 
     int startIndex;
     int[] successorIndices;
-    Function assignedVar;
-
+    @Nullable List<Function> assignedVars;
+    
     public StatementAnalyser(int startIndex) {
         this.startIndex = startIndex;
     }
@@ -352,13 +354,7 @@ class StatementAnalyser implements StatementVisitor {
     @Override
     public void visit(AssignmentStatement assignmentStatement) throws TermException {
         successorIndices = new int[] { startIndex + 1 };
-        assignedVar = ((Application) assignmentStatement.getTarget()).getFunction();
-    }
-
-    @Override
-    public void visit(UpdateStatement statement) throws TermException {
-        for (AssignmentStatement s : statement.getUpdate().getAssignments())
-            s.visit(this);
+        assignedVars = assignmentStatement.getAssignedVars();
     }
 
     @Override
@@ -392,7 +388,7 @@ class StatementAnalyser implements StatementVisitor {
     @Override
     public void visit(HavocStatement havocStatement) throws TermException {
         successorIndices = new int[] { startIndex + 1 };
-        assignedVar = ((Application) havocStatement.getTarget()).getFunction();
+        assignedVars = Collections.singletonList(((Application)havocStatement.getTarget()).getFunction());
     }
 
 }

@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.Util;
 
 // Instantiation is not applied on the instantiated terms or types.
@@ -173,11 +173,11 @@ public class TermInstantiator extends RebuildingTermVisitor {
         Term innerResult = resultingTerm != null ? 
                 resultingTerm : updateTerm.getSubterm(0);
         
-        AssignmentStatement newAssignments[] = null;
-        List<AssignmentStatement> assignments = updateTerm.getAssignments();
+        Assignment newAssignments[] = null;
+        List<Assignment> assignments = updateTerm.getAssignments();
         
         for(int i = 0; i < assignments.size(); i++) {
-            AssignmentStatement assignment = assignments.get(i);
+            Assignment assignment = assignments.get(i);
             
             assignment.getTarget().visit(this);
             Term tgt = resultingTerm;
@@ -195,16 +195,16 @@ public class TermInstantiator extends RebuildingTermVisitor {
                     val = assignment.getValue();
                 
                 if(newAssignments == null) {
-                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+                    newAssignments = Util.listToArray(assignments, Assignment.class);
                 }
-                newAssignments[i] = new AssignmentStatement(tgt, val);
+                newAssignments[i] = new Assignment(tgt, val);
             }
         }
         
         if(newAssignments != null) {
             resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
         } else if(innerResult != updateTerm.getSubterm(0)) {
-            newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+            newAssignments = Util.listToArray(assignments, Assignment.class);
             resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
         } else {
             resultingTerm = null;

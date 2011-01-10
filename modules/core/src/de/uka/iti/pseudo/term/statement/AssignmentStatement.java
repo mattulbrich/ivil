@@ -10,64 +10,117 @@
  */
 package de.uka.iti.pseudo.term.statement;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import nonnull.DeepNonNull;
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Util;
 
 /**
- * Captures an assignment <code>v:=t</code> as it can appear in assignment
- * statements in programs or as it may appear as a basic assignment in an
- * update.
+ * Captures a parallel assignments <code>v_1:=t_1 || ... || v_k := t_k</code> as
+ * it can appear in assignment statements in programs.
  * 
  * <p>
- * Both the entity to which a value is assigned and the value term which is
- * assigned are considered subterms of the statement. Their terms must
- * conincide.
+ * The parts of the parallel assignments are stored as a list of
+ * {@link Assignment} objects.
  * 
+ * @see Update
+ * @see Assignment
  */
 public class AssignmentStatement extends Statement {
- // TODO DOC
+    
+    private Assignment[] assignments;
+    private @Nullable String schemaIdentifier; 
+    
+    //@ invariant assignments.length == 0 <==> schemaIdentifier != null 
+
+    // TODO DOC
+    public AssignmentStatement(int sourceLineNumber, List<Assignment> assignments) throws TermException {
+        super(sourceLineNumber, toTermArray(assignments));
+        this.schemaIdentifier = null;
+        this.assignments = new Assignment[assignments.size()];
+        assignments.toArray(this.assignments);
+    }
+
+    public AssignmentStatement(int sourceLineNumber, String identifier) {
+        super(sourceLineNumber);
+        this.assignments = null;
+        this.schemaIdentifier = identifier;
+    }
+
+    /**
+     * Convenience constructor for a single assignment.
+     * 
+     * @param sourceLineNumber
+     *            the line in the sources at which the statement appears.
+     * @param target
+     *            the left hand side of the assignment
+     * @param value
+     *            the right hand side of the assignment
+     * @throws TermException
+     *             if the assignment cannot be checked.
+     */
     public AssignmentStatement(int sourceLineNumber, Term target, Term value) throws TermException {
-        super(sourceLineNumber, new Term[] { target, value });
-        check();
+        this(sourceLineNumber, Arrays.asList(new Assignment(target, value)));
     }
 
-    public AssignmentStatement(Term target, Term value) throws TermException {
-        this(-1, target, value);
+    public boolean isSchematic() {
+        return schemaIdentifier != null;
     }
-
-    private void check() throws TermException {
-        if (getTarget() instanceof Application) {
-            Application appl = (Application) getTarget();
-            Function func = appl.getFunction();
-            if(!func.isAssignable())
-                throw new TermException("Target in an assignment needs to be 'assignable'");
-        } else if (!(getTarget() instanceof SchemaVariable)) {
-            throw new TermException(
-                    "Target in an assignment needs to be assignable constant or schema variable");
-        }
-        
-        if(!getTarget().getType().equals(getValue().getType()))
-            throw new TermException("target and value need to have identical types:\n\t"
-                    + getTarget().getType().toString() + "\n\t" + getValue().getType().toString());
-    }
-
+    
     public String toString(boolean typed) {
-        return getTarget().toString(false) + " := " + getValue().toString(typed);
+        if(isSchematic()) {
+            return schemaIdentifier;
+        } else {
+            return Util.join(assignments, " || ");
+        }
     }
     
     public void visit(StatementVisitor visitor) throws TermException {
         visitor.visit(this);
     }
-
-    public Term getTarget() {
-        return getSubterms().get(0);
+    
+    public List<Assignment> getAssignments() {
+        assert !isSchematic();
+        return Util.readOnlyArrayList(assignments);
     }
 
-    public Term getValue() {
-        return getSubterms().get(1);
+    private static Term[] toTermArray(List<Assignment> assignments) {
+        Term[] result = new Term[assignments.size() * 2];
+        int i = 0;
+        for (Assignment assignment : assignments) {
+            result[i++] = assignment.getTarget();
+            result[i++] = assignment.getValue();
+        }
+        return result;
     }
 
+    public List<Function> getAssignedVars() {
+        List<Function> result = new ArrayList<Function>();
+        for (Assignment ass : assignments) {
+            Term target = ass.getTarget();
+            if(target instanceof Application) {
+                Application app = (Application) target;
+                result.add(app.getFunction());
+            } else {
+                Log.log(Log.WARNING, "There should only be application assignments here.");
+            }
+        }
+        return result;
+    }
+
+    public String getSchemaIdentifier() {
+        assert isSchematic();
+        return schemaIdentifier;
+    }
+    
 }

@@ -59,7 +59,7 @@ public class AllCoreTests {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo");
+        TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo - core");
         //$JUnit-BEGIN$
         suite.addTestSuite(TestValidXSD.class);
         suite.addTestSuite(TestFileParser.class);

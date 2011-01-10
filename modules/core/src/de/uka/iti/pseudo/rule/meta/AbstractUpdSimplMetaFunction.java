@@ -30,7 +30,7 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 
 /**
  * The Class AbstractUpdSimplMetaFunction handles updates in front of terms.
@@ -101,7 +101,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         
         assert assignable.getFunction().isAssignable();
          
-        for (AssignmentStatement assStatement : update.getAssignments()) {
+        for (Assignment assStatement : update.getAssignments()) {
             if(assStatement.getTarget().equals(assignable))
                 return assStatement.getValue();
         }
@@ -165,28 +165,28 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
     private static Term combineUpdate(Update oldAss,
             UpdateTerm updTerm) throws TermException {
         
-        List<AssignmentStatement> newAss = updTerm.getAssignments();
+        List<Assignment> newAss = updTerm.getAssignments();
         
         // collect all updated vars of new 2nd
         Set<Term> overwritten = new HashSet<Term>();
-        for (AssignmentStatement ass : newAss) {
+        for (Assignment ass : newAss) {
             overwritten.add(ass.getTarget());
         }
         
         // create target update
-        List<AssignmentStatement> result = new ArrayList<AssignmentStatement>();
+        List<Assignment> result = new ArrayList<Assignment>();
         
         // go over all old updates
-        for (AssignmentStatement ass : oldAss.getAssignments()) {
+        for (Assignment ass : oldAss.getAssignments()) {
             if(!overwritten.contains(ass.getTarget())) {
                 result.add(ass);
             }
         }
         
         // add all new updates in which the old update is applied
-        for (AssignmentStatement ass : newAss) {
+        for (Assignment ass : newAss) {
             UpdateTerm value = new UpdateTerm(oldAss, ass.getValue());
-            AssignmentStatement freshAss = new AssignmentStatement(ass.getTarget(), value);
+            Assignment freshAss = new Assignment(ass.getTarget(), value);
             result.add(freshAss);
         }
         

@@ -40,7 +40,7 @@ ASTTerm UpdateTerm():
 {
   ASTTerm term;
   Token id;
-  List<ASTAssignmentStatement> assignments;
+  List<ASTAssignment> assignments;
 }
 {      LOOKAHEAD(3)
          "{" id=<IDENTIFIER> "}" term=UpdateTerm()
@@ -51,12 +51,27 @@ ASTTerm UpdateTerm():
             { return term; }
 }
 
-List<ASTAssignmentStatement> ParallelAssignment():	 
+ASTAssignment Assignment():
+{
+        ASTTerm target;
+        ASTTerm term;
+        Token t;
+}
+{
+        ( target=SchemaVariable()
+        | ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
+                { target = new ASTIdentifierTerm(t); }
+        )
+        ":=" term=Term()
+        { return new ASTAssignment(target, term); }
+}
+
+List<ASTAssignment> ParallelAssignment():	 
 {
   Token t;
   ASTTerm term;
-  ASTAssignmentStatement assignment;
-  List<ASTAssignmentStatement> assignments = new ArrayList<ASTAssignmentStatement>();
+  ASTAssignment assignment;
+  List<ASTAssignment> assignments = new ArrayList<ASTAssignment>();
 }
 {
           assignment=Assignment() 
@@ -116,7 +131,12 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
 }
 {
        ( label=<SCHEMA_IDENTIFIER> 
-         (  ":" matchStatement=Statement() )?
+         (  ":" 
+           ( LOOKAHEAD(2)
+             matchStatement=Statement() 
+           | matchStatement=SchematicAssignmentStatement()
+           ) 
+         )?
            { return new ASTProgramTerm(label, termination, matchStatement); }
             
        | 

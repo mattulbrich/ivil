@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 
 public class MockPrettyPrintPlugin extends PrettyPrintPlugin {
 

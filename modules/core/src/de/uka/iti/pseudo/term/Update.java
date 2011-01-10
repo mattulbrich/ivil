@@ -16,7 +16,7 @@ import java.util.List;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -31,7 +31,7 @@ public class Update {
      * @param assignments
      *            a non-empty array of assignments
      */
-    public Update(@NonNull AssignmentStatement[] assignments) {
+    public Update(@NonNull Assignment[] assignments) {
         assert assignments.length > 0;
         this.assignments = assignments.clone();
     }
@@ -43,15 +43,15 @@ public class Update {
      * @param assignments
      *            a non-empty list of assignments
      */
-    public Update(List<AssignmentStatement> assignments) {
+    public Update(List<Assignment> assignments) {
         assert assignments.size() > 0;
-        this.assignments = Util.listToArray(assignments, AssignmentStatement.class);
+        this.assignments = Util.listToArray(assignments, Assignment.class);
     }
 
     /**
      * The assignments are stored in an array which is not changed.
      */
-    private AssignmentStatement[] assignments;
+    private Assignment[] assignments;
     
     
     /**
@@ -88,7 +88,7 @@ public class Update {
      * 
      * @return an immutable list of assignments
      */
-    public List<AssignmentStatement> getAssignments() {
+    public List<Assignment> getAssignments() {
         return Util.readOnlyArrayList(assignments);
     }
     

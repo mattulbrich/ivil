@@ -22,7 +22,11 @@ public class TestUpdSimplification extends TestCaseWithEnv {
 
     private void assertEvalsTo(String t1, String t2) throws Exception {
         Term t = makeTerm(t1);
-        assertEquals(makeTerm(t2), eval.evalutate(t));
+        Term evaluation = eval.evalutate(t);
+        Term expected = makeTerm(t2);
+        
+        assertEquals(expected.toString(), evaluation.toString());
+        assertEquals(expected, evaluation);
     }
 
     public void testUpdateSimplification() throws Exception {
