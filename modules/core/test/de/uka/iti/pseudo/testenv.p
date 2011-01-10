@@ -65,11 +65,12 @@ program P (* tested in TerstTermUnification *)
     assert b2
     skip
     goto 5, 0
-    skip (* havov i1 *)
+    havoc i1
     i1 := i2 + i3
     end true
     end true
     skip_loopinv i1 > 0, i2
+    i1:=1 || b1 := true
 
 program Q
     assume b1 & b2

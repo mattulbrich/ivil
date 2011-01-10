@@ -10,11 +10,14 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+
+import nonnull.Nullable;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -163,7 +166,7 @@ class LoopModifier {
 
     // package default to unit test it.
     LiteralProgramTerm apply() throws TermException, EnvironmentException {
-         collectAssignables();
+        collectAssignables();
         
         Program program = programTerm.getProgram();
         int index = programTerm.getProgramIndex();
@@ -248,8 +251,8 @@ class LoopModifier {
             stack.pop();
         }
         
-        if(hasLoop && analyser.assignedVar != null)
-            modifiedAssignables.add(analyser.assignedVar);
+        if(hasLoop && analyser.assignedVars != null)
+            modifiedAssignables.addAll(analyser.assignedVars);
         
         return hasLoop;
         
@@ -342,7 +345,7 @@ class StatementAnalyser implements StatementVisitor {
 
     int startIndex;
     int[] successorIndices;
-    Function assignedVar;
+    @Nullable List<Function> assignedVars;
     
     public StatementAnalyser(int startIndex) {
         this.startIndex = startIndex;
@@ -356,7 +359,7 @@ class StatementAnalyser implements StatementVisitor {
     @Override public void visit(AssignmentStatement assignmentStatement)
             throws TermException {
         successorIndices = new int[] { startIndex + 1 };
-        assignedVar = ((Application)assignmentStatement.getTarget()).getFunction();
+        assignedVars = assignmentStatement.getAssignedVars();
     }
 
     @Override public void visit(AssumeStatement assumeStatement)
@@ -388,7 +391,7 @@ class StatementAnalyser implements StatementVisitor {
     @Override public void visit(HavocStatement havocStatement)
             throws TermException {
         successorIndices = new int[] { startIndex + 1 };
-        assignedVar = ((Application)havocStatement.getTarget()).getFunction();
+        assignedVars = Collections.singletonList(((Application)havocStatement.getTarget()).getFunction());
     }
     
 }

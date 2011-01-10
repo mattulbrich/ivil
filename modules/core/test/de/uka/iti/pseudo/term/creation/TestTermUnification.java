@@ -17,6 +17,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 
 public class TestTermUnification extends TestCaseWithEnv {
@@ -89,11 +91,12 @@ public class TestTermUnification extends TestCaseWithEnv {
      *  1: assert b2
      *  2: skip
      *  3: goto 5, 0
-     *  4: (* havov i1 *)
+     *  4: havoc i1
      *  5: i1 := i2 + i3
      *  6: end true
      *  7: end true
      *  8: skip_loopinv i1>0, i2
+     *  9: i1:=1 || b1 := true
      */  
     public void testModalities() throws Exception {
         TermMatcher mc = new TermMatcher(env);
@@ -106,7 +109,7 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertFalse(mc.leftMatch(mt("[%a]"), mt("[2;P]")));
         
         assertEquals(mt("b2"), mc.getTermFor(new SchemaVariable("%b", bool)));
-
+        
         assertTrue(mc.leftMatch(mt("[%c : %x := %v]"), mt("[5;P]")));
         assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%x", intTy)));
         assertEquals(mt("i2+i3"), mc.instantiate(new SchemaVariable("%v", intTy)));
@@ -133,6 +136,19 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(mc.leftMatch(mt("[%h : skip_loopinv %inv, %var]"), mt("[8;P]")));;
         assertEquals(mt("i1 > 0"), mc.instantiate(new SchemaVariable("%inv", bool)));
         assertEquals(mt("i2"), mc.instantiate(new SchemaVariable("%var", intTy)));
+        
+        assertTrue(mc.leftMatch(mt("[%i : havoc %j]"), mt("[4;P]")));
+        assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%j", intTy)));
+        
+        Update upd = ((UpdateTerm)mt("{i1:=1||b1:=true}true")).getUpdate();
+        assertTrue(mc.leftMatch(mt("[%k : U]"), mt("[9;P]")));
+        assertEquals(upd, mc.getUpdateFor("U"));
+        
+        assertTrue(mc.leftMatch(mt("[%k : %o:=%l || %m:=%n]"), mt("[9;P]")));
+        assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%o", intTy)));
+        assertEquals(mt("1"), mc.instantiate(new SchemaVariable("%l", intTy)));
+        assertEquals(mt("b1"), mc.instantiate(new SchemaVariable("%m", bool)));
+        assertEquals(mt("true"), mc.instantiate(new SchemaVariable("%n", bool)));
     }
     
     

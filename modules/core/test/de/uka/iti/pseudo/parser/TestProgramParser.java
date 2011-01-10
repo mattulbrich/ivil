@@ -10,7 +10,6 @@
  */
 package de.uka.iti.pseudo.parser;
 
-import java.io.File;
 import java.io.StringReader;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
@@ -70,5 +69,10 @@ public class TestProgramParser extends TestCaseWithEnv {
         failEnv("program P   assume %b");
         failEnv("program P   goto 4, %b");
         failEnv("program P   skip_loopvar %b, 4");
+    }
+    
+    public void testParallelAssignment() throws Exception {
+        testEnv("function int i assignable  int j assignable "+
+                "program P   skip i := arb || j := 2 skip");
     }
 }

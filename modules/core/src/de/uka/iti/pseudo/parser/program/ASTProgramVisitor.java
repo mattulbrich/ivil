@@ -32,7 +32,11 @@ public interface ASTProgramVisitor {
 
     public void visit(ASTHavocStatement havocStatement) throws ASTVisitException;
 
-    public void visit(ASTAssignmentStatement assignmentStatement) throws ASTVisitException;
+    public void visit(ASTAssignment assignmentStatement) throws ASTVisitException;
+    
+    public void visit(ASTAssignmentStatement astAssignmentStatement) throws ASTVisitException;
+ 
+    public void visit(ASTSchematicAssignmentStatement astSchematicAssignmentStatement) throws ASTVisitException;
     
     public void visit(ASTSourceLineStatement sourceLineStatement) throws ASTVisitException;
 

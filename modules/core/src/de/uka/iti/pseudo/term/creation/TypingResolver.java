@@ -24,7 +24,7 @@ import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
-import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssignment;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
@@ -562,9 +562,10 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     /* 
      * In an assignment, left and right hand side must be compatible.
+     * Assignments are embedded in assignment statements and in updates.
      */
     @Override 
-    public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
+    public void visit(ASTAssignment arg) throws ASTVisitException {
         super.visit(arg);
         try {
             typingContext.solveConstraint(arg.getTarget().getTyping().getRawType(), 

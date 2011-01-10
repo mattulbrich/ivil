@@ -18,11 +18,11 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssignment;
 
 public class ASTUpdateTerm extends ASTTerm {
 
-    public ASTUpdateTerm(@NonNull List<ASTAssignmentStatement> assignments, @NonNull ASTTerm term) {
+    public ASTUpdateTerm(@NonNull List<ASTAssignment> assignments, @NonNull ASTTerm term) {
         super(Collections.singletonList(term));
         addChildren(assignments);
     }

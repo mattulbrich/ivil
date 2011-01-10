@@ -28,7 +28,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -277,12 +277,12 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             updateTerm.getSubterm(0).visit(this);
             Term childResult = resultingTerm;
             
-            List<AssignmentStatement> assignments = updateTerm.getAssignments();
-            AssignmentStatement[] newAssignments = visitAssignments(assignments);
+            List<Assignment> assignments = updateTerm.getAssignments();
+            Assignment[] newAssignments = visitAssignments(assignments);
             
             if(newAssignments != null || childResult != null) {
                 if(newAssignments == null)
-                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+                    newAssignments = Util.listToArray(assignments, Assignment.class);
                 if(childResult == null)
                     childResult = updateTerm.getSubterm(0);
                 Update update = new Update(newAssignments);
@@ -309,16 +309,16 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     /*
      * An assignment list is updated if one assignment value is updated. 
      */
-    private AssignmentStatement[] visitAssignments(
-            List<AssignmentStatement> assignments) throws TermException {
-        AssignmentStatement[] newAssignments = null;
+    private Assignment[] visitAssignments(
+            List<Assignment> assignments) throws TermException {
+        Assignment[] newAssignments = null;
         for(int i = 0; i < assignments.size(); i++) {
             assignments.get(i).getValue().visit(this);
             if(resultingTerm != null) {
                 if(newAssignments == null) {
-                    newAssignments = Util.listToArray(assignments, AssignmentStatement.class);
+                    newAssignments = Util.listToArray(assignments, Assignment.class);
                 }
-                newAssignments[i] = new AssignmentStatement(assignments.get(i).getTarget(), resultingTerm);
+                newAssignments[i] = new Assignment(assignments.get(i).getTarget(), resultingTerm);
             }
         }
         return newAssignments;

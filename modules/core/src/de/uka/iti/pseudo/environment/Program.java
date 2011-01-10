@@ -87,7 +87,7 @@ public class Program {
      * @param sourceFile
      *            reference to the source file
      * @param statements
-     *            the sequence of statements statements
+     *            the sequence of statements
      * @param statementAnnotations
      *            the sequence of statement annotations. The collection may
      *            contain <code>null</code> values.

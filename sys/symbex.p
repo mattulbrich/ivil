@@ -116,16 +116,16 @@ rule tprg_end
 
 
 rule prg_assignment
-  find [%a : %x := %v]
-  samegoal replace  { %x := %v }$$incPrg(%a) 
+  find [%a : U ]
+  samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {%x} := {%v}"
+       display "|> {U}"
 
 rule tprg_assignment
-  find [[%a : %x := %v]]
-  samegoal replace  { %x := %v }$$incPrg(%a) 
+  find [[%a : U]]
+  samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {%x} := {%v}"
+       display "|> {U}"
 
 
 rule prg_havoc
