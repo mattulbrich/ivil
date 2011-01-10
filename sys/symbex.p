@@ -34,13 +34,13 @@ plugin
   metaFunction : "de.uka.iti.pseudo.rule.meta.DeepUpdSimplMetaFunction"
   
   # process an update statment
-  metaFunction : "de.uka.iti.pseudo.rule.meta.ApplyUpdateStatement"
+  #metaFunction : "de.uka.iti.pseudo.rule.meta.ApplyUpdateStatement"
 
   # check whether a term does not contain modalities
   whereCondition : "de.uka.iti.pseudo.rule.where.ProgramFree"
   
   # check whether a term is a Program at an updateAssignment position
-  whereCondition : "de.uka.iti.pseudo.rule.where.IsUpdateStatement"
+#  whereCondition : "de.uka.iti.pseudo.rule.where.IsUpdateStatement"
 
 (*
  * First the theoretical rules
@@ -122,25 +122,25 @@ rule tprg_end
 
 
 rule prg_assignment
-  find [%a : %x := %v]
-  samegoal replace  { %x := %v }$$incPrg(%a) 
+  find [%a : U ]
+  samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {%x} := {%v}"
+       display "|> {U}"
 
 rule tprg_assignment
-  find [[%a : %x := %v]]
-  samegoal replace  { %x := %v }$$incPrg(%a) 
+  find [[%a : U]]
+  samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {%x} := {%v}"
+       display "|> {U}"
 
 
-# note: this rule magically handles both [{U}] and [[{U}]]
-rule prg_update
-  find %u
-  where isUpdateStatement %u
-  samegoal replace $$applyUpdateStatement(%u)
-  tags rewrite "symbex"
-       display "|> update %u"
+## note: this rule magically handles both [{U}] and [[{U}]]
+#rule prg_update
+#  find %u
+#  where isUpdateStatement %u
+#  samegoal replace $$applyUpdateStatement(%u)
+#  tags rewrite "symbex"
+#       display "|> update %u"
 
 
 rule prg_havoc

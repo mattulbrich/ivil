@@ -42,6 +42,7 @@ ASTStatement Statement():
 	Token kw;
 	ASTStatement result;
 	List<ASTTerm> termList;
+	List<ASTAssignment> asList;
 	Token textAnnotation = null;
 }
 {
@@ -53,7 +54,9 @@ ASTStatement Statement():
 	| kw="skip" { result = new ASTSkipStatement(kw); }
 	| kw="havoc" (term=Identifier() | term=SchemaVariable()) 
 	            { result = new ASTHavocStatement(kw, term); }
-	| result=Assignment()
+	          
+	| asList=ParallelAssignment() /* --> TermParser.jj */
+	     { result = new ASTAssignmentStatement(asList); }
 	| kw="goto" termList=Statement_TermList()
 	     { result = new ASTGotoStatement(kw, termList); }
 	)     
@@ -64,21 +67,6 @@ ASTStatement Statement():
 	
 	{ return result; }
 	
-}
-
-ASTAssignmentStatement Assignment():
-{
-	ASTTerm target;
-	ASTTerm term;
-	Token t;
-}
-{
-	( target=SchemaVariable()
-	| ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
-	        { target = new ASTIdentifierTerm(t); }
-	)
-	":=" term=Term()
-	{ return new ASTAssignmentStatement(target, term); }
 }
 
 /*
@@ -124,4 +112,14 @@ List<ASTTerm> Statement_TermList():
         { terms.add(t); }
     )?
     { return terms; }
+}
+
+// Only used where matching contexts are allowed.
+ASTSchematicAssignmentStatement SchematicAssignmentStatement():
+{
+  Token t;
+}
+{
+  t = <IDENTIFIER>
+  { return new ASTSchematicAssignmentStatement(t); }
 }

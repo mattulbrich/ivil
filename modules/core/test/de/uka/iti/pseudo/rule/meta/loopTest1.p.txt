@@ -105,3 +105,16 @@ program Bug1_after
 program Bug_termination
      a := 0
      b := 0
+
+program ParallelAssignment
+  loop:
+     a := 0 || b:= 0
+     goto loop
+     
+program ChangeAfterLoop
+  loop:
+     havoc a
+     goto loop, after
+  after:
+     havoc b
+     goto after

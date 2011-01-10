@@ -71,7 +71,7 @@ public class LiteralProgramTerm extends ProgramTerm {
      * @throws TermException
      *             if the index is invalid
      */
-    public LiteralProgramTerm(int index, LiteralProgramTerm original)
+    public LiteralProgramTerm(int index,  @NonNull LiteralProgramTerm original)
             throws TermException {
         super(original.isTerminating());
         this.program = original.program;

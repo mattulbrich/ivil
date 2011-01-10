@@ -34,6 +34,4 @@ public interface StatementVisitor {
 
     void visit(HavocStatement havocStatement) throws TermException;
 
-    void visit(UpdateStatement updateStatement) throws TermException;
-
 }

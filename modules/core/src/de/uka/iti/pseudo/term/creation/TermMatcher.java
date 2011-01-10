@@ -29,7 +29,7 @@ import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.AppendMap;
 import de.uka.iti.pseudo.util.AppendSet;
 
@@ -248,7 +248,7 @@ public class TermMatcher implements Cloneable {
             throw new TermException("Unexpected schema variable found: " + schemaUpdate);
         }
         public void visit(UpdateTerm updateTerm) throws TermException {
-            for (AssignmentStatement ass : updateTerm.getAssignments()) {
+            for (Assignment ass : updateTerm.getAssignments()) {
                 if(ass.getTarget() instanceof SchemaVariable)
                     throw new TermException("Unexpected schema variable in assignment " + ass);
             }

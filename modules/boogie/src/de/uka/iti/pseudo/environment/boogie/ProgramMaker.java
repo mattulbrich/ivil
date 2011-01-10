@@ -1,5 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,13 +92,12 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
-import de.uka.iti.pseudo.term.statement.UpdateStatement;
 
 /**
  * This is the heart of the loader. This Visitor transforms the gathered
@@ -852,7 +853,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         List<de.uka.iti.pseudo.term.Variable> boundvars = new LinkedList<de.uka.iti.pseudo.term.Variable>();
 
         try {
-            List<de.uka.iti.pseudo.term.statement.AssignmentStatement> assignments = new LinkedList<de.uka.iti.pseudo.term.statement.AssignmentStatement>();
+            List<Assignment> assignments = new LinkedList<Assignment>();
             if (newIns.length > 0) {
                 for (int i = 0; i < newIns.length; i++) {
                     Expression val = node.getArguments().get(i);
@@ -865,14 +866,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         boundvars.add(var);
                         boundVars.put(newIns[i].getName(), var);
                     } else {
-                        assignments.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(new Application(
+                        assignments.add(new Assignment(new Application(
                                 newIns[i], newIns[i].getResultType()), state.translation.terms.get(val)));
                     }
                 }
 
                 if (assignments.size() > 0) {
-                    statements.bodyStatements.add(new UpdateStatement(new Update(assignments),
-                            node.getLocationToken().beginLine));
+                    statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine, assignments));
 
                     statements.bodyAnnotations.add(null);
                 }
@@ -1003,19 +1003,19 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // load parameters
         try {
-            de.uka.iti.pseudo.term.statement.AssignmentStatement assignments[] = new de.uka.iti.pseudo.term.statement.AssignmentStatement[newIns.length];
+            Assignment assignments[] = new Assignment[newIns.length];
             if (assignments.length > 0) {
                 for (int i = 0; i < assignments.length; i++) {
                     Expression val = node.getArguments().get(i);
 
                     val.visit(this);
 
-                    assignments[i] = new de.uka.iti.pseudo.term.statement.AssignmentStatement(new Application(
+                    assignments[i] = new Assignment(new Application(
                             newIns[i], newIns[i].getResultType()), state.translation.terms.get(val));
                 }
 
-                statements.bodyStatements.add(new UpdateStatement(new Update(assignments),
-                        node.getLocationToken().beginLine));
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement
+                        (node.getLocationToken().beginLine, Arrays.asList(assignments)));
 
                 statements.bodyAnnotations.add(null);
             }
@@ -1087,20 +1087,20 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // safe results
         try {
-            de.uka.iti.pseudo.term.statement.AssignmentStatement assignments[] = new de.uka.iti.pseudo.term.statement.AssignmentStatement[newOuts.length];
+            Assignment assignments[] = new Assignment[newOuts.length];
             if (assignments.length > 0) {
                 for (int i = 0; i < assignments.length; i++) {
                     VariableUsageExpression target = node.getOutParam().get(i);
 
                     target.visit(this);
 
-                    assignments[i] = new de.uka.iti.pseudo.term.statement.AssignmentStatement(
+                    assignments[i] = new Assignment(
                             state.translation.terms.get(target),
                             new Application(newOuts[i], newOuts[i].getResultType()));
                 }
 
-                statements.bodyStatements.add(new UpdateStatement(new Update(assignments),
-                        node.getLocationToken().beginLine));
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(
+                        node.getLocationToken().beginLine, Arrays.asList(assignments)));
 
                 statements.bodyAnnotations.add(null);
             }
@@ -1202,21 +1202,29 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for (ASTElement e : node.getChildren())
             e.visit(this);
 
-        if (node.getAssignments().size() > 1) {
+        int size = node.getAssignments().size();
+        if (size > 1) {
             // the last #assignments Statements need to be merged into one
             // update statement
-            de.uka.iti.pseudo.term.statement.AssignmentStatement[] children = new de.uka.iti.pseudo.term.statement.AssignmentStatement[node
-                    .getAssignments().size()];
+            List<Assignment> children = new ArrayList<Assignment>();
             int position = statements.bodyStatements.size() - 1;
-            for (int i = 0; i < children.length; i++) {
-                children[i] = (de.uka.iti.pseudo.term.statement.AssignmentStatement) statements.bodyStatements
+            for (int i = 0; i < size; i++) {
+                de.uka.iti.pseudo.term.statement.AssignmentStatement assStatement = 
+                    (de.uka.iti.pseudo.term.statement.AssignmentStatement) statements.bodyStatements
                         .remove(position);
+                children.addAll(assStatement.getAssignments());
+                
                 statements.bodyAnnotations.remove(position);
 
                 position--;
             }
 
-            statements.bodyStatements.add(new UpdateStatement(new Update(children), node.getLocationToken().beginLine));
+            try {
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine, children));
+            } catch (TermException e) {
+                e.printStackTrace();
+                throw new ASTVisitException(node.getLocation(), e);
+            }
             statements.bodyAnnotations.add(null);
         }
     }

@@ -70,4 +70,9 @@ public class TestProgramParser extends TestCaseWithEnv {
         failEnv("program P   goto 4, %b");
         failEnv("program P   skip_loopvar %b, 4");
     }
+    
+    public void testParallelAssignment() throws Exception {
+        testEnv("function int i assignable  int j assignable "+
+                "program P   skip i := arb || j := 2 skip");
+    }
 }

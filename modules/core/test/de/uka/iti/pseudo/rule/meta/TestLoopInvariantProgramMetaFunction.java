@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -96,6 +97,39 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         LiteralProgramTerm progResult = loopMod.apply();
         
         assertEqualProgs(progResult.getProgram(), env.getProgram("Bug1_after"));
+    }
+    
+    public void testChangeAfterLoop() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env
+                .getProgram("ChangeAfterLoop"));
+        
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        loopMod.apply();
+        
+        Function fctA = env.getFunction("a");
+        
+        assertEquals(Collections.singleton(fctA), loopMod.getModifiedAssignables());
+    }
+
+    public void testParallelAssignment() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env
+                .getProgram("ParallelAssignment"));
+        
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        loopMod.apply();
+        
+        Function fctA = env.getFunction("a");
+        Function fctB = env.getFunction("b");
+        
+        Set<Function> modifiedAssignables = loopMod.getModifiedAssignables();
+        assertEquals(2, modifiedAssignables.size());
+        assertTrue(modifiedAssignables.contains(fctA));
+        assertTrue(modifiedAssignables.contains(fctB));
+        
     }
     
     public void testBugTermination() throws Exception {

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -31,12 +32,14 @@ import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.file.ASTProperties;
 import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssignment;
 import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTHavocStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
+import de.uka.iti.pseudo.parser.program.ASTSchematicAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
@@ -76,6 +79,7 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
 import de.uka.iti.pseudo.term.statement.EndStatement;
@@ -382,6 +386,7 @@ public class TermMaker extends ASTDefaultVisitor {
     private Term resultTerm;
     private Type resultType;
     private Statement resultStatement;
+    private Assignment resultAssignment;
 
     /**
      * The environment to use.
@@ -573,10 +578,10 @@ public class TermMaker extends ASTDefaultVisitor {
         children.get(0).visit(this);
         Term term = resultTerm;
         
-        AssignmentStatement[] assignments = new AssignmentStatement[children.size()-1];
+        Assignment[] assignments = new Assignment[children.size()-1];
         for (int i = 1; i < children.size(); i++) {
             children.get(i).visit(this);
-            assignments[i-1] = (AssignmentStatement) resultStatement;
+            assignments[i-1] = resultAssignment;
         }
         
         resultTerm = new UpdateTerm(new Update(assignments), term);
@@ -683,6 +688,29 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
     
+    public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
+        List<ASTElement> children = arg.getChildren();
+        List<Assignment> assignments = new ArrayList<Assignment>();
+        for (ASTElement child : children) {
+            assert child instanceof ASTAssignment;
+            child.visit(this);
+            assignments.add(resultAssignment);
+        }
+        
+        try {
+            resultStatement = new AssignmentStatement(sourceLineNumber, assignments);
+        } catch (TermException e) {
+            throw new ASTVisitException(arg, e);
+        }
+    }
+    
+    public void visit(ASTSchematicAssignmentStatement arg)
+            throws ASTVisitException {
+        String identifier = arg.getIdentifierToken().image;
+        
+        resultStatement = new AssignmentStatement(sourceLineNumber, identifier);
+    }
+    
     public void visit(ASTEndStatement arg) throws ASTVisitException {
         arg.getTerm().visit(this);
         try {
@@ -731,7 +759,7 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
     
-    public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
+    public void visit(ASTAssignment arg) throws ASTVisitException {
         
         arg.getTarget().visit(this);
         Term target = resultTerm;
@@ -740,7 +768,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Term value = resultTerm;
 
         try {
-            resultStatement = new AssignmentStatement(sourceLineNumber, target, value);
+            resultAssignment = new Assignment(target, value);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }

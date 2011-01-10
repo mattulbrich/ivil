@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.UpdateTerm;
-import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 
@@ -142,7 +142,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     
     public void visit(UpdateTerm updateTerm) throws TermException {
         super.visit(updateTerm);
-        for (AssignmentStatement ass : updateTerm.getAssignments()) {
+        for (Assignment ass : updateTerm.getAssignments()) {
             ass.getTarget().visit(this);
         }
     }

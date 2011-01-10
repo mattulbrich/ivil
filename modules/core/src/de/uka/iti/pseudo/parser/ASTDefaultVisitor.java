@@ -34,12 +34,14 @@ import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
+import de.uka.iti.pseudo.parser.program.ASTAssignment;
 import de.uka.iti.pseudo.parser.program.ASTAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
 import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.program.ASTHavocStatement;
 import de.uka.iti.pseudo.parser.program.ASTLabelStatement;
+import de.uka.iti.pseudo.parser.program.ASTSchematicAssignmentStatement;
 import de.uka.iti.pseudo.parser.program.ASTSkipStatement;
 import de.uka.iti.pseudo.parser.program.ASTSourceLineStatement;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
@@ -175,16 +177,25 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTSchemaType arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
+    
+    public void visit(ASTAssignment arg)  throws ASTVisitException {
+        visitDefault(arg);
+    }
+
 
     //
     // statements call visitDefaultStatement
     //
     
-    public void visit(ASTAssertStatement arg)  throws ASTVisitException {
+    public void visit(ASTAssignmentStatement arg) throws ASTVisitException {
         visitDefaultStatement(arg);
     }
-
-    public void visit(ASTAssignmentStatement arg)  throws ASTVisitException {
+    
+    public void visit(ASTSchematicAssignmentStatement arg) throws ASTVisitException {
+        visitDefaultStatement(arg);
+    }
+    
+    public void visit(ASTAssertStatement arg)  throws ASTVisitException {
         visitDefaultStatement(arg);
     }
 
