@@ -95,39 +95,45 @@ public interface BPLParserConstants {
   /** RegularExpression Id. */
   int OP_ASSIGN = 46;
   /** RegularExpression Id. */
-  int OP_MUL = 47;
+  int OP_EQUIV = 47;
   /** RegularExpression Id. */
-  int OP_FORALL = 48;
+  int OP_IMPL = 48;
   /** RegularExpression Id. */
-  int OP_EXISTS = 49;
+  int OP_EXPL = 49;
   /** RegularExpression Id. */
-  int OP_LAMBDA = 50;
+  int OP_AND = 50;
   /** RegularExpression Id. */
-  int OP_SEP = 51;
+  int OP_OR = 51;
   /** RegularExpression Id. */
-  int OP_AND = 52;
+  int OP_NEGATION = 52;
   /** RegularExpression Id. */
-  int OP_OR = 53;
+  int OP_MUL = 53;
   /** RegularExpression Id. */
-  int OP_NEGATION = 54;
+  int OP_FORALL = 54;
   /** RegularExpression Id. */
-  int SEP_RCURLY = 55;
+  int OP_EXISTS = 55;
   /** RegularExpression Id. */
-  int SEP_LCURLY = 56;
+  int OP_LAMBDA = 56;
   /** RegularExpression Id. */
-  int SEP_RBRACKET = 57;
+  int OP_SEP = 57;
   /** RegularExpression Id. */
-  int SEP_LBRACKET = 58;
+  int SEP_RCURLY = 58;
   /** RegularExpression Id. */
-  int IDENT = 59;
+  int SEP_LCURLY = 59;
   /** RegularExpression Id. */
-  int BVLIT = 60;
+  int SEP_RBRACKET = 60;
   /** RegularExpression Id. */
-  int STRING = 61;
+  int SEP_LBRACKET = 61;
   /** RegularExpression Id. */
-  int FLOAT = 62;
+  int IDENT = 62;
   /** RegularExpression Id. */
-  int INTEGER = 63;
+  int BVLIT = 63;
+  /** RegularExpression Id. */
+  int STRING = 64;
+  /** RegularExpression Id. */
+  int FLOAT = 65;
+  /** RegularExpression Id. */
+  int INTEGER = 66;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -181,14 +187,17 @@ public interface BPLParserConstants {
     "\"true\"",
     "\"old\"",
     "\":=\"",
+    "<OP_EQUIV>",
+    "<OP_IMPL>",
+    "<OP_EXPL>",
+    "<OP_AND>",
+    "<OP_OR>",
+    "<OP_NEGATION>",
     "\"*\"",
     "<OP_FORALL>",
     "<OP_EXISTS>",
     "<OP_LAMBDA>",
     "<OP_SEP>",
-    "<OP_AND>",
-    "<OP_OR>",
-    "<OP_NEGATION>",
     "\"}\"",
     "\"{\"",
     "\"]\"",
@@ -206,12 +215,6 @@ public interface BPLParserConstants {
     "\"<\"",
     "\">\"",
     "\"=\"",
-    "\"<==>\"",
-    "\"\\u21d4\"",
-    "\"==>\"",
-    "\"\\u21d2\"",
-    "\"<==\"",
-    "\"\\u21d0\"",
     "\"==\"",
     "\"!=\"",
     "\"\\u2260\"",

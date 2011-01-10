@@ -220,11 +220,10 @@ public final class EnvironmentCreationState {
         } catch (RuntimeException e) {
             e.printStackTrace();
 
-            // printDebugInformation();
+            // this should not happen, so print detailed information
+            printDebugInformation();
 
             throw e;
-        } finally {
-            // printDebugInformation();
         }
 
         return env;

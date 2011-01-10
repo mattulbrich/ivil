@@ -112,7 +112,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     first = jj_consume_token(VAR);
     attr = AttributeList();
     vars = IdsTypeWheres(false, false, false);
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new GlobalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
   }
@@ -124,14 +124,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     first = jj_consume_token(VAR);
     attr = AttributeList();
     vars = IdsTypeWheres(false, false, false);
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new LocalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
   }
 
   final public List < VariableDeclaration > ProcFormals(boolean isConstant) throws ParseException {
   List < VariableDeclaration > vars = new LinkedList < VariableDeclaration > ();
-    jj_consume_token(65);
+    jj_consume_token(68);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENT:
       vars = IdsTypeWheres(isConstant, false, false);
@@ -140,7 +140,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1[2] = jj_gen;
       ;
     }
-    jj_consume_token(66);
+    jj_consume_token(69);
     {if (true) return vars;}
     throw new Error("Missing return statement in function");
   }
@@ -158,7 +158,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   List < Token > names;
   Type t;
     names = Idents();
-    jj_consume_token(67);
+    jj_consume_token(70);
     t = Type();
     List < VariableDeclaration > rval = new LinkedList < VariableDeclaration > ();
     for (Token name : names) rval.add(new VariableDeclaration(name, t, isConstant, isUnique, false, null));
@@ -174,14 +174,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 68:
+      case 71:
         ;
         break;
       default:
         jj_la1[3] = jj_gen;
         break label_2;
       }
-      jj_consume_token(68);
+      jj_consume_token(71);
       tmp = IdsTypeWhere(isConstant, isUnique, isQuantified);
       rval.addAll(tmp);
     }
@@ -194,7 +194,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Type t;
   Expression e = null;
     names = Idents();
-    jj_consume_token(67);
+    jj_consume_token(70);
     t = Type();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case WHERE:
@@ -218,7 +218,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case INT:
     case BOOL:
     case BVTYPE:
-    case 65:
+    case 68:
       t = TypeAtom();
       break;
     case IDENT:
@@ -232,8 +232,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 65:
-      case 69:
+      case 68:
+      case 72:
         types = TypeArgs();
         break;
       default:
@@ -243,7 +243,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         {if (true) return new TemplateType(name, types);}
       break;
     case SEP_LBRACKET:
-    case 69:
+    case 72:
       t = MapType();
       break;
     default:
@@ -262,7 +262,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case INT:
     case BOOL:
     case BVTYPE:
-    case 65:
+    case 68:
       t = TypeAtom();
       rval.add(t);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -271,8 +271,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 65:
-      case 69:
+      case 68:
+      case 72:
         tmp = TypeArgs();
         rval.addAll(tmp);
         break;
@@ -291,8 +291,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 65:
-      case 69:
+      case 68:
+      case 72:
         tmp = TypeArgs();
         rval.addAll(tmp);
         break;
@@ -302,7 +302,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       }
       break;
     case SEP_LBRACKET:
-    case 69:
+    case 72:
       t = MapType();
       rval.add(t);
       break;
@@ -339,10 +339,10 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       }
       {if (true) return new BuiltInType(t);}
       break;
-    case 65:
-      jj_consume_token(65);
+    case 68:
+      jj_consume_token(68);
       rval = Type();
-      jj_consume_token(66);
+      jj_consume_token(69);
       {if (true) return rval;}
       break;
     default:
@@ -359,10 +359,10 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   List < Type > domain = new LinkedList < Type > ();
   Type range;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
-      first = jj_consume_token(69);
+    case 72:
+      first = jj_consume_token(72);
       params = Idents();
-      jj_consume_token(70);
+      jj_consume_token(73);
       break;
     default:
       jj_la1[12] = jj_gen;
@@ -376,8 +376,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case BVTYPE:
     case SEP_LBRACKET:
     case IDENT:
-    case 65:
-    case 69:
+    case 68:
+    case 72:
       domain = Types();
       break;
     default:
@@ -392,9 +392,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 
   final public List < Token > TypeParams() throws ParseException {
   List < Token > L;
-    jj_consume_token(69);
+    jj_consume_token(72);
     L = Idents();
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return L;}
     throw new Error("Missing return statement in function");
   }
@@ -407,14 +407,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 68:
+      case 71:
         ;
         break;
       default:
         jj_la1[14] = jj_gen;
         break label_3;
       }
-      jj_consume_token(68);
+      jj_consume_token(71);
       t = Type();
       types.add(t);
     }
@@ -466,14 +466,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         label_4:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 68:
+          case 71:
             ;
             break;
           default:
             jj_la1[17] = jj_gen;
             break label_4;
           }
-          jj_consume_token(68);
+          jj_consume_token(71);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case UNIQUE:
             jj_consume_token(UNIQUE);
@@ -506,7 +506,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1[21] = jj_gen;
       ;
     }
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new ConstantDeclaration(first, attributes, unique, varnames, parents, complete);}
     throw new Error("Missing return statement in function");
   }
@@ -527,35 +527,35 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     attributes = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
+    case 72:
       typeParameters = TypeParams();
       break;
     default:
       jj_la1[22] = jj_gen;
       ;
     }
-    jj_consume_token(65);
+    jj_consume_token(68);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
     case BOOL:
     case BVTYPE:
     case SEP_LBRACKET:
     case IDENT:
-    case 65:
-    case 69:
+    case 68:
+    case 72:
       var = VarOrType("in_"+ inParam.size());
       inParam.add(var);
       label_5:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
           jj_la1[23] = jj_gen;
           break label_5;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         var = VarOrType("in_"+ inParam.size());
         inParam.add(var);
       }
@@ -564,16 +564,16 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1[24] = jj_gen;
       ;
     }
-    jj_consume_token(66);
+    jj_consume_token(69);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case RETURNS:
       jj_consume_token(RETURNS);
-      jj_consume_token(65);
+      jj_consume_token(68);
       outParam = VarOrType("rval");
-      jj_consume_token(66);
+      jj_consume_token(69);
       break;
-    case 67:
-      jj_consume_token(67);
+    case 70:
+      jj_consume_token(70);
       tmp = Type();
       outParam = new VariableDeclaration("rval", tmp, false, false, false, null);
       break;
@@ -588,8 +588,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       expression = Expression();
       jj_consume_token(SEP_RCURLY);
       break;
-    case 64:
-      jj_consume_token(64);
+    case 67:
+      jj_consume_token(67);
       break;
     default:
       jj_la1[26] = jj_gen;
@@ -605,8 +605,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Type tmp;
     rval = Type();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 67:
-      jj_consume_token(67);
+    case 70:
+      jj_consume_token(70);
       tmp = Type();
       if (!(rval instanceof TemplateType)) {if (true) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());}
       rval = new VariableDeclaration(((TemplateType) rval).getLocationToken(), tmp, false, false, false, null);
@@ -628,7 +628,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     first = jj_consume_token(AXIOM);
     attributes = AttributeList();
     axiom = Expression();
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new AxiomDeclaration(first, attributes, axiom);}
     throw new Error("Missing return statement in function");
   }
@@ -646,18 +646,18 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 68:
+      case 71:
         ;
         break;
       default:
         jj_la1[28] = jj_gen;
         break label_6;
       }
-      jj_consume_token(68);
+      jj_consume_token(71);
       t = UserDefinedType();
       typedefs.add(t);
     }
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new UserDefinedTypeDeclaration(first, attr, typedefs);}
     throw new Error("Missing return statement in function");
   }
@@ -676,8 +676,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 71:
-      jj_consume_token(71);
+    case 74:
+      jj_consume_token(74);
       parent = Type();
       break;
     default:
@@ -701,7 +701,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     attr = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
+    case 72:
       typeParameters = TypeParams();
       break;
     default:
@@ -719,8 +719,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 64:
-      jj_consume_token(64);
+    case 67:
+      jj_consume_token(67);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -779,7 +779,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     attr = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
+    case 72:
       typeParameters = TypeParams();
       break;
     default:
@@ -817,7 +817,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         jj_la1[39] = jj_gen;
         ;
       }
-      jj_consume_token(64);
+      jj_consume_token(67);
       {if (true) return new ModifiesClause(first, targets);}
       break;
     case FREE:
@@ -836,7 +836,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         tmp = jj_consume_token(REQUIRES);
         attr = AttributeList();
         expr = Expression();
-        jj_consume_token(64);
+        jj_consume_token(67);
           if (null == first) {if (true) return new Precondition(tmp, false, attr, expr);} // checked condition
           else {if (true) return new Precondition(first, true, attr, expr);}
         break;
@@ -844,7 +844,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         tmp = jj_consume_token(ENSURES);
         attr = AttributeList();
         expr = Expression();
-        jj_consume_token(64);
+        jj_consume_token(67);
           if (null == first) {if (true) return new Postcondition(tmp, false, attr, expr);} // checked condition
           else {if (true) return new Postcondition(first, true, attr, expr);}
         break;
@@ -958,7 +958,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return rval;}
     throw new Error("Missing return statement in function");
   }
@@ -1051,7 +1051,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       }
       jj_consume_token(INVARIANT);
       expr = Expression();
-      jj_consume_token(64);
+      jj_consume_token(67);
       invariants.add(new LoopInvariant(free, expr));
     }
     jj_consume_token(SEP_LCURLY);
@@ -1064,7 +1064,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public Expression Guard() throws ParseException {
   Token first;
   Expression e;
-    jj_consume_token(65);
+    jj_consume_token(68);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case OP_MUL:
       first = jj_consume_token(OP_MUL);
@@ -1078,9 +1078,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
+    case 68:
+    case 85:
     case 88:
-    case 91:
       e = Expression();
       break;
     default:
@@ -1088,7 +1088,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(66);
+    jj_consume_token(69);
     {if (true) return e;}
     throw new Error("Missing return statement in function");
   }
@@ -1105,7 +1105,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1[53] = jj_gen;
       ;
     }
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new BreakStatement(first, target);}
     throw new Error("Missing return statement in function");
   }
@@ -1125,24 +1125,24 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       first = jj_consume_token(ASSERT);
       attr = AttributeList();
       expr = Expression();
-      jj_consume_token(64);
+      jj_consume_token(67);
       rval = new AssertionStatement(first, attr, expr);
       break;
     case ASSUME:
       first = jj_consume_token(ASSUME);
       expr = Expression();
-      jj_consume_token(64);
+      jj_consume_token(67);
       rval = new AssumptionStatement(first, expr);
       break;
     case HAVOC:
       first = jj_consume_token(HAVOC);
       vars = Idents();
-      jj_consume_token(64);
+      jj_consume_token(67);
       rval = new HavocStatement(first, vars);
       break;
     case CALL:
       rval = CallCmd();
-      jj_consume_token(64);
+      jj_consume_token(67);
       break;
     default:
       jj_la1[54] = jj_gen;
@@ -1161,13 +1161,13 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   List < Expression > arguments, RValues = new LinkedList < Expression > (), LValues = new LinkedList < Expression > ();
     tmp = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 67:
-      jj_consume_token(67);
+    case 70:
+      jj_consume_token(70);
       {if (true) return new LabelStatement(tmp);}
       break;
     case OP_ASSIGN:
     case SEP_LBRACKET:
-    case 68:
+    case 71:
       locations.add(tmp);
       expr = new VariableUsageExpression(tmp);
       label_12:
@@ -1187,14 +1187,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       label_13:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
           jj_la1[56] = jj_gen;
           break label_13;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         tmp = jj_consume_token(IDENT);
         locations.add(tmp);
         expr = new VariableUsageExpression(tmp);
@@ -1219,18 +1219,18 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       label_15:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
           jj_la1[58] = jj_gen;
           break label_15;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         expr = Expression();
         RValues.add(expr);
       }
-      jj_consume_token(64);
+      jj_consume_token(67);
       if (LValues.size() != RValues.size()) {if (true) throw new ParseException("found missmatched AssignmentStatement");}
       List < SimpleAssignment > rval = new LinkedList < SimpleAssignment > ();
       for (int i = 0; i < LValues.size(); i++) rval.add(new SimpleAssignment(locations.get(i), LValues.get(i), RValues.get(i)));
@@ -1257,22 +1257,22 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
+    case 68:
+    case 85:
     case 88:
-    case 91:
       ex = Expression();
       rval.add(ex);
       label_16:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
           jj_la1[60] = jj_gen;
           break label_16;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         ex = Expression();
         rval.add(ex);
       }
@@ -1307,35 +1307,35 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
       tmp = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 65:
+      case 68:
         name = tmp.image;
-        jj_consume_token(65);
+        jj_consume_token(68);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
         case FALSE:
         case TRUE:
         case OLD:
-        case OP_MUL:
         case OP_NEGATION:
+        case OP_MUL:
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 65:
+        case 68:
+        case 85:
         case 88:
-        case 91:
           arg = CallForallArg();
           arglist.add(arg);
           label_17:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 68:
+            case 71:
               ;
               break;
             default:
               jj_la1[62] = jj_gen;
               break label_17;
             }
-            jj_consume_token(68);
+            jj_consume_token(71);
             arg = CallForallArg();
             arglist.add(arg);
           }
@@ -1344,55 +1344,55 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
           jj_la1[63] = jj_gen;
           ;
         }
-        jj_consume_token(66);
+        jj_consume_token(69);
         break;
       case OP_ASSIGN:
-      case 68:
+      case 71:
         outParam.add(tmp);
         label_18:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 68:
+          case 71:
             ;
             break;
           default:
             jj_la1[64] = jj_gen;
             break label_18;
           }
-          jj_consume_token(68);
+          jj_consume_token(71);
           out = CallOutIdent();
           outParam.add(out);
         }
         jj_consume_token(OP_ASSIGN);
         tmp = jj_consume_token(IDENT);
-        jj_consume_token(65);
+        jj_consume_token(68);
         name = tmp.image;
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
         case FALSE:
         case TRUE:
         case OLD:
-        case OP_MUL:
         case OP_NEGATION:
+        case OP_MUL:
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 65:
+        case 68:
+        case 85:
         case 88:
-        case 91:
           arg = CallForallArg();
           arglist.add(arg);
           label_19:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 68:
+            case 71:
               ;
               break;
             default:
               jj_la1[65] = jj_gen;
               break label_19;
             }
-            jj_consume_token(68);
+            jj_consume_token(71);
             arg = CallForallArg();
             arglist.add(arg);
           }
@@ -1401,7 +1401,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
           jj_la1[66] = jj_gen;
           ;
         }
-        jj_consume_token(66);
+        jj_consume_token(69);
         break;
       default:
         jj_la1[67] = jj_gen;
@@ -1414,33 +1414,33 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_consume_token(OP_FORALL);
       tmp = jj_consume_token(IDENT);
       name = tmp.image;
-      jj_consume_token(65);
+      jj_consume_token(68);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
       case FALSE:
       case TRUE:
       case OLD:
-      case OP_MUL:
       case OP_NEGATION:
+      case OP_MUL:
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 65:
+      case 68:
+      case 85:
       case 88:
-      case 91:
         arg = CallForallArg();
         arglist.add(arg);
         label_20:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 68:
+          case 71:
             ;
             break;
           default:
             jj_la1[68] = jj_gen;
             break label_20;
           }
-          jj_consume_token(68);
+          jj_consume_token(71);
           arg = CallForallArg();
           arglist.add(arg);
         }
@@ -1449,7 +1449,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         jj_la1[69] = jj_gen;
         ;
       }
-      jj_consume_token(66);
+      jj_consume_token(69);
       {if (true) return new CallForallStatement(first, attr, name, arglist);}
       break;
     case OP_MUL:
@@ -1458,47 +1458,47 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       label_21:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
           jj_la1[70] = jj_gen;
           break label_21;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         out = CallOutIdent();
         outParam.add(out);
       }
       jj_consume_token(OP_ASSIGN);
       tmp = jj_consume_token(IDENT);
-      jj_consume_token(65);
+      jj_consume_token(68);
       name = tmp.image;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
       case FALSE:
       case TRUE:
       case OLD:
-      case OP_MUL:
       case OP_NEGATION:
+      case OP_MUL:
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 65:
+      case 68:
+      case 85:
       case 88:
-      case 91:
         arg = CallForallArg();
         arglist.add(arg);
         label_22:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 68:
+          case 71:
             ;
             break;
           default:
             jj_la1[71] = jj_gen;
             break label_22;
           }
-          jj_consume_token(68);
+          jj_consume_token(71);
           arg = CallForallArg();
           arglist.add(arg);
         }
@@ -1507,7 +1507,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         jj_la1[72] = jj_gen;
         ;
       }
-      jj_consume_token(66);
+      jj_consume_token(69);
       {if (true) return new CallStatement(first, attr, name, outParam, arglist);}
       break;
     default:
@@ -1555,9 +1555,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
+    case 68:
+    case 85:
     case 88:
-    case 91:
       expr = Expression();
       break;
     default:
@@ -1578,14 +1578,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_23:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 68:
+      case 71:
         ;
         break;
       default:
         jj_la1[76] = jj_gen;
         break label_23;
       }
-      jj_consume_token(68);
+      jj_consume_token(71);
       n = jj_consume_token(IDENT);
       rval.add(n);
     }
@@ -1622,26 +1622,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_25:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 72:
-      case 73:
+      case OP_EQUIV:
         ;
         break;
       default:
         jj_la1[78] = jj_gen;
         break label_25;
       }
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 72:
-        loc = jj_consume_token(72);
-        break;
-      case 73:
-        loc = jj_consume_token(73);
-        break;
-      default:
-        jj_la1[79] = jj_gen;
-        jj_consume_token(-1);
-        throw new ParseException();
-      }
+      loc = jj_consume_token(OP_EQUIV);
       tmp = ImpliesExpression();
       rval = new EquivalenceExpression(loc, rval, tmp);
     }
@@ -1655,66 +1643,39 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Expression rval, tmp;
     rval = LogicalExpression();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 74:
-    case 75:
-    case 76:
-    case 77:
+    case OP_IMPL:
+    case OP_EXPL:
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 74:
-      case 75:
-        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
-          loc = jj_consume_token(74);
-          break;
-        case 75:
-          loc = jj_consume_token(75);
-          break;
-        default:
-          jj_la1[80] = jj_gen;
-          jj_consume_token(-1);
-          throw new ParseException();
-        }
+      case OP_IMPL:
+        loc = jj_consume_token(OP_IMPL);
         /* recurse because implication is right-associative */
             tmp = ImpliesExpression();
       rval = new ImpliesExpression(loc, rval, tmp);
         break;
-      case 76:
-      case 77:
+      case OP_EXPL:
         label_26:
         while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 76:
-            loc = jj_consume_token(76);
-            break;
-          case 77:
-            loc = jj_consume_token(77);
-            break;
-          default:
-            jj_la1[81] = jj_gen;
-            jj_consume_token(-1);
-            throw new ParseException();
-          }
+          loc = jj_consume_token(OP_EXPL);
           tmp = LogicalExpression();
         rval = new ImpliesExpression(loc, tmp, rval);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 76:
-          case 77:
+          case OP_EXPL:
             ;
             break;
           default:
-            jj_la1[82] = jj_gen;
+            jj_la1[79] = jj_gen;
             break label_26;
           }
         }
         break;
       default:
-        jj_la1[83] = jj_gen;
+        jj_la1[80] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[84] = jj_gen;
+      jj_la1[81] = jj_gen;
       ;
     }
     {if (true) return rval;}
@@ -1741,7 +1702,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
             ;
             break;
           default:
-            jj_la1[85] = jj_gen;
+            jj_la1[82] = jj_gen;
             break label_27;
           }
         }
@@ -1757,19 +1718,19 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
             ;
             break;
           default:
-            jj_la1[86] = jj_gen;
+            jj_la1[83] = jj_gen;
             break label_28;
           }
         }
         break;
       default:
-        jj_la1[87] = jj_gen;
+        jj_la1[84] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[88] = jj_gen;
+      jj_la1[85] = jj_gen;
       ;
     }
     {if (true) return rval;}
@@ -1782,96 +1743,96 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Expression rval, tmp;
     rval = BvTerm();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
-    case 70:
+    case 72:
+    case 73:
+    case 75:
+    case 76:
+    case 77:
     case 78:
     case 79:
     case 80:
     case 81:
     case 82:
-    case 83:
-    case 84:
-    case 85:
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 78:
-        loc = jj_consume_token(78);
+      case 75:
+        loc = jj_consume_token(75);
         tmp = BvTerm();
       {if (true) return new EqualsExpression(loc, rval, tmp);}
         break;
-      case 79:
-      case 80:
+      case 76:
+      case 77:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 79:
-          loc = jj_consume_token(79);
+        case 76:
+          loc = jj_consume_token(76);
           break;
-        case 80:
-          loc = jj_consume_token(80);
+        case 77:
+          loc = jj_consume_token(77);
           break;
         default:
-          jj_la1[89] = jj_gen;
+          jj_la1[86] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         tmp = BvTerm();
       {if (true) return new EqualsNotExpression(loc, rval, tmp);}
         break;
-      case 69:
-        loc = jj_consume_token(69);
+      case 72:
+        loc = jj_consume_token(72);
         tmp = BvTerm();
       {if (true) return new LessExpression(loc, rval, tmp);}
         break;
-      case 81:
-      case 82:
+      case 78:
+      case 79:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 81:
-          loc = jj_consume_token(81);
+        case 78:
+          loc = jj_consume_token(78);
           break;
-        case 82:
-          loc = jj_consume_token(82);
+        case 79:
+          loc = jj_consume_token(79);
           break;
         default:
-          jj_la1[90] = jj_gen;
+          jj_la1[87] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         tmp = BvTerm();
       {if (true) return new LessEqualExpression(loc, rval, tmp);}
         break;
-      case 70:
-        loc = jj_consume_token(70);
+      case 73:
+        loc = jj_consume_token(73);
         tmp = BvTerm();
       {if (true) return new GreaterExpression(loc, rval, tmp);}
         break;
-      case 83:
-      case 84:
+      case 80:
+      case 81:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 83:
-          loc = jj_consume_token(83);
+        case 80:
+          loc = jj_consume_token(80);
           break;
-        case 84:
-          loc = jj_consume_token(84);
+        case 81:
+          loc = jj_consume_token(81);
           break;
         default:
-          jj_la1[91] = jj_gen;
+          jj_la1[88] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         tmp = BvTerm();
       {if (true) return new GreaterEqualExpression(loc, rval, tmp);}
         break;
-      case 85:
-        loc = jj_consume_token(85);
+      case 82:
+        loc = jj_consume_token(82);
         tmp = BvTerm();
       {if (true) return new ExtendsExpression(loc, rval, tmp);}
         break;
       default:
-        jj_la1[92] = jj_gen;
+        jj_la1[89] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
       break;
     default:
-      jj_la1[93] = jj_gen;
+      jj_la1[90] = jj_gen;
       ;
     }
     {if (true) return rval;}
@@ -1886,14 +1847,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_29:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 86:
+      case 83:
         ;
         break;
       default:
-        jj_la1[94] = jj_gen;
+        jj_la1[91] = jj_gen;
         break label_29;
       }
-      loc = jj_consume_token(86);
+      loc = jj_consume_token(83);
       tmp = Term();
       rval = new ConcatenationExpression(loc, rval, tmp);
     }
@@ -1909,27 +1870,27 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_30:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 87:
-      case 88:
+      case 84:
+      case 85:
         ;
         break;
       default:
-        jj_la1[95] = jj_gen;
+        jj_la1[92] = jj_gen;
         break label_30;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 87:
-        loc = jj_consume_token(87);
+      case 84:
+        loc = jj_consume_token(84);
         tmp = Factor();
       rval = new AdditionExpression(loc, rval, tmp);
         break;
-      case 88:
-        loc = jj_consume_token(88);
+      case 85:
+        loc = jj_consume_token(85);
         tmp = Factor();
       rval = new SubtractionExpression(loc, rval, tmp);
         break;
       default:
-        jj_la1[96] = jj_gen;
+        jj_la1[93] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1947,12 +1908,12 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case OP_MUL:
-      case 89:
-      case 90:
+      case 86:
+      case 87:
         ;
         break;
       default:
-        jj_la1[97] = jj_gen;
+        jj_la1[94] = jj_gen;
         break label_31;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1961,18 +1922,18 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         tmp = UnaryExpression();
       rval = new MultiplicationExpression(loc, rval, tmp);
         break;
-      case 89:
-        loc = jj_consume_token(89);
+      case 86:
+        loc = jj_consume_token(86);
         tmp = UnaryExpression();
       rval = new DivisionExpression(loc, rval, tmp);
         break;
-      case 90:
-        loc = jj_consume_token(90);
+      case 87:
+        loc = jj_consume_token(87);
         tmp = UnaryExpression();
       rval = new ModuloExpression(loc, rval, tmp);
         break;
       default:
-        jj_la1[98] = jj_gen;
+        jj_la1[95] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1986,8 +1947,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Token loc;
   Expression rval;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 88:
-      loc = jj_consume_token(88);
+    case 85:
+      loc = jj_consume_token(85);
       rval = UnaryExpression();
       rval = new UnaryMinusExpression(loc, rval);
       break;
@@ -2003,12 +1964,12 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
-    case 91:
+    case 68:
+    case 88:
       rval = CoercionExpression();
       break;
     default:
-      jj_la1[99] = jj_gen;
+      jj_la1[96] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2030,22 +1991,22 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     label_32:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 67:
+      case 70:
         ;
         break;
       default:
-        jj_la1[100] = jj_gen;
+        jj_la1[97] = jj_gen;
         break label_32;
       }
-      jj_consume_token(67);
+      jj_consume_token(70);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
       case BOOL:
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 65:
-      case 69:
+      case 68:
+      case 72:
         T = Type();
         {if (true) return new CoercionExpression(rval, T);}
         break;
@@ -2055,7 +2016,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         {if (true) return new BitvectorSelectExpression(rval, new IntegerExpression(i));}
         break;
       default:
-        jj_la1[101] = jj_gen;
+        jj_la1[98] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -2076,7 +2037,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[102] = jj_gen;
+        jj_la1[99] = jj_gen;
         break label_33;
       }
       jj_consume_token(SEP_LBRACKET);
@@ -2092,9 +2053,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 65:
+      case 68:
+      case 85:
       case 88:
-      case 91:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
         case FALSE:
@@ -2104,22 +2065,22 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 65:
+        case 68:
+        case 85:
         case 88:
-        case 91:
           tmp = Expression();
         arguments.add(tmp);
           label_34:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 68:
+            case 71:
               ;
               break;
             default:
-              jj_la1[103] = jj_gen;
+              jj_la1[100] = jj_gen;
               break label_34;
             }
-            jj_consume_token(68);
+            jj_consume_token(71);
             tmp = Expression();
           arguments.add(tmp);
           }
@@ -2129,7 +2090,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
             update = Expression();
             break;
           default:
-            jj_la1[104] = jj_gen;
+            jj_la1[101] = jj_gen;
             ;
           }
         if (arguments.size() == 1 && tmp instanceof BitvectorSelectExpression) rval = new BitvectorAccessSelectionExpression(rval, tmp);
@@ -2142,13 +2103,13 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         rval = new MapUpdateExpression(rval, arguments, update);
           break;
         default:
-          jj_la1[105] = jj_gen;
+          jj_la1[102] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         break;
       default:
-        jj_la1[106] = jj_gen;
+        jj_la1[103] = jj_gen;
         ;
       }
       jj_consume_token(SEP_RBRACKET);
@@ -2181,8 +2142,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
       first = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 65:
-        jj_consume_token(65);
+      case 68:
+        jj_consume_token(68);
         Expression expr;
         List < Expression > args = new LinkedList < Expression > ();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -2194,48 +2155,48 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 65:
+        case 68:
+        case 85:
         case 88:
-        case 91:
           expr = Expression();
           args.add(expr);
           label_35:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 68:
+            case 71:
               ;
               break;
             default:
-              jj_la1[107] = jj_gen;
+              jj_la1[104] = jj_gen;
               break label_35;
             }
-            jj_consume_token(68);
+            jj_consume_token(71);
             expr = Expression();
             args.add(expr);
           }
           break;
         default:
-          jj_la1[108] = jj_gen;
+          jj_la1[105] = jj_gen;
           ;
         }
-        jj_consume_token(66);
+        jj_consume_token(69);
         {if (true) return new FunctionCallExpression(first, args);}
         break;
       default:
-        jj_la1[109] = jj_gen;
+        jj_la1[106] = jj_gen;
         ;
       }
       {if (true) return new VariableUsageExpression(first);}
       break;
     case OLD:
       first = jj_consume_token(OLD);
-      jj_consume_token(65);
+      jj_consume_token(68);
       rval = Expression();
-      jj_consume_token(66);
+      jj_consume_token(69);
       {if (true) return new OldExpression(first, rval);}
       break;
-    case 65:
-      jj_consume_token(65);
+    case 68:
+      jj_consume_token(68);
       QuantifierBody body;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -2246,9 +2207,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 65:
+      case 68:
+      case 85:
       case 88:
-      case 91:
         rval = Expression();
         break;
       case OP_FORALL:
@@ -2268,23 +2229,23 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         rval = new LambdaExpression(first, body);
         break;
       default:
-        jj_la1[110] = jj_gen;
+        jj_la1[107] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      jj_consume_token(66);
+      jj_consume_token(69);
       {if (true) return rval;}
       break;
     case IF:
       rval = IfThenElseExpression();
       {if (true) return rval;}
       break;
-    case 91:
+    case 88:
       rval = CodeExpression();
       {if (true) return rval;}
       break;
     default:
-      jj_la1[111] = jj_gen;
+      jj_la1[108] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2297,7 +2258,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   List < LocalVariableDeclaration > vars = new LinkedList < LocalVariableDeclaration > ();
   CodeBlock block;
   List < CodeBlock > blocks = new LinkedList < CodeBlock > ();
-    loc = jj_consume_token(91);
+    loc = jj_consume_token(88);
     label_36:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -2305,7 +2266,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[112] = jj_gen;
+        jj_la1[109] = jj_gen;
         break label_36;
       }
       var = LocalVars();
@@ -2320,11 +2281,11 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[113] = jj_gen;
+        jj_la1[110] = jj_gen;
         break label_37;
       }
     }
-    jj_consume_token(92);
+    jj_consume_token(89);
     {if (true) return new CodeExpression(loc, vars, blocks);}
     throw new Error("Missing return statement in function");
   }
@@ -2339,7 +2300,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Statement cmd;
   List < Statement > body = new LinkedList < Statement > ();
     tmp = jj_consume_token(IDENT);
-    jj_consume_token(67);
+    jj_consume_token(70);
     cmd = new LabelStatement(tmp);
     body.add(cmd);
     label_38:
@@ -2353,7 +2314,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[114] = jj_gen;
+        jj_la1[111] = jj_gen;
         break label_38;
       }
       cmd = LabelOrCmd();
@@ -2371,11 +2332,11 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       body.add(new CodeExpressionReturn(expr));
       break;
     default:
-      jj_la1[115] = jj_gen;
+      jj_la1[112] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(64);
+    jj_consume_token(67);
     {if (true) return new CodeBlock(body);}
     throw new Error("Missing return statement in function");
   }
@@ -2390,7 +2351,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[116] = jj_gen;
+        jj_la1[113] = jj_gen;
         break label_39;
       }
       attr = Attribute();
@@ -2412,11 +2373,11 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   ASTElement rval;
     jj_consume_token(SEP_LCURLY);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 67:
+    case 70:
       Token name;
       AttributeParameter param;
       List < AttributeParameter > params = new LinkedList < AttributeParameter > ();
-      jj_consume_token(67);
+      jj_consume_token(70);
       name = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -2428,28 +2389,28 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case BVLIT:
       case STRING:
       case INTEGER:
-      case 65:
+      case 68:
+      case 85:
       case 88:
-      case 91:
         param = AttributeParameter();
         params.add(param);
         label_40:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 68:
+          case 71:
             ;
             break;
           default:
-            jj_la1[117] = jj_gen;
+            jj_la1[114] = jj_gen;
             break label_40;
           }
-          jj_consume_token(68);
+          jj_consume_token(71);
           param = AttributeParameter();
           params.add(param);
         }
         break;
       default:
-        jj_la1[118] = jj_gen;
+        jj_la1[115] = jj_gen;
         ;
       }
       rval = new Attribute(name, params);
@@ -2462,9 +2423,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
+    case 68:
+    case 85:
     case 88:
-    case 91:
       Expression expr;
       List < Expression > args = new LinkedList < Expression > ();
       expr = Expression();
@@ -2472,21 +2433,21 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       label_41:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 68:
+        case 71:
           ;
           break;
         default:
-          jj_la1[119] = jj_gen;
+          jj_la1[116] = jj_gen;
           break label_41;
         }
-        jj_consume_token(68);
+        jj_consume_token(71);
         expr = Expression();
         args.add(expr);
       }
       rval = new Trigger(args);
       break;
     default:
-      jj_la1[120] = jj_gen;
+      jj_la1[117] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2511,14 +2472,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 65:
+    case 68:
+    case 85:
     case 88:
-    case 91:
       expr = Expression();
       {if (true) return new AttributeParameter(expr);}
       break;
     default:
-      jj_la1[121] = jj_gen;
+      jj_la1[118] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2547,14 +2508,14 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   List < Attribute > attributes = new LinkedList < Attribute > ();
   Expression body;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 69:
+    case 72:
       typeArgs = TypeParams();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IDENT:
         vars = BoundVars();
         break;
       default:
-        jj_la1[122] = jj_gen;
+        jj_la1[119] = jj_gen;
         ;
       }
       break;
@@ -2562,7 +2523,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       vars = BoundVars();
       break;
     default:
-      jj_la1[123] = jj_gen;
+      jj_la1[120] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -2574,7 +2535,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         ;
         break;
       default:
-        jj_la1[124] = jj_gen;
+        jj_la1[121] = jj_gen;
         break label_42;
       }
       attrOrTrigg = AttributeOrTrigger();
@@ -2595,7 +2556,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   public Token jj_nt;
   private int jj_ntk;
   private int jj_gen;
-  final private int[] jj_la1 = new int[125];
+  final private int[] jj_la1 = new int[122];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2605,13 +2566,13 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x7a21000,0x7a21000,0x0,0x0,0x2000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x0,0x1c000,0x0,0x40000,0x40000,0x0,0x40000,0x40000,0x100000,0x80000,0x0,0x0,0x1c000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x78000000,0x78000000,0x0,0x0,0x0,0x400000,0x0,0x10000000,0x60000000,0x78000000,0x1000,0x80000000,0x80000000,0x80000000,0x0,0x0,0x0,0x10000000,0x10000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1c000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x7a21000,0x7a21000,0x0,0x0,0x2000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x0,0x1c000,0x0,0x40000,0x40000,0x0,0x40000,0x40000,0x100000,0x80000,0x0,0x0,0x1c000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x78000000,0x78000000,0x0,0x0,0x0,0x400000,0x0,0x10000000,0x60000000,0x78000000,0x1000,0x80000000,0x80000000,0x80000000,0x0,0x0,0x0,0x10000000,0x10000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1c000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x8000000,0x0,0x0,0xc000000,0xc000000,0xc000000,0xc000000,0xc000000,0x0,0x0,0x0,0xc000000,0x0,0x0,0x0,0x0,0x0,0x8000000,0x0,0x0,0x0,0x0,0xc000000,0x0,0x1000000,0x0,0x0,0x8000000,0x0,0x0,0x0,0x0,0x0,0x1000000,0x0,0x0,0x0,0x8000000,0x0,0x0,0x0,0x0,0x80007d3,0x80007d3,0x1,0x52,0x1000002,0x8,0x20,0x0,0x9840b802,0x8000000,0x8000780,0x4000000,0x0,0x4000000,0x0,0x4004000,0x0,0x98403802,0x0,0x9840b802,0x0,0x0,0x9840b802,0x4000,0x0,0x9840b802,0x0,0x0,0x9840b802,0x8018000,0x8008000,0x9840b802,0x0,0x8000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x100000,0x200000,0x300000,0x300000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8000,0x8000,0x98403802,0x0,0x8c000000,0x4000000,0x0,0x4000,0x98407802,0x98407802,0x0,0x98403802,0x0,0x98473802,0x98003802,0x0,0x8000000,0x8000780,0x1,0x1000000,0x0,0xb8403802,0x0,0x98403802,0xb8403802,0x8000000,0x8000000,0x1000000,};
+      jj_la1_1 = new int[] {0x0,0x0,0x40000000,0x0,0x0,0x60000000,0x60000000,0x60000000,0x60000000,0x60000000,0x0,0x0,0x0,0x60000000,0x0,0x0,0x0,0x0,0x0,0x40000000,0x0,0x0,0x0,0x0,0x60000000,0x0,0x8000000,0x0,0x0,0x40000000,0x0,0x0,0x0,0x0,0x0,0x8000000,0x0,0x0,0x0,0x40000000,0x0,0x0,0x0,0x0,0x400007d3,0x400007d3,0x1,0x52,0x8000002,0x8,0x20,0x0,0xc0303802,0x40000000,0x40000780,0x20000000,0x0,0x20000000,0x0,0x20004000,0x0,0xc0103802,0x0,0xc0303802,0x0,0x0,0xc0303802,0x4000,0x0,0xc0303802,0x0,0x0,0xc0303802,0x40600000,0x40200000,0xc0303802,0x0,0x40000000,0x8000,0x20000,0x30000,0x30000,0x40000,0x80000,0xc0000,0xc0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x200000,0x200000,0xc0103802,0x0,0x60000000,0x20000000,0x0,0x4000,0xc0107802,0xc0107802,0x0,0xc0103802,0x0,0xc1d03802,0xc0003802,0x0,0x40000000,0x40000780,0x1,0x8000000,0x0,0xc0103802,0x0,0xc0103802,0xc0103802,0x40000000,0x40000000,0x8000000,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x0,0x10,0x0,0x22,0x22,0x22,0x22,0x22,0x0,0x2,0x20,0x22,0x10,0x0,0x0,0x10,0x0,0x0,0x0,0x0,0x20,0x10,0x22,0x8,0x1,0x8,0x10,0x0,0x80,0x20,0x0,0x0,0x0,0x0,0x1,0x20,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x9000002,0x0,0x0,0x0,0x10,0x0,0x10,0x18,0x10,0x9000002,0x10,0x9000002,0x10,0x10,0x9000002,0x12,0x10,0x9000002,0x10,0x10,0x9000002,0x0,0x0,0x9000002,0x10,0x0,0x300,0x300,0xc00,0x3000,0x3000,0x3c00,0x3c00,0x0,0x0,0x0,0x0,0x18000,0x60000,0x180000,0x3fc060,0x3fc060,0x400000,0x1800000,0x1800000,0x6000000,0x6000000,0x9000002,0x8,0x22,0x0,0x10,0x0,0x9000002,0x9000002,0x10,0x9000002,0x2,0x9000002,0x8000002,0x0,0x0,0x0,0x0,0x0,0x10,0x9000002,0x10,0x900000a,0x9000002,0x0,0x20,0x0,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x80,0x0,0x110,0x110,0x110,0x110,0x110,0x0,0x10,0x100,0x110,0x80,0x0,0x0,0x80,0x0,0x0,0x0,0x0,0x100,0x80,0x110,0x40,0x8,0x40,0x80,0x0,0x400,0x100,0x0,0x0,0x0,0x0,0x8,0x100,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1200014,0x0,0x0,0x0,0x80,0x0,0x80,0xc0,0x80,0x1200014,0x80,0x1200014,0x80,0x80,0x1200014,0x90,0x80,0x1200014,0x80,0x80,0x1200014,0x0,0x0,0x1200014,0x80,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3000,0xc000,0x30000,0x7fb00,0x7fb00,0x80000,0x300000,0x300000,0xc00000,0xc00000,0x1200014,0x40,0x114,0x0,0x80,0x0,0x1200014,0x1200014,0x80,0x1200014,0x10,0x1200014,0x1000014,0x0,0x0,0x0,0x0,0x0,0x80,0x1200015,0x80,0x1200054,0x1200015,0x0,0x100,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -2625,7 +2586,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2639,7 +2600,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -2649,7 +2610,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2659,7 +2620,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -2668,7 +2629,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -2677,7 +2638,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 125; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 122; i++) jj_la1[i] = -1;
   }
 
   private Token jj_consume_token(int kind) throws ParseException {
@@ -2728,12 +2689,12 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[93];
+    boolean[] la1tokens = new boolean[90];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 125; i++) {
+    for (int i = 0; i < 122; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
@@ -2748,7 +2709,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         }
       }
     }
-    for (int i = 0; i < 93; i++) {
+    for (int i = 0; i < 90; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
