@@ -16,8 +16,9 @@
   </path>
 
 
-  <target name="build" depends="javacc, compile, nonnull" />
+  <target name="build" depends="compile, nonnull" />
 
+<!--
   <target name="initJavaCC">
     <mkdir dir="genSrc"/>
     <uptodate property="javacc.notRequired"
@@ -37,6 +38,6 @@
     <delete file="genSrc/de/uka/iti/pseudo/parser/TokenMgrError.java" />
     <delete file="genSrc/de/uka/iti/pseudo/parser/Token.java" />
   </target>
-
+-->
 
 </project>

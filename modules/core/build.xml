@@ -33,11 +33,14 @@
       <fileset file="src/de/uka/iti/pseudo/parser/TermParser.jj"/>
       <fileset file="src/de/uka/iti/pseudo/parser/ProgramParser.jj"/> 
     </concat>
-    <exec executable="javacc">
+    <exec executable="javacc" failonerror="true">
       <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
       <arg value="genSrc/de/uka/iti/pseudo/parser/Parser.jj"/>
     </exec>
     <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
   </target>
+
+  <!-- for the dependencies of compile -->
+  <target name="compile-init" depends="javacc"/>
   
 </project>
