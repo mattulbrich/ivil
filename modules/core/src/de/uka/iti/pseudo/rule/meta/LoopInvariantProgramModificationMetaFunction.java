@@ -10,7 +10,6 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +17,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;

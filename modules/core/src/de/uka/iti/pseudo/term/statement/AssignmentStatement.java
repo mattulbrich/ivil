@@ -14,9 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nonnull.DeepNonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -71,6 +69,7 @@ public class AssignmentStatement extends Statement {
      */
     public AssignmentStatement(int sourceLineNumber, Term target, Term value) throws TermException {
         this(sourceLineNumber, Arrays.asList(new Assignment(target, value)));
+
     }
 
     public boolean isSchematic() {

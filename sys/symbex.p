@@ -134,15 +134,6 @@ rule tprg_assignment
        display "|> {U}"
 
 
-## note: this rule magically handles both [{U}] and [[{U}]]
-#rule prg_update
-#  find %u
-#  where isUpdateStatement %u
-#  samegoal replace $$applyUpdateStatement(%u)
-#  tags rewrite "symbex"
-#       display "|> update %u"
-
-
 rule prg_havoc
   find [%a : havoc %v]
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
