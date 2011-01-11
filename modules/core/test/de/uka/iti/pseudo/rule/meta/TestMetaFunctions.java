@@ -15,14 +15,13 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 public class TestMetaFunctions extends TestCaseWithEnv {
     MutableRuleApplication ra;
     MetaEvaluator eval;
     
     protected void setUp() throws Exception {
-        Handler.registerNoneHandler();
+//        Handler.registerNoneHandler();
         env = new Environment("none:wrapped_for_skolem", DEFAULT_ENV);
         ra = new MutableRuleApplication();
         eval = new MetaEvaluator(ra, env);

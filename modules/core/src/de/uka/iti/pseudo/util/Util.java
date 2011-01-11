@@ -16,14 +16,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.AbstractList;
-import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.RandomAccess;
-import java.util.Set;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -442,6 +439,14 @@ public class Util {
             ex.printStackTrace();
         }
         return version;
+    }
+    
+    /**
+     * register the url handlers which are used in this project.
+     */
+    public static void registerURLHandlers() {
+        System.setProperty("java.protocol.handler.pkgs", 
+                "de.uka.iti.pseudo.util.protocol");
     }
 
 }

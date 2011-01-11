@@ -39,8 +39,9 @@ public class ASTVisitException extends Exception {
 		super(message);
 	}
 
+	// do not include the cause's classname
 	public ASTVisitException(Throwable cause) {
-		super(cause);
+		super(cause.getMessage(), cause);
 	}
 	
 	public ASTVisitException(String message, ASTLocatedElement location, Throwable cause) {
@@ -49,7 +50,7 @@ public class ASTVisitException extends Exception {
 	}
 
 	public ASTVisitException(ASTLocatedElement location, Throwable cause) {
-		super(cause);
+		this(cause);
 		this.location = location;
 	}
 

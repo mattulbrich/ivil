@@ -94,6 +94,7 @@
 		
 		<settingsMenu text="Settings" mnemonic="S">
 			editor.settings.lineWrap editor.settings.syntaxHighlighting editor.settings.syntaxChecking
+		    editor.settings.syntaxChecker
 		</settingsMenu>
 		
 		<popup>
@@ -173,6 +174,7 @@
                 <text>Syntax highlighting</text>
                 <tooltip>mark up ivil syntax in the edited file</tooltip>
             </syntaxHighlighting>
+            <syntaxChecker>COMPONENT de.uka.iti.pseudo.gui.editor.SyntaxCheckerChooser</syntaxChecker>
 		</settings>
 		
 	</editor>

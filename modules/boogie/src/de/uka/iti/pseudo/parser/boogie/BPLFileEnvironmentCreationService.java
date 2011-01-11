@@ -1,9 +1,7 @@
 package de.uka.iti.pseudo.parser.boogie;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.InputStream;
 import java.net.URL;
 
 import de.uka.iti.pseudo.environment.Environment;
@@ -26,16 +24,25 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
     }
 
     @Override
-    public Pair<Environment, Term> createEnvironment(URL url) throws IOException, EnvironmentException {
+    public Pair<Environment, Term> createEnvironment(InputStream inputStream, URL url) 
+           throws IOException, EnvironmentException {
         try {
-            BPLParser p = new BPLParser(new FileInputStream(new File(url.toURI())));
+            BPLParser p = new BPLParser(inputStream);
             EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url.getFile()));
 
             return new Pair<Environment, Term>(s.make(), s.getProblem());
-        } catch (URISyntaxException e) {
-            throw new IllegalArgumentException(e);
         } catch (ParseException e) {
-            throw new EnvironmentException(e);
+            EnvironmentException envEx = new EnvironmentException(e);
+            Token currentToken = e.currentToken;
+            if(currentToken != null) {
+                Token problemToken = currentToken.next;
+                envEx.setBeginColumn(problemToken.beginColumn);
+                envEx.setBeginLine(problemToken.beginLine);
+                envEx.setEndColumn(problemToken.endColumn);
+                envEx.setEndLine(problemToken.endLine);
+            }
+            envEx.setResource(url.toString());
+            throw envEx;
         }
     }
 
