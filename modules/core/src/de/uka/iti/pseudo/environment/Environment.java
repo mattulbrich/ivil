@@ -33,6 +33,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 /**
@@ -67,7 +68,7 @@ public class Environment {
         BUILT_IN_ENV.addBuiltIns();
         BUILT_IN_ENV.setFixed();
         // needed for the dummy-url "none:built-in"
-        Handler.registerNoneHandler();
+        Util.registerURLHandlers();
     }
 
     /**

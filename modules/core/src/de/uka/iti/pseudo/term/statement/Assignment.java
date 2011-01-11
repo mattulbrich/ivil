@@ -17,7 +17,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Update;
 
-// TODO: Auto-generated Javadoc
 /**
  * Captures an assignment <code>v:=t</code> as it can appear in assignment
  * statements in programs or as it may appear as a basic assignment in an

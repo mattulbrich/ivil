@@ -14,6 +14,8 @@ package de.uka.iti.pseudo.environment.creation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -125,6 +127,35 @@ public class EnvironmentMaker {
     public EnvironmentMaker(Parser parser, URL url)
     throws ParseException, ASTVisitException, MalformedURLException, IOException {
         this(parser, url, Environment.BUILT_IN_ENV);
+    }
+    
+    /**
+     * Instantiates a new environment maker.
+     *
+     * The file is parsed and the environment created automatically. The
+     * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
+     * as parent.
+     *
+     * @param parser
+     *            the parser to use for include instructions
+     * @param url
+     *            the url to parse, its name is used as name for the
+     *            environment
+     *
+     * @throws ParseException
+     *             some parse error appeared
+     * @throws ASTVisitException
+     *             some error happened during ast traversal.
+     * @throws IOException
+     *             if the URL/file cannot be read successfully.
+     * @throws MalformedURLException
+     */
+    public EnvironmentMaker(Parser parser, InputStream stream, URL resource)
+    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+        this(parser, 
+                parser.parseFile(new InputStreamReader(stream), resource.toString()), 
+                resource.toExternalForm(),
+                Environment.BUILT_IN_ENV);
     }
 
     /**
