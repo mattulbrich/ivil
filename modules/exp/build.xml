@@ -12,7 +12,7 @@
 
   <path id="ivil.sourcepath.compile">
     <pathelement path="src"/>
-    <pathelement path="genSrc"/>
+<!--    <pathelement path="genSrc"/> -->
   </path>
 
 
