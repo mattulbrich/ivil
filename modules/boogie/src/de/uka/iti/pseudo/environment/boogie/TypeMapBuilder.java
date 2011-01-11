@@ -596,7 +596,11 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             return;
         }
 
-        state.typeMap.add(node, state.typeMap.get(decl).range);
+        try {
+            state.typeMap.add(node, UniversalType.newInferedType(state.typeMap.get(decl), node, state).range);
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + e.getMessage());
+        }
     }
 
     @Override

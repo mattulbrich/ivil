@@ -217,6 +217,7 @@ public final class EnvironmentCreationState {
 
         try {
             createEnvironment();
+
         } catch (RuntimeException e) {
             e.printStackTrace();
 
@@ -224,6 +225,8 @@ public final class EnvironmentCreationState {
             printDebugInformation();
 
             throw e;
+        } finally {
+            printDebugInformation();
         }
 
         return env;

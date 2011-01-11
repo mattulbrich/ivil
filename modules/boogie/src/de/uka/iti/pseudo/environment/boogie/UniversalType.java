@@ -15,7 +15,6 @@ import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -363,7 +362,7 @@ public class UniversalType {
      */
     // FIXME check all inference points to make sure no problems like <a>[a, a]a
     // -> [int, bool]??? occur
-    public static UniversalType newInferedType(UniversalType map, MapAccessExpression node,
+    public static UniversalType newInferedType(UniversalType map, ASTElement node,
             final EnvironmentCreationState state) throws TypeSystemException {
         if (0 == map.parameters.length)
             return map;
