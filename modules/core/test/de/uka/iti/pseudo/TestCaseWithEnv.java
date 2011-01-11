@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * The Class TestCaseWithEnv provides infrastructure for test cases which need
@@ -79,6 +80,7 @@ public class TestCaseWithEnv extends TestCase {
 //    }
 
     static {
+        Util.registerURLHandlers();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
     }
 
@@ -121,7 +123,6 @@ public class TestCaseWithEnv extends TestCase {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" "
                 + string), "*test*");
-        de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         Environment env = em.getEnvironment();
         return env;

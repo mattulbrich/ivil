@@ -93,7 +93,9 @@ public class Main {
     static {
         loadProperties();
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(settings.getBoolean(ASSERTION_PROPERTY, true));
-
+        // needed for the dummy-url "none:built-in", "buffer"
+        Util.registerURLHandlers();
+        
         BASE_DIRECTORY = settings.getProperty(BASE_DIRECTORY_KEY, ".");
     }
 

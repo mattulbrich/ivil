@@ -25,8 +25,9 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
+import java.io.StringBufferInputStream;
 import java.net.URL;
 
 import javax.swing.Action;
@@ -52,18 +53,14 @@ import org.fife.ui.rsyntaxtextarea.TokenMaker;
 import org.fife.ui.rsyntaxtextarea.modes.PlainTextTokenMaker;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
+import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
+import de.uka.iti.pseudo.environment.creation.PFileEnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
-import de.uka.iti.pseudo.parser.ASTElement;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ParseException;
-import de.uka.iti.pseudo.parser.Parser;
-import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
@@ -72,6 +69,8 @@ public class PFileEditor extends JFrame implements ActionListener {
     private static final long serialVersionUID = 8116827588545997986L;
     private static final String ERROR_FILE_PROPERTY = "errorFile";
     private static final String ERROR_LINE_PROPERTY = "errorLine";
+    public static final String SYNTAX_CHECKER_PROPERTY = "syntaxChecker";
+    public static final String SYNTAX_CHECKING_PROPERTY = "syntaxCheck";
     private RSyntaxTextArea editor;
     private File editedFile;
     private Object errorHighlighting;
@@ -98,9 +97,10 @@ public class PFileEditor extends JFrame implements ActionListener {
         
     };
     private int errorLine;
+    private EnvironmentCreationService syntaxChecker;
     private boolean hasChanged;
-    public boolean syntaxChecking = true;
-    private Object syntaxHighlighting = true;
+    public boolean syntaxChecking = false;
+    private boolean syntaxHighlighting = true;
 
     private class UpdateThread extends Thread {
         public UpdateThread() {
@@ -222,40 +222,33 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
     
     private void addErrorHighlighting() {
-        Parser p = new Parser(new StringReader(editor.getText()));
-        String filename = editedFile == null ? "none:unnamed" : "file:"+editedFile.getPath();
+        URL url = null;
         try {
-            ASTFile file = p.File();
-            file.setFilename(filename);
-            new EnvironmentMaker(p, file, filename);
+            // TODO is this conversion to a string too expensive?
+            // TODO find sth better here
+            String content = editor.getText();
+            InputStream inputStream = new StringBufferInputStream(content);
+            if(getFile() != null) {
+                url = getFile().toURI().toURL();
+            } else {
+                url = new URL("none:unnamed.p");
+            }
             
-            Log.log(Log.VERBOSE, "Syntax checked ... no more errors");
+            // the checker may be null during initialisation. ...
+            if(syntaxChecking) {
+                syntaxChecker.createEnvironment(inputStream, url);
+            }
+            
+            Log.log(Log.VERBOSE, "Syntax checked ... no errors");
             
             setErrorFilename(null);
-            markError(null, null);
-        } catch (ParseException e) {
+            markError(null, true);
+        } catch (EnvironmentException e) {
+            markError(e, url.toString().equals(e.getResource()));
+        } catch (Exception e) {
             Log.stacktrace(Log.VERBOSE, e);
-            Token problemtoken = e.currentToken.next;
-            markError(e, problemtoken);
-        } catch (ASTVisitException e) {
-            Log.stacktrace(Log.VERBOSE, e);
-            ASTLocatedElement location = e.getLocation();
-            if (location instanceof ASTElement) {
-                ASTElement ast = (ASTElement) location;
-                if(ast.getFileName().equals(filename)) {
-                    setErrorFilename(null);
-                    markError(e, ast.getLocationToken());
-                }
-                else {
-                    // error outside this thing here
-                    setErrorFilename(ast.getFileName());
-                    markError(e, null);
-                }
-            } else {
-                markError(e, null);
-            }
-        }
-        
+            markError(e, false);
+        } 
     }
 
     private void setErrorFilename(String fileName) {
@@ -269,18 +262,27 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
 
 
-    private void markError(final Exception exc, final Token token) {
+    private void markError(final Exception exc, final boolean local) {
+        assert !local || exc == null || exc instanceof EnvironmentException;
+        Log.enter(Log.VERBOSE, exc);
+        
         Runnable action = new Runnable() {
             public void run() {
                 int from, to;
                 try {
-                    if(token == null) {
+                    if(exc == null || !local) {
                         from = to = 0;
                         setErrorLine(0);
                     } else {
-                        from = toIndex(token.beginLine, token.beginColumn);
-                        to = toIndex(token.endLine, token.endColumn) + 1;
-                        setErrorLine(token.beginLine);
+                        EnvironmentException envEx = (EnvironmentException) exc; 
+                        if(envEx.hasErrorInformation()) { 
+                            from = toIndex(envEx.getBeginLine(), envEx.getBeginColumn());
+                            to = toIndex(envEx.getEndLine(), envEx.getEndColumn()) + 1;
+                            setErrorLine(envEx.getBeginLine());
+                        } else {
+                            from = to = 0;
+                            setErrorLine(0);
+                        }
                     }
                     editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
                 } catch (BadLocationException e) {
@@ -299,6 +301,9 @@ public class PFileEditor extends JFrame implements ActionListener {
                     statusLine.setForeground(Color.red);
                     
                     String message = exc.getMessage();
+                    if(message == null)
+                        message = "";
+                    
                     if(errorLine == 0)
                         statusLine.setText("Error outside this file while parsing: " + shortMessage(message));
                     else
@@ -313,6 +318,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             }
 
             private String shortMessage(String message) {
+                
                 int index = message.indexOf('\n');
                 if(index != -1)
                     return message.substring(0, index);
@@ -395,6 +401,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     
 
     public static void main(String[] args) {
+        Util.registerURLHandlers();
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -434,14 +441,36 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
     
     public void loadFile(File file) throws IOException {
+        EnvironmentCreationService checker; 
+            
         if(file != null) {
             String content = readFileAsString(file);
             editor.setText(content);
+            editor.setCaretPosition(0);
+            
+            String path = file.getPath();
+            int dotPos = path.lastIndexOf('.');
+            String ext = path.substring(dotPos + 1);
+
+            checker =
+                EnvironmentCreationService.getServiceByExtension(ext);
+            if(checker == null) {
+                // take this as default.
+                checker = new PFileEnvironmentCreationService();
+            } else {
+                setProperty(SYNTAX_CHECKING_PROPERTY, true);
+            }
+            
         } else {
             editor.setText("");
+            checker = new PFileEnvironmentCreationService();
+            setProperty(SYNTAX_CHECKING_PROPERTY, true);
         }
+        
         this.editedFile = file;
         
+        editor.discardAllEdits();
+        setProperty(SYNTAX_CHECKER_PROPERTY, checker);
         setHasChanges(false);
         updateTitle();
     }
@@ -491,18 +520,25 @@ public class PFileEditor extends JFrame implements ActionListener {
             editor.setLineWrap((Boolean)newValue);
         }
         
-        if("syntaxCheck".equals(property)) {
+        if(SYNTAX_CHECKING_PROPERTY.equals(property)) {
             syntaxChecking = (Boolean)newValue;
             if(syntaxChecking) {
                 updateThread.changed();
             } else {
-                markError(null, null);
+                markError(null, true);
             }
+        }
+        
+        if(SYNTAX_CHECKER_PROPERTY.equals(property)) {
+            syntaxChecker = (EnvironmentCreationService) newValue;
+            updateThread.changed();
+            System.out.println(syntaxChecker);
         }
         
         if("syntaxHighlight".equals(property)) {
             RSyntaxDocument rSyntaxDocument = (RSyntaxDocument) editor.getDocument();
-            if((Boolean) newValue) { 
+            syntaxHighlighting = (Boolean)newValue;
+            if(syntaxHighlighting) { 
                 rSyntaxDocument.setSyntaxStyle(new IvilTokenMaker());
             } else {
                 rSyntaxDocument.setSyntaxStyle(new PlainTextTokenMaker());
@@ -518,7 +554,11 @@ public class PFileEditor extends JFrame implements ActionListener {
             return editor.getLineWrap();
         }
         
-        if("syntaxCheck".equals(property)) {
+        if(SYNTAX_CHECKING_PROPERTY.equals(property)) {
+            return syntaxChecking; 
+        }
+        
+        if(SYNTAX_CHECKER_PROPERTY.equals(property)) {
             return syntaxChecking; 
         }
         

@@ -26,7 +26,7 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             Parser fp = new Parser(TestRuleProblemExtractor.class.getResourceAsStream("extractor.p"));
             ASTFile f = fp.File();
             f.setFilename("*test_internal*");
-            de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
+//            de.uka.iti.pseudo.util.protocol.none.Handler.registerNoneHandler();
             EnvironmentMaker em = new EnvironmentMaker(fp, f, "none:*test_internal*");
             Environment environment = em.getEnvironment();
             environment.setFixed();

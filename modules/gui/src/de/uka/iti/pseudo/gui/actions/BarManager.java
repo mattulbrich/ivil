@@ -838,6 +838,8 @@ public class BarManager {
             // TODO perhaps needed one day: Pass to the component the
             // configuration items of this object (XY=COMPONENT hello,
             // XY.color=green), set property color to green or so
+            
+            // TODO invoke something on the component to finish the init.
 
             return comp;
         } catch (Exception e) {

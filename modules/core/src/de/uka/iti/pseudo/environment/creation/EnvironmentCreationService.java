@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.environment.creation;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ServiceLoader;
 
@@ -49,7 +50,7 @@ public abstract class EnvironmentCreationService {
     /**
      * Gets the extension which is typical for that service.
      * 
-     * It must return a string <b>without leading dot '.'</p> which is the
+     * It must return a string <b>without leading dot '.'</b> which is the
      * typical suffix of files to be loaded using the service. It must at all
      * calls return the same description and must change anything.
      * 
@@ -64,6 +65,9 @@ public abstract class EnvironmentCreationService {
      * one. The second part of the return pair may be <code>null</code> if no
      * problem term has been specified.
      * 
+     * <p>The given URL is used both as source for the data and serves as the
+     * name of the resource.
+     * 
      * @param url
      *            the resource to read the environment from.
      * 
@@ -75,9 +79,38 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
-    public abstract @NonNull Pair<Environment, /*@Nullable*/ Term> createEnvironment(@NonNull URL url) 
-        throws IOException, EnvironmentException;
-    
+    public final @NonNull Pair<Environment, /*@Nullable*/ Term> 
+        createEnvironment(@NonNull URL url) throws IOException, EnvironmentException {
+        
+        return createEnvironment(url.openStream(), url);
+        
+    }
+
+    /**
+     * Actually load the environment from the resource.
+     * 
+     * It returns the environment plus the embedded problem term if there is
+     * one. The second part of the return pair may be <code>null</code> if no
+     * problem term has been specified.
+     * 
+     * @param stream
+     *            the source the data should be taken from.
+     * @param url
+     *            the resource name to set in the environment.
+     * 
+     * @return a pair of environment and problem term. The latter may be
+     *         <code>null</code>.
+     * 
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     * @throws EnvironmentException
+     *             if loading fails for some reason
+     */
+    public abstract Pair<Environment, Term> 
+          createEnvironment(InputStream stream, URL resource)  
+          throws IOException, EnvironmentException;
+
+
     /**
      * The service loader is used to create instances from the services file.
      */
