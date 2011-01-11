@@ -469,6 +469,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         
         this.editedFile = file;
         
+        editor.discardAllEdits();
         setProperty(SYNTAX_CHECKER_PROPERTY, checker);
         setHasChanges(false);
         updateTitle();
