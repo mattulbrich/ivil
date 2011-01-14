@@ -48,38 +48,19 @@ rule toplevel_and_right
 *)
 rule some
   find  (\some %x; %b) 
-  add $$subst(%x, $$skolem(%x), %b) |-
+  where programFree %b           # this is needed as the program may contain %x and as the program would be duplicated if not evaluated first leading to unnecessary work duplation
+  add (\exists %x; %b) -> $$subst(%x, $$skolem(%x), %b) |-
   replace  $$subst(%x, $$skolem(%x), %x)
   tags rewrite "fol simp"
 
 (*
-  \poly
+  \lambda
 *)
 
 binder
-  'a (\poly 'var; 'a)
+  'm (\lambda 'm; 'r)
 
-(* this rule will be generated for each map<D>
-rule poly_load
-  find (\poly%v; map_load(%m, %d))
-  replace $$inferedLoad(%v, %m, %d)
-  tags rewrite "concrete"
-*)
-
-(*
-  $codeexpression
- *)
-  
-function
-  'a $codeexpression(bool, 'a)
-
-rule after_codeexpression
-  find $codeexpression(%b, %a)
-  where programFree %b
-  where noFreeVars %b
-  replace %a
-  add %b |-
-  tags rewrite "concrete"
+# the binder will be used in an axiom, that says somithing like mapD_load(\lambda(%m, expr(%D)), %Dt) = expr(%Dt)
 
   
 (*

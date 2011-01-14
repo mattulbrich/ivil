@@ -92,6 +92,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
@@ -143,7 +144,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     // variables can get a desired name instead of the default ones
     private String desiredName = null;
 
-    private Map<String, de.uka.iti.pseudo.term.Variable> boundVars = new HashMap<String, de.uka.iti.pseudo.term.Variable>();
+    private Map<String, Variable> boundVars = new HashMap<String, Variable>();
 
     /**
      * This String is nonnull iff breaks are meaningfull. In that case, they
@@ -167,7 +168,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     /**
      * Needed to store result variables of code expressions.
      */
-    private Term codeexpressionResult = null;
+    private Variable codeexpressionResult = null;
 
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
@@ -216,10 +217,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 try {
                     Type t = state.ivilTypeMap.get(v);
                     Term ext = new Application(state.env.getFunction("$extends_direct"), Environment.getBoolType(),
-                            new Term[] { new Application(state.env.getFunction(state.translation.variableNames.get(v)),
- t),
-                            new Application(state.env.getFunction(state.translation.variableNames.get(state.names
-                                    .findVariable(p.getName(), node))), t) });
+                            new Term[] {
+                                    new Application(state.env.getFunction(state.translation.variableNames.get(v)), t),
+                                    new Application(state.env.getFunction(state.translation.variableNames
+                                            .get(state.names.findVariable(p.getName(), node))), t) });
 
                     state.env.addAxiom(new Axiom(v.getName() + "<:" + p.getName(), ext, new HashMap<String, String>(),
                             node));
@@ -866,13 +867,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         boundvars.add(var);
                         boundVars.put(newIns[i].getName(), var);
                     } else {
-                        assignments.add(new Assignment(new Application(
-                                newIns[i], newIns[i].getResultType()), state.translation.terms.get(val)));
+                        assignments.add(new Assignment(new Application(newIns[i], newIns[i].getResultType()),
+                                state.translation.terms.get(val)));
                     }
                 }
 
                 if (assignments.size() > 0) {
-                    statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine, assignments));
+                    statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                            .getLocationToken().beginLine, assignments));
 
                     statements.bodyAnnotations.add(null);
                 }
@@ -1001,6 +1003,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // ///// create code ////////
 
+        // TODO SAVE_OLD: save old_* variables somewhere and replace them with
+        // current values
+
         // load parameters
         try {
             Assignment assignments[] = new Assignment[newIns.length];
@@ -1010,12 +1015,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     val.visit(this);
 
-                    assignments[i] = new Assignment(new Application(
-                            newIns[i], newIns[i].getResultType()), state.translation.terms.get(val));
+                    assignments[i] = new Assignment(new Application(newIns[i], newIns[i].getResultType()),
+                            state.translation.terms.get(val));
                 }
 
-                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement
-                        (node.getLocationToken().beginLine, Arrays.asList(assignments)));
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                        .getLocationToken().beginLine, Arrays.asList(assignments)));
 
                 statements.bodyAnnotations.add(null);
             }
@@ -1094,13 +1099,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     target.visit(this);
 
-                    assignments[i] = new Assignment(
-                            state.translation.terms.get(target),
-                            new Application(newOuts[i], newOuts[i].getResultType()));
+                    assignments[i] = new Assignment(state.translation.terms.get(target), new Application(newOuts[i],
+                            newOuts[i].getResultType()));
                 }
 
-                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(
-                        node.getLocationToken().beginLine, Arrays.asList(assignments)));
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                        .getLocationToken().beginLine, Arrays.asList(assignments)));
 
                 statements.bodyAnnotations.add(null);
             }
@@ -1108,6 +1112,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }
+
+        // TODO RESTORE_OLD: revert changes done by SAVE_OLD
     }
 
     @Override
@@ -1209,18 +1215,18 @@ public final class ProgramMaker extends DefaultASTVisitor {
             List<Assignment> children = new ArrayList<Assignment>();
             int position = statements.bodyStatements.size() - 1;
             for (int i = 0; i < size; i++) {
-                de.uka.iti.pseudo.term.statement.AssignmentStatement assStatement = 
-                    (de.uka.iti.pseudo.term.statement.AssignmentStatement) statements.bodyStatements
+                de.uka.iti.pseudo.term.statement.AssignmentStatement assStatement = (de.uka.iti.pseudo.term.statement.AssignmentStatement) statements.bodyStatements
                         .remove(position);
                 children.addAll(assStatement.getAssignments());
-                
+
                 statements.bodyAnnotations.remove(position);
 
                 position--;
             }
 
             try {
-                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine, children));
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
+                        .getLocationToken().beginLine, children));
             } catch (TermException e) {
                 e.printStackTrace();
                 throw new ASTVisitException(node.getLocation(), e);
@@ -1730,11 +1736,18 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(OldExpression node) throws ASTVisitException {
-        oldMode = true;
-        defaultAction(node);
-        state.translation.terms.put(node, state.translation.terms.get(node.getOperands().get(0)));
+        // fix nested olds, just ignore this old
+        if (oldMode) {
+            defaultAction(node);
+            state.translation.terms.put(node, state.translation.terms.get(node.getOperands().get(0)));
 
-        oldMode = false;
+        } else {
+            oldMode = true;
+            defaultAction(node);
+            state.translation.terms.put(node, state.translation.terms.get(node.getOperands().get(0)));
+
+            oldMode = false;
+        }
     }
 
     @Override
@@ -1957,7 +1970,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         StatementTripel savedTripel = statements;
         statements = new StatementTripel();
 
-        Term oldRval = codeexpressionResult;
+        Variable oldRval = codeexpressionResult;
 
         Type result_t = state.ivilTypeMap.get(node);
 
@@ -1968,15 +1981,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
             rval = new Function(name, result_t, NO_TYPE, false, false, node);
 
             state.env.addFunction(rval);
-            codeexpressionResult = new Application(rval, result_t);
+            codeexpressionResult = new Variable("rval", result_t);
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
 
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
         }
 
         // declare variables
@@ -1987,7 +1997,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for (CodeBlock b : node.getCode())
             b.visit(this);
 
-        // TODO create gadget to evaluate rval: '\some rval; [codeexpression;0]'
         String name = state.env.createNewProgramName("codeexpression" + node.getLocation().replace(":", "_"));
         Program C = null;
         try {
@@ -1998,9 +2007,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
             throw new ASTVisitException(node.getLocation() + "program creation failed", e);
         }
 
+        // create term '\some rval; [codeexpression;0]'
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$codeexpression"), result_t,
-                    new Term[] { new LiteralProgramTerm(0, true, C), codeexpressionResult }));
+            state.translation.terms.put(node, new Binding(state.env.getBinder("\\some"), result_t,
+                    codeexpressionResult, new Term[] { new LiteralProgramTerm(0, true, C) }));
 
         } catch (TermException e) {
             e.printStackTrace();
