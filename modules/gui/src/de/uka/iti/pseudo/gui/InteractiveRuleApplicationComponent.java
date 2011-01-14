@@ -191,8 +191,7 @@ public class InteractiveRuleApplicationComponent extends
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
                 } else {
-                    ExceptionDialog.showExceptionDialog(SwingUtilities
-                            .windowForComponent(this),
+                    ExceptionDialog.showExceptionDialog(getProofCenter().getMainWindow(),
                             "We do not have a component to feed back to ...",
                             ex);
                 }
