@@ -156,6 +156,9 @@ public final class TranslationPhase {
 
     public void create(EnvironmentCreationState state) throws EnvironmentCreationException {
 
+        // ensure global and local variable declarations are processed early
+        new PreDefinitionVisitor(state);
+
         // fill environment with information and declarations/implementations
         ProgramMaker pm = new ProgramMaker(state);
 

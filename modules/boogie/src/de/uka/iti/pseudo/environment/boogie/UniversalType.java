@@ -144,7 +144,7 @@ public class UniversalType {
      */
     @SuppressWarnings("unchecked")
     private UniversalType(boolean isTypeVariable, String name, String aliasname, UniversalType[] parameters,
-            UniversalType[] templateArguments, UniversalType[] domain, UniversalType range) {
+            UniversalType[] templateArguments, UniversalType[] domain, UniversalType range, boolean renameParameters) {
         this.isTypeVariable = isTypeVariable;
         this.name = name;
         this.aliasname = aliasname;
@@ -168,8 +168,14 @@ public class UniversalType {
             this.parameters[i] = paths[i].get(0).getVariable();
 
         // create translated typenames for polymorphic type variables
-        for (int i = 0; i < parameters.length; i++)
-            parameters[i].ivilType = new TypeVariable("polytype_" + i);
+        if (renameParameters)
+            for (int i = 0; i < parameters.length; i++)
+                parameters[i].ivilType = new TypeVariable("polytype_" + i);
+    }
+
+    private UniversalType(boolean isTypeVariable, String name, String aliasname, UniversalType[] parameters,
+            UniversalType[] templateArguments, UniversalType[] domain, UniversalType range) {
+        this(isTypeVariable, name, aliasname, parameters, templateArguments, domain, range, false);
     }
 
     /**
@@ -336,10 +342,11 @@ public class UniversalType {
      * @param domain
      * @param range
      */
-    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range) {
+    static UniversalType newMap(List<UniversalType> parameters, List<UniversalType> domain, UniversalType range,
+            boolean rename) {
 
         return new UniversalType(false, "", null, parameters.toArray(new UniversalType[parameters.size()]), null,
-                domain.toArray(new UniversalType[domain.size()]), range);
+                domain.toArray(new UniversalType[domain.size()]), range, rename);
 
     }
 
@@ -634,7 +641,7 @@ public class UniversalType {
                 false, state.root));
 
         // ... and rules
-        
+
         Type bool_it = Environment.getBoolType();
 
         // create some commonly used schema variables
@@ -718,8 +725,8 @@ public class UniversalType {
                 args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
                 args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
-                        new Term[] { args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                        args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
             }
 
             drt[domain.length] = vt;
@@ -766,8 +773,8 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
-                        new Term[] { load_arg[i + 1], store_arg[i + 1] }), MatchingLocation.SUCCEDENT));
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                        load_arg[i + 1], store_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
                         new LinkedList<WhereClause>(), actions, tags, state.root));
@@ -779,8 +786,8 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
-                        new Term[] { store_arg[i + 1], load_arg[i + 1] }), MatchingLocation.SUCCEDENT));
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                        store_arg[i + 1], load_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
                         new LinkedList<WhereClause>(), actions, tags, state.root));
@@ -808,13 +815,13 @@ public class UniversalType {
 
             for (int i = 0; i < domain.length; i++)
                 condition = new Application(state.env.getFunction("$and"), bool_it, new Term[] {
-                        new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
-                                store_arg[i + 1], load_arg[i + 1] }), condition });
-            
+                        new Application(state.env.getFunction("$eq"), bool_it, new Term[] { store_arg[i + 1],
+                                load_arg[i + 1] }), condition });
+
             Term newload_args[] = load_arg.clone();
             newload_args[0] = store_arg[0];
             Term load = new Application(state.env.getFunction(map_t + "_load"), vt, newload_args);
-            
+
             Term replacement = new Application(state.env.getFunction("cond"), default_find.getType(), new Term[] {
                     condition, v, load });
 

@@ -76,9 +76,20 @@ function
 axiom extends_direct_simplification
   (\T_all 't; (\forall a as 't; (\forall b; $extends_direct(a, b) <-> ( !a=b & a<:b & (\forall x; (a=x|b=x) <-> (a<:x & x<:b))) )))
 
+rule extends_direct
+	find $extends_direct(%a, %b)
+	replace !%a=%b & %a<:%b & (\forall x; (%a=x|%b=x)<->(%a<:x & x<:%b))
+	tags rewrite "fol simp"
+
+
+
 axiom extends_unique_simplification
   (\T_all 't; (\forall a as 't; (\forall b; $extends_unique(a, b) -> $extends_direct(a, b))))
 
+# for a human user this is easier to use than instantiating the axiom above
+rule extends_unique_to_direct
+     find $extends_unique(%a, %b)
+     replace $extends_unique(%a, %b) & $extends_direct(%a, %b)
 
 #if two unique edges have the same origin, their children are distinct
 rule extends_unique_edges

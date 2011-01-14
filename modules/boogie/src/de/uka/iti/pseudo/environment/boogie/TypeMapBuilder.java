@@ -257,7 +257,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             }
 
             try {
-                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter())));
+                state.typeMap.add(node,
+                        UniversalType.newMap(param, domain, state.typeMap.get(node.getOutParemeter()), false));
             } catch (IllegalArgumentException e) {
                 // can happen if the maptype is illformed like <a>[]int or
                 // <a>[int]a
@@ -384,7 +385,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             }
             try {
-                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange())));
+                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getRange()), true));
             } catch (IllegalArgumentException e) {
                 // can happen if the maptype is illformed like <a>[]int or
                 // <a>[int]a
@@ -428,7 +429,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         // this is bit of a hack to represent types of procedures, but it workes
         state.typeMap.add(node,
-                UniversalType.newMap(param, domain, UniversalType.newMap(empty, range, UniversalType.newBool())));
+ UniversalType.newMap(param, domain,
+                UniversalType.newMap(empty, range, UniversalType.newBool(), true), true));
     }
 
     @Override
@@ -463,7 +465,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         // this is bit of a hack to represent types of procedures, but it workes
         state.typeMap.add(node,
-                UniversalType.newMap(param, domain, UniversalType.newMap(empty, range, UniversalType.newBool())));
+ UniversalType.newMap(param, domain,
+                UniversalType.newMap(empty, range, UniversalType.newBool(), true), true));
     }
 
     @Override
@@ -664,7 +667,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             }
 
             try {
-                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getBody())));
+                state.typeMap.add(node, UniversalType.newMap(param, domain, state.typeMap.get(node.getBody()),
+                        node.getParent() instanceof LambdaExpression));
             } catch (IllegalArgumentException e) {
                 // can happen if the maptype is illformed like <a>[]int or
                 // <a>[int]a

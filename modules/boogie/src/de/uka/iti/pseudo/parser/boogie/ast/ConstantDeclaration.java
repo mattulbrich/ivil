@@ -24,7 +24,8 @@ public class ConstantDeclaration extends DeclarationBlock {
         this.complete = complete;
 
         addChildren(names);
-        addChildren(parents);
+        if (null != parents)
+            addChildren(parents);
     }
 
     public boolean isUnique() {
@@ -40,7 +41,12 @@ public class ConstantDeclaration extends DeclarationBlock {
         v.visit(this);
     }
 
+    public boolean hasExtends() {
+        return null != parents;
+    }
+
     public List<ExtendsParent> getParents() {
+        assert null != parents : "you missed a check";
         return parents;
     }
 

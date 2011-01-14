@@ -107,33 +107,39 @@ public interface BPLParserConstants {
   /** RegularExpression Id. */
   int OP_NEGATION = 52;
   /** RegularExpression Id. */
-  int OP_MUL = 53;
+  int OP_NEQ = 53;
   /** RegularExpression Id. */
-  int OP_FORALL = 54;
+  int OP_LTE = 54;
   /** RegularExpression Id. */
-  int OP_EXISTS = 55;
+  int OP_GTE = 55;
   /** RegularExpression Id. */
-  int OP_LAMBDA = 56;
+  int OP_MUL = 56;
   /** RegularExpression Id. */
-  int OP_SEP = 57;
+  int OP_FORALL = 57;
   /** RegularExpression Id. */
-  int SEP_RCURLY = 58;
+  int OP_EXISTS = 58;
   /** RegularExpression Id. */
-  int SEP_LCURLY = 59;
+  int OP_LAMBDA = 59;
   /** RegularExpression Id. */
-  int SEP_RBRACKET = 60;
+  int OP_SEP = 60;
   /** RegularExpression Id. */
-  int SEP_LBRACKET = 61;
+  int SEP_RCURLY = 61;
   /** RegularExpression Id. */
-  int IDENT = 62;
+  int SEP_LCURLY = 62;
   /** RegularExpression Id. */
-  int BVLIT = 63;
+  int SEP_RBRACKET = 63;
   /** RegularExpression Id. */
-  int STRING = 64;
+  int SEP_LBRACKET = 64;
   /** RegularExpression Id. */
-  int FLOAT = 65;
+  int IDENT = 65;
   /** RegularExpression Id. */
-  int INTEGER = 66;
+  int BVLIT = 66;
+  /** RegularExpression Id. */
+  int STRING = 67;
+  /** RegularExpression Id. */
+  int FLOAT = 68;
+  /** RegularExpression Id. */
+  int INTEGER = 69;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -193,6 +199,9 @@ public interface BPLParserConstants {
     "<OP_AND>",
     "<OP_OR>",
     "<OP_NEGATION>",
+    "<OP_NEQ>",
+    "<OP_LTE>",
+    "<OP_GTE>",
     "\"*\"",
     "<OP_FORALL>",
     "<OP_EXISTS>",
@@ -216,12 +225,6 @@ public interface BPLParserConstants {
     "\">\"",
     "\"=\"",
     "\"==\"",
-    "\"!=\"",
-    "\"\\u2260\"",
-    "\"<=\"",
-    "\"\\u2264\"",
-    "\">=\"",
-    "\"\\u2265\"",
     "\"<:\"",
     "\"++\"",
     "\"+\"",
