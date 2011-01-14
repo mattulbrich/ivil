@@ -362,8 +362,8 @@ public class UniversalType {
      */
     // FIXME check all inference points to make sure no problems like <a>[a, a]a
     // -> [int, bool]??? occur
-    public static UniversalType newInferedType(UniversalType map, ASTElement node,
-            final EnvironmentCreationState state) throws TypeSystemException {
+    public static UniversalType newInferedType(UniversalType map, ASTElement node, final EnvironmentCreationState state)
+            throws TypeSystemException {
         if (0 == map.parameters.length)
             return map;
 
@@ -634,6 +634,8 @@ public class UniversalType {
                 false, state.root));
 
         // ... and rules
+        
+        Type bool_it = Environment.getBoolType();
 
         // create some commonly used schema variables
         SchemaType vt = new SchemaType("v");
@@ -716,7 +718,7 @@ public class UniversalType {
                 args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
                 args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
                         new Term[] { args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
             }
 
@@ -764,7 +766,7 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
                         new Term[] { load_arg[i + 1], store_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
@@ -777,7 +779,7 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it,
                         new Term[] { store_arg[i + 1], load_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
@@ -790,113 +792,36 @@ public class UniversalType {
             throw new EnvironmentException(e);
         }
 
-        try { // /////////////// LOAD STORE CUT ON DOMAIN
-            String name = map_t + "_load_store_cut_on_domain";
+        try { // /////////////// LOAD STORE COND, aka McCarthy axiom
+            String name = map_t + "_load_store_cond";
 
             Map<String, String> tags = new HashMap<String, String>();
 
             tags.put("rewrite", "split");
 
-            List<Term> cut_same = new LinkedList<Term>();
+            List<Term> none = new LinkedList<Term>();
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
-            for (int i = 0; i < domain.length; i++) {
+            Term condition = Environment.getTrue(); // needed to be correct in
+                                                    // case of map0
 
-                List<Term> cut = new LinkedList<Term>();
-                cut.add((new Application(state.env.getFunction("$eq"), Environment.getBoolType(), new Term[] {
-                        store_arg[i + 1], load_arg[i + 1] })));
+            for (int i = 0; i < domain.length; i++)
+                condition = new Application(state.env.getFunction("$and"), bool_it, new Term[] {
+                        new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                                store_arg[i + 1], load_arg[i + 1] }), condition });
+            
+            Term newload_args[] = load_arg.clone();
+            newload_args[0] = store_arg[0];
+            Term load = new Application(state.env.getFunction(map_t + "_load"), vt, newload_args);
+            
+            Term replacement = new Application(state.env.getFunction("cond"), default_find.getType(), new Term[] {
+                    condition, v, load });
 
-                actions.add(new GoalAction("samegoal", "different @" + i, false, default_find, new LinkedList<Term>(),
-                        cut));
-
-                cut_same.add(cut.get(0));
-            }
-
-            actions.add(new GoalAction("samegoal", "same", false, default_find, cut_same, new LinkedList<Term>()));
+            actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
 
             state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(default_find,
                     MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
-
-        } catch (RuleException e) {
-            e.printStackTrace();
-            throw new EnvironmentException(e);
-        }
-
-        try { // /////////////// STORE LOAD SAME
-            String name = map_t + "_store_load_same";
-
-            Term argsL[] = new Term[domain.length + 1];
-            Term argsS[] = new Term[domain.length + 2];
-
-            Type drt[] = new Type[domain.length + 1];
-
-            for (int i = 0; i < domain.length; i++) {
-                drt[i] = new SchemaType("d" + i);
-                argsL[i + 1] = argsS[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-            }
-
-            drt[domain.length] = vt;
-
-            argsS[0] = argsL[0] = m;
-
-            argsS[argsL.length] = new Application(state.env.getFunction(map_t + "_load"), vt, argsL);
-            Term find = new Application(state.env.getFunction(map_t + "_store"), mt, argsS);
-
-            List<GoalAction> actions = new LinkedList<GoalAction>();
-
-            actions.add(new GoalAction("samegoal", null, false, m, new LinkedList<Term>(), new LinkedList<Term>()));
-
-            Map<String, String> tags = new HashMap<String, String>();
-
-            tags.put("rewrite", "concrete");
-
-            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
-                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
-                    state.root));
-
-        } catch (RuleException e) {
-            e.printStackTrace();
-            throw new EnvironmentException(e);
-        }
-
-        try { // /////////////// STORE LOAD SAME ASSUME
-
-            String name = map_t + "_store_load_same_assume";
-
-            Term argsL[] = new Term[domain.length + 1];
-            Term argsS[] = new Term[domain.length + 2];
-
-            Type drt[] = new Type[domain.length + 1];
-
-            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-
-            for (int i = 0; i < domain.length; i++) {
-                drt[i] = new SchemaType("d" + i);
-                argsL[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-                argsS[i + 1] = new SchemaVariable("%t" + i, drt[i]);
-
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
-                        new Term[] { argsL[i + 1], argsS[i + 1] }), MatchingLocation.ANTECEDENT));
-            }
-
-            drt[domain.length] = vt;
-
-            argsS[0] = argsL[0] = m;
-
-            argsS[argsL.length] = new Application(state.env.getFunction(map_t + "_load"), vt, argsL);
-            Term find = new Application(state.env.getFunction(map_t + "_store"), mt, argsS);
-
-            List<GoalAction> actions = new LinkedList<GoalAction>();
-
-            actions.add(new GoalAction("samegoal", null, false, m, new LinkedList<Term>(), new LinkedList<Term>()));
-
-            Map<String, String> tags = new HashMap<String, String>();
-
-            tags.put("rewrite", "concrete");
-
-            state.env.addRule(new Rule(name, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
-                    new LinkedList<WhereClause>(), actions, tags, state.root));
 
         } catch (RuleException e) {
             e.printStackTrace();
