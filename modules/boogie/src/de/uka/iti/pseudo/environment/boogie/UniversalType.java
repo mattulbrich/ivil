@@ -367,8 +367,6 @@ public class UniversalType {
      *             thrown if type can not be inferred because wrong arguments
      *             were supplied
      */
-    // FIXME check all inference points to make sure no problems like <a>[a, a]a
-    // -> [int, bool]??? occur
     public static UniversalType newInferedType(UniversalType map, ASTElement node, final EnvironmentCreationState state)
             throws TypeSystemException {
         if (0 == map.parameters.length)
@@ -378,6 +376,13 @@ public class UniversalType {
 
         for (int i = 0; i < map.parameters.length; i++) {
             is[i] = map.paths[i].get(0).inferType(node, state);
+
+            // check other paths
+            for (int j = 1; j < map.paths[i].size(); j++)
+                if (!map.paths[i].get(j).inferType(node, state).equals(is[i]))
+                    throw new TypeSystemException(node.getLocation() + ": inference failed, as paths " + i + " and "
+                            + j + " lead to different results:\n" + is[i] + "\n"
+                            + map.paths[i].get(j).inferType(node, state));
         }
 
         UniversalType rval = new UniversalType(false, map.name, map.aliasname, voidMap, map.templateArguments,
