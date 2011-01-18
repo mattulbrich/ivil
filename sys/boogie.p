@@ -55,12 +55,21 @@ rule some
 
 (*
   \lambda
+  
+  lambda is nearly the same as \some, but it is unnecessary to prove,
+  that the created object exists, as lambda is used to generate maps,
+  which allways exist.
 *)
 
 binder
   'm (\lambda 'm; 'r)
 
-# the binder will be used in an axiom, that says somithing like mapD_load(\lambda(%m, expr(%D)), %Dt) = expr(%Dt)
+rule lambda
+  find  (\lambda %x; %b) 
+  where programFree %b
+  add $$subst(%x, $$skolem(%x), %b) |-
+  replace  $$subst(%x, $$skolem(%x), %x)
+  tags rewrite "fol simp"
 
   
 (*
@@ -91,6 +100,11 @@ rule extends_unique_to_direct
      find $extends_unique(%a, %b)
      replace $extends_unique(%a, %b) & $extends_direct(%a, %b)
 
+
+(* 
+  those rules are wrong, as you could instantiate %a and %c/%b with the same Elements.
+
+
 #if two unique edges have the same origin, their children are distinct
 rule extends_unique_edges
      find $extends_unique(%a, %b)
@@ -106,6 +120,7 @@ rule extends_unique_edges_trans
      assume $extends(%b, %P2) |-
      assume %P1 = %P2 |-
      replace $extends_unique(%a, %P1) & !%a = %b
+*)
 
 # transitivity for extends and inequality, as extends is acyclic
 rule extends_trans

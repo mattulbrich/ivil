@@ -1064,14 +1064,43 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // ///// create code ////////
 
-        // TODO SAVE_OLD: save old_* variables somewhere and replace them with
-        // current values
-
-        // load parameters
+        Assignment oldStore[] = new Assignment[modifiable.size()];
+        Assignment oldOverwrite[] = new Assignment[oldStore.length];
         try {
-            Assignment assignments[] = new Assignment[newIns.length];
+            int i = 0;
+            for (VariableDeclaration var : modifiable) {
+                Type t = state.ivilTypeMap.get(var);
+                Function f = new Function(state.env.createNewFunctionName("oldStore"), t, NO_TYPE, false, true, node);
+
+                // note: we can not be in oldMode, as there is no surrounding
+                // expression
+                // TODO tfe: check if this is true for codeexpressions! in case
+                // it is, store has to behave different
+                Term value = new Application(state.env.getFunction("old_" + state.translation.variableNames.get(var)),
+                        t);
+                
+                Term overwrite = new Application(state.env.getFunction(state.translation.variableNames.get(var)),
+                        t);
+
+                oldStore[i] = new Assignment(new Application(f, t), value);
+                oldOverwrite[i] = new Assignment(value, overwrite);
+
+                i++;
+            }
+        } catch (TermException e) {
+            e.printStackTrace();
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+        }
+
+
+        // load parameters and save old values
+        try {
+            Assignment assignments[] = new Assignment[newIns.length + oldStore.length + oldOverwrite.length];
             if (assignments.length > 0) {
-                for (int i = 0; i < assignments.length; i++) {
+                int i = 0;
+                for (; i < newIns.length; i++) {
                     Expression val = node.getArguments().get(i);
 
                     val.visit(this);
@@ -1079,6 +1108,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     assignments[i] = new Assignment(new Application(newIns[i], newIns[i].getResultType()),
                             state.translation.terms.get(val));
                 }
+                for (int j = 0; i < assignments.length - oldOverwrite.length; i++, j++)
+                    assignments[i] = oldStore[j];
+                for (int j = 0; i < assignments.length; i++, j++)
+                    assignments[i] = oldOverwrite[j];
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
                         .getLocationToken().beginLine, Arrays.asList(assignments)));
@@ -1153,9 +1186,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // safe results
         try {
-            Assignment assignments[] = new Assignment[newOuts.length];
+            Assignment assignments[] = new Assignment[newOuts.length + oldStore.length];
             if (assignments.length > 0) {
-                for (int i = 0; i < assignments.length; i++) {
+                for (int i = 0; i < newOuts.length; i++) {
                     VariableUsageExpression target = node.getOutParam().get(i);
 
                     target.visit(this);
@@ -1163,6 +1196,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     assignments[i] = new Assignment(state.translation.terms.get(target), new Application(newOuts[i],
                             newOuts[i].getResultType()));
                 }
+                for (int i = newOuts.length, j = 0; i < assignments.length; i++, j++)
+                    assignments[i] = new Assignment(oldStore[j].getValue(), oldStore[j].getTarget());
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
                         .getLocationToken().beginLine, Arrays.asList(assignments)));
@@ -1173,8 +1208,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }
-
-        // TODO RESTORE_OLD: revert changes done by SAVE_OLD
     }
 
     @Override
@@ -1911,7 +1944,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             // \some
-            state.translation.terms.put(node, new Binding(state.env.getBinder("\\some"), map_t, map, args));
+            state.translation.terms.put(node, new Binding(state.env.getBinder("\\lambda"), map_t, map, args));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1964,71 +1997,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // TODO maybe we have to create missing constants
     }
 
-    /*
-     * TODO constant declaration:
-     * 
-     * @Override public void visit(OrderSpecification node) throws
-     * ASTVisitException { defaultAction(node);
-     * 
-     * ConstantDeclaration parent = (ConstantDeclaration) node.getParent();
-     * 
-     * try { for (Variable c : parent.getNames()) {
-     * 
-     * if (node.isComplete()) { // ( ∀ w : Wicket • c <: w ⇒ c == w ∨ a <: w ∨ b
-     * <: w )
-     * 
-     * } else { // c <: b & ∀ x :: (c==x | b==x) <-> (c <: x & x <: b) for
-     * (OrderSpecParent par : node.getParents()) { Variable b =
-     * state.names.findVariable(par.getName(), node);
-     * 
-     * Term ac = new
-     * Application(state.env.getFunction(state.translation.variableNames
-     * .get(c)),
-     * 
-     * state.ivilTypeMap.get(c));
-     * 
-     * Term ab = new Application(
-     * 
-     * state.env.getFunction(state.translation.variableNames.get(b)),
-     * state.ivilTypeMap.get(b));
-     * 
-     * de.uka.iti.pseudo.term.Variable x = new
-     * de.uka.iti.pseudo.term.Variable("x", ac.getType());
-     * 
-     * Term tmp = new Application(state.env.getFunction("$or"),
-     * Environment.getBoolType(), new Term[] { new
-     * Application(state.env.getFunction("$eq"), Environment.getBoolType(), new
-     * Term[] { x, ab }), new Application(state.env.getFunction("$eq"),
-     * Environment.getBoolType(), new Term[] { x, ac }) });
-     * 
-     * tmp = new Application(state.env.getFunction("$equiv"),
-     * Environment.getBoolType(), new Term[] { tmp, new
-     * Application(state.env.getFunction("$and"), Environment.getBoolType(), new
-     * Term[] { new Application(state.env.getFunction("$extends"),
-     * Environment.getBoolType(), new Term[] { ac, x }), new
-     * Application(state.env.getFunction("$extends"), Environment.getBoolType(),
-     * new Term[] { x, ab }) }) });
-     * 
-     * tmp = new Binding(state.env.getBinder("\\forall"),
-     * Environment.getBoolType(), x, new Term[] { tmp });
-     * 
-     * state.env.addAxiom(new Axiom("orderSpec_" +
-     * state.env.getAllAxioms().size(), new Application(
-     * state.env.getFunction("$and"), Environment.getBoolType(), new Term[] {
-     * new Application(state.env.getFunction("$extends"),
-     * Environment.getBoolType(), new Term[] { ac, ab }), tmp }), new
-     * HashMap<String, String>(), node)); } } } } catch (EnvironmentException e)
-     * { e.printStackTrace(); throw new ASTVisitException(node.getLocation(),
-     * e);
-     * 
-     * } catch (TermException e) { e.printStackTrace(); throw new
-     * ASTVisitException(node.getLocation(), e); } }
-     */
-    /*
-     * Code expressions are transformed into programs which can be executed by
-     * IVIL. As code expressions can occur in quantified contexts, these
-     * Programs may contain quantified variables.
-     */
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // save statements of the current function or code expression to allow
