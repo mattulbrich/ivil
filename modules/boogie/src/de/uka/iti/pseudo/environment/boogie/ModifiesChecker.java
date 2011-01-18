@@ -5,6 +5,8 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
@@ -22,8 +24,15 @@ public final class ModifiesChecker extends DefaultASTVisitor {
     private final EnvironmentCreationState state;
     private final LinkedList<VariableDeclaration> locallyModifiable = new LinkedList<VariableDeclaration>();
     private List<VariableDeclaration> modifiable = null;
+    private static final List<VariableDeclaration> empty = new LinkedList<VariableDeclaration>();
 
     private final LinkedList<ASTElement> todo = new LinkedList<ASTElement>();
+
+    /**
+     * this is true iff we are in a code expression. In code expressions no
+     * global variables are modifiable.
+     */
+    private boolean inCodeexpression = false;
 
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
@@ -90,6 +99,9 @@ public final class ModifiesChecker extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
+        // can contain codeexpressions with assignments
+        node.getNewValue().visit(this);
+
         VariableUsageExpression lvalue;
         if (node.getTarget() instanceof VariableUsageExpression) {
             lvalue = (VariableUsageExpression) node.getTarget();
@@ -109,5 +121,42 @@ public final class ModifiesChecker extends DefaultASTVisitor {
             return;
 
         throw new ASTVisitException("@" + node.getLocation() + ": modified unmodifiable variable " + v);
+    }
+
+    public void visit(CallStatement node) throws ASTVisitException {
+        defaultAction(node);
+
+        // check modifies clauses of called procedure
+        ProcedureDeclaration decl = state.names.procedureSpace.get(node.getName());
+        for (Specification s : decl.getSpecification()) {
+            if (s instanceof ModifiesClause) {
+                for (String name : ((ModifiesClause) s).getTargets()) {
+                    VariableDeclaration v = state.names.findVariable(name, node);
+
+                    if (!(locallyModifiable.contains(v) || modifiable.contains(v)))
+                        throw new ASTVisitException("@" + node.getLocation()
+                                + ": call may modify unmodifiable variable " + v);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void visit(CodeExpression node) throws ASTVisitException {
+        if (inCodeexpression) {
+            defaultAction(node);
+        } else {
+            inCodeexpression = true;
+            List<VariableDeclaration> mod = modifiable, modl = new LinkedList<VariableDeclaration>(locallyModifiable);
+            modifiable = empty;
+            locallyModifiable.clear();
+
+            defaultAction(node);
+
+            locallyModifiable.clear();
+            locallyModifiable.addAll(modl);
+            modifiable = mod;
+            inCodeexpression = false;
+        }
     }
 }

@@ -1098,10 +1098,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Type t = state.ivilTypeMap.get(var);
                 Function f = new Function(state.env.createNewFunctionName("oldStore"), t, NO_TYPE, false, true, node);
 
-                // note: we can not be in oldMode, as there is no surrounding
-                // expression
-                // TODO tfe: check if this is true for codeexpressions! in case
-                // it is, store has to behave different
                 Term value = new Application(state.env.getFunction("old_" + state.translation.variableNames.get(var)),
                         t);
 
