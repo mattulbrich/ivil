@@ -262,10 +262,15 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
     }
 
-    // shortcut to create $eq applications
+    // shortcut to create $extends applications
     private Term extend(Term a, VariableDeclaration b) throws TermException {
         return new Application(state.env.getFunction("$extends"), bool_t, new Term[] { a,
                 new Application(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()) });
+    }
+
+    private Term extend(VariableDeclaration b, Term a) throws TermException {
+        return new Application(state.env.getFunction("$extends"), bool_t, new Term[] {
+                new Application(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()), a });
     }
 
     final private Function extd, extu;
@@ -277,9 +282,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            if (node.hasExtends()) {
-                Type t = state.ivilTypeMap.get(node.getNames().get(0));
+            Type t = state.ivilTypeMap.get(node.getNames().get(0));
 
+            if (node.hasExtends()) {
                 for (VariableDeclaration v : node.getNames()) {
                     // add edges
 
@@ -305,10 +310,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     // || ∀P <: x
                     for (ExtendsParent p : node.getParents()) {
                         axiom = new Application(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
-                                extend(x, state.names.findVariable(p.getName(), node)) });
+                                extend(state.names.findVariable(p.getName(), node), x) });
                     }
 
-                    axiom = new Application(state.env.getFunction("$impl"), bool_t, new Term[] { extend(x, v), axiom });
+                    axiom = new Application(state.env.getFunction("$impl"), bool_t, new Term[] { extend(v, x), axiom });
 
                     axiom = new Binding(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
 
@@ -318,10 +323,31 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             if (node.isComplete()) {
-                // collect usage U of v
-                // ∀ x : t :: x <: v ==> x == v || (|| ∀u:U . x <: u)
+                for (VariableDeclaration v : node.getNames()) {
+                    List<VariableDeclaration> usage = state.names.constantUsage.get(v.getName());
 
-                // TODO implement complete as described above
+                    // ∀ x : t :: x <: v ==> x == v || (|| ∀c:Children . x <: c)
+
+                    Variable x = new Variable("x", t);
+
+                    Term axiom = new Application(state.env.getFunction("$eq"), bool_t, new Term[] { x,
+                            new Application(state.env.getFunction(state.translation.variableNames.get(v)), t) });
+
+                    // || ∀c: x <: c
+                    // if this is null, no child exists, thus x <: v <-> x = v
+                    if (null != usage)
+                        for (VariableDeclaration c : usage) {
+                            axiom = new Application(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
+                                    extend(x, state.names.findVariable(c.getName(), node)) });
+                        }
+
+                    axiom = new Application(state.env.getFunction("$impl"), bool_t, new Term[] { extend(x, v), axiom });
+
+                    axiom = new Binding(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
+
+                    state.env.addAxiom(new Axiom("children of " + v.getName(), axiom, new HashMap<String, String>(),
+                            node));
+                }
             }
 
         } catch (EnvironmentException e) {
@@ -1078,9 +1104,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // it is, store has to behave different
                 Term value = new Application(state.env.getFunction("old_" + state.translation.variableNames.get(var)),
                         t);
-                
-                Term overwrite = new Application(state.env.getFunction(state.translation.variableNames.get(var)),
-                        t);
+
+                Term overwrite = new Application(state.env.getFunction(state.translation.variableNames.get(var)), t);
 
                 oldStore[i] = new Assignment(new Application(f, t), value);
                 oldOverwrite[i] = new Assignment(value, overwrite);
@@ -1093,7 +1118,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
         } catch (EnvironmentException e) {
             e.printStackTrace();
         }
-
 
         // load parameters and save old values
         try {
@@ -1990,11 +2014,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(CoercionExpression node) throws ASTVisitException {
         // tfe: to me, it looks like nothing has to be done here, as coercions
         // have been evaluated during type annotation
-    }
-
-    @Override
-    public void visit(ExtendsParent node) throws ASTVisitException {
-        // TODO maybe we have to create missing constants
     }
 
     @Override

@@ -159,8 +159,17 @@ rule extends_antisym_auto
 
 rule extends_antisym
 	find $extends(%a, %b)
+	assume |- %a = %b
 	where toplevel
 	replace !$extends(%b, %a)
+	
+rule extends_antisym_close
+    find $extends(%a, %b)
+    assume $extends(%b, %a) |-
+	assume |- %a = %b
+	where toplevel
+    closegoal
+    tags rewrite "close"
 
 #if a cycle is found, break the cycle and replace the definition of one edge by false
 rule extends_sanity

@@ -1,9 +1,14 @@
 package de.uka.iti.pseudo.environment.boogie;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
 import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.MapType;
@@ -64,6 +69,21 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
+    }
+
+    @Override
+    public void visit(ConstantDeclaration node) throws ASTVisitException {
+        for (VariableDeclaration v : node.getNames())
+            v.visit(this);
+
+        if (node.hasExtends())
+            for (ExtendsParent p : node.getParents()) {
+                List<VariableDeclaration> usage = state.names.constantUsage.get(p.getName());
+                if (null == usage)
+                    state.names.constantUsage.put(p.getName(), usage = new LinkedList<VariableDeclaration>());
+
+                usage.addAll(node.getNames());
+            }
     }
 
     @Override

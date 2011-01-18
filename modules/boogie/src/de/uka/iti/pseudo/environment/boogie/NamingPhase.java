@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
+import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -35,6 +36,10 @@ public final class NamingPhase {
     // not directly a namespace, but very handy for goto usage; maps names and
     // procedure bodies to Labelstatements
     final HashMap<Pair<String, Scope>, ASTElement> labelSpace = new HashMap<Pair<String, Scope>, ASTElement>();
+
+    // store information where constants are used to allow for treatment of
+    // complete in extends specifications
+    final HashMap<String, List<VariableDeclaration>> constantUsage = new HashMap<String, List<VariableDeclaration>>();
 
     void create(EnvironmentCreationState state) throws EnvironmentCreationException, TypeSystemException {
         assert null == this.state : "already created names!";
