@@ -31,4 +31,9 @@ public final class Pair<T1, T2> {
     public int hashCode() {
         return first.hashCode() + second.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Pair[" + first + "; " + second + "]";
+    }
 }

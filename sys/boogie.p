@@ -101,26 +101,24 @@ rule extends_unique_to_direct
      replace $extends_unique(%a, %b) & $extends_direct(%a, %b)
 
 
-(* 
-  those rules are wrong, as you could instantiate %a and %c/%b with the same Elements.
-
-
-#if two unique edges have the same origin, their children are distinct
-rule extends_unique_edges
-     find $extends_unique(%a, %b)
-     assume $extends_unique(%c, %d) |-
-     assume %b = %d |-
-     replace $extends_unique(%a, %b) & !%a = %c
-
-#if two unique edges have the same origin, their subtrees are distinct
-rule extends_unique_edges_trans
-     find $extends(%a, %P1)
-     assume $extends_unique(%A, %P1) |-
-     assume $extends_unique(%B, %P2) |-
-     assume $extends(%b, %P2) |-
-     assume %P1 = %P2 |-
-     replace $extends_unique(%a, %P1) & !%a = %b
-*)
+rule extends_unique_false
+    find %a = %b
+    assume $extends_unique(%A, %p) |-
+    assume $extends_unique(%B, %p) |-
+    assume |- %A = %B
+    assume %a <: %A |-
+    assume %b <: %B |-
+    replace false
+    
+rule extends_unique_false_assume
+    find %a = %b
+    assume $extends_unique(%A, %P1) |-
+    assume $extends_unique(%B, %P2) |-
+    assume %P1 = %P2 |-
+    assume |- %A = %B
+    assume %a <: %A |-
+    assume %b <: %B |-
+    replace false
 
 # transitivity for extends and inequality, as extends is acyclic
 rule extends_trans

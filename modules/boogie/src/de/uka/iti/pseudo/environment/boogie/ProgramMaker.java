@@ -1044,15 +1044,15 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             for (int i = 0; i < newIns.length; i++) {
-                newIns[i] = new Function(state.env.createNewFunctionName("call_in" + i + "_"), state.ivilTypeMap.get(P
-                        .getInParameters().get(i)), NO_TYPE, false, true, node);
+                newIns[i] = new Function(state.env.createNewFunctionName("call_in" + i + "_"),
+                        state.ivilTypeMap.get(node.getArguments().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newIns[i]);
             }
 
             for (int i = 0; i < newOuts.length; i++) {
                 newOuts[i] = new Function(state.env.createNewFunctionName("call_out" + i + "_"),
-                        state.ivilTypeMap.get(P.getOutParameters().get(i)), NO_TYPE, false, true, node);
+                        state.ivilTypeMap.get(node.getOutParam().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newOuts[i]);
             }

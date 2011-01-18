@@ -81,7 +81,8 @@ public class Assignment {
 
         // TODO In case of polymorphic symbols, this must be different: modulo renaming
         if(!getTarget().getType().equals(getValue().getType()))
-            throw new TermException("target and value need to have identical types");
+            throw new TermException("target and value need to have identical types: " + getTarget().getType() + ","
+                    + getValue().getType());
     }
 
     @Override
