@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
@@ -833,6 +834,69 @@ public class UniversalType {
             actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
 
             state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(default_find,
+                    MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
+
+        try { // /////////////// LOAD LAMBDA
+            String name = map_t + "_load_lambda";
+            
+            // find: map_load(lambda m. forall X . m = map_store(m, X, v), Y)
+            // replace: $$subst(X, Y, v)
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            List<Term> none = new LinkedList<Term>();
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            // create schema variables and types
+            Term argStore[] = new Term[domain.length + 2];
+            Term argLoad[] = new Term[domain.length + 1];
+
+            Type drt[] = new Type[domain.length + 1];
+
+            for (int i = 0; i < domain.length; i++) {
+                drt[i] = new SchemaType("d" + i);
+                argStore[i + 1] = new SchemaVariable("%x" + i, drt[i]);
+                argLoad[i + 1] = new SchemaVariable("%y" + i, drt[i]);
+            }
+
+            drt[domain.length] = vt;
+
+            argStore[0] = m;
+            argStore[argStore.length - 1] = v;
+
+
+            // create terms
+            Term lambda = new Application(state.env.getFunction(map_t + "_store"), mt, argStore);
+            
+            lambda = new Application(state.env.getFunction("$eq"), bool_it, new Term[] { m, lambda });
+            
+            Term replace = v;
+
+            for (int i = domain.length; i > 0; i--) {
+                // lambda = ∀ %xi . lambda
+                lambda = new Binding(state.env.getBinder("\\forall"), bool_it, (SchemaVariable) argStore[i],
+                        new Term[] { lambda });
+
+                // replace += $$subst
+                replace = new Application(state.env.getFunction("$$subst"), vt, new Term[] { argStore[i], argLoad[i],
+                        replace });
+            }
+
+            argLoad[0] = new Binding(state.env.getBinder("\\lambda"), mt, m, new Term[] { lambda });
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, argLoad);
+            
+
+            actions.add(new GoalAction("samegoal", null, false, replace, none, none));
+
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(find,
                     MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
 
         } catch (RuleException e) {
