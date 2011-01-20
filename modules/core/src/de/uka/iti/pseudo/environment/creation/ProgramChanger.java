@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.rule.meta.SubstMetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -287,6 +288,28 @@ public class ProgramChanger {
             throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         return statementAnnotations.get(index);
+    }
+
+    /**
+     * Replaces all terms that equal target by newValue
+     * 
+     * @param target
+     *            Term to be searched for
+     * 
+     * @param replaceWith
+     *            this Term will be placed where target was
+     * 
+     * @throws EnvironmentException
+     * @throws TermException
+     */
+    public void replaceAll(Term target, Term replaceWith) throws EnvironmentException, TermException {
+        SubstMetaFunction subst = new SubstMetaFunction();
+
+        for (Statement s : statements) {
+            for(int i = 0; i < s.getSubterms().size(); i++)
+            for (Term t : s.getSubterms())
+                    s.replaceSubterm(i, subst.evaluate(target, replaceWith, t, env));
+        }
     }
 
 

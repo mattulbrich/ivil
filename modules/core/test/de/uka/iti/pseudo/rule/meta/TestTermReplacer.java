@@ -20,7 +20,7 @@ public class TestTermReplacer extends TestCaseWithEnv {
 
     // due to a bug
     public void testReplace() throws Exception {
-        TermReplacer tr = new TermReplacer();
+        TermReplacer tr = new TermReplacer(env);
         
         TypeVariable alpha = new TypeVariable("a");
         Term varx = new Variable("x", alpha);

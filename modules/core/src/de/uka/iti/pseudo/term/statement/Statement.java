@@ -57,12 +57,13 @@ public abstract class Statement {
      * The source line number.
      */
     private int sourceLineNumber;
-    
+
     /**
      * The array of subterms.
      */
-    private @NonNull Term[] subTerms;
-    
+    private @NonNull
+    Term[] subTerms;
+
     /**
      * The empty array stands for "no arguments".
      */
@@ -121,11 +122,9 @@ public abstract class Statement {
         assert subTerms.length > 0;
 
         if (!subTerms[0].getType().equals(Environment.getBoolType()))
-            throw new TermException(
-                    "This statement expects a boolean condition, but received "
-                            + subTerms[0]);
+            throw new TermException("This statement expects a boolean condition, but received " + subTerms[0]);
     }
-    
+
     /**
      * Gets the argument terms of this statement.
      * 
@@ -136,6 +135,16 @@ public abstract class Statement {
     }
 
     /**
+     * Replaces subterm i.
+     * 
+     * @param i
+     * @param newTerm
+     */
+    public void replaceSubterm(int i, Term newTerm) {
+        subTerms[i] = newTerm;
+    }
+
+    /**
      * Retrieves a string representation of this statement. Uses
      * {@link Term#SHOW_TYPES} to decide whether or not types are to be
      * included.
@@ -143,7 +152,8 @@ public abstract class Statement {
      * @return a string representation of this statement
      * 
      */
-    public @NonNull String toString() {
+    public @NonNull
+    String toString() {
         return toString(Term.SHOW_TYPES);
     }
 
@@ -163,26 +173,27 @@ public abstract class Statement {
      * Two statements are equal iff they are of the same class and have the same
      * arguments.
      * 
-     * @param object object to compare to.
+     * @param object
+     *            object to compare to.
      * 
      * @return <code>true</code> if this object is equal to the argument.
      */
     public boolean equals(@Nullable Object object) {
         if (object instanceof Statement) {
             Statement statement = (Statement) object;
-            return statement.getClass() == getClass() &&
-                Arrays.equals(subTerms, statement.subTerms);
+            return statement.getClass() == getClass() && Arrays.equals(subTerms, statement.subTerms);
         }
         return false;
     }
-    
+
     /**
      * The hash code of a statement is the hashcode of the class xored with the
      * hash code of the argument list.
      * 
      * @return hash code for this statement.
      */
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         int h = getClass().hashCode();
         h ^= Util.readOnlyArrayList(subTerms).hashCode();
         return h;
@@ -191,7 +202,7 @@ public abstract class Statement {
     /**
      * Retrieves the number of arguments to this statements.
      * 
-     * @return the number of arguments provided to the constructor. 
+     * @return the number of arguments provided to the constructor.
      */
     public int countSubterms() {
         return subTerms.length;
@@ -205,6 +216,6 @@ public abstract class Statement {
     public int getSourceLineNumber() {
         return sourceLineNumber;
     }
-    
+
     public abstract void visit(StatementVisitor visitor) throws TermException;
 }
