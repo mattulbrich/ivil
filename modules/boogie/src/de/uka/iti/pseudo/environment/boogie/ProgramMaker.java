@@ -2059,7 +2059,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // create term '\some rval; [codeexpression;0]'
         try {
             state.translation.terms.put(node, new Binding(state.env.getBinder("\\some"), result_t,
-                    codeexpressionResult, new Term[] { new LiteralProgramTerm(0, true, C) }));
+                    codeexpressionResult, new Term[] { new LiteralProgramTerm(0, false, C) }));
 
         } catch (TermException e) {
             e.printStackTrace();
