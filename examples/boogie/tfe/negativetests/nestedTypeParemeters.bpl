@@ -6,7 +6,7 @@ var z : M int;
 
 procedure P <a>(x: a)
 {
-    var y: <a>[a] a;
+    var y: <a>[a] a; // we would overwrite a here
     	
     y[x] := 0;
 	

@@ -1,5 +1,5 @@
 /*
-  Tests codeexpressions. These should not be provable.
+  Tests non terminating codeexpressions. Should work fine and be provable.
 */
 
 procedure P ()

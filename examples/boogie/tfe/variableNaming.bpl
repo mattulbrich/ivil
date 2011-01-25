@@ -1,5 +1,5 @@
 /*
-  Tests for check of nested type parameter shadowing, which is forbidden.
+  Tests naming of in parameters.
 */
 
 procedure P (x: int, y:int)
@@ -19,5 +19,5 @@ procedure Q (x: int, y:int)
 }
 
 implementation P(y: int, x:int){
-   x := 1;
+   //x := 1; //error you cant assign values to arguments
 }

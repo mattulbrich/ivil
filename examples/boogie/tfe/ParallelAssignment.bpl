@@ -1,3 +1,7 @@
+/*
+  test propper tranlation of parallel assignments.
+*/
+
 var x,y:int where x!=y;
 
 procedure test()

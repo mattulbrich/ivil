@@ -1,5 +1,5 @@
 /*
-  Tests for check of nested type parameter shadowing, which is forbidden.
+  Any used procedure has tpo be declared somewhere.
 */
 
 var z : M int;

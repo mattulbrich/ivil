@@ -1,5 +1,5 @@
 /*
-  Very simple example to test polymorphic procedures
+  Tests translation of bitvector select expressions.
 */
 
 procedure P()

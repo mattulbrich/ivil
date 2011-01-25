@@ -10,7 +10,7 @@ var x: int;
 procedure P()
 {
     var p: pointer int;
-    //var x: int;
+    var x: int;
     	
     x := load(p);
 }

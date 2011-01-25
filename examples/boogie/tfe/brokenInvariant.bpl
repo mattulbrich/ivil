@@ -28,6 +28,6 @@ ensures f == fac(x);
   {
     f := f * r;
     r := r - 1;
-    // doomed: i := i + 1;
+    // broken: i := i + 1;
   }
 }

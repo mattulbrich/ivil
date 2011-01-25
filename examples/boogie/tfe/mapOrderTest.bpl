@@ -8,4 +8,6 @@ procedure P()
     var b :<b,a>[a, b]b;
     var c :<c,d>[d, c]d;
     var d :<d,c>[d, c]d;
+
+    assume a == b && c == d;
 }

@@ -4,7 +4,7 @@
 
 var x : int;
 
-implementation P()
+procedure P()
 {
     assert x:int == x;
 }

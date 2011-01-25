@@ -1,5 +1,5 @@
 /*
-  Very simple example to test polymorphic procedures
+  Test assignment with bitvectors.
 */
 
 procedure P()

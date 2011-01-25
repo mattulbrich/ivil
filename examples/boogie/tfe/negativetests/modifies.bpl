@@ -1,5 +1,5 @@
 /*
-  Very simple example to test polymorphic procedures
+  Very simple example to test modifies checking.
 */
 
 var y: int;
@@ -12,5 +12,5 @@ implementation P() returns(x:int){
 }
 
 implementation P() returns(x:int){
-	y:=x; // wrong way, we aint modify y
+	y:=x; // wrong way, we cant modify y
 }

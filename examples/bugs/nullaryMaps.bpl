@@ -4,5 +4,5 @@ procedure P()
   
   m[] := 1;
 
-  assert (m)[] == (lambda x:int :: x+1)[0];
+  assert m[] == (lambda x:int :: x+1)[0];
 }

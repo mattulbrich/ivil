@@ -1,5 +1,5 @@
 /*
-  This tests some bitvector properties.
+  This test typesafety of bitvectors.
 */
 
 
