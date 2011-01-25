@@ -36,207 +36,208 @@ import de.uka.iti.pseudo.term.Type;
  */
 public final class EnvironmentCreationState {
 
-    final CompilationUnit root;
+	final CompilationUnit root;
 
-    // scope information, that is used to determine, whether a name is visible
-    // or not
-    final Scope globalScope = new Scope(null, null);
-    final Decoration<Scope> scopeMap = new Decoration<Scope>();
+	// scope information, that is used to determine, whether a name is visible
+	// or not
+	final Scope globalScope = new Scope(null, null);
+	final Decoration<Scope> scopeMap = new Decoration<Scope>();
 
-    // type information used for typechecking and lowering of expressions and
-    // declarations
-    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
-    final Decoration<Type> ivilTypeMap = new Decoration<Type>();
+	// type information used for typechecking and lowering of expressions and
+	// declarations
+	final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
+	final Decoration<Type> ivilTypeMap = new Decoration<Type>();
 
-    Environment env;
+	Environment env;
 
-    // Phase 1: namespace and scope creation
-    NamingPhase names = null;
+	// Phase 1: namespace and scope creation
+	NamingPhase names = null;
 
-    // Phase 2: type decoration and sort creation
-    TypingPhase types = null;
+	// Phase 2: type decoration and sort creation
+	TypingPhase types = null;
 
-    // Phase 3: translation of semantic constructs into ivil environment
-    TranslationPhase translation = null;
+	// Phase 3: translation of semantic constructs into ivil environment
+	TranslationPhase translation = null;
 
-    public EnvironmentCreationState(CompilationUnit root) {
-        this.root = root;
+	public EnvironmentCreationState(CompilationUnit root) {
+		this.root = root;
 
-        // load sys/boogie.p
-        File file = new File("sys/boogie.p");
-        EnvironmentMaker em = null;
-        try {
-            em = new EnvironmentMaker(new Parser(), file);
+		// load sys/boogie.p
+		File file = new File("sys/boogie.p");
+		EnvironmentMaker em = null;
+		try {
+			em = new EnvironmentMaker(new Parser(), file);
 
-        } catch (MalformedURLException e1) {
-            e1.printStackTrace();
-        } catch (de.uka.iti.pseudo.parser.ParseException e1) {
-            e1.printStackTrace();
-        } catch (de.uka.iti.pseudo.parser.ASTVisitException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        if (null == em)
-            return;
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		} catch (de.uka.iti.pseudo.parser.ParseException e1) {
+			e1.printStackTrace();
+		} catch (de.uka.iti.pseudo.parser.ASTVisitException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		if (null == em)
+			return;
 
-        em.getEnvironment().setFixed();
+		em.getEnvironment().setFixed();
 
-        // create the environment where things from bpl file will be stored
-        try {
-            env = new Environment(root.getURL().toString(), em.getEnvironment());
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            assert false;
-        }
-    }
+		// create the environment where things from bpl file will be stored
+		try {
+			env = new Environment(root.getURL().toString(), em.getEnvironment());
+		} catch (EnvironmentException e) {
+			e.printStackTrace();
+			assert false;
+		}
+	}
 
-    public void createNamespaces() throws EnvironmentCreationException, ParseException {
-        if (null != names)
-            return;
-        else
-            names = new NamingPhase();
+	public void createNamespaces() throws EnvironmentCreationException,
+			ParseException {
+		if (null != names)
+			return;
+		else
+			names = new NamingPhase();
 
-        names.create(this);
-    }
+		names.create(this);
+	}
 
-    public void createTypesystem() throws ParseException {
-        if (null == names)
-            createNamespaces();
+	public void createTypesystem() throws ParseException {
+		if (null == names)
+			createNamespaces();
 
-        if (null != types)
-            return;
-        else
-            types = new TypingPhase();
+		if (null != types)
+			return;
+		else
+			types = new TypingPhase();
 
-        types.create(this);
-    }
+		types.create(this);
+	}
 
-    public void createEnvironment() throws ParseException {
-        if (null == types)
-            createTypesystem();
+	public void createEnvironment() throws ParseException {
+		if (null == types)
+			createTypesystem();
 
-        if (null != translation)
-            return;
-        else
-            translation = new TranslationPhase();
+		if (null != translation)
+			return;
+		else
+			translation = new TranslationPhase();
 
-        translation.create(this);
-    }
+		translation.create(this);
+	}
 
-    /**
-     * Prints debug information to System.out
-     * 
-     * @return false to enable printing of debuginformation on failing
-     *         assertions via "|| printDebugInformation()"
-     */
-    public boolean printDebugInformation() {
+	/**
+	 * Prints debug information to System.out
+	 * 
+	 * @return false to enable printing of debuginformation on failing
+	 *         assertions via "|| printDebugInformation()"
+	 */
+	public boolean printDebugInformation() {
 
-        System.out.println("The tree contains " + root.getTreeSize() + " ASTElements\n");
+		System.out.println("The tree contains " + root.getTreeSize()
+				+ " ASTElements\n");
 
-        // Print namespace information
-        System.out.println("function names:");
-        for (String n : names.functionSpace.keySet()) {
-            System.out.println("\t" + n);
-        }
-        System.out.println("");
+		// Print namespace information
+		System.out.println("function names:");
+		for (String n : names.functionSpace.keySet()) {
+			System.out.println("\t" + n);
+		}
+		System.out.println("");
 
-        System.out.println("procedure names:");
-        for (String n : names.procedureSpace.keySet()) {
-            System.out.println("\t" + n);
-        }
-        System.out.println("");
+		System.out.println("procedure names:");
+		for (String n : names.procedureSpace.keySet()) {
+			System.out.println("\t" + n);
+		}
+		System.out.println("");
 
-        System.out.println("directly used type names:");
-        for (String n : names.typeSpace.keySet()) {
-            System.out.println("\t" + n);
-        }
-        System.out.println("");
+		System.out.println("directly used type names:");
+		for (String n : names.typeSpace.keySet()) {
+			System.out.println("\t" + n);
+		}
+		System.out.println("");
 
-        System.out.println("type parameters:");
-        for (Pair<String, Scope> n : names.typeParameterSpace.keySet()) {
-            System.out.println("\t" + n.first + "\t\t" + n.second.toString());
-        }
-        System.out.println("");
+		System.out.println("type parameters:");
+		for (Pair<String, Scope> n : names.typeParameterSpace.keySet()) {
+			System.out.println("\t" + n.first + "\t\t" + n.second.toString());
+		}
+		System.out.println("");
 
-        // System.out.println("seen types:");
-        // for (UniversalType t : typeMap.valueSet()) {
-        // if (t != null)
-        // System.out.println("\t" + t.name);
-        // }
-        // System.out.println("");
+		// System.out.println("seen types:");
+		// for (UniversalType t : typeMap.valueSet()) {
+		// if (t != null)
+		// System.out.println("\t" + t.name);
+		// }
+		// System.out.println("");
 
-        System.out.println("variable and constant declarations:");
-        for (Pair<String, Scope> n : names.variableSpace.keySet()) {
-            System.out.println("\t" + n.first + "\t\t" + n.second.toString());
-        }
-        System.out.println("");
+		System.out.println("variable and constant declarations:");
+		for (Pair<String, Scope> n : names.variableSpace.keySet()) {
+			System.out.println("\t" + n.first + "\t\t" + n.second.toString());
+		}
+		System.out.println("");
 
-        System.out.println("explicit labels:");
-        for (Pair<String, Scope> n : names.labelSpace.keySet()) {
-            System.out.println("\t" + n.first + "\t\tinside body scope " + n.second);
-        }
-        System.out.println("");
+		System.out.println("explicit labels:");
+		for (Pair<String, Scope> n : names.labelSpace.keySet()) {
+			System.out.println("\t" + n.first + "\t\tinside body scope "
+					+ n.second);
+		}
+		System.out.println("");
 
-        // Print decorated AST
-        List<Decoration<?>> allDecorations = new LinkedList<Decoration<?>>();
+		// Print decorated AST
+		List<Decoration<?>> allDecorations = new LinkedList<Decoration<?>>();
 
-        allDecorations.add(scopeMap);
-        allDecorations.add(typeMap);
-        allDecorations.add(ivilTypeMap);
+		allDecorations.add(scopeMap);
+		allDecorations.add(typeMap);
+		allDecorations.add(ivilTypeMap);
 
-        ASTVisitor debug = new DebugVisitor(allDecorations);
-        try {
-            debug.visit(root);
-        } catch (ASTVisitException e) {
-            e.printStackTrace();
-        }
+		ASTVisitor debug = new DebugVisitor(allDecorations);
+		try {
+			debug.visit(root);
+		} catch (ASTVisitException e) {
+			e.printStackTrace();
+		}
 
-        env.dump();
+		env.dump();
 
-        return false;
-    }
+		return false;
+	}
 
-    public Environment make() throws ParseException {
-        try {
-            createNamespaces();
+	public Environment make() throws ParseException {
+		try {
+			createNamespaces();
 
-            createTypesystem();
+			createTypesystem();
 
-        } catch (EnvironmentCreationException e) {
-            printDebugInformation();
-            throw new UnsupportedOperationException(
-                    "An unexpected exception was thrown while making the environment.\n"
-                            + "Please tell the developers how you got here.", e);
+		} catch (EnvironmentCreationException e) {
+			printDebugInformation();
+			throw new UnsupportedOperationException(
+					"An unexpected exception was thrown while making the environment.\n"
+							+ "Please tell the developers how you got here.", e);
 
-        } catch (RuntimeException e) {
-            printDebugInformation();
-            throw e;
+		} catch (RuntimeException e) {
+			printDebugInformation();
+			throw e;
+		}
 
-        }
+		try {
+			createEnvironment();
 
-        try {
-            createEnvironment();
+		} catch (RuntimeException e) {
+			e.printStackTrace();
 
-        } catch (RuntimeException e) {
-            e.printStackTrace();
+			// this should not happen, so print detailed information
+			printDebugInformation();
 
-            // this should not happen, so print detailed information
-            printDebugInformation();
+			throw e;
+		} finally {
+//			printDebugInformation();
+		}
 
-            throw e;
-        }
-        // finally {
-        // printDebugInformation();
-        // }
+		return env;
+	}
 
-        return env;
-    }
+	public Term getProblem() throws ParseException {
+		if (null == translation)
+			createEnvironment();
 
-    public Term getProblem() throws ParseException {
-        if (null == translation)
-            createEnvironment();
-
-        return translation.getProblem();
-    }
+		return translation.getProblem();
+	}
 }

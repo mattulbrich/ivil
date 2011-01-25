@@ -52,7 +52,7 @@ public final class TypingPhase {
             sortMap.put("bitvector", new Sort("bitvector", 0, state.root));
 
             for (String name : state.names.typeSpace.keySet()) {
-                if (sortMap.containsKey(name))
+                if (sortMap.containsKey(name) && (!name.equals("bitvector") || sortMap.containsKey("utt_bitvector")) )
                     continue;
 
                 ASTElement decl = state.names.typeSpace.get(name);

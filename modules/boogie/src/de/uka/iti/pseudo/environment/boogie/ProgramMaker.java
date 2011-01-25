@@ -1348,6 +1348,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
             statements.bodyAnnotations.add(null);
         }
     }
+    
+    @Override
+    public void visit(CoercionExpression node) throws ASTVisitException {
+    	defaultAction(node);
+    	state.translation.terms.put(node, state.translation.terms.get(node.getChildren().get(0)));
+    }
 
     @Override
     public void visit(AdditionExpression node) throws ASTVisitException {
@@ -2005,13 +2011,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(Trigger node) throws ASTVisitException {
         // triggers are currently ignored
     }
-
-    @Override
-    public void visit(CoercionExpression node) throws ASTVisitException {
-        // tfe: to me, it looks like nothing has to be done here, as coercions
-        // have been evaluated during type annotation
-    }
-
+    
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // save statements of the current function or code expression to allow

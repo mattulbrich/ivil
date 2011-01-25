@@ -1990,6 +1990,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public Expression ArrayExpression() throws ParseException {
   Expression rval, tmp, update;
   List < Expression > arguments;
+  boolean hasArguments;
     rval = AtomExpression();
     label_33:
     while (true) {
@@ -2004,6 +2005,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_consume_token(SEP_LBRACKET);
       tmp = update = null;
       arguments = new LinkedList < Expression > ();
+      hasArguments = false;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
       case FALSE:
@@ -2029,6 +2031,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         case 71:
         case 82:
         case 85:
+       hasArguments = true;
           tmp = Expression();
         arguments.add(tmp);
           label_34:
@@ -2061,6 +2064,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         case OP_ASSIGN:
           jj_consume_token(OP_ASSIGN);
           update = Expression();
+      hasArguments = true;
+
         rval = new MapUpdateExpression(rval, arguments, update);
           break;
         default:
@@ -2073,6 +2078,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         jj_la1[100] = jj_gen;
         ;
       }
+      if(!hasArguments)
+      rval = new MapAccessExpression(rval, arguments);
       jj_consume_token(SEP_RBRACKET);
     }
     {if (true) return rval;}
