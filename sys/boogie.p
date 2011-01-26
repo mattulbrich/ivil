@@ -22,9 +22,10 @@ include
   "$unicode.p"
   "$fol.p"
   "$bitvector.p"
+  "$map.p"
 
 
-(*  Dont use prettyprinter.
+(*  Dont use the pretty printer.
  * plugin
  *   prettyPrinter : "de.uka.iti.pseudo.parser.boogie.environment.BoogiePrettyPrinter"
  *)
@@ -50,24 +51,6 @@ rule some
   find  (\some %x; %b) 
   where programFree %b           # this is needed as the program may contain %x and as the program would be duplicated if not evaluated first leading to unnecessary work duplation
   add (\exists %x; %b) -> $$subst(%x, $$skolem(%x), %b) |-
-  replace  $$subst(%x, $$skolem(%x), %x)
-  tags rewrite "fol simp"
-
-(*
-  \lambda
-  
-  lambda is nearly the same as \some, but it is unnecessary to prove,
-  that the created object exists, as lambda is used to generate maps,
-  which allways exist.
-*)
-
-binder
-  'm (\lambda 'm; 'r)
-
-rule lambda
-  find  (\lambda %x; %b) 
-  where programFree %b
-  add $$subst(%x, $$skolem(%x), %b) |-
   replace  $$subst(%x, $$skolem(%x), %x)
   tags rewrite "fol simp"
 

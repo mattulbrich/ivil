@@ -628,10 +628,16 @@ public class UniversalType {
         Type mapDomainRange[] = new Type[domain.length + 2];
         Type mapDomain[] = new Type[domain.length + 1];
         Type mapType[] = new Type[domain.length + 1];
+        Type curryMap[] = new Type[] { null };
 
-        for (int i = 0; i < domain.length; i++)
-            mapType[i] = new TypeVariable("D" + i);
         mapType[mapType.length - 1] = new TypeVariable("R");
+        for (int i = domain.length - 1; i >= 0; i--) {
+            mapType[i] = new TypeVariable("D" + i);
+            if (null == curryMap[0])
+                curryMap[0] = state.env.mkType("map", new Type[] { mapType[i], mapType[mapType.length - 1] });
+            else
+                curryMap[0] = state.env.mkType("map", new Type[] { mapType[i], curryMap[0] });
+        }
 
         mapDomainRange[0] = mapDomain[0] = state.env.mkType(map_t, mapType);
 
@@ -645,6 +651,12 @@ public class UniversalType {
 
         state.env.addFunction(new Function(map_t + "_load", domainRange[domainRange.length - 1], mapDomain, false,
                 false, state.root));
+
+        // allows to create mapI(D_1, ..., D_i, r) from map(D_1, (...(map(D_i,
+        // r))...))
+        // this is completely unneeded for maps without domain
+        if (domain.length > 0)
+            state.env.addFunction(new Function(map_t + "_curry", mapDomain[0], curryMap, false, false, state.root));
 
         // ... and rules
 
@@ -828,81 +840,74 @@ public class UniversalType {
             newload_args[0] = store_arg[0];
             Term load = new Application(state.env.getFunction(map_t + "_load"), vt, newload_args);
 
-            Term replacement = new Application(state.env.getFunction("cond"), default_find.getType(), new Term[] {
-                    condition, v, load });
+            Term replacement = new Application(state.env.getFunction("cond"), vt, new Term[] { condition, v, load });
+
+            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, load_arg);
 
             actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
 
-            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(default_find,
-                    MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
+            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
+                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
+                    state.root));
 
         } catch (RuleException e) {
             e.printStackTrace();
             throw new EnvironmentException(e);
         }
 
-        try { // /////////////// LOAD LAMBDA
-            String name = map_t + "_load_lambda";
-            
-            // find: map_load(lambda m. forall X . m = map_store(m, X, v), Y)
-            // replace: $$subst(X, Y, v)
+        if (domain.length > 0)
+            try { // /////////////// LOAD LAMBDA
+                String name = map_t + "_load_lambda";
 
-            Map<String, String> tags = new HashMap<String, String>();
+                // find: map_load(map_curry(λ x_1; ... λ x_n ; v), y_1, ... y_n)
+                // replace: $$subst(X, Y, v)
 
-            tags.put("rewrite", "concrete");
+                Map<String, String> tags = new HashMap<String, String>();
 
-            List<Term> none = new LinkedList<Term>();
+                tags.put("rewrite", "concrete");
 
-            List<GoalAction> actions = new LinkedList<GoalAction>();
+                List<Term> none = new LinkedList<Term>();
 
-            // create schema variables and types
-            Term argStore[] = new Term[domain.length + 2];
-            Term argLoad[] = new Term[domain.length + 1];
+                List<GoalAction> actions = new LinkedList<GoalAction>();
 
-            Type drt[] = new Type[domain.length + 1];
+                // create schema variables and types
+                SchemaVariable X[] = new SchemaVariable[domain.length];
+                Term argLoad[] = new Term[domain.length + 1];
+                Term lambda = v;
+                Term replace = v;
 
-            for (int i = 0; i < domain.length; i++) {
-                drt[i] = new SchemaType("d" + i);
-                argStore[i + 1] = new SchemaVariable("%x" + i, drt[i]);
-                argLoad[i + 1] = new SchemaVariable("%y" + i, drt[i]);
+                Type curry_t = vt;
+                Type drt[] = new Type[domain.length + 1];
+
+                for (int i = domain.length - 1; i >= 0; i--) {
+                    drt[i] = new SchemaType("d" + i);
+                    X[i] = new SchemaVariable("%x" + i, drt[i]);
+                    argLoad[i + 1] = new SchemaVariable("%y" + i, drt[i]);
+
+                    curry_t = state.env.mkType("map", drt[i], curry_t);
+                    lambda = new Binding(state.env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
+
+                    replace = new Application(state.env.getFunction("$$subst"), vt, new Term[] { X[i], argLoad[i + 1],
+                            replace });
+                }
+
+                // lambda is now λ %X . %v
+
+                drt[domain.length] = vt;
+
+                argLoad[0] = new Application(state.env.getFunction(map_t + "_curry"), mt, new Term[] { lambda });
+
+                Term find = new Application(state.env.getFunction(map_t + "_load"), vt, argLoad);
+
+                actions.add(new GoalAction("samegoal", null, false, replace, none, none));
+
+                state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(find,
+                        MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
+
+            } catch (RuleException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
             }
-
-            drt[domain.length] = vt;
-
-            argStore[0] = m;
-            argStore[argStore.length - 1] = v;
-
-
-            // create terms
-            Term lambda = new Application(state.env.getFunction(map_t + "_store"), mt, argStore);
-            
-            lambda = new Application(state.env.getFunction("$eq"), bool_it, new Term[] { m, lambda });
-            
-            Term replace = v;
-
-            for (int i = domain.length; i > 0; i--) {
-                // lambda = ∀ %xi . lambda
-                lambda = new Binding(state.env.getBinder("\\forall"), bool_it, (SchemaVariable) argStore[i],
-                        new Term[] { lambda });
-
-                // replace += $$subst
-                replace = new Application(state.env.getFunction("$$subst"), vt, new Term[] { argStore[i], argLoad[i],
-                        replace });
-            }
-
-            argLoad[0] = new Binding(state.env.getBinder("\\lambda"), mt, m, new Term[] { lambda });
-            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, argLoad);
-            
-
-            actions.add(new GoalAction("samegoal", null, false, replace, none, none));
-
-            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(), new LocatedTerm(find,
-                    MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, state.root));
-
-        } catch (RuleException e) {
-            e.printStackTrace();
-            throw new EnvironmentException(e);
-        }
     }
 
     /**

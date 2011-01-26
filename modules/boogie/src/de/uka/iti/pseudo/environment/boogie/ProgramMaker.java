@@ -1885,8 +1885,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         } catch (TermException e) {
             e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         } catch (EnvironmentException e) {
             e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         }
 
         state.translation.terms.put(node, args[0]);
@@ -1923,8 +1925,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         } catch (TermException e) {
             e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         } catch (EnvironmentException e) {
             e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         }
 
         state.translation.terms.put(node, args[0]);
@@ -1936,46 +1940,84 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         QuantifierBody b = node.getBody();
 
-        // \some map ; ∀domain; map = store(map, domain, expr(domain))
+        // curryI(λ d1; ... λdn; expr(d1, ... dn))
+        defaultAction(node);
+
+        Term[] args = new Term[1];
+        Type result_t;
+
+        // add body expression to args
+        args[0] = state.translation.terms.get(node.getBody().getBody());
+        result_t = args[0].getType();
+
+        // add quantifiers befor body
         try {
-            Type map_t = state.ivilTypeMap.get(node);
-            de.uka.iti.pseudo.term.Variable map = new de.uka.iti.pseudo.term.Variable("map", map_t);
+            for (int i = b.getQuantifiedVariables().size() - 1; i >= 0; i--) {
+                VariableDeclaration v = b.getQuantifiedVariables().get(i);
+                Variable var = boundVars.remove(state.translation.variableNames.get(v));
+                result_t = state.env.mkType("map", new Type[] { var.getType(), result_t });
 
-            Term[] args = new Term[1 + b.getQuantifiedVariables().size() + 1];
-
-            args[0] = map;
-            for (int i = 0; i < b.getQuantifiedVariables().size(); i++)
-                args[1 + i] = boundVars.get(state.translation.variableNames.get(b.getQuantifiedVariables().get(i)));
-
-            args[args.length - 1] = state.translation.terms.get(b.getBody());
-
-            // {map, store}
-            args = new Term[] { map,
-                    new Application(state.env.getFunction("map" + (args.length - 2) + "_store"), map_t, args) };
-
-            // eq
-            args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
-
-            // ∀ domain
-            try {
-                String name;
-                for (VariableDeclaration v : b.getQuantifiedVariables()) {
-                    name = state.translation.variableNames.get(v);
-                    args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
-                            boundVars.get(name), args) };
-                    boundVars.remove(name);
-                }
-            } catch (TermException e) {
-                e.printStackTrace();
+                args = new Term[] { new Binding(state.env.getBinder("\\lambda"), result_t,
+ var, args) };
             }
 
-            // \some
-            state.translation.terms.put(node, new Binding(state.env.getBinder("\\lambda"), map_t, map, args));
+            state.translation.terms.put(node,
+                    new Application(state.env.getFunction("map" + b.getQuantifiedVariables().size() + "_curry"),
+                            state.ivilTypeMap.get(node), args));
 
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         }
+
+        // try {
+        // Type map_t = state.ivilTypeMap.get(node);
+        // de.uka.iti.pseudo.term.Variable map = new
+        // de.uka.iti.pseudo.term.Variable("map", map_t);
+        //
+        // Term[] args = new Term[1 + b.getQuantifiedVariables().size() + 1];
+        //
+        // args[0] = map;
+        // for (int i = 0; i < b.getQuantifiedVariables().size(); i++)
+        // args[1 + i] =
+        // boundVars.get(state.translation.variableNames.get(b.getQuantifiedVariables().get(i)));
+        //
+        // args[args.length - 1] = state.translation.terms.get(b.getBody());
+        //
+        // // {map, store}
+        // args = new Term[] { map,
+        // new Application(state.env.getFunction("map" + (args.length - 2) +
+        // "_store"), map_t, args) };
+        //
+        // // eq
+        // args = new Term[] { new Application(state.env.getFunction("$eq"),
+        // Environment.getBoolType(), args) };
+        //
+        // // ∀ domain
+        // try {
+        // String name;
+        // for (VariableDeclaration v : b.getQuantifiedVariables()) {
+        // name = state.translation.variableNames.get(v);
+        // args = new Term[] { new Binding(state.env.getBinder("\\forall"),
+        // Environment.getBoolType(),
+        // boundVars.get(name), args) };
+        // boundVars.remove(name);
+        // }
+        // } catch (TermException e) {
+        // e.printStackTrace();
+        // }
+        //
+        // // \some
+        // state.translation.terms.put(node, new
+        // Binding(state.env.getBinder("\\lambda"), map_t, map, args));
+        //
+        // } catch (TermException e) {
+        // e.printStackTrace();
+        // throw new ASTVisitException(node.getLocation(), e);
+        // }
     }
 
     @Override
