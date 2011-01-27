@@ -383,22 +383,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.visit(this);
         node.getOutParemeter().visit(this);
 
-        // add declaration
-        {
-            Type[] arguments = new Type[node.getInParameters().size()];
-            for (int i = 0; i < node.getInParameters().size(); i++)
-                arguments[i] = state.ivilTypeMap.get(node.getInParameters().get(i));
-
-            try {
-                state.env.addFunction(new Function("fun__" + node.getName(), state.ivilTypeMap.get(node
-                        .getOutParemeter()), arguments, false, false, node));
-
-            } catch (EnvironmentException e) {
-                e.printStackTrace();
-                throw new ASTVisitException("Function declaration failed because of:\n", e);
-            }
-        }
-
         // add definition
         if (null != node.getExpression()) {
 
@@ -1918,7 +1902,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             {
                 UniversalType[] params = state.typeMap.get(node.getBody()).parameters;
                 for (int i = 0; i < params.length; i++) {
-                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.EX,
                             params[i].toIvilType(state), args[0]) };
                 }
             }

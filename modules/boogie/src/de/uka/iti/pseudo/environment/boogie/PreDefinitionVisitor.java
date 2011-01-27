@@ -45,6 +45,29 @@ public class PreDefinitionVisitor extends DefaultASTVisitor {
     }
 
     @Override
+    public void visit(FunctionDeclaration node) throws ASTVisitException {
+        for (ASTElement e : node.getInParameters())
+            e.visit(this);
+        node.getOutParemeter().visit(this);
+
+        // add declaration
+        {
+            Type[] arguments = new Type[node.getInParameters().size()];
+            for (int i = 0; i < node.getInParameters().size(); i++)
+                arguments[i] = state.ivilTypeMap.get(node.getInParameters().get(i));
+
+            try {
+                state.env.addFunction(new Function("fun__" + node.getName(), state.ivilTypeMap.get(node
+                        .getOutParemeter()), arguments, false, false, node));
+
+            } catch (EnvironmentException e) {
+                e.printStackTrace();
+                throw new ASTVisitException("Function declaration failed because of:\n", e);
+            }
+        }
+    }
+
+    @Override
     public void visit(VariableDeclaration node) throws ASTVisitException {
 
         // names are somesort of magic, if no other name is desired, the name
