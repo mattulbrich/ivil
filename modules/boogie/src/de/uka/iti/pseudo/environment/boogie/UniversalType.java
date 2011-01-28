@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.rule.where.DifferentTypesInEq;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -765,6 +766,41 @@ public class UniversalType {
 
             state.env.addRule(new Rule(name, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
                     new LinkedList<WhereClause>(), actions, tags, state.root));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
+
+        try { // /////////////// LOAD STORE OTHER TYPE
+
+            Term[] args3 = load_arg.clone();
+            args3[0] = store_arg[0];
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions.add(new GoalAction("samegoal", null, false, new Application(state.env.getFunction(map_t + "_load"),
+                    default_find.getType(), args3), new LinkedList<Term>(), new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            tags.put("rewrite", "concrete");
+
+            // in order
+            for (int i = 0; i < domain.length; i++) {
+                String name = map_t + "_load_store_other_type_" + i;
+
+                LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+                where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(state.env, "differentTypesInEq"), false,
+                        new Term[] { load_arg[i + 1], store_arg[i + 1] }));
+
+                state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH), where,
+                        actions, tags, state.root));
+
+            }
 
         } catch (RuleException e) {
             e.printStackTrace();

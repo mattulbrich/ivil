@@ -147,7 +147,7 @@ rule extends_antisym
 	replace !$extends(%b, %a)
 	
 rule extends_antisym_close
-    find $extends(%a, %b)
+    find $extends(%a, %b) |-
     assume $extends(%b, %a) |-
 	assume |- %a = %b
 	where toplevel
