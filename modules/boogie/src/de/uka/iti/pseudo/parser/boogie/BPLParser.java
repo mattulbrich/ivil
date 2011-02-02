@@ -7,51 +7,134 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import de.uka.iti.pseudo.parser.boogie.ast.*;
-// used for main
+
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
+import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
+import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
+import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
+import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.DeclarationBlock;
+import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
+import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
+import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
+import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
+import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
+import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
+import de.uka.iti.pseudo.parser.boogie.ast.Specification;
+import de.uka.iti.pseudo.parser.boogie.ast.Statement;
+import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
+import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
+import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.Type;
+import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.UserDefinedTypeDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 // we dont want warnings here, as the code is created by a generator
 @ SuppressWarnings("all") public class BPLParser implements BPLParserConstants {
-  public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException
-  {
-    return parseFile(new FileReader(file), file.getPath());
-  }
-
-  public CompilationUnit parseURL(URL url) throws ParseException, IOException
-  {
-    Reader reader = new InputStreamReader(url.openStream());
-    return parseFile(reader, url.toString());
-  }
-
-  public CompilationUnit parseFile(Reader reader, String filename) throws ParseException
-  {
-    ReInit(reader);
-    CompilationUnit result = parse(filename);
-    result.setFilename(filename);
-    return result;
-  }
-
-  /**
-    * Try to prove all problems supplied in args as paths to their defining files.
-    */
-  public static void main(String args []) throws FileNotFoundException, ParseException
-  {
-    for (int i = 0; i < args.length; i++)
-    {
-      BPLParser p = new BPLParser(new FileInputStream(args [i]));
-      EnvironmentCreationState creator = new EnvironmentCreationState(p.parse(args [i]));
-      creator.make();
+  public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException, MalformedURLException {
+        return parseFile(new FileReader(file), file.toURI().toURL());
     }
-  }
+
+    public CompilationUnit parseURL(URL url) throws ParseException, IOException {
+        Reader reader = new InputStreamReader(url.openStream());
+        return parseFile(reader, url);
+    }
+
+    public CompilationUnit parseFile(Reader reader, URL location) throws ParseException {
+        ReInit(reader);
+        CompilationUnit result = parse(location);
+        result.setFilename(location.toString());
+        return result;
+    }
+
+    /**
+     * Try to prove all problems supplied in args as paths to their defining
+     * files.
+     */
+    public static void main(String args[]) throws FileNotFoundException, ParseException {
+        for (int i = 0; i < args.length; i++) {
+            BPLParser p = new BPLParser(new FileInputStream(args[i]));
+            EnvironmentCreationState creator;
+            try {
+                creator = new EnvironmentCreationState(p.parse(new File(args[i]).toURI().toURL()));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                return;
+            }
+            creator.make();
+        }
+    }
 
 /*---------------------------------------------------------------------------
 // BoogiePL -
 //--------------------------------------------------------------------------*/
 /*------------------------------------------------------------------------*/
-  final public CompilationUnit parse(String name) throws ParseException {
+  final public CompilationUnit parse(URL location) throws ParseException {
   DeclarationBlock block;
   List < DeclarationBlock > declarations = new LinkedList < DeclarationBlock > ();
     label_1:
@@ -100,7 +183,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       declarations.add(block);
     }
     jj_consume_token(0);
-    {if (true) return new CompilationUnit(name, declarations);}
+    {if (true) return new CompilationUnit(location, declarations);}
     throw new Error("Missing return statement in function");
   }
 

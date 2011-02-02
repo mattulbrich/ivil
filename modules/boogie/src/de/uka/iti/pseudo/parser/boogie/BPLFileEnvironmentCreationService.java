@@ -28,7 +28,7 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
            throws IOException, EnvironmentException {
         try {
             BPLParser p = new BPLParser(inputStream);
-            EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url.getFile()));
+            EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url));
 
             return new Pair<Environment, Term>(s.make(), s.getProblem());
         } catch (ParseException e) {

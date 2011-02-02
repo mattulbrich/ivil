@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.parser.boogie.Token;
  */
 final public class CompilationUnit extends ASTElement {
 
-    private final String name;
     private URL url;
     /**
      * Guaranteed to be in order "types, consts, globalvars, functions, axiom,
@@ -33,8 +32,7 @@ final public class CompilationUnit extends ASTElement {
      */
     private List<DeclarationBlock> declarationBlocks;
 
-    public CompilationUnit(String name, List<DeclarationBlock> blocks) {
-        this.name = name;
+    public CompilationUnit(URL location, List<DeclarationBlock> blocks) {
         this.declarationBlocks = new LinkedList<DeclarationBlock>();
 
         for (DeclarationBlock d : blocks)
@@ -65,13 +63,8 @@ final public class CompilationUnit extends ASTElement {
             if (d instanceof ProcedureImplementation)
                 declarationBlocks.add(d);
 
-        File f = new File(name);
-        try {
-            url = f.toURI().toURL();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            url = null;
-        }
+        this.url = location;
+        assert null != location;
 
         addChildren(declarationBlocks);
     }
@@ -93,7 +86,7 @@ final public class CompilationUnit extends ASTElement {
 
     @Override
     public String toString(){
-        return "CompilationUnit" + (null == name ? "" : " [" + name + "]");
+        return "CompilationUnit" + " [" + url + "]";
     }
 
     public URL getURL() {
