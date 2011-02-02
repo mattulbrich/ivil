@@ -14,11 +14,10 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -47,25 +46,24 @@ import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.Pair;
 
-
 // Class is final because thread is started in constructor which is evil 
 // for subclassing.
 /**
  * This is the action which is on the SMT button.
  * 
- * <ul>
- * <li><b>Pressing it</b> locks the proof, 
+ * Pressing it while flashing will close all nodes, that are known to be
+ * closable. Pressing it while not flashing will cause it to feed all open goals
+ * to the SMT solver.
  */
-@SuppressWarnings("serial") 
-public final class SMTBackgroundAction extends BarAction implements
-        InitialisingAction, PropertyChangeListener, Runnable, NotificationListener {
+@SuppressWarnings("serial")
+public final class SMTBackgroundAction extends BarAction implements InitialisingAction, PropertyChangeListener,
+        Runnable, NotificationListener {
 
     /**
-     * The property on ProofCenter that will be used to store the
-     * activation.
+     * The property on ProofCenter that will be used to store the activation.
      */
     public static final String SMT_BACKGROUND_PROPERTY = "pseudo.smt.background";
-    
+
     /**
      * The rule to be called to close goals with
      */
@@ -84,30 +82,29 @@ public final class SMTBackgroundAction extends BarAction implements
      * {@link AskDecisionProcedure#KEY_TIMEOUT}
      */
     private int timeout;
-    
+
     /**
      * Cache to remember solvability of sequents.
      * 
      * We use a weak hash map to allow freeing if space is needed.
      */
-    private Map<Sequent, Boolean> sequentStatus =
-        Collections.synchronizedMap(new WeakHashMap<Sequent, Boolean>());
-    
+    private Map<Sequent, Boolean> sequentStatus = Collections.synchronizedMap(new WeakHashMap<Sequent, Boolean>());
+
     /**
      * The synchronised blocking queue of proof nodes to be investigated.
      */
     private BlockingQueue<ProofNode> jobs = new LinkedBlockingQueue<ProofNode>();
-    
+
     /**
      * The nodes which can be proven using Z3.
      */
-    private Set<ProofNode> provableNodes = new HashSet<ProofNode>();
-    
+    private List<ProofNode> provableNodes = Collections.synchronizedList(new LinkedList<ProofNode>());
+
     /**
      * The lock used to synchronise the thread.
      */
     private Object lock = new Object();
-    
+
     /**
      * The proof element we are working on.
      */
@@ -128,91 +125,121 @@ public final class SMTBackgroundAction extends BarAction implements
      * This action can be made inactive
      */
     private boolean backgroundActive;
-    
+
     /**
      * The rule to close by Z3.
      */
     private Rule closeRule;
 
+    /**
+     * Tooltip iff flashing
+     */
+    private static final String TOOLTIP_FLASHING = "Closes all nodes, that are known to be closable.";
+    /**
+     * Tooltip iff not flashing
+     */
+    private static final String TOOLTIP_NOT_FLASHING = "Tries to close all open goals using the smt solver.";
+
     /*
      * Instantiates a new SMT background action.
-     * TODO tooltip
      */
     public SMTBackgroundAction() {
         Thread thread = new Thread(this, "SMT Background");
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
-        
+
         // make images and set the non-flashing one
         noflashImg = GUIUtil.makeIcon(getClass().getResource("img/smt.gif"));
         flashImg = GUIUtil.makeIcon(getClass().getResource("img/smt_flash.gif"));
         setFlashing(false);
-        
+
         // we will set us enabled after initialisation
         setEnabled(false);
     }
 
-    /* 
-     * retrieve the environment and read from it the necessary information, such as the
-     * rule to apply, and the solver to use.
+    /*
+     * retrieve the environment and read from it the necessary information, such
+     * as the rule to apply, and the solver to use.
      */
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
-        
+
         proof = proofCenter.getProof();
         proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
         env = proofCenter.getEnvironment();
-        
+
         proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
-        
+
         proofCenter.addPropertyChangeListener(SMT_BACKGROUND_PROPERTY, this);
-        setBackgroundActive((Boolean)proofCenter.getProperty(SMT_BACKGROUND_PROPERTY));
-        
+        setBackgroundActive((Boolean) proofCenter.getProperty(SMT_BACKGROUND_PROPERTY));
+
         closeRule = env.getRule(CLOSE_RULE_NAME);
-        if(closeRule != null) {
+        if (closeRule != null) {
             try {
                 String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
                 solver = (DecisionProcedure) Class.forName(className).newInstance();
                 timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
                 ex.printStackTrace();
                 closeRule = null;
             }
         }
-        
+
         setEnabled(closeRule != null);
-        
+
     }
 
-    /* 
-     * Try to prove all open goals.
+    /*
+     * If goals are provable, close them and don't start proving all goals if
+     * background SMT is active. Else try to prove all open goals.
      */
     public void actionPerformed(ActionEvent actionEvt) {
 
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 ProofCenter proofCenter = getProofCenter();
+
                 try {
+                    if (backgroundActive && !provableNodes.isEmpty()) {
 
-                    List<ProofNode> openGoals = proof.getOpenGoals();
-                    int countGoals = openGoals.size();
-                    // bugfix: do it backward, otherwise solving goal 0 and
-                    // incrementing would not do the second original goal which
-                    // has
-                    // become the new 0
-                    for (int index = countGoals - 1; index >= 0; index--) {
-                        MutableRuleApplication ra = new MutableRuleApplication();
-                        ra.setProofNode(openGoals.get(index));
-                        ra.setRule(closeRule);
-                        try {
-                            proofCenter.apply(ra);
+                        for (ProofNode node : provableNodes) {
+                            // the node might have been closed already somehow,
+                            // as this is a multi threaded environment
+                            if (node.isClosed())
+                                continue;
 
-                        } catch (ProofException ex) {
-                            Log.stacktrace(Log.VERBOSE, ex);
-                            // this is ok - the goal may be not closable.
-                        } catch (Exception e) {
-                            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                            MutableRuleApplication ra = new MutableRuleApplication();
+                            ra.setProofNode(node);
+                            ra.setRule(closeRule);
+                            try {
+                                proofCenter.apply(ra);
+
+                            } catch (Exception e) {
+                                ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                            }
+                        }
+
+                    } else {
+                        List<ProofNode> openGoals = proof.getOpenGoals();
+                        int countGoals = openGoals.size();
+                        // bugfix: do it backward, otherwise solving goal 0 and
+                        // incrementing would not do the second original goal
+                        // which
+                        // has become the new 0
+                        for (int index = countGoals - 1; index >= 0; index--) {
+                            MutableRuleApplication ra = new MutableRuleApplication();
+                            ra.setProofNode(openGoals.get(index));
+                            ra.setRule(closeRule);
+                            try {
+                                proofCenter.apply(ra);
+
+                            } catch (ProofException ex) {
+                                Log.stacktrace(Log.VERBOSE, ex);
+                                // this is ok - the goal may be not closable.
+                            } catch (Exception e) {
+                                ExceptionDialog.showExceptionDialog(getParentFrame(), e);
+                            }
                         }
                     }
                 } finally {
@@ -221,21 +248,21 @@ public final class SMTBackgroundAction extends BarAction implements
             }
         });
     }
-    
-    /* 
-     * switch the button off when in proof elsewhere
-     * according to the settings, activate or deactivate the background thread
+
+    /*
+     * switch the button off when in proof elsewhere according to the settings,
+     * activate or deactivate the background thread
      */
     public void propertyChange(PropertyChangeEvent evt) {
-        if(ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
-            setEnabled(!(Boolean)evt.getNewValue() && solver != null);
-        } else 
-            
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
+            setEnabled(!(Boolean) evt.getNewValue() && solver != null);
+        } else
+
         if (SMT_BACKGROUND_PROPERTY.equals(evt.getPropertyName())) {
-            setBackgroundActive((Boolean)evt.getNewValue());
-        } else 
-        
-        {       
+            setBackgroundActive((Boolean) evt.getNewValue());
+        } else
+
+        {
             assert false : "Case distinction failed";
         }
     }
@@ -246,32 +273,34 @@ public final class SMTBackgroundAction extends BarAction implements
     private void setBackgroundActive(boolean act) {
         synchronized (lock) {
             this.backgroundActive = act;
-            if(backgroundActive) {
+            if (backgroundActive) {
                 jobs.clear();
                 jobs.addAll(proof.getOpenGoals());
                 lock.notify();
             }
         }
     }
-    
-    /* 
+
+    /**
      * the proof object has changed. change our structures accordingly:
-     * - remove from provable if no longer a goal
-     * - set jobs to all newly open goals
+     * <ul>
+     * <li>remove nodes from provable if no longer a goal
+     * <li>set jobs to all newly open goals
+     * </ul>
      */
     @Override
     public void handleNotification(NotificationEvent event) {
         assert SwingUtilities.isEventDispatchThread();
-        
-        if(event.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
+
+        if (event.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
             // no update while in automatic proof
-            if((Boolean)getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)) {
+            if ((Boolean) getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)) {
                 return;
             }
-        
+
             Iterator<ProofNode> it = provableNodes.iterator();
-            while(it.hasNext()) {
-                if(!proof.getOpenGoals().contains(it.next()))
+            while (it.hasNext()) {
+                if (!proof.getOpenGoals().contains(it.next()))
                     it.remove();
             }
 
@@ -283,31 +312,32 @@ public final class SMTBackgroundAction extends BarAction implements
     }
 
     /*
-     * flashing or non-flashing icon
+     * flashing or non-flashing icon and change tooltip
      */
     private void setFlashing(boolean flashing) {
         setIcon(flashing ? flashImg : noflashImg);
+        putValue(SHORT_DESCRIPTION, flashing ? TOOLTIP_FLASHING : TOOLTIP_NOT_FLASHING);
     }
 
-    /* 
-     * perform a endless looping. Take one from the jobs and test for closability.
-     * Add to provableNodes if so, cache the result.
+    /*
+     * perform a endless looping. Take one from the jobs and test for
+     * closability. Add to provableNodes if so, cache the result.
      */
     public void run() {
         try {
-            while(!Thread.interrupted()) {
+            while (!Thread.interrupted()) {
                 synchronized (lock) {
-                    while(!backgroundActive || !isEnabled()) {
+                    while (!backgroundActive || !isEnabled()) {
                         lock.wait();
                     }
                 }
-                
+
                 ProofNode pn = jobs.take();
                 Sequent sequent = pn.getSequent();
-                
+
                 Boolean cached = sequentStatus.get(sequent);
-                if(cached != null) {
-                    if(cached) {
+                if (cached != null) {
+                    if (cached) {
                         provableNodes.add(pn);
                         setFlashing(true);
                     }
@@ -316,24 +346,27 @@ public final class SMTBackgroundAction extends BarAction implements
                         Pair<Result, String> result = solver.solve(sequent, env, timeout);
                         boolean proveable = result.fst() == Result.VALID;
                         sequentStatus.put(sequent, proveable);
-                        if(proveable) {
+                        if (proveable) {
                             provableNodes.add(pn);
                             setFlashing(true);
                         }
-                    } catch (Exception ex) {
-                        // TODO ... Put this onto the dispatcher thread;
-                        ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                        JOptionPane.showMessageDialog(getParentFrame(), 
-                                "'Background SMT' will be switched off to stop repeating " +
-                                "failures. You can reenable it in the settings menu");
-                        getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
+                    } catch (final Exception ex) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                                JOptionPane.showMessageDialog(getParentFrame(),
+                                        "'Background SMT' will be switched off to stop repeating "
+                                                + "failures. You can reenable it in the settings menu");
+                                getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
+                            }
+                        });
                     }
                 }
-                
+
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
 }
