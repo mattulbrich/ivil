@@ -1175,6 +1175,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     throw new ASTVisitException(e);
                 }
         }
+        // havoc out parameters
+        for(Function out : newOuts){
+            try {
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
+                        .getLocationToken().beginLine, new Application(out, out.getResultType())));
+                statements.bodyAnnotations.add(null);
+            } catch (TermException e) {
+                e.printStackTrace();
+                throw new ASTVisitException(e);
+            }
+        }
 
         // assume postcondition
         try {
