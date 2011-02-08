@@ -117,7 +117,7 @@ public final class TranslationPhase {
 
                         statements.set(i, new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
                                 .getSourceLineNumber(), args));
-                        annotations.set(i, "");
+                        annotations.set(i, null);
 
                     } catch (TermException e) {
                         e.printStackTrace();
