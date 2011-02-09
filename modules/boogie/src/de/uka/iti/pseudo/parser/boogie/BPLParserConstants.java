@@ -23,126 +23,126 @@ public interface BPLParserConstants {
   /** RegularExpression Id. */
   int SINGLE_LINE_COMMENT = 10;
   /** RegularExpression Id. */
-  int MULTI_LINE_COMMENT = 11;
+  int VAR = 15;
   /** RegularExpression Id. */
-  int VAR = 12;
+  int WHERE = 16;
   /** RegularExpression Id. */
-  int WHERE = 13;
+  int INT = 17;
   /** RegularExpression Id. */
-  int INT = 14;
+  int BOOL = 18;
   /** RegularExpression Id. */
-  int BOOL = 15;
+  int BVTYPE = 19;
   /** RegularExpression Id. */
-  int BVTYPE = 16;
+  int CONST = 20;
   /** RegularExpression Id. */
-  int CONST = 17;
+  int UNIQUE = 21;
   /** RegularExpression Id. */
-  int UNIQUE = 18;
+  int EXTENDS = 22;
   /** RegularExpression Id. */
-  int EXTENDS = 19;
+  int COMPLETE = 23;
   /** RegularExpression Id. */
-  int COMPLETE = 20;
+  int FUNCTION = 24;
   /** RegularExpression Id. */
-  int FUNCTION = 21;
+  int RETURNS = 25;
   /** RegularExpression Id. */
-  int RETURNS = 22;
+  int AXIOM = 26;
   /** RegularExpression Id. */
-  int AXIOM = 23;
+  int TYPE = 27;
   /** RegularExpression Id. */
-  int TYPE = 24;
+  int PROCEDURE = 28;
   /** RegularExpression Id. */
-  int PROCEDURE = 25;
+  int IMPLEMENTATION = 29;
   /** RegularExpression Id. */
-  int IMPLEMENTATION = 26;
+  int MODIFIES = 30;
   /** RegularExpression Id. */
-  int MODIFIES = 27;
+  int FREE = 31;
   /** RegularExpression Id. */
-  int FREE = 28;
+  int REQUIRES = 32;
   /** RegularExpression Id. */
-  int REQUIRES = 29;
+  int ENSURES = 33;
   /** RegularExpression Id. */
-  int ENSURES = 30;
+  int GOTO = 34;
   /** RegularExpression Id. */
-  int GOTO = 31;
+  int RETURN = 35;
   /** RegularExpression Id. */
-  int RETURN = 32;
+  int IF = 36;
   /** RegularExpression Id. */
-  int IF = 33;
+  int THEN = 37;
   /** RegularExpression Id. */
-  int THEN = 34;
+  int ELSE = 38;
   /** RegularExpression Id. */
-  int ELSE = 35;
+  int WHILE = 39;
   /** RegularExpression Id. */
-  int WHILE = 36;
+  int INVARIANT = 40;
   /** RegularExpression Id. */
-  int INVARIANT = 37;
+  int BREAK = 41;
   /** RegularExpression Id. */
-  int BREAK = 38;
+  int ASSERT = 42;
   /** RegularExpression Id. */
-  int ASSERT = 39;
+  int ASSUME = 43;
   /** RegularExpression Id. */
-  int ASSUME = 40;
+  int HAVOC = 44;
   /** RegularExpression Id. */
-  int HAVOC = 41;
+  int CALL = 45;
   /** RegularExpression Id. */
-  int CALL = 42;
+  int FALSE = 46;
   /** RegularExpression Id. */
-  int FALSE = 43;
+  int TRUE = 47;
   /** RegularExpression Id. */
-  int TRUE = 44;
+  int OLD = 48;
   /** RegularExpression Id. */
-  int OLD = 45;
+  int OP_ASSIGN = 49;
   /** RegularExpression Id. */
-  int OP_ASSIGN = 46;
+  int OP_EQUIV = 50;
   /** RegularExpression Id. */
-  int OP_EQUIV = 47;
+  int OP_IMPL = 51;
   /** RegularExpression Id. */
-  int OP_IMPL = 48;
+  int OP_EXPL = 52;
   /** RegularExpression Id. */
-  int OP_EXPL = 49;
+  int OP_AND = 53;
   /** RegularExpression Id. */
-  int OP_AND = 50;
+  int OP_OR = 54;
   /** RegularExpression Id. */
-  int OP_OR = 51;
+  int OP_NEGATION = 55;
   /** RegularExpression Id. */
-  int OP_NEGATION = 52;
+  int OP_NEQ = 56;
   /** RegularExpression Id. */
-  int OP_NEQ = 53;
+  int OP_LTE = 57;
   /** RegularExpression Id. */
-  int OP_LTE = 54;
+  int OP_GTE = 58;
   /** RegularExpression Id. */
-  int OP_GTE = 55;
+  int OP_MUL = 59;
   /** RegularExpression Id. */
-  int OP_MUL = 56;
+  int OP_FORALL = 60;
   /** RegularExpression Id. */
-  int OP_FORALL = 57;
+  int OP_EXISTS = 61;
   /** RegularExpression Id. */
-  int OP_EXISTS = 58;
+  int OP_LAMBDA = 62;
   /** RegularExpression Id. */
-  int OP_LAMBDA = 59;
+  int OP_SEP = 63;
   /** RegularExpression Id. */
-  int OP_SEP = 60;
+  int SEP_RCURLY = 64;
   /** RegularExpression Id. */
-  int SEP_RCURLY = 61;
+  int SEP_LCURLY = 65;
   /** RegularExpression Id. */
-  int SEP_LCURLY = 62;
+  int SEP_RBRACKET = 66;
   /** RegularExpression Id. */
-  int SEP_RBRACKET = 63;
+  int SEP_LBRACKET = 67;
   /** RegularExpression Id. */
-  int SEP_LBRACKET = 64;
+  int IDENT = 68;
   /** RegularExpression Id. */
-  int IDENT = 65;
+  int BVLIT = 69;
   /** RegularExpression Id. */
-  int BVLIT = 66;
+  int STRING = 70;
   /** RegularExpression Id. */
-  int STRING = 67;
+  int FLOAT = 71;
   /** RegularExpression Id. */
-  int FLOAT = 68;
-  /** RegularExpression Id. */
-  int INTEGER = 69;
+  int INTEGER = 72;
 
   /** Lexical state. */
   int DEFAULT = 0;
+  /** Lexical state. */
+  int COMMENT = 1;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -157,7 +157,10 @@ public interface BPLParserConstants {
     "\"\\n\"",
     "\"\\r\"",
     "<SINGLE_LINE_COMMENT>",
-    "<MULTI_LINE_COMMENT>",
+    "\"/*\"",
+    "\"/*\"",
+    "\"*/\"",
+    "<token of kind 14>",
     "\"var\"",
     "\"where\"",
     "\"int\"",

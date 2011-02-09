@@ -7,93 +7,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
-
+import de.uka.iti.pseudo.parser.boogie.ast.*;
+// used for main
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
-import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
-import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
-import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
-import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
-import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.DeclarationBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Expression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
-import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
-import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
-import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.Specification;
-import de.uka.iti.pseudo.parser.boogie.ast.Statement;
-import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
-import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
-import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Type;
-import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UserDefinedTypeDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 // we dont want warnings here, as the code is created by a generator
 @ SuppressWarnings("all") public class BPLParser implements BPLParserConstants {
   public CompilationUnit parseFile(File file) throws FileNotFoundException, ParseException, MalformedURLException {
@@ -195,7 +115,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     first = jj_consume_token(VAR);
     attr = AttributeList();
     vars = IdsTypeWheres(false, false, false);
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new GlobalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
   }
@@ -207,14 +127,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     first = jj_consume_token(VAR);
     attr = AttributeList();
     vars = IdsTypeWheres(false, false, false);
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new LocalVariableDeclaration(first, attr, vars);}
     throw new Error("Missing return statement in function");
   }
 
   final public List < VariableDeclaration > ProcFormals(boolean isConstant) throws ParseException {
   List < VariableDeclaration > vars = new LinkedList < VariableDeclaration > ();
-    jj_consume_token(71);
+    jj_consume_token(74);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENT:
       vars = IdsTypeWheres(isConstant, false, false);
@@ -223,7 +143,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_la1[2] = jj_gen;
       ;
     }
-    jj_consume_token(72);
+    jj_consume_token(75);
     {if (true) return vars;}
     throw new Error("Missing return statement in function");
   }
@@ -241,7 +161,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   List < Token > names;
   Type t;
     names = Idents();
-    jj_consume_token(73);
+    jj_consume_token(76);
     t = Type();
     List < VariableDeclaration > rval = new LinkedList < VariableDeclaration > ();
     for (Token name : names) rval.add(new VariableDeclaration(name, t, isConstant, isUnique, false, null));
@@ -257,14 +177,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 74:
+      case 77:
         ;
         break;
       default:
         jj_la1[3] = jj_gen;
         break label_2;
       }
-      jj_consume_token(74);
+      jj_consume_token(77);
       tmp = IdsTypeWhere(isConstant, isUnique, isQuantified);
       rval.addAll(tmp);
     }
@@ -277,7 +197,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   Type t;
   Expression e = null;
     names = Idents();
-    jj_consume_token(73);
+    jj_consume_token(76);
     t = Type();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case WHERE:
@@ -301,7 +221,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case INT:
     case BOOL:
     case BVTYPE:
-    case 71:
+    case 74:
       t = TypeAtom();
       break;
     case IDENT:
@@ -315,8 +235,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 71:
-      case 75:
+      case 74:
+      case 78:
         types = TypeArgs();
         break;
       default:
@@ -326,7 +246,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         {if (true) return new TemplateType(name, types);}
       break;
     case SEP_LBRACKET:
-    case 75:
+    case 78:
       t = MapType();
       break;
     default:
@@ -345,7 +265,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case INT:
     case BOOL:
     case BVTYPE:
-    case 71:
+    case 74:
       t = TypeAtom();
       rval.add(t);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -354,8 +274,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 71:
-      case 75:
+      case 74:
+      case 78:
         tmp = TypeArgs();
         rval.addAll(tmp);
         break;
@@ -374,8 +294,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 71:
-      case 75:
+      case 74:
+      case 78:
         tmp = TypeArgs();
         rval.addAll(tmp);
         break;
@@ -385,7 +305,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       }
       break;
     case SEP_LBRACKET:
-    case 75:
+    case 78:
       t = MapType();
       rval.add(t);
       break;
@@ -422,10 +342,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       }
       {if (true) return new BuiltInType(t);}
       break;
-    case 71:
-      jj_consume_token(71);
+    case 74:
+      jj_consume_token(74);
       rval = Type();
-      jj_consume_token(72);
+      jj_consume_token(75);
       {if (true) return rval;}
       break;
     default:
@@ -442,10 +362,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   List < Type > domain = new LinkedList < Type > ();
   Type range;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
-      first = jj_consume_token(75);
+    case 78:
+      first = jj_consume_token(78);
       params = Idents();
-      jj_consume_token(76);
+      jj_consume_token(79);
       break;
     default:
       jj_la1[12] = jj_gen;
@@ -459,8 +379,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case BVTYPE:
     case SEP_LBRACKET:
     case IDENT:
-    case 71:
-    case 75:
+    case 74:
+    case 78:
       domain = Types();
       break;
     default:
@@ -475,9 +395,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 
   final public List < Token > TypeParams() throws ParseException {
   List < Token > L;
-    jj_consume_token(75);
+    jj_consume_token(78);
     L = Idents();
-    jj_consume_token(76);
+    jj_consume_token(79);
     {if (true) return L;}
     throw new Error("Missing return statement in function");
   }
@@ -490,14 +410,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_3:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 74:
+      case 77:
         ;
         break;
       default:
         jj_la1[14] = jj_gen;
         break label_3;
       }
-      jj_consume_token(74);
+      jj_consume_token(77);
       t = Type();
       types.add(t);
     }
@@ -550,14 +470,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         label_4:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 74:
+          case 77:
             ;
             break;
           default:
             jj_la1[17] = jj_gen;
             break label_4;
           }
-          jj_consume_token(74);
+          jj_consume_token(77);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case UNIQUE:
             jj_consume_token(UNIQUE);
@@ -590,7 +510,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_la1[21] = jj_gen;
       ;
     }
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new ConstantDeclaration(first, attributes, unique, varnames, parents, complete);}
     throw new Error("Missing return statement in function");
   }
@@ -611,35 +531,35 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     attributes = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
+    case 78:
       typeParameters = TypeParams();
       break;
     default:
       jj_la1[22] = jj_gen;
       ;
     }
-    jj_consume_token(71);
+    jj_consume_token(74);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
     case BOOL:
     case BVTYPE:
     case SEP_LBRACKET:
     case IDENT:
-    case 71:
-    case 75:
+    case 74:
+    case 78:
       var = VarOrType("in_"+ inParam.size());
       inParam.add(var);
       label_5:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[23] = jj_gen;
           break label_5;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         var = VarOrType("in_"+ inParam.size());
         inParam.add(var);
       }
@@ -648,16 +568,16 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_la1[24] = jj_gen;
       ;
     }
-    jj_consume_token(72);
+    jj_consume_token(75);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case RETURNS:
       jj_consume_token(RETURNS);
-      jj_consume_token(71);
+      jj_consume_token(74);
       outParam = VarOrType("rval");
-      jj_consume_token(72);
+      jj_consume_token(75);
       break;
-    case 73:
-      jj_consume_token(73);
+    case 76:
+      jj_consume_token(76);
       tmp = Type();
       outParam = new VariableDeclaration("rval", tmp, false, false, false, null);
       break;
@@ -672,8 +592,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       expression = Expression();
       jj_consume_token(SEP_RCURLY);
       break;
-    case 70:
-      jj_consume_token(70);
+    case 73:
+      jj_consume_token(73);
       break;
     default:
       jj_la1[26] = jj_gen;
@@ -689,8 +609,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   Type tmp;
     rval = Type();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 73:
-      jj_consume_token(73);
+    case 76:
+      jj_consume_token(76);
       tmp = Type();
       if (!(rval instanceof TemplateType)) {if (true) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());}
       rval = new VariableDeclaration(((TemplateType) rval).getLocationToken(), tmp, false, false, false, null);
@@ -712,7 +632,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     first = jj_consume_token(AXIOM);
     attributes = AttributeList();
     axiom = Expression();
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new AxiomDeclaration(first, attributes, axiom);}
     throw new Error("Missing return statement in function");
   }
@@ -730,18 +650,18 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_6:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 74:
+      case 77:
         ;
         break;
       default:
         jj_la1[28] = jj_gen;
         break label_6;
       }
-      jj_consume_token(74);
+      jj_consume_token(77);
       t = UserDefinedType();
       typedefs.add(t);
     }
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new UserDefinedTypeDeclaration(first, attr, typedefs);}
     throw new Error("Missing return statement in function");
   }
@@ -760,8 +680,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 77:
-      jj_consume_token(77);
+    case 80:
+      jj_consume_token(80);
       parent = Type();
       break;
     default:
@@ -785,7 +705,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     attr = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
+    case 78:
       typeParameters = TypeParams();
       break;
     default:
@@ -803,8 +723,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       ;
     }
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 70:
-      jj_consume_token(70);
+    case 73:
+      jj_consume_token(73);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -863,7 +783,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     attr = AttributeList();
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
+    case 78:
       typeParameters = TypeParams();
       break;
     default:
@@ -901,7 +821,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         jj_la1[39] = jj_gen;
         ;
       }
-      jj_consume_token(70);
+      jj_consume_token(73);
       {if (true) return new ModifiesClause(first, targets);}
       break;
     case FREE:
@@ -920,7 +840,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = jj_consume_token(REQUIRES);
         attr = AttributeList();
         expr = Expression();
-        jj_consume_token(70);
+        jj_consume_token(73);
           if (null == first) {if (true) return new Precondition(tmp, false, attr, expr);} // checked condition
           else {if (true) return new Precondition(first, true, attr, expr);}
         break;
@@ -928,7 +848,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = jj_consume_token(ENSURES);
         attr = AttributeList();
         expr = Expression();
-        jj_consume_token(70);
+        jj_consume_token(73);
           if (null == first) {if (true) return new Postcondition(tmp, false, attr, expr);} // checked condition
           else {if (true) return new Postcondition(first, true, attr, expr);}
         break;
@@ -1042,7 +962,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return rval;}
     throw new Error("Missing return statement in function");
   }
@@ -1135,7 +1055,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       }
       jj_consume_token(INVARIANT);
       expr = Expression();
-      jj_consume_token(70);
+      jj_consume_token(73);
       invariants.add(new LoopInvariant(free, expr));
     }
     jj_consume_token(SEP_LCURLY);
@@ -1148,7 +1068,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   final public Expression Guard() throws ParseException {
   Token first;
   Expression e;
-    jj_consume_token(71);
+    jj_consume_token(74);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case OP_MUL:
       first = jj_consume_token(OP_MUL);
@@ -1162,9 +1082,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 82:
+    case 74:
     case 85:
+    case 88:
       e = Expression();
       break;
     default:
@@ -1172,7 +1092,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(72);
+    jj_consume_token(75);
     {if (true) return e;}
     throw new Error("Missing return statement in function");
   }
@@ -1189,7 +1109,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_la1[53] = jj_gen;
       ;
     }
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new BreakStatement(first, target);}
     throw new Error("Missing return statement in function");
   }
@@ -1209,24 +1129,24 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       first = jj_consume_token(ASSERT);
       attr = AttributeList();
       expr = Expression();
-      jj_consume_token(70);
+      jj_consume_token(73);
       rval = new AssertionStatement(first, attr, expr);
       break;
     case ASSUME:
       first = jj_consume_token(ASSUME);
       expr = Expression();
-      jj_consume_token(70);
+      jj_consume_token(73);
       rval = new AssumptionStatement(first, expr);
       break;
     case HAVOC:
       first = jj_consume_token(HAVOC);
       vars = Idents();
-      jj_consume_token(70);
+      jj_consume_token(73);
       rval = new HavocStatement(first, vars);
       break;
     case CALL:
       rval = CallCmd();
-      jj_consume_token(70);
+      jj_consume_token(73);
       break;
     default:
       jj_la1[54] = jj_gen;
@@ -1245,13 +1165,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   List < Expression > arguments, RValues = new LinkedList < Expression > (), LValues = new LinkedList < Expression > ();
     tmp = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 73:
-      jj_consume_token(73);
+    case 76:
+      jj_consume_token(76);
       {if (true) return new LabelStatement(tmp);}
       break;
     case OP_ASSIGN:
     case SEP_LBRACKET:
-    case 74:
+    case 77:
       locations.add(tmp);
       expr = new VariableUsageExpression(tmp);
       label_12:
@@ -1271,14 +1191,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       label_13:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[56] = jj_gen;
           break label_13;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         tmp = jj_consume_token(IDENT);
         locations.add(tmp);
         expr = new VariableUsageExpression(tmp);
@@ -1303,18 +1223,18 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       label_15:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[58] = jj_gen;
           break label_15;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         expr = Expression();
         RValues.add(expr);
       }
-      jj_consume_token(70);
+      jj_consume_token(73);
       if (LValues.size() != RValues.size()) {if (true) throw new ParseException("found missmatched AssignmentStatement");}
       List < SimpleAssignment > rval = new LinkedList < SimpleAssignment > ();
       for (int i = 0; i < LValues.size(); i++) rval.add(new SimpleAssignment(locations.get(i), LValues.get(i), RValues.get(i)));
@@ -1341,22 +1261,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 82:
+    case 74:
     case 85:
+    case 88:
       ex = Expression();
       rval.add(ex);
       label_16:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[60] = jj_gen;
           break label_16;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         ex = Expression();
         rval.add(ex);
       }
@@ -1391,9 +1311,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
       tmp = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 71:
+      case 74:
         name = tmp.image;
-        jj_consume_token(71);
+        jj_consume_token(74);
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
         case FALSE:
@@ -1404,22 +1324,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 71:
-        case 82:
+        case 74:
         case 85:
+        case 88:
           arg = CallForallArg();
           arglist.add(arg);
           label_17:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 74:
+            case 77:
               ;
               break;
             default:
               jj_la1[62] = jj_gen;
               break label_17;
             }
-            jj_consume_token(74);
+            jj_consume_token(77);
             arg = CallForallArg();
             arglist.add(arg);
           }
@@ -1428,28 +1348,28 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
           jj_la1[63] = jj_gen;
           ;
         }
-        jj_consume_token(72);
+        jj_consume_token(75);
         break;
       case OP_ASSIGN:
-      case 74:
+      case 77:
         outParam.add(tmp);
         label_18:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 74:
+          case 77:
             ;
             break;
           default:
             jj_la1[64] = jj_gen;
             break label_18;
           }
-          jj_consume_token(74);
+          jj_consume_token(77);
           out = CallOutIdent();
           outParam.add(out);
         }
         jj_consume_token(OP_ASSIGN);
         tmp = jj_consume_token(IDENT);
-        jj_consume_token(71);
+        jj_consume_token(74);
         name = tmp.image;
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
@@ -1461,22 +1381,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 71:
-        case 82:
+        case 74:
         case 85:
+        case 88:
           arg = CallForallArg();
           arglist.add(arg);
           label_19:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 74:
+            case 77:
               ;
               break;
             default:
               jj_la1[65] = jj_gen;
               break label_19;
             }
-            jj_consume_token(74);
+            jj_consume_token(77);
             arg = CallForallArg();
             arglist.add(arg);
           }
@@ -1485,7 +1405,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
           jj_la1[66] = jj_gen;
           ;
         }
-        jj_consume_token(72);
+        jj_consume_token(75);
         break;
       default:
         jj_la1[67] = jj_gen;
@@ -1498,7 +1418,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_consume_token(OP_FORALL);
       tmp = jj_consume_token(IDENT);
       name = tmp.image;
-      jj_consume_token(71);
+      jj_consume_token(74);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
       case FALSE:
@@ -1509,22 +1429,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 71:
-      case 82:
+      case 74:
       case 85:
+      case 88:
         arg = CallForallArg();
         arglist.add(arg);
         label_20:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 74:
+          case 77:
             ;
             break;
           default:
             jj_la1[68] = jj_gen;
             break label_20;
           }
-          jj_consume_token(74);
+          jj_consume_token(77);
           arg = CallForallArg();
           arglist.add(arg);
         }
@@ -1533,7 +1453,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         jj_la1[69] = jj_gen;
         ;
       }
-      jj_consume_token(72);
+      jj_consume_token(75);
       {if (true) return new CallForallStatement(first, attr, name, arglist);}
       break;
     case OP_MUL:
@@ -1542,20 +1462,20 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       label_21:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[70] = jj_gen;
           break label_21;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         out = CallOutIdent();
         outParam.add(out);
       }
       jj_consume_token(OP_ASSIGN);
       tmp = jj_consume_token(IDENT);
-      jj_consume_token(71);
+      jj_consume_token(74);
       name = tmp.image;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -1567,22 +1487,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 71:
-      case 82:
+      case 74:
       case 85:
+      case 88:
         arg = CallForallArg();
         arglist.add(arg);
         label_22:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 74:
+          case 77:
             ;
             break;
           default:
             jj_la1[71] = jj_gen;
             break label_22;
           }
-          jj_consume_token(74);
+          jj_consume_token(77);
           arg = CallForallArg();
           arglist.add(arg);
         }
@@ -1591,7 +1511,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         jj_la1[72] = jj_gen;
         ;
       }
-      jj_consume_token(72);
+      jj_consume_token(75);
       {if (true) return new CallStatement(first, attr, name, outParam, arglist);}
       break;
     default:
@@ -1639,9 +1559,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 82:
+    case 74:
     case 85:
+    case 88:
       expr = Expression();
       break;
     default:
@@ -1662,14 +1582,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_23:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 74:
+      case 77:
         ;
         break;
       default:
         jj_la1[76] = jj_gen;
         break label_23;
       }
-      jj_consume_token(74);
+      jj_consume_token(77);
       n = jj_consume_token(IDENT);
       rval.add(n);
     }
@@ -1829,13 +1749,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case OP_NEQ:
     case OP_LTE:
     case OP_GTE:
-    case 75:
-    case 76:
     case 78:
     case 79:
+    case 81:
+    case 82:
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 78:
-        loc = jj_consume_token(78);
+      case 81:
+        loc = jj_consume_token(81);
         tmp = BvTerm();
       {if (true) return new EqualsExpression(loc, rval, tmp);}
         break;
@@ -1844,8 +1764,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = BvTerm();
       {if (true) return new EqualsNotExpression(loc, rval, tmp);}
         break;
-      case 75:
-        loc = jj_consume_token(75);
+      case 78:
+        loc = jj_consume_token(78);
         tmp = BvTerm();
       {if (true) return new LessExpression(loc, rval, tmp);}
         break;
@@ -1854,8 +1774,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = BvTerm();
       {if (true) return new LessEqualExpression(loc, rval, tmp);}
         break;
-      case 76:
-        loc = jj_consume_token(76);
+      case 79:
+        loc = jj_consume_token(79);
         tmp = BvTerm();
       {if (true) return new GreaterExpression(loc, rval, tmp);}
         break;
@@ -1864,8 +1784,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = BvTerm();
       {if (true) return new GreaterEqualExpression(loc, rval, tmp);}
         break;
-      case 79:
-        loc = jj_consume_token(79);
+      case 82:
+        loc = jj_consume_token(82);
         tmp = BvTerm();
       {if (true) return new ExtendsExpression(loc, rval, tmp);}
         break;
@@ -1891,14 +1811,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_29:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 80:
+      case 83:
         ;
         break;
       default:
         jj_la1[88] = jj_gen;
         break label_29;
       }
-      loc = jj_consume_token(80);
+      loc = jj_consume_token(83);
       tmp = Term();
       rval = new ConcatenationExpression(loc, rval, tmp);
     }
@@ -1914,8 +1834,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_30:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 81:
-      case 82:
+      case 84:
+      case 85:
         ;
         break;
       default:
@@ -1923,13 +1843,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         break label_30;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 81:
-        loc = jj_consume_token(81);
+      case 84:
+        loc = jj_consume_token(84);
         tmp = Factor();
       rval = new AdditionExpression(loc, rval, tmp);
         break;
-      case 82:
-        loc = jj_consume_token(82);
+      case 85:
+        loc = jj_consume_token(85);
         tmp = Factor();
       rval = new SubtractionExpression(loc, rval, tmp);
         break;
@@ -1952,8 +1872,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case OP_MUL:
-      case 83:
-      case 84:
+      case 86:
+      case 87:
         ;
         break;
       default:
@@ -1966,13 +1886,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         tmp = UnaryExpression();
       rval = new MultiplicationExpression(loc, rval, tmp);
         break;
-      case 83:
-        loc = jj_consume_token(83);
+      case 86:
+        loc = jj_consume_token(86);
         tmp = UnaryExpression();
       rval = new DivisionExpression(loc, rval, tmp);
         break;
-      case 84:
-        loc = jj_consume_token(84);
+      case 87:
+        loc = jj_consume_token(87);
         tmp = UnaryExpression();
       rval = new ModuloExpression(loc, rval, tmp);
         break;
@@ -1991,8 +1911,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   Token loc;
   Expression rval;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 82:
-      loc = jj_consume_token(82);
+    case 85:
+      loc = jj_consume_token(85);
       rval = UnaryExpression();
       rval = new UnaryMinusExpression(loc, rval);
       break;
@@ -2008,8 +1928,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 85:
+    case 74:
+    case 88:
       rval = CoercionExpression();
       break;
     default:
@@ -2035,22 +1955,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     label_32:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 73:
+      case 76:
         ;
         break;
       default:
         jj_la1[94] = jj_gen;
         break label_32;
       }
-      jj_consume_token(73);
+      jj_consume_token(76);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
       case BOOL:
       case BVTYPE:
       case SEP_LBRACKET:
       case IDENT:
-      case 71:
-      case 75:
+      case 74:
+      case 78:
         T = Type();
         {if (true) return new CoercionExpression(rval, T);}
         break;
@@ -2099,9 +2019,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 71:
-      case 82:
+      case 74:
       case 85:
+      case 88:
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IF:
         case FALSE:
@@ -2111,23 +2031,23 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 71:
-        case 82:
+        case 74:
         case 85:
+        case 88:
        hasArguments = true;
           tmp = Expression();
         arguments.add(tmp);
           label_34:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 74:
+            case 77:
               ;
               break;
             default:
               jj_la1[97] = jj_gen;
               break label_34;
             }
-            jj_consume_token(74);
+            jj_consume_token(77);
             tmp = Expression();
           arguments.add(tmp);
           }
@@ -2193,8 +2113,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
       first = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 71:
-        jj_consume_token(71);
+      case 74:
+        jj_consume_token(74);
         Expression expr;
         List < Expression > args = new LinkedList < Expression > ();
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -2206,22 +2126,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         case IDENT:
         case BVLIT:
         case INTEGER:
-        case 71:
-        case 82:
+        case 74:
         case 85:
+        case 88:
           expr = Expression();
           args.add(expr);
           label_35:
           while (true) {
             switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-            case 74:
+            case 77:
               ;
               break;
             default:
               jj_la1[101] = jj_gen;
               break label_35;
             }
-            jj_consume_token(74);
+            jj_consume_token(77);
             expr = Expression();
             args.add(expr);
           }
@@ -2230,7 +2150,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
           jj_la1[102] = jj_gen;
           ;
         }
-        jj_consume_token(72);
+        jj_consume_token(75);
         {if (true) return new FunctionCallExpression(first, args);}
         break;
       default:
@@ -2241,13 +2161,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       break;
     case OLD:
       first = jj_consume_token(OLD);
-      jj_consume_token(71);
+      jj_consume_token(74);
       rval = Expression();
-      jj_consume_token(72);
+      jj_consume_token(75);
       {if (true) return new OldExpression(first, rval);}
       break;
-    case 71:
-      jj_consume_token(71);
+    case 74:
+      jj_consume_token(74);
       QuantifierBody body;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -2258,9 +2178,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case IDENT:
       case BVLIT:
       case INTEGER:
-      case 71:
-      case 82:
+      case 74:
       case 85:
+      case 88:
         rval = Expression();
         break;
       case OP_FORALL:
@@ -2284,14 +2204,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         jj_consume_token(-1);
         throw new ParseException();
       }
-      jj_consume_token(72);
+      jj_consume_token(75);
       {if (true) return rval;}
       break;
     case IF:
       rval = IfThenElseExpression();
       {if (true) return rval;}
       break;
-    case 85:
+    case 88:
       rval = CodeExpression();
       {if (true) return rval;}
       break;
@@ -2309,7 +2229,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   List < LocalVariableDeclaration > vars = new LinkedList < LocalVariableDeclaration > ();
   CodeBlock block;
   List < CodeBlock > blocks = new LinkedList < CodeBlock > ();
-    loc = jj_consume_token(85);
+    loc = jj_consume_token(88);
     label_36:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -2336,7 +2256,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         break label_37;
       }
     }
-    jj_consume_token(86);
+    jj_consume_token(89);
     {if (true) return new CodeExpression(loc, vars, blocks);}
     throw new Error("Missing return statement in function");
   }
@@ -2351,7 +2271,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   Statement cmd;
   List < Statement > body = new LinkedList < Statement > ();
     tmp = jj_consume_token(IDENT);
-    jj_consume_token(73);
+    jj_consume_token(76);
     cmd = new LabelStatement(tmp);
     body.add(cmd);
     label_38:
@@ -2387,7 +2307,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_consume_token(-1);
       throw new ParseException();
     }
-    jj_consume_token(70);
+    jj_consume_token(73);
     {if (true) return new CodeBlock(body);}
     throw new Error("Missing return statement in function");
   }
@@ -2424,11 +2344,11 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   ASTElement rval;
     jj_consume_token(SEP_LCURLY);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 73:
+    case 76:
       Token name;
       AttributeParameter param;
       List < AttributeParameter > params = new LinkedList < AttributeParameter > ();
-      jj_consume_token(73);
+      jj_consume_token(76);
       name = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IF:
@@ -2440,22 +2360,22 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       case BVLIT:
       case STRING:
       case INTEGER:
-      case 71:
-      case 82:
+      case 74:
       case 85:
+      case 88:
         param = AttributeParameter();
         params.add(param);
         label_40:
         while (true) {
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 74:
+          case 77:
             ;
             break;
           default:
             jj_la1[111] = jj_gen;
             break label_40;
           }
-          jj_consume_token(74);
+          jj_consume_token(77);
           param = AttributeParameter();
           params.add(param);
         }
@@ -2474,9 +2394,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 82:
+    case 74:
     case 85:
+    case 88:
       Expression expr;
       List < Expression > args = new LinkedList < Expression > ();
       expr = Expression();
@@ -2484,14 +2404,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       label_41:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 74:
+        case 77:
           ;
           break;
         default:
           jj_la1[113] = jj_gen;
           break label_41;
         }
-        jj_consume_token(74);
+        jj_consume_token(77);
         expr = Expression();
         args.add(expr);
       }
@@ -2523,9 +2443,9 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
     case IDENT:
     case BVLIT:
     case INTEGER:
-    case 71:
-    case 82:
+    case 74:
     case 85:
+    case 88:
       expr = Expression();
       {if (true) return new AttributeParameter(expr);}
       break;
@@ -2559,7 +2479,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   List < Attribute > attributes = new LinkedList < Attribute > ();
   Expression body;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-    case 75:
+    case 78:
       typeArgs = TypeParams();
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IDENT:
@@ -2617,13 +2537,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x7a21000,0x7a21000,0x0,0x0,0x2000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x1c000,0x0,0x1c000,0x0,0x40000,0x40000,0x0,0x40000,0x40000,0x100000,0x80000,0x0,0x0,0x1c000,0x400000,0x0,0x0,0x0,0x0,0x0,0x0,0x400000,0x78000000,0x78000000,0x0,0x0,0x0,0x400000,0x0,0x10000000,0x60000000,0x78000000,0x1000,0x80000000,0x80000000,0x80000000,0x0,0x0,0x0,0x10000000,0x10000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1c000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1000,0x0,0x0,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_0 = new int[] {0x3d108000,0x3d108000,0x0,0x0,0x10000,0xe0000,0xe0000,0xe0000,0xe0000,0xe0000,0xe0000,0xe0000,0x0,0xe0000,0x0,0x200000,0x200000,0x0,0x200000,0x200000,0x800000,0x400000,0x0,0x0,0xe0000,0x2000000,0x0,0x0,0x0,0x0,0x0,0x0,0x2000000,0xc0000000,0xc0000000,0x0,0x0,0x0,0x2000000,0x0,0x80000000,0x0,0xc0000000,0x8000,0x0,0x0,0x0,0x0,0x0,0x0,0x80000000,0x80000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xe0000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x8000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x7d3,0x7d3,0x1,0x52,0x40000002,0x8,0x20,0x0,0x1103802,0x0,0x780,0x0,0x0,0x0,0x0,0x4000,0x0,0x103802,0x0,0x1103802,0x0,0x0,0x1103802,0x4000,0x0,0x1103802,0x0,0x0,0x1103802,0x3000000,0x1000000,0x1103802,0x0,0x0,0x8000,0x20000,0x30000,0x30000,0x40000,0x80000,0xc0000,0xc0000,0xe00000,0xe00000,0x0,0x0,0x0,0x1000000,0x1000000,0x103802,0x0,0x0,0x0,0x0,0x4000,0x107802,0x107802,0x0,0x103802,0x0,0xe103802,0x3802,0x0,0x0,0x780,0x1,0x40000000,0x0,0x103802,0x0,0x103802,0x103802,0x0,0x0,0x40000000,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x3,0x3,0x0,0x0,0x0,0x0,0x0,0x0,0x3,0x3,0x0,0x3e9c,0x3e9c,0xc,0x290,0x10,0x40,0x100,0x0,0x881c010,0x0,0x3c00,0x0,0x0,0x0,0x0,0x20000,0x0,0x81c010,0x0,0x881c010,0x0,0x0,0x881c010,0x20000,0x0,0x881c010,0x0,0x0,0x881c010,0x18000000,0x8000000,0x881c010,0x0,0x0,0x40000,0x100000,0x180000,0x180000,0x200000,0x400000,0x600000,0x600000,0x7000000,0x7000000,0x0,0x0,0x0,0x8000000,0x8000000,0x81c010,0x0,0x0,0x0,0x0,0x20000,0x83c010,0x83c010,0x0,0x81c010,0x0,0x7081c010,0x1c010,0x0,0x0,0x3c00,0xc,0x0,0x0,0x81c010,0x0,0x81c010,0x81c010,0x0,0x0,0x0,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x2,0x400,0x0,0x883,0x883,0x883,0x883,0x883,0x0,0x80,0x800,0x883,0x400,0x0,0x0,0x400,0x0,0x2,0x0,0x0,0x800,0x400,0x883,0x200,0x40,0x200,0x400,0x2,0x2000,0x800,0x0,0x0,0x0,0x0,0x40,0x800,0x0,0x2,0x0,0x0,0x0,0x0,0x2,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x2400a6,0x2,0x2,0x1,0x400,0x1,0x400,0x601,0x400,0x2400a6,0x400,0x2400a6,0x400,0x400,0x2400a6,0x480,0x400,0x2400a6,0x400,0x400,0x2400a6,0x2,0x2,0x2400a6,0x400,0x2,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0xd800,0xd800,0x10000,0x60000,0x60000,0x180000,0x180000,0x2400a6,0x200,0x8a3,0x1,0x400,0x0,0x2400a6,0x2400a6,0x400,0x2400a6,0x80,0x2400a6,0x2000a6,0x0,0x2,0x2,0x0,0x0,0x400,0x2400ae,0x400,0x2402a6,0x2400ae,0x2,0x802,0x0,};
+      jj_la1_2 = new int[] {0x0,0x0,0x10,0x2000,0x0,0x4418,0x4418,0x4418,0x4418,0x4418,0x0,0x400,0x4000,0x4418,0x2000,0x0,0x0,0x2000,0x0,0x10,0x0,0x0,0x4000,0x2000,0x4418,0x1000,0x202,0x1000,0x2000,0x10,0x10000,0x4000,0x0,0x0,0x0,0x2,0x200,0x4000,0x0,0x10,0x0,0x0,0x0,0x0,0x10,0x10,0x0,0x0,0x2,0x0,0x0,0x0,0x1200530,0x10,0x10,0x8,0x2000,0x8,0x2000,0x3008,0x2000,0x1200530,0x2000,0x1200530,0x2000,0x2000,0x1200530,0x2400,0x2000,0x1200530,0x2000,0x2000,0x1200530,0x10,0x10,0x1200530,0x2000,0x10,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x6c000,0x6c000,0x80000,0x300000,0x300000,0xc00000,0xc00000,0x1200530,0x1000,0x4518,0x8,0x2000,0x0,0x1200530,0x1200530,0x2000,0x1200530,0x400,0x1200530,0x1000530,0x0,0x10,0x10,0x0,0x2,0x2000,0x1200570,0x2000,0x1201530,0x1200570,0x10,0x4010,0x2,};
    }
 
   /** Constructor with InputStream. */
@@ -2740,7 +2660,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
   /** Generate ParseException. */
   public ParseException generateParseException() {
     jj_expentries.clear();
-    boolean[] la1tokens = new boolean[87];
+    boolean[] la1tokens = new boolean[90];
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -2760,7 +2680,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
         }
       }
     }
-    for (int i = 0; i < 87; i++) {
+    for (int i = 0; i < 90; i++) {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
