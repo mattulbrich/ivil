@@ -42,8 +42,27 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;// we dont
             }
             creator.make();
         }
-    }}PARSER_END(BPLParser)TOKEN :{  < #LETTER : [ "A"-"Z", "a"-"z" ] >| < #DIGIT : [ "0"-"9" ] >| < #SPECIAL : [ "'", "~", "#", "$", "^", "_", ".", "?", "`" ] >| < #GLYPH : [ "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", "\\" ] >| < #NONDIGIT :    (      < LETTER >    | < SPECIAL >    ) >}/* Skip whitespace */SKIP :{  " "| "\t"| "\n"| "\r"}/* Comments */// TODO NESTING
-SKIP :{  < SINGLE_LINE_COMMENT : "//" (~[ "\n", "\r" ])* >| < MULTI_LINE_COMMENT :    "/*"    (      ~[ "*" ]    |      (        ("*")+ ~[ "*", "/" ]      )    )*    "*/" >}/* Reserved words */TOKEN :{  < VAR : "var" >| < WHERE : "where" >| < INT : "int" >| < BOOL : "bool" >| < BVTYPE : "bv" (< DIGIT >)+ >| < CONST : "const" >| < UNIQUE : "unique" >| < EXTENDS : "extends" >| < COMPLETE : "complete" >| < FUNCTION : "function" >| < RETURNS : "returns" >  //| < INLINE: "inline">   seems not to be a keyword anymore
+    }}PARSER_END(BPLParser)TOKEN :{  < #LETTER : [ "A"-"Z", "a"-"z" ] >| < #DIGIT : [ "0"-"9" ] >| < #SPECIAL : [ "'", "~", "#", "$", "^", "_", ".", "?", "`" ] >| < #GLYPH : [ "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", "\\" ] >| < #NONDIGIT :    (      < LETTER >    | < SPECIAL >    ) >}/* Skip whitespace */SKIP :{  " "| "\t"| "\n"| "\r"}/* Comments */
+// Nesting taken from: http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#tth_sEc3.17
+TOKEN_MGR_DECLS : {
+   int commentNestingDepth ;
+}
+
+SKIP :
+{
+  < SINGLE_LINE_COMMENT : "//" (~[ "\n", "\r" ])* >
+| "/*" { commentNestingDepth = 1 ; } : COMMENT
+}
+
+<COMMENT> SKIP :
+{
+  "/*" { commentNestingDepth ++ ; }
+| "*/" { commentNestingDepth --;
+         SwitchTo( commentNestingDepth==0 ? DEFAULT : COMMENT ) ; }
+| < ~[] > // ignore everything else
+}
+
+/* Reserved words */TOKEN :{  < VAR : "var" >| < WHERE : "where" >| < INT : "int" >| < BOOL : "bool" >| < BVTYPE : "bv" (< DIGIT >)+ >| < CONST : "const" >| < UNIQUE : "unique" >| < EXTENDS : "extends" >| < COMPLETE : "complete" >| < FUNCTION : "function" >| < RETURNS : "returns" >  //| < INLINE: "inline">   seems not to be a keyword anymore
 | < AXIOM : "axiom" >| < TYPE : "type" >| < PROCEDURE : "procedure" >| < IMPLEMENTATION : "implementation" >| < MODIFIES : "modifies" >| < FREE : "free" >| < REQUIRES : "requires" >| < ENSURES : "ensures" >| < GOTO : "goto" >| < RETURN : "return" >| < IF : "if" >| < THEN : "then" >| < ELSE : "else" >| < WHILE : "while" >| < INVARIANT : "invariant" >| < BREAK : "break" >| < ASSERT : "assert" >| < ASSUME : "assume" >| < HAVOC : "havoc" >| < CALL : "call" >| < FALSE : "false" >| < TRUE : "true" >| < OLD : "old" >}/* Operators */// TODO operator tokens, to make generated parser more readable
 TOKEN :{  < OP_ASSIGN : ":=" >| < OP_EQUIV :    "<==>"  | "\u21d4" >| < OP_IMPL :    "==>"  | "\u21d2" >| < OP_EXPL :    "<=="  | "\u21d0" >| < OP_AND :    "&&"  | "\u2227" >| < OP_OR :    "||"  | "\u2228" >| < OP_NEGATION :    "!"  | "\u00ac" >| < OP_NEQ :    "!="  | "\u2260" >| < OP_LTE :    "<="  | "\u2264" >| < OP_GTE :    ">="  | "\u2265" >| < OP_MUL : "*" >| < OP_FORALL :    "forall"  | "\u2200" >| < OP_EXISTS :    "exists"  | "\u2203" >| < OP_LAMBDA :    "lambda"  | "\u03bb" >| < OP_SEP :    "::"  | "\u2022" >}/* Separators */// Separator tokens are only specified to make the generated parser more readable
 TOKEN :{  < SEP_RCURLY : "}" >| < SEP_LCURLY : "{" >| < SEP_RBRACKET : "]" >| < SEP_LBRACKET : "[" >}/* Literals / Identifiers*/TOKEN :{  < IDENT :    ("\\")? < NONDIGIT >    (      < NONDIGIT >    | < DIGIT >    )* >| < BVLIT : (< DIGIT >)+ "bv" (< DIGIT >)+ >| < STRING : "\"" (~[ "\"", "\\", "\n", "\r" ])* "\"" >| < FLOAT : (< DIGIT >)+ "." (< DIGIT >)+ >| < INTEGER : (< DIGIT >)+ >}/*---------------------------------------------------------------------------
