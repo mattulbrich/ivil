@@ -30,6 +30,7 @@ public final class TypingPhase {
         } catch (ASTVisitException e) {
 
             // this exception is expected
+	    // TODO consider giving as cause to TypeSystemException for better debug-ability
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
 
         }
