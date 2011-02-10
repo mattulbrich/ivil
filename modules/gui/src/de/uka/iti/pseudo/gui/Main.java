@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.gui;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -27,6 +28,7 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
@@ -35,6 +37,7 @@ import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
@@ -58,11 +61,12 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 public class Main {
     
+    
+
     private static final String CMDLINE_CONFIG = "-config";
-
     private static final String CMDLINE_HELP = "-help";
-
     private static final String CMDLINE_EDIT = "-edit";
+    private static final String CMDLINE_PROG = "-prog";
 
     private static Settings settings;
 
@@ -126,9 +130,12 @@ public class Main {
                         startupWindow.setVisible(true);
                     } else {
                         File file = new File(fileArguments.get(0));
-
                         if (commandLine.isSet(CMDLINE_EDIT)) {
                             openEditor(file);
+                        } else if(commandLine.isSet(CMDLINE_PROG)) {
+                            String program = commandLine.getString(CMDLINE_PROG, "");
+                            URL url = new URL("file", null, file.getAbsolutePath() + "#" + program);
+                            openProverFromURL(url);
                         } else {
                             openProver(file);
                         }
@@ -161,6 +168,7 @@ public class Main {
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_EDIT, null, "Edit the file instead of opening a prover frame");
         cl.addOption(CMDLINE_CONFIG, "file", "Read configuration from a file overwriting defaults.");
+        cl.addOption(CMDLINE_PROG, "program", "Specify the program to use as problem.");
         return cl;
     }
 
@@ -190,6 +198,46 @@ public class Main {
             System.exit(0);
     }
 
+    /**
+     * Open a new {@link ProofCenter} for an environment loaded from a file.
+     * <p>
+     * Throws an {@link EnvironmentException} if the file does not specify
+     * problem term. The {@link EnvironmentCreationService} is chosen by the
+     * file extension of the resource specified by the url.
+     * 
+     * @param file
+     *            the file to read the environment and problem term from.
+     * 
+     * @return a freshly created proof center
+     * @see #openProverFromURL(URL)
+     */
+    public static ProofCenter openProver(File file)
+            throws FileNotFoundException, ParseException, ASTVisitException,
+            TermException, IOException, StrategyException, EnvironmentException {
+        
+        return openProverFromURL(file.toURI().toURL());
+        
+    }
+
+    /**
+     * Open a new {@link ProofCenter} for an environment loaded from a URL.
+     * 
+     * <p>
+     * The {@link EnvironmentCreationService} is chosen by the file extension of
+     * the resource specified by the url.
+     * 
+     * <p>
+     * If the resource does not define a problem term, the fragment part of the
+     * url is inspected. If it refers to a program <code>PP</code> in the parsed
+     * environment, the term <code>[0; P]</code> is used as problem term. If
+     * there is no program fragment, or the fragment does not refer to a program
+     * in the environment, an exception is raised.
+     * 
+     * @param url
+     *            the URL to read the environment from.
+     * 
+     * @return a freshly created proof center
+     */
     public static ProofCenter openProverFromURL(URL url)
             throws FileNotFoundException, ParseException, ASTVisitException,
             TermException, IOException, StrategyException, EnvironmentException {
@@ -197,27 +245,86 @@ public class Main {
         Pair<Environment, Term> result =
             EnvironmentCreationService.createEnvironmentByExtension(url);
 
-       
-        if (result.snd() == null)
-            throw new EnvironmentException(
-                    "Cannot load an environment without problem");
+        Environment env = result.fst();
+        Term problemTerm = result.snd();
+        
+        if(problemTerm == null) {
+            String fragment = url.getRef();
+            if(fragment == null || fragment.length() == 0)
+                throw new EnvironmentException("Cannot load an environment without problem, no program specified");
 
-        Proof proof = new Proof(result.snd());
-        ProofCenter proofCenter = new ProofCenter(proof, result.fst());
-        showProofCenter(proofCenter);
+            Program p = env.getProgram(fragment);
+            if(p == null)
+                throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
+            
+            problemTerm = new LiteralProgramTerm(0, false, p);
+        }
         
-        addToRecentProblems(url);
-        
-        return proofCenter;
-        
+        return openProver(env, problemTerm, url);
     }
 
-    public static ProofCenter openProver(File file)
-            throws FileNotFoundException, ParseException, ASTVisitException,
-            TermException, IOException, StrategyException, EnvironmentException {
+    /**
+     * Open a new {@link ProofCenter} for a given environment and the name of a
+     * program.
+     * 
+     * <p>
+     * The problem term is created as <code>[0; programIdentifier]</code>. The
+     * URL to be stored in the history is created from the resource with
+     * <code>#programIdentifier</code> amended.
+     * 
+     * <p>
+     * If the resource does not define a problem term, the fragment part of the
+     * url is inspected. If it refers to a program <code>PP</code> in the parsed
+     * environment, the term <code>[0; P]</code> is used as problem term. If
+     * there is no program fragment, or the fragment does not refer to a program
+     * in the environment, an exception is raised.
+     * 
+     * @param env
+     *            the environment to create the problem for
+     * 
+     * @param program
+     *            the name of the program to create the problem term for.
+     * 
+     * @return a freshly created proof center
+     */
+    public static ProofCenter openProver(Environment env, Program program) 
+            throws TermException, EnvironmentException, IOException, StrategyException {
         
-        return openProverFromURL(file.toURI().toURL());
+        String resource = env.getResourceName();
         
+        assert resource.indexOf('#') == -1 : "Resource already has a program reference";
+        // assert env.getAllPrograms().contains(program);
+        
+        resource += "#" + program;
+        
+        LiteralProgramTerm problemTerm = new LiteralProgramTerm(0, false, program);
+        
+        return openProver(env, problemTerm, new URL(resource));
+    }
+
+    
+    public static ProofCenter openProver(Environment env, Term problemTerm) 
+            throws IOException, StrategyException, TermException {
+        String resource = env.getResourceName();
+        return openProver(env, problemTerm, new URL(resource));
+    }
+    
+    /**
+     * The internal method which does the actual opening. It creates a new
+     * {@link Proof} object, then - with that - a new {@link ProofCenter}, opens
+     * its main window and adds the given url to the list of recent urls.
+     * 
+     * @return a freshly created proof center
+     */
+    private static ProofCenter openProver(Environment env, Term problemTerm, URL urlToRemember) 
+            throws IOException, StrategyException, TermException {
+        Proof proof = new Proof(problemTerm);
+        ProofCenter proofCenter = new ProofCenter(proof, env);
+
+        showProofCenter(proofCenter);
+        addToRecentProblems(urlToRemember);
+        
+        return proofCenter;
     }
 
     /**

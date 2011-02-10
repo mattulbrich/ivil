@@ -169,7 +169,7 @@ public class CommandLine {
     }
     
     /**
-     * Gets the non-option arguments of the command lline
+     * Gets the non-option arguments of the command line
      * 
      * @return a read-only list of strings.
      */
@@ -189,9 +189,8 @@ public class CommandLine {
         
         Option option = options.get(param);
         assert option != null : param + " is unknown option";
-        assert option.parameter == null : param + " is not boolean";
         
-        return Boolean.parseBoolean(option.value);
+        return option.value != null;
     }
     
     /**
