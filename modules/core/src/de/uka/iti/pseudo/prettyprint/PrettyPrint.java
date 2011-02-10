@@ -16,6 +16,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.Collections;
 import java.util.List;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -27,6 +28,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Log;
@@ -128,6 +130,41 @@ public class PrettyPrint {
         return print(term, new AnnotatedStringWithStyles<TermTag>());
     }
     
+    /**
+     * pretty print a term using the currently set properties on this object.
+     * 
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * @param term
+     *            the term to pretty print
+     * @param printer
+     *            the annotated string to append the term to
+     * @return printer
+     */
+    public AnnotatedStringWithStyles<TermTag> print(Term term, AnnotatedStringWithStyles<TermTag> printer) {
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
+        
+        try {
+            if(initialStyle != null)
+                printer.setStyle(initialStyle);
+            
+            term.visit(visitor);
+            
+            if(initialStyle != null)
+                printer.resetPreviousStyle();
+        } catch (TermException e) {
+            // not thrown in this code
+            // FIXME ... I did receive a call however!
+            e.printStackTrace();
+            throw new Error(e);
+        }
+    
+        assert printer.hasEmptyStack();
+        
+        return printer;
+    }
+
     /** TODO DOC
      * pretty print a term using the currently set properties on this object.
      * 
@@ -166,40 +203,58 @@ public class PrettyPrint {
     }
 
     /**
-     * pretty print a term using the currently set properties on this object.
+     * pretty print a list of assignments using the currently set properties on
+     * this object. The format is as follows:
+     * <pre>
+     *  v1 := exp1 || v2 := exp2 || ... || vn := expn
+     * </pre>
      * 
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
      * 
-     * @param term
-     *            the term to pretty print
+     * @param assignmentList
+     *            the list to pretty print
+     * @return a freshly created annotated string object.
+     */
+    public AnnotatedStringWithStyles<TermTag> print(@DeepNonNull List<Assignment> assignments) {
+        return print(assignments, new AnnotatedStringWithStyles<TermTag>());
+    }
+    
+    /**
+     * pretty print a list of assignments using the currently set properties on
+     * this object. The format is as follows:
+     * <pre>
+     *  v1 := exp1 || v2 := exp2 || ... || vn := expn
+     * </pre>
+     * 
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     * 
+     * @param assignmentList
+     *            the list to pretty print
      * @param printer
      *            the annotated string to append the term to
-     * @return printer
+     * @return the argument printer
      */
-    public AnnotatedStringWithStyles<TermTag> print(Term term, AnnotatedStringWithStyles<TermTag> printer) {
-        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
+    public AnnotatedStringWithStyles<TermTag> print(List<Assignment> assignmentList, 
+            AnnotatedStringWithStyles<TermTag> printer) {
         
+        PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
             if(initialStyle != null)
                 printer.setStyle(initialStyle);
             
-            term.visit(visitor);
+            visitor.visit(assignmentList);
             
             if(initialStyle != null)
                 printer.resetPreviousStyle();
+            
         } catch (TermException e) {
             // not thrown in this code
-            // FIXME ... I did receive a call however!
-            e.printStackTrace();
             throw new Error(e);
         }
-
-        assert printer.hasEmptyStack();
-        
         return printer;
     }
-
     
     /**
      * Prints a term without explicit typing, but fix operators in prefix or

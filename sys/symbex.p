@@ -119,13 +119,13 @@ rule prg_assignment
   find [%a : U ]
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {U}"
+       display "|> {upd U}"
 
 rule tprg_assignment
   find [[%a : U]]
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
-       display "|> {U}"
+       display "|> {upd U}"
 
 
 rule prg_havoc
