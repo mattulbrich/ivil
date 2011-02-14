@@ -203,7 +203,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 // | < LABEL_IDENTIFIER: "&" <IDENTIFIER> >
 | < INTERNAL_IDENTIFIER : "$" <IDENTIFIER> >
 | < META_IDENTIFIER: "$$" <IDENTIFIER> >
-| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","!","^","@",".",":"] )+ >
+| < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","\\","!","^","@",".",":"] )+ >
 | < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
 
 // Avoid TokenManagerErrors and make parser exceptions instead

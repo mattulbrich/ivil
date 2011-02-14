@@ -26,6 +26,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
@@ -54,7 +55,7 @@ public class EnvironmentMaker {
      * the directory where to search for system include files.
      */
     private static final String SYS_DIR =
-        Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
+        Settings.getInstance().getExpandedProperty(Main.SYSTEM_DIRECTORY_KEY, "./sys");
 
     /**
      * The environment that is being built.
@@ -365,7 +366,7 @@ public class EnvironmentMaker {
                 }
             }
 
-            // then as resource
+            // then as resource, particularly for webstart. 
             URL resource = getClass().getResource("/sys/" + filename);
             if(resource != null)
                 return resource;

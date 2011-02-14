@@ -246,7 +246,7 @@ Digit                 = [0-9]
 IdentifierPart        = ({LetterOrUnderscore}|{Digit})
 
 Identifier            = ({LetterOrUnderscore}{IdentifierPart}*)
-OpIdentifier          = ([\+\-<>&|\=\*\/!\^\@.\:]+)
+OpIdentifier          = ([\+\-<>&|\=\*\/!\^\@.\:\\]+)
 MetaIdentifier        = ("$$"{Identifier})
 InternalIdentifier    = ("$"{Identifier})
 SchemaIdentifier      = ("%"{Identifier})
