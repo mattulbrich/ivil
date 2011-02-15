@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.justify;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Map;
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -29,6 +31,7 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
 public class EnvironmentExporter {
@@ -45,8 +48,18 @@ public class EnvironmentExporter {
 		pw.println("# " + new Date());
 		pw.println();
 	}
+	
+	public void exportComplete(Environment env) {
+	    // TODO what to do with imports!
+	    exportSortsFrom(env);
+	    exportFunctionsFrom(env);
+	    exportAxiomsFrom(env);
+	    exportRulesFrom(env);
+	    exportProgramsFrom(env);
+	}
 
-	public void exportIncludes(List<String> includes) {
+	
+    public void exportIncludes(List<String> includes) {
 	    if(includes.size() > 0) {
 	        pw.println("include");
 	        for (String string : includes) {
@@ -118,6 +131,13 @@ public class EnvironmentExporter {
             }
 	}
 	
+	public void exportRulesFrom(Environment env) {
+            Collection<Rule> rules = env.getLocalRules();
+            for (Rule rule : rules) {
+                exportRule(rule);
+            }
+        }
+	
 	public void exportPropertiesFrom(Environment env) {
 	    Map<String, String> localProperties = env.getLocalProperties();
 	    if(!localProperties.isEmpty()) {
@@ -128,6 +148,14 @@ public class EnvironmentExporter {
 	        pw.println();
 	    }
 	}
+	
+	public void exportProgramsFrom(Environment env) {
+	    Collection<Program> programs = env.getLocalPrograms();
+	    for (Program program : programs) {
+                exportProgram(program);
+            }
+	}
+
 
 
 	private void exportAxiom(Axiom axiom) {
@@ -135,6 +163,19 @@ public class EnvironmentExporter {
             pw.println("  " + axiom.getTerm());
             pw.println();
 	}
+
+    private void exportProgram(Program program) {
+        pw.println("program " + program.getName());
+        URL source = program.getSourceFile();
+        if(source != null) {
+            pw.println("    sourcefile " + source);
+        }
+        for (Statement statement : program.getStatements()) {
+            pw.print("  ");
+            pw.println(statement.toString(true));
+        }
+        pw.println();
+    }
 
     public void exportRule(Rule r) {
 		pw.println("rule " + r.getName());
