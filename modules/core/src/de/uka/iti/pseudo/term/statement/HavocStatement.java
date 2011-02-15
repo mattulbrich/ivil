@@ -55,7 +55,8 @@ public class HavocStatement extends Statement {
     }
 
     public String toString(boolean typed) {
-        return "havoc " + getSubterms().get(0).toString(typed);
+        // do never print "havoc n as int" but "havoc n"
+        return "havoc " + getSubterms().get(0).toString(false);
     }
     
     public void visit(StatementVisitor visitor) throws TermException {
