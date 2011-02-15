@@ -26,7 +26,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -485,10 +484,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             if(i > 0) {
                 printer.append(" || ");
             }
+            Assignment assignment = assignments.get(i);
             appendName(assignment.getTarget().toString(false));
             printer.append(" := ");
             currentSubTermIndex = i + 1;
-            assignments.get(i).getValue().visit(this);
+            assignment.getValue().visit(this);
         }
     }
     
