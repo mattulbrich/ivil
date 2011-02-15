@@ -68,7 +68,6 @@ public class Main {
     public static final String PROPERTIES_FILE_KEY = "pseudo.settingsFile";
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
-    public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
     private static final String VERSION_PATH = "/META-INF/VERSION";

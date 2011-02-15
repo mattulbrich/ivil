@@ -51,6 +51,8 @@ import de.uka.iti.pseudo.util.Log;
  */
 public class Settings {
 
+    public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
+
     private Map<String, Object> cache = new HashMap<String, Object>();
     
     private Properties contents;
