@@ -192,7 +192,7 @@ ASTProgramDeclaration ProgramDeclaration():
   Token first, name, source=null;
 }
 {
-   first="program" name=<IDENTIFIER> 
+   first="program" (name=<PROGRAM_IDENTIFIER> | name=<IDENTIFIER>) 
    ( "source" source=<STRING> )?
    statements=StatementList()
      { return new ASTProgramDeclaration(first, name, source, statements); } 

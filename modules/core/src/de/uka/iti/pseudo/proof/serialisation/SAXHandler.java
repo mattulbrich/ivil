@@ -33,22 +33,22 @@ class SAXHandler extends DefaultHandler {
     private Attributes attributes;
     private MutableRuleApplication ram;
     private int goalNo = 0;
-	private boolean ignoreExceptions;
+//	private boolean ignoreExceptions;
     
     public SAXHandler(Environment env, Proof proof, boolean ignoreExceptions) {
         super();
         this.env = env;
         this.proof = proof;
-        this.ignoreExceptions = ignoreExceptions;
+//        this.ignoreExceptions = ignoreExceptions;
     }
     
-    private void handleException(String message) throws SAXException {
-    	if(ignoreExceptions) {
-    		Log.log(Log.WARNING, "Ignored exception: " + message);
-    	} else {
-    		throw new SAXException(message);
-    	}
-    }
+//    private void handleException(String message) throws SAXException {
+//    	if(ignoreExceptions) {
+//    		Log.log(Log.WARNING, "Ignored exception: " + message);
+//    	} else {
+//    		throw new SAXException(message);
+//    	}
+//    }
 
     public void startElement(String uri, String localName,
             String name, Attributes attributes) throws SAXException {
@@ -87,103 +87,97 @@ class SAXHandler extends DefaultHandler {
     public void endElement(String uri, String localName, String name)
             throws SAXException {
         Log.enter(uri, localName, name);
-        if(name.equals("find")) {
-            try {
+        try {
+            if (name.equals("find")) {
+
                 ram.setFindSelector(new TermSelector(content));
-            } catch (FormatException e) {
-                throwSAXException(null, e);
-            }
-            
-        } else if(name.equals("assume")) {
-            try {
+
+            } else if (name.equals("assume")) {
                 ram.getAssumeSelectors().add(new TermSelector(content));
-            } catch (FormatException e) {
-                throwSAXException(null, e);
-            }
-            
-        } else if(name.equals("property")) {
-            String propname = attributes.getValue("name");
-            if(propname == null)
-                throw new SAXException("No property referenced!");
-            ram.getProperties().put(propname, content);
-            
-        } else if(name.equals("skip")) {
-            goalNo ++;
-            
-        } else if(name.equals("schemavariable")) {
-            String varname = attributes.getValue("name");
-            assert varname != null : "No variable name referenced (should be ensured by schema)";
-            
-            Term term = null;
-            try {
+
+            } else if (name.equals("property")) {
+                String propname = attributes.getValue("name");
+                if (propname == null)
+                    throw new SAXException("No property referenced!");
+                ram.getProperties().put(propname, content);
+
+            } else if (name.equals("skip")) {
+                goalNo++;
+
+            } else if (name.equals("schemavariable")) {
+                String varname = attributes.getValue("name");
+                assert varname != null : "No variable name referenced (should be ensured by schema)";
+
+                Term term = null;
                 term = TermMaker.makeAndTypeTerm(content, env, "XML-Import");
-            } catch (ParseException e) {
-                throwSAXException("Cannot parse term", e);
-            } catch (ASTVisitException e) {
-                throwSAXException("Cannot parse term", e);
-            }
-            
-            Map<String, Term> schemaVariableMapping = ram.getSchemaVariableMapping();
-            if(schemaVariableMapping.containsKey(varname))
-                throw new SAXException("schema variable " + varname + " already set");
-            schemaVariableMapping.put(varname, term);
-            
-        } else if(name.equals("typevariable")) {
-            String varname = attributes.getValue("name");
-            assert varname != null : "No type variable name referenced (should be ensured by schema)";
-            
-            Type type = null;
-            try {
+
+                Map<String, Term> schemaVariableMapping = ram
+                        .getSchemaVariableMapping();
+                if (schemaVariableMapping.containsKey(varname))
+                    throw new SAXException("schema variable " + varname
+                            + " already set");
+                schemaVariableMapping.put(varname, term);
+
+            } else if (name.equals("typevariable")) {
+                String varname = attributes.getValue("name");
+                assert varname != null : "No type variable name referenced (should be ensured by schema)";
+
+                Type type = null;
                 type = TermMaker.makeType(content, env);
-            } catch (ParseException e) {
-                throwSAXException("Cannot parse term", e);
-            } catch (ASTVisitException e) {
-                throwSAXException("Cannot parse term", e);
-            }
 
-            Map<String, Type> typeVariableMapping = ram.getTypeVariableMapping();
-            if(typeVariableMapping.containsKey(varname))
-                throw new SAXException("type variable " + varname + " already set");
-            
-            typeVariableMapping.put(varname, type);
+                Map<String, Type> typeVariableMapping = ram
+                        .getTypeVariableMapping();
+                if (typeVariableMapping.containsKey(varname))
+                    throw new SAXException("type variable " + varname
+                            + " already set");
 
-        } else if(name.equals("schemaupdate")) {
-            String varname = attributes.getValue("name");
-            assert varname != null : "No schema update name referenced (should be ensured by schema)";
-            
-            Update upd = null;
-            try {
+                typeVariableMapping.put(varname, type);
+
+            } else if (name.equals("schemaupdate")) {
+                String varname = attributes.getValue("name");
+                assert varname != null : "No schema update name referenced (should be ensured by schema)";
+
+                Update upd = null;
                 upd = TermMaker.makeAndTypeUpdate(content, env);
-            } catch (ParseException e) {
-                throwSAXException("Cannot parse term", e);
-            } catch (ASTVisitException e) {
-                throwSAXException("Cannot parse term", e);
-            }
 
-            Map<String, Update> updMap = ram.getSchemaUpdateMapping();
-            if(updMap.containsKey(varname))
-                throw new SAXException("schema update " + varname + " already set");
-            
-            updMap.put(varname, upd);
+                Map<String, Update> updMap = ram.getSchemaUpdateMapping();
+                if (updMap.containsKey(varname))
+                    throw new SAXException("schema update " + varname
+                            + " already set");
 
-        }else if(name.equals("ruleApplication")) {
-            try {
+                updMap.put(varname, upd);
+
+            } else if (name.equals("ruleApplication")) {
                 // matchRuleApp();
                 proof.apply(ram, env);
                 ram = null;
-            } catch (ProofException e) {
-                if(Log.isLogging(Log.WARNING)) {
-                    Dump.dumpRuleApplication(ram);
-                }
-                throwSAXException(null, e);
+
             }
+        } catch (FormatException e) {
+            throwSAXException(content, e);
+        } catch (ParseException e) {
+            throwSAXException(content, e);
+        } catch (ASTVisitException e) {
+            throwSAXException(content, e);
+        } catch (ProofException e) {
+            if (Log.isLogging(Log.WARNING)) {
+                Dump.dumpRuleApplication(ram);
+            }
+            throwSAXException(content, e);
         }
         
         Log.leave();
     }
     
-    private void throwSAXException(String msg, Exception e) throws SAXException {
-        SAXException saxException = new SAXException(msg, e);
+    private void throwSAXException(String content, Exception e) throws SAXException {
+        StringBuilder msg = new StringBuilder();
+        if(ram != null && ram.getProofNode() != null) {
+            msg.append("RuleApp on ").append(ram.getProofNode().getNumber()).
+                    append(": ");
+        }
+        
+        msg.append("Cannot parse '").append(content).append("'");
+        SAXException saxException = new SAXException(msg.toString(), e);
         saxException.initCause(e);
         throw saxException;
     }

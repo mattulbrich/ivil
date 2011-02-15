@@ -140,7 +140,7 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
            { return new ASTProgramTerm(label, termination, matchStatement); }
             
        | 
-         label=<NATURAL> ";" progref=<IDENTIFIER>
+         label=<NATURAL> ";" (progref=<PROGRAM_IDENTIFIER>|progref=<IDENTIFIER>)
          { return new ASTProgramTerm(label, termination, progref); }
        )
 }
