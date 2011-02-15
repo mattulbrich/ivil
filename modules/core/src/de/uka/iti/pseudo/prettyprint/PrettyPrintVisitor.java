@@ -171,6 +171,35 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         return false;
     }
 
+    /**
+     * Append a name to the output stream.
+     * 
+     * If the plugin mechanism is active, then the registered plugins are
+     * queried on a replacement. For instance, generated prefixes can be
+     * removed, etc.
+     * 
+     * If a replacement is found, it is printed. If not so, or if plugins are
+     * deactivated, the argument is printed.
+     * 
+     * @param name
+     *            the name to print or to replace.
+     */
+    /* package visibile, used in the visitor */
+    void appendName(String name) {
+        if(pp.isPrintingPlugins()) {
+            for (PrettyPrintPlugin plugin : pp.getPrettyPrinterPlugins()) {
+                String nameReplacement = plugin.getReplacementName(name);
+                if(nameReplacement != null) {
+                    printer.append(nameReplacement);
+                    return;
+                }
+            }
+        }
+        
+        // else: use the real name.
+        printer.append(name);
+    }
+
     // keep this updated with TermParser.jj
     /**
      * Checks if a character is an operator char.
@@ -209,7 +238,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
      */
     private void printApplication(Application application, String fctname)
             throws TermException {
-        printer.append(fctname);
+        appendName(fctname);
         List<Term> subterms = application.getSubterms();
         if (subterms.size() > 0) {
             for (int i = 0; i < subterms.size(); i++) {
@@ -225,7 +254,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             printer.resetPreviousStyle();
         }
     }
-    
+
     //
     // Visitors
     //
@@ -233,7 +262,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(Variable variable) throws TermException {
         printer.setStyle("variable");
         TermTag oldTag = begin(variable);
-        printer.append(variable.getName());
+        appendName(variable.getName());
         if(pp.isTyped()) {
             printer.setStyle("type");
             printer.append(" as " + variable.getType());
@@ -252,7 +281,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             String bindname = binder.getName();
             printer.append("(").append(bindname).append(" ");
             printer.setStyle("variable");
-            printer.append(binding.getVariableName());
+            appendName(binding.getVariableName());
             printer.resetPreviousStyle();
             if (pp.isTyped()) {
                 printer.setStyle("type");
@@ -421,7 +450,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visitStatement(String keyword, Statement statement) throws TermException {
         printer.setStyle("statement");
         printer.setStyle("keyword");
-        printer.append(keyword);
+        appendName(keyword);
         printer.resetPreviousStyle();
         printer.append(" ");
         
@@ -453,9 +482,10 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             throws TermException {
         
         for (int i = 0; i < assignments.size(); i++) {
-            if(i > 0)
+            if(i > 0) {
                 printer.append(" || ");
-            printer.append(assignments.get(i).getTarget().toString(false));
+            }
+            appendName(assignment.getTarget().toString(false));
             printer.append(" := ");
             currentSubTermIndex = i + 1;
             assignments.get(i).getValue().visit(this);

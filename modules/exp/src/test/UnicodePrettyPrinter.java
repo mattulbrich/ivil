@@ -145,4 +145,10 @@ public class UnicodePrettyPrinter extends PrettyPrintPlugin {
         }
     }
 
+    @Override
+    public String getReplacementName(String name) {
+		// no replacement for function names
+        return null;
+    }
+
 }
