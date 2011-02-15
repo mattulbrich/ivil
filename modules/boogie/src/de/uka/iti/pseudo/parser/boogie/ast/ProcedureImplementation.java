@@ -26,12 +26,12 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
             List<VariableDeclaration> inParam, List<VariableDeclaration> outParam, ProcedureBody body) {
         super(first, attr);
 
-        this.name = name.image;
+        this.name = ASTConversions.getEscapedName(name);
         this.inParam = inParam;
         this.outParam = outParam;
         this.body = body;
 
-        this.typeParameters = ASTConversions.toStringList(typeParameters);
+        this.typeParameters = ASTConversions.toEscapedNameList(typeParameters);
 
         addChildren(inParam);
         addChildren(outParam);

@@ -20,9 +20,9 @@ public final class TemplateType extends NamedType {
     @Override
     public String getPrettyName() {
         if (arguments.size() == 0)
-            return name.image;
+            return name;
 
-        StringBuffer b = new StringBuffer(name.image);
+        StringBuffer b = new StringBuffer(name);
         b.append("<");
         for (Type t : arguments) {
             b.append(t.getPrettyName());

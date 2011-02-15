@@ -6,6 +6,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class CallStatement extends Statement {
 
@@ -22,7 +23,7 @@ public final class CallStatement extends Statement {
         super(first);
 
         this.attr = attr;
-        this.name = name;
+        this.name = ASTConversions.getEscapedName(name);
         this.arglist = arglist;
 
         this.outParam = new LinkedList<VariableUsageExpression>();

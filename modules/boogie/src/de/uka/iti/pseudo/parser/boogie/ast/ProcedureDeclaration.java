@@ -1,12 +1,12 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public class ProcedureDeclaration extends DeclarationBlock implements NamedASTElement {
 
@@ -21,15 +21,13 @@ public class ProcedureDeclaration extends DeclarationBlock implements NamedASTEl
  ProcedureBody body) {
         super(first, attributes);
 
-        this.name = name.image;
+        this.name = ASTConversions.getEscapedName(name);
         this.inParam = inParam;
         this.outParam = outParam;
         this.specification = specification;
         this.body = body;
 
-        this.typeParameters = new ArrayList<String>(typeParameters.size());
-        for(Token t: typeParameters)
-            this.typeParameters.add(t.image);
+        this.typeParameters = ASTConversions.toEscapedNameList(typeParameters);
 
         addChildren(inParam);
         addChildren(outParam);

@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 /**
  * Named Types are treated different to MapTypes, as maptypes dont need to be
@@ -14,7 +15,8 @@ public abstract class NamedType extends Type {
     /**
      * Name of this type
      */
-    protected final Token name;
+    protected final String name;
+    protected final Token location;
 
     /**
      * The number of template arguments, this type takes.
@@ -22,13 +24,14 @@ public abstract class NamedType extends Type {
     protected final int arity;
 
     public NamedType(Token name, int arity) {
-        this.name = name;
+        this.name = ASTConversions.getEscapedName(name);
+        this.location = name;
         this.arity = arity;
     }
 
     @Override
     public Token getLocationToken() {
-        return name;
+        return location;
     }
 
     public int getArity() {
@@ -36,6 +39,6 @@ public abstract class NamedType extends Type {
     }
 
     public String getName() {
-        return name.image;
+        return name;
     }
 }

@@ -594,6 +594,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             n.visit(this);
 
         ASTElement decl = state.names.functionSpace.get(node.getName());
+        if (null == decl)
+            throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
+
         if (!state.typeMap.has(decl)) {
             todo.add(node);
             return;

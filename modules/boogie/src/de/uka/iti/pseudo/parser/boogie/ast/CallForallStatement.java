@@ -5,6 +5,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class CallForallStatement extends Statement {
     
@@ -16,10 +17,10 @@ public final class CallForallStatement extends Statement {
      */
     private final List<Expression> arglist;
 
-    public CallForallStatement(Token first, List<Attribute> attr, String image, List<Expression> arglist) {
+    public CallForallStatement(Token first, List<Attribute> attr, String name, List<Expression> arglist) {
         super(first);
 
-        name = image;
+        this.name = ASTConversions.getEscapedName(name);
         this.arglist = arglist;
         this.attr = attr;
 

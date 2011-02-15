@@ -6,17 +6,20 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 final public class UserTypeDefinition extends ASTElement implements NamedASTElement {
     
-    private final Token name;
+    private final Token location;
+    private final String name;
     // this is only needed to process type table construction, as the argnames
     // can specify
     private final List<String> argnames;
     private final Type definition;
 
     public UserTypeDefinition(Token name, List<String> argnames, Type parent) {
-        this.name = name;
+        this.name = ASTConversions.getEscapedName(name);
+        this.location = name;
         this.argnames = argnames;
         this.definition = parent;
 
@@ -26,7 +29,7 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
 
     @Override
     public Token getLocationToken() {
-        return name;
+        return location;
     }
 
     @Override
@@ -35,7 +38,7 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
     }
 
     public String getName() {
-        return name.image;
+        return name;
     }
 
     public List<String> getTypeParameters() {
@@ -48,6 +51,6 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
 
     @Override
     public String toString() {
-        return "UserTypeDefinition [" + name + "]";
+        return "UserTypeDefinition [" + name + "] @" + location.beginColumn;
     }
 }

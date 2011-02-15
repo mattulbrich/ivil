@@ -14,7 +14,7 @@ public final class HavocStatement extends Statement {
     public HavocStatement(Token first, List<Token> vars) {
         super(first);
 
-        varnames = ASTConversions.toStringList(vars);
+        varnames = ASTConversions.toEscapedNameList(vars);
     }
 
     @Override

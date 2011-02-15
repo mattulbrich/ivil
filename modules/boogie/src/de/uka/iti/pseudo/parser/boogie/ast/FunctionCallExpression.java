@@ -5,16 +5,17 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class FunctionCallExpression extends Expression {
 
     private final String name;
     private final List<Expression> arguments;
 
-    public FunctionCallExpression(Token first, List<Expression> args) {
-        super(first);
+    public FunctionCallExpression(Token name, List<Expression> args) {
+        super(name);
 
-        name = first.image;
+        this.name = ASTConversions.getEscapedName(name);
         arguments = args;
 
         addChildren(args);

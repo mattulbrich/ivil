@@ -21,9 +21,9 @@ public class FunctionDeclaration extends DeclarationBlock implements NamedASTEle
     public FunctionDeclaration(Token firstToken, List<Attribute> attributes, Token name, List<Token> typeParameters,
             List<VariableDeclaration> inParam, VariableDeclaration outParam, Expression expression) {
         super(firstToken, attributes);
-        this.name = name.image;
+        this.name = ASTConversions.getEscapedName(name);
 
-        this.typeParameters = ASTConversions.toStringList(typeParameters);
+        this.typeParameters = ASTConversions.toEscapedNameList(typeParameters);
         this.inParameters = inParam;
         this.outParemeter = outParam;
 

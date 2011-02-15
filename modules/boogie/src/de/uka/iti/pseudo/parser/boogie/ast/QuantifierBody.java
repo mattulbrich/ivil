@@ -23,7 +23,7 @@ public final class QuantifierBody extends ASTElement implements NamedASTElement 
         this.location = location;
         this.attributes = attributes;
         this.triggers = triggers;
-        this.typeParameters = ASTConversions.toStringList(typeArgs);
+        this.typeParameters = ASTConversions.toEscapedNameList(typeArgs);
         this.quantifiedVariableDeclarations = vars;
         this.body = body;
 

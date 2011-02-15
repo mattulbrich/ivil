@@ -15,7 +15,7 @@ public final class ModifiesClause extends Specification {
     public ModifiesClause(Token first, List<Token> targets) {
         super(first);
 
-        this.targets = ASTConversions.toStringList(targets);
+        this.targets = ASTConversions.toEscapedNameList(targets);
     }
 
     @Override

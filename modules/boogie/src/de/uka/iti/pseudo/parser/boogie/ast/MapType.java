@@ -16,7 +16,7 @@ public final class MapType extends Type implements NamedASTElement {
 
     public MapType(Token first, List<Token> params, List<Type> domain, Type range) {
         location = first;
-        this.params = ASTConversions.toStringList(params);
+        this.params = ASTConversions.toEscapedNameList(params);
         this.domain = domain;
         this.range = range;
 
