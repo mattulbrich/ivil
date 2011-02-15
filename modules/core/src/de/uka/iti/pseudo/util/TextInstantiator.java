@@ -7,6 +7,7 @@ import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TextInstantiator {
@@ -49,6 +50,8 @@ public class TextInstantiator {
      * The provided pretty printer is used to render the term. If it is
      * <code>null</code>, defaults to {@link #replaceInString(String)}.
      * 
+     * <p><code>{{</code> can be used to produce a singe <code>{</code>.
+     * 
      * @param pp
      *            pretty printer to render the instantiations
      * @param string
@@ -69,7 +72,14 @@ public class TextInstantiator {
             char c = string.charAt(i);
             switch(c) {
             case '{':
-                inCurley = true;
+                // something like "{{" (or also "{xy{")
+                if(inCurley) {
+                    retval.append('{');
+                    curley.setLength(0);
+                    inCurley = false;
+                } else {
+                    inCurley = true;
+                }
                 break;
                 
             case '}':
@@ -100,6 +110,17 @@ public class TextInstantiator {
                     String prop = ruleApp.getProperties().get(lookup.substring(9));
                     if(prop != null)
                         display = prop;
+                    
+                } else if(lookup.startsWith("upd ")) {
+                    String id = lookup.substring(4);
+                    Update upd = ruleApp.getSchemaUpdateMapping().get(id);
+                    if(upd != null) {
+                        if(pp != null) {
+                            display = pp.print(upd.getAssignments()).toString();
+                        } else {
+                            display = upd.toString();
+                        }
+                    }
                 }
                 
                 retval.append(display);

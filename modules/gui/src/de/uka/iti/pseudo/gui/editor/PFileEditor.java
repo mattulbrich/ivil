@@ -64,6 +64,7 @@ import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
+// TODO This editor has problems with "\r" characters!
 public class PFileEditor extends JFrame implements ActionListener {
     
     private static final long serialVersionUID = 8116827588545997986L;

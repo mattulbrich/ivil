@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -398,14 +399,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append("{ ");
         
         List<Assignment> assignments = updateTerm.getAssignments();
-        for (int i = 0; i < assignments.size(); i++) {
-            if(i > 0)
-                printer.append(" || ");
-            appendName(assignments.get(i).getTarget().toString(false));
-            printer.append(" := ");
-            currentSubTermIndex = i + 1;
-            assignments.get(i).getValue().visit(this);
-        }
+        visit(assignments);
 
         printer.append(" }");
         printer.resetPreviousStyle();
@@ -478,20 +472,27 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(AssignmentStatement assignmentStatement)
             throws TermException {
         printer.setStyle("statement");
-        boolean first = true;
-        for (Assignment assignment : assignmentStatement.getAssignments()) {            
-            if(!first) {
-                printer.append(" || ");
-            }
-            appendName(assignment.getTarget().toString(false));
-            printer.append(" := ");
-            currentSubTermIndex = 0;
-            assignment.getValue().visit(this);
-            first = false;
-        }
+        List<Assignment> assignments = assignmentStatement.getAssignments();
+        visit(assignments);
         printer.resetPreviousStyle();
     }
 
+    // used by AssignmentStatement, UpdateTerm and for text instantiation.
+    public void visit(List<Assignment> assignments)
+            throws TermException {
+        
+        for (int i = 0; i < assignments.size(); i++) {
+            if(i > 0) {
+                printer.append(" || ");
+            }
+            Assignment assignment = assignments.get(i);
+            appendName(assignment.getTarget().toString(false));
+            printer.append(" := ");
+            currentSubTermIndex = i + 1;
+            assignment.getValue().visit(this);
+        }
+    }
+    
     public void visit(AssumeStatement assumeStatement)
             throws TermException {
         visitStatement("assume", assumeStatement);

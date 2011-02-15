@@ -30,7 +30,7 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
             BPLParser p = new BPLParser(inputStream);
             EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url));
 
-            return new Pair<Environment, Term>(s.make(), s.getProblem());
+            return new Pair<Environment, Term>(s.make(), null);
         } catch (ParseException e) {
             EnvironmentException envEx = new EnvironmentException(e);
             Token currentToken = e.currentToken;

@@ -1,9 +1,17 @@
- /** README
-
+/** README
 
 Token first
-l----------
-Sever rules have a Token first, which is used to generate usefull feedback in case of errors.
+-----------
+Several rules have a Token first, which is used as location to generate usefull feedback in case of errors.
+
+
+Errors caused by if then else
+-----------------------------
+If then else causes choice conflicts, as it can not be known if the user means
+if ... then 1 else (2 + 3)
+or
+(if ... then 1 else 2) + 3
+currently the first option is implemented, as this is the usual meaning. 
 
 */options{  STATIC = false;  UNICODE_INPUT = true;  JAVA_UNICODE_ESCAPE = true;}/*---------------------------------------------------------------------------
 // BoogiePL -

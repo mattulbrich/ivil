@@ -53,8 +53,8 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static final String SYS_DIR =
-        Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
+    private static final String SYS_DIR = Settings.getInstance().getExpandedProperty(Settings.SYSTEM_DIRECTORY_KEY,
+            "./sys");
 
     /**
      * The environment that is being built.
@@ -365,7 +365,7 @@ public class EnvironmentMaker {
                 }
             }
 
-            // then as resource
+            // then as resource, particularly for webstart. 
             URL resource = getClass().getResource("/sys/" + filename);
             if(resource != null)
                 return resource;
