@@ -13,12 +13,14 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
 
     private static Pattern LOAD_REGEX = Pattern.compile("map[0-9]+_load");
     private static Pattern STORE_REGEX = Pattern.compile("map[0-9]+_store");
-    
+
+    private static boolean unescapeIllegalIdentifierNames = true;
+
     @Override
     public void prettyPrintTerm(Application term) throws TermException {
         Function function = term.getFunction();
         String name = function.getName();
-        
+
         if (LOAD_REGEX.matcher(name).matches()) {
 
             // map
@@ -26,7 +28,7 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
             append("[");
             // arguments
             for (int i = 1; i < function.getArity(); i++) {
-                if(i > 1) {
+                if (i > 1) {
                     append(", ");
                 }
                 printSubterm(term, i);
@@ -38,11 +40,11 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
         if (STORE_REGEX.matcher(name).matches()) {
             append("{");
             // indices
-            for (int i = 1; i < function.getArity()-1; i++) {
-                if(i > 1) {
+            for (int i = 1; i < function.getArity() - 1; i++) {
+                if (i > 1) {
                     append(", ");
                 }
-                printSubterm(term, i);                
+                printSubterm(term, i);
             }
             append(" := ");
             // value
@@ -50,8 +52,8 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
             append("}");
             // heap
             printSubterm(term, 0);
-        } 
-        
+        }
+
     }
 
     /**
@@ -61,14 +63,62 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
      */
     @Override
     public String getReplacementName(String name) {
-        if(name.startsWith("var_") || name.startsWith("old_var_") || name.startsWith("fun__")) {
-            int index = name.lastIndexOf("__");
-            return name.substring(index+2);
+        String rval = name;
+        if (name.startsWith("var_") || name.startsWith("old_var_") || name.startsWith("fun__")) {
+            int index = name.indexOf("__");
+            rval = name.substring(index + 2);
+
+            if (unescapeIllegalIdentifierNames) {
+                char[] data = rval.toCharArray();
+                int wi = 0;
+                for (int ri = 0; ri < data.length; ri++, wi++) {
+                    if ('_' == data[ri] && ri + 1 < data.length) {
+                        ri++;
+                        switch (data[ri]) {
+                        case '_':
+                            data[wi] = '_';
+                            break;
+                        case 'p':
+                            data[wi] = '\'';
+                            break;
+                        case 't':
+                            data[wi] = '~';
+                            break;
+                        case 'h':
+                            data[wi] = '#';
+                            break;
+                        case 'd':
+                            data[wi] = '$';
+                            break;
+                        case 'c':
+                            data[wi] = '^';
+                            break;
+                        case 'o':
+                            data[wi] = '.';
+                            break;
+                        case 'q':
+                            data[wi] = '?';
+                            break;
+                        case 'a':
+                            data[wi] = '`';
+                            break;
+
+                        default:
+                            // the argument is not an identifier from the source
+                            // language;
+                            return rval;
+                        }
+                    } else {
+                        data[wi] = data[ri];
+                    }
+                }
+                rval = new String(data, 0, wi);
+            }
         }
-        
-        return null;
+
+        return rval;
     }
-    
+
     @Override
     public void prettyPrintTerm(Binding term) throws TermException {
         // nothing to be done
