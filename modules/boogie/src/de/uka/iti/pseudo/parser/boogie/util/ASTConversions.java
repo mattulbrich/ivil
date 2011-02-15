@@ -25,4 +25,29 @@ public class ASTConversions {
 
         return rval;
     }
+
+    /**
+     * Gets the name from t.image and returnes a propperly escaped version of
+     * it.
+     * <ul>
+     * <li>_ -> __
+     * <li>' -> _p
+     * <li>~ -> _t
+     * <li># -> _h
+     * <li>$ -> _d
+     * <li>^ -> _c
+     * <li>. -> _o
+     * <li>? -> _q
+     * <li>` -> _a
+     * </ul>
+     */
+    public static String getEscapedName(Token t) {
+        // note: this might decrease the performance of the boogie loader
+        // significantly; it might be useful to decompose the name into a char
+        // array and replace all characters at the same time
+
+        String name = t.image.replace("_", "__").replace("'", "_p").replace("~", "_t").replace("#", "_h")
+                .replace("$", "_d").replace("^", "_c").replace(".", "_o").replace("?", "_q").replace("`", "_a");
+        return name;
+    }
 }

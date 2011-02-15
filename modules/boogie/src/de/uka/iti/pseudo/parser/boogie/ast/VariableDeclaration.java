@@ -4,6 +4,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 /**
  * This element is used to represent a variable or constant declaration with
@@ -23,7 +24,7 @@ final public class VariableDeclaration extends ASTElement {
 
     public VariableDeclaration(Token name, Type type, boolean constant, boolean unique, boolean isQuantified,
             Expression where) {
-        this.name = name.image;
+        this.name = ASTConversions.getEscapedName(name);
         this.location = name;
         this.type = type;
         this.constant = constant;

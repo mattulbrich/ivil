@@ -5,6 +5,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 /**
  * This expression does something similar to loading a variable from a memory
@@ -20,7 +21,7 @@ public final class VariableUsageExpression extends Expression {
     public VariableUsageExpression(Token first) {
         super(first);
 
-        name = first.image;
+        name = ASTConversions.getEscapedName(first);
     }
 
     @Override
