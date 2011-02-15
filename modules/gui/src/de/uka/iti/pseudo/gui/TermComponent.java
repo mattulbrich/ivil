@@ -368,31 +368,40 @@ public class TermComponent extends JTextPane {
     }
 
     /**
-     * calculate the text to display in tooltip for a term. This is a rather
-     * complex document: 
+     * Returns the unpretty text representation which is needed sometimes for
+     * interactions.
+     */
+    private String makeTermToolTip(TermTag termTag) {
+        return termTag.getTerm().toString();
+    }
+
+    /**
+     * calculate the text to display in "information for this formula" for a
+     * term. This is a rather complex document:
+     * 
      * <ol>
      * <li>the type
      * <li>For programs, print the current statement
      * <li>The history, at least the first 60 elements
-     * </li>
+     * </ol>
      * 
-     * TODO Have something like "F2" to focus on the content and provide links ;)
+     * TODO Have something like "F2" to focus on the content and provide links
+     * ;)
      * 
      * @param termTag
      *            tag to print info on
      * 
-     * @return tooltip text
      */
-    private String makeTermToolTip(TermTag termTag) {
+    private String makeTermHistory(TermTag termTag) {
+
         Term term = termTag.getTerm();
-    
+
         StringBuilder sb = new StringBuilder();
-    
+
         //
         // type
-        sb.append("<html><dl><dt>Type:</dt><dd>").append(term.getType())
-                .append("</dd>\n");
-        
+        sb.append("<html><dl><dt>Type:</dt><dd>").append(term.getType()).append("</dd>\n");
+
         //
         // statement
         if (term instanceof LiteralProgramTerm) {
@@ -408,25 +417,25 @@ public class TermComponent extends JTextPane {
         int len = 0;
         while (h != null && len < 60) {
             ProofNode creatingProofNode = h.getCreatingProofNode();
-            if(creatingProofNode == null || shouldShow(creatingProofNode)) {
+            if (creatingProofNode == null || shouldShow(creatingProofNode)) {
                 String text = h.getText();
-                
-                if(creatingProofNode != null)
+
+                if (creatingProofNode != null)
                     text = instantiateString(creatingProofNode.getAppliedRuleApp(), text);
-                
+
                 sb.append("<li>").append(text);
-                
+
                 sb.append("</li>\n");
                 len++;
             }
             h = h.getParentAnnotation();
         }
         sb.append("</ol>\n");
-        if(len == 60)
+        if (len == 60)
             sb.append("... truncated history");
-    
+
         sb.append("</dl>");
-        
+
         // System.out.println(sb);
         return sb.toString();
     }
