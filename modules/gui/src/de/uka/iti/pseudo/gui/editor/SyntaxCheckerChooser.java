@@ -52,7 +52,6 @@ public class SyntaxCheckerChooser extends JMenu implements PropertyChangeListene
         }
         
         if(PFileEditor.SYNTAX_CHECKER_PROPERTY.equals(evt.getPropertyName())) {
-            System.out.println("SyntaxCheckerChooser.propertyChange()");
             Object newChecker = evt.getNewValue();
             Class<?> checkerClass = newChecker != null ? newChecker.getClass() : null;
             for(int i = 0; i < getItemCount(); i++) {

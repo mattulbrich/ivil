@@ -681,7 +681,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
 
         Type varType = variable.getType();
         String boundType = makeSort(varType);
-        String bound = "?" + boundType + "." + variable.toString(false);
+        String bound = "?" + boundType + "." + variable.getName();
 
         quantifiedVariables.push(bound);
         String innerFormula = translate(binding.getSubterm(0), FORMULA);
@@ -766,7 +766,6 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
             
             sb.append("Typing for function symbol ").append(name).append("\n");
-                    
             
             if (resultTypeVariables.isEmpty() &&
                     argumentTypeVariables.isEmpty() && argTypes.length == 0) {

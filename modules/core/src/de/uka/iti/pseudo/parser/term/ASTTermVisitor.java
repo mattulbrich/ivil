@@ -38,6 +38,8 @@ public interface ASTTermVisitor {
     void visit(ASTFixTerm infixTerm) throws ASTVisitException;
 
     void visit(ASTAsType asType) throws ASTVisitException;
+    
+    void visit(ASTExplicitVariableTerm explicitVariable) throws ASTVisitException;
 
     void visit(ASTSchemaVariableTerm schemaVariableTerm) throws ASTVisitException;
 
