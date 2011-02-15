@@ -27,7 +27,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 
 import nonnull.NonNull;
@@ -764,7 +763,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         // nothing to do for integer functions
         if (!"Int".equals(resultType)) {
             StringBuilder sb = new StringBuilder();
-            boolean varInResult = !resultTypeVariables.isEmpty();
+            boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
             
             sb.append("Typing for function symbol ").append(name).append("\n");
                     
