@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.prettyprint;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
@@ -21,8 +23,6 @@ import de.uka.iti.pseudo.util.Log;
 /**
  * PrettyPrintPlugin is used to make the pretty printing of terms more flexible.
  * You can customize the way in which applications and bindings are printed.
- * 
- * To implement a plugin you need to implement {@link #prettyPrintTerm(Term)}.
  */
 public abstract class PrettyPrintPlugin {
     
@@ -89,7 +89,7 @@ public abstract class PrettyPrintPlugin {
     
     protected void printBoundVariable(Binding binding) {
         printer.setStyle("variable");
-        printer.append(binding.getVariableName());
+        prettyPrintVisitor.appendName(binding.getVariableName());
         printer.resetPreviousStyle();
         if (prettyPrinter.isTyped()) {
             printer.setStyle("type");
@@ -132,7 +132,7 @@ public abstract class PrettyPrintPlugin {
      * @throws TermException may be thrown by {@link #printSubterm(Term)} and {@link #append(String)}
      */
     public abstract void prettyPrintTerm(Application term) throws TermException;
-    
+
     /**
      * Pretty print a term.
      * 
@@ -149,13 +149,41 @@ public abstract class PrettyPrintPlugin {
      *            the pretty print the printer information
      * @param printer
      *            the actual print stream
-     *            
-     *            @throws TermException may be thrown by {@link #printSubterm(Term)} and {@link #append(String)}
+     * 
+     * @throws TermException
+     *             may be thrown by {@link #printSubterm(Term)} and
+     *             {@link #append(String)}
      * 
      * @return true if the term has been rendered completely. false if nothing
      *         has been rendered. Nothing in between.
      */
     public abstract void prettyPrintTerm(Binding term) throws TermException;
+
+    /**
+     * Find a replacement string for a name.
+     * 
+     * This method can be implemented, e.g., to shorten/change complex generated
+     * names into more readable ones. A long name like
+     * <code>var_x_def_on_line_12</code> could be abbreviated as <code>x</code>.
+     * 
+     * This method is called for:
+     * <ul>
+     * <li>function names,
+     * <li>binder names,
+     * <li>variable names
+     * </ul>
+     * in terms, statements and updates.
+     * <p>
+     * An implementation can return <code>null</code> to indicate that it has no
+     * replacement for name. It may return name itself if it wishes to disallow
+     * later plugins to come up with a replacement.
+     * 
+     * @param name
+     *            the name to find a replacement for
+     * 
+     * @return a replacement for name, or null.
+     */
+    public abstract @Nullable String getReplacementName(@NonNull String name);
 
     
 //    public abstract void prettyPrintUpdate(AssignmentStatement assignment) throws TermException;
