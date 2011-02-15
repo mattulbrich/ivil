@@ -49,6 +49,14 @@ public class MockPrettyPrintPlugin extends PrettyPrintPlugin {
         }
     }
 
+    @Override
+    public String getReplacementName(String name) {
+		if(name.startsWith("X"))
+	        return name.substring(1);
+		else
+			return name;
+    }
+
 //    @Override public void prettyPrintUpdate(AssignmentStatement assignment)
 //            throws TermException {
 //        if("i1".equals(assignment.getTarget().toString())) {

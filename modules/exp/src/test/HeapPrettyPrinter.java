@@ -83,4 +83,10 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
         // do nothing
     }
 
+    @Override
+    public String getReplacementName(String name) {
+		// nothing to do
+        return null;
+    }
+
 }
