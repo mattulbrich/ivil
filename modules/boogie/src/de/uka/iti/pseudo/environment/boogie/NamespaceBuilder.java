@@ -37,10 +37,16 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     /**
      * Pushes a type parameter and checks for duplicates.
      * 
+     * @param name
+     *            must match "[a-zA-Z_][a-zA-Z0-9_]*"
+     * 
      * @throws ASTVisitException
      *             thrown if a type parameter with name is already defined
+     * 
      */
     private void addTypeParameter(ASTElement node, String name) throws ASTVisitException {
+        assert name.matches("[a-zA-Z_][a-zA-Z0-9_]*") : name + " has not been escaped propperly";
+
         Scope scope = state.scopeMap.get(node);
 
         for (Scope s = scope; s != null; s = s.parent)
@@ -59,7 +65,10 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(VariableDeclaration node) throws ASTVisitException {
-        Pair<String, Scope> key = new Pair<String, Scope>(node.getName(), state.scopeMap.get(node));
+        final String name = node.getName();
+        Pair<String, Scope> key = new Pair<String, Scope>(name, state.scopeMap.get(node));
+
+        assert name.matches("[a-zA-Z_][a-zA-Z0-9_]*") : name + " has not been escaped propperly";
 
         if (state.names.variableSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
@@ -89,6 +98,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
         final String key = node.getName();
+        assert key.matches("[a-zA-Z_][a-zA-Z0-9_]*") : key + " has not been escaped propperly";
 
         if (state.names.functionSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
@@ -121,6 +131,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
         final String key = node.getName();
+        assert key.matches("[a-zA-Z_][a-zA-Z0-9_]*") : key + " has not been escaped propperly";
 
         if (state.names.typeSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
@@ -151,6 +162,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
         final String key = node.getName();
+        assert key.matches("[a-zA-Z_][a-zA-Z0-9_]*") : key + " has not been escaped propperly";
 
         if (state.names.procedureSpace.containsKey(key))
             throw new ASTVisitException("Tried to add key " + key + " allready defined @"
@@ -169,6 +181,7 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(ProcedureImplementation node) throws ASTVisitException {
         // dont add name, as the name has to be declared elsewhere
 
+        // add quantified type parameters
         for (String s : node.getTypeParameters())
             addTypeParameter(node, s);
 
@@ -178,8 +191,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        // dont add name, as the name has to be declared elsewhere
 
+        // add quantified type parameters
         for (String s : node.getTypeParameters())
             addTypeParameter(node, s);
 
