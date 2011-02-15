@@ -207,7 +207,9 @@ public final class EnvironmentCreationState {
             e.printStackTrace();
         }
 
-        env.dump();
+		if(env != null) {
+            env.dump();
+		}
 
         return false;
     }

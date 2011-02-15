@@ -25,10 +25,9 @@ include
   "$map.p"
 
 
-(*  Dont use the pretty printer.
- * plugin
- *   prettyPrinter : "de.uka.iti.pseudo.parser.boogie.environment.BoogiePrettyPrinter"
- *)
+(*  Dont use the pretty printer. *)
+ plugin
+   prettyPrinter : "de.uka.iti.pseudo.environment.boogie.BoogiePrettyPrinter"
  
 (*
  * Toplevel and right will be processed automatically.
