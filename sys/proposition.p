@@ -291,3 +291,16 @@ rule equiv_to_eq
 rule eq_to_imp
   find %a = %b
   replace (%a -> %b) & (%b -> %a)
+
+rule true_eq
+  find true = %a
+  replace %a
+  tags rewrite "concrete"
+       verbosity "8"
+
+rule true_eq2
+  find %a=true
+  replace %a
+  tags rewrite "concrete"
+       verbosity "8"
+       

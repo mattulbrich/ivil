@@ -35,9 +35,9 @@ function  # infixes
         int $plus(int, int)     infix +  60 
         int $minus(int, int)    infix -  60
 
-        int $shl(int, int)      infix << 55
-        int $shr(int, int)      infix >> 55
-        int $ushr(int, int)     infix >>> 55
+        int $shl(int, int)      infix << 58
+        int $shr(int, int)      infix >> 58
+        int $ushr(int, int)     infix >>> 58
        
         bool $lt(int, int)      infix <  50
         bool $gt(int, int)      infix >  50

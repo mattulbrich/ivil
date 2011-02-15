@@ -10,19 +10,119 @@
 #
 
 (*
- * This files contains the definitions for the set datatype
+ * This files contains the optimised rules for sets
  *
- * You will find optimised rules in .... .
+ * You find definitions in setdefs.p
  *)
 
-include "$fol.p"
+include "$setdefs.p"
 
-sort
-  set('a)
+(*
+ * rules with emptyset
+ *)
 
-function
-  bool      mem('a, set('a))
-  set('a)   union(set('a), set('a))
-  set('a)   diff(set('a), set('a))
-  bool      subset(set('a), set('a))
-  set('a)   emptyset
+rule emptyset_in_anyset
+find emptyset <: %s
+replace true
+tags 
+  rewrite "concrete"
+  asAxiom 
+  derived
+
+# TODO!! Replace with fresh variable!
+rule emptyset_equals
+find emptyset = %s
+replace (\forall xx; !xx::%s)
+tags
+  rewrite "concrete"
+  #asAxiom
+  derived
+  
+(*
+ * rules with singleton
+ *)
+
+rule in_singleton
+find %x :: singleton(%y)
+replace %x=%y
+tags
+  rewrite "fol simp"
+  asAxiom
+  derived
+
+rule subset_singleton
+find %x <: singleton(%y)
+replace %x=emptyset | %x=singleton(%y)
+
+rule singleton_eq_singleton
+find singleton(%x) = singleton(%y)
+replace %x=%y
+tags
+  rewrite "fol simp"
+  asAxiom
+  derived
+
+(*
+ * rules with diff
+ *)
+
+rule in_diff
+find %x :: %a \ %b
+replace %x::%a & !%x::%b
+tags
+  rewrite "fol simp"
+  derived
+
+rule diff_is_conj
+find %x \ %y
+replace %x /\ ^%y
+tags
+  derived
+
+(*
+ * rules with subset
+ *)
+
+rule subset_def
+find %a <: %b
+replace (\forall yy; yy :: %a -> yy :: %b)
+ 
+rule subset_refl
+find %a <: %a
+replace true
+tags
+  rewrite "fol simp"
+  derived
+
+rule subset_trans
+find %x::%s |-
+assume %s <: %t |-
+add %x :: %t |-
+
+(*
+ * rules with union
+ *)
+ 
+rule union_empty_l
+find emptyset \/ %a
+replace %a
+tags
+  rewrite "fol simp"
+  derived
+  
+rule union_empty_r
+find %a \/ emptyset
+replace %a
+tags
+  rewrite "fol simp"
+  derived
+
+(*
+ * rules with complement
+ *)
+rule in_complement
+find %x :: ^%s
+replace !%x :: %s
+tags
+  rewrite "fol simp"
+  derived
