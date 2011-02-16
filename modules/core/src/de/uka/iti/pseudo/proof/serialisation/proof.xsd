@@ -59,7 +59,9 @@
 				<xs:element minOccurs="0" maxOccurs="unbounded" ref="schemaupdate"/>
 				<xs:element minOccurs="0" maxOccurs="unbounded" ref="property"/>
 			</xs:sequence>
-			<xs:attribute name="node" use="required" type="xs:integer"/>
+			<xs:attribute name="path" use="required" type="xs:string"/>
+			<!-- the id is an optional parameter to make error discovery easier -->
+			<xs:attribute name="id" type="xs:string" />
 			<xs:attribute name="rule" use="required" type="xs:NCName"/>
 		</xs:complexType>
 	</xs:element>

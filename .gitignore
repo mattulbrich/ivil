@@ -1,11 +1,29 @@
-genSrc/
-classes/
-classes-test/
+# ignore backup files / hidden files
+*.hidden
+*.swp
+*~*
+
+# ignore distribution files
+dist/
 bin/
-javadoc/
 ivil.jar
-core/de/uka/iti/pseudo/parser/boogie/*.java
+
+#doxygen
 docwarn
 doxyfile
+
+#properties
 ivil.properties
 VERSION
+
+# ignore module intermed files
+modules/core/genSrc/
+modules/core/classes/
+modules/cmd/classes/
+modules/gui/classes/
+modules/exp/classes/
+javadoc/
+
+# directories which might exist:
+modules/core/classes7/
+tmp/

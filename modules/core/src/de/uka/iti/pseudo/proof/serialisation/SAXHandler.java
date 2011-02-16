@@ -1,5 +1,6 @@
 package de.uka.iti.pseudo.proof.serialisation;
 
+import java.util.List;
 import java.util.Map;
 
 import org.xml.sax.Attributes;
@@ -30,6 +31,7 @@ class SAXHandler extends DefaultHandler {
     private Proof proof;
     
     private String content = "";
+    private String currentId = "";
     private Attributes attributes;
     private MutableRuleApplication ram;
     private int goalNo = 0;
@@ -59,24 +61,28 @@ class SAXHandler extends DefaultHandler {
         if(name.equals("ruleApplication")) {
             ram = new MutableRuleApplication();
             
+            // optional id
+            currentId = attributes.getValue("id");
+            if(currentId == null)
+                currentId = "?";
+            
             // rule
             String ruleName = attributes.getValue("rule");
             assert ruleName != null : "No rule referenced! (forbidden by schema)";
             
             Rule rule = env.getRule(ruleName);
             if(rule == null)
-                throw new SAXException("No rule by the name " + ruleName);
+                throw new SAXException("No rule by the name " + ruleName + "; id=" + currentId);
             
             ram.setRule(rule);
             
             // node (format guaranteed by schema)
-            String nodeStr = attributes.getValue("node");
-            assert nodeStr != null : "No rule referenced! (forbidden by schema)";
+            String pathStr = attributes.getValue("path");
+            assert pathStr != null : "No path referenced! (forbidden by schema)";
             
-            int nodeNo = Integer.parseInt(nodeStr);
-            ProofNode proofNode = proof.getGoalbyNumber(nodeNo);
+            ProofNode proofNode = parsePath(pathStr);
             if(proofNode == null)
-                throw new SAXException("No proof node of number " + nodeNo);
+                throw new SAXException("No proof node for path " + pathStr + "; id=" + currentId);
             
             ram.setProofNode(proofNode); 
         }
@@ -171,12 +177,8 @@ class SAXHandler extends DefaultHandler {
     
     private void throwSAXException(String content, Exception e) throws SAXException {
         StringBuilder msg = new StringBuilder();
-        if(ram != null && ram.getProofNode() != null) {
-            msg.append("RuleApp on ").append(ram.getProofNode().getNumber()).
-                    append(": ");
-        }
-        
-        msg.append("Cannot parse '").append(content).append("'");
+        msg.append("RuleApp on id ").append(currentId).append(": ");
+        msg.append("Cannot parse '").append(content).append("'\n");
         SAXException saxException = new SAXException(msg.toString(), e);
         saxException.initCause(e);
         throw saxException;
@@ -205,6 +207,45 @@ class SAXHandler extends DefaultHandler {
     public void characters(char[] ch, int start, int length)
             throws SAXException {
         content = new String(ch, start, length);
+    }
+    
+    private ProofNode parsePath(String pathStr) throws SAXException {
+        String[] parts = pathStr.split(",");
+        ProofNode node = proof.getRoot();
+        int index = 0;
+        
+        try {
+            List<ProofNode> children = node.getChildren();
+            while(children != null) {
+                int size = children.size();
+                if(size > 1) {
+                    if(index >= parts.length) {
+                        throw new IndexOutOfBoundsException("Path too short, node=" + node.getNumber());
+                    }
+                    int childIdx = Integer.parseInt(parts[index]);
+                    
+                    if (childIdx < 0 || childIdx >= size) {
+                        throw new IndexOutOfBoundsException("Illegal child "
+                                + childIdx + "; size=" + size); 
+                    }
+                    node = children.get(childIdx);
+                    index ++;
+                } else if(size == 0) {
+                    throw new IndexOutOfBoundsException(
+                            "Path goes to closed node, node="
+                                    + node.getNumber());
+                } else {
+                    node = children.get(0);
+                }
+                
+                children = node.getChildren();
+            }
+            
+            return node;
+        } catch (RuntimeException e) {
+            throw new SAXException("Illegal path '" + pathStr + "' id=" + currentId, e);
+        }
+        
     }
     
 }

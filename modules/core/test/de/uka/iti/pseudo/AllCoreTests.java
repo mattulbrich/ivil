@@ -27,6 +27,7 @@ import de.uka.iti.pseudo.proof.TestRuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TestSubtermSelector;
 import de.uka.iti.pseudo.proof.TestTermSelector;
 import de.uka.iti.pseudo.proof.serialisation.TestValidXSD;
+import de.uka.iti.pseudo.proof.serialisation.TestXMLOutput;
 import de.uka.iti.pseudo.rule.TestGoalAction;
 import de.uka.iti.pseudo.rule.TestRule;
 import de.uka.iti.pseudo.rule.meta.TestLoopInvariantProgramMetaFunction;
@@ -101,6 +102,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestZ3Translator.class);
         suite.addTestSuite(TestLinearLookupMap.class);
         suite.addTestSuite(TestToplevelCheckVisitor.class);
+        suite.addTestSuite(TestXMLOutput.class);
         //$JUnit-END$
         return suite;
     }

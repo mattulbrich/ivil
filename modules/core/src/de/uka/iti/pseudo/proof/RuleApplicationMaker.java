@@ -125,8 +125,12 @@ public class RuleApplicationMaker implements RuleApplication {
      */
     public void matchInstantiations() throws ProofException {
 
-        assert rule != null;
-
+        if(rule == null)
+            throw new ProofException("Matching with null rule");
+        
+        if(proofNode == null)
+            throw new ProofException("Matching with null proof node");
+        
         Sequent sequent = proofNode.getSequent();
         
         LocatedTerm findClause = rule.getFindClause();

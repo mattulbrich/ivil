@@ -25,7 +25,6 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.Proof;
-import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
