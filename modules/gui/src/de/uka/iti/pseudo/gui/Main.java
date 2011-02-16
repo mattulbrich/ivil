@@ -12,7 +12,6 @@ package de.uka.iti.pseudo.gui;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -21,6 +20,7 @@ import java.util.ServiceLoader;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -30,11 +30,9 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
-import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
-import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
@@ -238,28 +236,44 @@ public class Main {
      * 
      * @return a freshly created proof center
      */
-    public static ProofCenter openProverFromURL(URL url)
-            throws FileNotFoundException, ParseException, ASTVisitException,
-            TermException, IOException, StrategyException, EnvironmentException {
-        
-        Pair<Environment, Term> result =
-            EnvironmentCreationService.createEnvironmentByExtension(url);
+    public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
+            ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
+
+        Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
         Term problemTerm = result.snd();
-        
-        if(problemTerm == null) {
-            String fragment = url.getRef();
-            if(fragment == null || fragment.length() == 0)
-                throw new EnvironmentException("Cannot load an environment without problem, no program specified");
 
-            Program p = env.getProgram(fragment);
-            if(p == null)
-                throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
-            
+        if (problemTerm == null) {
+            String fragment = url.getRef();
+            Program p;
+
+            if (fragment == null || fragment.length() == 0) {
+
+                List<Program> programs = env.getAllPrograms();
+                if (programs.size() < 2) {
+                    if (programs.size() == 1)
+                        p = programs.get(0);
+                    else
+                        throw new EnvironmentException(
+                                "Cannot load an environment without problem, which contains no program");
+
+                } else {
+                    Object[] programsArray = programs.toArray();
+                    p = (Program) JOptionPane.showInputDialog(null, "Please choose the program to verify.",
+                            "Choose program", JOptionPane.QUESTION_MESSAGE, null, programsArray, null);
+                }
+
+            } else {
+                p = env.getProgram(fragment);
+
+                if (p == null)
+                    throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
+            }
+
             problemTerm = new LiteralProgramTerm(0, false, p);
         }
-        
+
         return openProver(env, problemTerm, url);
     }
 
