@@ -51,7 +51,7 @@
         </settingsMenu>
         
         <experimentalMenu text="Experimental" mnemonic="X">
-           experimental.exportSMT       
+           experimental.exportSMT experimental.exportEnv
         </experimentalMenu>
         
 	</prover>
@@ -261,6 +261,9 @@
 		<exportSMT>ACTION experiments/ExportSMTAction
 			<text>Export SMT of current node</text>
 		</exportSMT>
+		<exportEnv>ACTION experiments/ExportEnvironmentAction
+			<text>Export the current environment</text>	
+		</exportEnv>
 	</experimental>  
 		
 	<general>

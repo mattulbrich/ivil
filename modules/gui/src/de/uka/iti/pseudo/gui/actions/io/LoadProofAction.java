@@ -100,12 +100,12 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
                     }
 
                 } catch (Exception ex) {
-                    try {
-                        getProofCenter().prune(getProofCenter().getProof().getRoot());
-                    } catch (ProofException e) {
-                        // should never happen
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        getProofCenter().prune(getProofCenter().getProof().getRoot());
+//                    } catch (ProofException e) {
+//                        // should never happen
+//                        e.printStackTrace();
+//                    }
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 }
                 return null;

@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 
+// TODO
 public class AxiomCondition extends WhereCondition {
 
     public AxiomCondition() {

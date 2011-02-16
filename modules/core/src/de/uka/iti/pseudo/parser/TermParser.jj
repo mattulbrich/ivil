@@ -105,12 +105,22 @@ ASTTerm BaseTerm():
         ( LOOKAHEAD(2) "(" term=BinderTerm() ")"
         | LOOKAHEAD(2) "(" term=TypevarBinderTerm() ")"
         | "(" term=Term() ")"
+        | term=ExplicitVariableTerm()
         | term=ApplicationTerm()
         | term=SchemaVariable()
         | term=NumberLiteral()
         | term=ProgramTerm()
         )
         { return term; }
+}
+
+ASTTerm ExplicitVariableTerm():
+{
+  Token firstToken, varToken;
+}
+{
+    firstToken="\\var" varToken=<IDENTIFIER>
+      { return new ASTExplicitVariableTerm(firstToken, varToken); }
 }
 
 ASTTerm ProgramTerm():
@@ -140,7 +150,7 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
            { return new ASTProgramTerm(label, termination, matchStatement); }
             
        | 
-         label=<NATURAL> ";" progref=<IDENTIFIER>
+         label=<NATURAL> ";" (progref=<PROGRAM_IDENTIFIER>|progref=<IDENTIFIER>)
          { return new ASTProgramTerm(label, termination, progref); }
        )
 }

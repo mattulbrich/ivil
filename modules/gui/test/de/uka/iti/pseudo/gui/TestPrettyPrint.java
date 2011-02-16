@@ -13,7 +13,6 @@ package de.uka.iti.pseudo.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import nonnull.NonNull;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -147,6 +146,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
         // No update rewriting at the moment, may come back later
         // testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
+        
     }
     
     // these need to be the last test!
