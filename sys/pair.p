@@ -12,6 +12,9 @@
 include "$fol.p"
 include "$set.p"
 
+plugin
+  prettyPrinter : "test.PairPrettyPrinter"
+
 sort
   prod('a, 'b)
 

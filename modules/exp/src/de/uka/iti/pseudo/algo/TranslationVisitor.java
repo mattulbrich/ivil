@@ -2,29 +2,20 @@ package de.uka.iti.pseudo.algo;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 
 public class TranslationVisitor implements AlgoParserVisitor {
     
-    private static Map<String, String> BINOPS = new HashMap<String, String>();
-    static {
-        BINOPS.put("=", "$eq");
-    }
+    private List<String> header = new ArrayList<String>();
+    private List<String> statements = new ArrayList<String>();
+    private IdentifierProducer idProducer = new IdentifierProducer();
     
-    StringBuilder header = new StringBuilder();
-    StringBuilder statements = new StringBuilder();
-    int labelCounter = 0;
+    private void addSourceLineStatement(SimpleNode node) {
+        statements.add(" sourceline " + node.jjtGetFirstToken().beginLine);
+    }
     
     private String visitChild(Node node, int index) {
         return node.jjtGetChild(index).jjtAccept(this, null);
-    }
-    
-    private String makeLabel(String prefix) {
-        labelCounter ++;
-        return prefix + labelCounter;
     }
     
     @Override
@@ -34,22 +25,23 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTStart node, Object data) {
-        header.append("# Automatically created on " + new Date() + "\n");
+        header.add("# Automatically created on " + new Date());
         node.childrenAccept(this, data);
         return null;
     }
     
     @Override
     public String visit(ASTUsesDeclaration node, Object data) {
-        header.append("include \"" + node.jjtGetValue() + "\"\n");
+        header.add("include \"" + node.jjtGetValue() + "\"");
         return null;
     }
     
     @Override
     public String visit(ASTAlgo node, Object data) {
         String id = visitChild(node, 0);
-        statements.append("program " + id + "\n");
+        statements.add("program " + id);
         node.childrenAccept(this, data);
+        statements.add("");
         return null;
     }
 
@@ -65,7 +57,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
             } else {
                 assert n instanceof ASTType;
                 for (String string : identifiers) {
-                    header.append("function " + val + " " + string  + " assignable\n");
+                    header.add("function " + val + " " + string  + " assignable");
                 }
                 identifiers.clear();
             }
@@ -91,71 +83,100 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTStatementBlock node, Object data) {
-        int count = node.jjtGetNumChildren();
-        StringBuilder ret = new StringBuilder();
-        
-        for (int i = 0; i < count; i++) {
-            ret.append("   ").
-                append(visitChild(node, i)).
-                append("\n");
-        }
-        
-        return ret.toString();
+        node.childrenAccept(this, data);
+        return null;
     }
     
     @Override
     public String visit(ASTType node, Object data) {
         StringBuilder ret = new StringBuilder();
-        ret.append(node.jjtGetValue());
+        ret.append(visitChild(node, 0));
         if(node.jjtGetNumChildren() > 1) {
             ret.append("(");
-            for(int i=0; i < node.jjtGetNumChildren(); i++) {
-                if(i > 0) {
+            for(int i=1; i < node.jjtGetNumChildren(); i++) {
+                if(i > 1) {
                     ret.append(",");
                 }
                 ret.append(visitChild(node, i));
             }
             ret.append(")");
         }
-        return null;
+        return ret.toString();
     }
     
     @Override
     public String visit(ASTAssignmentStatement node, Object data) {
-        return visitChild(node, 0) + " := " + visitChild(node, 1);
+        addSourceLineStatement(node);
+        statements.add("  " + visitChild(node, 0) + " := " + visitChild(node, 1));
+        return null;
     }
     
     @Override
     public String visit(ASTChooseStatement node, Object data) {
         String id = visitChild(node, 0);
         String phi = visitChild(node,1);
-        return "havoc " + id + "   assume " + phi;
+        addSourceLineStatement(node);
+        statements.add("  assert (\\exists " + id + "; " + phi + ") ; \"assert before choose\"");
+        statements.add("  havoc " + id);
+        statements.add("  assume " + phi);
+        return null;
     }
     
     @Override
     public String visit(ASTWhileStatement node, Object data) {
         String condition = visitChild(node, 0);
         String invariant = visitChild(node, 1);
+        String variant = visitChild(node, 2);
 
-        String loopLabel = makeLabel("then");
-        String bodyLabel = makeLabel("else");
-        String afterLabel = makeLabel("after");
+        String loopLabel = idProducer.makeIdentifier("loop");
+        String bodyLabel = idProducer.makeIdentifier("body");
+        String afterLabel = idProducer.makeIdentifier("after");
 
-        StringBuilder ret = new StringBuilder();
-        ret.append(loopLabel).append(": goto ").append(bodyLabel).append(" ")
-                .append(afterLabel)
-                .append("\n ").append(bodyLabel).append(": assume ").append(
-                        condition)
-                .append("\n").append(visitChild(node, 2)).append("  goto ")
-                .append(loopLabel);
-        ret.append("\n ").append(afterLabel).append(": assume $not(").append(
-                condition).append(")");
-        return ret.toString();
+        addSourceLineStatement(node);
+        statements.add(" " + loopLabel + ":");
+        statements.add("  skip_loopinv " + invariant /*+ ", " + variant*/);
+        statements.add("  goto " + bodyLabel + ", " + afterLabel);
+        statements.add(" " + bodyLabel + ":");
+        statements.add("  assume " + condition + "; \"assume condition \"");
+        visitChild(node, 3);
+        statements.add("  goto " + loopLabel);
+        
+        statements.add(" " + afterLabel + ":");
+        statements.add("  assume $not(" + condition +")");
+        return null;
     }
     
     @Override
     public String visit(ASTIterateStatement node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
+        String expression = visitChild(node, 0);
+        String identifier = visitChild(node, 1);
+
+        String loopLabel = idProducer.makeIdentifier("loop");
+        String bodyLabel = idProducer.makeIdentifier("body");
+        String afterLabel = idProducer.makeIdentifier("after");
+        String iter = idProducer.makeIdentifier("$it");
+        String iterBefore = idProducer.makeIdentifier("$itBefore");
+        
+        // TODO TYPING!!
+        header.add("function set(prod(node, node)) " + iter + " assignable");
+        header.add("function set(prod(node, node)) " + iterBefore + " assignable");
+
+        addSourceLineStatement(node);
+        statements.add("  " + iterBefore + " := " + expression);
+        statements.add("  " + iter + " := " + iterBefore);
+        statements.add(" " + loopLabel + ":");
+        statements.add("  skip_loopinv " + iter  + " <: " + iterBefore + "");
+        statements.add("  goto " + bodyLabel + ", " + afterLabel);
+        statements.add(" " + bodyLabel + ":");
+        statements.add("  assume !" + iter + "= emptyset; \"assume condition \"");
+        statements.add("  havoc " + identifier);
+        statements.add("  assume " + identifier + " :: " + iter);
+        statements.add("  " + iter + " := " + iter + " \\ singleton(" + identifier + ")");
+        visitChild(node, 2);
+        statements.add("  goto " + loopLabel);
+        
+        statements.add(" " + afterLabel + ":");
+        statements.add("  assume " + iter + "= emptyset");
         return null;
     }
     
@@ -163,91 +184,66 @@ public class TranslationVisitor implements AlgoParserVisitor {
     public String visit(ASTIfStatement node, Object data) {
         String condition = visitChild(node, 0);
 
-        String thenLabel = makeLabel("then");
-        String elseLabel = makeLabel("else");
-        String afterLabel = makeLabel("after");
+        String thenLabel = idProducer.makeIdentifier("then");
+        String elseLabel = idProducer.makeIdentifier("else");
+        String afterLabel = idProducer.makeIdentifier("after");
         
-        StringBuilder ret = new StringBuilder();
-        ret.append("goto ").append(thenLabel).append(" ").append(elseLabel)
-                .append("\n ").append(thenLabel).append(": assume ").append(
-                        condition)
-                .append("\n").append(visitChild(node, 1));
-        ret.append("  goto ").append(afterLabel).append("\n ")
-                  .append(elseLabel).append(": assume $not(").append(condition)
-                    .append(")\n");
+        addSourceLineStatement(node);
+        statements.add("  goto " + thenLabel + ", " + elseLabel);
+        statements.add(" " + thenLabel + ":");
+        statements.add("  assume " + condition + "; \"then\"");
+        visitChild(node, 1);
+        statements.add("  goto " + afterLabel);
+        statements.add(" " + elseLabel + ":");
+        statements.add("  assume $not(" + condition + "); \"else\"");
         if (node.jjtGetNumChildren() > 2) {
-            ret.append(visitChild(node, 2));
+            visitChild(node, 2);
         }
-        ret.append(" ").append(afterLabel).append(":");
-
-        return ret.toString();
+        statements.add(" " + afterLabel + ":");
+        return null;
     }
     
     @Override
     public String visit(ASTAssertStatement node, Object data) {
-        return "assert " + visitChild(node, 0);
+        addSourceLineStatement(node);
+        statements.add("  assert " + visitChild(node, 0));
+        return null;
     }
     
-    @Override
-    public String visit(ASTEqual node, Object data) {
-        return "$eq(" + visitChild(node, 0) + ", " + visitChild(node, 1);
-    }
-    @Override
-    public String visit(ASTImplication node, Object data) {
-        return "$imp(" + visitChild(node, 0) + ", " + visitChild(node, 1);
-    }
-    @Override
-    public String visit(ASTDisjunction node, Object data) {
-        return "$or(" + visitChild(node, 0) + ", " + visitChild(node, 1);
-    }
-    @Override
-    public String visit(ASTConjunction node, Object data) {
-        return "$and(" + visitChild(node, 0) + ", " + visitChild(node, 1);
-    }
-    @Override
-    public String visit(ASTRelational node, Object data) {
-        return "$eq(" + visitChild(node, 0) + ", " + visitChild(node, 1);
-    }
-    @Override
-    public String visit(ASTAdd node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
-    public String visit(ASTMult node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
-    public String visit(ASTSetCompr node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
-    public String visit(ASTSetExt node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
-    public String visit(ASTSequence node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
-    public String visit(ASTApplication node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
-    }
-    @Override
     public String visit(ASTIdentifier node, Object data) {
         return (String) node.jjtGetValue();
     }
+
+    @SuppressWarnings("unchecked")
     @Override
-    public String visit(ASTInteger node, Object data) {
-        // TODO Implement AlgoParserVisitor.visit
-        return null;
+    public String visit(ASTExpression node, Object data) {
+        StringBuilder res = new StringBuilder();
+        Token t = node.jjtGetFirstToken();
+        
+        while(t != null && t != node.jjtGetLastToken().next) {
+            res.append(t.image).append(" ");
+            t = t.next;
+        }
+        
+        return res.toString();
     }
     
+    public List<String> getHeader() {
+        return header;
+    }
 
-  
+    public List<String> getStatements() {
+        return statements;
+    }
+
+    @Override
+    public String visit(ASTMapAssignmentStatement node, Object data) {
+        addSourceLineStatement(node);
+        String map = visitChild(node, 0);
+        String index = visitChild(node, 1);
+        String value = visitChild(node, 2);
+        statements.add("  " + map + " := write(" + map + ", " + index + ", " + value + ")");
+        return null;
+    }
+
 }

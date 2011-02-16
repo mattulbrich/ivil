@@ -1,0 +1,66 @@
+uses "dij.algo.p"
+  
+algo Dij
+input
+   start : node
+output
+   dom_distance : set(node)
+   old_distance, distance : map(node, int)   
+
+var 
+   n,o,u : node
+   s : prod(node, node)
+   d : int
+   visited : set(node)
+   S : set(prod(node,node))
+do
+
+   dom_distance := emptyset ;;
+   distance[start] := 0 ;;
+   dom_distance := singleton(start) ;;
+
+   visited := emptyset ;;
+
+   /* while exists node not in visited */
+   while !emptyset = (dom_distance \ visited)
+     inv 
+       visited <: dom_distance &
+       (\forall x; x::visited -> 
+          ((\forall y; pair(x,y)::dom_weight -> read (distance, y) <= read(distance, x) + weight(x,y))
+         & (\exists y; pair(x,y)::dom_weight &  read(distance, y)  = read(distance, x) + weight(x,y))))
+     var count(dom_distance \ visited)
+   do
+     choose n such that 
+        !n :: visited &
+        n :: dom_distance &
+        (\forall m; m::dom_distance -> read(distance,n) <= read(distance,m)) ;;
+    
+     visited := visited \/ singleton(n) ;;     
+     
+     /* foreach node m with (n,m) in edges which is not visited 
+      * iterate {n} <| weight |>> visited using S and s */
+     
+     old_distance := distance ;;
+     S := singleton(n) <| dom_weight |> ^visited ;;
+     
+     while !emptyset = S
+       inv S <: singleton(n) <| dom_weight |> ^visited &
+           (\forall x; read(distance,x) <= read(old_distance,x))
+       var count(S)
+     do
+       choose u, o such that pair(u,s) :: S ;;
+
+       /* just to make sure */
+       assert n = o ;; 
+
+       /* d := distance[n] + weigth(n,m); */
+       assert pair(o,u) :: dom_weight ;;
+       d := read(distance, n) + weight(o,u) ;;
+
+       if d < read(distance, u)
+       then
+         distance[u] := d
+       end
+     end
+   end
+ end

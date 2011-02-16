@@ -17,6 +17,9 @@
 
 include "$fol.p"
 
+plugin
+  prettyPrinter : "test.ArrayPrettyPrinter"
+
 sort
   map('a, 'b)
 
