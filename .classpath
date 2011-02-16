@@ -10,10 +10,11 @@
 	<classpathentry kind="src" path="modules/core/src"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
 	<classpathentry kind="src" path="modules/boogie/test"/>
+	<classpathentry kind="src" path="modules/exp/genSrc"/>
 	<classpathentry kind="lib" path="lib/javadocking.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/rsyntaxtextarea.jar"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea.jar" sourcepath="/home/mattias/tmp/10-09-29_rsyntax/src"/>
 	<classpathentry kind="lib" path="lib/checkers-quals.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

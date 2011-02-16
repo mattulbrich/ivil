@@ -14,6 +14,7 @@ modules/core/classes/
 modules/cmd/classes/
 modules/gui/classes/
 modules/exp/classes/
+modules/exp/genSrc/
 javadoc/
 
 # directories which might exist:
