@@ -12,9 +12,11 @@ package de.uka.iti.pseudo.proof.serialisation;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -22,10 +24,12 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.util.Util;
 
 public class XMLOutput {
     
-    XMLWriter out;
+    private XMLWriter out;
+    private int idCounter = 0; 
     
     public XMLOutput(Writer writer) {
         this.out = new XMLWriter(writer); 
@@ -33,7 +37,7 @@ public class XMLOutput {
 
     public void export(Proof proof) throws IOException {
         out.append("<?xml version=\"1.0\"?>").newline();
-        out.start("proof", "format", "0");
+        out.start("proof", "format", "1");
         out.start("info").newline();
         {
             out.start("date").append(new Date().toString()).end().newline();
@@ -84,8 +88,13 @@ public class XMLOutput {
             throws IOException {
         
         String ruleName = ruleApp.getRule().getName();
-        String nodeNumber = Integer.toString(ruleApp.getProofNode().getNumber());
-        out.start("ruleApplication", "rule", ruleName, "node", nodeNumber).newline();
+        // String nodeReference = Integer.toString(ruleApp.getProofNode().getNumber());
+        String nodePath = getPath(ruleApp.getProofNode());
+        out.start("ruleApplication", 
+                "rule", ruleName, 
+                "path", nodePath, 
+                "id", Integer.toString(idCounter)).newline();
+        idCounter++;
         
         // find
         TermSelector findSelector = ruleApp.getFindSelector();
@@ -125,6 +134,32 @@ public class XMLOutput {
         }
 
         out.end().newline();
+    }
+
+    /*
+     * get the "path" to the proofNode. It is a comma-separated list of integers
+     * indicating the choices on the nodes which have more than one child.
+     */
+    // package visible for testing
+    static String getPath(@NonNull ProofNode node) {
+        
+        LinkedList<Integer> path = new LinkedList<Integer>();
+        
+        ProofNode parent = node.getParent();
+        while(parent != null) {
+            List<ProofNode> children = parent.getChildren();
+            assert children != null : "A parent must not have null children"; 
+            if(children.size() > 1) {
+                int index = children.indexOf(node);
+                assert index != -1;
+                path.addFirst(index);
+            }
+            
+            node = parent;
+            parent = node.getParent();
+        }
+        
+        return Util.join(path, ",");
     }
 
 //    private boolean isInteractive(String key, RuleApplication ruleApp) {
