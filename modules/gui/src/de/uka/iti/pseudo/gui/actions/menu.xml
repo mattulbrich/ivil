@@ -297,10 +297,14 @@
 		<popup>
 			termComponent.showInfo termComponent.jumpToIntroduction
 			termComponent.autoHere proof.axiom
+			SEPARATOR
+			termComponent.copy termComponent.copyPretty
 		</popup>
-		<showInfo>TODO Show information for this formula</showInfo>
-		<jumpToIntroduction>ACTION JumpToIntroductionAction</jumpToIntroduction>
-		<autoHere>TODO Apply automatic rules here </autoHere>
+		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
+		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
+        <autoHere>TODO Apply automatic rules here </autoHere>
+        <copy>TODO Copy selected term</copy>
+        <copyPretty>TODO Copy selected term with pretty printing</copyPretty>
 	</termComponent>
 
 </barmanager>

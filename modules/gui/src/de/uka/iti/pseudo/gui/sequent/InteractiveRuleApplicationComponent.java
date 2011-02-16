@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -41,6 +41,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.RuleApplicationComponent;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
