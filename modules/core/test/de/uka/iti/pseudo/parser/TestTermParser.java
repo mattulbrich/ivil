@@ -58,6 +58,17 @@ public class TestTermParser extends TestCaseWithEnv {
                 "(\\forall %x as int;$eq(%x as int,%x as int) as bool) as bool", true);
     }
     
+    public void testExplicitVariable() throws Exception {
+        testTerm("(\\exists x as int; \\var x = x)","(\\exists x;$eq(\\var x,\\var x))", false);
+        
+        Term t1 = makeTerm("\\var x as int");
+        Term t2 = new Variable("x", Environment.getIntType());
+        assertEquals(t2, t1);
+        
+        // different x have different types
+        testTerm("$and($eq(\\var x,4),$eq(\\var x,true))", false);
+    }
+    
     public void testNumbers() throws Exception {
         testTerm("5", "5 as int", true);
     }
@@ -79,7 +90,7 @@ public class TestTermParser extends TestCaseWithEnv {
         
         testTerm("(\\T_all 'a;(\\forall x as 'a; Q(P(x,x)) = x))",
                  "(\\T_all 'a;(\\forall x as 'a;" +
-                   "$eq(Q(P(x as 'a,x as 'a) as poly('a,'a)) as 'a,x as 'a) " +
+                   "$eq(Q(P(\\var x as 'a,\\var x as 'a) as poly('a,'a)) as 'a,\\var x as 'a) " +
                      "as bool) as bool) as bool", true);
         
         testTermFail("(\\T_ex %'a; arb as %'a = 3)");

@@ -32,7 +32,7 @@ function  # infixes
     bool $equiv(bool, bool) infix <->  10 
         
 function  # prefixes
-    bool $not(bool)         prefix ! 45      
+    bool $not(bool)         prefix ! 45
 
 function  # consts
     'a arb

@@ -13,12 +13,15 @@ package de.uka.iti.pseudo.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import nonnull.NonNull;
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedString;
@@ -143,6 +146,21 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("(\\forall x; x >0)", "ALL x ; x > 0");
         // No update rewriting at the moment, may come back later
         // testTerm("{i1:=0}i2", "{ i1 <-- 0 }i2");
+        
+    }
+    
+    // these need to be the last test!
+    public void testNameReplacing() throws Exception {
+        
+        env = new Environment("none:generated", env);
+        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        env.addFunction(new Function("Xtest", Environment.getBoolType(),
+                new Type[0], false, false, ASTLocatedElement.CREATED));
+        
+        pp = new PrettyPrint(env);
+        
+        testTerm("Xtest", "test");
+        testTerm("(\\forall Xx; Xx >0)", "ALL x ; x > 0");
     }
     
     // these need to be the last test!

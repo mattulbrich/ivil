@@ -35,7 +35,7 @@ public class Variable extends BindableIdentifier {
 	
 	@Override
 	public String toString(boolean typed) {
-		String retval = name;
+		String retval = "\\var " + name;
 		if(typed)
 		    retval += " as " + getType();
 		return retval;

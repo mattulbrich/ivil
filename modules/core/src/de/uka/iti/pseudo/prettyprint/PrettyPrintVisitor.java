@@ -26,7 +26,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;

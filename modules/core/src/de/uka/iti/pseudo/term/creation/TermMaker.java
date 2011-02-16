@@ -45,6 +45,7 @@ import de.uka.iti.pseudo.parser.program.ASTStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
+import de.uka.iti.pseudo.parser.term.ASTExplicitVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
@@ -541,6 +542,14 @@ public class TermMaker extends ASTDefaultVisitor {
         } catch (TermException e) {
             throw new ASTVisitException(identifierTerm, e);
         }
+    }
+    
+    public void visit(ASTExplicitVariableTerm explicitVariable)
+            throws ASTVisitException {
+        String name = explicitVariable.getVarToken().image;
+        Type type = explicitVariable.getTyping().getType();
+        
+        resultTerm = new Variable(name, type);
     }
     
     public void visit(ASTSchemaVariableTerm schemaVariableTerm)

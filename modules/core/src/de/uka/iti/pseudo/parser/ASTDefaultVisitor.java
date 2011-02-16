@@ -123,6 +123,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     public void visit(ASTIdentifierTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);
     }
+    
+    public void visit(ASTExplicitVariableTerm arg) throws ASTVisitException {
+        visitDefaultTerm(arg);
+    }
 
     public void visit(ASTListTerm arg) throws ASTVisitException {
         visitDefaultTerm(arg);

@@ -31,6 +31,7 @@ import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
 import de.uka.iti.pseudo.parser.term.ASTBinderTerm;
+import de.uka.iti.pseudo.parser.term.ASTExplicitVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
@@ -382,6 +383,21 @@ public class TypingResolver extends ASTDefaultVisitor {
             throw new ASTVisitException("Unknown identifier: " + name, identifierTerm);
         }
 
+    }
+    
+    @Override
+    public void visit(ASTExplicitVariableTerm explicitVariable)
+            throws ASTVisitException {
+        String name = explicitVariable.getVarToken().image;
+        Type tv = boundVariablesTypes.get(name);
+        
+        // a bound variable name is set to the according type
+        if(tv != null) {
+            explicitVariable.setTyping(new Typing(tv, typingContext));
+        } else {
+            // XXX
+            explicitVariable.setTyping(new Typing(typingContext.newSchemaType(), typingContext));
+        }
     }
     
     /* 

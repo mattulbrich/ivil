@@ -303,6 +303,17 @@ public class Environment {
         programs.addAll(programMap.values());
         return programs;
     }
+    
+    /**
+     * gets a collection containing all programs defined in this environment.
+     * Programs defined in parent environments are not included.
+     * 
+     * @return an unmodifiable list of the local programs
+     */
+    public @NonNull
+    Collection<Program> getLocalPrograms() {
+        return Collections.<Program>unmodifiableCollection(programMap.values());
+    }
 
     /**
      * add a program of the environment.

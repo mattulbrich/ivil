@@ -96,7 +96,7 @@ public class Binding extends Term {
      * @return the variable name
      */
     public @NonNull String getVariableName() {
-        return variable.toString(false);
+        return variable.getName();
     }
 
     /**
@@ -175,8 +175,12 @@ public class Binding extends Term {
 
     @Override public @NonNull String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
-        sb.append("(").append(binder.getName()).append(" ")
-                .append(variable.toString(typed));
+        sb.append("(").append(binder.getName()).append(" ").append(variable.getName());
+        
+        if(typed) {
+            sb.append(" as ").append(variable.getType());
+        }
+            
         sb.append(";");
         for (int i = 0; i < countSubterms(); i++) {
             sb.append(getSubterm(i).toString(typed));
@@ -184,6 +188,7 @@ public class Binding extends Term {
                 sb.append(";");
         }
         sb.append(")");
+        
         if (typed) {
             sb.append(" as ").append(getType());
         }

@@ -61,5 +61,4 @@ public class LoadEditedProblemAction extends BarAction {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         } 
     }
-
 }

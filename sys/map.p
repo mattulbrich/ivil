@@ -2,8 +2,8 @@
 # This file is part of This file is part of
 #    ivil - Interactive Verification on Intermediate Language
 #
-# Copyright (C) 2011 Universitaet Karlsruhe, Germany
-#    written by Timm Felden
+# Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
+#    written by Timm Felden, Mattias Ulbrich
 #
 # The system is protected by the GNU General Public License.
 # See LICENSE.TXT for details.
