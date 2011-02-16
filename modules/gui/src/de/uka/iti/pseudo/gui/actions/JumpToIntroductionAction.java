@@ -75,6 +75,9 @@ public class JumpToIntroductionAction
         setEnabled(false);
         
         TermTag selectedTermTag = (TermTag) evt.getNewValue();
+        if (null == selectedTermTag)
+            return;
+
         boolean inAuto = Boolean.TRUE.equals(
                 getProofCenter().getProperty(ProofCenter.ONGOING_PROOF));
         

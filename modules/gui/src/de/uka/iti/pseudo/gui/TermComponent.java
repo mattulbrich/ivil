@@ -189,9 +189,10 @@ public class TermComponent extends JTextPane {
 
         @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
             Log.enter(e);
-            proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, 
-                    mouseSelection);
-            Log.log(Log.VERBOSE, mouseSelection);
+            proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, mouseSelection);
+
+            if (null != mouseSelection)
+                Log.log(Log.VERBOSE, mouseSelection);
         }
     };
 
@@ -396,7 +397,6 @@ public class TermComponent extends JTextPane {
      * 
      */
     private String makeTermHistory(TermTag termTag) {
-
         Term term = termTag.getTerm();
 
         StringBuilder sb = new StringBuilder();
