@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.sequent;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -17,8 +17,9 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.TermComponent;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -74,7 +75,10 @@ public class JumpToIntroductionAction
         targetProofNode = null;
         setEnabled(false);
         
-        TermTag selectedTermTag = (TermTag) evt.getNewValue();
+        TermTag selectedTermTag = ((TermComponent) evt.getNewValue()).getMouseSelection();
+        if (null == selectedTermTag)
+            return;
+
         boolean inAuto = Boolean.TRUE.equals(
                 getProofCenter().getProperty(ProofCenter.ONGOING_PROOF));
         

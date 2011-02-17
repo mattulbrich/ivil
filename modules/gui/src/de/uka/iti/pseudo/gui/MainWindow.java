@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
+import de.uka.iti.pseudo.gui.sequent.SequentComponent;
 import de.uka.iti.pseudo.gui.source.ProgramPanel;
 import de.uka.iti.pseudo.gui.source.SourcePanel;
 import de.uka.iti.pseudo.proof.ProofNode;
