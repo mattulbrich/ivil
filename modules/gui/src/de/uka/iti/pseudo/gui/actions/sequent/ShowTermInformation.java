@@ -14,6 +14,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -69,6 +70,7 @@ public class ShowTermInformation
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
         editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         editorScrollPane.setMinimumSize(new Dimension(10, 10));
+        editorScrollPane.setPreferredSize(new Dimension(600, 200));
 
         cp.add(editorScrollPane);
 
@@ -79,7 +81,6 @@ public class ShowTermInformation
     @Override 
     public void actionPerformed(ActionEvent e) {
         if (text.length() != 0) {
-            window.pack();
             window.setVisible(true);
         }
     }
@@ -93,7 +94,6 @@ public class ShowTermInformation
     @Override public void propertyChange(PropertyChangeEvent evt) {
         assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
 
-        setEnabled(false);
         text = "";
 
         TermComponent component = (TermComponent) evt.getNewValue();
@@ -106,7 +106,9 @@ public class ShowTermInformation
 
         text = component.makeFormatedTermHistory(selectedTermTag);
         editorPane.setText(text);
-        setEnabled(true);
+        editorPane.updateUI();
+        editorPane.setBackground(BACKGROUND);
+        editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
     }
     
 
