@@ -10,13 +10,14 @@
  */
 package de.uka.iti.pseudo.gui.actions.auto;
 
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.Icon;
 import javax.swing.KeyStroke;
 
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * Creates a job, that tries to close all open goals with the current strategy.
@@ -25,16 +26,24 @@ import de.uka.iti.pseudo.proof.ProofNode;
  */
 public class AutoProofAction extends ParallelAutoProofAction {
 
+    private static Icon GO_ICON =
+        GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
+    
     private static final long serialVersionUID = -7094117185284991811L;
 
     public AutoProofAction() {
         super("Automatic Proof");
         putValue(SHORT_DESCRIPTION, "Run automatic proving on all nodes");
-        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK));
+        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
     }
 
     @Override
     public List<ProofNode> getInitialList() {
         return getProofCenter().getProof().getOpenGoals();
+    }
+
+    @Override
+    protected Icon getGoIcon() {
+        return GO_ICON;
     }
 }

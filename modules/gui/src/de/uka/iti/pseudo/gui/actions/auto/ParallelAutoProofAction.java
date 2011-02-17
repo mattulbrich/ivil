@@ -39,14 +39,14 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
 
     private static final long serialVersionUID = 7212654361200636678L;
 
-    private static Icon goIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
     private static Icon stopIcon = GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_stop.png"));
     private boolean ongoingProof = false;
 
     private ParallelAutoProofWorker job = null;
 
     public ParallelAutoProofAction(String name) {
-        super(name, goIcon);
+        super(name);
+        setIcon(getGoIcon());
     }
 
     public void initialised() {
@@ -64,11 +64,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
         if (job != null) {
             try {
                 job.halt();
-                setIcon(goIcon);
+                setIcon(getGoIcon());
             } catch (CompoundException e) {
                 Log.stacktrace(e);
                 ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-                setIcon(goIcon);
+                setIcon(getGoIcon());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -96,7 +96,7 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             ongoingProof = (Boolean) evt.getNewValue();
-            setIcon(null != job ? stopIcon : goIcon);
+            setIcon(null != job ? stopIcon : getGoIcon());
         }
     }
 
@@ -108,6 +108,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      */
     public abstract List<ProofNode> getInitialList();
 
+    /**
+     * retrieve the active icon for this action.
+     */
+    protected abstract Icon getGoIcon();
+    
     public void setJob(ParallelAutoProofWorker job) {
         this.job = job;
     }
