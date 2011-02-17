@@ -15,6 +15,10 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -263,6 +267,20 @@ public class InteractiveRuleApplicationComponent extends
             textField.addActionListener(this);
             textField.setDragEnabled(true);
             textField.setTransferHandler(new TermSelectionTransfer());
+
+            // try to initialize the text field with a formula from the clip
+            // board
+            try {
+                Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+                if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    textField.setText((String) t.getTransferData(DataFlavor.stringFlavor));
+                    TermMaker.makeAndTypeTerm(textField.getText(), env);
+                }
+
+            } catch (Exception ex) {
+                textField.setText("");
+            }
+
             Log.println("handler: " + textField.getTransferHandler());
             instantiationsPanel.add(textField, 1);
             interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));
