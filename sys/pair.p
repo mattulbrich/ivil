@@ -26,7 +26,7 @@ function
 
 axiom pair_constructor
   (\T_all 'a; (\T_all 'b; (\forall x as prod('a,'b); 
-    (\exists y; (\exists z; x = pair(y,z))))))
+    (\exists y; (\exists z; x = pair(y,z) as prod('a,'b))))))
 
 axiom dom_restrict_definition
   (\T_all 'a; (\T_all 'b; (\forall r as set(prod('a,'b)); 
