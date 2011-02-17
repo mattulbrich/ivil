@@ -39,8 +39,8 @@
 		</editorMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
-			proof.prune proof.auto proof.axiom proof.conjecture proof.decProc proof.snapshots
-			SEPARATOR proof.stepInstr proof.stepSource
+			proof.prune proof.auto proof.autoSubtree proof.axiom proof.conjecture proof.decProc
+			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
 		</proofMenu>
 		
 		<settingsMenu text="Settings" mnemonic="S">
