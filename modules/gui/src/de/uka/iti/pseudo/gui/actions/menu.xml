@@ -303,8 +303,8 @@
 		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
 		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
         <autoHere>TODO Apply automatic rules here </autoHere>
-        <copy>TODO Copy selected term</copy>
-        <copyPretty>TODO Copy selected term with pretty printing</copyPretty>
+        <copy>ACTION sequent/CopyTerm</copy>
+        <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
 	</termComponent>
 
 </barmanager>

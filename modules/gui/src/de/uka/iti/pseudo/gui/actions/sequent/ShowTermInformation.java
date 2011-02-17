@@ -10,9 +10,10 @@
  */
 package de.uka.iti.pseudo.gui.actions.sequent;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -26,6 +27,7 @@ import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * GUI Action to show additional information about the selected term.
@@ -41,35 +43,42 @@ public class ShowTermInformation
     extends BarAction 
     implements InitialisingAction, PropertyChangeListener {
 
-    private String text = null;
+    private String text = "";
+    private final JDialog window;
+    private final JEditorPane editorPane;
+
+    private static final Color BACKGROUND = Settings.getInstance().getColor("pseudo.sequentview.background",
+            Color.WHITE);
 
     public ShowTermInformation() {
         putValue(NAME, "Show information");
         putValue(SHORT_DESCRIPTION, "Show information for this formula.");
+
+        window = new JDialog(getParentFrame(), false);
+        window.setTitle("History");
+        Container cp = window.getContentPane();
+        cp.setLayout(new BorderLayout());
+
+        editorPane = new JEditorPane();
+        editorPane.setEditable(false);
+        editorPane.setBackground(BACKGROUND);
+        editorPane.setContentType("text/html");
+        editorPane.setText(text);
+
+        // Put the editor pane in a scroll pane.
+        JScrollPane editorScrollPane = new JScrollPane(editorPane);
+        editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        editorScrollPane.setMinimumSize(new Dimension(10, 10));
+
+        cp.add(editorScrollPane);
+
+        window.pack();
+        window.setVisible(false);
     }
 
     @Override 
     public void actionPerformed(ActionEvent e) {
-        if (null != text) {
-            final JDialog window = new JDialog(getParentFrame(), true);
-            window.setTitle("History");
-            Container cp = window.getContentPane();
-            cp.setLayout(new GridBagLayout());
-
-            JEditorPane editorPane = new JEditorPane();
-            editorPane.setEditable(false);
-            editorPane.setContentType("text/html");
-            editorPane.setText(text);
-
-            //Put the editor pane in a scroll pane.
-            JScrollPane editorScrollPane = new JScrollPane(editorPane);
-            editorScrollPane.setVerticalScrollBarPolicy(
-                            JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-            editorScrollPane.setPreferredSize(new Dimension(250, 145));
-            editorScrollPane.setMinimumSize(new Dimension(10, 10));
-            
-            cp.add(editorScrollPane);
-
+        if (text.length() != 0) {
             window.pack();
             window.setVisible(true);
         }
@@ -85,6 +94,7 @@ public class ShowTermInformation
         assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
 
         setEnabled(false);
+        text = "";
 
         TermComponent component = (TermComponent) evt.getNewValue();
         TermTag selectedTermTag = component.getMouseSelection();
@@ -95,6 +105,7 @@ public class ShowTermInformation
             return;
 
         text = component.makeFormatedTermHistory(selectedTermTag);
+        editorPane.setText(text);
         setEnabled(true);
     }
     

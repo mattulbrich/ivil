@@ -486,6 +486,30 @@ public class ProofCenter implements Observer {
     }
 
     /**
+     * Notify all registered listeners that a property's value has changed.
+     * 
+     * <p>
+     * Please note that an event is only triggered if the new value differs from
+     * the originally set value.
+     * 
+     * @see PropertyChangeSupport#firePropertyChange(String, Object, Object)
+     * 
+     * @param propertyName
+     *            name of the property
+     * @param newValue
+     *            value after the change.
+     * @param oldValue
+     *            value that will be send as oldValue
+     */
+    public void firePropertyChange(String propertyName, Object newValue, Object oldValue) {
+        assert SwingUtilities.isEventDispatchThread();
+
+        Log.log("Changing " + propertyName + " from " + oldValue + " to " + newValue);
+        generalProperties.put(propertyName, newValue);
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
+    /**
      * Notify all registered listeners that a property's value has been set.
      * 
      * <p>

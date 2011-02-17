@@ -189,11 +189,12 @@ public class TermComponent extends JTextPane {
         }
 
         @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            Log.enter(e);
-            proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
-
-            if (null != mouseSelection)
-                Log.log(Log.VERBOSE, mouseSelection);
+            // Log.enter(e);
+            // proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG,
+            // TermComponent.this, null);
+            //
+            // if (null != mouseSelection)
+            // Log.log(Log.VERBOSE, mouseSelection);
         }
     };
 
@@ -355,6 +356,12 @@ public class TermComponent extends JTextPane {
                 
                 mouseSelection = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(mouseSelection));
+
+                Log.enter(p);
+                proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, TermComponent.this, null);
+
+                if (null != mouseSelection)
+                    Log.log(Log.VERBOSE, mouseSelection);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
                 mouseSelection = null;
