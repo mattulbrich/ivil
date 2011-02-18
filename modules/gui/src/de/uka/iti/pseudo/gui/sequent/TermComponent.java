@@ -358,7 +358,7 @@ public class TermComponent extends JTextPane {
                 setToolTipText(makeTermToolTip(mouseSelection));
 
                 Log.enter(p);
-                proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, TermComponent.this, null);
+                proofCenter.fireNotification(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
 
                 if (null != mouseSelection)
                     Log.log(Log.VERBOSE, mouseSelection);
