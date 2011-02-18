@@ -81,11 +81,13 @@ TOKEN : /* KEYWORDS */
 | < ALGO : "algo" >
 | < USES : "uses" >
 | < THAT : "that" >
+| < NOTE : "note" >
 | < WHILE : "while" >
 | < INPUT : "input" >
 | < OUTPUT : "output" >
 | < CHOOSE : "choose" >
 | < ASSERT : "assert" >
+| < ASSUME : "assume" >
 | < ITERATE : "iterate" >
 }
 
@@ -204,6 +206,8 @@ void Statement() : {}
   | IfStatement()
   // | CallStatement()
   | AssertStatement()
+  | AssumeStatement()
+  | NoteStatement()
 }
 
 void AssignmentStatement() #AssignmentStatement : {}
@@ -257,6 +261,16 @@ void AssertStatement() #AssertStatement : {}
   "assert" Expression()
 }
 
+void AssumeStatement() #AssumeStatement : {}
+{
+  "assume" Expression()
+}
+
+void NoteStatement() #NoteStatement : {}
+{
+  "note" Expression()
+}
+
 void Identifier() #Identifier :
 {
   Token t;
@@ -271,35 +285,41 @@ void Identifier() #Identifier :
 /** An Expression. */
 void Expression() #Expression : {}
 { 
-  (
-   (
-     <INTEGER_LITERAL>
-   | 
-     <BINDER_IDENTIFIER>
-   | 
-     <INTERNAL_IDENTIFIER>
+  ( 
+    LOOKAHEAD(2) 
+     (Identifier() "[" Expression() "]") #MapAccessExpression
    |
-     <TYVAR_IDENTIFIER>
-   |
-     <OP_IDENTIFIER>
-   |
-     <IDENTIFIER>
-   |
-     <LEFTPAREN>
-   |
-     <RIGHTPAREN>
-   |
-     <LEFTCURLY>
-   |
-     <RIGHTCURLY>
-   |
-     <COMMA>
-   |
-     <DOT>
-   |
-     <SEMICOLON>
-   |
-     <AS>
-   )
+     TokenExpression()
   )+
+}
+
+void TokenExpression() #TokenExpression : {}
+{
+      <INTEGER_LITERAL>
+    | 
+      <BINDER_IDENTIFIER>
+    | 
+      <INTERNAL_IDENTIFIER>
+    |
+      <TYVAR_IDENTIFIER>
+    |
+      <OP_IDENTIFIER>
+    |
+      <IDENTIFIER>
+    |
+      <LEFTPAREN>
+    |
+      <RIGHTPAREN>
+    |
+      <LEFTCURLY>
+    |
+      <RIGHTCURLY>
+    |
+      <COMMA>
+    |
+      <DOT>
+    |
+      <SEMICOLON>
+    |
+      <AS>
 }

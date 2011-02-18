@@ -98,7 +98,10 @@ rule subset_trans
 find %x::%s |-
 assume %s <: %t |-
 add %x :: %t |-
-
+tags
+  rewrite "fol add"
+  derived
+  
 (*
  * rules with union
  *)
@@ -116,6 +119,40 @@ replace %a
 tags
   rewrite "fol simp"
   derived
+
+rule in_union
+find %x :: %a \/ %b
+replace %x::%a | %x::%b
+
+rule union_subset
+assume %a <: %c |-
+find %a /\ %b <: %c
+replace true
+
+(*
+ * rules with intersect
+ *)
+ 
+rule intersect_empty_l
+find emptyset /\ %a
+replace emptyset
+tags
+  rewrite "concrete"
+  derived
+  
+rule intersect_empty_r
+find %a /\ emptyset
+replace emptyset
+tags
+  rewrite "concrete"
+  derived
+
+rule in_intersect
+find %x :: %a /\ %b
+replace %x :: %a & %x :: %b
+tags
+  derived
+  
 
 (*
  * rules with complement

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import de.uka.iti.pseudo.util.Util;
+
 public class TranslationVisitor implements AlgoParserVisitor {
     
     private List<String> header = new ArrayList<String>();
@@ -39,7 +41,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
     @Override
     public String visit(ASTAlgo node, Object data) {
         String id = visitChild(node, 0);
-        statements.add("program " + id);
+        statements.add("program " + id + " source \"dij.algo\"");
         node.childrenAccept(this, data);
         statements.add("");
         return null;
@@ -113,11 +115,27 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTChooseStatement node, Object data) {
-        String id = visitChild(node, 0);
-        String phi = visitChild(node,1);
+        int numChildren = node.jjtGetNumChildren();
+        String phi = visitChild(node, numChildren-1);
+        
         addSourceLineStatement(node);
-        statements.add("  assert (\\exists " + id + "; " + phi + ") ; \"assert before choose\"");
-        statements.add("  havoc " + id);
+        
+        // make quantification
+        StringBuilder quant = new StringBuilder("  assert ");
+        for(int i = 0; i < numChildren - 1; i++) {
+            quant.append("(\\exists " + visitChild(node, i) + "; ");
+        }
+        quant.append(phi);
+        quant.append(Util.duplicate(")", numChildren-1));
+        quant.append(" ; \"assert before choose\"");
+        statements.add(quant.toString());
+        
+        // make havocs
+        for (int i = 0; i < numChildren - 1; i++) {
+            statements.add("  havoc " + visitChild(node, i));
+        }
+        
+        // make assumption
         statements.add("  assume " + phi);
         return null;
     }
@@ -210,22 +228,46 @@ public class TranslationVisitor implements AlgoParserVisitor {
         return null;
     }
     
+    @Override
+    public String visit(ASTAssumeStatement node, Object data) {
+        addSourceLineStatement(node);
+        statements.add("  assume " + visitChild(node, 0));
+        return null;
+    }
+    
+    @Override
+    public String visit(ASTNoteStatement node, Object data) {
+        addSourceLineStatement(node);
+        String expression = visitChild(node, 0);
+        statements.add("  assert " + expression);
+        statements.add("  assume " + expression);
+        return null;
+    }
+    
     public String visit(ASTIdentifier node, Object data) {
         return (String) node.jjtGetValue();
     }
 
     @SuppressWarnings("unchecked")
     @Override
+    public String visit(ASTTokenExpression node, Object data) {
+         return node.jjtGetFirstToken().image;
+    }
+    
+    @Override
     public String visit(ASTExpression node, Object data) {
         StringBuilder res = new StringBuilder();
-        Token t = node.jjtGetFirstToken();
         
-        while(t != null && t != node.jjtGetLastToken().next) {
-            res.append(t.image).append(" ");
-            t = t.next;
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            res.append(visitChild(node, i)).append(" ");
         }
         
         return res.toString();
+    }
+    
+    @Override
+    public String visit(ASTMapAccessExpression node, Object data) {
+        return "read(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
     }
     
     public List<String> getHeader() {

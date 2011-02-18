@@ -48,13 +48,19 @@ rule every_pair_constructed
   find %p
   add (\exists y; (\exists z; %p = pair(y,z))) |-
 
-rule dom_restrict_expand
+rule in_dom_restrict
   find %x :: %s <| %r
   replace %x :: %r & fst(%x) :: %s
+  tags
+  rewrite "fol simp"
+  derived
 
-rule rng_restrict_expand
+rule in_rng_restrict
   find %x :: %r |> %s
   replace %x :: %r & snd(%x) :: %s
+  tags
+  rewrite "fol simp"
+  derived
 
 rule fst_concrete
   find fst(pair(%a,%b))

@@ -4,7 +4,7 @@ algo Dij
 input
    start : node
 output
-   dom_distance : set(node)
+   old_dom_distance, dom_distance : set(node)
    old_distance, distance : map(node, int)   
 
 var 
@@ -14,7 +14,8 @@ var
    visited : set(node)
    S : set(prod(node,node))
 do
-
+   assume (\forall x; (\forall y; weight(x,y) >= 0)) ;;
+   
    dom_distance := emptyset ;;
    distance[start] := 0 ;;
    dom_distance := singleton(start) ;;
@@ -25,30 +26,44 @@ do
    while !emptyset = (dom_distance \ visited)
      inv 
        visited <: dom_distance &
-       (\forall x; x::visited -> 
-          ((\forall y; pair(x,y)::dom_weight -> read (distance, y) <= read(distance, x) + weight(x,y))
-         & (\exists y; pair(x,y)::dom_weight &  read(distance, y)  = read(distance, x) + weight(x,y))))
+       distance[start] = 0 &
+       start :: dom_distance &
+       (\forall x; x::dom_distance -> distance[x] >= 0) &
+       (\forall y; y::dom_distance \ singleton(start)-> 
+	(\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	  distance[y]  = distance[x] + weight(x,y)))
      var count(dom_distance \ visited)
    do
      choose n such that 
         !n :: visited &
         n :: dom_distance &
-        (\forall m; m::dom_distance -> read(distance,n) <= read(distance,m)) ;;
-    
+        (\forall m; m::dom_distance \ visited -> read(distance,n) <= read(distance,m)) ;;
+            
      visited := visited \/ singleton(n) ;;     
+
+     /* festzustellen: */
+     note visited <: dom_distance ;;
      
      /* foreach node m with (n,m) in edges which is not visited 
       * iterate {n} <| weight |>> visited using S and s */
      
      old_distance := distance ;;
+     old_dom_distance := dom_distance ;;
      S := singleton(n) <| dom_weight |> ^visited ;;
      
      while !emptyset = S
        inv S <: singleton(n) <| dom_weight |> ^visited &
-           (\forall x; read(distance,x) <= read(old_distance,x))
+           visited <: dom_distance &
+           dom_distance <: old_dom_distance &
+           distance[start] = 0 &
+           start :: dom_distance &
+           (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y)))
        var count(S)
      do
-       choose u, o such that pair(u,s) :: S ;;
+       choose u, o such that pair(o,u) :: S ;;
+       S := S \ singleton(pair(o,u)) ;;
 
        /* just to make sure */
        assert n = o ;; 
@@ -59,6 +74,7 @@ do
 
        if d < read(distance, u)
        then
+         dom_distance := dom_distance \/ singleton(u) ;;
          distance[u] := d
        end
      end
