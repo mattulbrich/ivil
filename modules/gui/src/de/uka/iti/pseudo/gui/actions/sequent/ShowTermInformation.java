@@ -16,8 +16,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -28,6 +26,8 @@ import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -42,7 +42,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 @SuppressWarnings("serial")
 public class ShowTermInformation
     extends BarAction 
-    implements InitialisingAction, PropertyChangeListener {
+    implements InitialisingAction, NotificationListener {
 
     private String text = "";
     private final JDialog window;
@@ -88,15 +88,16 @@ public class ShowTermInformation
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
     }
 
-    @Override public void propertyChange(PropertyChangeEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
+    @Override
+    public void handleNotification(NotificationEvent evt) {
+        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
 
         text = "";
-
-        TermComponent component = (TermComponent) evt.getNewValue();
+        
+        TermComponent component = (TermComponent) evt.getParameter(0);
         TermTag selectedTermTag = component.getMouseSelection();
         if (null == selectedTermTag)
             return;

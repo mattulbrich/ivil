@@ -24,6 +24,8 @@ import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * GUI Action that copies the selected term to the clipboard without
@@ -38,7 +40,7 @@ import de.uka.iti.pseudo.term.Term;
 @SuppressWarnings("serial")
 public class CopyTerm
     extends BarAction 
- implements InitialisingAction, PropertyChangeListener, ClipboardOwner {
+ implements InitialisingAction, NotificationListener, ClipboardOwner {
 
     private Term target = null;
 
@@ -59,13 +61,14 @@ public class CopyTerm
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
     }
 
-    @Override public void propertyChange(PropertyChangeEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
+    @Override
+    public void handleNotification(NotificationEvent evt) {
+        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
         
-        TermTag selectedTermTag = ((TermComponent) evt.getNewValue()).getMouseSelection();
+        TermTag selectedTermTag = ((TermComponent) evt.getParameter(0)).getMouseSelection();
         if (null == selectedTermTag)
             return;
         

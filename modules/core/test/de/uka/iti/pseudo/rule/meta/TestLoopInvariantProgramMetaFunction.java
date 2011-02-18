@@ -12,19 +12,21 @@ package de.uka.iti.pseudo.rule.meta;
 
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import junit.framework.AssertionFailedError;
-
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
@@ -160,5 +162,32 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
             p2.dump();
             throw e;
         }
+    }
+    
+    public void testBugInLoopDetection() throws Exception {
+        env = testEnv("loopTest1.p.txt");
+        LiteralProgramTerm prog = new LiteralProgramTerm(0, false, env
+                .getProgram("BugInLoopDetect"));
+        
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        loopMod.apply();
+        
+        Function fctA = env.getFunction("a");
+        assertEquals(Collections.singleton(fctA), loopMod.getModifiedAssignables());
+    }
+    
+    public void testGoBeyond() throws Exception {
+        
+        env = testEnv("loopTest1.p.txt");
+        LiteralProgramTerm prog = new LiteralProgramTerm(100, false, env
+                .getProgram("GoBeyond"));
+        
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
+        try {
+            loopMod.apply();
+            fail("should raise EnvironmentException");
+        } catch (EnvironmentException e) {
+        }
+        
     }
 }
