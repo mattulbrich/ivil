@@ -621,8 +621,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
         String labelElse = "else" + node.getLocation();
         String labelEnd = "end" + node.getLocation();
 
+
+
         // jump to then and else
         try {
+            // if guard is a wildcard, we have to havoc it
+            if (node.getGuard() instanceof WildcardExpression) {
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
+                        .getLocationToken().beginLine, state.translation.terms.get(node.getGuard())));
+                statements.bodyAnnotations.add(null);
+            }
+            
             statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$goto;" + labelThen + ";" + labelElse);
 
@@ -692,6 +701,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
             statements.bodyAnnotations.add("$label:" + labelBegin);
+
+            // if guard is a wildcard, we have to havoc it
+            if (node.getGuard() instanceof WildcardExpression) {
+                statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
+                        .getLocationToken().beginLine, state.translation.terms.get(node.getGuard())));
+                statements.bodyAnnotations.add(null);
+            }
 
             // create invariant
             Term invariant = null;
@@ -857,7 +873,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             String name = state.env.createNewFunctionName("wildcard");
 
-            Function w = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, false, false, node);
+            Function w = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, false, true, node);
             state.env.addFunction(w);
 
             // call forall will quantify wildcards
