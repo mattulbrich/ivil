@@ -3,22 +3,22 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.meta;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -166,10 +166,17 @@ class LoopModifier {
 
     // package default to unit test it.
     LiteralProgramTerm apply() throws TermException, EnvironmentException {
-        collectAssignables();
         
         Program program = programTerm.getProgram();
         int index = programTerm.getProgramIndex();
+        
+        if(index > program.countStatements()) {
+            throw new EnvironmentException(
+                    "Try to apply loop transformation outside the bounds of a program, " +
+                    "better just symbolically execute the statement: " + programTerm);
+        }
+
+        collectAssignables();
         
         programChanger = new ProgramChanger(program, env);
         
@@ -190,73 +197,140 @@ class LoopModifier {
     }
 
     /**
-     * collect all assignables starting from the programTerm.
-     * The result is stored in {@link #modifiedAssignables}.
+     * Collect all assignables starting from the programTerm.
+     * 
+     * The result is stored in {@link #modifiedAssignables}. This is performed
+     * as follows:
+     * <ol>
+     * <li>Build a predecessor table <code>predecTable</code>which holds for
+     * every statement in the program the statements which are predecessors (in
+     * the control flow).
+     * <li>Using that, calculate the set <code>reachingStatements</code> of
+     * statements which reach the index of the {@link #programTerm}.
+     * <li>Check which statements within <code>reachingStatements</code> are
+     * reachable from the {@link #programTerm}. Add their assigned program
+     * variables to {@link #modifiedAssignables}. </ul>
+     * 
+     * @throws TermException
+     *             if something goes wrong in the analyser
      */
     // package default to unit test it.
-    void collectAssignables() {
-        Stack<Integer> stack = new Stack<Integer>();
-        stack.push(programTerm.getProgramIndex());
-        collectAssignables0(stack);
+    void collectAssignables() throws TermException {
+        Collection<Integer>[] predecTable = makePredecessorTable();
+        Collection<Integer> reachingStatements = makeReachingList(predecTable);
+        visitReachable(reachingStatements, programTerm.getProgramIndex());
+    }
+
+    /**
+     * Make a table recording the predecessors of nodes.
+     * 
+     * Using a {@link StatementAnalyser}, walk other the
+     * {@link #originalProgram} and record for each statement its predecessors.
+     * 
+     * While the collections must not contain <code>null</code> entried, the
+     * array may have <code>null</code>-entries. They correspond to nodes with
+     * no predecessors.
+     * 
+     * @return a freshly created array of integer collections. <b>May contain
+     *         <code>null</code></b>
+     * 
+     * @throws TermException
+     *             if the analyser fails.
+     */
+    private Collection<Integer>[] makePredecessorTable() throws TermException {
+        int progSize = originalProgram.countStatements();
+        Collection<Integer>[] predecessorTable = (Collection<Integer>[]) new Collection<?>[progSize];
+        
+        for (int i = 0; i < progSize; i++) {
+            StatementAnalyser analyser = new StatementAnalyser(i);
+            originalProgram.getStatement(i).visit(analyser);
+            for (int target : analyser.successorIndices) {
+                // new target within bounds?
+                if(target < progSize) {
+                    if(predecessorTable[target] == null) {
+                        predecessorTable[target] = new LinkedList<Integer>();
+                    }
+                    predecessorTable[target].add(i);
+                }
+            }
+        }
+        return predecessorTable;
+    }
+
+    /**
+     * Using the predecessor table, make a list of those statements which reach
+     * the start index.
+     * 
+     * @param predecTable
+     *            result of {@link #makePredecessorTable()}
+     * 
+     * @return a freshly created list of statement indices.
+     */
+    private Collection<Integer> makeReachingList(Collection<Integer>[] predecTable) {
+        int start = programTerm.getProgramIndex();
+        Collection<Integer> reachingStatements = new HashSet<Integer>();
+        
+        Collection<Integer> predecs = predecTable[start];
+        if (predecs != null) {
+            for (int r : predecs) {
+                makeReachingList0(reachingStatements, predecTable, r);
+            }
+        }
+
+        return reachingStatements;
     }
 
     /*
-     * depth first search using an explicit stack. If a loop is found return
-     * either true or false. If not descent on the successors. Add assigned
-     * variable to set of modified variables if in a loop.
+     * used for recursion.
      */
-    private boolean collectAssignables0(Stack<Integer> stack) {
-        int size = stack.size();
-        int programSize = originalProgram.countStatements();
+    private void makeReachingList0(Collection<Integer> reachingStatements, 
+            Collection<Integer>[] predecTable, int stm) {
         
-        assert size >= 1;
-        assert size <= programSize + 1;
+        if(reachingStatements.contains(stm))
+            return;
         
-        int peek = stack.peek();
+        reachingStatements.add(stm);
         
-        // if the index is beyond the upper bound, it will never come back
-        if(peek >= programSize) {
-            return false;
+        Collection<Integer> predecs = predecTable[stm];
+        if (predecs != null) {
+            for (int r : predecs) {
+                makeReachingList0(reachingStatements, predecTable, r);
+            }
         }
-        
-        // checks only if not at the beginning
-        if(size > 1) {
-            
-            // find the first occurrence of the top of the stack 
-            int indexPeek = stack.indexOf(peek);
-            
-            // we found a loop to the starting point ==> return true
-            if(indexPeek == 0)
-                return true;
-        
-            // we have run into some other loop ==> return false 
-            if(indexPeek < size - 1)
-                return false;
-        }
-        
-        // does one successor have a loop?
-        boolean hasLoop = false;
-        
-        StatementAnalyser analyser = new StatementAnalyser(peek);
-        try {
-            originalProgram.getStatement(peek).visit(analyser);
-        } catch (TermException e) {
-            // never thrown in this code
-            throw new Error(e);
-        }
-        
-        for (int successor : analyser.successorIndices) {
-            stack.push(successor);
-            hasLoop |= collectAssignables0(stack);
-            stack.pop();
-        }
-        
-        if(hasLoop && analyser.assignedVars != null)
-            modifiedAssignables.addAll(analyser.assignedVars);
-        
-        return hasLoop;
-        
     }
+
+    /**
+     * Visit all statements wich are reachable from {@link #programTerm}.
+     * 
+     * If the 2nd argument is in the 1st, then analyse the statements: Add the
+     * modified assignables to {@link #modifiedAssignables} and analyse it
+     * descendants.
+     * 
+     * @param reachingStatements
+     *            the result of {@link #makeReachingList(Collection[])}
+     * @param index
+     *            the index to investigate
+     * 
+     * @throws TermException
+     *             if the analyser fails.
+     */
+    private void visitReachable(Collection<Integer> reachingStatements, int index) throws TermException {
+
+        if (!reachingStatements.contains(index))
+            return;
+
+        StatementAnalyser analyser = new StatementAnalyser(index);
+        originalProgram.getStatement(index).visit(analyser);
+        modifiedAssignables.addAll(analyser.assignedVars);
+        
+        // no need to come here again!
+        reachingStatements.remove(index);
+        
+        for (Integer successor : analyser.successorIndices) {
+            visitReachable(reachingStatements, successor);
+        }
+    }
+
 
     /*
      * create a new symbol for the variant in prestate only if there is a
@@ -345,7 +419,7 @@ class StatementAnalyser implements StatementVisitor {
 
     int startIndex;
     int[] successorIndices;
-    @Nullable List<Function> assignedVars;
+    List<Function> assignedVars = Collections.emptyList();
     
     public StatementAnalyser(int startIndex) {
         this.startIndex = startIndex;
