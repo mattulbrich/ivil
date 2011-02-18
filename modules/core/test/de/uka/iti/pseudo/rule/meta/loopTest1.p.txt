@@ -118,3 +118,21 @@ program ChangeAfterLoop
   after:
      havoc b
      goto after
+
+     
+(* Was a bug in the detection of assigned variables in nested loops *)
+program BugInLoopDetect
+  l0: skip
+  l1: goto l2, l4
+  l2: havoc a
+  l3: goto 1
+  l4: goto l5, l7
+  l5: havoc b
+  l6: goto l5
+  l7: goto l0
+  
+  
+(* react on gotos into nirvana *)
+program GoBeyond
+  goto 10000
+     
