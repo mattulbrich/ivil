@@ -74,20 +74,6 @@ public final class TranslationPhase {
 
                     labels.put(meta, i);
 
-                } else if (meta.startsWith("$return")) {
-
-                    try {
-
-                        statements.set(
-                                i,
-                                new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
-                                        .getSourceLineNumber(), new Term[] { new Application(state.env
-                                        .getNumberLiteral(returnIndex), Environment.getIntType()) }));
-                        annotations.set(i, "return");
-
-                    } catch (TermException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         }

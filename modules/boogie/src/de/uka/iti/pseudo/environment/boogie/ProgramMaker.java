@@ -603,8 +603,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     @Override
     public void visit(ReturnStatement node) throws ASTVisitException {
         try {
-            statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
-            statements.bodyAnnotations.add("$return");
+            statements.bodyStatements.add(new EndStatement(node.getLocationToken().beginLine, Environment.getTrue()));
+            statements.bodyAnnotations.add(null);
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
