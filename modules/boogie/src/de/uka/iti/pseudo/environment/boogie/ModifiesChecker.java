@@ -72,6 +72,8 @@ public final class ModifiesChecker extends DefaultASTVisitor {
 
         for (String name : node.getTargets()) {
             VariableDeclaration v = state.names.findVariable(name, node);
+            if (null == v)
+                throw new ASTVisitException(node.getLocation() + " modification of undeclared variable " + name);
 
             if (!state.scopeMap.get(v).equals(state.globalScope))
                 throw new ASTVisitException(node.getLocation() + " only global variables may be modified");

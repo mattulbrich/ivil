@@ -202,9 +202,9 @@ public final class TranslationPhase {
             annotations.addAll(tripel.bodyAnnotations);
             annotations.addAll(tripel.postAnnotations);
 
-            problematicPrograms.add(registerProgram(state, statements, annotations,
-                    "implementation" + decl.getImplementationID() + "_" + decl.getName(), decl, statements.size()
-                            - tripel.postStatements.size()));
+            problematicPrograms.add(registerProgram(state, statements, annotations, "implementation"
+                    + decl.getLocation().replace(':', '_') + "_" + decl.getName(), decl, statements.size()
+                    - tripel.postStatements.size()));
         }
 
         // create a problem out of all programs defined in the environment

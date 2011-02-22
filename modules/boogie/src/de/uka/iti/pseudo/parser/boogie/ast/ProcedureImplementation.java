@@ -2,7 +2,6 @@ package de.uka.iti.pseudo.parser.boogie.ast;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
@@ -15,12 +14,6 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
     private final List<String> typeParameters;
     private final List<VariableDeclaration> inParam, outParam;
     private final ProcedureBody body;
-
-    /**
-     * needed to create unique names
-     */
-    private final int implementationID = implementationCounter.getAndIncrement();
-    private static final AtomicInteger implementationCounter = new AtomicInteger(0);
 
     public ProcedureImplementation(Token first, List<Attribute> attr, Token name, List<Token> typeParameters,
             List<VariableDeclaration> inParam, List<VariableDeclaration> outParam, ProcedureBody body) {
@@ -61,9 +54,5 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
 
     public ProcedureBody getBody() {
         return body;
-    }
-
-    public int getImplementationID() {
-        return implementationID;
     }
 }
