@@ -897,6 +897,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
     public void visit(CallForallStatement node) throws ASTVisitException {
         // assume ∀wildcard PRE => POST
 
+        // TODO tif: can old statements be misstranslated here?
+
         // ///// gather informations //////
         ProcedureDeclaration P = state.names.procedureSpace.get(node.getName());
 
@@ -1202,6 +1204,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 throw new ASTVisitException(e);
             }
         }
+
+        // TODO assume global and local wheres (in this order)
 
         // assume postcondition
         try {

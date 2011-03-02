@@ -28,20 +28,6 @@ include
 (*  Dont use the pretty printer. *)
  plugin
    prettyPrinter : "de.uka.iti.pseudo.environment.boogie.BoogiePrettyPrinter"
- 
-(*
- * Toplevel and right will be processed automatically.
- *)
-    
-rule toplevel_and_right
-  find |-  %a & %b 
-  where 
-    toplevel
-  samegoal "Conj1: {%a}"
-    replace  %a 
-  samegoal "Conj2: {%b}"
-    replace  %b 
-  tags rewrite "prop simp"
   
 (*
   \some
