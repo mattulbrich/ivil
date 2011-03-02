@@ -46,12 +46,12 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
 
     public void testTypeQuantAxiomExtraction() throws Exception {
         env = testEnv("include \"$int.p\" " +
-                "rule R find arb=arb as %'a replace true " +
+ "rule R find arb as %'a=arb as %'a replace true " +
                 "tags asAxiom");
 
         Axiom ax = env.getAxiom("R");
 
-        assertEquals(makeTerm("(\\T_all 'ty_a; arb as 'ty_a = arb)"), ax.getTerm());
+        assertEquals(makeTerm("(\\T_all 'ty_a; arb as 'ty_a = arb as 'ty_a)"), ax.getTerm());
     }
 
     public void testNameClash() throws Exception {

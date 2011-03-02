@@ -66,7 +66,7 @@ public class TestFileParser extends TestCase {
     // from syntax errors
     public void testRules2() throws Exception {
         testEnv("function int f(int) rule r find f(0)=0 |- samegoal replace 1=f(1) as int");
-        testEnv("problem arb=1");
+        testEnv("problem arb as int =1");
     }
     
     public void testRules() throws Exception {

@@ -57,7 +57,7 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
     
     public void testCollectSchema() throws Exception {
         SMTLibTranslator trans = new SMTLibTranslator(env);
-        Term t = makeTerm("arb = 4");
+        Term t = makeTerm("arb as int = 4");
         assertEquals("(= (fct.arb ty.int) (i2u 4))", trans.translate(t, FORMULA));
     }
     
@@ -91,7 +91,7 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
     
     public void testTypeQuant() throws Exception {
         SMTLibTranslator trans = new SMTLibTranslator(env);
-        Term t = makeTerm("(\\T_all 'a; arb as 'a = arb)");
+        Term t = makeTerm("(\\T_all 'a; arb as 'a = arb as 'a)");
         
         assertEquals("(= (fct.arb tyvar.a) (fct.arb tyvar.a))", trans.translate(t.getSubterm(0), FORMULA));
         assertTrue(trans.extrafuncs.contains("(tyvar.a Type)"));        
