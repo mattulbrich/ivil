@@ -10,13 +10,20 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Collections;
+import java.util.List;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.statement.AssertStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestWhereConditions extends TestCaseWithEnv {
 
@@ -97,4 +104,25 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     }
     
+    public void testNoFree() throws Exception {
+        
+        env = makeEnv("include \"$int.p\" " +
+        		"function int i1 " +
+        		"program P assert \\var b");
+        
+        NoFreeVars noFree = new NoFreeVars();
+        
+        assertFalse(checkNoFree(noFree, "\\var x as int"));
+        assertTrue(checkNoFree(noFree, "i1 as int"));
+        assertTrue(checkNoFree(noFree, "(\\forall x; \\var x > 0)"));
+        assertFalse(checkNoFree(noFree, "(\\forall x; \\var x > 0) & \\var x < 0"));
+        assertFalse(checkNoFree(noFree, "[0;P]"));
+        assertTrue(checkNoFree(noFree, "(\\forall b as bool; [0;P])"));
+    }
+
+    private boolean checkNoFree(NoFreeVars noFree, String s) throws RuleException,
+            Exception {
+        return noFree.check(null, new Term[] { makeTerm(s) }, null, null, env);
+    }
+
 }

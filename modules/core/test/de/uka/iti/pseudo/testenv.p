@@ -78,3 +78,6 @@ program Q
   label: label2:
     skip
     goto label
+
+program test_meta_functions_subst
+    assert \var b

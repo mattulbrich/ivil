@@ -33,8 +33,9 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     }
     
     private void assertEvalsTo(Term t1, String t2) throws Exception {
-//      assertEquals(makeTerm(t2), eval.evalutate(t));
-        assertEquals(makeTerm(t2).toString(true), eval.evalutate(t1).toString(true));    
+        Term evalutation = eval.evalutate(t1);
+//        assertEquals(makeTerm(t2), evaluation);
+        assertEquals(makeTerm(t2).toString(true), evalutation.toString(true));    
     }
 
     public void testSubst() throws Exception {
@@ -47,6 +48,20 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         } catch (TermException e) {
             if(VERBOSE)
                 e.printStackTrace();
+        }
+        
+        t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst])");
+        assertEvalsTo(t, "[0;test_meta_functions_subst']");
+        {
+            Term argTerm = env.getProgram("test_meta_functions_subst'").
+                    getStatement(0).getSubterms().get(0);
+            assertEquals(makeTerm("true"), argTerm);
+        }
+
+        {
+            Term argTerm = env.getProgram("test_meta_functions_subst").
+                    getStatement(0).getSubterms().get(0);
+            assertEquals(makeTerm("\\var b as bool"), argTerm);
         }
     }
     
