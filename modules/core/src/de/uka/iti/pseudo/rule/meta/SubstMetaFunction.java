@@ -87,15 +87,6 @@ public class SubstMetaFunction extends MetaFunction {
                 super.visit(binding);
         }
 
-        // this might cause a problem with recursion, if a Program calls
-        // itself with a LiteralProgramTerm; maybe this can be fixed by two
-        // lists, one with the programs that are currently modified and one with
-        // the terms that need change, but cannot be changed, as their programs
-        // are currently under modification (Timm Felden)
-        
-        // Programs cannot recurse because they have to be registered one after
-        // the other, only programs already registered can be referenced from a
-        // program. [unless malicously constructed otherwise] (M.U.)
         @Override
         public void visit(LiteralProgramTerm node) throws TermException {
             ProgramChanger changer = new ProgramChanger(node.getProgram(), env);

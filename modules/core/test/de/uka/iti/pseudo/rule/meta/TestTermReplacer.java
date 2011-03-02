@@ -27,11 +27,11 @@ public class TestTermReplacer extends TestCaseWithEnv {
         Term replaceWith = makeTerm("other as 'a");
         
         // replaceIn = "x = arb"
-        Term replaceIn = makeTerm("(\\bind x as 'a; x=arb)").getSubterm(0);
+        Term replaceIn = makeTerm("(\\bind x as 'a; x=arb as 'a)").getSubterm(0);
         
         Term result = tr.replace(varx, replaceWith, replaceIn);
         
-        assertEquals(result, makeTerm("other = arb as 'a"));
+        assertEquals(result, makeTerm("other as 'a = arb as 'a"));
     }
 
 }

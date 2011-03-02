@@ -144,9 +144,9 @@ public abstract class Term {
 	 * 
 	 * @return string for this term
 	 */
-	public String toString() {
-	    return toString(SHOW_TYPES);
-	}
+    public String toString() {
+        return toString(SHOW_TYPES);
+    }
 	
 	/**
      * Depending on the argument give a string representation of this term with

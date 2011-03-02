@@ -81,8 +81,7 @@ public class ProgramChanger {
         this.env = env;
         this.sourceFile = program.getSourceFile();
         this.statements = new LinkedList<Statement>(program.getStatements());
-        this.statementAnnotations = new LinkedList<String>(program
-                .getTextAnnotations());
+        this.statementAnnotations = new LinkedList<String>(program.getTextAnnotations());
     }
 
     /**
@@ -137,12 +136,10 @@ public class ProgramChanger {
      * @throws NullPointerException
      *             if statement is null
      */
-    public void insertAt(int index, Statement statement, String annotation)
-            throws TermException {
+    public void insertAt(int index, Statement statement, String annotation) throws TermException {
         // statements.size() is ok here!
         if (index < 0 || index > statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         if (statement == null)
             throw new NullPointerException();
@@ -168,8 +165,7 @@ public class ProgramChanger {
      */
     public void replaceAt(int index, Statement statement) {
         if (index < 0 || index >= statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         if (statement == null)
             throw new NullPointerException();
@@ -191,8 +187,7 @@ public class ProgramChanger {
      */
     public void replaceAnnotationAt(int index, String annotation) {
         if (index < 0 || index >= statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         statementAnnotations.set(index, annotation);
     }
@@ -215,8 +210,7 @@ public class ProgramChanger {
      */
     public void replaceAt(int index, Statement statement, String annotation) {
         if (index < 0 || index >= statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         if (statement == null)
             throw new NullPointerException();
@@ -243,8 +237,7 @@ public class ProgramChanger {
      */
     public void deleteAt(int index) throws TermException {
         if (index < 0 || index >= statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
         updateGotoStatements(index + 1, -1);
         statements.remove(index);
@@ -259,15 +252,14 @@ public class ProgramChanger {
      * 
      * @return the statement at index
      * 
-     *  @throws IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException
      *             if the index is negative or beyond the end of the statement
      *             list.
      */
     public Statement getStatementAt(int index) {
         if (index < 0 || index >= statements.size())
-            throw new IndexOutOfBoundsException(
-                    "Index outside the program boundaries");
-        
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
+
         return statements.get(index);
     }
 
@@ -291,7 +283,7 @@ public class ProgramChanger {
     }
 
     /**
-     * Replaces all terms that equal target by newValue
+     * Replaces all terms that equal target by replaceWith
      * 
      * @param target
      *            Term to be searched for
@@ -305,13 +297,17 @@ public class ProgramChanger {
     public void replaceAll(Term target, Term replaceWith) throws EnvironmentException, TermException {
         SubstMetaFunction subst = new SubstMetaFunction();
 
-        for (Statement s : statements) {
-            for(int i = 0; i < s.getSubterms().size(); i++)
-            for (Term t : s.getSubterms())
-                    s.replaceSubterm(i, subst.evaluate(target, replaceWith, t, env));
+        Statement s, old;
+        for (int pos = 0; pos < statements.size(); pos++) {
+            old = s = statements.get(pos);
+            for (int i = 0; i < s.getSubterms().size(); i++) {
+                s = s.getWithReplacedSubterm(i, subst.evaluate(target, replaceWith, s.getSubterms().get(i), env));
+            }
+
+            if (old != s)
+                statements.set(pos, s);
         }
     }
-
 
     /**
      * Given the modified statement list and annotations, create a new program.
@@ -325,8 +321,7 @@ public class ProgramChanger {
      *             if the creation somehow fails.
      */
     public Program makeProgram(String name) throws EnvironmentException {
-        Program p = new Program(name, sourceFile, statements,
-                statementAnnotations, ASTLocatedElement.CREATED);
+        Program p = new Program(name, sourceFile, statements, statementAnnotations, ASTLocatedElement.CREATED);
         return p;
     }
 
@@ -349,8 +344,7 @@ public class ProgramChanger {
      * @throws TermException
      *             if adding integer literals to the environment fails
      */
-    private void updateGotoStatements(int index, int offset)
-            throws TermException {
+    private void updateGotoStatements(int index, int offset) throws TermException {
         ListIterator<Statement> it = statements.listIterator();
         while (it.hasNext()) {
             Statement statement = it.next();
@@ -382,8 +376,7 @@ public class ProgramChanger {
      * @throws TermException
      *             if adding integer literals to the environment fails
      */
-    private Term[] updateGotoStatement(int index, int offset,
-            GotoStatement gotoSt) throws TermException {
+    private Term[] updateGotoStatement(int index, int offset, GotoStatement gotoSt) throws TermException {
         List<Term> orgTargets = gotoSt.getSubterms();
         Term[] newTargets = null;
         for (int i = 0; i < gotoSt.countSubterms(); i++) {

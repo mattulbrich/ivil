@@ -51,7 +51,7 @@ import de.uka.iti.pseudo.util.Util;
  * the parser but which are not sustained to this point; they are translated
  * earlier.
  */
-public abstract class Statement {
+public abstract class Statement implements Cloneable {
 
     /**
      * The source line number.
@@ -135,13 +135,25 @@ public abstract class Statement {
     }
 
     /**
-     * Replaces subterm i.
-     * 
-     * @param i
-     * @param newTerm
+     * Returns a term, which equals this term, but where the i'th statement has
+     * been replaced by newTerm. If the newTerm equals the old one, no new
+     * statement will be generated.
      */
-    public void replaceSubterm(int i, Term newTerm) {
-        subTerms[i] = newTerm;
+    public Statement getWithReplacedSubterm(int i, Term newTerm) {
+        if (subTerms[i] == newTerm)
+            return this;
+
+        try {
+            Statement result = (Statement) this.clone();
+            result.subTerms = subTerms.clone();
+            result.subTerms[i] = newTerm;
+            return result;
+
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            assert false;
+            return null;
+        }
     }
 
     /**
