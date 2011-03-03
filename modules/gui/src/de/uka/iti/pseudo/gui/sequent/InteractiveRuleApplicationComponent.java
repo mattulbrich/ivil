@@ -57,6 +57,7 @@ import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
@@ -143,6 +144,7 @@ public class InteractiveRuleApplicationComponent extends
         if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
             proofCenter.firePropertyChange(ProofCenter.SELECTED_RULEAPPLICATION, ruleApp);
+            Log.log(Log.DEBUG, Dump.toString(ruleApp));
         }
     }
     
@@ -192,14 +194,14 @@ public class InteractiveRuleApplicationComponent extends
                 
             } catch (Exception ex) {
                 Log.log(Log.WARNING, "Error during the application of a rule");
+                Log.log(Log.WARNING, Dump.toString((RuleApplication)selected));
                 Log.stacktrace(ex);
                 if(component != null) {
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
                 } else {
-                    ExceptionDialog.showExceptionDialog(SwingUtilities
-                            .windowForComponent(this),
-                            "We do not have a component to feed back to ...",
+                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                            "Error during the application of a rule",
                             ex);
                 }
             }
