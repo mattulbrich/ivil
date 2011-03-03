@@ -15,7 +15,7 @@ package de.uka.iti.pseudo.term;
  * term which can be bound using a binder construct.
  * This is the case for {@link Variable}s and {@link SchemaVariable}s.
  */
-public abstract class BindableIdentifier extends Term {
+public abstract class BindableIdentifier extends Term implements Comparable<BindableIdentifier> {
 
     public BindableIdentifier(Term[] subterms, Type type) {
         super(subterms, type);
@@ -25,6 +25,15 @@ public abstract class BindableIdentifier extends Term {
         super(type);
     }
 
-	public abstract String getName();
+    public abstract String getName();
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>Comparison is performed on the string representation of the bindable identifiers.
+     */
+    @Override
+    public int compareTo(BindableIdentifier o) {
+        return toString(true).compareTo(o.toString(true));
+    }
 }

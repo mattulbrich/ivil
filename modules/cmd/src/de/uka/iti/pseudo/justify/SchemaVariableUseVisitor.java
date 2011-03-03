@@ -15,10 +15,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -52,8 +53,8 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 	 * 
 	 * The value is always a valid object and never <code>null</code>.
 	 */
-	private Map<SchemaVariable, Set<BindableIdentifier>> seenBindables =
-		new HashMap<SchemaVariable, Set<BindableIdentifier>>();
+	private @NonNull Map<SchemaVariable, SortedSet<BindableIdentifier>> seenBindables =
+		new HashMap<SchemaVariable, SortedSet<BindableIdentifier>>();
 
 	
 	/**
@@ -65,15 +66,15 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 	/**
 	 * The set of all identifiers which are bound in bindings in the term
 	 */
-	private Set<BindableIdentifier> boundIdentifiers =
-		new HashSet<BindableIdentifier>();
+	private SortedSet<BindableIdentifier> boundIdentifiers =
+		new TreeSet<BindableIdentifier>();
 	
 	/**
 	 * Gets the set of identifiers which have been used in bindings.
 	 * 
 	 * @return the set of bound identifiers
 	 */
-	public @NonNull Set<BindableIdentifier> getBoundIdentifiers() {
+	public @NonNull SortedSet<BindableIdentifier> getBoundIdentifiers() {
 		return boundIdentifiers;
 	}
 	
@@ -83,7 +84,7 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 	 * 
 	 * @return a map with non-null values.
 	 */
-	public @NonNull Map<SchemaVariable, Set<BindableIdentifier>> getSeenBindablesMap() {
+	public @NonNull Map<SchemaVariable, SortedSet<BindableIdentifier>> getSeenBindablesMap() {
 		return seenBindables;
 	}
 
@@ -100,7 +101,7 @@ public class SchemaVariableUseVisitor extends DefaultTermVisitor.DepthTermVisito
 	public void visit(SchemaVariable schemaVariable) throws TermException {
 		Set<BindableIdentifier> seen = seenBindables.get(schemaVariable);
 		if(seen == null) {
-			seenBindables.put(schemaVariable, new HashSet<BindableIdentifier>(currentBindings));
+			seenBindables.put(schemaVariable, new TreeSet<BindableIdentifier>(currentBindings));
 		} else {
 			seen.retainAll(currentBindings);
 		}
