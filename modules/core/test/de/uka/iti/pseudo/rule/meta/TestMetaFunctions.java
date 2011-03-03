@@ -14,11 +14,14 @@ import java.util.List;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
+import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestMetaFunctions extends TestCaseWithEnv {
     MutableRuleApplication ra;
@@ -92,6 +95,33 @@ public class TestMetaFunctions extends TestCaseWithEnv {
             List<Term> subterms = stm.getSubterms();
             
             assertEquals(ass.getValue(), subterms.get(1));
+        }
+    }
+    
+    public void testSubstInProgramNested() throws Exception {
+        // test_meta_functions_subst: assert \var b
+        // test_meta_functions_subst3: assert [0;test_meta_functions_subst]
+        
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst3])");
+        assertEvalsTo(t, "[0;test_meta_functions_subst3']");
+        
+        Program program = env.getProgram("test_meta_functions_subst'");
+        assertNotNull(program);
+        
+        {
+            Statement stm =
+                    env.getProgram("test_meta_functions_subst3'").
+                            getStatement(0);
+            
+            LiteralProgramTerm subterm = (LiteralProgramTerm) stm.getSubterms().get(0);
+            assertEquals(program, subterm.getProgram());
+        }
+        {
+            Statement stm =
+                env.getProgram("test_meta_functions_subst'").
+                        getStatement(0);
+            Term cond = stm.getSubterms().get(0);
+            assertEquals(makeTerm("true"), cond);
         }
     }
     
