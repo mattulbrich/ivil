@@ -92,4 +92,20 @@ public class GotoStatement extends Statement {
         visitor.visit(this);
     }
 
+    @Override
+    public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
+        if (newSubterms.length == getSubterms().size())
+            throw new TermException("It is required to supply the same amount of subterms; was: "
+                    + getSubterms().size() + " is: " + newSubterms.length);
+
+        int i = 0;
+        while (newSubterms[i] == getSubterms().get(i)) {
+            i++;
+            if (i == newSubterms.length)
+                return this;
+        }
+
+        return new GotoStatement(getSourceLineNumber(), newSubterms);
+    }
+
 }

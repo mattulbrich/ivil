@@ -293,20 +293,32 @@ public class ProgramChanger {
      * 
      * @throws EnvironmentException
      * @throws TermException
+     * 
+     * @return true, if the program has been changed
      */
-    public void replaceAll(Term target, Term replaceWith) throws EnvironmentException, TermException {
+    public boolean replaceAll(Term target, Term replaceWith) throws EnvironmentException, TermException {
         SubstMetaFunction subst = new SubstMetaFunction();
 
-        Statement s, old;
-        for (int pos = 0; pos < statements.size(); pos++) {
-            old = s = statements.get(pos);
-            for (int i = 0; i < s.getSubterms().size(); i++) {
-                s = s.getWithReplacedSubterm(i, subst.evaluate(target, replaceWith, s.getSubterms().get(i), env));
-            }
+        boolean changes = false, changedStatement;
 
-            if (old != s)
-                statements.set(pos, s);
+        Statement s;
+        for (int pos = 0; pos < statements.size(); pos++) {
+            s = statements.get(pos);
+            changedStatement = false;
+
+            Term[] replacement = new Term[s.getSubterms().size()];
+            for (int i = 0; i < replacement.length; i++) {
+                Term t = s.getSubterms().get(i);
+                replacement[i] = subst.evaluate(target, replaceWith, t, env);
+                if (replacement[i] != t)
+                    changedStatement = true;
+            }
+            if (changedStatement) {
+                statements.set(pos, s.getWithReplacedSubterms(replacement));
+                changes = true;
+            }
         }
+        return changes;
     }
 
     /**

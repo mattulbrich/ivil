@@ -103,6 +103,17 @@ public class AssignmentStatement extends Statement {
         return result;
     }
 
+    private static List<Assignment> fromTermArray(Term[] assignments) throws TermException {
+        assert assignments.length % 2 == 0 : "requirement: assignments must have even length";
+
+        ArrayList<Assignment> result = new ArrayList<Assignment>(assignments.length / 2);
+
+        for (int i = 0; i < assignments.length; i += 2)
+            result.add(new Assignment(assignments[i], assignments[i + 1]));
+
+        return result;
+    }
+
     public List<Function> getAssignedVars() {
         List<Function> result = new ArrayList<Function>();
         for (Assignment ass : assignments) {
@@ -120,6 +131,21 @@ public class AssignmentStatement extends Statement {
     public String getSchemaIdentifier() {
         assert isSchematic();
         return schemaIdentifier;
+    }
+
+    @Override
+    public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
+        if (newSubterms.length != getSubterms().size())
+            throw new TermException("It is required to supply the same amount of subterms; was: "+getSubterms().size() + " is: "+newSubterms.length);
+        
+        int i = 0;
+        while(newSubterms[i] == getSubterms().get(i)){
+            i++;
+            if (i == newSubterms.length)
+                return this;
+        }
+
+        return new AssignmentStatement(getSourceLineNumber(), fromTermArray(newSubterms));
     }
     
 }

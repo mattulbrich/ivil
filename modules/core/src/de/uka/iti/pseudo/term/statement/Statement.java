@@ -51,7 +51,7 @@ import de.uka.iti.pseudo.util.Util;
  * the parser but which are not sustained to this point; they are translated
  * earlier.
  */
-public abstract class Statement implements Cloneable {
+public abstract class Statement {
 
     /**
      * The source line number.
@@ -62,7 +62,7 @@ public abstract class Statement implements Cloneable {
      * The array of subterms.
      */
     private @NonNull
-    Term[] subTerms;
+    final Term[] subTerms;
 
     /**
      * The empty array stands for "no arguments".
@@ -135,26 +135,15 @@ public abstract class Statement implements Cloneable {
     }
 
     /**
-     * Returns a term, which equals this term, but where the i'th statement has
-     * been replaced by newTerm. If the newTerm equals the old one, no new
-     * statement will be generated.
+     * Returns the called statement, if newSubterms equals sub terms. If not, a
+     * new Statement of the same type is created, where newSubterms is used as a
+     * replacement for the old sub terms.
+     * 
+     * @throws TermException
+     *             if newSubterms can not be used to create a valid statement
      */
-    public @NonNull Statement getWithReplacedSubterm(int i, Term newTerm) {
-        if (subTerms[i] == newTerm)
-            return this;
-
-        try {
-            Statement result = (Statement) this.clone();
-            result.subTerms = subTerms.clone();
-            result.subTerms[i] = newTerm;
-            return result;
-
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            assert false;
-            return null;
-        }
-    }
+    public abstract @NonNull
+    Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException;
 
     /**
      * Retrieves a string representation of this statement. Uses

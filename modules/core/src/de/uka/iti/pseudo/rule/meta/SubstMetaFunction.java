@@ -92,13 +92,12 @@ public class SubstMetaFunction extends MetaFunction {
             ProgramChanger changer = new ProgramChanger(node.getProgram(), env);
 
             try {
-                changer.replaceAll(termToReplace, replaceWith);
+                if (changer.replaceAll(termToReplace, replaceWith)) {
+                    Program p;
+                    env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
 
-                Program p;
-                env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
-
-                resultingTerm = new LiteralProgramTerm(node.getProgramIndex(), node.isTerminating(), p);
-
+                    resultingTerm = new LiteralProgramTerm(node.getProgramIndex(), node.isTerminating(), p);
+                }
             } catch (EnvironmentException e) {
                 e.printStackTrace();
                 throw new TermException(e);

@@ -50,4 +50,13 @@ public class EndStatement extends Statement {
         visitor.visit(this);
     }
 
+
+    @Override
+    public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
+        assert newSubterms.length == 1;
+        if (newSubterms[0] == getSubterms().get(0))
+            return this;
+
+        return new EndStatement(getSourceLineNumber(), newSubterms[0]);
+    }
 }
