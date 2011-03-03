@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
@@ -45,7 +46,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
         this.updateMap = updateMap;
     }
 
-    public Term instantiate(Term toInst) throws TermException {
+    public @NonNull Term instantiate(Term toInst) throws TermException {
         toInst.visit(this);
         if(resultingTerm != null)
             return resultingTerm;

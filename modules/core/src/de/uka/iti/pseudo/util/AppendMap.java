@@ -46,7 +46,7 @@ public class AppendMap<K, V> extends AbstractMap<K, V> implements Cloneable {
      * Indicator object for a removed key.
      * Instead of copying the complete data, this indicator is used in the chain.
      */
-    private static final Object REMOVED = new Object();
+    // private static final Object REMOVED = new Object();
     
     /**
      * The Class LinkedEntry provides the means to implement the singly-linked list of entries

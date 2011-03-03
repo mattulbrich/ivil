@@ -33,19 +33,24 @@ import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.AppendMap;
 import de.uka.iti.pseudo.util.AppendSet;
 
-
-// TODO DOC
 /**
- * The Class TermUnification is the recording instance of a term matching.
+ * The Class TermMatcher is the recording instance of a term matching.
  * 
- * <p>The actual matching is performed in class TermMatcher.
+ * It records instantiations of schema variables, schema type variables and
+ * schema updates.
+ * 
+ * <p>
+ * The actual matching is performed in class TermMatcherVisitor.
  * 
  * @see TermMatchVisitor
  */
 public class TermMatcher implements Cloneable {
-    
+
     /**
-     * The type unification is sourced out.
+     * The mapping from schema type variables to types.
+     * <p>
+     * We use {@link AppendMap} here because we often need to clone for
+     * unification attempts.
      */
     private AppendMap<String, Type> typeInstantiation = new AppendMap<String, Type>();
     
@@ -64,9 +69,9 @@ public class TermMatcher implements Cloneable {
     private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
     
     /**
-     * The term matcher performs the actual matching comparisons.
+     * The term matcher visitor performs the actual matching comparisons.
      */
-    private TermMatchVisitor termMatcher;
+    private TermMatchVisitor termMatcherVisitor;
     
     /**
      * remember those types which are bound in type quantifications.
@@ -75,13 +80,59 @@ public class TermMatcher implements Cloneable {
     private AppendSet<SchemaType> boundSchemaTypes = new AppendSet<SchemaType>();
 
     /**
+     * A simple visitor which detects schema variables.
+     * also in updates / bindings
+     * 
+     * @see SchemaCollectorVisitor
+     */
+    private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() { 
+        public void visit(SchemaVariable schemaVariable) throws TermException {
+            throw new TermException("Unexpected schema variable found: " + schemaVariable);
+        }
+        public void visit(SchemaUpdateTerm schemaUpdate) throws TermException {
+            throw new TermException("Unexpected schema variable found: " + schemaUpdate);
+        }
+        public void visit(UpdateTerm updateTerm) throws TermException {
+            for (Assignment ass : updateTerm.getAssignments()) {
+                if(ass.getTarget() instanceof SchemaVariable)
+                    throw new TermException("Unexpected schema variable in assignment " + ass);
+            }
+        }
+        public void visit(Binding binding) throws TermException {
+            // bugfix:
+            super.visit(binding);
+            if(binding.getVariable() instanceof SchemaVariable)
+                throw new TermException("Unexpected schema variable in binding " + binding);
+        }
+    };
+
+    /**
+     * Checks whether a term contains schema variables.
+     * 
+     * TODO Possibly extend this to schema updates / schema types.
+     * 
+     * @param term
+     *            term to check
+     * 
+     * @return true iff there occurs at least one schema variable in term 
+     */
+    public static boolean containsSchemaVariables(Term term) {
+        try {
+            term.visit(schemaFinder);
+            return false;
+        } catch (TermException e) {
+            return true;
+        }
+    }
+
+    /**
      * Instantiates a new term unification.
      * 
      * @param env
      *            the environment to look things up.
      */
     public TermMatcher(Environment env) {
-        termMatcher = new TermMatchVisitor(this, env);
+        termMatcherVisitor = new TermMatchVisitor(this);
     }
     
     /**
@@ -98,16 +149,18 @@ public class TermMatcher implements Cloneable {
     public boolean leftMatch(Term adaptingTerm, Term fixTerm) {
         
         AppendMap<String, Term> copyTermInst = instantiation.clone();
+        AppendMap<String, Type> copyTypeInst = typeInstantiation.clone();
         AppendMap<String, Update> copyUpdateInst = updateInst.clone();
         AppendSet<SchemaType> copySchemaBoundTypes = boundSchemaTypes.clone();
         try {
             
-            termMatcher.compare(adaptingTerm, fixTerm);
+            termMatcherVisitor.compare(adaptingTerm, fixTerm);
             checkBoundSchemaTypes();
             return true;
             
         } catch (TermException e) {
             instantiation = copyTermInst;
+            typeInstantiation = copyTypeInst;
             updateInst = copyUpdateInst;
             boundSchemaTypes = copySchemaBoundTypes;
             return false;
@@ -163,13 +216,18 @@ public class TermMatcher implements Cloneable {
      * 
      * The schema update must not already have been instantiated.
      * 
+     * <p>
+     * <i>The latter condition is not mandatory and merely included because
+     * this is the case needed in this application. Removing it would require
+     * attention because of possible circularities.</i>
+     * 
      * @param schemaIdentifier
      *            the schema update to instantiate
      * @param update
      *            the update to instantiate
      * 
      * @throws TermException
-     *             if sv is already instantiated or term contains schema variables.
+     *             if schemaIdentifier is already instantiated
      */
     public void addUpdateInstantiation(@NonNull String schemaIdentifier,
             @NonNull Update update) throws TermException {
@@ -178,131 +236,30 @@ public class TermMatcher implements Cloneable {
         
         updateInst.put(schemaIdentifier, update);
     }
- 
-    /**
-     * Gets the instantiation for a schema variable.
-     * 
-     * @param sv
-     *            the schema variable to look up
-     * 
-     * @return the instantiation stored in the mapping if there is any, null otherwise.
-     */
-    public @Nullable Term getTermFor(@NonNull SchemaVariable sv) {
-        return instantiation.get(sv.getName());
-    }
-
-    // TODO DOC upto here
-    
-    public @Nullable Update getUpdateFor(String schemaIdentifier) {
-        return updateInst.get(schemaIdentifier);
-    }
 
     /**
-     * Instantiate.
+     * Adds a schema type instantiation to the mapping.
      * 
-     * @param toInst
-     *            the to inst
+     * The schema type must not already have been instantiated.
+     * <p>
+     * <i>The latter condition is not mandatory and merely included because this
+     * is the case needed in this application. Removing it would require
+     * attention because of possible circularities.</i>
      * 
-     * @return the term
+     * @param varName
+     *            the name of the schema type
+     * @param type
+     *            the type to instantiate
      * 
      * @throws TermException
-     *             the term exception
+     *             if varName is already instantiated
      */
-    public @Nullable Term instantiate(Term toInst) throws TermException {
-        return getTermInstantiator().instantiate(toInst);
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#clone()
-     */
-    public TermMatcher clone() {
-        try {
-            TermMatcher retval = (TermMatcher) super.clone();
-            retval.instantiation = instantiation.clone();
-            retval.typeInstantiation = typeInstantiation.clone();
-            return retval;
-        } catch (CloneNotSupportedException e) {
-            throw new Error(e);
-        }
-    }
-
-    /**
-     * Instantiate a type.
-     * This call is delegated to {@link TypeUnification#instantiate(Type)}
-     */
-//    public Type instantiateType(Type type) {
-//        return typeInstantiation.instantiate(type);
-//    }
-    
-    /**
-     * A simple visitor which detects schema variables.
-     * also in updates / bindings
-     * 
-     * @see SchemaCollectorVisitor
-     */
-    private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() { 
-        public void visit(SchemaVariable schemaVariable) throws TermException {
-            throw new TermException("Unexpected schema variable found: " + schemaVariable);
-        }
-        public void visit(SchemaUpdateTerm schemaUpdate) throws TermException {
-            throw new TermException("Unexpected schema variable found: " + schemaUpdate);
-        }
-        public void visit(UpdateTerm updateTerm) throws TermException {
-            for (Assignment ass : updateTerm.getAssignments()) {
-                if(ass.getTarget() instanceof SchemaVariable)
-                    throw new TermException("Unexpected schema variable in assignment " + ass);
-            }
-        }
-        public void visit(Binding binding) throws TermException {
-            // bugfix:
-            super.visit(binding);
-            if(binding.getVariable() instanceof SchemaVariable)
-                throw new TermException("Unexpected schema variable in binding " + binding);
-        }
-    };
-    
-    /**
-     * Checks whether a term contains schema variables.
-     * 
-     * @param term
-     *            term to check
-     * 
-     * @return true iff there occurs at least one schema variable in term 
-     */
-    public static boolean containsSchemaVariables(Term term) {
-        try {
-            term.visit(schemaFinder);
-            return false;
-        } catch (TermException e) {
-            return true;
-        }
-    }
-    
-    /**
-     * Gets an unmodifiable copy of the schemavariable-to-term map.
-     * 
-     * @return a map from schema variable names to terms.
-     */
-    public Map<String, Term> getTermInstantiation() {
-        return Collections.unmodifiableMap(instantiation);
-    }
-
-    /**
-     * Gets the term instantiator.
-     * 
-     * @return the term instantiator
-     */
-    public TermInstantiator getTermInstantiator() {
-        return new TermInstantiator(instantiation, typeInstantiation, updateInst);
-    }
-    
-    /**
-     * Gets an unmodifiable copy of the schemaupdate-to-term map.
-     * 
-     * @return a map from schema update names to updates.
-     */
-    public Map<String, Update> getUpdateInstantiation() {
-        return Collections.unmodifiableMap(updateInst);
+    public void addTypeInstantiation(String varName, Type type) throws TermException {
+        
+        if(typeInstantiation.get(varName) != null)
+            throw new TermException("Schema type " + varName + " already instantiated");
+        
+        typeInstantiation.put(varName, type);
     }
 
     /**
@@ -317,16 +274,133 @@ public class TermMatcher implements Cloneable {
         boundSchemaTypes.add(schemaType);
     }
 
-    public Map<String, Type> getTypeInstantiation() {
-        return typeInstantiation;
+    /**
+     * Gets the instantiation for a schema variable.
+     * 
+     * @param sv
+     *            the schema variable to look up
+     * 
+     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     */
+    public @Nullable Term getTermFor(@NonNull SchemaVariable sv) {
+        return instantiation.get(sv.getName());
     }
 
+    /**
+     * Gets the instantiation for a schema type.
+     * 
+     * @param sv
+     *            the schema type to look up
+     * 
+     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     */
     public @Nullable Type getTypeFor(String variableName) {
         return typeInstantiation.get(variableName);
     }
 
-    public void addTypeInstantiation(String varName, Type type) {
-        typeInstantiation.put(varName, type);
+    /**
+     * Gets the instantiation for a schema update.
+     * 
+     * @param sv
+     *            the schema update to look up
+     * 
+     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     */
+    public @Nullable Update getUpdateFor(String schemaIdentifier) {
+        return updateInst.get(schemaIdentifier);
+    }
+
+    /**
+     * Create a deep copy of this object.
+     * 
+     * The return object is equal to this matcher. However, all maps and sets
+     * are are cloned copies of this object. The returned object therefore
+     * represents a snapshot of the current state of this object.
+     */
+    public TermMatcher clone() {
+        try {
+            TermMatcher retval = (TermMatcher) super.clone();
+            retval.instantiation = instantiation.clone();
+            retval.typeInstantiation = typeInstantiation.clone();
+            retval.updateInst = updateInst.clone();
+            retval.boundSchemaTypes = boundSchemaTypes.clone();
+            retval.termMatcherVisitor = new TermMatchVisitor(retval);
+            return retval;
+        } catch (CloneNotSupportedException e) {
+            throw new Error(e);
+        }
+    }
+    
+    /**
+     * Clear and set all maps and sets to empty.
+     */
+    public void clear() {
+        instantiation.clear();
+        typeInstantiation.clear();
+        updateInst.clear();
+        boundSchemaTypes.clear();
+    }
+
+    /**
+     * Gets an unmodifiable copy of the schema-variable-to-term map.
+     * 
+     * @return a map from schema variable names to terms.
+     */
+    public Map<String, Term> getTermInstantiation() {
+        return Collections.unmodifiableMap(instantiation);
+    }
+
+    /**
+     * Gets an unmodifiable copy of the schema-type-to-type map.
+     * 
+     * @return a map from schema types names to types.
+     */
+    public Map<String, Type> getTypeInstantiation() {
+        return  Collections.unmodifiableMap(typeInstantiation);
+    }
+
+    /**
+     * Gets an unmodifiable copy of the schema-update-to-update map.
+     * 
+     * @return a map from schema update names to updates.
+     */
+    public Map<String, Update> getUpdateInstantiation() {
+        return Collections.unmodifiableMap(updateInst);
+    }
+
+    /**
+     * Gets an object which allows the application of the instantiation to
+     * arbitrary terms.
+     * 
+     * @return a freshly created term instantiator visitor.
+     */
+    public @NonNull TermInstantiator getTermInstantiator() {
+        return new TermInstantiator(instantiation, typeInstantiation, updateInst);
+    }
+
+    /**
+     * Instantiate a term.
+     * 
+     * This is a convenience method for
+     * <pre>getTermInstantiator().instantiate(toInst)</pre>
+     * 
+     * @param toInst
+     *            the term to instantiantiate
+     * 
+     * @return the instantiated term
+     */
+    public @NonNull Term instantiate(Term toInst) throws TermException {
+        return getTermInstantiator().instantiate(toInst);
+    }
+    
+    /**
+     * The string representation shows all used maps and sets
+     */
+    @Override
+    public String toString() {
+        return "TermMatcher[terms=" + instantiation + ", types="
+                + typeInstantiation + ", updates=" + updateInst
+                + ", boundtypes=" + boundSchemaTypes + "]";
     }
 
     

@@ -37,10 +37,10 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setFindSelector(new TermSelector("S.0"));
         app.setProofNode(p.getRoot());
-        boolean b = app.getTermUnification().leftMatch(pattern, term);
+        boolean b = app.getTermMatcher().leftMatch(pattern, term);
         assertTrue(b);
         assertEquals(Environment.getBoolType(), app.getTypeVariableMapping().get("b"));
-        app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
+        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         
         
@@ -68,8 +68,8 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setFindSelector(new TermSelector("A.0"));
         app.setProofNode(p.getRoot());
-        app.getTermUnification().leftMatch(pattern, term);
-        app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
+        app.getTermMatcher().leftMatch(pattern, term);
+        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
         
         p.apply(app, env);
         
@@ -93,7 +93,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
-        app.getTermUnification().leftMatch(pattern, term);
+        app.getTermMatcher().leftMatch(pattern, term);
         
         p.apply(app, env);
         p.prune(orgRoot);
@@ -141,7 +141,7 @@ public class TestProofNode extends TestCaseWithEnv {
         RuleApplicationMaker app = new RuleApplicationMaker(env);        
         app.setRule(rule);
         app.setProofNode(p.getRoot());
-        app.getTermUnification().leftMatch(rule.getFindClause().getTerm(), term);
+        app.getTermMatcher().leftMatch(rule.getFindClause().getTerm(), term);
         app.setFindSelector(new TermSelector("S.0"));
         p.apply(app, env);
         
@@ -190,7 +190,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
-        app.getTermUnification().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
+        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
         
         p.apply(app, env);
         

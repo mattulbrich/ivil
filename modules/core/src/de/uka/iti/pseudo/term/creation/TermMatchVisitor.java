@@ -64,11 +64,8 @@ class TermMatchVisitor extends DefaultTermVisitor {
      * 
      * @param termMatcher
      *            the object to record instantiations to.
-     * @param env
-     *            the environment, needed to extract information about
-     *            statements of progs.
      */
-    public TermMatchVisitor(TermMatcher termMatcher, Environment env) {
+    public TermMatchVisitor(TermMatcher termMatcher) {
         this.termUnification = termMatcher;
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
 	// compareTerm is a non-null element

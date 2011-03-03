@@ -350,15 +350,15 @@ public class ProofNode implements Comparable<ProofNode> {
         TermInstantiator inst = new ProgramComparingTermInstantiator(
                 schemaMap, typeMap, updateMap, env);
         
-        Rule rule = ruleApp.getRule();
+        Rule rule = immRuleApp.getRule();
         
         assert rule != null : "Rule in RuleApplication must not be null";
 
-        matchFindClause(ruleApp, inst, rule);
-        matchAssumeClauses(ruleApp, inst, rule);
-        verifyWhereClauses(ruleApp, inst, rule, env);
+        matchFindClause(immRuleApp, inst, rule);
+        matchAssumeClauses(immRuleApp, inst, rule);
+        verifyWhereClauses(immRuleApp, inst, rule, env);
 
-        children = doActions(ruleApp, inst, env, rule);
+        children = doActions(immRuleApp, inst, env, rule);
 
         this.appliedRuleApp = immRuleApp;
     }
