@@ -10,11 +10,15 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import java.util.List;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.statement.Assignment;
+import de.uka.iti.pseudo.term.statement.AssignmentStatement;
 
 public class TestMetaFunctions extends TestCaseWithEnv {
     MutableRuleApplication ra;
@@ -49,8 +53,11 @@ public class TestMetaFunctions extends TestCaseWithEnv {
             if(VERBOSE)
                 e.printStackTrace();
         }
-        
-        t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst])");
+    }
+    
+    // was a bug.
+    public void testSubstInProg() throws Exception {
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst])");
         assertEvalsTo(t, "[0;test_meta_functions_subst']");
         {
             Term argTerm = env.getProgram("test_meta_functions_subst'").
@@ -62,6 +69,29 @@ public class TestMetaFunctions extends TestCaseWithEnv {
             Term argTerm = env.getProgram("test_meta_functions_subst").
                     getStatement(0).getSubterms().get(0);
             assertEquals(makeTerm("\\var b as bool"), argTerm);
+        }
+    }
+    
+    public void testSubstInProg2() throws Exception {
+        // b does not appear unbound in P ==> should remain [0;P]
+        Term t = makeTerm("$$subst(\\var b, true, [0; P])");
+        assertEvalsTo(t, "[0;P]");
+    }
+
+    // was a bug
+    public void testSubstInProg3() throws Exception {
+        // program: b1 := \var b
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst2])");
+        assertEvalsTo(t, "[0;test_meta_functions_subst2']");
+        {
+            AssignmentStatement stm =
+                    (AssignmentStatement) env.getProgram("test_meta_functions_subst2'").
+                            getStatement(0);
+            
+            Assignment ass = stm.getAssignments().get(0);
+            List<Term> subterms = stm.getSubterms();
+            
+            assertEquals(ass.getValue(), subterms.get(1));
         }
     }
     

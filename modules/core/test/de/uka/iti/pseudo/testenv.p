@@ -81,3 +81,7 @@ program Q
 
 program test_meta_functions_subst
     assert \var b
+
+program test_meta_functions_subst2
+    b1 := \var b
+    

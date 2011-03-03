@@ -139,7 +139,7 @@ public abstract class Statement implements Cloneable {
      * been replaced by newTerm. If the newTerm equals the old one, no new
      * statement will be generated.
      */
-    public Statement getWithReplacedSubterm(int i, Term newTerm) {
+    public @NonNull Statement getWithReplacedSubterm(int i, Term newTerm) {
         if (subTerms[i] == newTerm)
             return this;
 
@@ -164,8 +164,7 @@ public abstract class Statement implements Cloneable {
      * @return a string representation of this statement
      * 
      */
-    public @NonNull
-    String toString() {
+    public @NonNull String toString() {
         return toString(Term.SHOW_TYPES);
     }
 
