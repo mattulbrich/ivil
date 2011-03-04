@@ -31,9 +31,13 @@ do
        (\forall x; x::dom_distance -> distance[x] >= 0) &
        (\forall y; y::dom_distance \ singleton(start)-> 
 	(\exists x; x::dom_distance & pair(x,y)::dom_weight & 
-	  distance[y]  = distance[x] + weight(x,y)))
+	  distance[y]  = distance[x] + weight(x,y))) &
+       (\forall a; a::dom_distance ->
+        (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+          distance[b] <= distance[a] + weight(a,b)))
      var count(dom_distance \ visited)
    do
+
      choose n such that 
         !n :: visited &
         n :: dom_distance &
@@ -60,7 +64,10 @@ do
            (\forall x; x::dom_distance -> distance[x] >= 0) &
            (\forall y; y::dom_distance \ singleton(start)-> 
 	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
-	      distance[y] = distance[x] + weight(x,y)))
+	      distance[y] = distance[x] + weight(x,y))) &
+           (\forall a; a::dom_distance ->
+            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+              distance[b] <= distance[a] + weight(a,b)))
        var count(S)
      do
        choose u, o such that pair(o,u) :: S ;;
