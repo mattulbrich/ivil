@@ -6,6 +6,19 @@ import org.apache.log4j.PropertyConfigurator;
 
 import de.uka.iti.pseudo.util.Log;
 
+/**
+ * <h3>Usage</h3>
+ *
+ * Compile in the main directory using:
+ *    ant build
+ *    javac -classpath lib/log4j.jar:modules/core/classes -d modules/core/classes lib/Log4JLogImplementation.java
+ *    ant jar
+ * 
+ * Run it using:
+ *    ./ivil -DX-Dpseudo.logClass=Log4JLogImplementation
+ * 
+ * Copy doc/log4j.properties to main directory and adapt to your needs.
+ */
 public class Log4JLogImplementation implements Log.LogImplementation {
 
     static {
