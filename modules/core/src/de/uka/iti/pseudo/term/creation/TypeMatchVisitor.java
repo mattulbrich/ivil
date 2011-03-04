@@ -30,7 +30,7 @@ public class TypeMatchVisitor extends DefaultTypeVisitor<Type> {
         return null;
     }
     
-    public void tryInstantiation(String varName, Type argument) throws UnificationException {
+    public void tryInstantiation(String varName, Type argument) throws TermException {
         
         Type thisSigma = termMatcher.getTypeFor(varName);
         if(thisSigma == null) {

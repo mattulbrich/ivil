@@ -12,9 +12,10 @@ package de.uka.iti.pseudo.justify;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.Map.Entry;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -23,12 +24,8 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.environment.creation.RuleFormulaExtractor;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
@@ -332,21 +329,21 @@ public class RuleProblemExtractor {
      * Map all schema entities which are not yet mapped to new skolem symbols.
      */
     private void mapRemainingSchemaVars(Term term,
-            Map<SchemaVariable, Set<BindableIdentifier>> seenBindablesMap)
+            Map<SchemaVariable, SortedSet<BindableIdentifier>> seenBindablesMap)
             throws TermException, EnvironmentException {
-        for (Map.Entry<SchemaVariable, Set<BindableIdentifier>> entry : 
+        for (Entry<SchemaVariable, SortedSet<BindableIdentifier>> entry : 
                 seenBindablesMap.entrySet()) {
             SchemaVariable sv = entry.getKey();
             // not yet mapped
             if (!mapVars.containsKey(sv.getName())) {
-                Set<BindableIdentifier> deps = entry.getValue();
+                SortedSet<BindableIdentifier> deps = entry.getValue();
                 skolemizeSchemaVar(sv, deps);
             }
         }
     }
 
     private void skolemizeSchemaVar(SchemaVariable sv,
-            Set<BindableIdentifier> dependencies) throws TermException,
+            SortedSet<BindableIdentifier> dependencies) throws TermException,
             EnvironmentException {
         Type[] argTypes = new Type[dependencies.size()];
         Term[] argTerms = new Term[dependencies.size()];

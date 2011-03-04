@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.util;
 
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.rule.Rule;
 
 /**
  * A collection of static methods that can be used to dump internal information
@@ -28,7 +29,8 @@ public class Dump {
     public static String toString(RuleApplication ruleApp) {
         StringBuilder sb = new StringBuilder();
         sb.append("Rule application : " + ruleApp);
-        sb.append("\n Rule: " + ruleApp.getRule().getName());
+        Rule rule = ruleApp.getRule();
+        sb.append("\n Rule: " + (rule == null ? "null" : rule.getName()));
         sb.append("\n Node number: " + ruleApp.getProofNode());
         sb.append("\n Find: " + ruleApp.getFindSelector());
         sb.append("\n Ass.: " + ruleApp.getAssumeSelectors());

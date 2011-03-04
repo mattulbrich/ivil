@@ -335,18 +335,9 @@ public class ProofNode implements Comparable<ProofNode> {
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         
-        // capture the current state of the rule application in an
-        // immutable copy. No need to copy if already immutable.
-        ImmutableRuleApplication immRuleApp; 
-        if(ruleApp instanceof ImmutableRuleApplication) {
-            immRuleApp = (ImmutableRuleApplication) ruleApp; 
-        } else {
-            immRuleApp = new ImmutableRuleApplication(ruleApp);
-        }
-        
-        Map<String, Term> schemaMap = immRuleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = immRuleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = immRuleApp.getSchemaUpdateMapping();
+        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
         TermInstantiator inst = new ProgramComparingTermInstantiator(
                 schemaMap, typeMap, updateMap, env);
         
@@ -359,6 +350,18 @@ public class ProofNode implements Comparable<ProofNode> {
         verifyWhereClauses(ruleApp, inst, rule, env);
 
         children = doActions(ruleApp, inst, env, rule);
+        
+        // TODO do this before checking the ruleApp. But:
+        // "$$skolem" needs mutable properties to write its instantiation.
+        
+        // capture the current state of the rule application in an
+        // immutable copy. No need to copy if already immutable.
+        ImmutableRuleApplication immRuleApp; 
+        if(ruleApp instanceof ImmutableRuleApplication) {
+            immRuleApp = (ImmutableRuleApplication) ruleApp; 
+        } else {
+            immRuleApp = new ImmutableRuleApplication(ruleApp);
+        }
 
         this.appliedRuleApp = immRuleApp;
     }

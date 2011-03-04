@@ -195,7 +195,7 @@ rule skolemize3
   find (\forall c; (\forall %x; f(%x) & %a & %b & %d) & %a) & %c & %d | (\exists %e; true)
   replace true
   tags expectedTranslation
-        "((\forall c as 'v3; (\forall x as int; f(x) & a(c) & b(x, c) & d) & a(c)) & c1 & d |
+        "((\forall c as 'v3; (\forall x as int; f(x) & a(c) & b(x, \var c as 'v3) & d) & a(c)) & c1 & d |
          (\exists e as 'e; true))"
 
 rule type_quant_fails

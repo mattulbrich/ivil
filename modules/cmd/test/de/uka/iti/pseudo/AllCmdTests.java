@@ -13,6 +13,7 @@ package de.uka.iti.pseudo;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import de.uka.iti.pseudo.justify.TestRuleProblemExtractor;
+import de.uka.iti.pseudo.justify.TestSchemaVariableUseVisitor;
 
 public class AllCmdTests {
     
@@ -24,6 +25,7 @@ public class AllCmdTests {
         TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo");
         //$JUnit-BEGIN$
         suite.addTestSuite(TestRuleProblemExtractor.class);
+        suite.addTestSuite(TestSchemaVariableUseVisitor.class);
         //$JUnit-END$
         return suite;
     }
