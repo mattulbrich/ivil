@@ -335,6 +335,25 @@ public class ProofNode implements Comparable<ProofNode> {
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
         
+        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
+        TermInstantiator inst = new ProgramComparingTermInstantiator(
+                schemaMap, typeMap, updateMap, env);
+        
+        Rule rule = ruleApp.getRule();
+        
+        assert rule != null : "Rule in RuleApplication must not be null";
+
+        matchFindClause(ruleApp, inst, rule);
+        matchAssumeClauses(ruleApp, inst, rule);
+        verifyWhereClauses(ruleApp, inst, rule, env);
+
+        children = doActions(ruleApp, inst, env, rule);
+        
+        // TODO do this before checking the ruleApp. But:
+        // "$$skolem" needs mutable properties to write its instantiation.
+        
         // capture the current state of the rule application in an
         // immutable copy. No need to copy if already immutable.
         ImmutableRuleApplication immRuleApp; 
@@ -343,22 +362,6 @@ public class ProofNode implements Comparable<ProofNode> {
         } else {
             immRuleApp = new ImmutableRuleApplication(ruleApp);
         }
-        
-        Map<String, Term> schemaMap = immRuleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = immRuleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = immRuleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(
-                schemaMap, typeMap, updateMap, env);
-        
-        Rule rule = immRuleApp.getRule();
-        
-        assert rule != null : "Rule in RuleApplication must not be null";
-
-        matchFindClause(immRuleApp, inst, rule);
-        matchAssumeClauses(immRuleApp, inst, rule);
-        verifyWhereClauses(immRuleApp, inst, rule, env);
-
-        children = doActions(immRuleApp, inst, env, rule);
 
         this.appliedRuleApp = immRuleApp;
     }
