@@ -9,7 +9,7 @@
  * See LICENSE.TXT (distributed with this file) for details.
  */
 
-package de.uka.iti.pseudo.gui;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -41,6 +41,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -188,10 +189,12 @@ public class TermComponent extends JTextPane {
         }
 
         @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            Log.enter(e);
-            proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG, 
-                    mouseSelection);
-            Log.log(Log.VERBOSE, mouseSelection);
+            // Log.enter(e);
+            // proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG,
+            // TermComponent.this, null);
+            //
+            // if (null != mouseSelection)
+            // Log.log(Log.VERBOSE, mouseSelection);
         }
     };
 
@@ -203,13 +206,9 @@ public class TermComponent extends JTextPane {
      *                the term to display
      * @param history
      * @param open
-     * @param env
-     *                the environment to use for pretty printing
      * @param termSelector
      *                selector object describing the position of the displayed
      *                term in its sequent
-     * @param prettyPrinter
-     *                the pretty printer to print the term in this component
      */
     public TermComponent(@NonNull Term t, Annotation history, boolean open,
             @NonNull ProofCenter proofCenter, @NonNull TermSelector termSelector)  {
@@ -357,6 +356,12 @@ public class TermComponent extends JTextPane {
                 
                 mouseSelection = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(mouseSelection));
+
+                Log.enter(p);
+                proofCenter.fireNotification(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
+
+                if (null != mouseSelection)
+                    Log.log(Log.VERBOSE, mouseSelection);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
                 mouseSelection = null;
@@ -395,8 +400,7 @@ public class TermComponent extends JTextPane {
      *            tag to print info on
      * 
      */
-    private String makeTermHistory(TermTag termTag) {
-
+    public String makeFormatedTermHistory(TermTag termTag) {
         Term term = termTag.getTerm();
 
         StringBuilder sb = new StringBuilder();
@@ -580,5 +584,8 @@ public class TermComponent extends JTextPane {
         return false;
     }
 
+    public TermTag getMouseSelection() {
+        return mouseSelection;
+    }
 
 }

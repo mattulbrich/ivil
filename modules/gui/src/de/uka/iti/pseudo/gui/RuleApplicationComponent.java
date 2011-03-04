@@ -27,6 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.sequent.InteractiveRuleApplicationComponent;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;

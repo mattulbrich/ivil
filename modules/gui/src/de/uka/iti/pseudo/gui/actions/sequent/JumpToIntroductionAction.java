@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.sequent;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -17,8 +17,9 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.TermComponent;
+import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -28,6 +29,8 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 /**
  * GUI Action to jump to the node which introduces a symbol.
@@ -45,7 +48,7 @@ import de.uka.iti.pseudo.util.Log;
 @SuppressWarnings("serial")
 public class JumpToIntroductionAction
     extends BarAction 
-    implements InitialisingAction, PropertyChangeListener {
+    implements InitialisingAction, NotificationListener {
 
     private ProofNode targetProofNode;
 
@@ -65,16 +68,20 @@ public class JumpToIntroductionAction
     // initialise myself as listener to the proof center
     @Override
     public void initialised() {
-        getProofCenter().addPropertyChangeListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
     }
-
-    @Override public void propertyChange(PropertyChangeEvent evt) {
-        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getPropertyName());
+    
+    @Override 
+    public void handleNotification(NotificationEvent evt) {
+        assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
 
         targetProofNode = null;
         setEnabled(false);
         
-        TermTag selectedTermTag = (TermTag) evt.getNewValue();
+        TermTag selectedTermTag = ((TermComponent) evt.getParameter(0)).getMouseSelection();
+        if (null == selectedTermTag)
+            return;
+        
         boolean inAuto = Boolean.TRUE.equals(
                 getProofCenter().getProperty(ProofCenter.ONGOING_PROOF));
         

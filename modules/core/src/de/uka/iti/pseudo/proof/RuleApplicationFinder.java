@@ -199,11 +199,11 @@ public class RuleApplicationFinder {
                 ruleAppMaker.clearProperties();
                 ruleAppMaker.setRule(rule);
                 ruleAppMaker.setFindSelector(termSelector);
+                ruleAppMaker.getTermMatcher().clear();
 
                 LocatedTerm findClause = rule.getFindClause();
-                TermMatcher mc = new TermMatcher(env);
-                ruleAppMaker.setTermUnification(mc);
-
+                TermMatcher termMatcher = ruleAppMaker.getTermMatcher();
+                
                 if(findClause != null) {
                     if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
                             && (termSelector.isSuccedent() || !termSelector
@@ -216,12 +216,12 @@ public class RuleApplicationFinder {
                         continue;
 
 
-                    if (!mc.leftMatch(findClause.getTerm(), termSelector
+                    if (!termMatcher.leftMatch(findClause.getTerm(), termSelector
                             .selectSubterm(sequent)))
                         continue;
                 }
 
-                matchAssumptions(rule.getAssumptions(), mc, 0);
+                matchAssumptions(rule.getAssumptions(), 0);
 
             }
         } catch (RuleException e) {
@@ -242,9 +242,6 @@ public class RuleApplicationFinder {
      * 
      * @param assumptions
      *            the list of assumptions
-     * @param mc
-     *            the term unification object containing all currently set
-     *            instantiations
      * @param assIdx
      *            the index of the current assumption within assumptions
      * 
@@ -253,9 +250,10 @@ public class RuleApplicationFinder {
      * @throws EnoughException if enough applications have been found
      */
     private void matchAssumptions(List<LocatedTerm> assumptions,
-            TermMatcher mc, int assIdx) throws RuleException,
+            int assIdx) throws RuleException,
             EnoughException {
 
+        TermMatcher mc = ruleAppMaker.getTermMatcher();
         if (assIdx >= assumptions.size()) {
             if (matchWhereClauses(mc)) {
                 RuleApplication rap = ruleAppMaker.make();
@@ -277,15 +275,16 @@ public class RuleApplicationFinder {
             branch = sequent.getSuccedent();
         }
         
+        
         TermMatcher mcCopy = mc.clone();
         int termNo = 0;
         for (Term t : branch) {
             if(mc.leftMatch(assumption.getTerm(), t)) {
                 ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
-                matchAssumptions(assumptions, mc, assIdx+1);
+                matchAssumptions(assumptions, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();
-                mc = mcCopy;
-                mcCopy = mc.clone();
+                mc = mcCopy.clone();
+                ruleAppMaker.setTermMatcher(mc);
             }
             termNo++;
         }
@@ -301,6 +300,7 @@ public class RuleApplicationFinder {
      * @throws RuleException may be thrown by the where condition
      */
     private boolean matchWhereClauses(TermMatcher mc) throws RuleException {
+        
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
         for (WhereClause wc : whereClauses) {
             if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, goal, env))

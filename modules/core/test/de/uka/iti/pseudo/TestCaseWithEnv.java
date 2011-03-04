@@ -129,6 +129,24 @@ public class TestCaseWithEnv extends TestCase {
     }
     
     /**
+     * Parse a URL to produce an environment.
+     * 
+     * @param url
+     *            the url to parse
+     * 
+     * @return the environment which was represented by the argument
+     * 
+     * @throws Exception
+     *             various things can fail during the translation.
+     */
+    protected static Environment makeEnv(URL url) throws Exception {
+        Parser fp = new Parser();
+        EnvironmentMaker em = new EnvironmentMaker(fp, url);
+        Environment env = em.getEnvironment();
+        return env;
+    }
+    
+    /**
      * Defbug output. Print to stderr is only performed if {@link #VERBOSE} is
      * set to true.
      * 

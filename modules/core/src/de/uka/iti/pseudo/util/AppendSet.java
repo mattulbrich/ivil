@@ -2,7 +2,6 @@ package de.uka.iti.pseudo.util;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
-import java.util.Set;
 
 public class AppendSet<E> extends AbstractSet<E> implements Cloneable {
     

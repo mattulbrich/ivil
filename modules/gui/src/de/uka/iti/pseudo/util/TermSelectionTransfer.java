@@ -20,7 +20,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.text.JTextComponent;
 
-import de.uka.iti.pseudo.gui.TermComponent;
+import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.TermSelector;
 
 // TODO DOC

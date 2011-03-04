@@ -11,7 +11,7 @@
 package de.uka.iti.pseudo.justify;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
@@ -31,18 +31,23 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 		SchemaVariableUseVisitor svtuv = new SchemaVariableUseVisitor();
 		t.visit(svtuv);
 		
+		boolean oldShow = Term.SHOW_TYPES;
+		Term.SHOW_TYPES = false;
+		
 		// Schema vars to seen bindables
-		Map<SchemaVariable, Set<BindableIdentifier>> map = svtuv.getSeenBindablesMap();
+		Map<SchemaVariable, SortedSet<BindableIdentifier>> map = svtuv.getSeenBindablesMap();
 		// System.out.println(map);
 		assertEquals(5, map.size());
-		assertEquals("[c]",     map.get(sv("%a")).toString());
-		assertEquals("[%x, c]", map.get(sv("%b")).toString());
-		assertEquals("[]",      map.get(sv("%c")).toString());
-		assertEquals("[]",      map.get(sv("%d")).toString());
-		assertEquals("[%x, c]", map.get(svInt("%x")).toString());
+		assertEquals("[\\var c]"    , map.get(sv("%a")).toString());
+		assertEquals("[%x, \\var c]", map.get(sv("%b")).toString());
+		assertEquals("[]",            map.get(sv("%c")).toString());
+		assertEquals("[]",            map.get(sv("%d")).toString());
+		assertEquals("[%x, \\var c]", map.get(svInt("%x")).toString());
 		
 		// collect all bound variables
-		assertEquals("[%e, %x, c]", svtuv.getBoundIdentifiers().toString());
+		assertEquals("[%e, %x, \\var c]", svtuv.getBoundIdentifiers().toString());
+		
+		Term.SHOW_TYPES = oldShow;
 	}
 	
 	private SchemaVariable sv(String string) throws TermException {

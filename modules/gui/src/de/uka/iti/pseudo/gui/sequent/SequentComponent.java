@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -30,6 +30,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;

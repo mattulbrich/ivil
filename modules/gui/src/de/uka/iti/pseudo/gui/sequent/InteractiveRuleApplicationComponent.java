@@ -8,13 +8,17 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -41,6 +45,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.RuleApplicationComponent;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
@@ -51,6 +57,7 @@ import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
@@ -137,6 +144,7 @@ public class InteractiveRuleApplicationComponent extends
         if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
             proofCenter.firePropertyChange(ProofCenter.SELECTED_RULEAPPLICATION, ruleApp);
+            Log.log(Log.DEBUG, Dump.toString(ruleApp));
         }
     }
     
@@ -186,14 +194,14 @@ public class InteractiveRuleApplicationComponent extends
                 
             } catch (Exception ex) {
                 Log.log(Log.WARNING, "Error during the application of a rule");
+                Log.log(Log.WARNING, Dump.toString((RuleApplication)selected));
                 Log.stacktrace(ex);
                 if(component != null) {
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
                 } else {
-                    ExceptionDialog.showExceptionDialog(SwingUtilities
-                            .windowForComponent(this),
-                            "We do not have a component to feed back to ...",
+                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                            "Error during the application of a rule",
                             ex);
                 }
             }
@@ -261,6 +269,20 @@ public class InteractiveRuleApplicationComponent extends
             textField.addActionListener(this);
             textField.setDragEnabled(true);
             textField.setTransferHandler(new TermSelectionTransfer());
+
+            // try to initialize the text field with a formula from the clip
+            // board
+            try {
+                Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+                if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    textField.setText((String) t.getTransferData(DataFlavor.stringFlavor));
+                    TermMaker.makeAndTypeTerm(textField.getText(), env);
+                }
+
+            } catch (Exception ex) {
+                textField.setText("");
+            }
+
             Log.println("handler: " + textField.getTransferHandler());
             instantiationsPanel.add(textField, 1);
             interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));

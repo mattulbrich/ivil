@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
+import java.util.Collections;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -225,7 +227,17 @@ public class TestTermUnification extends TestCaseWithEnv {
         
         assertFalse(mc.leftMatch(mt("(\\T_all %'b; true)"), mt("(\\T_all 'a; true as %'b)")));
         
+    }
+    
+    // was a bug
+    public void testClone1() throws Exception {
         
+        TermMatcher matcher = new TermMatcher(env);
+        
+        boolean res = matcher.leftMatch(makeTerm("%x > 0"), makeTerm("i1 > 1"));
+        assertFalse(res);
+        // failed matching: matcher should be empty!
+        assertEquals(Collections.EMPTY_MAP, matcher.getTypeInstantiation());
     }
     
 }

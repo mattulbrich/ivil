@@ -38,8 +38,8 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
-import de.uka.iti.pseudo.gui.BracketMatchingTextArea;
 import de.uka.iti.pseudo.gui.editor.LineNrBorder;
+import de.uka.iti.pseudo.gui.sequent.BracketMatchingTextArea;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
