@@ -140,6 +140,7 @@ public class ExceptionDialog extends JDialog {
                 jScrollPane = new JScrollPane();
                 {
                     jTextArea = new JTextArea();
+                    jTextArea.setEditable(false);
                     jTextArea.setTabSize(1);
                     jScrollPane.setViewportView(jTextArea);
                 }

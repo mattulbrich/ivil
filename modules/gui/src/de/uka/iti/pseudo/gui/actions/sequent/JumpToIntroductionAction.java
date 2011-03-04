@@ -11,8 +11,6 @@
 package de.uka.iti.pseudo.gui.actions.sequent;
 
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Function;
