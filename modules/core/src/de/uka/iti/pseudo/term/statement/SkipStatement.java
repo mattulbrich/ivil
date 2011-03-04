@@ -81,7 +81,7 @@ public class SkipStatement extends Statement {
                     + getSubterms().size() + " is: " + newSubterms.length);
 
         int i = 0;
-        while (newSubterms[i] == getSubterms().get(i)) {
+        while (newSubterms[i].equals(getSubterms().get(i))) {
             i++;
             if (i == newSubterms.length)
                 return this;

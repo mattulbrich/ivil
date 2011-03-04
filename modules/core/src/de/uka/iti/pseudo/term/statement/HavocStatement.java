@@ -70,7 +70,7 @@ public class HavocStatement extends Statement {
     @Override
     public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
         assert newSubterms.length == 1;
-        if (newSubterms[0] == getSubterms().get(0))
+        if (newSubterms[0].equals(getSubterms().get(0)))
             return this;
 
         return new HavocStatement(getSourceLineNumber(), newSubterms[0]);

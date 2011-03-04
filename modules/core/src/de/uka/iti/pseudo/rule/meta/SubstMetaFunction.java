@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.ProgramChanger;
+import de.uka.iti.pseudo.environment.creation.ReplacingCloneableTermVisitor;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
@@ -54,7 +55,7 @@ public class SubstMetaFunction extends MetaFunction {
         return tr.replace(toReplace, replaceWith, replaceIn);
     }
 
-    static class TermReplacer extends RebuildingTermVisitor {
+    static class TermReplacer extends RebuildingTermVisitor implements ReplacingCloneableTermVisitor {
 
         private Term termToReplace;
         private Term replaceWith;
@@ -92,7 +93,7 @@ public class SubstMetaFunction extends MetaFunction {
             ProgramChanger changer = new ProgramChanger(node.getProgram(), env);
 
             try {
-                if (changer.replaceAll(termToReplace, replaceWith)) {
+                if (changer.replaceAll(this, termToReplace, replaceWith)) {
                     Program p;
                     env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
 
@@ -109,6 +110,16 @@ public class SubstMetaFunction extends MetaFunction {
             this.replaceWith = replaceWith;
             replaceIn.visit(this);
             return resultingTerm == null ? replaceIn : resultingTerm;
+        }
+
+        @Override
+        public ReplacingCloneableTermVisitor copy() {
+            try {
+                return (ReplacingCloneableTermVisitor) clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
     }

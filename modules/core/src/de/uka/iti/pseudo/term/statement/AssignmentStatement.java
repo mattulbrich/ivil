@@ -139,7 +139,7 @@ public class AssignmentStatement extends Statement {
             throw new TermException("It is required to supply the same amount of subterms; was: "+getSubterms().size() + " is: "+newSubterms.length);
         
         int i = 0;
-        while(newSubterms[i] == getSubterms().get(i)){
+        while (newSubterms[i].equals(getSubterms().get(i))) {
             i++;
             if (i == newSubterms.length)
                 return this;

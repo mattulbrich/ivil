@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.rule.meta.SubstMetaFunction;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -285,6 +284,9 @@ public class ProgramChanger {
     /**
      * Replaces all terms that equal target by replaceWith
      * 
+     * @param replacer
+     *            a copy of replacer will be used to replace terms in statements
+     * 
      * @param target
      *            Term to be searched for
      * 
@@ -296,8 +298,9 @@ public class ProgramChanger {
      * 
      * @return true, if the program has been changed
      */
-    public boolean replaceAll(Term target, Term replaceWith) throws EnvironmentException, TermException {
-        SubstMetaFunction subst = new SubstMetaFunction();
+    public boolean replaceAll(ReplacingCloneableTermVisitor replacer, Term target, Term replaceWith)
+            throws EnvironmentException, TermException {
+        ReplacingCloneableTermVisitor subst = replacer.copy();
 
         boolean changes = false, changedStatement;
 
@@ -309,8 +312,8 @@ public class ProgramChanger {
             Term[] replacement = new Term[s.getSubterms().size()];
             for (int i = 0; i < replacement.length; i++) {
                 Term t = s.getSubterms().get(i);
-                replacement[i] = subst.evaluate(target, replaceWith, t, env);
-                if (replacement[i] != t)
+                replacement[i] = subst.replace(target, replaceWith, t);
+                if (!replacement[i].equals(t))
                     changedStatement = true;
             }
             if (changedStatement) {
