@@ -54,9 +54,10 @@ do
      while !emptyset = S
        inv S <: singleton(n) <| dom_weight |> ^visited &
            visited <: dom_distance &
-           dom_distance <: old_dom_distance &
+           old_dom_distance <: dom_distance &
            distance[start] = 0 &
            start :: dom_distance &
+           (\forall x; x::dom_distance -> distance[x] >= 0) &
            (\forall y; y::dom_distance \ singleton(start)-> 
 	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
 	      distance[y] = distance[x] + weight(x,y)))
@@ -72,7 +73,7 @@ do
        assert pair(o,u) :: dom_weight ;;
        d := read(distance, n) + weight(o,u) ;;
 
-       if d < read(distance, u)
+       if ! u::dom_distance | d < distance[u]
        then
          dom_distance := dom_distance \/ singleton(u) ;;
          distance[u] := d

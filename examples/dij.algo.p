@@ -19,6 +19,7 @@ binder
 
 rule argmin_expand
   find (\argmin %x; %b; %e)
+  where toplevel
   samegoal "{%e} has a lower limited"
     # TODO create fresh variable here
     add |- (\exists limit; (\forall %x; %b -> %e >= limit))
@@ -28,3 +29,18 @@ rule argmin_expand
     add ($$subst(%x, (\argmin %x; %b; %e), %b)) |-
     add (\forall %x; %b -> 
       $$subst(%x, (\argmin %x; %b; %e), %e) <= %e) |-
+
+rule setminus_subset_is_subset
+  find %a \ %b <: %c
+  assume %a <: %c |-
+  where toplevel
+  replace true
+
+rule subset_of_union
+  assume  %a <: %b |-
+  find %a <: %b \/ %c
+  where toplevel
+  replace true
+
+rule OOPS
+  closegoal

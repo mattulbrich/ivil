@@ -1,4 +1,4 @@
-# Automatically created on Fri Feb 18 14:54:37 CET 2011
+# Automatically created on Fri Mar 04 14:06:27 CET 2011
 include "dij.algo.p"
 function node start assignable
 function set(node) old_dom_distance assignable
@@ -47,34 +47,34 @@ program Dij source "dij.algo"
   S := singleton ( n ) <| dom_weight |> ^ visited 
  sourceline 54
  loop1:
-  skip_loopinv S <: singleton ( n ) <| dom_weight |> ^ visited & visited <: dom_distance & dom_distance <: old_dom_distance & read(distance, start ) = 0 & start :: dom_distance & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: dom_distance & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) 
+  skip_loopinv S <: singleton ( n ) <| dom_weight |> ^ visited & visited <: dom_distance & old_dom_distance <: dom_distance & read(distance, start ) = 0 & start :: dom_distance & ( \forall x ; x :: dom_distance -> read(distance, x ) >= 0 ) & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: dom_distance & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) 
   goto body1, after1
  body1:
   assume ! emptyset = S ; "assume condition "
- sourceline 65
+ sourceline 66
   assert (\exists u; (\exists o; pair ( o , u ) :: S )) ; "assert before choose"
   havoc u
   havoc o
   assume pair ( o , u ) :: S 
- sourceline 66
+ sourceline 67
   S := S \ singleton ( pair ( o , u ) ) 
- sourceline 69
+ sourceline 70
   assert n = o 
- sourceline 72
-  assert pair ( o , u ) :: dom_weight 
  sourceline 73
+  assert pair ( o , u ) :: dom_weight 
+ sourceline 74
   d := read ( distance , n ) + weight ( o , u ) 
- sourceline 75
+ sourceline 76
   goto then0, else0
  then0:
-  assume d < read ( distance , u ) ; "then"
- sourceline 77
-  dom_distance := dom_distance \/ singleton ( u ) 
+  assume ! u :: dom_distance | d < read(distance, u ) ; "then"
  sourceline 78
+  dom_distance := dom_distance \/ singleton ( u ) 
+ sourceline 79
   distance := write(distance, u , d )
   goto after2
  else0:
-  assume $not(d < read ( distance , u ) ); "else"
+  assume $not(! u :: dom_distance | d < read(distance, u ) ); "else"
  after2:
   goto loop1
  after1:
