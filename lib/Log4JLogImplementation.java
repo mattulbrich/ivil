@@ -52,7 +52,7 @@ public class Log4JLogImplementation implements Log.LogImplementation {
             return Level.ALL;
 
         if (level <= Log.TRACE)
-            return Level.DEBUG;
+            return Level.TRACE;
 
         if (level <= Log.VERBOSE)
             return Level.DEBUG;

@@ -184,7 +184,7 @@ public class PooledAutoProver {
      */
     public void waitAutoProve() throws CompoundException, InterruptedException {
         synchronized (monitor) {
-            if (0 != workCounter) {
+            while (0 != workCounter) {
                 monitor.wait();
             }
         }
@@ -194,23 +194,21 @@ public class PooledAutoProver {
     }
 
     /**
-     * Stops the current automatic proving not waiting for its end.
-     * 
-     * @throws CompoundException
-     *             thrown if some jobs got exceptions
-     * 
-     * @throws InterruptedException
-     *             rethrown, when interrupted, while waiting
+     * Asynchronously tells the current automatic proving to stop. This method
+     * does not block.
      */
-    public void stopAutoProve() throws CompoundException, InterruptedException {
-        stopAutoProve(false);
+    public void stopAutoProve() { 
+        // code duplication from #stopAutoProve(boolean) to get rid of declared
+        // exceptions.
+        shouldStop = true;
     }
 
     /**
-     * Stops the current automatic proving.
+     * Asynchronously tells the current automatic proving to stop. This method
+     * may block if you set {@code waitForJobs}.
      * 
      * @param waitForJobs
-     *            set to true if you want to reuse the auto proofer.
+     *            set to true if you want to block till all jobs have finished.
      * 
      * @throws CompoundException
      *             thrown if some jobs got exceptions
