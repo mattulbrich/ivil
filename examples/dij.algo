@@ -29,12 +29,19 @@ do
        distance[start] = 0 &
        start :: dom_distance &
        (\forall x; x::dom_distance -> distance[x] >= 0) &
+       
        (\forall y; y::dom_distance \ singleton(start)-> 
-	(\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	(\exists x; x::visited & pair(x,y)::dom_weight & 
 	  distance[y]  = distance[x] + weight(x,y))) &
-       (\forall a; a::dom_distance ->
-        (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
-          distance[b] <= distance[a] + weight(a,b)))
+	  
+       (\forall a; (\forall b;
+         a::visited & b::dom_distance & pair(a,b)::dom_weight ->
+          distance[b] <= distance[a] + weight(a,b))) &
+          
+       /* reachable from within visited => dom_distance set */
+       (\forall p; (\forall q; p::visited & 
+            pair(p,q)::dom_weight -> q::dom_distance))
+
      var count(dom_distance \ visited)
    do
 
@@ -57,17 +64,25 @@ do
      
      while !emptyset = S
        inv S <: singleton(n) <| dom_weight |> ^visited &
-           visited <: dom_distance &
+           (\forall r; r::visited -> distance[r] = old_distance[r]) &
            old_dom_distance <: dom_distance &
            distance[start] = 0 &
            start :: dom_distance &
            (\forall x; x::dom_distance -> distance[x] >= 0) &
+           
            (\forall y; y::dom_distance \ singleton(start)-> 
-	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
-	      distance[y] = distance[x] + weight(x,y))) &
-           (\forall a; a::dom_distance ->
-            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
-              distance[b] <= distance[a] + weight(a,b)))
+	    (\exists x; x::visited & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y))) 
+	      
+           /*(\forall a; (\forall b;
+             a::visited & b::dom_distance & 
+             pair(a,b)::dom_weight \ S ->
+              distance[b] <= distance[a] + weight(a,b))) &
+              
+           /* reachable from within visited => dom_distance set * /
+           (\forall p; (\forall q; p::visited & 
+              pair(p,q)::dom_weight \ S -> q::dom_distance))*/
+              
        var count(S)
      do
        choose u, o such that pair(o,u) :: S ;;
@@ -86,5 +101,19 @@ do
          distance[u] := d
        end
      end
-   end
+   end ;;
+   
+   /* post conditions */
+   assert visited = dom_distance ;;
+   assert (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y))) ;;
+   assert (\forall a; a::dom_distance ->
+            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+              distance[b] <= distance[a] + weight(a,b)))
+/* to be done ...              
+   ;;
+   assert (\forall p; (\forall q; p::dom_distance & 
+            pair(p,q)::dom_weight -> q::dom_distance))*/
+            
  end
