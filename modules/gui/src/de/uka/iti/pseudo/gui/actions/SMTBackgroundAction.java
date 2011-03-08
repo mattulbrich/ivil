@@ -326,6 +326,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
     
     /*
      * Delegate the actual proving to a SwingWorker.
+     * Set into ongoing proof mode beforehand.
      */
     public void actionPerformed(ActionEvent actionEvt) {
         
@@ -443,7 +444,10 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
          */
         @Override
         protected void done() {
-            dialog.dispose();
+            // bugfix null check
+            if(dialog != null) {
+                dialog.dispose();
+            }
             ProofCenter proofCenter = getProofCenter();
             proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             proofCenter.fireProoftreeChangedNotification(true);
