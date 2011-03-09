@@ -30,13 +30,17 @@ import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
-// TODO Documentation needed
-
 /*
  * have a look at SaveProofAction for generalization with different file formats.
  */
 
-@SuppressWarnings("serial") public class LoadProofAction extends BarAction
+/**
+ * This action can be used to restore a previously serialised (saved) proof.
+ * 
+ * It needs a proof object that has not yet been tempered with.
+ */
+@SuppressWarnings("serial")
+public class LoadProofAction extends BarAction
         implements InitialisingAction, PropertyChangeListener {
 
     private JFileChooser fileChooser;
@@ -63,23 +67,22 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
     public void actionPerformed(ActionEvent e) {
         final Proof origProof = getProofCenter().getProof();
 
+        List<ProofNode> rootChildren = origProof.getRoot().getChildren();
+        if (rootChildren != null) {
+            ExceptionDialog
+                    .showExceptionDialog(getParentFrame(),
+                            "Root must not have children if loading a proof");
+        }
+
+        if (fileChooser == null)
+            fileChooser = new JFileChooser(".");
+
+        getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+        final int result = fileChooser.showOpenDialog(getProofCenter().getMainWindow());
+
         (new SwingWorker<Void, Void>() {
             public Void doInBackground(){
                 try {
-                    List<ProofNode> rootChildren = origProof.getRoot()
-                            .getChildren();
-                    if (rootChildren != null) {
-                        ExceptionDialog
-                                .showExceptionDialog(getParentFrame(),
-                                        "Root must not have children if loading a proof");
-                    }
-
-                    if (fileChooser == null)
-                        fileChooser = new JFileChooser(".");
-
-                    int result = fileChooser
-                            .showOpenDialog(getProofCenter()
-                                    .getMainWindow());
                     if (result == JFileChooser.APPROVE_OPTION) {
                         Environment env = getProofCenter().getEnvironment();
                         FileInputStream is = new FileInputStream(
@@ -93,8 +96,6 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
                                 .getSelectedFile());
 
                         proofImport.importProof(is, origProof, env);
-
-                        // no unsaved changes now.
                         origProof.changesSaved();
                     }
 
@@ -108,6 +109,15 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 }
                 return null;
+            }
+        
+            /**
+             * after loading, update the listeners.
+             */
+            @Override
+            protected void done() {
+                getProofCenter().fireProoftreeChangedNotification(true);
+                getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             }
         }).execute();
     }

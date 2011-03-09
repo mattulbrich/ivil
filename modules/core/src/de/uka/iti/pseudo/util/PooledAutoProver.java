@@ -44,11 +44,11 @@ public class PooledAutoProver {
          * exceptions occur here, add them to the exceptions list.
          */
         public void run() {
+            RuleApplication ra = null;
             try {
                 if (shouldStop)
                     return;
-
-                RuleApplication ra;
+                
                 try {
                     ra = strategy.findRuleApplication(node);
                 } catch (StrategyException e) {
@@ -56,7 +56,7 @@ public class PooledAutoProver {
                     return;
                 }
 
-                if (null != ra) {
+                if (ra != null) {
                     try {
                         node.getProof().apply(ra, env);
                     } catch (ProofException e) {
@@ -68,15 +68,17 @@ public class PooledAutoProver {
                         pool.submit(new Job(n));
                     }
                 } else {
-                    Log.log(Log.TRACE, "could not find a rule application for %s\n", node.toString());
-                    synchronized (monitor) {
-                        unclosableGoalsCount++;
-                    }
+                    Log.log(Log.TRACE, "could not find a rule application for " + node);
+                   
                 }
 
             } finally {
                 synchronized (monitor) {
-                    applicationsDone++;
+                    if(ra != null) {
+                        applicationsDone++;
+                    } else {
+                        unclosableGoalsCount++;
+                    }
                     workCounter --;
                     if (workCounter == 0) {
                         monitor.notifyAll();
@@ -98,12 +100,12 @@ public class PooledAutoProver {
     private int workCounter = 0;
 
     /**
-     * The amount of finished jobs.
+     * The number of successfully applied rules
      */
     private int applicationsDone = 0;
 
     /**
-     * The amount of goals that could not be closed with the current strategy.
+     * The number of goals that could not be closed with the current strategy.
      */
     private int unclosableGoalsCount = 0;
 
