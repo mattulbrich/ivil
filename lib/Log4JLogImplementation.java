@@ -43,7 +43,7 @@ public class Log4JLogImplementation implements Log.LogImplementation {
         Logger logger = Logger.getLogger(className);
         Level l4level = convertLevel(level);
         logger.log(l4level, "EXCEPTION in class " + className + "."
-                + methodName, null);
+                + methodName, e);
     }
 
     private Level convertLevel(int level) {

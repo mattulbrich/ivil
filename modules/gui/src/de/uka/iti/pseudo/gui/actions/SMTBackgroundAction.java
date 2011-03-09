@@ -14,8 +14,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -28,6 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -74,7 +78,13 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
      * The property on ProofCenter that will be used to store the activation.
      */
     public static final String SMT_BACKGROUND_PROPERTY = "pseudo.smt.background";
-
+    
+    /**
+     * The property on ProofCenter that will be used to decide whether or not to
+     * close the window after completion.
+     */
+    public static final String SMT_KEEPWINDOWOPEN_PROPERTY = "pseudo.smt.keepwindowopen";
+    
     /**
      * The rule to be called to close goals with
      */
@@ -249,13 +259,14 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                 return;
             }
             
-            provableNodes.retainAll(proof.getOpenGoals());
+            List<ProofNode> openGoals = proof.getOpenGoals();
+            provableNodes.retainAll(openGoals);
 
             setFlashing(!provableNodes.isEmpty());
 
             jobs.clear();
-            jobs.addAll(proof.getOpenGoals());
-            Log.log(Log.VERBOSE, "New jobs queue: " + jobs);
+            Log.log(Log.VERBOSE, "New jobs queue: " + openGoals);
+            jobs.addAll(openGoals);
         }
     }
 
@@ -281,44 +292,46 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                 }
 
                 ProofNode pn = jobs.take();
-                Sequent sequent = pn.getSequent();
-
-                Boolean cached = sequentStatus.get(sequent);
-                if (cached != null) {
-                    if (cached) {
-                        Log.log(Log.VERBOSE, "Cache hit: " + pn);
+                
+                try {
+                    boolean provable = isProvable(pn);
+                    if (provable) {
                         provableNodes.add(pn);
                         setFlashing(true);
-                    }
-                } else {
-                    try {
-                        Pair<Result, String> result = solver.solve(sequent, env, timeout);
-                        boolean proveable = result.fst() == Result.VALID;
-                        sequentStatus.put(sequent, proveable);
-                        Log.log(Log.VERBOSE, "Provability result for " + pn + ": " + result);
-                        if (proveable) {
-                            provableNodes.add(pn);
-                            setFlashing(true);
-                        } 
-                    } catch (final Exception ex) {
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
-                                ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-                                JOptionPane.showMessageDialog(getParentFrame(),
-                                        "'Background SMT' will be switched off to stop repeating "
-                                                + "failures. You can reenable it in the settings menu");
-                            }
-                        });
-                    }
+                    }       
+                } catch (final Exception ex) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
+                            ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                            JOptionPane.showMessageDialog(getParentFrame(),
+                                    "'Background SMT' will be switched off to stop repeating "
+                                    + "failures. You can reenable it in the settings menu");
+                        }
+                    });
                 }
-
             }
         } catch (InterruptedException e) {
             Log.stacktrace(e);
             e.printStackTrace();
         }
+    }
+
+    private boolean isProvable(ProofNode pn) throws ProofException, IOException {
+        
+        Sequent sequent = pn.getSequent();
+        Boolean cached = sequentStatus.get(sequent);
+        if (cached != null) {
+            Log.log(Log.VERBOSE, "Provability cache hit for " + pn + ": " + cached);
+            return cached.booleanValue();
+        } else {
+            Pair<Result, String> result = solver.solve(sequent, env, timeout);
+            boolean proveable = result.fst() == Result.VALID;
+            sequentStatus.put(sequent, proveable);
+            Log.log(Log.VERBOSE, "Provability result for " + pn + ": " + result);
+            return proveable;
+        }                
     }
     
     /*
@@ -408,29 +421,24 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                     for (ProofNode proofNode : openGoals) {
                         
                         // check for cache hit
-                        if(sequentStatus.containsKey(proofNode)) {
-                            Boolean cachedResult = sequentStatus.get(proofNode);
-                            if(!cachedResult) {
-                                publish("open (cached)");
-                                continue;
-                            }
-                        } 
+                        boolean proveable = isProvable(proofNode);
                         
-                        MutableRuleApplication ra = new MutableRuleApplication();
-                        ra.setProofNode(proofNode);
-                        ra.setRule(closeRule);
-                       
-                        try {
-                            proofCenter.apply(ra);
-                            publish("CLOSED");
-                        } catch (ProofException ex) {
-                            Log.stacktrace(Log.VERBOSE, ex);
+                        if(proveable) {
+                            MutableRuleApplication ra = new MutableRuleApplication();
+                            ra.setProofNode(proofNode);
+                            ra.setRule(closeRule);
+                           
+                            try {
+                                proofCenter.apply(ra);
+                                publish("CLOSED");
+                            } catch (ProofException e) {
+                                publish("exception");
+                                throw e;
+                            }
+                        } else {
                             publish("open");
-                            // this is ok - the goal may be not closable.
-                        } catch (Exception e) {
-                            publish("exception");
-                            throw e;
                         }
+                        
                     }
                 }
             
@@ -449,8 +457,8 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                 ExceptionDialog.showExceptionDialog(getParentFrame(), innerException);
             }
             
-            // bugfix null check
-            if(dialog != null) {
+            if(dialog != null && 
+                    getProofCenter().getProperty(SMT_KEEPWINDOWOPEN_PROPERTY) != Boolean.TRUE) {
                 dialog.dispose();
             }
             
@@ -498,16 +506,35 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                                         2, 2, 2, 2), 0, 0));
             }
             
-            JPanel buttons = new JPanel();
-            panel.add(buttons, new GridBagConstraints(0, count, 1, 1, 0, 0,
-                    GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
-                            10, 2, 2, 2), 0, 0));
             {
-                JButton stop = new JButton("Stop");
+                JCheckBox keepOpen = new JCheckBox("Keep open after completion");
+                keepOpen.setSelected(getProofCenter().getProperty(SMT_KEEPWINDOWOPEN_PROPERTY) == Boolean.TRUE);
+                keepOpen.addItemListener(new ItemListener() {
+                    @Override public void itemStateChanged(ItemEvent e) {
+                        Log.enter(e);
+                        boolean selectionState = e.getStateChange() == ItemEvent.SELECTED;
+                        getProofCenter().firePropertyChange(SMT_KEEPWINDOWOPEN_PROPERTY, selectionState);
+                    }
+                });
+                panel.add(keepOpen, new GridBagConstraints(0, count, 1, 1, 0, 0,
+                        GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
+                                10, 2, 2, 2), 0, 0));
+            }
+            
+            JPanel buttons = new JPanel();
+            panel.add(buttons, new GridBagConstraints(0, count+1, 1, 1, 0, 0,
+                    GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
+                            5, 2, 2, 2), 0, 0));
+            {
+                JButton stop = new JButton("Stop/Close");
                 stop.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        cancel(true);
+                        if(isDone()) {
+                            dialog.dispose();
+                        } else {
+                            cancel(true);
+                        }
                     }
                 });
                 buttons.add(stop);

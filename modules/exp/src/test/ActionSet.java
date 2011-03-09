@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.gui;
+package test;
 
 import java.awt.event.ActionEvent;
 

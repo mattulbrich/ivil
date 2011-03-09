@@ -30,7 +30,7 @@ import nonnull.Nullable;
  * 
  * This is comparable to XML texts. Consider
  * <code>"without Block &lt;block attr="value1"&gt;text in 1 and &lt;block attr="value2"&gt;
- * this in nested block&lt;/block&gt;&lt;/block&gt;"</code>
+ * this in nested block&lt;/block&gt;after block&lt;/block&gt;"</code>
  * 
  * You can obtain this nesting by something like:
  * 
@@ -42,6 +42,7 @@ import nonnull.Nullable;
  * as.begin(&quot;value2&quot;);
  * as.append(&quot;this in nested block&quot;);
  * as.end();
+ * as.append(&quot;after block&quot;);
  * as.end();
  * </pre>
  * 
@@ -72,9 +73,15 @@ import nonnull.Nullable;
  * <td>1</td>
  * </tr>
  * <tr>
- * <td>48+</td>
- * <td></td>
+ * <td>48-58</td>
+ * <td>after...</td>
+ * <td>"value1"</td>
+ * <td>0</td>
+ * </tr>
+ * <tr>
+ * <td>59</td>
  * <td>null</td>
+ * <td></td>
  * <td>-1</td>
  * </tr>
  * </table>
