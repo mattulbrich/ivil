@@ -16,6 +16,8 @@
  *)
 
 include "$setdefs.p"
+plugin
+  prettyPrinter : "test.SetPrettyPrinter"
 
 (*
  * rules with emptyset
@@ -163,3 +165,20 @@ replace !%x :: %s
 tags
   rewrite "fol simp"
   derived
+
+(*
+ * rules with equality
+ *)
+# TODO save variable name
+rule set_equality
+find %a = %b
+replace (\forall ii; ii::%a <-> ii::%b)
+tags
+  derived
+
+(*
+ * rules with \set
+ *)
+rule in_setext
+find %a :: (\set %x; %b)
+replace $$subst(%x, %a, %b)
