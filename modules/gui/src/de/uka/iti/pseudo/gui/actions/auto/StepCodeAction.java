@@ -40,9 +40,23 @@ import de.uka.iti.pseudo.util.NotificationListener;
 public abstract class StepCodeAction extends BarAction implements
         PropertyChangeListener, InitialisingAction, NotificationListener {
     
+    /**
+     * StepProofWorker has a field abort, that by default is false. If it is
+     * ever set to true, the worker will abort its task as soon as possible.
+     */
+    static abstract class StepProofWorker extends SwingWorker<Void, Void> {
+        boolean abort = false;
+    }
+
     private static final long serialVersionUID = 5444254542006126131L;
     
     protected ProofNode selectedProofNode;
+
+    /**
+     * the pointer to the worker is only kept to tell an existing worker to
+     * abort the computation
+     */
+    private StepProofWorker worker = null;
 
     public StepCodeAction(String name) {
         super(name);
@@ -89,14 +103,14 @@ public abstract class StepCodeAction extends BarAction implements
         todo.add(selectedProofNode);
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-        (new SwingWorker<Void, Void>() {
+        (worker = new StepProofWorker() {
             public Void doInBackground() {
                 try {
                     strategy.beginSearch();
 
                     ProofNode current = null;
 
-                    while (!todo.isEmpty()) {
+                    while (!(abort || todo.isEmpty())) {
                         current = todo.remove(0);
 
                         if (null != current.getChildren())
@@ -169,6 +183,7 @@ public abstract class StepCodeAction extends BarAction implements
                 ProofCenter.ONGOING_PROOF, this);
         proofCenter.addNotificationListener(
                 ProofCenter.PROOFTREE_HAS_CHANGED, this);
+        proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
         
         selectedProofNode = proofCenter.getProof().getRoot();
     }
@@ -179,6 +194,13 @@ public abstract class StepCodeAction extends BarAction implements
     public void handleNotification(NotificationEvent evt) {
         if(evt.isSignal(ProofCenter.PROOFTREE_HAS_CHANGED)) {
             setEnabled(null == selectedProofNode.getChildren() && null != getCodeLocation(selectedProofNode));
+
+        } else if(evt.isSignal(ProofCenter.STOP_REQUEST)){
+            // if there is a worker, set its abort field to true; if the worker
+            // was working, it will stop; if he already stopped, nothing will
+            // happen
+            if (null != worker)
+                worker.abort = true;
         }
     }
 }
