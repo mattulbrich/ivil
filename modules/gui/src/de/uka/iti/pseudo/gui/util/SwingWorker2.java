@@ -9,6 +9,8 @@
  */
 package de.uka.iti.pseudo.gui.util;
 
+import java.util.concurrent.CancellationException;
+
 import javax.swing.SwingWorker;
 
 import nonnull.Nullable;
@@ -29,6 +31,8 @@ public abstract class SwingWorker2<T, V> extends SwingWorker<T, V> {
     protected final @Nullable Exception getException() {
         try {
             get();
+            return null;
+        } catch(CancellationException cex) {
             return null;
         } catch(Exception ex) {
             return ex;

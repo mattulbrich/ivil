@@ -273,7 +273,9 @@ public class Log {
      *            the throwable object whose trace is to be logged.
      */
     public static void stacktrace(Throwable e) {
-        logImplementation.doStackTrace(DEBUG, e);
+        if(logImplementation != null) {
+            logImplementation.doStackTrace(DEBUG, e);
+        }
         
     }
     

@@ -301,7 +301,6 @@ public class Settings {
      * @param defValue the default value to return if the
      * key is not defined
      * @return true iff key stored and has the value "true"
-     * @throws SettingsException 
      */
     public boolean getBoolean(String key, boolean defaultValue)  {
             try {

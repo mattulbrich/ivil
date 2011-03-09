@@ -348,6 +348,7 @@ public class ProofCenter implements Observer {
      *             if the application fails.
      */
     public void apply(RuleApplication ruleApp) throws ProofException {
+        Log.enter(ruleApp);
         proof.apply(ruleApp, env);
     }
 
