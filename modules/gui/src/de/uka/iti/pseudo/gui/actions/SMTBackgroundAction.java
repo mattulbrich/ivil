@@ -3,15 +3,12 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.gui.actions;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -36,9 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import de.uka.iti.pseudo.auto.DecisionProcedure;
@@ -46,6 +41,7 @@ import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.gui.util.SwingWorker2;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -259,6 +255,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
 
             jobs.clear();
             jobs.addAll(proof.getOpenGoals());
+            Log.log(Log.VERBOSE, "New jobs queue: " + jobs);
         }
     }
 
@@ -298,20 +295,20 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                         Pair<Result, String> result = solver.solve(sequent, env, timeout);
                         boolean proveable = result.fst() == Result.VALID;
                         sequentStatus.put(sequent, proveable);
+                        Log.log(Log.VERBOSE, "Provability result for " + pn + ": " + result);
                         if (proveable) {
-                            Log.log(Log.VERBOSE, "Proved by SMT: " + pn);
                             provableNodes.add(pn);
                             setFlashing(true);
-                        }
+                        } 
                     } catch (final Exception ex) {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
+                                getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
                                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                                 JOptionPane.showMessageDialog(getParentFrame(),
                                         "'Background SMT' will be switched off to stop repeating "
                                                 + "failures. You can reenable it in the settings menu");
-                                getProofCenter().firePropertyChange(SMT_BACKGROUND_PROPERTY, false);
                             }
                         });
                     }
@@ -349,7 +346,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
      * </ol>
      * 
      */
-    private class Worker extends SwingWorker<Void, Boolean> implements NotificationListener {
+    private class Worker extends SwingWorker2<Void, String> implements NotificationListener {
 
         /**
          * The labels into which the results are to be reported.
@@ -372,7 +369,6 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
         protected Void doInBackground() throws Exception {
             
             ProofCenter proofCenter = getProofCenter();
-            try {
                 if (!provableNodes.isEmpty()) {
 
                     // automatic rules: do not bother with window & rules, just do it.
@@ -410,30 +406,33 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                     });
                     
                     for (ProofNode proofNode : openGoals) {
+                        
+                        // check for cache hit
+                        if(sequentStatus.containsKey(proofNode)) {
+                            Boolean cachedResult = sequentStatus.get(proofNode);
+                            if(!cachedResult) {
+                                publish("open (cached)");
+                                continue;
+                            }
+                        } 
+                        
                         MutableRuleApplication ra = new MutableRuleApplication();
                         ra.setProofNode(proofNode);
                         ra.setRule(closeRule);
-                        
-                        boolean result;
+                       
                         try {
                             proofCenter.apply(ra);
-                            result = true;
+                            publish("CLOSED");
                         } catch (ProofException ex) {
                             Log.stacktrace(Log.VERBOSE, ex);
-                            result = false;
+                            publish("open");
                             // this is ok - the goal may be not closable.
                         } catch (Exception e) {
-                            ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-                            result = false;
+                            publish("exception");
+                            throw e;
                         }
-                        
-                        publish(result);
                     }
                 }
-            } catch(Exception ex) {
-               ex.printStackTrace();
-               Log.stacktrace(ex);
-            }
             
             return null;
         }
@@ -444,10 +443,17 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
          */
         @Override
         protected void done() {
+            
+            Exception innerException = getException();
+            if(innerException != null) {
+                ExceptionDialog.showExceptionDialog(getParentFrame(), innerException);
+            }
+            
             // bugfix null check
             if(dialog != null) {
                 dialog.dispose();
             }
+            
             ProofCenter proofCenter = getProofCenter();
             proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
             proofCenter.fireProoftreeChangedNotification(true);
@@ -459,16 +465,11 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
          * boolean values: True if a goal is closable, false if not. 
          */
         @Override
-        protected void process(List<Boolean> chunks) {
+        protected void process(List<String> chunks) {
             
-            for (Boolean state : chunks) {
+            for (String result : chunks) {
                 JLabel label = resultLabels.remove(0);
-                if(state) {
-                    label.setText(label.getText() + " CLOSED");
-                    label.setForeground(Color.green.darker());
-                } else {
-                    label.setText(label.getText() + " open");
-                }
+                label.setText(label.getText() + " " + result);
             }
         }
         
