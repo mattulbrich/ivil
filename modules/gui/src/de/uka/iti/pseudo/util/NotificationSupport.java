@@ -9,6 +9,9 @@
  */
 package de.uka.iti.pseudo.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,13 +25,21 @@ import java.util.Map;
  * issue new notifications using the method
  * {@link #fireNotification(String, Object...)}.
  * 
+ * Listener can be added more than once! They will be invoked for each addition.
+ * Removinng them removes all instances.
+ * 
+ * Upon adding or removing a listener, the list is cloned. This is done to
+ * prevent concurrent modification exceptions during iterations. Since
+ * adding/removing a listener is far rarer an event than notification, the
+ * copying is done then.
+ * 
  * @see NotificationEvent
  * @see NotificationListener
  * 
  * @author mattias ulbrich
  */
 public final class NotificationSupport {
-
+    
     /**
      * The object reference to be used as source for all notifications.
      */
@@ -37,13 +48,13 @@ public final class NotificationSupport {
     /**
      * The table of listeners: A map from signal names to registered listeners.
      */
-    private Map<String, List<NotificationListener>> listeners = new HashMap<String, List<NotificationListener>>();
+    private Map<String, NotificationListener[]> listeners = new HashMap<String, NotificationListener[]>();
 
     /**
      * A list of listeners listening to <i>all</i> signals. The list is lazily
      * created when needed.
      */
-    private List<NotificationListener> totalListeners = null;
+    private NotificationListener[] totalListeners = null;
 
     /**
      * Instantiates a new notification support.
@@ -53,6 +64,22 @@ public final class NotificationSupport {
      */
     public NotificationSupport(Object source) {
         this.source = source;
+    }
+    
+    /*
+     * retrieve the list of total listeners. This method is synchronized
+     * to never expose arrays under construction.
+     */
+    private synchronized NotificationListener[] getTotalListeners() {
+        return totalListeners;
+    }
+    
+    /*
+     * retrieve the list of total listeners. This method is synchronized
+     * to never expose arrays under construction.
+     */
+    private synchronized NotificationListener[] getListeners(String signal) {
+        return listeners.get(signal);
     }
 
     /**
@@ -65,16 +92,18 @@ public final class NotificationSupport {
      * @param listener
      *            the listener
      */
-    public void addNotificationListener(String signal,
+    public synchronized void addNotificationListener(String signal,
             NotificationListener listener) {
-        List<NotificationListener> list = listeners.get(signal);
+        NotificationListener[] list = listeners.get(signal);
+        
         if (list == null) {
-            list = new LinkedList<NotificationListener>();
-            listeners.put(signal, list);
-        }
-
-        if (!list.contains(listener)) {
-            list.add(listener);
+            NotificationListener[] array = { listener };
+            listeners.put(signal, array);
+        } else {
+            NotificationListener[] array = new NotificationListener[list.length + 1];
+            System.arraycopy(list, 0, array, 0, list.length);
+            array[list.length] = listener;
+            listeners.put(signal, array);
         }
     }
 
@@ -86,13 +115,14 @@ public final class NotificationSupport {
      * @param listener
      *            the listener
      */
-    public void addNotificationListener(NotificationListener listener) {
+    public synchronized void addNotificationListener(NotificationListener listener) {
         if (totalListeners == null) {
-            totalListeners = new LinkedList<NotificationListener>();
-        }
-
-        if (!totalListeners.contains(listener)) {
-            totalListeners.add(listener);
+            totalListeners = new NotificationListener[] { listener };
+        } else {
+            NotificationListener[] array = new NotificationListener[totalListeners.length + 1];
+            System.arraycopy(totalListeners, 0, array, 0, totalListeners.length);
+            array[totalListeners.length] = listener;
+            totalListeners = array;
         }
     }
 
@@ -116,7 +146,7 @@ public final class NotificationSupport {
      */
     public void fireNotification(String signalName, Object... parameters) {
 
-        List<NotificationListener> list = listeners.get(signalName);
+        NotificationListener[] list = getListeners(signalName);
 
         if (list == null && totalListeners == null)
             return;
@@ -130,8 +160,9 @@ public final class NotificationSupport {
             }
         }
 
-        if (totalListeners != null) {
-            for (NotificationListener listener : totalListeners) {
+        list = getTotalListeners();
+        if (list != null) {
+            for (NotificationListener listener : list) {
                 listener.handleNotification(event);
             }
         }
@@ -151,20 +182,23 @@ public final class NotificationSupport {
      * 
      * @return true, if successfully removed, false, if nothing changed
      */
-    public boolean removeNotificationListener(String signal,
+    public synchronized boolean removeNotificationListener(String signal,
             NotificationListener listener) {
 
-        List<NotificationListener> list = listeners.get(signal);
-
-        if (list == null) {
+        NotificationListener[] array = getListeners(signal);
+        if(array == null) {
             return false;
         }
+        
+        List<NotificationListener> list =
+            new ArrayList<NotificationListener>(Util.readOnlyArrayList(array));
 
         boolean result = list.remove(listener);
 
         // if this listener has been the last store null instead of empty list.
-        if (result && list.isEmpty()) {
-            listeners.put(signal, null);
+        if (result) {
+            array = Util.listToArray(list, NotificationListener.class);
+            listeners.put(signal, array);
         }
 
         return result;
@@ -183,15 +217,22 @@ public final class NotificationSupport {
      * 
      * @return true, if successfully removed, false if nothing has been changed.
      */
-    public boolean removeNotificationListener(NotificationListener listener) {
-        if (totalListeners == null)
+    public synchronized boolean removeNotificationListener(NotificationListener listener) {
+        
+        NotificationListener[] array = getTotalListeners();
+        if(array == null) {
             return false;
+        }
+        
+        List<NotificationListener> list =
+            new ArrayList<NotificationListener>(Util.readOnlyArrayList(array));
 
-        boolean result = totalListeners.remove(listener);
+        boolean result = list.remove(listener);
 
         // if this listener has been the last store null instead of empty list.
-        if (result && totalListeners.isEmpty()) {
-            totalListeners = null;
+        if (result) {
+            array = Util.listToArray(list, NotificationListener.class);
+            totalListeners = array;
         }
 
         return result;
@@ -207,7 +248,7 @@ public final class NotificationSupport {
      * @return true, if successfully removed from at least one list; false if
      *         nothing has been changed.
      */
-    public boolean removeNotificationListenerCompletely(
+    public synchronized boolean removeNotificationListenerCompletely(
             NotificationListener listener) {
 
         boolean result = removeNotificationListener(listener);
