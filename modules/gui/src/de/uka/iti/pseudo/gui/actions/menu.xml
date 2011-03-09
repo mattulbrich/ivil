@@ -45,6 +45,7 @@
 		
 		<settingsMenu text="Settings" mnemonic="S">
 			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
+			smt.keepwindowopen
 		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
@@ -243,7 +244,16 @@
 
 	<smt>
 		<active>ACTION SMTBackgroundAction</active>
-		<activation>TOGGLE_ACTION SMTActivationAction</activation>	
+		<activation>TOGGLE_ACTION ProofCenterPropertyAction pseudo.smt.background
+			<mnemonic>B</mnemonic>
+			<text>Background SMT</text>
+			<tooltip>Activate background SMT solver</tooltip>
+		</activation>
+		<keepwindowopen>TOGGLE_ACTION ProofCenterPropertyAction pseudo.smt.keepwindowopen
+			<text>Keep SMT window open</text>
+			<tooltip>Keep the SMT solver status window open after completion</tooltip>
+			<mnemonic>W</mnemonic>
+		</keepwindowopen>	
 	</smt>
 
 	<settings>
@@ -253,7 +263,7 @@
 		<pp>
 			<typed>TOGGLE_ACTION view/PrettyPrintTypedRadioAction</typed>
 			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>
-			<mod>TOGGLE_ACTION view/PrettyPrintPluginsRadioAction				</mod>
+			<mod>TOGGLE_ACTION view/PrettyPrintPluginsRadioAction</mod>
 		</pp>
 	</settings>
 	
