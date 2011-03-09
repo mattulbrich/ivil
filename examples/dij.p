@@ -1,4 +1,4 @@
-# Automatically created on Wed Mar 09 19:07:02 CET 2011
+# Automatically created on Wed Mar 09 19:51:51 CET 2011
 include "dij.algo.p"
 function node start assignable
 function set(node) old_dom_distance assignable
@@ -26,7 +26,7 @@ program Dij source "dij.algo"
   visited := emptyset 
  sourceline 26
  loop0:
-  skip_loopinv visited <: dom_distance & read(distance, start ) = 0 & start :: dom_distance & ( \forall x ; x :: dom_distance -> read(distance, x ) >= 0 ) & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: visited & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance & pair ( a , b ) :: dom_weight -> read(distance, b ) <= read(distance, a ) + weight ( a , b ) ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance \ visited -> read(distance, a ) <= read(distance, b ) ) ) 
+  skip_loopinv visited <: dom_distance & read(distance, start ) = 0 & start :: dom_distance & ( \forall x ; x :: dom_distance -> read(distance, x ) >= 0 ) & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: visited & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance & pair ( a , b ) :: dom_weight -> read(distance, b ) <= read(distance, a ) + weight ( a , b ) ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance \ visited -> read(distance, a ) <= read(distance, b ) ) ) & ( \forall p ; ( \forall q ; p :: visited & pair ( p , q ) :: dom_weight -> q :: dom_distance ) ) 
   goto body0, after0
  body0:
   assume ! emptyset = ( dom_distance \ visited ) ; "assume condition "
@@ -49,7 +49,7 @@ program Dij source "dij.algo"
   nbors := nbors0 
  sourceline 72
  loop1:
-  skip_loopinv nbors <: nbors0 & ( \forall r ; r :: visited -> read(distance, r ) = read(old_distance, r ) ) & old_dom_distance <: dom_distance & ( \forall s ; s :: old_dom_distance -> read(distance, s ) <= read(old_distance, s ) ) & read(distance, start ) = 0 & start :: dom_distance & ( \forall x ; x :: dom_distance -> read(distance, x ) >= 0 ) & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: visited & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) & ( \forall b ; b :: dom_distance \ nbors & pair ( n , b ) :: dom_weight -> read(distance, b ) <= read(distance, n ) + weight ( n , b ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance \ visited -> read(distance, a ) <= read(distance, b ) ) ) 
+  skip_loopinv nbors <: nbors0 & ( \forall r ; r :: visited -> read(distance, r ) = read(old_distance, r ) ) & old_dom_distance <: dom_distance & ( \forall s ; s :: old_dom_distance -> read(distance, s ) <= read(old_distance, s ) ) & read(distance, start ) = 0 & start :: dom_distance & ( \forall x ; x :: dom_distance -> read(distance, x ) >= 0 ) & ( \forall y ; y :: dom_distance \ singleton ( start ) -> ( \exists x ; x :: visited & pair ( x , y ) :: dom_weight & read(distance, y ) = read(distance, x ) + weight ( x , y ) ) ) & ( \forall b ; b :: dom_distance \ nbors & pair ( n , b ) :: dom_weight -> read(distance, b ) <= read(distance, n ) + weight ( n , b ) ) & ( \forall a ; ( \forall b ; a :: visited & b :: dom_distance \ visited -> read(distance, a ) <= read(distance, b ) ) ) & ( \forall p ; ( \forall q ; p :: visited & ! q :: nbors & pair ( p , q ) :: dom_weight -> q :: dom_distance ) ) 
   goto body1, after1
  body1:
   assume ( \exists t ; t :: nbors ) ; "assume condition "
