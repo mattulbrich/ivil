@@ -116,14 +116,8 @@ public class Application extends Term {
 
     }
 
-    private String cachedToStringFalse = null, cachedToStringTrue = null;
     @Override
     public String toString(boolean typed) {
-        if (typed && null != cachedToStringTrue)
-            return cachedToStringTrue;
-        else if (null != cachedToStringFalse)
-            return cachedToStringFalse;
-
         StringBuilder retval = new StringBuilder();
         retval.append(function.getName());
         if (countSubterms() > 0) {
@@ -138,11 +132,7 @@ public class Application extends Term {
         if (typed)
             retval.append(" as ").append(getType());
 
-        if (typed) {
-            return cachedToStringTrue = retval.toString();
-        } else {
-            return cachedToStringFalse = retval.toString();
-        }
+        return retval.toString();
     }
     
     @Override
