@@ -195,8 +195,32 @@ public class InteractiveRuleApplicationComponent extends
                 putClientProperty("finished", true);
                 proofCenter.fireProoftreeChangedNotification(true);
                 
-            } catch (Exception ex) {
+            } catch (ASTVisitException ex) {
+                // this kind of exception is expectable, because it indicates
+                // wrong input
                 Log.log(Log.WARNING, "Error during the application of a rule");
+                Log.log(Log.WARNING, Dump.toString((RuleApplication) selected));
+                Log.stacktrace(ex);
+                if (component != null) {
+                    component.setBackground(ColorResolver.getInstance().resolve("orange red"));
+                    component.setToolTipText(htmlize(ex.getMessage()));
+
+                    // show the error message in an error dialog, so it is
+                    // easier to understand what is going on; this dialog can be
+                    // annoying to experienced users, so it can be turned of
+                    // using settings
+                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
+                        JOptionPane.showMessageDialog(component, component.getToolTipText(), "Errors occured:"
+                                + ex.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+
+                } else {
+                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                            "Error during the application of a rule", ex);
+                }
+
+            } catch (Exception ex) {
+                // other exceptions may indicate internal errors
+                Log.log(Log.WARNING, "Unexpected error during the application of a rule");
                 Log.log(Log.WARNING, Dump.toString((RuleApplication)selected));
                 Log.stacktrace(ex);
                 if (component != null) {
@@ -208,8 +232,8 @@ public class InteractiveRuleApplicationComponent extends
                     // annoying to experienced users, so it can be turned of
                     // using settings
                     if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
-                        JOptionPane.showMessageDialog(component, component.getToolTipText(), "Errors occured:",
-                                JOptionPane.ERROR_MESSAGE);
+                        ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                                "Error during the application of a rule", ex);
 
                 } else {
                     ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),

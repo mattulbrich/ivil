@@ -131,6 +131,7 @@ public class Application extends Term {
         }
         if (typed)
             retval.append(" as ").append(getType());
+
         return retval.toString();
     }
     
