@@ -9,7 +9,7 @@
     <pathelement path="../core/classes"/>
     <pathelement path="../gui/classes"/>
     <pathelement path="../cmd/classes"/>
-    <pathelement path="classes"/>
+<!--    <pathelement path="classes"/>-->
   </path>
   <path id="ivil.sourcepath.compile">
     <pathelement path="src"/>
