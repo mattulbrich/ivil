@@ -121,4 +121,10 @@ public class NotificationEvent extends EventObject {
     public boolean isSignal(@NonNull String signal) {
         return this.signal.equals(signal);
     }
+    
+    @Override
+    public String toString() {
+        return "NotificationEvent('" + signal + "')[" + 
+            Util.commatize(Util.readOnlyArrayList(parameters)) + "]";
+    }
 }

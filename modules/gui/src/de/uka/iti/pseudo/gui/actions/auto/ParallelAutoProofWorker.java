@@ -7,6 +7,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,10 +26,14 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.CompoundException;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.PooledAutoProver;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements ActionListener {
+// TODO DOC
+
+public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements ActionListener, NotificationListener {
     
     private final static int REFRESH_DELAY = 
         Settings.getInstance().getInteger("pseudo.auto.popup.refreshDelay", 100);
@@ -38,7 +43,6 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
     private final Strategy strategy;
     private final ProofCenter pc;
     private final Frame parentFrame;
-    private final ParallelAutoProofAction action;
     private final JDialog dialog;
     private final JLabel raCount, workCount, unclosableCount, timeElapsed;
     // start time; subtract 500ms for proper rounding
@@ -48,13 +52,14 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
 
 //    private final int initialyClosableGoals;
 
-    public ParallelAutoProofWorker(ProofCenter pc, ParallelAutoProofAction action, final Frame frame) {
-        this.nodes = new LinkedList<ProofNode>(action.getInitialList());
+    public ParallelAutoProofWorker(ProofCenter pc, Collection<ProofNode> initialList, final Frame frame) {
+        this.nodes = new LinkedList<ProofNode>(initialList);
         this.strategy = pc.getStrategyManager().getSelectedStrategy();
         this.pool = new PooledAutoProver(strategy, pc.getEnvironment());
         this.pc = pc;
         this.parentFrame = frame;
-        this.action = action;
+        
+        pc.addNotificationListener(ProofCenter.STOP_REQUEST, this);
 
 //        this.initialyClosableGoals = pc.getProof().getOpenGoals().size() - this.nodes.size();
 
@@ -181,7 +186,6 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         // close the dialog, as it is not interesting for the user any more
         dialog.setVisible(false);
         timer.stop();
-        action.setJob(null);
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
         // some listeners have been switched off, they might want to update now.
@@ -198,5 +202,13 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
      */
     public void halt() throws CompoundException, InterruptedException {
         pool.stopAutoProve(true);
+    }
+
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        Log.enter(event);
+        if(event.isSignal(ProofCenter.STOP_REQUEST)) {
+            pool.stopAutoProve();
+        }
     }
 }

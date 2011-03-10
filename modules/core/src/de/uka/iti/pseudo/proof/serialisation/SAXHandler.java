@@ -30,7 +30,7 @@ class SAXHandler extends DefaultHandler {
     private Environment env;
     private Proof proof;
     
-    private String content = "";
+    private StringBuilder content = new StringBuilder();
     private String currentId = "";
     private Attributes attributes;
     private MutableRuleApplication ram;
@@ -96,16 +96,16 @@ class SAXHandler extends DefaultHandler {
         try {
             if (name.equals("find")) {
 
-                ram.setFindSelector(new TermSelector(content));
+                ram.setFindSelector(new TermSelector(content.toString()));
 
             } else if (name.equals("assume")) {
-                ram.getAssumeSelectors().add(new TermSelector(content));
+                ram.getAssumeSelectors().add(new TermSelector(content.toString()));
 
             } else if (name.equals("property")) {
                 String propname = attributes.getValue("name");
                 if (propname == null)
                     throw new SAXException("No property referenced!");
-                ram.getProperties().put(propname, content);
+                ram.getProperties().put(propname, content.toString());
 
             } else if (name.equals("skip")) {
                 goalNo++;
@@ -115,7 +115,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No variable name referenced (should be ensured by schema)";
 
                 Term term = null;
-                term = TermMaker.makeAndTypeTerm(content, env, "XML-Import");
+                term = TermMaker.makeAndTypeTerm(content.toString(), env, "XML-Import");
 
                 Map<String, Term> schemaVariableMapping = ram
                         .getSchemaVariableMapping();
@@ -129,7 +129,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No type variable name referenced (should be ensured by schema)";
 
                 Type type = null;
-                type = TermMaker.makeType(content, env);
+                type = TermMaker.makeType(content.toString(), env);
 
                 Map<String, Type> typeVariableMapping = ram
                         .getTypeVariableMapping();
@@ -144,7 +144,7 @@ class SAXHandler extends DefaultHandler {
                 assert varname != null : "No schema update name referenced (should be ensured by schema)";
 
                 Update upd = null;
-                upd = TermMaker.makeAndTypeUpdate(content, env);
+                upd = TermMaker.makeAndTypeUpdate(content.toString(), env);
 
                 Map<String, Update> updMap = ram.getSchemaUpdateMapping();
                 if (updMap.containsKey(varname))
@@ -157,7 +157,6 @@ class SAXHandler extends DefaultHandler {
                 // matchRuleApp();
                 proof.apply(ram, env);
                 ram = null;
-
             }
         } catch (FormatException e) {
             throwSAXException(content, e);
@@ -171,11 +170,12 @@ class SAXHandler extends DefaultHandler {
             }
             throwSAXException(content, e);
         }
-        
+
+        content.setLength(0);
         Log.leave();
     }
     
-    private void throwSAXException(String content, Exception e) throws SAXException {
+    private void throwSAXException(CharSequence content, Exception e) throws SAXException {
         StringBuilder msg = new StringBuilder();
         msg.append("RuleApp on id ").append(currentId).append(": ");
         msg.append("Cannot parse '").append(content).append("'\n");
@@ -203,10 +203,14 @@ class SAXHandler extends DefaultHandler {
 //            ram.getTermUnification().leftUnify(t2, t1);
 //        }
 //    }
-
+    
+    
+    // FIXME Can this be invoked more than once for one element?!?!?!
     public void characters(char[] ch, int start, int length)
             throws SAXException {
-        content = new String(ch, start, length);
+        content.append(ch, start, length);
+        Log.enter();
+        Log.log(Log.TRACE, "new content='" + content + "'");
     }
     
     private ProofNode parsePath(String pathStr) throws SAXException {

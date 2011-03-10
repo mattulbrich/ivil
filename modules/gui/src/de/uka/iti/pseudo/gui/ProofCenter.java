@@ -124,6 +124,12 @@ public class ProofCenter implements Observer {
     public static final String PROOFTREE_HAS_CHANGED = "pseudo.prooftree_changed";
 
     /**
+     * Notification signal to indicate that an ongoing action is to be stopped.
+     * Typically thrown when pressing the proof button in "stop" mode. 
+     */
+    public static final String STOP_REQUEST = "pseudo.stop_request";
+
+    /**
      * The main window.
      */
     private MainWindow mainWindow;
@@ -342,6 +348,7 @@ public class ProofCenter implements Observer {
      *             if the application fails.
      */
     public void apply(RuleApplication ruleApp) throws ProofException {
+        Log.enter(ruleApp);
         proof.apply(ruleApp, env);
     }
 
@@ -454,10 +461,12 @@ public class ProofCenter implements Observer {
      *            the listener to handle changes
      */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
+        Log.enter(propertyName, listener);
         changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
     public void addNotificationListener(String signal, NotificationListener listener) {
+        Log.enter(signal, listener);
         notificationSupport.addNotificationListener(signal, listener);
     }
 

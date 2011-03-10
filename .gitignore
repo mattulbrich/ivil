@@ -19,9 +19,13 @@ VERSION
 # ignore module intermed files
 modules/core/genSrc/
 modules/core/classes/
+modules/core/classes-test/
 modules/cmd/classes/
+modules/cmd/classes-test/
 modules/gui/classes/
+modules/gui/classes-test/
 modules/exp/classes/
+modules/exp/classes-test/
 javadoc/
 
 # directories which might exist:

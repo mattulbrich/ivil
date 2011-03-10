@@ -124,7 +124,7 @@ public class XMLOutput {
         // schema updates
         for(Entry<String, Update> entry : ruleApp.getSchemaUpdateMapping().entrySet()) {
             out.start("schemaupdate", "name", entry.getKey());
-            out.append(entry.getValue().toString()).end().newline();
+            out.append(entry.getValue().toString(true)).end().newline();
         }
         
         // properties

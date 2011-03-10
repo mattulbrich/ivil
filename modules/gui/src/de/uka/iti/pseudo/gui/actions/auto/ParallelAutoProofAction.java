@@ -20,8 +20,6 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
-import de.uka.iti.pseudo.util.CompoundException;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
@@ -30,6 +28,10 @@ import de.uka.iti.pseudo.util.NotificationListener;
 /**
  * This action tries to close a given list of open goals by searching for rule
  * applications with a thread pool. This will need strategies to be thread safe.
+ * 
+ * In case "something is going on" (ONGOING_PROOF is set), firing the action
+ * will raise a {@link ProofCenter#STOP_REQUEST} notification that listining
+ * actions can react upon.
  * 
  * @author felden@ira.uka.de
  */
@@ -61,22 +63,17 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      */
     public void actionPerformed(ActionEvent event) {
         
-        if (job != null) {
-            try {
-                job.halt();
-                setIcon(getGoIcon());
-            } catch (CompoundException e) {
-                Log.stacktrace(e);
-                ExceptionDialog.showExceptionDialog(getParentFrame(), e);
-                setIcon(getGoIcon());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        ProofCenter proofCenter = getProofCenter();
+        Boolean ongoingProof = (Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF);
+        
+        // (be "null" safe here)
+        if (ongoingProof == Boolean.TRUE) {
+            // in case a proof is on its way notify the system with a stop request.
+            proofCenter.fireNotification(ProofCenter.STOP_REQUEST);
+            
         } else {
             // start auto proving
-            final ProofCenter proofCenter = getProofCenter();
-
-            job = new ParallelAutoProofWorker(proofCenter, this, getParentFrame());
+            job = new ParallelAutoProofWorker(proofCenter, getInitialList(), getParentFrame());
 
             proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
             
@@ -94,9 +91,10 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
+        Log.enter(evt);
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             ongoingProof = (Boolean) evt.getNewValue();
-            setIcon(null != job ? stopIcon : getGoIcon());
+            setIcon(ongoingProof ? stopIcon : getGoIcon());
         }
     }
 
@@ -113,11 +111,11 @@ public abstract class ParallelAutoProofAction extends BarAction implements Prope
      */
     protected abstract Icon getGoIcon();
     
-    public void setJob(ParallelAutoProofWorker job) {
-        this.job = job;
-    }
-
-    public ParallelAutoProofWorker getJob() {
-        return job;
-    }
+//    public void setJob(ParallelAutoProofWorker job) {
+//        this.job = job;
+//    }
+//
+//    public ParallelAutoProofWorker getJob() {
+//        return job;
+//    }
 }

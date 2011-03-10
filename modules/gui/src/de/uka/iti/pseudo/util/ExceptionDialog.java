@@ -16,6 +16,7 @@
 package de.uka.iti.pseudo.util;
 
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -140,6 +141,7 @@ public class ExceptionDialog extends JDialog {
                 jScrollPane = new JScrollPane();
                 {
                     jTextArea = new JTextArea();
+                    jTextArea.setEditable(false);
                     jTextArea.setTabSize(1);
                     jScrollPane.setViewportView(jTextArea);
                 }
@@ -237,12 +239,20 @@ public class ExceptionDialog extends JDialog {
 
     public static void showExceptionDialog(Window parentComponent,
             String message, Throwable throwable) {
-                Log.stacktrace(Log.DEBUG, throwable);
+        Log.stacktrace(Log.DEBUG, throwable);
+
+        if(Log.isLogging(Log.WARNING)) {
+            if(!EventQueue.isDispatchThread()) {
+                Log.log(Log.WARNING, "Show exception not on AWT thread, but on: " + 
+                        Thread.currentThread().getName());
+            }
+        }
+
         ExceptionDialog dlg = new ExceptionDialog(parentComponent, message,
                 throwable);
-                dlg.setLocationRelativeTo(parentComponent);
-                dlg.setVisible(true);
-                dlg.dispose();
+        dlg.setLocationRelativeTo(parentComponent);
+        dlg.setVisible(true);
+        dlg.dispose();
     }
 
     public static void main(String[] args) {

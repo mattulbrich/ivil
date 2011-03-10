@@ -13,8 +13,8 @@ import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
-import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -22,38 +22,43 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * This is a generic action to allow the creation of toggle actions by the
  * specification of a property. The action is initialised from the property read
  * from the {@link Settings}. It listens to the property on the
- * {@link PFileEditor} and it fires {@link PropertyChangeEvent}s if the boolean
+ * {@link ProofCenter} and it fires {@link PropertyChangeEvent}s if the boolean
  * value changes.
  * 
  * It is configured by a single parameter given to the constructor.
  * 
  * Text, tooltip and other things are configures in "menu.xml".
  */
-public class EditorPropertyAction extends BarAction implements InitialisingAction, PropertyChangeListener{
+@SuppressWarnings("serial")
+public final class ProofCenterPropertyAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
-    private static final long serialVersionUID = -1823355324677410688L;
+    private ProofCenter proofCenter;
     private String property;
     
-    public EditorPropertyAction(String property) {
+    public ProofCenterPropertyAction(String property) {
         this.property = property;
     }
     
-    @Override
     public void initialised() {
-        getEditor().addPropertyChangeListener(property, this);
-        setSelected((Boolean)getEditor().getProperty(property));
+        boolean selected = Settings.getInstance().getBoolean(property, false);
+        
+        proofCenter = getProofCenter();
+        proofCenter.addPropertyChangeListener(property, this);
+        proofCenter.firePropertyChange(property, selected);
     }
 
-    @Override
     public void actionPerformed(ActionEvent e) {
-        boolean state = isSelected();
-        Log.log("State when choosing the menu:" + state);
-        getEditor().setProperty(property, state);
+        boolean selectionState = isSelected();
+        Log.log("State when choosing the menu:" + selectionState);
+        proofCenter.firePropertyChange(property, selectionState);
     }
 
-    @Override
+    @Override 
     public void propertyChange(PropertyChangeEvent evt) {
+        assert evt.getPropertyName().equals(property);
+        Log.enter(evt.getPropertyName(), evt.getNewValue());
         setSelected((Boolean)evt.getNewValue());
     }
-
 }
+
+
