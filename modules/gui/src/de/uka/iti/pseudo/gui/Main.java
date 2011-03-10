@@ -238,6 +238,8 @@ public class Main {
      */
     public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
             ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
+        
+        Preferences.userNodeForPackage(Main.class).put("last problem", url.toString());
 
         Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
