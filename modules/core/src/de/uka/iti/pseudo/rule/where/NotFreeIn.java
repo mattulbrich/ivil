@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.term.Variable;
  * Format 
  *    notFreeIn { variable } { term }
  */
+@Deprecated
 public class NotFreeIn extends WhereCondition {
 
     public NotFreeIn() {
@@ -36,11 +37,11 @@ public class NotFreeIn extends WhereCondition {
             throw new RuleException("notFreeIn expects exactly 2 arguments");
         
         if(!(arguments[0] instanceof SchemaVariable) && !(arguments[0] instanceof Variable))
-            throw new RuleException("notFreeIn expects (schema) varible as first argument");
+            throw new RuleException("notFreeIn expects (schema) variable as first argument");
     }
     
     @Override public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         
         // TODO Implement NotFreeIn verify

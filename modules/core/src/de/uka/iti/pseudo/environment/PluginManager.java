@@ -322,7 +322,7 @@ public class PluginManager {
 
         if (service.type != serviceClass)
             throw new EnvironmentException(
-                    "The service class and the type of the service do not conincide: "
+                    "The service class and the type of the service do not coincide: "
                             + service.type + ", " + serviceName);
 
         Object result = service.table.get(key);
