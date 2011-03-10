@@ -46,8 +46,7 @@ public final class EnvironmentCreationState {
 
     // type information used for typechecking and lowering of expressions and
     // declarations
-    final Decoration<UniversalType> typeMap = new Decoration<UniversalType>();
-    final Decoration<Type> ivilTypeMap = new Decoration<Type>();
+    final Decoration<Type> typeMap = new Decoration<Type>();
 
     Environment env;
 

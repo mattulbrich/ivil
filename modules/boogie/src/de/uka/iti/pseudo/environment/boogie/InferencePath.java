@@ -15,6 +15,8 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
  * 
  */
 public final class InferencePath implements Comparable<InferencePath> {
+    
+    make this work directly on AST
 
     static final class PathListComparator implements Comparator<List<InferencePath>> {
 
