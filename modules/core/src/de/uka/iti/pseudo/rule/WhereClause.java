@@ -17,9 +17,11 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -119,8 +121,6 @@ public class WhereClause {
      *            the instantiation of the schema entities
      * @param ruleApp
      *            the rule application under consideration
-     * @param goal
-     *            the proofnode on which the where clause is to be checked
      * @param env
      *            the environment of this proof.
      * 
@@ -130,8 +130,7 @@ public class WhereClause {
      *             the arguments to the condition do not correspond to the
      *             expected form.
      */
-    public boolean applyTo(TermInstantiator inst, RuleApplication ruleApp,
-            ProofNode goal, Environment env) throws RuleException {
+    public boolean applyTo(TermInstantiator inst, RuleApplication ruleApp, Environment env) throws RuleException {
 
         Term actualArgs[];
         try {
@@ -145,7 +144,34 @@ public class WhereClause {
         }
 
         // This is the same as (check() && !inverted) || (!check() && inverted)
-        return whereCondition.check(arguments, actualArgs, ruleApp, goal, env) != inverted;
+        return whereCondition.check(arguments, actualArgs, ruleApp, env) != inverted;
+    }
+
+    /**
+     * Allow this clause to actively instantiate schema entities.
+     * 
+     * <p>
+     * This is an action and does not provide a possibilty to feedback
+     * information. Failures are to be reported by
+     * {@link #applyTo(TermInstantiator, RuleApplication, ProofNode, Environment)}.
+     * 
+     * <p>
+     * This is not called when applying a rule application to a node. Then the
+     * instatiations need to have been done. It is called during finding of
+     * applications, however.
+     * 
+     * @param termMatcher
+     *            the object on which the matchings and active instantiations
+     *            can be performed.
+     * @param ruleApp
+     *            The rule application in whose context the rule is applied.
+     * @param env The environment in whose context the rule is applied.
+     * @throws RuleException
+     */
+    public void addInstantiations(TermMatcher termMatcher,
+            RuleApplication ruleApp, Environment env) throws RuleException {
+        
+        whereCondition.addInstantiations(termMatcher, arguments);
     }
 
 

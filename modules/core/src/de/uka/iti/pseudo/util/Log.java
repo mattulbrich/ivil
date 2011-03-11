@@ -162,9 +162,12 @@ public class Log {
      * 
      * Logging level {@link #DEBUG} is used.
      * 
+     * Deprecated: Use the log methods instead.
+     * 
      * @see PrintStream#println(Object)
      * @param s the message to log
      */
+    @Deprecated
     public static void println(Object s) {
         dbgPrint(DEBUG, s.toString());
     }
@@ -175,10 +178,13 @@ public class Log {
      * 
      * Logging level {@link #DEBUG} is used.
      * 
+     * Deprecated: Use the log methods instead.
+     * 
      * @see PrintStream#printf(String, Object...)
      * @param format the <code>printf</code> format string
      * @param args arguments to be formatted
      */
+    @Deprecated
     public static void printf(String format, Object... args) {
         dbgPrint(DEBUG, String.format(format, args));
     }

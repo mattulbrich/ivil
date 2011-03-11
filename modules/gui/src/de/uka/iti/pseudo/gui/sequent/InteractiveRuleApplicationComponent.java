@@ -17,7 +17,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,6 +34,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JWindow;
@@ -66,6 +66,7 @@ import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
 import de.uka.iti.pseudo.util.settings.ColorResolver;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This class describes the component which is in the rule application popup.
@@ -81,6 +82,8 @@ public class InteractiveRuleApplicationComponent extends
         RuleApplicationComponent implements ActionListener, ListSelectionListener {
 
     private static final long serialVersionUID = 1198343020746961376L;
+
+    private static final String SHOW_EXCEPTION_DIALOG = "pseudo.interactiveRuleApplication.showExceptionDialog";
 
     public InteractiveRuleApplicationComponent(ProofCenter proofCenter, List<RuleApplication> ruleApps) {
         super(proofCenter);
@@ -192,13 +195,46 @@ public class InteractiveRuleApplicationComponent extends
                 putClientProperty("finished", true);
                 proofCenter.fireProoftreeChangedNotification(true);
                 
-            } catch (Exception ex) {
+            } catch (ASTVisitException ex) {
+                // this kind of exception is expectable, because it indicates
+                // wrong input
                 Log.log(Log.WARNING, "Error during the application of a rule");
-                Log.log(Log.WARNING, Dump.toString((RuleApplication)selected));
+                Log.log(Log.WARNING, Dump.toString((RuleApplication) selected));
                 Log.stacktrace(ex);
-                if(component != null) {
+                if (component != null) {
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
+
+                    // show the error message in an error dialog, so it is
+                    // easier to understand what is going on; this dialog can be
+                    // annoying to experienced users, so it can be turned of
+                    // using settings
+                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
+                        JOptionPane.showMessageDialog(component, component.getToolTipText(), "Errors occured:"
+                                + ex.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+
+                } else {
+                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                            "Error during the application of a rule", ex);
+                }
+
+            } catch (Exception ex) {
+                // other exceptions may indicate internal errors
+                Log.log(Log.WARNING, "Unexpected error during the application of a rule");
+                Log.log(Log.WARNING, Dump.toString((RuleApplication)selected));
+                Log.stacktrace(ex);
+                if (component != null) {
+                    component.setBackground(ColorResolver.getInstance().resolve("orange red"));
+                    component.setToolTipText(htmlize(ex.getMessage()));
+                    
+                    // show the error message in an error dialog, so it is
+                    // easier to understand what is going on; this dialog can be
+                    // annoying to experienced users, so it can be turned of
+                    // using settings
+                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
+                        ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
+                                "Error during the application of a rule", ex);
+
                 } else {
                     ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
                             "Error during the application of a rule",

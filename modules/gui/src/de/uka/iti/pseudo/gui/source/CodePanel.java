@@ -26,7 +26,6 @@ import javax.swing.JScrollPane;
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
@@ -70,7 +69,7 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         }
     }
     
-    private void selectSource() {
+    protected void selectSource() {
         displayedResource = selectionBox.getSelectedItem();
         sourceComponent.setText(makeContent(displayedResource));
         // manually scroll to top

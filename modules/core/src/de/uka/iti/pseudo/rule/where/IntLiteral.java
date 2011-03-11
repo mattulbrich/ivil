@@ -28,7 +28,7 @@ public class IntLiteral extends WhereCondition {
     }
 
     @Override public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         
         Term t = actualArguments[0];
