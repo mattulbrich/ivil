@@ -16,6 +16,10 @@ import de.uka.iti.pseudo.util.Log;
  * 
  * Run it using:
  *    ./ivil -DX-Dpseudo.logClass=Log4JLogImplementation
+ *
+ * Assuming there is the log4jar implementation under lib/log4j.jar,
+ *    java -cp lib/log4j.jar org.apache.log4j.chainsaw.Main
+ * starts "Chainsaw" the simple log inspector.
  * 
  * Copy doc/log4j.properties to main directory and adapt to your needs.
  */
