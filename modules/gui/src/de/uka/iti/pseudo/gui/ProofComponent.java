@@ -16,6 +16,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -175,14 +176,17 @@ public class ProofComponent extends JTree {
                     }
                 });
 
-        proofCenter.addNotificationListener(ProofCenter.PROOFNODE_HAS_CHANGED, new NotificationListener() {
+        proofCenter.addNotificationListener(ProofCenter.PROOFNODES_HAVE_CHANGED, new NotificationListener() {
+            @SuppressWarnings("unchecked")
             @Override
             public void handleNotification(NotificationEvent event) {
                 assert event.countParameters() == 1;
-                ProofNode pn = (ProofNode) event.getParameter(0);
-                proofModel.addChangedProofNode(pn);
+                List<ProofNode> pnodes = (List<ProofNode>) event.getParameter(0);
+//                for (ProofNode pn : pnodes) {
+//                    proofModel.addChangedProofNode(pn);
+//                }
 
-                proofModel.publishChanges();
+                proofModel.publishChanges(pnodes);
 
                 // if no node was selected, select root
                 if (selectionModel.isSelectionEmpty() && !(Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF)) {

@@ -11,9 +11,9 @@
 package de.uka.iti.pseudo.gui;
 
 import java.util.Enumeration;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.swing.SwingUtilities;
@@ -41,12 +41,25 @@ class ProofComponentModel extends DefaultTreeModel {
     
     private static final long serialVersionUID = -6525872309302128760L;
     
+    /**
+     * Use this label to not branch this branch but continue it on the main
+     * branch.
+     */
     private static final String CONTINUATION_LABEL = "...";
     
+    /**
+     * An always empty Vector. <b>Never add anything to this!</b>
+     */
     private final static Vector<ProofTreeNode> EMPTY_VECTOR = new Vector<ProofTreeNode>();
     
+    /**
+     * The verbosity of this node in the tree
+     */
     private int verbosity;
     
+    /**
+     * 
+     */
     private boolean showNumbers;
 
     private PrettyPrint prettyPrint;
@@ -55,7 +68,7 @@ class ProofComponentModel extends DefaultTreeModel {
 
     // we assume that only the AWT thread operates on this data structure, hence,
     // no synchronisation is needed.
-    private Queue<ProofNode> updateQueue = new LinkedList<ProofNode>();
+//    private Queue<ProofNode> updateQueue = new LinkedList<ProofNode>();
     
     /**
      * A TreeNode corresponding to one proof node of the proof. 
@@ -369,37 +382,35 @@ class ProofComponentModel extends DefaultTreeModel {
         return textInst.replaceInString(string, prettyPrint);
     }
 
-    public void addChangedProofNode(ProofNode pn) {
+    public void publishChanges(List<ProofNode> changesProofNodes) {
         assert SwingUtilities.isEventDispatchThread();
-        updateQueue.add(pn);
-    }
 
-    public void publishChanges() {
-        assert SwingUtilities.isEventDispatchThread();
+        Set<TreePath> changedPaths = new HashSet<TreePath>();
         
-        ProofNode proofNode = updateQueue.poll();
-        while(proofNode != null) {
+        for(ProofNode proofNode : changesProofNodes) {
             TreePath p = getPath(proofNode, false);
 
+            // if visible
             if (p != null) {
-
                 TreePath proofNodePath = p.getParentPath();
                 if(proofNodePath == null)
                     proofNodePath = p;
                 
-                ProofTreeNode ptn = (ProofTreeNode) proofNodePath.getLastPathComponent();
-                ptn.invalidate();
-                ptn.expand();
-
-                TreeModelEvent treeEvent = new TreeModelEvent(proofNode, proofNodePath);
-                for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
-                    listener.treeStructureChanged(treeEvent);
-                }
+                changedPaths.add(proofNodePath);
             }
-            
-            proofNode = updateQueue.poll();
         }
+        
+        for (TreePath path : changedPaths) {
+            ProofTreeNode ptn = (ProofTreeNode) path.getLastPathComponent();
+            ptn.invalidate();
+            ptn.expand();
 
+            TreeModelEvent treeEvent = new TreeModelEvent(this, path);
+            for(TreeModelListener listener : listenerList.getListeners(TreeModelListener.class)) {
+                listener.treeStructureChanged(treeEvent);
+            }
+        }
+            
     }
 
 }
