@@ -28,6 +28,9 @@ public class Log4JLogImplementation implements Log.LogImplementation {
     static {
         PropertyConfigurator.configureAndWatch("log4j.properties", 60 * 1000);
     }
+    
+    private static final boolean ALWAYS_STACKTRACE = 
+        Boolean.getBoolean("pseudo.log4j.alwaysStacktrace");
 
     @Override
     public void doLog(int level, String string) {
@@ -36,7 +39,8 @@ public class Log4JLogImplementation implements Log.LogImplementation {
         String methodName = trace.getMethodName();
         Logger logger = Logger.getLogger(className);
         Level l4level = convertLevel(level);
-        logger.log(l4level, "in " + methodName + ": " + string, null);
+        Throwable stack = ALWAYS_STACKTRACE ? new Throwable() : null;
+        logger.log(l4level, "in " + methodName + ": " + string, stack);
     }
 
     @Override

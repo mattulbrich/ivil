@@ -107,6 +107,8 @@ public class ProofComponent extends JTree {
                 } else {
                     setIcon(GREY_ICON);
                 }
+                
+                setSize(200, getHeight());
             }
             return this;
         }
@@ -127,6 +129,8 @@ public class ProofComponent extends JTree {
         Proof proof = proofCenter.getProof();
         proofModel = new ProofComponentModel(proof.getRoot(), proofCenter);
         setModel(proofModel);
+        // large models allow changes in width of labels.
+        setLargeModel(true);
         setCellRenderer(new Renderer());
         addListeners(proofCenter);
         proofCenter.firePropertyChange(ProofCenter.TREE_VERBOSITY,
@@ -157,8 +161,9 @@ public class ProofComponent extends JTree {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         Log.enter(evt);
-                        // TODO: see above.
                         proofModel.setShowNumbers((Boolean) evt.getNewValue());
+                        // create a new cell render to trigger recalculation of label sizes
+                        setCellRenderer(new Renderer());
                         repaint();
                     }
                 });
