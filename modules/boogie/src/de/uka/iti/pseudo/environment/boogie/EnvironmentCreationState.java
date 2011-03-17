@@ -48,6 +48,9 @@ public final class EnvironmentCreationState {
     // declarations
     final Decoration<Type> typeMap = new Decoration<Type>();
 
+    // database needed to map types to map type escapes
+    public MapTypeDatabase mapDB;
+
     // the resulting environment
     Environment env;
 
@@ -59,6 +62,7 @@ public final class EnvironmentCreationState {
 
     // Phase 3: translation of semantic constructs into ivil environment
     TranslationPhase translation = null;
+
 
     public EnvironmentCreationState(CompilationUnit root) throws EnvironmentCreationException {
         this.root = root;
@@ -104,6 +108,8 @@ public final class EnvironmentCreationState {
             e.printStackTrace();
             assert false;
         }
+
+        mapDB = new MapTypeDatabase(env);
     }
 
     public void createNamespaces() throws EnvironmentCreationException, ParseException {

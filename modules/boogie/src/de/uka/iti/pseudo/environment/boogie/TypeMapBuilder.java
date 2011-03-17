@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
@@ -61,6 +62,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 
@@ -160,6 +162,22 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                     + " could not be typed because it depends on the untyped node " + typeNode);
 
         state.typeMap.add(node, state.typeMap.get(typeNode));
+    }
+
+    /**
+     * @return a bitvector type
+     */
+    private Type getBitvectorType() {
+        try {
+            return state.env.mkType("bitvector");
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            assert false : "dont mess with bitvector.p!";
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false : "dont mess with bitvector.p!";
+        }
+        return null;
     }
 
     /**
@@ -343,41 +361,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        // TODO
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // List<Type> param = addParameters(node.getTypeParameters(), node);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // if (state.typeMap.has(node.getRange())) {
-        // List<Type> domain = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getDomain()) {
-        // if (state.typeMap.has(n))
-        // domain.add(state.typeMap.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // }
-        // try {
-        // state.typeMap.add(node, ASTType.newMap(param, domain,
-        // state.typeMap.get(node.getRange()), true));
-        // } catch (IllegalArgumentException e) {
-        // // can happen if the maptype is illformed like <a>[]int or
-        // // <a>[int]a
-        // throw new ASTVisitException("\nmap creation failed @ " +
-        // node.getLocation(), e);
-        // }
-        //
-        // } else {
-        // todo.add(node);
-        // return;
-        // }
+        defaultAction(node, state.mapDB.getType(node));
     }
 
     @Override
@@ -479,11 +463,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        if (!state.typeMap.has(node.getTarget())) {
-            // TODO todo.add(node);
-            return;
-        }
-
         Type t = state.typeMap.get(node.getTarget());
 
         // TODO state.typeMap.add(node, null == t.range ? t : t.range);
@@ -495,43 +474,18 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         defaultAction(node, Environment.getBoolType());
     }
 
+    /**
+     * @note: type checking for concatenation expressions is weak, i.e. no
+     *        dimension checking is done
+     */
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        // TODO
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // boolean failed = false;
-        // for (ASTElement n : node.getChildren()) {
-        // n.visit(this);
-        // if (!state.typeMap.has(n))
-        // failed = true;
-        // }
-        //
-        // if (failed) {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // try {
-        // int d1 =
-        // state.typeMap.get(node.getOperands().get(0)).getBVDimension();
-        // int d2 =
-        // state.typeMap.get(node.getOperands().get(1)).getBVDimension();
-        //
-        // state.typeMap.add(node, ASTType.newBitvector(d1 + d2));
-        //
-        // } catch (IllegalArgumentException e) {
-        // throw new
-        // ASTVisitException("tried to concatenate something, that is not a bitvector @"
-        // + node.getLocation());
-        // }
+        defaultAction(node, getBitvectorType());
     }
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        // TODO defaultAction(node, ASTType.newBitvector(node.getFirst() -
-        // node.getLast()));
+        defaultAction(node, getBitvectorType());
     }
 
     @Override
@@ -585,7 +539,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        // TODO defaultAction(node, ASTType.newBitvector(node.getDimension()));
+        defaultAction(node, getBitvectorType());
     }
 
     @Override
