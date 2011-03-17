@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.gui.source;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +43,10 @@ public class ProgramPanel extends CodePanel {
 
     protected String makeContent(Object object) {
 
-        if (prettyPrinter == null)
-            this.prettyPrinter = getProofCenter().getPrettyPrinter();
+        if (prettyPrinter == null) {
+            prettyPrinter = getProofCenter().getPrettyPrinter();
+            prettyPrinter.addPropertyChangeListener(this);
+        }
 
         if (object == null)
             return null;
@@ -95,5 +98,13 @@ public class ProgramPanel extends CodePanel {
         return new DefaultComboBoxModel(programs.toArray());
     }
 
-    
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        // if the source of the property change is not the pretty printer, use
+        // the generic handler
+        if (!evt.getSource().equals(prettyPrinter))
+            super.propertyChange(evt);
+        
+        selectSource();
+    }
 }

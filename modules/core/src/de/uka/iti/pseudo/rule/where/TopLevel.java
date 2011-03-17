@@ -33,10 +33,10 @@ public class TopLevel extends WhereCondition {
 
     @Override 
     public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         try {
-            
+            ProofNode goal = ruleApp.getProofNode();
             return check(ruleApp.getFindSelector(), goal.getSequent());
             
         } catch (ProofException e) {

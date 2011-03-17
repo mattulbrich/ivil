@@ -13,9 +13,9 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
  * This allows for reloading of the problem. If no problem was loaded yet, the
- * most recent problem will be loaded instead.
- * @author felden@ira.uka.de
- *
+ * last attempt to load a file will be repeated.
+ * 
+ * @author timm.felden@felden.com
  */
 
 public class ReloadProblemAction extends BarAction implements
@@ -41,14 +41,24 @@ public class ReloadProblemAction extends BarAction implements
     }
 
     public void actionPerformed(ActionEvent e) {
-        // get recent files
+        // try to get the path of the currently opened problem; if there is one
+        // open it
+        try {
+            URL url = new URL(getProofCenter().getEnvironment().getResourceName());
+            Main.openProverFromURL(url);
+        } catch (Exception ex) {
+            // this exception indicates, that there is no problem, which can be
+            // reloaded, so let us just continue
+        }
+
+        // get url of the last problem
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
-        String recent[] = prefs.get("recent problems", "").split("\n");
+        String last = prefs.get("last problem", "");
 
         // open if there are recent files
-        if (!recent[0].equals("")) {
+        if (!last.equals("")) {
             try {
-                URL url = new URL(recent[0]);
+                URL url = new URL(last);
                 Main.openProverFromURL(url);
             } catch (Exception ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);

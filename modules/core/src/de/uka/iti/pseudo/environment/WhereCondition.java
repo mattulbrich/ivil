@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -18,6 +17,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 /**
  * Where conditions are used to construct where clauses which are part of rule
@@ -34,6 +34,12 @@ import de.uka.iti.pseudo.term.Term;
  * is used to check whether a where clause allows the application of a rule or
  * inhibits it given a schema variable instantiation.
  * </ol>
+ * 
+ * <h4>Immutable rule applications</h4>
+ * 
+ * The {@link #check(Term[], Term[], RuleApplication, ProofNode, Environment)}
+ * method receives a {@link RuleApplication} as argument, but must not modify
+ * it.
  * 
  * @see Rule
  * @see WhereClause
@@ -132,13 +138,18 @@ public abstract class WhereCondition implements Mappable {
      * <b>actual</b> arguments. The actual arguments arise from the formal
      * arguments by applying the instantiation of the provided rule application.
      * 
-     * <p>It should return <code>false</code> if the actual arguments inhibit
-     * the application of this rule instance. It should throw an exception if
-     * the parameters are not of the form in which they were expected to be.
+     * <p>
+     * It should return <code>false</code> if the actual arguments inhibit the
+     * application of this rule instance. It should throw an exception if the
+     * parameters are not of the form in which they were expected to be.
      * 
      * <p>
      * The implementation can use the provided arguments to call queries on
      * them, but must not change them.
+     * 
+     * <p>
+     * <i>The argument goal is no longer needed since the goal can be extracted
+     * from the rule application.</i>
      * 
      * @param formalArguments
      *            the formal arguments of the where clause (the same as given to
@@ -148,8 +159,6 @@ public abstract class WhereCondition implements Mappable {
      *            instantiation to the formal arguments.
      * @param ruleApp
      *            the rule application which is to be checked against
-     * @param goal
-     *            the goal upon which the rule is to be applied
      * @param env
      *            the environment in which the condition is evaluated
      * 
@@ -157,9 +166,37 @@ public abstract class WhereCondition implements Mappable {
      *         not inhibit the rule application
      * 
      * @throws RuleException
-     *            if inacceptable parameters are passed. 
+     *             if inacceptable parameters are passed.
      */
     public abstract boolean check(Term[] formalArguments, Term[] actualArguments, 
-            RuleApplication ruleApp, ProofNode goal, Environment env) throws RuleException;
+            RuleApplication ruleApp, Environment env) throws RuleException;
+
+    /**
+     * (Possibly) adds instantiations to the term matching context.
+     * 
+     * <p>
+     * Before being checked, all conditions are given the possibility to
+     * contribute to the instantiation of schema entities.
+     * 
+     * <p>
+     * Since most where conditions will not be active, the actualArguments are
+     * not provided and must be (if needed) computed using termMatcher.
+     * Exceptions should <b>NOT</b> be thrown if the condition check fails. That
+     * should be done by
+     * {@link #check(Term[], Term[], RuleApplication, Environment)}. If a schema
+     * entitity is already instantiated, do ensure not to try to overwrite that
+     * result; have it checked later.
+     * 
+     * @param termMatcher
+     *            the term matching object
+     * @param arguments
+     *            the formal arguments of the condition
+     * @throws RuleException
+     *             if the matching unexpectly fails
+     */
+    public void addInstantiations(TermMatcher termMatcher, Term[] arguments) throws RuleException {
+        // do nothing by default.
+        // only active where conditions need to override this.
+    }
 
 }

@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.term.statement;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -94,7 +95,7 @@ public class Assignment {
     }
     
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         if (obj instanceof Assignment) {
             Assignment ass2 = (Assignment) obj;
             return getTarget().equals(ass2.getTarget()) && getValue().equals(ass2.getValue());

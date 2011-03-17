@@ -15,7 +15,6 @@ import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
-import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Binding;
@@ -52,7 +51,7 @@ public class NoFreeVars extends WhereCondition {
     }
 
     @Override public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
 
         try {
@@ -68,6 +67,8 @@ public class NoFreeVars extends WhereCondition {
     /**
      * This visitor is used to traverse the term. It throws an exception if an
      * unbound var is found.
+     * 
+     * @see FreshVariable.FreeVarFinder
      */
     private static class FreeVarChecker extends
             DefaultTermVisitor.DepthTermVisitor {

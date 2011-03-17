@@ -94,7 +94,7 @@ public class Interactive extends WhereCondition {
      */
     @Override 
     public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         if(ruleApp.hasMutableProperties()) {
             SchemaVariable sv = (SchemaVariable) formalArguments[0];

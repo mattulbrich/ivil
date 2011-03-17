@@ -16,6 +16,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -42,7 +44,8 @@ import de.uka.iti.pseudo.util.settings.Settings;
 @SuppressWarnings("serial")
 public class ShowTermInformation
     extends BarAction 
-    implements InitialisingAction, NotificationListener {
+ implements InitialisingAction, NotificationListener,
+        PropertyChangeListener {
 
     private String text = "";
     private final JDialog window;
@@ -89,6 +92,7 @@ public class ShowTermInformation
     @Override
     public void initialised() {
         getProofCenter().addNotificationListener(TermComponent.TERM_COMPONENT_SELECTED_TAG, this);
+        getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
 
     @Override
@@ -111,6 +115,15 @@ public class ShowTermInformation
         editorPane.setBackground(BACKGROUND);
         editorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
     }
-    
 
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
+            setEnabled(!(Boolean) evt.getNewValue());
+            // close the information window, as the history wont update during
+            // auto proofing
+            if (!isEnabled())
+                window.setVisible(false);
+        }
+    }
 }

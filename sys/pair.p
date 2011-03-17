@@ -42,11 +42,13 @@ axiom rng_restrict_definition
     (\forall s; (\forall x; (\forall y; 
       pair(x,y) :: r|>s <-> pair(x,y)::r & y :: s))))))
     
-
-# TODO new bound variables
 rule every_pair_constructed
   find %p
-  add (\exists y; (\exists z; %p = pair(y,z))) |-
+  where
+    freshVar %fst, %p
+  where
+    freshVar %snd, %p
+  add (\exists %fst; (\exists %snd; %p = pair(%fst,%snd))) |-
 
 rule in_dom_restrict
   find %x :: %s <| %r
