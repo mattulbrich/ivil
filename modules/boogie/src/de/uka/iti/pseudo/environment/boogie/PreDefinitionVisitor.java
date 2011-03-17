@@ -13,7 +13,8 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.Type;
 
 /**
- * Processes global and local variable declarations.
+ * Processes global and local variable declarations. This is needed to allow
+ * ProgramMaker to assume all variables to be present.
  * 
  * @see ProgramMaker
  * 
@@ -54,10 +55,10 @@ public class PreDefinitionVisitor extends DefaultASTVisitor {
         {
             Type[] arguments = new Type[node.getInParameters().size()];
             for (int i = 0; i < node.getInParameters().size(); i++)
-                arguments[i] = state.ivilTypeMap.get(node.getInParameters().get(i));
+                arguments[i] = state.typeMap.get(node.getInParameters().get(i));
 
             try {
-                state.env.addFunction(new Function("fun__" + node.getName(), state.ivilTypeMap.get(node
+                state.env.addFunction(new Function("fun__" + node.getName(), state.typeMap.get(node
                         .getOutParemeter()), arguments, false, false, node));
 
             } catch (EnvironmentException e) {
@@ -91,7 +92,7 @@ public class PreDefinitionVisitor extends DefaultASTVisitor {
         } else {
             try {
                 if (null == state.env.getFunction(name)) {
-                    Function var = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, node.isUnique(),
+                    Function var = new Function(name, state.typeMap.get(node), NO_TYPE, node.isUnique(),
                             !node.isConstant(), node);
                     state.env.addFunction(var);
                 }

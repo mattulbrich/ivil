@@ -16,13 +16,13 @@ final public class VariableDeclaration extends ASTElement {
 
     private final Token location;
     private final String name;
-    private final Type type;
+    private final ASTType type;
     private final boolean constant;
     private final boolean unique;
     private final boolean isQuantified;
     private final Expression where;
 
-    public VariableDeclaration(Token name, Type type, boolean constant, boolean unique, boolean isQuantified,
+    public VariableDeclaration(Token name, ASTType type, boolean constant, boolean unique, boolean isQuantified,
             Expression where) {
         this.name = ASTConversions.getEscapedName(name);
         this.location = name;
@@ -52,7 +52,7 @@ final public class VariableDeclaration extends ASTElement {
      * @param isQuantified
      * @param where
      */
-    public VariableDeclaration(String name, Type type, boolean constant, boolean unique, boolean isQuantified,
+    public VariableDeclaration(String name, ASTType type, boolean constant, boolean unique, boolean isQuantified,
             Expression where) {
         this.name = name;
         this.location = type.getLocationToken();
@@ -71,7 +71,7 @@ final public class VariableDeclaration extends ASTElement {
         addChild(this.where);
     }
 
-    public Type getType() {
+    public ASTType getType() {
         return type;
     }
 

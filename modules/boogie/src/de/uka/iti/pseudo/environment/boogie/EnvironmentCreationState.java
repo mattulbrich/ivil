@@ -48,6 +48,7 @@ public final class EnvironmentCreationState {
     // declarations
     final Decoration<Type> typeMap = new Decoration<Type>();
 
+    // the resulting environment
     Environment env;
 
     // Phase 1: namespace and scope creation
@@ -197,7 +198,6 @@ public final class EnvironmentCreationState {
 
         allDecorations.add(scopeMap);
         allDecorations.add(typeMap);
-        allDecorations.add(ivilTypeMap);
 
         ASTVisitor debug = new DebugVisitor(allDecorations);
         try {

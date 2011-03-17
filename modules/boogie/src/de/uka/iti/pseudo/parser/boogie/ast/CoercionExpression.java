@@ -18,10 +18,10 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
  */
 public final class CoercionExpression extends Expression {
 
-    private final Type type;
+    private final ASTType type;
     private final List<Expression> operands;
 
-    public CoercionExpression(Expression expr, Type type) {
+    public CoercionExpression(Expression expr, ASTType type) {
         super(type.getLocationToken());
 
         operands = new LinkedList<Expression>();
@@ -42,7 +42,7 @@ public final class CoercionExpression extends Expression {
         v.visit(this);
     }
 
-    public Type getType() {
+    public ASTType getType() {
         return type;
     }
 

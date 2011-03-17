@@ -39,53 +39,47 @@ public final class TypingPhase {
         assert state.scopeMap.size() == state.typeMap.size() || state.printDebugInformation() : "found "
                 + (state.scopeMap.size() - state.typeMap.size()) + " untyped ASTElements";
 
-        new TypeChecker(state);
+        // TODO this should not be needed
+        // new TypeChecker(state);
 
         // ensure correctness of modifies
         new ModifiesChecker(state);
 
         // create sorts
-        {
-            // create builtin, int and bool are allways defined in the built-in
-            // environment, so dont add them
-            sortMap.put("int", null);
-            sortMap.put("bool", null);
-            sortMap.put("bitvector", new Sort("bitvector", 0, state.root));
-
-            for (String name : state.names.typeSpace.keySet()) {
-                if (sortMap.containsKey(name) && (!name.equals("bitvector") || sortMap.containsKey("utt_bitvector")) )
-                    continue;
-
-                ASTElement decl = state.names.typeSpace.get(name);
-                UniversalType t = state.typeMap.get(decl);
-
-                if (null != t.aliasname) // type synonyms dont need a sort
-                    continue;
-
-                sortMap.put(name, new Sort("utt_" + name, t.templateArguments.length, decl));
-            }
-
-            for (Sort s : sortMap.values()) {
-                try {
-                    if (s != null && !s.getName().equals("bitvector"))
-                        state.env.addSort(s);
-                } catch (EnvironmentException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            sortMap.put("int", state.env.getSort("int"));
-            sortMap.put("bool", state.env.getSort("bool"));
-        }
-
-        // create a mapping from table types to ivil types
-        try {
-            new TypeTranslator(state);
-
-        } catch (ASTVisitException e) {
-            e.printStackTrace();
-            throw new TypeSystemException("Type translation failed because of:\n" + e.toString());
-        }
+        // {
+        // // create builtin, int and bool are allways defined in the built-in
+        // // environment, so dont add them
+        // sortMap.put("int", null);
+        // sortMap.put("bool", null);
+        // sortMap.put("bitvector", new Sort("bitvector", 0, state.root));
+        //
+        // for (String name : state.names.typeSpace.keySet()) {
+        // if (sortMap.containsKey(name) && (!name.equals("bitvector") ||
+        // sortMap.containsKey("utt_bitvector")) )
+        // continue;
+        //
+        // ASTElement decl = state.names.typeSpace.get(name);
+        // UniversalType t = state.typeMap.get(decl);
+        //
+        // if (null != t.aliasname) // type synonyms dont need a sort
+        // continue;
+        //
+        // sortMap.put(name, new Sort("utt_" + name, t.templateArguments.length,
+        // decl));
+        // }
+        //
+        // for (Sort s : sortMap.values()) {
+        // try {
+        // if (s != null && !s.getName().equals("bitvector"))
+        // state.env.addSort(s);
+        // } catch (EnvironmentException e) {
+        // e.printStackTrace();
+        // }
+        // }
+        //
+        // sortMap.put("int", state.env.getSort("int"));
+        // sortMap.put("bool", state.env.getSort("bool"));
+        // }
     }
 
 }

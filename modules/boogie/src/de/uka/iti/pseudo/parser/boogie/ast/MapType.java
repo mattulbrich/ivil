@@ -7,14 +7,14 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
-public final class MapType extends Type implements NamedASTElement {
+public final class MapType extends ASTType implements NamedASTElement {
 
     private final Token location;
     private final List<String> params;
-    private final List<Type> domain;
-    private final Type range;
+    private final List<ASTType> domain;
+    private final ASTType range;
 
-    public MapType(Token first, List<Token> params, List<Type> domain, Type range) {
+    public MapType(Token first, List<Token> params, List<ASTType> domain, ASTType range) {
         location = first;
         this.params = ASTConversions.toEscapedNameList(params);
         this.domain = domain;
@@ -38,11 +38,11 @@ public final class MapType extends Type implements NamedASTElement {
         return params;
     }
 
-    public List<Type> getDomain() {
+    public List<ASTType> getDomain() {
         return domain;
     }
 
-    public Type getRange() {
+    public ASTType getRange() {
         return range;
     }
 

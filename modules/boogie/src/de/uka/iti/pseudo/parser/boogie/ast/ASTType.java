@@ -14,7 +14,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
  * @author timm.felden@felden.com
  * 
  */
-public abstract class Type extends ASTElement {
+public abstract class ASTType extends ASTElement {
     /**
      * Human readable Typerepresentation, that is also used as typeidentifier in
      * the typeSpace table.

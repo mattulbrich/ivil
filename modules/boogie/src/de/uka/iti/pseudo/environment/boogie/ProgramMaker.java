@@ -91,7 +91,6 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.Assignment;
@@ -218,12 +217,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // quantified variables differ from ordinary variables, as they aren't
         // functions
         if (node.isQuantified() || node.getParent() instanceof FunctionDeclaration) {
-            boundVars.put(name, new de.uka.iti.pseudo.term.Variable(name, state.ivilTypeMap.get(node)));
+            boundVars.put(name, new de.uka.iti.pseudo.term.Variable(name, state.typeMap.get(node)));
 
         } else {
             try {
                 if (null == state.env.getFunction(name)) {
-                    Function var = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, node.isUnique(),
+                    Function var = new Function(name, state.typeMap.get(node), NO_TYPE, node.isUnique(),
                             !node.isConstant(), node);
                     state.env.addFunction(var);
                 }
@@ -282,7 +281,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            Type t = state.ivilTypeMap.get(node.getNames().get(0));
+            Type t = state.typeMap.get(node.getNames().get(0));
 
             if (node.hasExtends()) {
                 for (VariableDeclaration v : node.getNames()) {
@@ -400,7 +399,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 // add "f(x) == expr"
                 args = new Term[] {
-                        new Application(state.env.getFunction("fun__" + node.getName()), state.ivilTypeMap.get(node
+                        new Application(state.env.getFunction("fun__" + node.getName()), state.typeMap.get(node
                                 .getOutParemeter()), inArgs), args[0] };
 
                 args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
@@ -412,17 +411,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 }
 
                 // add type quantifiers before ordinary quantifiers
-                {
-                    UniversalType[] params = state.typeMap.get(node).parameters;
-                    for (int i = 0; i < params.length; i++) {
-                        args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
-                                params[i].toIvilType(state), args[0]) };
-                    }
-                }
+                // TODO reimplement quantification
+                // {
+                // UniversalType[] params = state.typeMap.get(node).parameters;
+                // for (int i = 0; i < params.length; i++) {
+                // args = new Term[] { new
+                // TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+                // params[i].toIvilType(state), args[0]) };
+                // }
+                // }
 
             } catch (TermException e) {
-                e.printStackTrace();
-            } catch (EnvironmentException e) {
                 e.printStackTrace();
             }
 
@@ -499,7 +498,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             try {
                 Function old;
                 if (null == state.env.getFunction(oldName)) {
-                    old = new Function(oldName, state.ivilTypeMap.get(v), NO_TYPE, false, true, node);
+                    old = new Function(oldName, state.typeMap.get(v), NO_TYPE, false, true, node);
                     state.env.addFunction(old);
                 } else {
                     old = state.env.getFunction(oldName);
@@ -508,7 +507,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Function var = state.env.getFunction(state.translation.variableNames.get(v));
 
                 if (null == var) {
-                    var = new Function(state.translation.variableNames.get(v), state.ivilTypeMap.get(v), NO_TYPE,
+                    var = new Function(state.translation.variableNames.get(v), state.typeMap.get(v), NO_TYPE,
                             false, true, node);
                     state.env.addFunction(var);
                 }
@@ -848,7 +847,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
                         .getLocationToken().beginLine, new Application(state.env
-                        .getFunction(state.translation.variableNames.get(decl)), state.ivilTypeMap.get(decl))));
+                        .getFunction(state.translation.variableNames.get(decl)), state.typeMap.get(decl))));
                 statements.bodyAnnotations.add(null);
 
                 // assume where
@@ -873,14 +872,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             String name = state.env.createNewFunctionName("wildcard");
 
-            Function w = new Function(name, state.ivilTypeMap.get(node), NO_TYPE, false, true, node);
+            Function w = new Function(name, state.typeMap.get(node), NO_TYPE, false, true, node);
             state.env.addFunction(w);
 
             // call forall will quantify wildcards
             if (node.getParent() instanceof CallForallStatement) {
                 state.translation.terms.put(node, new de.uka.iti.pseudo.term.Variable(w.getName(), w.getResultType()));
             } else {
-                state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
+                state.translation.terms.put(node, new Application(w, state.typeMap.get(node)));
             }
 
         } catch (TermException e) {
@@ -926,7 +925,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             for (int i = 0; i < newIns.length; i++) {
-                newIns[i] = new Function(state.env.createNewFunctionName("call_in" + i + "_"), state.ivilTypeMap.get(P
+                newIns[i] = new Function(state.env.createNewFunctionName("call_in" + i + "_"), state.typeMap.get(P
                         .getInParameters().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newIns[i]);
@@ -934,7 +933,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             for (int i = 0; i < newOuts.length; i++) {
                 newOuts[i] = new Function(state.env.createNewFunctionName("call_out" + i + "_"),
-                        state.ivilTypeMap.get(P.getOutParameters().get(i)), NO_TYPE, false, true, node);
+ state.typeMap.get(P
+                        .getOutParameters().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newOuts[i]);
             }
@@ -1082,14 +1082,16 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             for (int i = 0; i < newIns.length; i++) {
                 newIns[i] = new Function(state.env.createNewFunctionName("call_in" + "_" + i),
-                        state.ivilTypeMap.get(node.getArguments().get(i)), NO_TYPE, false, true, node);
+ state.typeMap.get(node
+                        .getArguments().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newIns[i]);
             }
 
             for (int i = 0; i < newOuts.length; i++) {
                 newOuts[i] = new Function(state.env.createNewFunctionName("call_out" + "_" + i),
-                        state.ivilTypeMap.get(node.getOutParam().get(i)), NO_TYPE, false, true, node);
+ state.typeMap.get(node
+                        .getOutParam().get(i)), NO_TYPE, false, true, node);
 
                 state.env.addFunction(newOuts[i]);
             }
@@ -1106,7 +1108,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             int i = 0;
             for (VariableDeclaration var : modifiable) {
-                Type t = state.ivilTypeMap.get(var);
+                Type t = state.typeMap.get(var);
                 Function f = new Function(state.env.createNewFunctionName("oldStore"), t, NO_TYPE, false, true, node);
 
                 Term value = new Application(state.env.getFunction("old_" + state.translation.variableNames.get(var)),
@@ -1186,7 +1188,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
                             .getLocationToken().beginLine, new Application(state.env
-                            .getFunction(state.translation.variableNames.get(decl)), state.ivilTypeMap.get(decl))));
+                            .getFunction(state.translation.variableNames.get(decl)), state.typeMap.get(decl))));
                     statements.bodyAnnotations.add(null);
                 } catch (TermException e) {
                     e.printStackTrace();
@@ -1746,7 +1748,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             for (int i = 0; i < d.size(); i++)
                 args[i + 1] = state.translation.terms.get(d.get(i));
 
-            Type range_t = state.ivilTypeMap.get(node);
+            Type range_t = state.typeMap.get(node);
 
             Term tmp = new Application(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
 
@@ -1773,7 +1775,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             args[args.length - 1] = state.translation.terms.get(node.getUpdate());
 
-            Type type = state.ivilTypeMap.get(node);
+            Type type = state.typeMap.get(node);
 
             state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_store"), type,
                     args));
@@ -1828,7 +1830,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node, new Application(state.env.getFunction("fun__" + node.getName()),
-                    state.ivilTypeMap.get(node), args));
+                    state.typeMap.get(node), args));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1854,7 +1856,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 state.translation.terms.put(node, bound);
             else
                 state.translation.terms.put(node,
-                        new Application(state.env.getFunction(name), state.ivilTypeMap.get(node)));
+ new Application(state.env.getFunction(name), state.typeMap.get(node)));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1899,18 +1901,18 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             // add type quantifiers before ordinary quantifiers
-            {
-                UniversalType[] params = state.typeMap.get(node.getBody()).parameters;
-                for (int i = 0; i < params.length; i++) {
-                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
-                            params[i].toIvilType(state), args[0]) };
-                }
-            }
+            // TODO
+            // {
+            // UniversalType[] params =
+            // state.typeMap.get(node.getBody()).parameters;
+            // for (int i = 0; i < params.length; i++) {
+            // args = new Term[] { new
+            // TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+            // params[i].toIvilType(state), args[0]) };
+            // }
+            // }
 
         } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
-        } catch (EnvironmentException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }
@@ -1939,18 +1941,18 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             // add type quantifiers before ordinary quantifiers
-            {
-                UniversalType[] params = state.typeMap.get(node.getBody()).parameters;
-                for (int i = 0; i < params.length; i++) {
-                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.EX,
-                            params[i].toIvilType(state), args[0]) };
-                }
-            }
+            // TODO
+            // {
+            // UniversalType[] params =
+            // state.typeMap.get(node.getBody()).parameters;
+            // for (int i = 0; i < params.length; i++) {
+            // args = new Term[] { new
+            // TypeVariableBinding(TypeVariableBinding.Kind.EX,
+            // params[i].toIvilType(state), args[0]) };
+            // }
+            // }
 
         } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(node.getLocation(), e);
-        } catch (EnvironmentException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }
@@ -1987,7 +1989,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             state.translation.terms.put(node,
                     new Application(state.env.getFunction("map" + b.getQuantifiedVariables().size() + "_curry"),
-                            state.ivilTypeMap.get(node), args));
+ state.typeMap.get(node), args));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -2010,7 +2012,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("cond"), state.ivilTypeMap.get(node.getThen()), args));
+ new Application(state.env.getFunction("cond"), state.typeMap.get(node
+                    .getThen()), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -2041,7 +2044,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         Variable oldRval = codeexpressionResult;
 
-        Type result_t = state.ivilTypeMap.get(node);
+        Type result_t = state.typeMap.get(node);
 
         // create result variable
         try {

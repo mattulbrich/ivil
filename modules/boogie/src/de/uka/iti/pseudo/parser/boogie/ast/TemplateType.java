@@ -8,9 +8,9 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 
 public final class TemplateType extends NamedType {
 
-    private final List<Type> arguments;
+    private final List<ASTType> arguments;
 
-    public TemplateType(Token name, List<Type> types) {
+    public TemplateType(Token name, List<ASTType> types) {
         super(name, types.size());
         arguments = types;
 
@@ -24,7 +24,7 @@ public final class TemplateType extends NamedType {
 
         StringBuffer b = new StringBuffer(name);
         b.append("<");
-        for (Type t : arguments) {
+        for (ASTType t : arguments) {
             b.append(t.getPrettyName());
             if (arguments.indexOf(t) != arguments.size() - 1)
                 b.append(", ");
@@ -39,7 +39,7 @@ public final class TemplateType extends NamedType {
         v.visit(this);
     }
 
-    public List<Type> getArguments() {
+    public List<ASTType> getArguments() {
         return arguments;
     }
 

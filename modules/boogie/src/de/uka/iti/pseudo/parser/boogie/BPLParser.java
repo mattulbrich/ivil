@@ -159,7 +159,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 /* IdsType is used with const declarations */
   final public List < VariableDeclaration > IdsType(boolean isConstant, boolean isUnique) throws ParseException {
   List < Token > names;
-  Type t;
+  ASTType t;
     names = Idents();
     jj_consume_token(76);
     t = Type();
@@ -194,7 +194,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 
   final public List < VariableDeclaration > IdsTypeWhere(boolean isConstant, boolean isUnique, boolean isQuantified) throws ParseException {
   List < Token > names;
-  Type t;
+  ASTType t;
   Expression e = null;
     names = Idents();
     jj_consume_token(76);
@@ -215,8 +215,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   }
 
 /*------------------------------------------------------------------------*/
-  final public Type Type() throws ParseException {
-  Type t;
+  final public ASTType Type() throws ParseException {
+  ASTType t;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
     case BOOL:
@@ -227,7 +227,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
         Token name;
         //types needs initialization because TypeArgs is optional
-        List < Type > types = new LinkedList < Type > ();
+        List < ASTType > types = new LinkedList < ASTType > ();
       name = jj_consume_token(IDENT);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
@@ -258,9 +258,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     throw new Error("Missing return statement in function");
   }
 
-  final public List < Type > TypeArgs() throws ParseException {
-  Type t;
-  List < Type > rval = new LinkedList < Type > (), tmp;
+  final public List < ASTType > TypeArgs() throws ParseException {
+  ASTType t;
+  List < ASTType > rval = new LinkedList < ASTType > (), tmp;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
     case BOOL:
@@ -287,7 +287,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
       Token name;
       name = jj_consume_token(IDENT);
-      rval.add(new TemplateType(name, new LinkedList < Type > ()));
+      rval.add(new TemplateType(name, new LinkedList < ASTType > ()));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
       case BOOL:
@@ -318,9 +318,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     throw new Error("Missing return statement in function");
   }
 
-  final public Type TypeAtom() throws ParseException {
+  final public ASTType TypeAtom() throws ParseException {
   Token t;
-  Type rval;
+  ASTType rval;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
     case BOOL:
@@ -359,8 +359,8 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public MapType MapType() throws ParseException {
   Token first = null, tmp;
   List < Token > params = new LinkedList < Token > ();
-  List < Type > domain = new LinkedList < Type > ();
-  Type range;
+  List < ASTType > domain = new LinkedList < ASTType > ();
+  ASTType range;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 78:
       first = jj_consume_token(78);
@@ -402,9 +402,9 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     throw new Error("Missing return statement in function");
   }
 
-  final public List < Type > Types() throws ParseException {
-  Type t;
-  List < Type > types = new LinkedList < Type > ();
+  final public List < ASTType > Types() throws ParseException {
+  ASTType t;
+  List < ASTType > types = new LinkedList < ASTType > ();
     t = Type();
     types.add(t);
     label_3:
@@ -525,7 +525,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   VariableDeclaration var;
   List < VariableDeclaration > inParam = new LinkedList < VariableDeclaration > ();
   VariableDeclaration outParam;
-  Type tmp;
+  ASTType tmp;
   Expression expression = null;
     first = jj_consume_token(FUNCTION);
     attributes = AttributeList();
@@ -606,7 +606,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 
   final public VariableDeclaration VarOrType(String optName) throws ParseException {
   ASTElement rval;
-  Type tmp;
+  ASTType tmp;
     rval = Type();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 76:
@@ -619,7 +619,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       jj_la1[27] = jj_gen;
       ;
     }
-    if (!(rval instanceof VariableDeclaration)) rval = new VariableDeclaration(optName, (Type) rval, false, false, false, null);
+    if (!(rval instanceof VariableDeclaration)) rval = new VariableDeclaration(optName, (ASTType) rval, false, false, false, null);
     {if (true) return (VariableDeclaration) rval;}
     throw new Error("Missing return statement in function");
   }
@@ -669,7 +669,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public UserTypeDefinition UserDefinedType() throws ParseException {
   Token name;
   List < String > argnames = new LinkedList < String > ();
-  Type parent = null;
+  ASTType parent = null;
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case IDENT:
@@ -1950,7 +1950,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
    map type. */
   final public Expression CoercionExpression() throws ParseException {
   Expression rval, tmp;
-  Type T;
+  ASTType T;
     rval = ArrayExpression();
     label_32:
     while (true) {

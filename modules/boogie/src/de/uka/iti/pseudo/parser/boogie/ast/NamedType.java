@@ -10,7 +10,7 @@ import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
  * @author timm.felden@felden.com
  * 
  */
-public abstract class NamedType extends Type {
+public abstract class NamedType extends ASTType {
 
     /**
      * Name of this type

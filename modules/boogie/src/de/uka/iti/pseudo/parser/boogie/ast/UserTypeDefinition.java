@@ -15,9 +15,9 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
     // this is only needed to process type table construction, as the argnames
     // can specify
     private final List<String> argnames;
-    private final Type definition;
+    private final ASTType definition;
 
-    public UserTypeDefinition(Token name, List<String> argnames, Type parent) {
+    public UserTypeDefinition(Token name, List<String> argnames, ASTType parent) {
         this.name = ASTConversions.getEscapedName(name);
         this.location = name;
         this.argnames = argnames;
@@ -45,7 +45,7 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
         return argnames;
     }
 
-    public Type getDefinition() {
+    public ASTType getDefinition() {
         return definition;
     }
 

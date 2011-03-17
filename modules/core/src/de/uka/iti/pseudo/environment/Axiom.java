@@ -6,10 +6,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
-import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 
