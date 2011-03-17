@@ -516,7 +516,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // occurs, if some idiot uses old in requires
                 statements.preStatements.add(0,
                         new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine,
-                                new Application(old, old.getResultType()), new Application(var, var.getResultType())));
+ new Application(old, old.getResultType()), new Application(var,
+                        var.getResultType())));
                 statements.preAnnotations.add(0, null);
             } catch (TermException e) {
                 e.printStackTrace();

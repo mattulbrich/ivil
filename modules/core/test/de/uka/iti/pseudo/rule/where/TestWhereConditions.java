@@ -135,7 +135,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     private boolean checkNoFree(NoFreeVars noFree, String s) throws RuleException,
             Exception {
-        return noFree.check(null, new Term[] { makeTerm(s) }, null, null, env);
+        return noFree.check(null, new Term[] { makeTerm(s) }, null, env);
     }
 
 }
