@@ -247,7 +247,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (state.typeMap.has(node))
             return;
 
-        // TODO state.typeMap.add(node, ASTType.newBasicType(node));
+        state.typeMap.add(node, node.newBasicType(state.env));
     }
 
     @Override
@@ -382,6 +382,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
+        for (ASTElement e : node.getChildren())
+            e.visit(this);
+
+        state.typeMap.add(node, null);
         // TODO
         // // functions can have polymorphic types, so push typeargs
         // List<Type> param = addParameters(node.getTypeParameters(), node),
@@ -632,6 +636,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             for (; definition == null && scope != null; scope = scope.parent) {
                 definition = state.names.variableSpace.get(new Pair<String, Scope>(node.getName(), scope));
             }
+
+            if (null == definition)
+                throw new ASTVisitException(node.getLocation() + ":  undefined Variable " + node.getName());
 
             setTypeSameAs(node, definition);
         }

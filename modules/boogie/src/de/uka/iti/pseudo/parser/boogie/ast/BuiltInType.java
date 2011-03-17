@@ -1,8 +1,12 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 
 final public class BuiltInType extends NamedType {
 
@@ -55,6 +59,25 @@ final public class BuiltInType extends NamedType {
 
     public int getBvDimension() {
         return bvDimension;
+    }
+
+    public Type newBasicType(Environment env) {
+        if (isInt)
+            return Environment.getIntType();
+        else if (isBool)
+            return Environment.getIntType();
+        else
+            try {
+                return env.mkType("bitvector");
+            } catch (EnvironmentException e) {
+                e.printStackTrace();
+                assert false : "did you change boogie.p?";
+            } catch (TermException e) {
+                e.printStackTrace();
+                assert false : "did you change boogie.p?";
+            }
+        return null; // can only happen, if assertions are turned of and someone
+                     // messed with the system libs
     }
 
 }
