@@ -16,6 +16,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JPopupMenu;
@@ -106,6 +107,8 @@ public class ProofComponent extends JTree {
                 } else {
                     setIcon(GREY_ICON);
                 }
+                
+                setSize(200, getHeight());
             }
             return this;
         }
@@ -126,6 +129,8 @@ public class ProofComponent extends JTree {
         Proof proof = proofCenter.getProof();
         proofModel = new ProofComponentModel(proof.getRoot(), proofCenter);
         setModel(proofModel);
+        // large models allow changes in width of labels.
+        setLargeModel(true);
         setCellRenderer(new Renderer());
         addListeners(proofCenter);
         proofCenter.firePropertyChange(ProofCenter.TREE_VERBOSITY,
@@ -156,8 +161,9 @@ public class ProofComponent extends JTree {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         Log.enter(evt);
-                        // TODO: see above.
                         proofModel.setShowNumbers((Boolean) evt.getNewValue());
+                        // create a new cell render to trigger recalculation of label sizes
+                        setCellRenderer(new Renderer());
                         repaint();
                     }
                 });
@@ -175,14 +181,17 @@ public class ProofComponent extends JTree {
                     }
                 });
 
-        proofCenter.addNotificationListener(ProofCenter.PROOFNODE_HAS_CHANGED, new NotificationListener() {
+        proofCenter.addNotificationListener(ProofCenter.PROOFNODES_HAVE_CHANGED, new NotificationListener() {
+            @SuppressWarnings("unchecked")
             @Override
             public void handleNotification(NotificationEvent event) {
                 assert event.countParameters() == 1;
-                ProofNode pn = (ProofNode) event.getParameter(0);
-                proofModel.addChangedProofNode(pn);
+                List<ProofNode> pnodes = (List<ProofNode>) event.getParameter(0);
+//                for (ProofNode pn : pnodes) {
+//                    proofModel.addChangedProofNode(pn);
+//                }
 
-                proofModel.publishChanges();
+                proofModel.publishChanges(pnodes);
 
                 // if no node was selected, select root
                 if (selectionModel.isSelectionEmpty() && !(Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF)) {

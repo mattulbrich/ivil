@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -59,7 +60,8 @@ public abstract class Term {
      * It uses soft references as the speedup would be negative in a case where
      * not enough memory is usable.
      */
-    private WeakReference<String> cachedToStringFalse = null, cachedToStringTrue = null;
+    private @Nullable SoftReference<String> cachedToStringFalse = null;
+    private @Nullable SoftReference<String> cachedToStringTrue = null;
 
     /**
      * Instantiates a new term with subterms
@@ -170,9 +172,9 @@ public abstract class Term {
 
         // rebuild cache and return result
         if (SHOW_TYPES)
-            return (cachedToStringTrue = new WeakReference<String>(toString(SHOW_TYPES))).get();
+            return (cachedToStringTrue = new SoftReference<String>(toString(SHOW_TYPES))).get();
         else
-            return (cachedToStringFalse = new WeakReference<String>(toString(SHOW_TYPES))).get();
+            return (cachedToStringFalse = new SoftReference<String>(toString(SHOW_TYPES))).get();
     }
 
     /**

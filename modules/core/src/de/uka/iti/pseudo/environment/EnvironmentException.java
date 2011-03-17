@@ -11,6 +11,9 @@
 
 package de.uka.iti.pseudo.environment;
 
+import checkers.nullness.quals.AssertNonNullIfTrue;
+import nonnull.Nullable;
+
 /**
  * Exceptions of class EnvironmentException are mainly thrown 
  * by classes in the package de.uka.iti.pseudo.environment to 
@@ -20,7 +23,7 @@ package de.uka.iti.pseudo.environment;
 @SuppressWarnings("serial")
 public class EnvironmentException extends Exception {
 
-    private String resource;
+    private @Nullable String resource;
     private int beginLine = -1;
     private int endLine = -1;
     private int beginColumn = -1;
@@ -42,13 +45,11 @@ public class EnvironmentException extends Exception {
     public EnvironmentException(Throwable cause) {
         super(cause.getMessage(), cause);
     }
-    
-    
 
     /**
      * @return the resource
      */
-    public String getResource() {
+    public @Nullable String getResource() {
         return resource;
     }
 
@@ -115,6 +116,7 @@ public class EnvironmentException extends Exception {
         this.endColumn = endColumn;
     }
 
+    @AssertNonNullIfTrue("getResource()")
     public boolean hasErrorInformation() {
         return beginColumn != -1 && beginLine != -1 &&
                endLine != -1 && endColumn != -1 &&

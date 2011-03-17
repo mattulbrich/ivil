@@ -29,10 +29,10 @@ tags
   asAxiom 
   derived
 
-# TODO!! Replace with fresh variable!
 rule emptyset_equals
 find emptyset = %s
-replace (\forall xx; !xx::%s)
+where freshVar %x, %s
+replace (\forall %x; !%x::%s)
 tags
   rewrite "concrete"
   #asAxiom
@@ -85,7 +85,9 @@ tags
 
 rule subset_def
 find %a <: %b
-replace (\forall yy; yy :: %a -> yy :: %b)
+where
+  freshVar %x, %a, %b
+replace (\forall %x; %x :: %a -> %x :: %b)
  
 rule subset_refl
 find %a <: %a

@@ -26,7 +26,7 @@ public class DifferentTypes extends WhereCondition {
     }
 
     @Override public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
 
         Type type1 = actualArguments[0].getType();
