@@ -54,7 +54,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
+import de.uka.iti.pseudo.parser.boogie.ast.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
@@ -62,9 +62,12 @@ import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
  * This visitor decorates ASTElements with types. Typechecking is done using the
@@ -74,7 +77,10 @@ import de.uka.iti.pseudo.term.TypeVariable;
  * 
  */
 public final class TypeMapBuilder extends DefaultASTVisitor {
+
     private final EnvironmentCreationState state;
+
+    private final TypingContext context = new TypingContext();
 
     private final Map<ASTElement, List<Type>> typeParameterMap = new HashMap<ASTElement, List<Type>>();
 
@@ -114,13 +120,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      * @return the universal type equivalent to name
      */
     private Type getParameter(ASTElement decl, String name) {
-        // TODO
-        // if (null == typeParameterMap.get(decl))
-        // return null;
-        //
-        // for (Type t : typeParameterMap.get(decl))
-        // if (t.getPrettyName().equals(name)) // TODO needs prefixing?
-        // return t;
+        if (null == typeParameterMap.get(decl))
+            return null;
+
+        for (Type t : typeParameterMap.get(decl))
+            if (t.toString().equals('\'' + name)) // TODO needs prefixing?
+                return t;
 
         return null;
     }
@@ -211,9 +216,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         else
             return;
 
-        for (ASTElement n : node.getChildren()) {
+        for (ASTElement n : node.getChildren())
             n.visit(this);
-        }
     }
 
     @Override
@@ -300,32 +304,36 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(TemplateType node) throws ASTVisitException {
-        // TODO rename this AST node and move the code to another visitor, that
-        // creates a mapping for types before the actual type analysis is done?
+    public void visit(ASTTypeApplication node) throws ASTVisitException {
 
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // // resolve type name
-        // ASTElement declaration = getParameterDeclaration(node.getName(),
-        // state.scopeMap.get(node));
-        // Type type = null;
-        // if (null != declaration) {
-        // // this type refers to a typeparameter or typeargument
-        // // TODO type = getParameter(declaration, node.getName());
-        // } else {
-        // // this type refers to a regular type
-        // declaration = state.names.typeSpace.get(node.getName());
-        // if (state.typeMap.has(declaration))
-        // type = state.typeMap.get(declaration);
-        // }
-        //
-        // if (null == type) {
-        // todo.add(node);
-        // return;
-        // }
-        //
+        if (state.typeMap.has(node))
+            return;
+
+        // resolve type name
+        ASTElement declaration = getParameterDeclaration(node.getName(), state.scopeMap.get(node));
+        Type type = null;
+        if (null != declaration) {
+            // this type refers to a typeparameter or typeargument
+            type = getParameter(declaration, node.getName());
+        } else {
+            // this type refers to a regular type
+            declaration = state.names.typeSpace.get(node.getName());
+            if (null == declaration)
+                throw new ASTVisitException(node.getLocation() + ":  undeclared Type " + node.getName());
+
+            if (!state.typeMap.has(declaration))
+                declaration.visit(this);
+
+            type = state.typeMap.get(declaration);
+        }
+
+        if (null == type)
+            throw new ASTVisitException(node.getLocation() + ":  undeclared type " + node.getName());
+
+        state.typeMap.add(node, type);
+
+        // TODO change behavior to allow for treatment of ASTTypeAlias
+
         // // if the type has arguments, create a new type, if not, return the
         // // already existing type
         // if (0 == type.templateArguments.length) {
@@ -361,7 +369,15 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        defaultAction(node, state.mapDB.getType(node));
+        if (state.typeMap.has(node))
+            return;
+
+        addParameters(node.getTypeParameters(), node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        state.typeMap.add(node, state.mapDB.getType(node, state));
     }
 
     @Override
@@ -501,29 +517,35 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        // TODO
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // boolean failed = false;
-        // for (ASTElement n : node.getChildren()) {
-        // n.visit(this);
-        // if (!state.typeMap.has(n))
-        // failed = true;
-        // }
-        //
-        // if (failed) {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // try {
-        // state.typeMap.add(node,
-        // ASTType.newInferedType(state.typeMap.get(node.getName()), node,
-        // state).range);
-        // } catch (TypeSystemException e) {
-        // throw new ASTVisitException(e.getMessage());
-        // }
+        if (state.typeMap.has(node))
+            return;
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type t = state.typeMap.get(node.getName());
+        Type r = state.mapDB.getRange(t);
+        if (r instanceof TypeVariable) {
+            // infer type
+            Type[] signature = state.mapDB.getSignature(context, t);
+
+            try {
+                for (int i = 0; i < node.getOperands().size(); i++)
+                    context.solveConstraint(signature[i + 1], state.typeMap.get(node.getOperands().get(i)));
+            } catch (UnificationException e) {
+                throw new ASTVisitException(node.getLocation() + ":  illtyped mapaccess", e);
+            }
+
+            Type i = context.getInstantiation().get(((SchemaType) signature[0]).getVariableName());
+
+            if (null == i && !state.printDebugInformation())
+                throw new ASTVisitException(node.getLocation()
+                        + ":  non local type inference is currently not supported");
+
+            state.typeMap.add(node, i);
+        } else {
+            state.typeMap.add(node, r);
+        }
     }
 
     @Override

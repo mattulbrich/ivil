@@ -180,12 +180,9 @@ public final class EnvironmentCreationState {
         }
         System.out.println("");
 
-        // System.out.println("seen types:");
-        // for (UniversalType t : typeMap.valueSet()) {
-        // if (t != null)
-        // System.out.println("\t" + t.name);
-        // }
-        // System.out.println("");
+        System.out.println("maps:");
+        System.out.println(mapDB);
+        System.out.println("");
 
         System.out.println("variable and constant declarations:");
         for (Pair<String, Scope> n : names.variableSpace.keySet()) {

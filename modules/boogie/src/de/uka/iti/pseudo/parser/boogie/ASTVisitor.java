@@ -76,7 +76,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.TemplateType;
+import de.uka.iti.pseudo.parser.boogie.ast.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
@@ -112,7 +112,7 @@ public interface ASTVisitor {
 
     void visit(UserDefinedTypeDeclaration node) throws ASTVisitException;
 
-    void visit(TemplateType node) throws ASTVisitException;
+    void visit(ASTTypeApplication node) throws ASTVisitException;
 
     void visit(MapType node) throws ASTVisitException;
 

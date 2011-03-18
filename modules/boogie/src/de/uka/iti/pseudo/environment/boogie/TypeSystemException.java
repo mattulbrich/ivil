@@ -15,4 +15,8 @@ public class TypeSystemException extends ParseException {
         super(msg);
     }
 
+    public TypeSystemException(String msg, Exception e) {
+        super(msg, e);
+    }
+
 }

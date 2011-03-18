@@ -6,11 +6,17 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public final class TemplateType extends NamedType {
+/**
+ * This is a used user defined type and is similar to a TypeApplication in ivil.
+ * 
+ * @author timm.felden@felden.com
+ * 
+ */
+public final class ASTTypeApplication extends NamedType {
 
     private final List<ASTType> arguments;
 
-    public TemplateType(Token name, List<ASTType> types) {
+    public ASTTypeApplication(Token name, List<ASTType> types) {
         super(name, types.size());
         arguments = types;
 
@@ -45,6 +51,6 @@ public final class TemplateType extends NamedType {
 
     @Override
     public String toString(){
-        return "TemplateType [" + getPrettyName() + "]";
+        return "TypeApplication [" + getPrettyName() + "]";
     }
 }

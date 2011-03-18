@@ -28,7 +28,7 @@ public final class Decoration<T> {
     }
     
     public T get(ASTElement key) {
-        assert (has(key)) : "You tried to look an undecorated object.";
+        assert (has(key)) : "You tried to look up an undecorated object.";
         return data.get(key);
     }
 

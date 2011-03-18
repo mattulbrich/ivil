@@ -29,7 +29,7 @@ public final class TypingPhase {
 
             // this exception is expected
 	    // TODO consider giving as cause to TypeSystemException for better debug-ability
-            throw new TypeSystemException("TypeMap creation failed because of " + e.toString());
+            throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
 
         }
 

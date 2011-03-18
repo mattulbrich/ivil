@@ -663,70 +663,8 @@
 //
 //        Type bool_it = Environment.getBoolType();
 //
-//        // create some commonly used schema variables
-//        SchemaType vt = new SchemaType("v");
-//        SchemaVariable v = new SchemaVariable("%v", vt);
-//
-//        Term store_arg[] = new Term[domain.length + 2];
-//        Term load_arg[] = new Term[domain.length + 1];
-//
-//        Type map_drt[] = new Type[domain.length + 1];
-//
-//        for (int i = 0; i < domain.length; i++) {
-//            map_drt[i] = new SchemaType("D" + i);
-//            store_arg[i + 1] = new SchemaVariable("%d1_" + i, new SchemaType("d1_" + i));
-//            load_arg[i + 1] = new SchemaVariable("%d2_" + i, new SchemaType("d2_" + i));
-//        }
-//
-//        map_drt[domain.length] = new SchemaType("R");
-//
-//        Type mt = state.env.mkType(map_t, map_drt);
-//        SchemaVariable m = new SchemaVariable("%m", mt);
-//
-//        store_arg[0] = m;
-//        store_arg[store_arg.length - 1] = v;
-//
-//        load_arg[0] = new Application(state.env.getFunction(map_t + "_store"), mt, store_arg);
-//        Term default_find = new Application(state.env.getFunction(map_t + "_load"), new SchemaType("rt"), load_arg);
-//
-//        try { // /////////////// LOAD STORE SAME
-//
-//            String name = map_t + "_load_store_same";
-//
-//            Term args1[] = new Term[domain.length + 2];
-//            Term args2[] = new Term[domain.length + 1];
-//
-//            Type drt[] = new Type[domain.length + 1];
-//
-//            for (int i = 0; i < domain.length; i++) {
-//                drt[i] = new SchemaType("d" + i);
-//                args1[i + 1] = args2[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-//            }
-//
-//            drt[domain.length] = vt;
-//
-//            args1[0] = m;
-//            args1[args1.length - 1] = v;
-//
-//            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
-//            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
-//
-//            List<GoalAction> actions = new LinkedList<GoalAction>();
-//
-//            actions.add(new GoalAction("samegoal", null, false, v, new LinkedList<Term>(), new LinkedList<Term>()));
-//
-//            Map<String, String> tags = new HashMap<String, String>();
-//
-//            tags.put("rewrite", "concrete");
-//
-//            state.env.addRule(new Rule(name, new LinkedList<LocatedTerm>(),
-//                    new LocatedTerm(find, MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags,
-//                    state.root));
-//
-//        } catch (RuleException e) {
-//            e.printStackTrace();
-//            throw new EnvironmentException(e);
-//        }
+//        
+
 //
 //        try { // /////////////// LOAD STORE SAME ASSUME
 //

@@ -1751,11 +1751,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Type range_t = state.typeMap.get(node);
 
-            Term tmp = new Application(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
+            assert null != range_t || state.printDebugInformation() : "range type should be nonnull";
+
+            Term tmp = new Application(state.env.getFunction(args[0].getType() + "_load"), range_t, args);
 
             state.translation.terms.put(node, tmp);
 
         } catch (TermException e) {
+            state.printDebugInformation();
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
         }

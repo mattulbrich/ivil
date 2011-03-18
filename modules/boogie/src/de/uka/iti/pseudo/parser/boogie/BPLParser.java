@@ -162,7 +162,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   ASTType t;
     names = Idents();
     jj_consume_token(76);
-    t = Type();
+    t = ASTType();
     List < VariableDeclaration > rval = new LinkedList < VariableDeclaration > ();
     for (Token name : names) rval.add(new VariableDeclaration(name, t, isConstant, isUnique, false, null));
     {if (true) return rval;}
@@ -198,7 +198,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   Expression e = null;
     names = Idents();
     jj_consume_token(76);
-    t = Type();
+    t = ASTType();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case WHERE:
       jj_consume_token(WHERE);
@@ -215,7 +215,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   }
 
 /*------------------------------------------------------------------------*/
-  final public ASTType Type() throws ParseException {
+  final public ASTType ASTType() throws ParseException {
   ASTType t;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case INT:
@@ -243,7 +243,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         jj_la1[5] = jj_gen;
         ;
       }
-        {if (true) return new TemplateType(name, types);}
+        {if (true) return new ASTTypeApplication(name, types);}
       break;
     case SEP_LBRACKET:
     case 78:
@@ -287,7 +287,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     case IDENT:
       Token name;
       name = jj_consume_token(IDENT);
-      rval.add(new TemplateType(name, new LinkedList < ASTType > ()));
+      rval.add(new ASTTypeApplication(name, new LinkedList < ASTType > ()));
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case INT:
       case BOOL:
@@ -344,7 +344,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       break;
     case 74:
       jj_consume_token(74);
-      rval = Type();
+      rval = ASTType();
       jj_consume_token(75);
       {if (true) return rval;}
       break;
@@ -388,7 +388,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       ;
     }
     jj_consume_token(SEP_RBRACKET);
-    range = Type();
+    range = ASTType();
     {if (true) return new MapType(first, params, domain, range);}
     throw new Error("Missing return statement in function");
   }
@@ -405,7 +405,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public List < ASTType > Types() throws ParseException {
   ASTType t;
   List < ASTType > types = new LinkedList < ASTType > ();
-    t = Type();
+    t = ASTType();
     types.add(t);
     label_3:
     while (true) {
@@ -418,7 +418,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
         break label_3;
       }
       jj_consume_token(77);
-      t = Type();
+      t = ASTType();
       types.add(t);
     }
     {if (true) return types;}
@@ -578,7 +578,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       break;
     case 76:
       jj_consume_token(76);
-      tmp = Type();
+      tmp = ASTType();
       outParam = new VariableDeclaration("rval", tmp, false, false, false, null);
       break;
     default:
@@ -607,13 +607,13 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   final public VariableDeclaration VarOrType(String optName) throws ParseException {
   ASTElement rval;
   ASTType tmp;
-    rval = Type();
+    rval = ASTType();
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 76:
       jj_consume_token(76);
-      tmp = Type();
-      if (!(rval instanceof TemplateType)) {if (true) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());}
-      rval = new VariableDeclaration(((TemplateType) rval).getLocationToken(), tmp, false, false, false, null);
+      tmp = ASTType();
+      if (!(rval instanceof ASTTypeApplication)) {if (true) throw new ParseException("At " + rval.getLocation() + ":: Expected Identifier but found " + rval.getClass().toString());}
+      rval = new VariableDeclaration(((ASTTypeApplication) rval).getLocationToken(), tmp, false, false, false, null);
       break;
     default:
       jj_la1[27] = jj_gen;
@@ -682,7 +682,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case 80:
       jj_consume_token(80);
-      parent = Type();
+      parent = ASTType();
       break;
     default:
       jj_la1[30] = jj_gen;
@@ -1971,7 +1971,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case IDENT:
       case 74:
       case 78:
-        T = Type();
+        T = ASTType();
         {if (true) return new CoercionExpression(rval, T);}
         break;
       case INTEGER:
