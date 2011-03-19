@@ -65,7 +65,7 @@ final public class BuiltInType extends NamedType {
         if (isInt)
             return Environment.getIntType();
         else if (isBool)
-            return Environment.getIntType();
+            return Environment.getBoolType();
         else
             try {
                 return env.mkType("bitvector");

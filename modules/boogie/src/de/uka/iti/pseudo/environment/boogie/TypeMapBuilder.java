@@ -66,6 +66,7 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TypingContext;
@@ -341,7 +342,25 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             if (!state.typeMap.has(declaration))
                 declaration.visit(this);
 
+            // get type
             type = state.typeMap.get(declaration);
+
+            // get type arguments
+            Type[] arg_t = new Type[node.getArguments().size()];
+
+            for (int i = 0; i < node.getArguments().size(); i++) {
+                final ASTElement child = node.getArguments().get(i);
+                child.visit(this);
+                arg_t[i] = state.typeMap.get(child);
+            }
+            try {
+                type = state.env.mkType(((TypeApplication) type).getSort().getName(), arg_t);
+
+            } catch (EnvironmentException e) {
+                e.printStackTrace();
+            } catch (TermException e) {
+                e.printStackTrace();
+            }
         }
 
         if (null == type)

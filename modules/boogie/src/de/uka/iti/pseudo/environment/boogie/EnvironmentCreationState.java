@@ -131,6 +131,7 @@ public final class EnvironmentCreationState {
             types = new TypingPhase();
 
         types.create(this);
+        printDebugInformation();
     }
 
     public void createEnvironment() throws ParseException {

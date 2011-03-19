@@ -225,7 +225,7 @@ public final class MapTypeDatabase {
                 Type drt[] = new Type[domain.length + 1];
 
                 for (int i = 0; i < domain.length; i++) {
-                    drt[i] = new SchemaType("d" + i);
+                    drt[i] = domain[i] instanceof TypeVariable ? new SchemaType("d" + i) : domain[i];
                     args1[i + 1] = args2[i + 1] = new SchemaVariable("%d" + i, drt[i]);
                 }
 
@@ -265,7 +265,7 @@ public final class MapTypeDatabase {
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
                 for (int i = 0; i < domain.length; i++) {
-                    drt[i] = new SchemaType("d" + i);
+                    drt[i] = domain[i] instanceof TypeVariable ? new SchemaType("d" + i) : domain[i];
                     args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
                     args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
 
