@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
@@ -274,16 +275,32 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
-        // TODO
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // if (null == node.getDefinition()) {
-        // // simple case, a new type with template arguments is defined
-        //
-        // state.typeMap.add(node, ASTType.newTemplateType(node.getName(),
-        // node.getTypeParameters().size()));
-        // } else {
+        if (state.typeMap.has(node))
+            return;
+
+        if (null == node.getDefinition()) {
+            // simple case, a new type (corresponds to sort in ivil) with
+            // arguments is defined
+            String name;
+            try {
+                state.env.addSort(new Sort(name = ("utt_" + node.getName()), node.getTypeParameters().size(), node));
+            
+                Type[] args = new Type[node.getTypeParameters().size()];
+
+                for (int i = 0; i < args.length; i++)
+                    args[i] = new TypeVariable("arg" + i);
+
+                Type result = state.env.mkType(name, args);
+
+                state.typeMap.add(node, result);
+
+            } catch (EnvironmentException e) {
+                e.printStackTrace();
+            } catch (TermException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // TODO
         //
         // // more complex case, we have to push type parameters and then to
         // // put them into the template type field
@@ -299,8 +316,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         // } else {
         // todo.add(node);
         // return;
-        // }
-        // }
+            // }
+        }
     }
 
     @Override
