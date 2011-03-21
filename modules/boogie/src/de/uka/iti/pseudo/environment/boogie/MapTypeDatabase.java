@@ -103,14 +103,10 @@ public final class MapTypeDatabase {
         this.env = env;
     }
 
-    public Type getType(MapType node, EnvironmentCreationState state) {
-
-        Type[] domain = new Type[node.getDomain().size()];
-        for (int i = 0; i < domain.length; i++)
-            domain[i] = state.typeMap.get(node.getDomain().get(i));
+    public Type getType(Type[] domain, Type range, ASTElement node, EnvironmentCreationState state) {
 
         // create an unfolded map
-        UnfoldedMap entry = new UnfoldedMap(domain, state.typeMap.get(node.getRange()));
+        UnfoldedMap entry = new UnfoldedMap(domain, range);
 
         // look for the map in the table
         if (mapTo.containsKey(entry))
@@ -141,6 +137,12 @@ public final class MapTypeDatabase {
      * 
      * @param type
      * @return the ivil type that can be used to represent the map
+     * 
+     *         TODO detailed doc
+     * 
+     *         TODO renaming of variables
+     * 
+     *         TODO will only locally bound type variables be schema types?
      */
     private Type addMapType(UnfoldedMap type, ASTElement node) {
         final Type[] domain = type.domain;
