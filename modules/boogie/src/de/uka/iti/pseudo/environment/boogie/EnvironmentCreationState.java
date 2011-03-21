@@ -131,7 +131,6 @@ public final class EnvironmentCreationState {
             types = new TypingPhase();
 
         types.create(this);
-        printDebugInformation();
     }
 
     public void createEnvironment() throws ParseException {
@@ -232,6 +231,8 @@ public final class EnvironmentCreationState {
         } catch (RuntimeException e) {
             printDebugInformation();
             throw e;
+        } finally {
+            printDebugInformation();
         }
 
         try {

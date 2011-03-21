@@ -91,6 +91,8 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.Assignment;
@@ -410,16 +412,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             boundVars.get(state.translation.variableNames.get(v)), args) };
                 }
 
-                // add type quantifiers before ordinary quantifiers
-                // TODO reimplement quantification
-                // {
-                // UniversalType[] params = state.typeMap.get(node).parameters;
-                // for (int i = 0; i < params.length; i++) {
-                // args = new Term[] { new
-                // TypeVariableBinding(TypeVariableBinding.Kind.ALL,
-                // params[i].toIvilType(state), args[0]) };
-                // }
-                // }
+                // add universal type quantification over type parameters before
+                // ordinary quantifiers
+                for (int i = 0; i < node.getTypeParameters().size(); i++)
+                        args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL, new TypeVariable(node
+                                .getTypeParameters().get(i)), args[0]) };
 
             } catch (TermException e) {
                 e.printStackTrace();
@@ -1298,7 +1295,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 args[args.length - 1] = nval;
 
-                Function store = state.env.getFunction("map" + (args.length - 2) + "_store");
+                Function store = state.env.getFunction(name.getType().toString() + "_store");
 
                 if (name instanceof Application && ((Application) name).getFunction().getName().startsWith("map")
                         && !((Application) name).getFunction().isAssignable()) {
@@ -1781,7 +1778,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Type type = state.typeMap.get(node);
 
-            state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_store"), type,
+            state.translation.terms.put(node, new Application(state.env.getFunction(type.toString() + "_store"), type,
                     args));
 
         } catch (TermException e) {

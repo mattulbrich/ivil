@@ -229,41 +229,25 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        // TODO
-        // // translate typeparameters first, as children depend on them
-        // List<Type> param = this.addParameters(node.getTypeParameters(),
-        // node);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // if (state.typeMap.has(node.getOutParemeter())) {
-        // List<Type> domain = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getInParameters()) {
-        // if (state.typeMap.has(n))
-        // domain.add(state.typeMap.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // }
-        //
-        // try {
-        // state.typeMap.add(node,
-        // ASTType.newMap(param, domain,
-        // state.typeMap.get(node.getOutParemeter()), false));
-        // } catch (IllegalArgumentException e) {
-        // // can happen if the maptype is illformed like <a>[]int or
-        // // <a>[int]a
-        // throw new ASTVisitException("\nmap creation failed @ " +
-        // node.getLocation(), e);
-        // }
-        // } else {
-        // todo.add(node);
-        // return;
-        // }
+        // translate type parameters first, as children depend on them
+        this.addParameters(node.getTypeParameters(), node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type[] domain = new Type[node.getInParameters().size()];
+
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = state.typeMap.get(node.getInParameters().get(i));
+
+        try {
+            state.typeMap
+                    .add(node, state.mapDB.getType(domain, state.typeMap.get(node.getOutParemeter()), node, state));
+        } catch (IllegalArgumentException e) {
+            // can happen if the maptype is illformed like <a>[]int or
+            // <a>[int]a
+            throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
+        }
     }
 
     @Override
@@ -285,7 +269,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             String name;
             try {
                 state.env.addSort(new Sort(name = ("utt_" + node.getName()), node.getTypeParameters().size(), node));
-            
+
                 Type[] args = new Type[node.getTypeParameters().size()];
 
                 for (int i = 0; i < args.length; i++)
@@ -302,21 +286,22 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             }
         } else {
             // TODO
-        //
-        // // more complex case, we have to push type parameters and then to
-        // // put them into the template type field
-        //
-        // List<Type> param = addParameters(node.getTypeParameters(), node);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // if (state.typeMap.has(node.getDefinition())) {
-        // state.typeMap.add(node, ASTType.newTypeSynonym(node.getName(), param,
-        // state.typeMap.get(node.getDefinition()), state.names.typeSpace));
-        // } else {
-        // todo.add(node);
-        // return;
+            //
+            // // more complex case, we have to push type parameters and then to
+            // // put them into the template type field
+            //
+            // List<Type> param = addParameters(node.getTypeParameters(), node);
+            //
+            // for (ASTElement n : node.getChildren())
+            // n.visit(this);
+            //
+            // if (state.typeMap.has(node.getDefinition())) {
+            // state.typeMap.add(node, ASTType.newTypeSynonym(node.getName(),
+            // param,
+            // state.typeMap.get(node.getDefinition()), state.names.typeSpace));
+            // } else {
+            // todo.add(node);
+            // return;
             // }
         }
     }
@@ -413,7 +398,11 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        state.typeMap.add(node, state.mapDB.getType(node, state));
+        Type[] domain = new Type[node.getDomain().size()];
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = state.typeMap.get(node.getDomain().get(i));
+
+        state.typeMap.add(node, state.mapDB.getType(domain, state.typeMap.get(node.getRange()), node, state));
     }
 
     @Override
@@ -612,18 +601,32 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null == decl)
             throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
 
-        if (!state.typeMap.has(decl)) {
-            // TODO todo.add(node);
-            return;
-        }
+        if (!state.typeMap.has(decl))
+            decl.visit(this);
 
-        // try {
-        // // TODO state.typeMap.add(node,
-        // // ASTType.newInferedType(state.typeMap.get(decl), node,
-        // // state).range);
-        // } catch (TypeSystemException e) {
-        // throw new ASTVisitException(node.getLocation() + e.getMessage());
-        // }
+        Type t = state.typeMap.get(decl);
+        Type r = state.mapDB.getRange(t);
+        if (r instanceof TypeVariable) {
+            // infer type
+            Type[] signature = state.mapDB.getSignature(context, t);
+
+            try {
+                for (int i = 0; i < node.getOperands().size(); i++)
+                    context.solveConstraint(signature[i + 1], state.typeMap.get(node.getOperands().get(i)));
+            } catch (UnificationException e) {
+                throw new ASTVisitException(node.getLocation() + ":  illtyped mapaccess", e);
+            }
+
+            Type i = context.getInstantiation().get(((SchemaType) signature[0]).getVariableName());
+
+            if (null == i && !state.printDebugInformation())
+                throw new ASTVisitException(node.getLocation()
+                        + ":  non local type inference is currently not supported");
+
+            state.typeMap.add(node, i);
+        } else {
+            state.typeMap.add(node, r);
+        }
     }
 
     @Override
@@ -666,46 +669,22 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        // TODO
-        // // the quantifier body has a maptype, that maps the quantified
-        // variables
-        // // to the result of the expression
-        // if (state.typeMap.has(node))
-        // return;
-        //
-        // List<Type> param = addParameters(node.getTypeParameters(), node);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // if (state.typeMap.has(node.getBody())) {
-        // List<Type> domain = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getQuantifiedVariables()) {
-        // if (state.typeMap.has(n))
-        // domain.add(state.typeMap.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // }
-        //
-        // try {
-        // state.typeMap.add(node, ASTType.newMap(param, domain,
-        // state.typeMap.get(node.getBody()),
-        // node.getParent() instanceof LambdaExpression));
-        // } catch (IllegalArgumentException e) {
-        // // can happen if the maptype is illformed like <a>[]int or
-        // // <a>[int]a
-        // throw new ASTVisitException("\nmap creation failed @ " +
-        // node.getLocation(), e);
-        // }
-        //
-        // } else {
-        // todo.add(node);
-        // return;
-        // }
+        // the quantifier body has a map type, that maps the quantified
+        // variables to the result of the expression
+        if (state.typeMap.has(node))
+            return;
+
+        addParameters(node.getTypeParameters(), node);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type[] domain = new Type[node.getQuantifiedVariables().size()];
+
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = state.typeMap.get(node.getQuantifiedVariables().get(i));
+
+        state.typeMap.add(node, state.mapDB.getType(domain, state.typeMap.get(node.getBody()), node, state));
     }
 
     @Override

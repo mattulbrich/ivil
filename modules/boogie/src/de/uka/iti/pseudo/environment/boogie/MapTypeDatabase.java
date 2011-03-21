@@ -10,7 +10,6 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -103,6 +102,19 @@ public final class MapTypeDatabase {
         this.env = env;
     }
 
+    /**
+     * @note Map DB has to be type parameter name agnostic, as this would break
+     *       typing. If type parameter renaming is required, a mechanism is
+     *       needed that renames type parameters, before(or during) the type map
+     *       is built, by structure.
+     * 
+     * @param domain
+     * @param range
+     * @param node
+     *            the node that caused the creation of this type
+     * @param state
+     * @return a type with no arguments built from a sort map<%i>
+     */
     public Type getType(Type[] domain, Type range, ASTElement node, EnvironmentCreationState state) {
 
         // create an unfolded map
@@ -440,19 +452,20 @@ public final class MapTypeDatabase {
                     Term lambda = v;
                     Term replace = v;
 
-                    Type curry_t = vt;
-                    Type drt[] = new Type[domain.length + 1];
+                    Type curry_t = type.range instanceof TypeVariable ? new SchemaType("ct_"
+                            + ((TypeVariable) type.range).getVariableName()) : vt;
+                    Type domain_t[] = new Type[domain.length];
 
                     for (int i = domain.length - 1; i >= 0; i--) {
                         // use schema types only if the domain uses a type
                         // variable
                         final boolean tvar = domain[i] instanceof TypeVariable;
 
-                        drt[i] = tvar ? new SchemaType("d" + i) : domain[i];
-                        X[i] = new SchemaVariable("%x" + i, drt[i]);
-                        argLoad[i + 1] = new SchemaVariable("%y" + i, drt[i]);
+                        domain_t[i] = tvar ? new SchemaType("ct_" + ((TypeVariable) domain[i]).getVariableName()) : domain[i];
+                        X[i] = new SchemaVariable("%x" + i, domain_t[i]);
+                        argLoad[i + 1] = new SchemaVariable("%y" + i, domain_t[i]);
 
-                        curry_t = env.mkType("map", drt[i], curry_t);
+                        curry_t = env.mkType("map", domain_t[i], curry_t);
                         lambda = new Binding(env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
 
                         replace = new Application(env.getFunction("$$subst"), vt, new Term[] { X[i], argLoad[i + 1],
@@ -460,8 +473,6 @@ public final class MapTypeDatabase {
                     }
 
                     // lambda is now λ %X . %v
-
-                    drt[domain.length] = vt;
 
                     argLoad[0] = new Application(env.getFunction(name + "_curry"), map_t, new Term[] { lambda });
 
