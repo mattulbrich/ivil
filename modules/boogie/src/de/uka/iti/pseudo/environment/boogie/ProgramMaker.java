@@ -1834,9 +1834,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     state.typeMap.get(node), args));
 
         } catch (TermException e) {
-            e.printStackTrace();
-
-            throw new ASTVisitException(e);
+            throw new ASTVisitException(node.getLocation(), e);
         }
     }
 

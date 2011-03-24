@@ -20,7 +20,7 @@ final public class UserTypeDefinition extends ASTElement implements NamedASTElem
     public UserTypeDefinition(Token name, List<String> argnames, ASTType parent) {
         this.name = ASTConversions.getEscapedName(name);
         this.location = name;
-        this.argnames = argnames;
+        this.argnames = ASTConversions.toEscapedList(argnames);
         this.definition = parent;
 
         if (null != parent)

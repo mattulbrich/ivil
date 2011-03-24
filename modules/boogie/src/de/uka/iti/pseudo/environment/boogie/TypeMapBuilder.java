@@ -285,24 +285,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 e.printStackTrace();
             }
         } else {
-            // TODO
-            //
-            // // more complex case, we have to push type parameters and then to
-            // // put them into the template type field
-            //
-            // List<Type> param = addParameters(node.getTypeParameters(), node);
-            //
-            // for (ASTElement n : node.getChildren())
-            // n.visit(this);
-            //
-            // if (state.typeMap.has(node.getDefinition())) {
-            // state.typeMap.add(node, ASTType.newTypeSynonym(node.getName(),
-            // param,
-            // state.typeMap.get(node.getDefinition()), state.names.typeSpace));
-            // } else {
-            // todo.add(node);
-            // return;
-            // }
+             // more complex case, we have to push type parameters and then to
+             // put them into the template type field
+            
+             List<Type> param = addParameters(node.getTypeParameters(), node);
+            
+             for (ASTElement n : node.getChildren())
+             n.visit(this);
+            
+            Type[] params = param.toArray(new Type[param.size()]);
+             
+            state.typeMap.add(node, new TypeAlias(params, state.typeMap.get(node.getDefinition()), state));
         }
     }
 
@@ -339,7 +332,11 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 arg_t[i] = state.typeMap.get(child);
             }
             try {
-                type = state.env.mkType(((TypeApplication) type).getSort().getName(), arg_t);
+                if (type instanceof TypeAlias) {
+                    type = ((TypeAlias) type).constructFrom(arg_t);
+                } else {
+                    type = state.env.mkType(((TypeApplication) type).getSort().getName(), arg_t);
+                }
 
             } catch (EnvironmentException e) {
                 e.printStackTrace();
@@ -352,40 +349,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             throw new ASTVisitException(node.getLocation() + ":  undeclared type " + node.getName());
 
         state.typeMap.add(node, type);
-
-        // TODO change behavior to allow for treatment of ASTTypeAlias
-
-        // // if the type has arguments, create a new type, if not, return the
-        // // already existing type
-        // if (0 == type.templateArguments.length) {
-        // state.typeMap.add(node, type);
-        // } else {
-        //
-        // boolean failed = false;
-        // for (ASTElement e : node.getChildren()) {
-        // e.visit(this);
-        // if (!state.typeMap.has(e))
-        // failed = true;
-        // }
-        // if (failed) {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // List<Type> arguments = new LinkedList<Type>();
-        // for (ASTType t : node.getArguments()) {
-        // arguments.add(state.typeMap.get(t));
-        // }
-        //
-        // try {
-        // state.typeMap.add(node, ASTType.newTemplateType(type, arguments));
-        // } catch (IllegalArgumentException e) {
-        // // can happen if the maptype is illformed like <a>[]int or
-        // // <a>[int]a
-        // throw new ASTVisitException("\nmap creation failed @ " +
-        // node.getLocation(), e);
-        // }
-        // }
     }
 
     @Override

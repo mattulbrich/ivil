@@ -28,6 +28,19 @@ public class ASTConversions {
 
     /**
      * @param source
+     *            a List of unescaped names
+     * @return a List of Strings containing the properly escaped names
+     */
+    public static List<String> toEscapedList(List<String> source) {
+        List<String> rval = new ArrayList<String>(source.size());
+        for (String t : source)
+            rval.add(getEscapedName(t));
+
+        return rval;
+    }
+
+    /**
+     * @param source
      *            a List of Tokens
      * @return a List of Strings containing the Tokens images
      */
