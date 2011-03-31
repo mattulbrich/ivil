@@ -228,22 +228,35 @@ public final class MapTypeDatabase {
      * Replaces the maps type parameters with new schemaTypes created with
      * context.
      */
-    public Type getWithFreshSchemaParameters(Type t, final TypingContext context) {
-        final HashSet<TypeVariable> p = getUnfoldedMap(t).parameters;
+    public Type[] getMapSignature(Type definition, final TypingContext context) {
+        final UnfoldedMap map = getUnfoldedMap(definition);
         
         // create a mapping from bound type variables to new schema types
         final Map<TypeVariable, SchemaType> replace = new HashMap<TypeVariable, SchemaType>();
-        for(TypeVariable v : p)
+        for(TypeVariable v : map.parameters)
             replace.put(v, context.newSchemaType());
 
         // This visitor is used to replace locally bound type variables with fresh schema variables.
-        try {
-            return t.accept(new RebuildingTypeVisitor<TypingContext>() {
+        try{
+            
+            RebuildingTypeVisitor<TypingContext> visitor = new RebuildingTypeVisitor<TypingContext>() {
+
+                // FIXME this will not work for nested map definitions such as
+                // <a>[a, <a,b>[a]b]a
+
                 @Override
                 public Type visit(TypeVariable typeVariable, TypingContext parameter) throws TermException {
-                    return p.contains(typeVariable) ? replace.get(typeVariable) : typeVariable;
+                    return map.parameters.contains(typeVariable) ? replace.get(typeVariable) : typeVariable;
                 }
-            }, context);
+            };
+            
+            Type[] sig = new Type[map.domain.length + 1];
+            for (int i = 0; i < map.domain.length; i++)
+                sig[i] = map.domain[i].accept(visitor, context);
+
+            sig[map.domain.length] = map.range.accept(visitor, context);
+
+            return sig;
 
         } catch (TermException e) {
             e.printStackTrace();

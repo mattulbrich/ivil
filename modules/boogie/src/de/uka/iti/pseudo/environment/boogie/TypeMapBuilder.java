@@ -580,17 +580,11 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if(!(t instanceof TypeApplication))
             throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
         
-        t = state.mapDB.getWithFreshSchemaParameters(t, context);
+        Type[] signature = state.mapDB.getMapSignature(t, context);
         
-        // FIXME add constraints for range AND DOMAIN
-
-        Type r = ((TypeApplication) t).getArguments().get(((TypeApplication) t).getArguments().size() - 1);
-
-        try {
-            context.unify(schemaTypes.get(node), r);
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
-        }
+        for (int i = 0; i < node.getOperands().size(); i++)
+            unify(node.getOperands().get(i), signature[i]);
+        unify(node, signature[signature.length - 1]);
     }
 
     @Override
