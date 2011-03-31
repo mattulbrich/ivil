@@ -17,10 +17,10 @@ public final class Pair<T1, T2> {
         this.second = second;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Pair) {
-            @SuppressWarnings("unchecked")
             Pair<T1, T2> p = (Pair<T1, T2>) obj;
             return first.equals(p.first) && second.equals(p.second);
         }

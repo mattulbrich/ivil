@@ -12,7 +12,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.NamedASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
-import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class QuantifierBody extends ASTElement implements NamedASTElement {
 

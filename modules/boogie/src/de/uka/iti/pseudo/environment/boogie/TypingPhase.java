@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Sort;
+import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 
 /**
  * Extracts type information out of an AST and creates sorts in the output
@@ -22,15 +26,45 @@ public final class TypingPhase {
     final Map<String, Sort> sortMap = new HashMap<String, Sort>();
     final Map<ProcedureDeclaration, List<VariableDeclaration>> modifiable = new HashMap<ProcedureDeclaration, List<VariableDeclaration>>();
 
-    void create(EnvironmentCreationState state) throws TypeSystemException {
+    void create(final EnvironmentCreationState state) throws TypeSystemException {
         try {
+            // give each ASTElement a schema type
+            (new DefaultASTVisitor() {
+                @Override
+                protected void defaultAction(ASTElement node) throws ASTVisitException {
+                    state.schemaTypes.add(node, state.context.newSchemaType());
+                    for (ASTElement e : node.getChildren())
+                        e.visit(this);
+                }
+            }).visit(state.root);
+
+
+            // add constraints
             new TypeMapBuilder(state);
+
+
+            // give each ASTElement the inferred type
+            (new DefaultASTVisitor() {
+                @Override
+                protected void defaultAction(ASTElement node) throws ASTVisitException {
+                    if (!state.typeMap.has(node)) {
+                        Type t = state.context.instantiate(state.schemaTypes.get(node));
+                        // in case of maps we have to turn the schema map into a
+                        // usable type
+                        if (state.mapDB.hasType(t))
+                            t = state.mapDB.getType((TypeApplication) t, node, state);
+
+                        state.typeMap.add(node, t);
+                    }
+
+                    for (ASTElement e : node.getChildren())
+                        e.visit(this);
+                }
+            }).visit(state.root);
         } catch (ASTVisitException e) {
 
             // this exception is expected
-	    // TODO consider giving as cause to TypeSystemException for better debug-ability
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
-
         }
 
         // make sure we did not forget something
@@ -42,42 +76,6 @@ public final class TypingPhase {
 
         // ensure correctness of modifies
         new ModifiesChecker(state);
-
-        // create sorts
-        // {
-        // // create builtin, int and bool are allways defined in the built-in
-        // // environment, so dont add them
-        // sortMap.put("int", null);
-        // sortMap.put("bool", null);
-        // sortMap.put("bitvector", new Sort("bitvector", 0, state.root));
-        //
-        // for (String name : state.names.typeSpace.keySet()) {
-        // if (sortMap.containsKey(name) && (!name.equals("bitvector") ||
-        // sortMap.containsKey("utt_bitvector")) )
-        // continue;
-        //
-        // ASTElement decl = state.names.typeSpace.get(name);
-        // UniversalType t = state.typeMap.get(decl);
-        //
-        // if (null != t.aliasname) // type synonyms dont need a sort
-        // continue;
-        //
-        // sortMap.put(name, new Sort("utt_" + name, t.templateArguments.length,
-        // decl));
-        // }
-        //
-        // for (Sort s : sortMap.values()) {
-        // try {
-        // if (s != null && !s.getName().equals("bitvector"))
-        // state.env.addSort(s);
-        // } catch (EnvironmentException e) {
-        // e.printStackTrace();
-        // }
-        // }
-        //
-        // sortMap.put("int", state.env.getSort("int"));
-        // sortMap.put("bool", state.env.getSort("bool"));
-        // }
     }
 
 }

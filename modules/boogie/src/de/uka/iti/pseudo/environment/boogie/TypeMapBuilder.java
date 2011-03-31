@@ -84,15 +84,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     private final EnvironmentCreationState state;
 
-    private final TypingContext context = new TypingContext();
-
     private final Map<ASTElement, List<? extends Type>> typeParameterMap = new HashMap<ASTElement, List<? extends Type>>();
 
-    /**
-     * The schema types together with the typing context are used to realize
-     * type inference.
-     */
-    private final Decoration<SchemaType> schemaTypes = new Decoration<SchemaType>();
+    // shortcut to state.schemaTypes
+    private final Decoration<SchemaType> schemaTypes;
+    // shortcut to state.context
+    private final TypingContext context;
 
     /**
      * This decoration is needed, as traversal of the AST does not follow
@@ -229,40 +226,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public TypeMapBuilder(EnvironmentCreationState environmentCreationState) throws TypeSystemException,
             ASTVisitException {
         state = environmentCreationState;
-        
-        // TODO code cleanup needed here
+        schemaTypes = state.schemaTypes;
+        context = state.context;
 
-        // give each ASTElement a schema type
-        (new DefaultASTVisitor() {
-            @Override
-            protected void defaultAction(ASTElement node) throws ASTVisitException {
-                schemaTypes.add(node, context.newSchemaType());
-                for (ASTElement e : node.getChildren())
-                    e.visit(this);
-            }
-        }).visit(state.root);
 
         // add types from the context
         visit(state.root);
-
-        // give each ASTElement the inferred type
-        (new DefaultASTVisitor() {
-            @Override
-            protected void defaultAction(ASTElement node) throws ASTVisitException {
-                if (!state.typeMap.has(node)){
-                    Type t = context.instantiate(schemaTypes.get(node));
-                    // in case of maps we have to turn the schema map into a
-                    // usable type
-                    if (state.mapDB.hasType(t))
-                        t = state.mapDB.getType((TypeApplication) t, node, state);
-
-                    state.typeMap.add(node, t);
-                }
-
-                for (ASTElement e : node.getChildren())
-                    e.visit(this);
-            }
-        }).visit(state.root);
     }
 
     /**

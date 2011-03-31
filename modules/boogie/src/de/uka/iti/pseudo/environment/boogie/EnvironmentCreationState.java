@@ -14,8 +14,10 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.ParseException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.creation.TypingContext;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -47,6 +49,14 @@ public final class EnvironmentCreationState {
     // type information used for typechecking and lowering of expressions and
     // declarations
     final Decoration<Type> typeMap = new Decoration<Type>();
+
+    /**
+     * The schema types together with the typing context are used to realize
+     * type inference.
+     */
+    final Decoration<SchemaType> schemaTypes = new Decoration<SchemaType>();
+
+    final TypingContext context = new TypingContext();
 
     // database needed to map types to map type escapes
     public MapTypeDatabase mapDB;
@@ -201,6 +211,7 @@ public final class EnvironmentCreationState {
 
         allDecorations.add(scopeMap);
         allDecorations.add(typeMap);
+        allDecorations.add(schemaTypes);
 
         ASTVisitor debug = new DebugVisitor(allDecorations);
         try {

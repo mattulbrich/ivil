@@ -29,6 +29,7 @@ public final class DebugVisitor extends DefaultASTVisitor {
 
         System.out.println(prefix + node.toString());
 
+        // print decorations
         for (Decoration<?> decor : decorations) {
             if (decor.has(node)) {
                 Object d = decor.get(node);
@@ -37,7 +38,6 @@ public final class DebugVisitor extends DefaultASTVisitor {
                 System.out.println(prefix + "\u21B3\u2205");
         }
 
-        // print decorations
 
         depth++;
         for (ASTElement n : node.getChildren())
