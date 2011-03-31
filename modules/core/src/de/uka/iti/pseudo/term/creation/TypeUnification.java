@@ -277,6 +277,7 @@ public class TypeUnification implements Cloneable {
      * @deprecated use {@link TypeMatchVisitor} instead which runs in linear
      *             rather than with potentially exponential overhead
      */
+    // FIXME remove this function and test everything
     @Deprecated
     public @NonNull Type leftUnify(@NonNull Type adaptingType,
             @NonNull Type fixType) throws UnificationException {

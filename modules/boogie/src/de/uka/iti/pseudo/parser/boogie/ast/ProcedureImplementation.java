@@ -1,17 +1,19 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class ProcedureImplementation extends DeclarationBlock implements NamedASTElement {
 
     private final String name;
-    private final List<String> typeParameters;
+    private final List<ASTTypeParameter> typeParameters;
     private final List<VariableDeclaration> inParam, outParam;
     private final ProcedureBody body;
 
@@ -24,7 +26,9 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
         this.outParam = outParam;
         this.body = body;
 
-        this.typeParameters = ASTConversions.toEscapedNameList(typeParameters);
+        this.typeParameters = new ArrayList<ASTTypeParameter>(typeParameters.size());
+        for (Token t : typeParameters)
+            this.typeParameters.add(new ASTTypeParameter(t));
 
         addChildren(inParam);
         addChildren(outParam);
@@ -40,7 +44,7 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
         return name;
     }
 
-    public List<String> getTypeParameters() {
+    public List<ASTTypeParameter> getTypeParameters() {
         return Collections.unmodifiableList(typeParameters);
     }
 

@@ -7,7 +7,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
 
 /**
  * Extracts naming and scoping information out of an AST.

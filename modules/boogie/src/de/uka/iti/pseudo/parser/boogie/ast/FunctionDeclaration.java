@@ -1,17 +1,20 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public class FunctionDeclaration extends DeclarationBlock implements NamedASTElement {
 
     private final String name;
 
-    private final List<String> typeParameters;
+    private final List<ASTTypeParameter> typeParameters;
     private final List<VariableDeclaration> inParameters;
     private final VariableDeclaration outParemeter;
 
@@ -23,12 +26,16 @@ public class FunctionDeclaration extends DeclarationBlock implements NamedASTEle
         super(firstToken, attributes);
         this.name = ASTConversions.getEscapedName(name);
 
-        this.typeParameters = ASTConversions.toEscapedNameList(typeParameters);
         this.inParameters = inParam;
         this.outParemeter = outParam;
 
         this.expression = expression;
 
+        this.typeParameters = new ArrayList<ASTTypeParameter>(typeParameters.size());
+        for (Token n : typeParameters)
+            this.typeParameters.add(new ASTTypeParameter(n));
+
+        addChildren(this.typeParameters);
         addChildren(inParam);
         addChild(outParam);
 
@@ -66,7 +73,7 @@ public class FunctionDeclaration extends DeclarationBlock implements NamedASTEle
     }
 
 
-    public List<String> getTypeParameters() {
+    public List<ASTTypeParameter> getTypeParameters() {
         return typeParameters;
     }
 }

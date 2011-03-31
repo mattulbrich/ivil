@@ -4,6 +4,9 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTType;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 /**

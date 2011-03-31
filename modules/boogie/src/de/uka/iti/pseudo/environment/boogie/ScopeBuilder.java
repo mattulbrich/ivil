@@ -4,15 +4,15 @@ import java.util.Stack;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.NamedASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**

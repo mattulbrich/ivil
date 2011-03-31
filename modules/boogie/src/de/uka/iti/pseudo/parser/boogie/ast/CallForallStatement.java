@@ -5,6 +5,7 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class CallForallStatement extends Statement {

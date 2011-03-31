@@ -1,7 +1,5 @@
 package de.uka.iti.pseudo.parser.boogie.ast;
 
-import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -11,6 +9,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
+import de.uka.iti.pseudo.parser.boogie.ast.type.UserDefinedTypeDeclaration;
 
 /**
  * A compilation unit contains the content of a compelete boogie file. In

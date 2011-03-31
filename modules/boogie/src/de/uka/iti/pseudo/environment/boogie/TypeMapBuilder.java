@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,58 +11,59 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorSelectExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
-import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
-import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ASTTypeApplication;
-import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.AdditionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.AndExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorAccessSelectionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorLiteralExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorSelectExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsNotExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.FalseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ForallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.FunctionCallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.IfThenElseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ImpliesExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LessEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MultiplicationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeApplication;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
+import de.uka.iti.pseudo.parser.boogie.ast.type.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
@@ -84,7 +86,20 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     private final TypingContext context = new TypingContext();
 
-    private final Map<ASTElement, List<Type>> typeParameterMap = new HashMap<ASTElement, List<Type>>();
+    private final Map<ASTElement, List<? extends Type>> typeParameterMap = new HashMap<ASTElement, List<? extends Type>>();
+
+    /**
+     * The schema types together with the typing context are used to realize
+     * type inference.
+     */
+    private final Decoration<SchemaType> schemaTypes = new Decoration<SchemaType>();
+
+    /**
+     * This decoration is needed, as traversal of the AST does not follow
+     * necesserily a tree like structure, because jumps are done if needed. In
+     * order to prevent cyclic traversal, this flag has been added.
+     */
+    private final HashSet<ASTElement> processed = new HashSet<ASTElement>();
 
     /**
      * Searches for declaration of type variable name.
@@ -127,16 +142,21 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         for (Type t : typeParameterMap.get(decl))
             if (t.toString().equals('\'' + name)) // TODO needs prefixing?
+                                                  // (should not be the case)
                 return t;
 
         return null;
     }
 
-    private List<Type> addParameters(List<String> names, ASTElement node) throws ASTVisitException {
-        List<Type> rval = new LinkedList<Type>();
+    /**
+     * Converts a list of ASTTypeParameter to TypeVariables and adds them to the
+     * typeParameterMap.
+     */
+    private List<TypeVariable> addParameters(List<ASTTypeParameter> names, ASTElement node) throws ASTVisitException {
+        List<TypeVariable> rval = new LinkedList<TypeVariable>();
 
-        for (String s : names)
-            rval.add(new TypeVariable(s));
+        for (ASTTypeParameter t : names)
+            rval.add(new TypeVariable(t.getName()));
 
         typeParameterMap.put(node, rval);
         return rval;
@@ -156,19 +176,24 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      *             node, as the node will be decorated twice
      */
     private void setTypeSameAs(ASTElement node, ASTElement typeNode) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         // this is ok, if the dependency is somewhere else in the tree
-        if (!state.typeMap.has(typeNode))
+        if (!processed.contains(typeNode))
             typeNode.visit(this);
 
         // this is not ok, as it meanst, that the dependency is somehow cyclic
-        if (!state.typeMap.has(typeNode))
+        if (!processed.contains(typeNode))
             throw new ASTVisitException(node.getLocation() + ":  The node " + node
                     + " could not be typed because it depends on the untyped node " + typeNode);
 
-        state.typeMap.add(node, state.typeMap.get(typeNode));
+        try {
+            context.unify(schemaTypes.get(node), schemaTypes.get(typeNode));
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
     }
 
     /**
@@ -204,8 +229,40 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public TypeMapBuilder(EnvironmentCreationState environmentCreationState) throws TypeSystemException,
             ASTVisitException {
         state = environmentCreationState;
+        
+        // TODO code cleanup needed here
 
+        // give each ASTElement a schema type
+        (new DefaultASTVisitor() {
+            @Override
+            protected void defaultAction(ASTElement node) throws ASTVisitException {
+                schemaTypes.add(node, context.newSchemaType());
+                for (ASTElement e : node.getChildren())
+                    e.visit(this);
+            }
+        }).visit(state.root);
+
+        // add types from the context
         visit(state.root);
+
+        // give each ASTElement the inferred type
+        (new DefaultASTVisitor() {
+            @Override
+            protected void defaultAction(ASTElement node) throws ASTVisitException {
+                if (!state.typeMap.has(node)){
+                    Type t = context.instantiate(schemaTypes.get(node));
+                    // in case of maps we have to turn the schema map into a
+                    // usable type
+                    if (state.mapDB.hasType(t))
+                        t = state.mapDB.getType((TypeApplication) t, node, state);
+
+                    state.typeMap.add(node, t);
+                }
+
+                for (ASTElement e : node.getChildren())
+                    e.visit(this);
+            }
+        }).visit(state.root);
     }
 
     /**
@@ -213,10 +270,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      * what its arguments are.
      */
     protected void defaultAction(ASTElement node, Type type) throws ASTVisitException {
-        if (!state.typeMap.has(node))
-            state.typeMap.add(node, type);
-        else
+        if (processed.contains(node))
             return;
+        processed.add(node);
+
+        if (null != type)
+        try {
+            context.unify(schemaTypes.get(node), type);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -230,7 +293,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
         // translate type parameters first, as children depend on them
-        this.addParameters(node.getTypeParameters(), node);
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -241,8 +306,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             domain[i] = state.typeMap.get(node.getInParameters().get(i));
 
         try {
-            state.typeMap
-                    .add(node, state.mapDB.getType(domain, state.typeMap.get(node.getOutParemeter()), node, state));
+            state.typeMap.add(node, state.mapDB.getSchemaType(domain, state.typeMap.get(node.getOutParemeter()),
+                    parameters, node));
         } catch (IllegalArgumentException e) {
             // can happen if the maptype is illformed like <a>[]int or
             // <a>[int]a
@@ -252,10 +317,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BuiltInType node) throws ASTVisitException {
-        if (state.typeMap.has(node))
-            return;
-
-        state.typeMap.add(node, node.newBasicType(state.env));
+        defaultAction(node, node.newBasicType(state.env));
     }
 
     @Override
@@ -288,7 +350,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
              // more complex case, we have to push type parameters and then to
              // put them into the template type field
             
-             List<Type> param = addParameters(node.getTypeParameters(), node);
+            List<TypeVariable> param = addParameters(node.getTypeParameters(), node);
             
              for (ASTElement n : node.getChildren())
              n.visit(this);
@@ -301,9 +363,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ASTTypeApplication node) throws ASTVisitException {
-
-        if (state.typeMap.has(node))
+        if(processed.contains(node))
             return;
+        processed.add(node);
 
         // resolve type name
         ASTElement declaration = getParameterDeclaration(node.getName(), state.scopeMap.get(node));
@@ -348,24 +410,41 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null == type)
             throw new ASTVisitException(node.getLocation() + ":  undeclared type " + node.getName());
 
-        state.typeMap.add(node, type);
+        try {
+            context.unify(schemaTypes.get(node), type);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
+    }
+
+    @Override
+    public void visit(ASTTypeParameter node) throws ASTVisitException {
+        defaultAction(node, new TypeVariable(node.getName()));
     }
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
-        addParameters(node.getTypeParameters(), node);
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
         Type[] domain = new Type[node.getDomain().size()];
         for (int i = 0; i < domain.length; i++)
-            domain[i] = state.typeMap.get(node.getDomain().get(i));
+            domain[i] = schemaTypes.get(node.getDomain().get(i));
 
-        state.typeMap.add(node, state.mapDB.getType(domain, state.typeMap.get(node.getRange()), node, state));
+        try {
+            context.unify(schemaTypes.get(node), state.mapDB.getSchemaType(domain, schemaTypes.get(node.getRange()),
+                    parameters, node));
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
     }
 
     @Override
@@ -461,16 +540,21 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        Type t = state.typeMap.get(node.getTarget());
+        Type t = schemaTypes.get(node.getTarget());
 
         // TODO state.typeMap.add(node, null == t.range ? t : t.range);
-        state.typeMap.add(node, t);
+        try {
+            context.unify(schemaTypes.get(node), t);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
     }
 
     @Override
@@ -494,8 +578,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -505,34 +590,26 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        Type t = state.typeMap.get(node.getName());
-        Type r = state.mapDB.getRange(t);
-        if (r instanceof TypeVariable) {
-            // infer type
-            Type[] signature = state.mapDB.getSignature(context, t);
+        // @note: this is a type application, if the object is a map
+        Type t = context.instantiate(schemaTypes.get(node.getName()));
+        if(!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+        
+        t = state.mapDB.getWithFreshSchemaParameters(t, context);
 
-            try {
-                for (int i = 0; i < node.getOperands().size(); i++)
-                    context.solveConstraint(signature[i + 1], state.typeMap.get(node.getOperands().get(i)));
-            } catch (UnificationException e) {
-                throw new ASTVisitException(node.getLocation() + ":  illtyped mapaccess", e);
-            }
+        Type r = ((TypeApplication) t).getArguments().get(((TypeApplication) t).getArguments().size() - 1);
 
-            Type i = context.getInstantiation().get(((SchemaType) signature[0]).getVariableName());
-
-            if (null == i && !state.printDebugInformation())
-                throw new ASTVisitException(node.getLocation()
-                        + ":  non local type inference is currently not supported");
-
-            state.typeMap.add(node, i);
-        } else {
-            state.typeMap.add(node, r);
+        try {
+            context.unify(schemaTypes.get(node), r);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
         }
     }
 
@@ -554,8 +631,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -564,31 +642,20 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null == decl)
             throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
 
-        if (!state.typeMap.has(decl))
+        if (!processed.contains(decl))
             decl.visit(this);
 
-        Type t = state.typeMap.get(decl);
-        Type r = state.mapDB.getRange(t);
-        if (r instanceof TypeVariable) {
-            // infer type
-            Type[] signature = state.mapDB.getSignature(context, t);
+        // @note: this is a type application, if the object is a map
+        Type t = context.instantiate(schemaTypes.get(decl));
+        if (!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+        
+        Type r = ((TypeApplication) t).getArguments().get(((TypeApplication) t).getArguments().size() - 1);
 
-            try {
-                for (int i = 0; i < node.getOperands().size(); i++)
-                    context.solveConstraint(signature[i + 1], state.typeMap.get(node.getOperands().get(i)));
-            } catch (UnificationException e) {
-                throw new ASTVisitException(node.getLocation() + ":  illtyped mapaccess", e);
-            }
-
-            Type i = context.getInstantiation().get(((SchemaType) signature[0]).getVariableName());
-
-            if (null == i && !state.printDebugInformation())
-                throw new ASTVisitException(node.getLocation()
-                        + ":  non local type inference is currently not supported");
-
-            state.typeMap.add(node, i);
-        } else {
-            state.typeMap.add(node, r);
+        try {
+            context.unify(schemaTypes.get(node), r);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
         }
     }
 
@@ -602,9 +669,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             // be as defined by the parent, which is a procedure implementation
             // or declaration
 
-            // as its hard to get type from here, the type allready was set by
-            // parent
-            assert state.typeMap.has(node);
+            // we do not do anything here, because we can not restrict the type
+            // in any way
 
         } else {
             // find declaration of this variable to get the type of the
@@ -634,10 +700,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(QuantifierBody node) throws ASTVisitException {
         // the quantifier body has a map type, that maps the quantified
         // variables to the result of the expression
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
-        addParameters(node.getTypeParameters(), node);
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -647,7 +716,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (int i = 0; i < domain.length; i++)
             domain[i] = state.typeMap.get(node.getQuantifiedVariables().get(i));
 
-        state.typeMap.add(node, state.mapDB.getType(domain, state.typeMap.get(node.getBody()), node, state));
+        state.typeMap.add(node, state.mapDB.getSchemaType(domain, state.typeMap.get(node.getBody()), parameters, node));
     }
 
     @Override

@@ -2,12 +2,13 @@ package de.uka.iti.pseudo.parser.boogie.ast;
 
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 
 public final class CodeExpressionReturn extends Statement {
 
     private final Expression rval;
 
-    public CodeExpressionReturn(de.uka.iti.pseudo.parser.boogie.ast.Expression expr) {
+    public CodeExpressionReturn(de.uka.iti.pseudo.parser.boogie.ast.expression.Expression expr) {
         super(expr.getLocationToken());
         
         rval = expr;

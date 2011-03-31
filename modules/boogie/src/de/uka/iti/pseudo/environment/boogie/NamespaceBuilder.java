@@ -6,17 +6,18 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.MapType;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
-import de.uka.iti.pseudo.parser.boogie.ast.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
+import de.uka.iti.pseudo.parser.boogie.ast.type.BuiltInType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 /**
@@ -37,24 +38,22 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     /**
      * Pushes a type parameter and checks for duplicates.
      * 
-     * @param name
-     *            must match "[a-zA-Z_][a-zA-Z0-9_]*"
-     * 
      * @throws ASTVisitException
      *             thrown if a type parameter with name is already defined
      * 
      */
-    private void addTypeParameter(ASTElement node, String name) throws ASTVisitException {
-        assert name.matches("[a-zA-Z_][a-zA-Z0-9_]*") : name + " has not been escaped propperly";
+    private void addTypeParameter(ASTTypeParameter node) throws ASTVisitException {
+        final String name = node.getName();
 
-        Scope scope = state.scopeMap.get(node);
+        Scope scope = state.scopeMap.get(node.getParent());
 
         for (Scope s = scope; s != null; s = s.parent)
             if (state.names.typeParameterSpace.containsKey(new Pair<String, Scope>(name, s)))
                 throw new ASTVisitException("Tried to add type parameter " + name + " allready defined @"
                         + state.names.typeParameterSpace.get(new Pair<String, Scope>(name, s)).getLocation());
 
-        state.names.typeParameterSpace.put(new Pair<String, Scope>(name, state.scopeMap.get(node)), node);
+        state.names.typeParameterSpace.put(new Pair<String, Scope>(name, state.scopeMap.get(node.getParent())), node
+                .getParent());
     }
 
     @Override
@@ -106,8 +105,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
         state.names.functionSpace.put(key, node);
 
-        for (String s : node.getTypeParameters())
-            addTypeParameter(node, s);
+        for (ASTTypeParameter s : node.getTypeParameters())
+            addTypeParameter(s);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -142,8 +141,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
         if (node.getDefinition() != null) {
             // we have to add type arguments as they will be used like type
             // parameters
-            for (String name : node.getTypeParameters())
-                addTypeParameter(node, name);
+            for (ASTTypeParameter name : node.getTypeParameters())
+                addTypeParameter(name);
         }
 
         for (ASTElement e : node.getChildren())
@@ -152,8 +151,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        for (String name : node.getTypeParameters())
-            addTypeParameter(node, name);
+        for (ASTTypeParameter name : node.getTypeParameters())
+            addTypeParameter(name);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -170,8 +169,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
 
         state.names.procedureSpace.put(key, node);
 
-        for (String s : node.getTypeParameters())
-            addTypeParameter(node, s);
+        for (ASTTypeParameter s : node.getTypeParameters())
+            addTypeParameter(s);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -182,8 +181,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
         // dont add name, as the name has to be declared elsewhere
 
         // add quantified type parameters
-        for (String s : node.getTypeParameters())
-            addTypeParameter(node, s);
+        for (ASTTypeParameter s : node.getTypeParameters())
+            addTypeParameter(s);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);
@@ -193,8 +192,8 @@ public class NamespaceBuilder extends DefaultASTVisitor {
     public void visit(QuantifierBody node) throws ASTVisitException {
 
         // add quantified type parameters
-        for (String s : node.getTypeParameters())
-            addTypeParameter(node, s);
+        for (ASTTypeParameter s : node.getTypeParameters())
+            addTypeParameter(s);
 
         for (ASTElement e : node.getChildren())
             e.visit(this);

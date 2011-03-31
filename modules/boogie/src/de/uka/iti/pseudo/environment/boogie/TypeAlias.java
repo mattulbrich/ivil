@@ -1,11 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
-import java.util.List;
-
-import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
@@ -21,8 +17,8 @@ public class TypeAlias extends Type {
      * @param typeParameters
      * @param definition
      * 
-     * @param mapDB
-     *            is needed to look into map types
+     * @param state
+     *            is needed to look into map types and create new ones if needed
      */
     public TypeAlias(final Type[] typeParameters, Type definition, final EnvironmentCreationState state) {
         this.definition = definition;
@@ -41,32 +37,6 @@ public class TypeAlias extends Type {
 
         // type rebuilding just replaces type variables by respective parameters
         this.visitor = new RebuildingTypeVisitor<Type[]>() {
-
-            @Override
-            public Type visit(TypeApplication target, Type[] parameter) throws TermException {
-                if (state.mapDB.hasType(target)) {
-                    // we have to look into a map
-                    Type[] domain = state.mapDB.getDomain(target);
-                    Type range = state.mapDB.getRange(target);
-
-                    for (int i = 0; i < domain.length; i++)
-                        domain[i] = domain[i].accept(this, parameter);
-
-                    range = range.accept(this, parameter);
-
-                    return state.mapDB.getType(domain, range, target.getSort().getDeclaration(), state);
-                } else {
-
-                    Sort sort = target.getSort();
-                    List<Type> arguments = target.getArguments();
-                    Type result[] = new Type[arguments.size()];
-                    for (int i = 0; i < result.length; i++) {
-                        result[i] = arguments.get(i).accept(this, parameter);
-                    }
-
-                    return new TypeApplication(sort, result);
-                }
-            }
 
             @Override
             public Type visit(TypeVariable typeVariable, Type[] parameter) throws TermException {

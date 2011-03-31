@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ast.*;
+import de.uka.iti.pseudo.parser.boogie.ast.type.*;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.*;
 // used for main
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 

@@ -6,17 +6,17 @@ import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 
 public final class ModifiesChecker extends DefaultASTVisitor {

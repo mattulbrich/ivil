@@ -28,7 +28,7 @@ public final class Decoration<T> {
     }
     
     public T get(ASTElement key) {
-        assert (has(key)) : "You tried to look up an undecorated object.";
+        assert (has(key)) : "You tried to look up the undecorated object " + key;
         return data.get(key);
     }
 
@@ -50,7 +50,8 @@ public final class Decoration<T> {
     }
 
     public void add(ASTElement key, T annotation) throws ASTVisitException {
-        assert !has(key);
+        assert !has(key) : "duplicate doceration of " + key + "{ was: " + data.get(key) + "; new value: " + annotation
+                + "}";
 
         data.put(key, annotation);
     }

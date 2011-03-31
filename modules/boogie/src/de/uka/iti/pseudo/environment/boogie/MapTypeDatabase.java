@@ -1,6 +1,9 @@
 package de.uka.iti.pseudo.environment.boogie;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +27,10 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
@@ -42,13 +47,34 @@ public final class MapTypeDatabase {
      * 
      * @author timm.felden@felden.com
      */
-    private static class UnfoldedMap extends Type {
-        public final Type[] domain;
-        public final Type range;
+    static class UnfoldedMap extends Type {
+        final Type[] domain;
+        final Type range;
+        final HashSet<TypeVariable> parameters;
 
-        public UnfoldedMap(Type[] domain, Type range) {
+        /*
+         * this is true iff the map is used for type inference and can not be
+         * used on a proof tree
+         */
+        final boolean schemaMap;
+        
+        final private LinkedList<InferencePath>[] paths;
+
+        @SuppressWarnings("unchecked")
+        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB,
+                boolean schemaMap) {
             this.domain = domain;
             this.range = range;
+            this.schemaMap = schemaMap;
+            this.parameters = new HashSet<TypeVariable>(Arrays.asList(parameters));
+
+            this.paths = new LinkedList[parameters.length];
+            for (int i = 0; i < paths.length; i++) {
+                paths[i] = InferencePath.getPaths(this, parameters[i], mapDB);
+                Collections.sort(paths[i]);
+            }
+
+            Arrays.sort(paths, InferencePath.listComparator);
         }
 
         @Override
@@ -64,12 +90,38 @@ public final class MapTypeDatabase {
 
             UnfoldedMap m = (UnfoldedMap) object;
 
-            // TODO parameter
+            // maps with different schema type dont equal
+            if (schemaMap != m.schemaMap)
+                return false;
+            
+            // inference paths have to be equal
+            if (paths.length == m.paths.length) {
+                for (int i = 0; i < paths.length; i++) {
+                    if (paths[i].size() != m.paths[i].size())
+                        return false;
 
-            if (domain.equals(m.domain))
+                    for (int j = 0; j < paths[i].size(); j++)
+                        if (0 != paths[i].get(j).compareTo(m.paths[i].get(j)))
+                            return false;
+                }
+            } else
                 return false;
 
-            return range.equals(m.range);
+            // other types have to be equal. here local typevariables will be
+            // ignored
+
+            // TODO this in fact is more complex, as a stack of renamed
+            // parameters is needed
+            for (int i = 0; i < domain.length; i++) {
+                if (domain[i] instanceof TypeVariable) {
+
+                } else {
+                    if (!domain[i].equals(m.domain[i]))
+                        return false;
+                }
+            }
+
+            return range.equals(m.range) || (range instanceof TypeVariable && m.range instanceof TypeVariable);
         }
 
         @Override
@@ -83,6 +135,15 @@ public final class MapTypeDatabase {
             }
             b.append(']');
             b.append(range);
+            b.append(" :: {");
+            for (int i = 0; i < paths.length; i++) {
+                b.append('(');
+                for (InferencePath p : paths[i])
+                    b.append(p);
+
+                b.append(')');
+            }
+            b.append('}');
 
             return b.toString();
         }
@@ -103,22 +164,51 @@ public final class MapTypeDatabase {
     }
 
     /**
+     * Creates a new map type that can be used for type inference. No rules etc.
+     * will be created.
+     */
+    public Type getSchemaType(Type[] domain, Type range, TypeVariable[] parameters, ASTLocatedElement node) {
+
+        // create an unfolded map
+        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this, true);
+
+        // look for the map in the table
+        if (mapTo.containsKey(entry))
+            return mapTo.get(entry);
+
+        // add a new map to the table
+        Type t = addSchemaMapType(entry, domain, range, node);
+        mapTo.put(entry, t);
+        mapFrom.put(t, entry);
+        return t;
+    }
+
+    /**
      * @note Map DB has to be type parameter name agnostic, as this would break
      *       typing. If type parameter renaming is required, a mechanism is
      *       needed that renames type parameters, before(or during) the type map
      *       is built, by structure.
      * 
-     * @param domain
-     * @param range
      * @param astLocatedElement
      *            the node that caused the creation of this type
      * @param state
+     *            the state is used to create new rules, etc., for maybe created
+     *            map types
+     * 
+     * 
      * @return a type with no arguments built from a sort map<%i>
      */
-    public Type getType(Type[] domain, Type range, ASTLocatedElement astLocatedElement, EnvironmentCreationState state) {
+    public Type getType(TypeApplication inferedSchemaMap, ASTLocatedElement astLocatedElement, EnvironmentCreationState state) {
+        Type[] domain = new Type[inferedSchemaMap.getArguments().size() - 1];
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = inferedSchemaMap.getArguments().get(i);
+
+        Type range = inferedSchemaMap.getArguments().get(domain.length);
+        
+        TypeVariable[] parameters = getParameters(inferedSchemaMap);
 
         // create an unfolded map
-        UnfoldedMap entry = new UnfoldedMap(domain, range);
+        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this, false);
 
         // look for the map in the table
         if (mapTo.containsKey(entry))
@@ -154,12 +244,51 @@ public final class MapTypeDatabase {
     }
 
     /**
-     * Returns a new signature generated using context
+     * requires definition to be a map type
+     * 
+     * @return the parameters of definition
      */
-    public Type[] getSignature(TypingContext context, Type definition) {
-        UnfoldedMap map = mapFrom.get(definition);
+    public TypeVariable[] getParameters(Type definition) {
+        assert hasType(definition) : "requires definition to be a map type";
 
-        return context.makeNewSignature(map.range, map.domain);
+        HashSet<TypeVariable> p = mapFrom.get(definition).parameters;
+
+        return p.toArray(new TypeVariable[p.size()]);
+    }
+
+    // only used internally
+    UnfoldedMap getUnfoldedMap(Type definition) {
+        assert hasType(definition) : "requires definition to be a map type (was : " + definition + ")";
+
+        return mapFrom.get(definition);
+    }
+
+    /**
+     * Replaces the maps type parameters with new schemaTypes created with
+     * context.
+     */
+    public Type getWithFreshSchemaParameters(Type t, final TypingContext context) {
+        final HashSet<TypeVariable> p = getUnfoldedMap(t).parameters;
+        
+        // create a mapping from bound type variables to new schema types
+        final Map<TypeVariable, SchemaType> replace = new HashMap<TypeVariable, SchemaType>();
+        for(TypeVariable v : p)
+            replace.put(v, context.newSchemaType());
+
+        // This visitor is used to replace locally bound type variables with fresh schema variables.
+        try {
+            return t.accept(new RebuildingTypeVisitor<TypingContext>() {
+                @Override
+                public Type visit(TypeVariable typeVariable, TypingContext parameter) throws TermException {
+                    return p.contains(typeVariable) ? replace.get(typeVariable) : typeVariable;
+                }
+            }, context);
+
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false : "internal error";
+        }
+        return null;
     }
 
     /**
@@ -172,6 +301,35 @@ public final class MapTypeDatabase {
      */
     public boolean hasType(Type type) {
         return mapFrom.containsKey(type);
+    }
+
+    /**
+     * Creates sort and type for a schema map entry.
+     */
+    private Type addSchemaMapType(UnfoldedMap entry, Type[] domain, Type range, ASTLocatedElement node) {
+        // create name ...
+        final String name = "map" + (1 + mapTo.size());
+
+        // ... sort ...
+        try {
+            env.addSort(new Sort(name, 1 + domain.length, node));
+
+            // ... types ...
+            Type[] arg = new Type[domain.length + 1];
+            System.arraycopy(domain, 0, arg, 0, domain.length);
+            arg[domain.length] = range;
+
+            Type map_t = env.mkType(name, arg);
+            return map_t;
+
+        } catch (EnvironmentException e) {
+            e.printStackTrace();
+            assert false : "internal error";
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false : "internal error";
+        }
+        return null;
     }
 
     /**
@@ -199,6 +357,7 @@ public final class MapTypeDatabase {
             // ... types ...
 
             Type map_t = env.mkType(name);
+
             Type domainRange[] = new Type[domain.length + 1];
             Type mapDomainRange[] = new Type[domain.length + 2];
             Type mapDomain[] = new Type[domain.length + 1];
@@ -522,11 +681,11 @@ public final class MapTypeDatabase {
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            assert false : "internal error";
+            assert false : "internal error: " + e.getMessage();
 
         } catch (TermException e) {
             e.printStackTrace();
-            assert false : "internal error";
+            assert false : "internal error: " + e.getMessage();
         }
         return null;
     }
@@ -534,12 +693,13 @@ public final class MapTypeDatabase {
     @Override
     public String toString() {
         StringBuffer b = new StringBuffer();
-        for (Type t : mapTo.keySet()) {
+        for (Type t : mapFrom.keySet()) {
             b.append(t);
             b.append(" ==> ");
-            b.append(mapTo.get(t));
+            b.append(mapFrom.get(t));
             b.append('\n');
         }
         return b.toString();
     }
+
 }

@@ -14,76 +14,76 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.AdditionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.AndExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
 import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorAccessSelectionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
-import de.uka.iti.pseudo.parser.boogie.ast.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
-import de.uka.iti.pseudo.parser.boogie.ast.CoercionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.DivisionExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EqualsNotExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.EquivalenceExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExistsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.Expression;
-import de.uka.iti.pseudo.parser.boogie.ast.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
-import de.uka.iti.pseudo.parser.boogie.ast.FalseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ForallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.FunctionCallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GotoStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.HavocStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.IfThenElseExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.ImpliesExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LabelStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
-import de.uka.iti.pseudo.parser.boogie.ast.MapAccessExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
-import de.uka.iti.pseudo.parser.boogie.ast.ModuloExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.MultiplicationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.NegationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OldExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
-import de.uka.iti.pseudo.parser.boogie.ast.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ReturnStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.Specification;
-import de.uka.iti.pseudo.parser.boogie.ast.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
-import de.uka.iti.pseudo.parser.boogie.ast.TrueExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.AdditionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.AndExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorAccessSelectionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorLiteralExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsNotExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.FalseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ForallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.FunctionCallExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.IfThenElseExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ImpliesExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LessEqualExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.LessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.MultiplicationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
@@ -91,7 +91,6 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -415,8 +414,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // add universal type quantification over type parameters before
                 // ordinary quantifiers
                 for (int i = 0; i < node.getTypeParameters().size(); i++)
-                        args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL, new TypeVariable(node
-                                .getTypeParameters().get(i)), args[0]) };
+                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL, state.typeMap.get(node
+                            .getTypeParameters().get(i)), args[0]) };
 
             } catch (TermException e) {
                 e.printStackTrace();
@@ -1738,7 +1737,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // translate to mapI_load(name, domain)
         defaultAction(node);
 
-        List<de.uka.iti.pseudo.parser.boogie.ast.Expression> d = node.getOperands();
+        List<de.uka.iti.pseudo.parser.boogie.ast.expression.Expression> d = node.getOperands();
 
         try {
             Term args[] = new Term[d.size() + 1];
@@ -1766,7 +1765,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // translate to mapI_store(name, domain, update)
         defaultAction(node);
 
-        List<de.uka.iti.pseudo.parser.boogie.ast.Expression> d = node.getOperands();
+        List<de.uka.iti.pseudo.parser.boogie.ast.expression.Expression> d = node.getOperands();
 
         try {
             Term args[] = new Term[d.size() + 2];

@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
 import de.uka.iti.pseudo.parser.boogie.ast.*;
+import de.uka.iti.pseudo.parser.boogie.ast.type.*;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.*;
 // used for main
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 // we dont want warnings here, as the code is created by a generator
@@ -668,7 +670,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 
   final public UserTypeDefinition UserDefinedType() throws ParseException {
   Token name;
-  List < String > argnames = new LinkedList < String > ();
+  List < Token > argnames = new LinkedList < Token > ();
   ASTType parent = null;
     name = jj_consume_token(IDENT);
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -1598,13 +1600,13 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
   }
 
 /*------------------------------------------------------------------------*/
-  final public List < String > WhiteSpaceIdents() throws ParseException {
+  final public List < Token > WhiteSpaceIdents() throws ParseException {
   Token t;
-  List < String > rval = new LinkedList < String > ();
+  List < Token > rval = new LinkedList < Token > ();
     label_24:
     while (true) {
       t = jj_consume_token(IDENT);
-      rval.add(t.image);
+      rval.add(t);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case IDENT:
         ;
