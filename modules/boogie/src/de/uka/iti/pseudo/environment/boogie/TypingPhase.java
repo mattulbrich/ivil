@@ -42,29 +42,39 @@ public final class TypingPhase {
             // add constraints
             new TypeMapBuilder(state);
 
-
-            // give each ASTElement the inferred type
-            (new DefaultASTVisitor() {
-                @Override
-                protected void defaultAction(ASTElement node) throws ASTVisitException {
-                    if (!state.typeMap.has(node)) {
-                        Type t = state.context.instantiate(state.schemaTypes.get(node));
-                        // in case of maps we have to turn the schema map into a
-                        // usable type
-                        if (state.mapDB.hasType(t))
-                            t = state.mapDB.getType((TypeApplication) t, node, state);
-
-                        state.typeMap.add(node, t);
-                    }
-
-                    for (ASTElement e : node.getChildren())
-                        e.visit(this);
-                }
-            }).visit(state.root);
         } catch (ASTVisitException e) {
 
             // this exception is expected
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
+        } finally {
+
+            // always synthesize types to help the user in case of typing errors
+            try {
+
+                // give each ASTElement the inferred type
+                (new DefaultASTVisitor() {
+                    @Override
+                    protected void defaultAction(ASTElement node) throws ASTVisitException {
+                        if (!state.typeMap.has(node)) {
+                            Type t = state.context.instantiate(state.schemaTypes.get(node));
+                            // in case of maps we have to turn the schema map
+                            // into a
+                            // usable type
+                            if (state.mapDB.hasType(t))
+                                t = state.mapDB.getType((TypeApplication) t, node, state);
+
+                            state.typeMap.add(node, t);
+                        }
+
+                        for (ASTElement e : node.getChildren())
+                            e.visit(this);
+                    }
+                }).visit(state.root);
+            } catch (ASTVisitException e) {
+
+                // this exception is expected
+                throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
+            }
         }
 
         // make sure we did not forget something

@@ -160,6 +160,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     /**
+     * Adds a constraint for node.
+     */
+    private void unify(ASTElement node, Type type) throws ASTVisitException {
+        try {
+            context.unify(schemaTypes.get(node), type);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
+    }
+
+    /**
      * this function will set the type of this node to the same type as child
      * node and will enqueue node, if typeNode has no type decoration
      * 
@@ -186,11 +197,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             throw new ASTVisitException(node.getLocation() + ":  The node " + node
                     + " could not be typed because it depends on the untyped node " + typeNode);
 
-        try {
-            context.unify(schemaTypes.get(node), schemaTypes.get(typeNode));
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
-        }
+        unify(node, schemaTypes.get(typeNode));
     }
 
     /**
@@ -261,27 +268,31 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        // translate type parameters first, as children depend on them
-        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
-
-        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        Type[] domain = new Type[node.getInParameters().size()];
-
-        for (int i = 0; i < domain.length; i++)
-            domain[i] = state.typeMap.get(node.getInParameters().get(i));
-
-        try {
-            state.typeMap.add(node, state.mapDB.getSchemaType(domain, state.typeMap.get(node.getOutParemeter()),
-                    parameters, node));
-        } catch (IllegalArgumentException e) {
-            // can happen if the maptype is illformed like <a>[]int or
-            // <a>[int]a
-            throw new ASTVisitException("\nmap creation failed @ " + node.getLocation(), e);
-        }
+        // // translate type parameters first, as children depend on them
+        // List<TypeVariable> paramList =
+        // this.addParameters(node.getTypeParameters(), node);
+        //
+        // TypeVariable[] parameters = paramList.toArray(new
+        // TypeVariable[paramList.size()]);
+        //
+        // for (ASTElement n : node.getChildren())
+        // n.visit(this);
+        //
+        // Type[] domain = new Type[node.getInParameters().size()];
+        //
+        // for (int i = 0; i < domain.length; i++)
+        // domain[i] = !state.typeMap!.get(node.getInParameters().get(i));
+        //
+        // try {
+        // !state.typeMap!.add(node, state.mapDB.getSchemaType(domain,
+        // !state.typeMap!.get(node.getOutParemeter()),
+        // parameters, node));
+        // } catch (IllegalArgumentException e) {
+        // // can happen if the maptype is illformed like <a>[]int or
+        // // <a>[int]a
+        // throw new ASTVisitException("\nmap creation failed @ " +
+        // node.getLocation(), e);
+        // }
     }
 
     @Override
@@ -291,8 +302,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         if (null == node.getDefinition()) {
             // simple case, a new type (corresponds to sort in ivil) with
@@ -308,7 +320,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 Type result = state.env.mkType(name, args);
 
-                state.typeMap.add(node, result);
+                unify(node, result);
 
             } catch (EnvironmentException e) {
                 e.printStackTrace();
@@ -316,17 +328,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 e.printStackTrace();
             }
         } else {
-             // more complex case, we have to push type parameters and then to
-             // put them into the template type field
-            
+            // more complex case, we have to push type parameters and then
+            // put them into the template type field
+
             List<TypeVariable> param = addParameters(node.getTypeParameters(), node);
-            
-             for (ASTElement n : node.getChildren())
-             n.visit(this);
-            
+
+            for (ASTElement n : node.getChildren())
+                n.visit(this);
+
             Type[] params = param.toArray(new Type[param.size()]);
-             
-            state.typeMap.add(node, new TypeAlias(params, state.typeMap.get(node.getDefinition()), state));
+
+            unify(node, new TypeAlias(params, context.instantiate(schemaTypes.get(node.getDefinition())), state));
         }
     }
 
@@ -348,11 +360,15 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             if (null == declaration)
                 throw new ASTVisitException(node.getLocation() + ":  undeclared Type " + node.getName());
 
-            if (!state.typeMap.has(declaration))
+            if(!processed.contains(declaration))
                 declaration.visit(this);
 
             // get type
-            type = state.typeMap.get(declaration);
+            type = context.instantiate(schemaTypes.get(declaration));
+
+            if (type instanceof SchemaType)
+                throw new ASTVisitException(node.getLocation() + " :: The type declared @" + declaration.getLocation()
+                        + " is ill-formed.");
 
             // get type arguments
             Type[] arg_t = new Type[node.getArguments().size()];
@@ -360,7 +376,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             for (int i = 0; i < node.getArguments().size(); i++) {
                 final ASTElement child = node.getArguments().get(i);
                 child.visit(this);
-                arg_t[i] = state.typeMap.get(child);
+                arg_t[i] = schemaTypes.get(child);
             }
             try {
                 if (type instanceof TypeAlias) {
@@ -418,10 +434,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        for (ASTElement e : node.getChildren())
-            e.visit(this);
-
-        state.typeMap.add(node, null);
+        defaultAction(node);
         // TODO
         // // functions can have polymorphic types, so push typeargs
         // List<Type> param = addParameters(node.getTypeParameters(), node),
@@ -432,8 +445,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         //
         // List<Type> range = new LinkedList<Type>();
         // for (ASTElement n : node.getOutParameters()) {
-        // if (state.typeMap.has(n))
-        // range.add(state.typeMap.get(n));
+        // if (!state.typeMap!.has(n))
+        // range.add(!state.typeMap!.get(n));
         // else {
         // todo.add(node);
         // return;
@@ -442,8 +455,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         // List<Type> domain = new LinkedList<Type>();
         //
         // for (ASTElement n : node.getInParameters()) {
-        // if (state.typeMap.has(n))
-        // domain.add(state.typeMap.get(n));
+        // if (!state.typeMap!.has(n))
+        // domain.add(!state.typeMap!.get(n));
         // else {
         // todo.add(node);
         // return;
@@ -453,7 +466,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         //
         // // this is bit of a hack to represent types of procedures, but it
         // workes
-        // state.typeMap.add(node,
+        // !state.typeMap!.add(node,
         // ASTType.newMap(param, domain, ASTType.newMap(empty, range,
         // Environment.getBoolType(),
         // true), true));
@@ -471,8 +484,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         //
         // List<Type> range = new LinkedList<Type>();
         // for (ASTElement n : node.getOutParameters()) {
-        // if (state.typeMap.has(n))
-        // range.add(state.typeMap.get(n));
+        // if (!state.typeMap!.has(n))
+        // range.add(!state.typeMap!.get(n));
         // else {
         // todo.add(node);
         // return;
@@ -482,8 +495,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         // List<Type> domain = new LinkedList<Type>();
         //
         // for (ASTElement n : node.getInParameters()) {
-        // if (state.typeMap.has(n))
-        // domain.add(state.typeMap.get(n));
+        // if (!state.typeMap!.has(n))
+        // domain.add(!state.typeMap!.get(n));
         // else {
         // todo.add(node);
         // return;
@@ -493,7 +506,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         //
         // // this is bit of a hack to represent types of procedures, but it
         // workes
-        // state.typeMap.add(node,
+        // !state.typeMap!.add(node,
         // ASTType.newMap(param, domain, ASTType.newMap(empty, range,
         // Environment.getBoolType(),
         // true), true));
@@ -518,7 +531,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         Type t = schemaTypes.get(node.getTarget());
 
-        // TODO state.typeMap.add(node, null == t.range ? t : t.range);
+        // TODO !state.typeMap!.add(node, null == t.range ? t : t.range);
         try {
             context.unify(schemaTypes.get(node), t);
         } catch (UnificationException e) {
@@ -584,8 +597,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
-        if (state.typeMap.has(node))
+        if (processed.contains(node))
             return;
+        processed.add(node);
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -667,25 +681,29 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        // the quantifier body has a map type, that maps the quantified
-        // variables to the result of the expression
-        if (processed.contains(node))
-            return;
-        processed.add(node);
-
-        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
-
-        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        Type[] domain = new Type[node.getQuantifiedVariables().size()];
-
-        for (int i = 0; i < domain.length; i++)
-            domain[i] = state.typeMap.get(node.getQuantifiedVariables().get(i));
-
-        state.typeMap.add(node, state.mapDB.getSchemaType(domain, state.typeMap.get(node.getBody()), parameters, node));
+        // // the quantifier body has a map type, that maps the quantified
+        // // variables to the result of the expression
+        // if (processed.contains(node))
+        // return;
+        // processed.add(node);
+        //
+        // List<TypeVariable> paramList =
+        // this.addParameters(node.getTypeParameters(), node);
+        //
+        // TypeVariable[] parameters = paramList.toArray(new
+        // TypeVariable[paramList.size()]);
+        //
+        // for (ASTElement n : node.getChildren())
+        // n.visit(this);
+        //
+        // Type[] domain = new Type[node.getQuantifiedVariables().size()];
+        //
+        // for (int i = 0; i < domain.length; i++)
+        // domain[i] =
+        // !state.typeMap!.get(node.getQuantifiedVariables().get(i));
+        //
+        // !state.typeMap!.add(node, state.mapDB.getSchemaType(domain,
+        // !state.typeMap!.get(node.getBody()), parameters, node));
     }
 
     @Override
@@ -731,10 +749,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(WildcardExpression node) throws ASTVisitException {
         // note: this method will only be called on boolean wildcards, if
         // wildcard occurs in call statements, the parent already typed this
-
-        if (state.typeMap.has(node))
-            return;
-
         defaultAction(node, Environment.getBoolType());
     }
 
@@ -848,16 +862,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        for (ASTElement n : node.getChildren()) {
-            if (state.typeMap.get(n) != null) {
-                state.typeMap.add(node, state.typeMap.get(n));
-                return;
-            }
-        }
-        throw new ASTVisitException("CodeExpression @" + node.getLocation() + " has no return statement!");
+        // for (ASTElement n : node.getChildren())
+        // n.visit(this);
+        //
+        // for (ASTElement n : node.getChildren()) {
+        // if (!state.typeMap!.get(n) != null) {
+        // !state.typeMap!.add(node, !state.typeMap!.get(n));
+        // return;
+        // }
+        // }
+        // throw new ASTVisitException("CodeExpression @" + node.getLocation() +
+        // " has no return statement!");
     }
 
     @Override
@@ -879,7 +894,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 // TODO :
                 // if
-                // (state.typeMap.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
+                // (!state.typeMap!.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
                 // throw new ASTVisitException("\n" + node.getLocation() +
                 // "argument #" + (i + 1)
                 // + " has unresolvable type");
@@ -907,7 +922,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getInParameters().get(i));
                 // TODO
                 // if
-                // (state.typeMap.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
+                // (!state.typeMap!.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
                 // throw new ASTVisitException("\n" + node.getLocation() +
                 // "argument #" + (i + 1)
                 // + " has unresolvable type");
