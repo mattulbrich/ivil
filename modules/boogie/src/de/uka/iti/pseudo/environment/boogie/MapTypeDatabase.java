@@ -27,7 +27,6 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
@@ -51,21 +50,13 @@ public final class MapTypeDatabase {
         final Type[] domain;
         final Type range;
         final HashSet<TypeVariable> parameters;
-
-        /*
-         * this is true iff the map is used for type inference and can not be
-         * used on a proof tree
-         */
-        final boolean schemaMap;
         
         final private LinkedList<InferencePath>[] paths;
 
         @SuppressWarnings("unchecked")
-        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB,
-                boolean schemaMap) {
+        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB) {
             this.domain = domain;
             this.range = range;
-            this.schemaMap = schemaMap;
             this.parameters = new HashSet<TypeVariable>(Arrays.asList(parameters));
 
             this.paths = new LinkedList[parameters.length];
@@ -89,10 +80,6 @@ public final class MapTypeDatabase {
                 return false;
 
             UnfoldedMap m = (UnfoldedMap) object;
-
-            // maps with different schema type dont equal
-            if (schemaMap != m.schemaMap)
-                return false;
             
             // inference paths have to be equal
             if (paths.length == m.paths.length) {
@@ -164,32 +151,12 @@ public final class MapTypeDatabase {
     }
 
     /**
-     * Creates a new map type that can be used for type inference. No rules etc.
-     * will be created.
-     */
-    public Type getSchemaType(Type[] domain, Type range, TypeVariable[] parameters, ASTLocatedElement node) {
-
-        // create an unfolded map
-        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this, true);
-
-        // look for the map in the table
-        if (mapTo.containsKey(entry))
-            return mapTo.get(entry);
-
-        // add a new map to the table
-        Type t = addSchemaMapType(entry, domain, range, node);
-        mapTo.put(entry, t);
-        mapFrom.put(t, entry);
-        return t;
-    }
-
-    /**
      * @note Map DB has to be type parameter name agnostic, as this would break
      *       typing. If type parameter renaming is required, a mechanism is
      *       needed that renames type parameters, before(or during) the type map
      *       is built, by structure.
      * 
-     * @param astLocatedElement
+     * @param node
      *            the node that caused the creation of this type
      * @param state
      *            the state is used to create new rules, etc., for maybe created
@@ -198,24 +165,18 @@ public final class MapTypeDatabase {
      * 
      * @return a type with no arguments built from a sort map<%i>
      */
-    public Type getType(TypeApplication inferedSchemaMap, ASTLocatedElement astLocatedElement, EnvironmentCreationState state) {
-        Type[] domain = new Type[inferedSchemaMap.getArguments().size() - 1];
-        for (int i = 0; i < domain.length; i++)
-            domain[i] = inferedSchemaMap.getArguments().get(i);
-
-        Type range = inferedSchemaMap.getArguments().get(domain.length);
-        
-        TypeVariable[] parameters = getParameters(inferedSchemaMap);
+    public Type getType(Type[] domain, Type range, TypeVariable[] parameters, ASTLocatedElement node,
+            EnvironmentCreationState state) {
 
         // create an unfolded map
-        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this, false);
+        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this);
 
         // look for the map in the table
         if (mapTo.containsKey(entry))
             return mapTo.get(entry);
 
         // add a new map to the table
-        Type t = addMapType(entry, astLocatedElement);
+        Type t = addMapType(entry, node);
         mapTo.put(entry, t);
         mapFrom.put(t, entry);
         return t;
@@ -301,35 +262,6 @@ public final class MapTypeDatabase {
      */
     public boolean hasType(Type type) {
         return mapFrom.containsKey(type);
-    }
-
-    /**
-     * Creates sort and type for a schema map entry.
-     */
-    private Type addSchemaMapType(UnfoldedMap entry, Type[] domain, Type range, ASTLocatedElement node) {
-        // create name ...
-        final String name = "map" + (1 + mapTo.size());
-
-        // ... sort ...
-        try {
-            env.addSort(new Sort(name, 1 + domain.length, node));
-
-            // ... types ...
-            Type[] arg = new Type[domain.length + 1];
-            System.arraycopy(domain, 0, arg, 0, domain.length);
-            arg[domain.length] = range;
-
-            Type map_t = env.mkType(name, arg);
-            return map_t;
-
-        } catch (EnvironmentException e) {
-            e.printStackTrace();
-            assert false : "internal error";
-        } catch (TermException e) {
-            e.printStackTrace();
-            assert false : "internal error";
-        }
-        return null;
     }
 
     /**

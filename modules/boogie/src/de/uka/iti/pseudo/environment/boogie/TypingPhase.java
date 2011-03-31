@@ -10,8 +10,6 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.TypeApplication;
 
 /**
  * Extracts type information out of an AST and creates sorts in the output
@@ -55,16 +53,8 @@ public final class TypingPhase {
                 (new DefaultASTVisitor() {
                     @Override
                     protected void defaultAction(ASTElement node) throws ASTVisitException {
-                        if (!state.typeMap.has(node)) {
-                            Type t = state.context.instantiate(state.schemaTypes.get(node));
-                            // in case of maps we have to turn the schema map
-                            // into a
-                            // usable type
-                            if (state.mapDB.hasType(t))
-                                t = state.mapDB.getType((TypeApplication) t, node, state);
-
-                            state.typeMap.add(node, t);
-                        }
+                        if (!state.typeMap.has(node))
+                            state.typeMap.add(node, state.context.instantiate(state.schemaTypes.get(node)));
 
                         for (ASTElement e : node.getChildren())
                             e.visit(this);
