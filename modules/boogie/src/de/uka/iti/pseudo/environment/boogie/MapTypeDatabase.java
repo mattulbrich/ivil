@@ -461,7 +461,7 @@ public final class MapTypeDatabase {
 
                 tags.put("rewrite", "concrete");
 
-                // in order
+                // add rules for domain type miss match
                 for (int i = 0; i < domain.length; i++) {
                     String rule = name + "_load_store_other_type_" + i;
 
@@ -472,8 +472,18 @@ public final class MapTypeDatabase {
 
                     env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH), where,
                             actions, tags, astLocatedElement));
-
                 }
+
+                // add rule for range type miss match
+                String rule = name + "_load_store_other_type_range";
+
+                LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+                where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
+                        new Term[] { default_find, store_arg[store_arg.length - 1] }));
+
+                env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH), where,
+                        actions, tags, astLocatedElement));
 
             } catch (RuleException e) {
                 e.printStackTrace();

@@ -777,6 +777,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
+
+        // operands need to have the same type
+        unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
     }
 
     @Override
