@@ -52,14 +52,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FunctionCallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
@@ -68,6 +64,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.RelationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
@@ -284,22 +281,7 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
     }
 
     @Override
-    public void visit(LessExpression node) throws ASTVisitException {
-        defaultAction(node);
-    }
-
-    @Override
-    public void visit(LessEqualExpression node) throws ASTVisitException {
-        defaultAction(node);
-    }
-
-    @Override
-    public void visit(GreaterExpression node) throws ASTVisitException {
-        defaultAction(node);
-    }
-
-    @Override
-    public void visit(GreaterEqualExpression node) throws ASTVisitException {
+    public void visit(RelationExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 

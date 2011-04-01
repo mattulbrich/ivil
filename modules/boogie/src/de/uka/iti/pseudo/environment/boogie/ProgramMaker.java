@@ -17,8 +17,6 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.Attribute;
-import de.uka.iti.pseudo.parser.boogie.ast.AttributeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.BreakStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
@@ -62,14 +60,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FunctionCallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
@@ -78,6 +72,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.RelationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
@@ -1510,7 +1505,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(LessExpression node) throws ASTVisitException {
+    public void visit(RelationExpression node) throws ASTVisitException {
         defaultAction(node);
 
         Term[] args = new Term[2];
@@ -1519,61 +1514,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$lt"), Environment.getBoolType(),
-                    args));
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
-    }
-
-    @Override
-    public void visit(LessEqualExpression node) throws ASTVisitException {
-        defaultAction(node);
-
-        Term[] args = new Term[2];
-
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
-
-        try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$lte"), Environment.getBoolType(),
-                    args));
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
-    }
-
-    @Override
-    public void visit(GreaterExpression node) throws ASTVisitException {
-        defaultAction(node);
-
-        Term[] args = new Term[2];
-
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
-
-        try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$gt"), Environment.getBoolType(),
-                    args));
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
-    }
-
-    @Override
-    public void visit(GreaterEqualExpression node) throws ASTVisitException {
-        defaultAction(node);
-
-        Term[] args = new Term[2];
-
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
-
-        try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$gte"), Environment.getBoolType(),
+            state.translation.terms.put(node, new Application(state.env.getFunction(node.getFunction()), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1838,8 +1780,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             if (null != bound)
                 state.translation.terms.put(node, bound);
             else
-                state.translation.terms.put(node,
- new Application(state.env.getFunction(name), state.typeMap.get(node)));
+                state.translation.terms
+                        .put(node, new Application(state.env.getFunction(name), state.typeMap.get(node)));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -2001,16 +1943,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.printStackTrace();
             throw new ASTVisitException(e);
         }
-    }
-
-    @Override
-    public void visit(AttributeParameter node) throws ASTVisitException {
-        // attributes are currently ignored
-    }
-
-    @Override
-    public void visit(Attribute node) throws ASTVisitException {
-        // attributes are currently ignored
     }
 
     @Override

@@ -1,7 +1,6 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -37,14 +36,10 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FalseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ForallExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.FunctionCallExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.GreaterExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IfThenElseExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ImpliesExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessEqualExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.LessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
@@ -53,6 +48,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.RelationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
@@ -89,13 +85,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     private final Decoration<SchemaType> schemaTypes;
     // shortcut to state.context
     private final TypingContext context;
-
-    /**
-     * This decoration is needed, as traversal of the AST does not follow
-     * necesserily a tree like structure, because jumps are done if needed. In
-     * order to prevent cyclic traversal, this flag has been added.
-     */
-    private final HashSet<ASTElement> processed = new HashSet<ASTElement>();
 
     /**
      * Searches for declaration of type variable name.
@@ -183,16 +172,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      *             node, as the node will be decorated twice
      */
     private void setTypeSameAs(ASTElement node, ASTElement typeNode) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         // this is ok, if the dependency is somewhere else in the tree
-        if (!processed.contains(typeNode))
+        if (!schemaTypes.has(typeNode))
             typeNode.visit(this);
 
         // this is not ok, as it meanst, that the dependency is somehow cyclic
-        if (!processed.contains(typeNode))
+        if (!schemaTypes.has(typeNode))
             throw new ASTVisitException(node.getLocation() + ":  The node " + node
                     + " could not be typed because it depends on the untyped node " + typeNode);
 
@@ -245,9 +234,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      * what its arguments are.
      */
     protected void defaultAction(ASTElement node, Type type) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         if (null != type)
         try {
@@ -301,9 +290,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(UserTypeDefinition node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         if (null == node.getDefinition()) {
             // simple case, a new type (corresponds to sort in ivil) with
@@ -343,9 +332,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ASTTypeApplication node) throws ASTVisitException {
-        if(processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         // resolve type name
         ASTElement declaration = getParameterDeclaration(node.getName(), state.scopeMap.get(node));
@@ -359,7 +348,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             if (null == declaration)
                 throw new ASTVisitException(node.getLocation() + ":  undeclared Type " + node.getName());
 
-            if(!processed.contains(declaration))
+            if (!schemaTypes.has(declaration))
                 declaration.visit(this);
 
             // get type
@@ -408,9 +397,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapType node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
 
@@ -517,9 +506,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -555,9 +544,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -567,9 +556,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapAccessExpression node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -588,9 +577,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -605,9 +594,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         for (ASTElement n : node.getChildren())
             n.visit(this);
@@ -616,7 +605,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if (null == decl)
             throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
 
-        if (!processed.contains(decl))
+        if (!schemaTypes.has(decl))
             decl.visit(this);
 
         // @note: this is a type application, if the object is a map
@@ -674,7 +663,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(QuantifierBody node) throws ASTVisitException {
         // // the quantifier body has a map type, that maps the quantified
         // // variables to the result of the expression
-        // if (processed.contains(node))
+        // if (schemaTypes.has(node))
         // return;
         // processed.add(node);
         //
@@ -725,9 +714,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        if (processed.contains(node))
+        if (schemaTypes.has(node))
             return;
-        processed.add(node);
+        schemaTypes.add(node, context.newSchemaType());
 
         // a coercion says that the operand has the same type as the type node,
         // which both will have the same type as this node, as this node will be
@@ -789,22 +778,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(LessExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
-    }
-
-    @Override
-    public void visit(LessEqualExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
-    }
-
-    @Override
-    public void visit(GreaterExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
-    }
-
-    @Override
-    public void visit(GreaterEqualExpression node) throws ASTVisitException {
+    public void visit(RelationExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
     }
 

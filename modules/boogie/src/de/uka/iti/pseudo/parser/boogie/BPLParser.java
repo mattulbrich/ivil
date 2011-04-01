@@ -1769,22 +1769,22 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case 78:
         loc = jj_consume_token(78);
         tmp = BvTerm();
-      {if (true) return new LessExpression(loc, rval, tmp);}
+      {if (true) return new RelationExpression(loc, rval, tmp, "$lt");}
         break;
       case OP_LTE:
         loc = jj_consume_token(OP_LTE);
         tmp = BvTerm();
-      {if (true) return new LessEqualExpression(loc, rval, tmp);}
+      {if (true) return new RelationExpression(loc, rval, tmp, "$lte");}
         break;
       case 79:
         loc = jj_consume_token(79);
         tmp = BvTerm();
-      {if (true) return new GreaterExpression(loc, rval, tmp);}
+      {if (true) return new RelationExpression(loc, rval, tmp, "$gt");}
         break;
       case OP_GTE:
         loc = jj_consume_token(OP_GTE);
         tmp = BvTerm();
-      {if (true) return new GreaterEqualExpression(loc, rval, tmp);}
+      {if (true) return new RelationExpression(loc, rval, tmp, "$gte");}
         break;
       case 82:
         loc = jj_consume_token(82);

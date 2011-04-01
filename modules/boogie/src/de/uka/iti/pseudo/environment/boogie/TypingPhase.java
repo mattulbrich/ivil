@@ -26,17 +26,6 @@ public final class TypingPhase {
 
     void create(final EnvironmentCreationState state) throws TypeSystemException {
         try {
-            // give each ASTElement a schema type
-            (new DefaultASTVisitor() {
-                @Override
-                protected void defaultAction(ASTElement node) throws ASTVisitException {
-                    state.schemaTypes.add(node, state.context.newSchemaType());
-                    for (ASTElement e : node.getChildren())
-                        e.visit(this);
-                }
-            }).visit(state.root);
-
-
             // add constraints
             new TypeMapBuilder(state);
 
