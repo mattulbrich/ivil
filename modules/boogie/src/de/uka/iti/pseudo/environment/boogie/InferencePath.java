@@ -18,8 +18,6 @@ import de.uka.iti.pseudo.term.TypeVariable;
  */
 public final class InferencePath implements Comparable<InferencePath> {
 
-    // TODO make this work directly on AST
-
     static final class PathListComparator implements Comparator<List<InferencePath>> {
 
         /**
@@ -36,11 +34,14 @@ public final class InferencePath implements Comparable<InferencePath> {
 
     private final List<Integer> path;
 
-    private InferencePath(List<Integer> path) {
+    private final TypeVariable tvar;
+
+    private InferencePath(List<Integer> path, TypeVariable tvar) {
         this.path = path;
+        this.tvar = tvar;
     }
 
-    static LinkedList<InferencePath> getPaths(UnfoldedMap root, Type target, MapTypeDatabase mapDB) {
+    static LinkedList<InferencePath> getPaths(UnfoldedMap root, TypeVariable target, MapTypeDatabase mapDB) {
 
         LinkedList<Integer> path = new LinkedList<Integer>();
         LinkedList<InferencePath> rval = new LinkedList<InferencePath>();
@@ -50,10 +51,10 @@ public final class InferencePath implements Comparable<InferencePath> {
         return rval;
     }
 
-    private static void addChildren(Type root, final Type target, LinkedList<Integer> path,
+    private static void addChildren(Type root, final TypeVariable target, LinkedList<Integer> path,
             LinkedList<InferencePath> rval, MapTypeDatabase mapDB) {
         if (root.equals(target)) {
-                rval.add(new InferencePath(new LinkedList<Integer>(path)));
+            rval.add(new InferencePath(new LinkedList<Integer>(path), target));
         } else if (root instanceof TypeVariable) {
             return;
         } else if (root instanceof UnfoldedMap || mapDB.hasType(root)) {
@@ -100,6 +101,10 @@ public final class InferencePath implements Comparable<InferencePath> {
                 return false;
 
         return true;
+    }
+
+    public TypeVariable getTypeVariable() {
+        return tvar;
     }
 
     @Override

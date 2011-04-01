@@ -46,7 +46,7 @@ public final class MapTypeDatabase {
      * 
      * @author timm.felden@felden.com
      */
-    static class UnfoldedMap extends Type {
+    class UnfoldedMap extends Type {
         final Type[] domain;
         final Type range;
         final HashSet<TypeVariable> parameters;
@@ -54,7 +54,8 @@ public final class MapTypeDatabase {
         final private LinkedList<InferencePath>[] paths;
 
         @SuppressWarnings("unchecked")
-        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB) {
+        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB)
+                throws TypeSystemException {
             this.domain = domain;
             this.range = range;
             this.parameters = new HashSet<TypeVariable>(Arrays.asList(parameters));
@@ -62,6 +63,9 @@ public final class MapTypeDatabase {
             this.paths = new LinkedList[parameters.length];
             for (int i = 0; i < paths.length; i++) {
                 paths[i] = InferencePath.getPaths(this, parameters[i], mapDB);
+                if (0 == paths[i].size())
+                    throw new TypeSystemException("The typevariable <" + parameters[i] + "> is not used.");
+
                 Collections.sort(paths[i]);
             }
 
@@ -81,34 +85,48 @@ public final class MapTypeDatabase {
 
             UnfoldedMap m = (UnfoldedMap) object;
             
+            return mapEquals(this, m, new HashMap<TypeVariable, TypeVariable>());
+        }
+
+        private boolean mapEquals(UnfoldedMap t, UnfoldedMap m, HashMap<TypeVariable, TypeVariable> names) {
             // inference paths have to be equal
-            if (paths.length == m.paths.length) {
-                for (int i = 0; i < paths.length; i++) {
-                    if (paths[i].size() != m.paths[i].size())
+            if (t.paths.length == m.paths.length) {
+                for (int i = 0; i < t.paths.length; i++) {
+                    if (t.paths[i].size() != m.paths[i].size())
                         return false;
 
-                    for (int j = 0; j < paths[i].size(); j++)
-                        if (0 != paths[i].get(j).compareTo(m.paths[i].get(j)))
+                    for (int j = 0; j < t.paths[i].size(); j++)
+                        if (0 != t.paths[i].get(j).compareTo(m.paths[i].get(j)))
                             return false;
                 }
             } else
                 return false;
 
-            // other types have to be equal. here local typevariables will be
-            // ignored
+            // inference paths lead to new mappings of typevariable names
+            for(int i = 0; i < t.paths.length; i++)
+                names.put(t.paths[i].getFirst().getTypeVariable(), m.paths[i].getFirst().getTypeVariable());
 
-            // TODO this in fact is more complex, as a stack of renamed
-            // parameters is needed
-            for (int i = 0; i < domain.length; i++) {
-                if (domain[i] instanceof TypeVariable) {
-
-                } else {
-                    if (!domain[i].equals(m.domain[i]))
+            // compare arguments and range using renamed typevariables
+            for (int i = 0; i < t.domain.length; i++) {
+                if (!typeEquals(t.domain[i], m.domain[i], names))
                         return false;
-                }
             }
 
-            return range.equals(m.range) || (range instanceof TypeVariable && m.range instanceof TypeVariable);
+            return typeEquals(t.range, m.range, names);
+        }
+
+        private boolean typeEquals(Type t, Type m, HashMap<TypeVariable, TypeVariable> names) {
+            if (hasType(t) != hasType(m))
+                return false;
+            
+            if (hasType(t) && hasType(m))
+                return mapEquals(getUnfoldedMap(t), getUnfoldedMap(m), names);
+
+            // no argument is a map, so we can simply compare using renaming
+            if (t instanceof TypeVariable && m instanceof TypeVariable && names.containsKey(t))
+                    return names.get(t).equals(m);
+
+            return t.equals(m);
         }
 
         @Override
@@ -164,9 +182,11 @@ public final class MapTypeDatabase {
      * 
      * 
      * @return a type with no arguments built from a sort map<%i>
+     * @throws TypeSystemException
+     *             If the defined type is ill-formed
      */
     public Type getType(Type[] domain, Type range, TypeVariable[] parameters, ASTLocatedElement node,
-            EnvironmentCreationState state) {
+            EnvironmentCreationState state) throws TypeSystemException {
 
         // create an unfolded map
         UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this);
@@ -217,7 +237,7 @@ public final class MapTypeDatabase {
         return p.toArray(new TypeVariable[p.size()]);
     }
 
-    // only used internally
+    // used by inference path
     UnfoldedMap getUnfoldedMap(Type definition) {
         assert hasType(definition) : "requires definition to be a map type (was : " + definition + ")";
 

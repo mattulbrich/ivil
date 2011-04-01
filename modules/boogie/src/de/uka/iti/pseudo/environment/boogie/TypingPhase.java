@@ -42,7 +42,7 @@ public final class TypingPhase {
                 (new DefaultASTVisitor() {
                     @Override
                     protected void defaultAction(ASTElement node) throws ASTVisitException {
-                        if (!state.typeMap.has(node))
+                        if (state.schemaTypes.has(node) && !state.typeMap.has(node))
                             state.typeMap.add(node, state.context.instantiate(state.schemaTypes.get(node)));
 
                         for (ASTElement e : node.getChildren())

@@ -32,6 +32,8 @@ public final class QuantifierBody extends ASTElement implements NamedASTElement 
         this.body = body;
 
         this.typeParameters = new ArrayList<ASTTypeParameter>(typeArgs.size());
+        for (Token name : typeArgs)
+            this.typeParameters.add(new ASTTypeParameter(name));
 
         addChildren(this.typeParameters);
         addChildren(vars);

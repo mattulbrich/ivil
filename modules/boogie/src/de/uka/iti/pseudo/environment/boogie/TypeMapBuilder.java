@@ -122,8 +122,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             return null;
 
         for (Type t : typeParameterMap.get(decl))
-            if (t.toString().equals('\'' + name)) // TODO needs prefixing?
-                                                  // (should not be the case)
+            if (t.toString().equals('\'' + name))
                 return t;
 
         return null;
@@ -136,8 +135,19 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     private List<TypeVariable> addParameters(List<ASTTypeParameter> names, ASTElement node) throws ASTVisitException {
         List<TypeVariable> rval = new LinkedList<TypeVariable>();
 
-        for (ASTTypeParameter t : names)
-            rval.add(new TypeVariable(t.getName()));
+        for (ASTTypeParameter t : names) {
+            TypeVariable p;
+            SchemaType q;
+
+            rval.add(p = new TypeVariable(t.getName()));
+            schemaTypes.add(t, q = context.newSchemaType());
+            try {
+                context.unify(p, q);
+            } catch (UnificationException e) {
+                e.printStackTrace();
+                assert false : "internal error";
+            }
+        }
 
         typeParameterMap.put(node, rval);
         return rval;
@@ -252,31 +262,27 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionDeclaration node) throws ASTVisitException {
-        // // translate type parameters first, as children depend on them
-        // List<TypeVariable> paramList =
-        // this.addParameters(node.getTypeParameters(), node);
-        //
-        // TypeVariable[] parameters = paramList.toArray(new
-        // TypeVariable[paramList.size()]);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // Type[] domain = new Type[node.getInParameters().size()];
-        //
-        // for (int i = 0; i < domain.length; i++)
-        // domain[i] = !state.typeMap!.get(node.getInParameters().get(i));
-        //
-        // try {
-        // !state.typeMap!.add(node, state.mapDB.getSchemaType(domain,
-        // !state.typeMap!.get(node.getOutParemeter()),
-        // parameters, node));
-        // } catch (IllegalArgumentException e) {
-        // // can happen if the maptype is illformed like <a>[]int or
-        // // <a>[int]a
-        // throw new ASTVisitException("\nmap creation failed @ " +
-        // node.getLocation(), e);
-        // }
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type[] domain = new Type[node.getInParameters().size()];
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = context.instantiate(schemaTypes.get(node.getInParameters().get(i)));
+
+        try {
+            unify(node, state.mapDB.getType(domain, context.instantiate(schemaTypes.get(node.getOutParemeter())),
+                    parameters, node, state));
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -299,8 +305,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 Type[] args = new Type[node.getTypeParameters().size()];
 
-                for (int i = 0; i < args.length; i++)
+                for (int i = 0; i < args.length; i++) {
                     args[i] = new TypeVariable("arg" + i);
+                    // add a new schema variable; this is only needed for
+                    // consistency
+                    schemaTypes.add(node.getTypeParameters().get(i), context.newSchemaType());
+                }
 
                 Type result = state.env.mkType(name, args);
 
@@ -322,7 +332,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
             Type[] params = param.toArray(new Type[param.size()]);
 
-            unify(node, new TypeAlias(params, context.instantiate(schemaTypes.get(node.getDefinition())), state));
+            // Type Aliases use fake types, so they can not be unified
+            state.typeMap.add(node, new TypeAlias(params, context.instantiate(schemaTypes.get(node.getDefinition())),
+                    state));
         }
     }
 
@@ -348,7 +360,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 declaration.visit(this);
 
             // get type
-            type = context.instantiate(schemaTypes.get(declaration));
+            if(((UserTypeDefinition)declaration).getDefinition()!=null)
+                type = state.typeMap.get(declaration);
+            else
+                type = context.instantiate(schemaTypes.get(declaration));
 
             if (type instanceof SchemaType)
                 throw new ASTVisitException(node.getLocation() + " :: The type declared @" + declaration.getLocation()
@@ -357,15 +372,22 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             // get type arguments
             Type[] arg_t = new Type[node.getArguments().size()];
 
-            for (int i = 0; i < node.getArguments().size(); i++) {
-                final ASTElement child = node.getArguments().get(i);
-                child.visit(this);
-                arg_t[i] = schemaTypes.get(child);
-            }
             try {
                 if (type instanceof TypeAlias) {
+                    for (int i = 0; i < node.getArguments().size(); i++) {
+                        final ASTElement child = node.getArguments().get(i);
+                        child.visit(this);
+                        arg_t[i] = context.instantiate(schemaTypes.get(child));
+                    }
+
                     type = ((TypeAlias) type).constructFrom(arg_t);
                 } else {
+                    for (int i = 0; i < node.getArguments().size(); i++) {
+                        final ASTElement child = node.getArguments().get(i);
+                        child.visit(this);
+                        arg_t[i] = schemaTypes.get(child);
+                    }
+
                     type = state.env.mkType(((TypeApplication) type).getSort().getName(), arg_t);
                 }
 
@@ -408,8 +430,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (int i = 0; i < domain.length; i++)
             domain[i] = context.instantiate(schemaTypes.get(node.getDomain().get(i)));
 
-        unify(node, state.mapDB.getType(domain, context.instantiate(schemaTypes.get(node.getRange())), parameters,
-                node, state));
+        try {
+            unify(node, state.mapDB.getType(domain, context.instantiate(schemaTypes.get(node.getRange())), parameters,
+                    node, state));
+
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+        }
     }
 
     @Override
@@ -511,7 +538,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         Type t = schemaTypes.get(node.getTarget());
 
-        // TODO !state.typeMap!.add(node, null == t.range ? t : t.range);
+        // TODO is this still needed?: !state.typeMap!.add(node, null == t.range
+        // ? t : t.range);
         try {
             context.unify(schemaTypes.get(node), t);
         } catch (UnificationException e) {
@@ -608,14 +636,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         Type t = context.instantiate(schemaTypes.get(decl));
         if (!(t instanceof TypeApplication))
             throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
-        
-        Type r = ((TypeApplication) t).getArguments().get(((TypeApplication) t).getArguments().size() - 1);
 
-        try {
-            context.unify(schemaTypes.get(node), r);
-        } catch (UnificationException e) {
-            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
-        }
+        Type[] signature = state.mapDB.getMapSignature(t, context);
+
+        for (int i = 0; i < node.getOperands().size(); i++)
+            unify(node.getOperands().get(i), signature[i]);
+        unify(node, signature[signature.length - 1]);
     }
 
     @Override
@@ -657,39 +683,44 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(QuantifierBody node) throws ASTVisitException {
-        // // the quantifier body has a map type, that maps the quantified
-        // // variables to the result of the expression
-        // if (schemaTypes.has(node))
-        // return;
-        // processed.add(node);
-        //
-        // List<TypeVariable> paramList =
-        // this.addParameters(node.getTypeParameters(), node);
-        //
-        // TypeVariable[] parameters = paramList.toArray(new
-        // TypeVariable[paramList.size()]);
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // Type[] domain = new Type[node.getQuantifiedVariables().size()];
-        //
-        // for (int i = 0; i < domain.length; i++)
-        // domain[i] =
-        // !state.typeMap!.get(node.getQuantifiedVariables().get(i));
-        //
-        // !state.typeMap!.add(node, state.mapDB.getSchemaType(domain,
-        // !state.typeMap!.get(node.getBody()), parameters, node));
+         // the quantifier body has a map type, that maps the quantified
+         // variables to the result of the expression
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type[] domain = new Type[node.getQuantifiedVariables().size()];
+        for (int i = 0; i < domain.length; i++)
+            domain[i] = context.instantiate(schemaTypes.get(node.getQuantifiedVariables().get(i)));
+
+        try {
+            unify(node, state.mapDB.getType(domain, context.instantiate(schemaTypes.get(node.getBody())), parameters,
+                    node, state));
+
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+        }
     }
 
     @Override
     public void visit(ForallExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
+        // we know as well, that the quantifier body has a bool range type
+        unify(node.getBody().getBody(), Environment.getBoolType());
     }
 
     @Override
     public void visit(ExistsExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
+        // we know as well, that the quantifier body has a bool range type
+        unify(node.getBody().getBody(), Environment.getBoolType());
     }
 
     @Override
