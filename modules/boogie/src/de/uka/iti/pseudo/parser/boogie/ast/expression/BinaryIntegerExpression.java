@@ -7,11 +7,15 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
-public final class DivisionExpression extends Expression {
-    private final List<Expression> operands;
+public final class BinaryIntegerExpression extends Expression {
 
-    public DivisionExpression(Token loc, Expression rval, Expression tmp) {
+    private final List<Expression> operands;
+    private final String function;
+
+    public BinaryIntegerExpression(Token loc, Expression rval, Expression tmp, String function) {
         super(loc);
+
+        this.function = function;
 
         operands = new ArrayList<Expression>(2);
         operands.add(rval);
@@ -25,10 +29,13 @@ public final class DivisionExpression extends Expression {
         return operands;
     }
 
+    public String getFunction() {
+        return function;
+    }
+
     @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
-
 
 }

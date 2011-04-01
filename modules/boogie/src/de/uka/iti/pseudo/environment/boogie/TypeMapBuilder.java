@@ -20,15 +20,14 @@ import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.AdditionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.AndExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.BinaryIntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorAccessSelectionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorLiteralExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.BitvectorSelectExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
@@ -42,14 +41,11 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.IntegerExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.LambdaExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapAccessExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.MapUpdateExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.ModuloExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.MultiplicationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.NegationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OldExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.OrExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.RelationExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.SubtractionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.TrueExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
@@ -740,12 +736,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(AdditionExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
-    }
-
-    @Override
-    public void visit(SubtractionExpression node) throws ASTVisitException {
+    public void visit(BinaryIntegerExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getIntType());
     }
 
@@ -780,21 +771,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(RelationExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
-    }
-
-    @Override
-    public void visit(MultiplicationExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
-    }
-
-    @Override
-    public void visit(DivisionExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
-    }
-
-    @Override
-    public void visit(ModuloExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
     }
 
     @Override

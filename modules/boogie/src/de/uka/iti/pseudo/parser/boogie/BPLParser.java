@@ -1848,12 +1848,12 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case 84:
         loc = jj_consume_token(84);
         tmp = Factor();
-      rval = new AdditionExpression(loc, rval, tmp);
+      rval = new BinaryIntegerExpression(loc, rval, tmp, "$plus");
         break;
       case 85:
         loc = jj_consume_token(85);
         tmp = Factor();
-      rval = new SubtractionExpression(loc, rval, tmp);
+      rval = new BinaryIntegerExpression(loc, rval, tmp, "$minus");
         break;
       default:
         jj_la1[90] = jj_gen;
@@ -1886,17 +1886,17 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case OP_MUL:
         loc = jj_consume_token(OP_MUL);
         tmp = UnaryExpression();
-      rval = new MultiplicationExpression(loc, rval, tmp);
+      rval = new BinaryIntegerExpression(loc, rval, tmp, "$mult");
         break;
       case 86:
         loc = jj_consume_token(86);
         tmp = UnaryExpression();
-      rval = new DivisionExpression(loc, rval, tmp);
+      rval = new BinaryIntegerExpression(loc, rval, tmp, "$div");
         break;
       case 87:
         loc = jj_consume_token(87);
         tmp = UnaryExpression();
-      rval = new ModuloExpression(loc, rval, tmp);
+      rval = new BinaryIntegerExpression(loc, rval, tmp, "$mod");
         break;
       default:
         jj_la1[92] = jj_gen;
