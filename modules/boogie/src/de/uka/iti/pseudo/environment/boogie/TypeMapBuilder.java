@@ -726,10 +726,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CoercionExpression node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
+        if (processed.contains(node))
+            return;
+        processed.add(node);
 
-        setTypeSameAs(node, node.getType());
+        // a coercion says that the operand has the same type as the type node,
+        // which both will have the same type as this node, as this node will be
+        // used as argument to other nodes
+        for (ASTElement n : node.getChildren()) {
+            n.visit(this);
+            unify(node, schemaTypes.get(n));
+        }
     }
 
     @Override
@@ -785,6 +792,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(EqualsNotExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
+
+        // operands need to have the same type
+        unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
     }
 
     @Override
