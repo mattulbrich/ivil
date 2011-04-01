@@ -46,7 +46,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
@@ -281,11 +280,6 @@ public abstract class DefaultASTVisitor implements ASTVisitor {
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        defaultAction(node);
-    }
-
-    @Override
-    public void visit(EqualsNotExpression node) throws ASTVisitException {
         defaultAction(node);
     }
 

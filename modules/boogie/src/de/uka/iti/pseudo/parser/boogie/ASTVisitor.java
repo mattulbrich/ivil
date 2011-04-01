@@ -53,7 +53,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExtendsExpression;
@@ -174,8 +173,6 @@ public interface ASTVisitor {
     void visit(OrExpression node) throws ASTVisitException;
 
     void visit(EqualsExpression node) throws ASTVisitException;
-
-    void visit(EqualsNotExpression node) throws ASTVisitException;
 
     void visit(LessExpression node) throws ASTVisitException;
 

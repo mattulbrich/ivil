@@ -55,7 +55,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.CoercionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ConcatenationExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.DivisionExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsExpression;
-import de.uka.iti.pseudo.parser.boogie.ast.expression.EqualsNotExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.EquivalenceExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.ExistsExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
@@ -1497,27 +1496,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
-                    args));
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
-    }
-
-    @Override
-    public void visit(EqualsNotExpression node) throws ASTVisitException {
-        defaultAction(node);
-
-        Term[] args = new Term[2];
-
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
-
-        try {
-
-            state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment.getBoolType(),
-                    new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) }));
+            if (node.isInequality())
+                state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment
+                        .getBoolType(), new Term[] { new Application(state.env.getFunction("$eq"), Environment
+                        .getBoolType(), args) }));
+            else
+                state.translation.terms.put(node, new Application(state.env.getFunction("$eq"), Environment
+                        .getBoolType(), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);

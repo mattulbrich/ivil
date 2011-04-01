@@ -1759,12 +1759,12 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
       case 81:
         loc = jj_consume_token(81);
         tmp = BvTerm();
-      {if (true) return new EqualsExpression(loc, rval, tmp);}
+      {if (true) return new EqualsExpression(loc, rval, tmp, false);}
         break;
       case OP_NEQ:
         loc = jj_consume_token(OP_NEQ);
         tmp = BvTerm();
-      {if (true) return new EqualsNotExpression(loc, rval, tmp);}
+      {if (true) return new EqualsExpression(loc, rval, tmp, true);}
         break;
       case 78:
         loc = jj_consume_token(78);
