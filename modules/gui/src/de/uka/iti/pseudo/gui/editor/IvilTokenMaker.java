@@ -49,7 +49,7 @@ import de.uka.iti.pseudo.util.Log;
  *
  */
 
-
+@SuppressWarnings("all")
 public class IvilTokenMaker extends AbstractJFlexTokenMaker {
 
   /** This character denotes the end of file */
