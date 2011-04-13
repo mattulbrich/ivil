@@ -273,7 +273,7 @@ public class Main {
                     throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
             }
 
-            problemTerm = new LiteralProgramTerm(0, false, p);
+            problemTerm = LiteralProgramTerm.getInst(0, false, p);
         }
 
         return openProver(env, problemTerm, url);
@@ -313,7 +313,7 @@ public class Main {
         
         resource += "#" + program;
         
-        LiteralProgramTerm problemTerm = new LiteralProgramTerm(0, false, program);
+        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, false, program);
         
         return openProver(env, problemTerm, new URL(resource));
     }

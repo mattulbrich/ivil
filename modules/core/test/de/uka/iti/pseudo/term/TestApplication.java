@@ -43,11 +43,11 @@ public class TestApplication extends TestCaseWithEnv {
     
     // due to a bug
     public void testCreateApplicationWithTypes() throws Exception {
-        Application arb = new Application(env.getFunction("arb"), new TypeVariable("a"));
-        Application two = new Application(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.create(env.getFunction("arb"), new TypeVariable("a"));
+        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
         
         try {
-            new Application(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
+            Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
             fail("should fail");
         } catch (TermException e) {
             // should fail
@@ -55,11 +55,11 @@ public class TestApplication extends TestCaseWithEnv {
     }
     
     public void testCreateApplicationWithTypes2() throws Exception {
-        Application arb = new Application(env.getFunction("arb"), Environment.getBoolType());
-        Application two = new Application(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.create(env.getFunction("arb"), Environment.getBoolType());
+        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
         
         try {
-            new Application(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
+            Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
             fail("should fail");
         } catch (TermException e) {
             // should fail
@@ -68,10 +68,10 @@ public class TestApplication extends TestCaseWithEnv {
     }
     
     public void testCreateApplicationWithTypes3() throws Exception {
-        Application arb = new Application(env.getFunction("arb"), Environment.getIntType());
-        Application two = new Application(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.create(env.getFunction("arb"), Environment.getIntType());
+        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
         
-            Application eq = new Application(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
+            Application eq = Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
             assertEquals(makeTerm("arb = 2"), eq);
     }
 }

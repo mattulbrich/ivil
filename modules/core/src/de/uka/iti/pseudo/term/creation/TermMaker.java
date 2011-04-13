@@ -448,7 +448,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         Type type = applicationTerm.getTyping().getType();
         try {
-            resultTerm = new Application(funct, type, subterms);
+            resultTerm = Application.getInst(funct, type, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(applicationTerm,e );
         }
@@ -467,9 +467,9 @@ public class TermMaker extends ASTDefaultVisitor {
             BindableIdentifier boundId;
 
             if(variableName.startsWith("%")) {
-                boundId = new SchemaVariable(variableName, variableType);
+                boundId = SchemaVariable.getInst(variableName, variableType);
             } else {
-                boundId = new Variable(variableName, variableType);
+                boundId = Variable.getInst(variableName, variableType);
             }
 
             boundIdentifiers.push(boundId.getName());
@@ -477,7 +477,7 @@ public class TermMaker extends ASTDefaultVisitor {
             boundIdentifiers.pop();
 
 
-            resultTerm = new Binding(binder, binderTerm.getTyping().getType(),
+            resultTerm = Binding.getInst(binder, binderTerm.getTyping().getType(),
                     boundId, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(binderTerm, e);
@@ -500,7 +500,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Type boundType = arg.getBoundTyping().getType();
         
         try {
-            resultTerm = new TypeVariableBinding(kind, boundType, subterm);
+            resultTerm = TypeVariableBinding.getInst(kind, boundType, subterm);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
@@ -516,7 +516,7 @@ public class TermMaker extends ASTDefaultVisitor {
 
         Type type = fixTerm.getTyping().getType();
         try {
-            resultTerm = new Application(function, type, subterms);
+            resultTerm = Application.getInst(function, type, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(fixTerm, e);
         }
@@ -530,11 +530,11 @@ public class TermMaker extends ASTDefaultVisitor {
 
         try {
         	if(boundIdentifiers.contains(name)) {
-        		resultTerm = new Variable(name, type);
+        		resultTerm = Variable.getInst(name, type);
         	} else {
         		Function funcSymbol = env.getFunction(name);
         		if (funcSymbol != null) {
-        			resultTerm = new Application(funcSymbol, type);
+        			resultTerm = Application.create(funcSymbol, type);
         		} else {
         			throw new TermException("Unknown symbol: " + identifierTerm);
         		}
@@ -549,7 +549,7 @@ public class TermMaker extends ASTDefaultVisitor {
         String name = explicitVariable.getVarToken().image;
         Type type = explicitVariable.getTyping().getType();
         
-        resultTerm = new Variable(name, type);
+        resultTerm = Variable.getInst(name, type);
     }
     
     public void visit(ASTSchemaVariableTerm schemaVariableTerm)
@@ -557,7 +557,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Type type = schemaVariableTerm.getTyping().getType();
         String name = schemaVariableTerm.getName();
         try {
-            resultTerm = new SchemaVariable(name, type);
+            resultTerm = SchemaVariable.getInst(name, type);
         } catch (TermException e) {
             throw new ASTVisitException(schemaVariableTerm, e);
         }
@@ -569,7 +569,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Function funct = env.getNumberLiteral(numberLiteralTerm
                 .getNumberToken().image);
         try {
-            resultTerm = new Application(funct, Environment.getIntType());
+            resultTerm = Application.create(funct, Environment.getIntType());
         } catch (TermException e) {
             throw new ASTVisitException(numberLiteralTerm, e);
         }
@@ -593,7 +593,7 @@ public class TermMaker extends ASTDefaultVisitor {
             assignments[i-1] = resultAssignment;
         }
         
-        resultTerm = new UpdateTerm(new Update(assignments), term);
+        resultTerm = UpdateTerm.getInst(new Update(assignments), term);
     }
     
     public void visit(ASTSchemaUpdateTerm arg) throws ASTVisitException {
@@ -604,7 +604,7 @@ public class TermMaker extends ASTDefaultVisitor {
         
         String identifier = arg.getIdentifierToken().image;
         
-        resultTerm = new SchemaUpdateTerm(identifier, term);
+        resultTerm = SchemaUpdateTerm.getInst(identifier, term);
     }
     
 
@@ -635,15 +635,15 @@ public class TermMaker extends ASTDefaultVisitor {
             Token position = programTerm.getLabel();
             boolean terminating = programTerm.isTerminating();
             if (programTerm.isSchema()) {
-                SchemaVariable sv = new SchemaVariable(position.image, Environment.getBoolType());
-                resultTerm = new SchemaProgramTerm(sv, terminating, matchingStatement);
+                SchemaVariable sv = SchemaVariable.getInst(position.image, Environment.getBoolType());
+                resultTerm = SchemaProgramTerm.getInst(sv, terminating, matchingStatement);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
                 if(program == null)
                     throw new TermException("Unknown program '" +programReference + "'");
                 int programIndex = Integer.parseInt(position.image);
-                resultTerm = new LiteralProgramTerm(programIndex, terminating, program);
+                resultTerm = LiteralProgramTerm.getInst(programIndex, terminating, program);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);

@@ -6,7 +6,7 @@ import de.uka.iti.pseudo.environment.Environment;
 
 // TODO DOC
 
-public class TypeVariableBinding extends Term {
+public final class TypeVariableBinding extends Term {
     
     public static enum Kind {
         ALL("\\T_all"),
@@ -21,9 +21,21 @@ public class TypeVariableBinding extends Term {
     private Kind kind;
     private Type boundType;
 
-    public TypeVariableBinding(Kind kind, Type boundType, Term subterm) throws TermException {
+    private TypeVariableBinding(Kind kind, Type boundType, Term subterm) throws TermException {
         super(new Term[] { subterm }, Environment.getBoolType());
+
+        this.kind = kind;
+        this.boundType = boundType;
         
+        typeCheck(boundType, subterm);
+
+    }
+    
+    public static TypeVariableBinding getInst(Kind kind, Type boundType, Term subterm) throws TermException {
+        return (TypeVariableBinding) new TypeVariableBinding(kind, boundType, subterm).intern();
+    }
+
+    private void typeCheck(Type boundType, Term subterm) throws TermException {
         if (!subterm.getType().equals(Environment.getBoolType())) {
             throw new TermException(
                     "TypeVariableBinding takes a boolean argument, not of type "
@@ -35,9 +47,6 @@ public class TypeVariableBinding extends Term {
                     "TypeVariableBinding binds a type variable or a schema type, not "
                             + boundType);
         }
-
-        this.kind = kind;
-        this.boundType = boundType;
     }
 
     @Override

@@ -23,7 +23,7 @@ import de.uka.iti.pseudo.util.Util;
  * The arguments are stored as subterms in the superclass, the variable name and
  * type is stored locally. The variable name may also be a schema variable.
  */
-public class Binding extends Term {
+public final class Binding extends Term {
 
     /**
      * The binder toplevel symbol
@@ -37,33 +37,12 @@ public class Binding extends Term {
     private BindableIdentifier variable;
 
     /**
-     * Instantiates a new Binding with a certain bound variable.
+     * Instantiates a Binding.getInst in which the bound variable is represented
+     * by a schema variable.
      * 
-     * @param binder
-     *            the binder symbol
-     * @param type
-     *            the type of the term
-     * @param variable
-     *            the bound variable
-     * @param subterms
-     *            the argument subterms
-     * 
-     * @throws TermException
-     *             if the type check fails
-     */
-    public Binding(@NonNull Binder binder, @NonNull Type type,
-            @NonNull Variable variable,
-            @NonNull Term[] subterms) throws TermException {
-        super(subterms, type);
-        this.binder = binder;
-        this.variable = variable;
-
-        typeCheck();
-    }
-    
-    /**
-     * Instantiates a new Binding in which the bound variable is represented
-     * by a schema variable
+     * <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
      * 
      * @param binder
      *            the binder symbol
@@ -77,7 +56,7 @@ public class Binding extends Term {
      * @throws TermException
      *             if the type check fails
      */
-    public Binding(@NonNull Binder binder, @NonNull Type type,
+    private Binding(@NonNull Binder binder, @NonNull Type type,
             @NonNull BindableIdentifier variable,
             @NonNull Term[] subterms) throws TermException {
         super(subterms, type);
@@ -85,6 +64,31 @@ public class Binding extends Term {
         this.variable = variable;
 
         typeCheck();
+    }
+    
+    /**
+     * Gets an application term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
+     * @param binder
+     *            the binder symbol
+     * @param type
+     *            the type of the term
+     * @param variable
+     *            the bound variable as schema variable
+     * @param subterms
+     *            the argument subterms
+     * 
+     * @throws TermException
+     *             if the type check fails
+     */
+    public static @NonNull Binding getInst(@NonNull Binder binder, @NonNull Type type,
+            @NonNull BindableIdentifier variable,
+            @NonNull Term[] subterms) throws TermException {
+        return (Binding) new Binding(binder, type, variable, subterms).intern();
     }
 
     /**

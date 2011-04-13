@@ -11,12 +11,12 @@
 package de.uka.iti.pseudo.term;
 
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.util.ObjectCachePool;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -27,12 +27,14 @@ import de.uka.iti.pseudo.util.Util;
  */
 @NonNull
 public abstract class Term {
+    
+    private static final ObjectCachePool termPool = new ObjectCachePool();
 
     /**
      * The Constant NO_ARGUMENTS is used instead of null when a term has no
      * subterms
      */
-    private static final Term[] NO_ARGUMENTS = new Term[0];
+    protected static final Term[] NO_ARGUMENTS = new Term[0];
 
     /**
      * The Constant SHOW_TYPES is read from the system environment and indicates
@@ -95,8 +97,7 @@ public abstract class Term {
      * 
      * @return type of this term
      */
-    public @NonNull
-    Type getType() {
+    public @NonNull Type getType() {
         return type;
     }
 
@@ -122,8 +123,7 @@ public abstract class Term {
      *             <code>idx &gt;= countSubterms()</code>
      * @see #countSubterms()
      */
-    public @NonNull
-    Term getSubterm(int idx) {
+    public @NonNull Term getSubterm(int idx) {
         return subterms[idx];
     }
 
@@ -132,8 +132,7 @@ public abstract class Term {
      * 
      * @return the subterms as list
      */
-    public @DeepNonNull
-    List<Term> getSubterms() {
+    public @DeepNonNull List<Term> getSubterms() {
         return Util.readOnlyArrayList(subterms);
     }
 
@@ -175,6 +174,8 @@ public abstract class Term {
             return (cachedToStringTrue = new SoftReference<String>(toString(SHOW_TYPES))).get();
         else
             return (cachedToStringFalse = new SoftReference<String>(toString(SHOW_TYPES))).get();
+        
+        // or, instead, simply: return toString(SHOW_TYPES);
     }
 
     /**
@@ -213,6 +214,16 @@ public abstract class Term {
             storedHashCode = toString(true).hashCode();
         }
         return storedHashCode;
+    }
+
+    /**
+     * Gets the canonical representative for all terms which are equal to this.
+     * 
+     * @return a term which is {@linkplain Object#equals(Object) equal} to this
+     *         term object and of exactly the same class.
+     */
+    protected @NonNull Term intern() {
+        return termPool.cache(this);
     }
 
     /**

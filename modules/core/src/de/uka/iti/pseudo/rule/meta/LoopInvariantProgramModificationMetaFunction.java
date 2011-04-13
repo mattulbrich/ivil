@@ -122,7 +122,7 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
         Term invariant = application.getSubterm(1);
         Term variant = application.getSubterm(2);
         
-        Application zero = new Application(env.getNumberLiteral("0"), Environment.getIntType());
+        Application zero = Application.create(env.getNumberLiteral("0"), Environment.getIntType());
         
         // "0" as variant means no variant.
         if(zero.equals(variant))
@@ -190,7 +190,7 @@ class LoopModifier {
         Program newProgram = programChanger.makeProgram(name);
         env.addProgram(newProgram);
         
-        LiteralProgramTerm newProgramTerm = new LiteralProgramTerm(index, programTerm.isTerminating(), newProgram);
+        LiteralProgramTerm newProgramTerm = LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram);
         
         return newProgramTerm;
         
@@ -344,7 +344,7 @@ class LoopModifier {
                     false, false, ASTLocatedElement.CREATED);
             try {
                 env.addFunction(varAtPreSym);
-                varAtPre = new Application(varAtPreSym, varAtPreSym.getResultType());
+                varAtPre = Application.create(varAtPreSym, varAtPreSym.getResultType());
             } catch (EnvironmentException e) {
                 throw new TermException(e);
             }

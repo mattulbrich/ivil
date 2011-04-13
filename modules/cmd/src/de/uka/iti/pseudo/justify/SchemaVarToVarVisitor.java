@@ -33,7 +33,7 @@ public class SchemaVarToVarVisitor extends RebuildingTermVisitor {
         if(var == null) {
             Type ty = schemaVariable.getType();
             String name = schemaVariable.getName();
-            var = new Variable(name.substring(1), ty);
+            var = Variable.getInst(name.substring(1), ty);
             map.put(schemaVariable, var);
         }
         resultingTerm = var;
