@@ -2,32 +2,41 @@ package de.uka.iti.pseudo.util;
 
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import checkers.nullness.quals.AssertNonNullIfTrue;
+
+import nonnull.Nullable;
 
 public class AppendSet<E> extends AbstractSet<E> implements Cloneable {
     
     private static class Node<E> {
-        public Node(E value, Node<E> next) {
+        public Node(E value, @Nullable Node<E> next) {
             this.value = value;
             this.next = next;
         }
         private E value;
-        private Node<E> next;
+        private @Nullable Node<E> next;
     }
     
     private static class Itr<E> implements Iterator<E> {
         
-        private Node<E> current;
+        private @Nullable Node<E> current;
 
-        public Itr(Node<E> head) {
+        public Itr(@Nullable Node<E> head) {
             current = head;
         }
 
+        @AssertNonNullIfTrue("current")
         public boolean hasNext() {
             return current != null;
         }
 
         @Override
         public E next() {
+            if(!hasNext())
+                throw new NoSuchElementException();
+            
             E value = current.value;
             current = current.next;
             return value;
@@ -40,7 +49,7 @@ public class AppendSet<E> extends AbstractSet<E> implements Cloneable {
         
     }
     
-    private Node<E> head = null;
+    private @Nullable Node<E> head = null;
     private int size = 0;
 
     @Override

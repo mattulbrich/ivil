@@ -16,6 +16,10 @@ import de.uka.iti.pseudo.util.Log;
  * 
  * Run it using:
  *    ./ivil -DX-Dpseudo.logClass=Log4JLogImplementation
+ *
+ * Assuming there is the log4jar implementation under lib/log4j.jar,
+ *    java -cp lib/log4j.jar org.apache.log4j.chainsaw.Main
+ * starts "Chainsaw" the simple log inspector.
  * 
  * Copy doc/log4j.properties to main directory and adapt to your needs.
  */
@@ -24,6 +28,9 @@ public class Log4JLogImplementation implements Log.LogImplementation {
     static {
         PropertyConfigurator.configureAndWatch("log4j.properties", 60 * 1000);
     }
+    
+    private static final boolean ALWAYS_STACKTRACE = 
+        Boolean.getBoolean("pseudo.log4j.alwaysStacktrace");
 
     @Override
     public void doLog(int level, String string) {
@@ -32,7 +39,8 @@ public class Log4JLogImplementation implements Log.LogImplementation {
         String methodName = trace.getMethodName();
         Logger logger = Logger.getLogger(className);
         Level l4level = convertLevel(level);
-        logger.log(l4level, "in " + methodName + ": " + string, null);
+        Throwable stack = ALWAYS_STACKTRACE ? new Throwable() : null;
+        logger.log(l4level, "in " + methodName + ": " + string, stack);
     }
 
     @Override
