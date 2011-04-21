@@ -99,6 +99,8 @@ public class MutableRuleApplication implements RuleApplication {
         return true;
     }
 
-   
-
+    @Override
+    public String toString() {
+        return rule.getName();
+    }
 }

@@ -51,16 +51,9 @@ public class TermSelectionTransfer extends TransferHandler {
             if (c instanceof TermComponent) {
                 TermComponent tc = (TermComponent) c;
                 Transferable t = support.getTransferable();
-                TermSelector ts = (TermSelector) t.getTransferData(TermSelectionTransferable.TERM_DATA_FLAVOR);
-                Point point = support.getDropLocation().getDropPoint();
-                return tc.dropTermOnLocation(ts, point);
-            }
-            if (c instanceof JTextComponent) {
-                JTextComponent tc = (JTextComponent) c;
-                Transferable t = support.getTransferable();
+                
                 String text = (String) t.getTransferData(DataFlavor.stringFlavor);
-                tc.setText(text);
-                return true;
+                return tc.dropTermOnLocation(text, support.getDropLocation().getDropPoint());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +66,7 @@ public class TermSelectionTransfer extends TransferHandler {
     public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
         Log.enter(comp, Arrays.asList(transferFlavors));
         for (DataFlavor dataFlavor : transferFlavors) {
-            if(dataFlavor.equals(TermSelectionTransferable.TERM_DATA_FLAVOR)) {
+            if (dataFlavor.equals(DataFlavor.stringFlavor)) {
                 return true;
             }
         }
