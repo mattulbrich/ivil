@@ -25,7 +25,8 @@ rule exists_right
   find  |-  (\exists %x; %b) 
   where
     interact %inst
-  add |-  $$subst(%x, %inst, %b) 
+  add |-  $$subst(%x, %inst, %b)
+  tags interactive "7"
 
 rule forall_left
   find  (\forall %x; %b)  |-
@@ -53,7 +54,7 @@ rule type_quant_left
   where
     interact %inst as %'inst, true
   add $$polymorphicSpec(arb as %'a, %inst, %b, false) |-
-  tags interactive "0"
+  tags interactive "4"
 
 (*
  * Conditionals

@@ -83,7 +83,6 @@ rule cut
     add     %inst  |-
   samegoal "Assume false for {%inst}"
     add |-  %inst 
-  tags interactive "1"
 
 rule cutOnThat
   find  %c 
