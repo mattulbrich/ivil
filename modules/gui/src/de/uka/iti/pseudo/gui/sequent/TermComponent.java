@@ -222,7 +222,6 @@ public class TermComponent extends JTextPane {
         }
     };
 
-    // TODO complete DOC
     /**
      * Instantiates a new term component.
      * 
@@ -583,13 +582,20 @@ public class TermComponent extends JTextPane {
         }
     }
 
-    public void clearMarks() {
+    /**
+     * removes all highlights
+     */
+    void clearMarks() {
         for (Object highlight : marks) {
             getHighlighter().removeHighlight(highlight);
         }
         marks.clear();
     }
 
+    /**
+     * used by drag and drop to create a transferable version, i.e. a string, of
+     * the selected formula
+     */
     public Transferable createTransferable() {
         if(mouseSelection == null)
             return null;
@@ -685,7 +691,6 @@ public class TermComponent extends JTextPane {
             // the user might have specified, that he wants allways the rule in
             // the highest bucket to be applied
             if ((Boolean) proofCenter.getProperty(TermComponent.HIGHEST_PRIORITY_DRAG_AND_DROP)) {
-                // TODO create property and settings menu entry
                 for (int i = 9; i >= 0; i--) {
                     for (RuleApplication ra : bucket[i]) {
                         proofCenter.apply(ra);
@@ -774,7 +779,6 @@ public class TermComponent extends JTextPane {
     /**
      * returns the ProofCenter it belongs to
      */
-
     public final ProofCenter getProofCenter() {
         return proofCenter;
     }
