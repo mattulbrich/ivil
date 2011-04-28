@@ -674,6 +674,10 @@ public class TermComponent extends JTextPane {
                                 instantiation.getType());
                 }
 
+                // check if ra is still applicable
+                if (!ra.getProofNode().applicable(ra, env))
+                    continue;
+
                 // adjust level; if level is invalid, map it to 0
                 lvl = lvl > 0 && lvl < 10? lvl : 0;
                 bucket[lvl].add(ra);
