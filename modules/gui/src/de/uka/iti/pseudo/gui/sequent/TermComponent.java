@@ -36,8 +36,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
-import javax.swing.event.MenuKeyEvent;
-import javax.swing.event.MenuKeyListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
@@ -82,11 +80,19 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
+ * 
+ * To the user, objects of this class will appear as a single term in the
+ * sequent view.
  */
 public class TermComponent extends JTextPane {
 
     public static final String TERM_COMPONENT_SELECTED_TAG =
         "termComponent.popup.selectedTermTag";
+
+    /**
+     * The key is used to control the drag and drop mode.
+     */
+    public static final String HIGHEST_PRIORITY_DRAG_AND_DROP = "pseudo.termcomponent.autoDnD";
 
     private static Settings S = Settings.getInstance();
     
@@ -674,7 +680,7 @@ public class TermComponent extends JTextPane {
             }
             // the user might have specified, that he wants allways the rule in
             // the highest bucket to be applied
-            if (false) {
+            if ((Boolean) proofCenter.getProperty(TermComponent.HIGHEST_PRIORITY_DRAG_AND_DROP)) {
                 // TODO create property and settings menu entry
                 for (int i = 9; i >= 0; i--) {
                     for (RuleApplication ra : bucket[i]) {
