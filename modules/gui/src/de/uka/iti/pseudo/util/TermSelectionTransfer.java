@@ -11,21 +11,24 @@
 package de.uka.iti.pseudo.util;
 
 import java.awt.Component;
-import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
-import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
-import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.proof.ProofNode;
 
-// TODO DOC
-// Is this drag and drop?
-
+/**
+ * @author timm.felden@felden.com
+ * 
+ *         This class implements string based drag and drop for TermComponent.
+ *         This allows for fast interactive rule applications by dropping terms
+ *         from TermComponents or unformatted text from other applications such
+ *         as text editors.
+ */
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;
@@ -53,7 +56,18 @@ public class TermSelectionTransfer extends TransferHandler {
                 Transferable t = support.getTransferable();
                 
                 String text = (String) t.getTransferData(DataFlavor.stringFlavor);
-                return tc.dropTermOnLocation(text, support.getDropLocation().getDropPoint());
+                ProofNode target;
+                if (null!= (target = tc.dropTermOnLocation(text))) {
+                    // select the most interesting node
+                    if (target.getChildren().size() > 0)
+                        tc.getProofCenter().fireSelectedProofNode(target.getChildren().get(0));
+                    else if (tc.getProofCenter().getProof().hasOpenGoals())
+                        tc.getProofCenter().fireSelectedProofNode(tc.getProofCenter().getProof().getGoalbyNumber(0));
+                    else
+                        tc.getProofCenter().fireSelectedProofNode(tc.getProofCenter().getProof().getRoot());
+
+                    return true;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -13,9 +13,12 @@ package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -29,9 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
+import javax.swing.event.MenuKeyEvent;
+import javax.swing.event.MenuKeyListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
@@ -210,7 +216,7 @@ public class TermComponent extends JTextPane {
         }
     };
 
-    // TODO DOC
+    // TODO complete DOC
     /**
      * Instantiates a new term component.
      * 
@@ -381,7 +387,6 @@ public class TermComponent extends JTextPane {
                 mouseSelection = null;
             }
         } catch (BadLocationException ex) {
-            // TODO just ignore this for now
             ex.printStackTrace();
         }
     }
@@ -406,9 +411,6 @@ public class TermComponent extends JTextPane {
      * <li>For programs, print the current statement
      * <li>The history, at least the first 60 elements
      * </ol>
-     * 
-     * TODO Have something like "F2" to focus on the content and provide links
-     * ;)
      * 
      * @param termTag
      *            tag to print info on
@@ -594,9 +596,15 @@ public class TermComponent extends JTextPane {
      * Drops a dragged term on this term component, which results in a rule
      * application pop where only interactive rules are displayed, which are
      * initialized with the dragged term.
+     * 
+     * @param term
+     *            This string has to represent a valid term
+     * 
+     * @return the node on which the rule was applied or null if no rule could
+     *         be applied
      */
     @SuppressWarnings("unchecked")
-    public boolean dropTermOnLocation(String term, Point point) {
+    public ProofNode dropTermOnLocation(String term) {
         final Environment env = proofCenter.getEnvironment();
         
         try {
@@ -608,10 +616,10 @@ public class TermComponent extends JTextPane {
 
                 // this behavior is needed to allow terms to be dragged out of
                 // other applications such as browsers or document viewers
-                return false;
+                return null;
             }
 
-            List<RuleApplication> rulesApplicable = proofCenter.getApplicableRules(termSelector), ruleApps = new LinkedList<RuleApplication>();
+            final List<RuleApplication> rulesApplicable = proofCenter.getApplicableRules(termSelector), ruleApps = new LinkedList<RuleApplication>();
             
             // buckets for priority 0 - 9
             List<RuleApplication>[] bucket = new List[10];
@@ -666,11 +674,12 @@ public class TermComponent extends JTextPane {
             }
             // the user might have specified, that he wants allways the rule in
             // the highest bucket to be applied
-            if (true) {
+            if (false) {
+                // TODO create property and settings menu entry
                 for (int i = 9; i >= 0; i--) {
                     for (RuleApplication ra : bucket[i]) {
                         proofCenter.apply(ra);
-                        return true;
+                        return ra.getProofNode();
                     }
                 }
             }
@@ -680,26 +689,83 @@ public class TermComponent extends JTextPane {
 
             // if no rules are applicable, the drop failed
             if (ruleApps.size() == 0)
-                return false;
+                return null;
 
             // only one rule is applicable, so apply it
             if (ruleApps.size() == 1) {
                 proofCenter.apply(ruleApps.get(0));
-                return true;
+                return ruleApps.get(0).getProofNode();
             }
 
-            // we dont know, so let the user decide what he wants
+            // we don't know which rule to select, so let the user decide what
+            // he wants
+            {
+                final JPopupMenu popup = new JPopupMenu();
 
-            // TODO implement small dialog which will let the user choose
+                ActionListener listener = new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        popup.setVisible(false);
+
+                        final String rule = ((JMenuItem) e.getSource()).getText();
+
+                        // we have to search the rule with the same name as
+                        // rule, but this is not a problem, as in general, there
+                        // are only few rules applicable
+
+                        for (RuleApplication ra : ruleApps) {
+                            if (ra.getRule().getName().equals(rule)) {
+                                try {
+                                    proofCenter.apply(ra);
+
+                                    final ProofNode target = ra.getProofNode();
+
+                                    // select the most interesting node
+                                    if (target.getChildren().size() > 0)
+                                        proofCenter.fireSelectedProofNode(target.getChildren().get(0));
+                                    else if (proofCenter.getProof().hasOpenGoals())
+                                        proofCenter.fireSelectedProofNode(proofCenter.getProof().getGoalbyNumber(0));
+                                    else
+                                        proofCenter.fireSelectedProofNode(proofCenter.getProof().getRoot());
+
+                                } catch (ProofException e1) {
+                                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), e1);
+                                }
+                                return;
+                            }
+                        }
+                    }
+                };
+
+                for (RuleApplication ra : ruleApps)
+                    popup.add(ra.getRule().getName()).addActionListener(listener);
+
+                popup.setLocation(MouseInfo.getPointerInfo().getLocation());
+
+                popup.setVisible(true);
+
+                // in this case, the event is created by the action listener
+                return null;
+            }
 
         } catch (ProofException ex) {
             ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), ex);
         }
-        return false;
+        return null;
     }
 
+    /**
+     * basic getter
+     */
     public TermTag getMouseSelection() {
         return mouseSelection;
     }
 
+    /**
+     * returns the ProofCenter it belongs to
+     */
+
+    public final ProofCenter getProofCenter() {
+        return proofCenter;
+    }
 }
