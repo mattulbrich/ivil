@@ -37,10 +37,10 @@ public class AskDecisionProcedure extends WhereCondition {
 
     @Override 
     public boolean check(Term[] formalArguments,
-            Term[] actualArguments, RuleApplication ruleApp, ProofNode goal,
+            Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         
-        Sequent sequent = goal.getSequent();
+        Sequent sequent = ruleApp.getProofNode().getSequent();
         String decisionProcClass = ruleApp.getRule().getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
         String timeoutString = ruleApp.getRule().getProperty(RuleTagConstants.KEY_TIMEOUT);
         

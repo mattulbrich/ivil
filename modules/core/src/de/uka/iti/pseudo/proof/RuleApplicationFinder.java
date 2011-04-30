@@ -295,17 +295,29 @@ public class RuleApplicationFinder {
     /**
      * Match where clauses one after the other. All of them have to return true.
      * 
-     * @param mc the unification context.
+     * Before validating the clauses, the conditions are given a
+     * chance to instantiate schema entities if needed. Active instantiation is
+     * performed before starting checking, hence, an instantiation cannot
+     * invalidate a check.
+     * 
+     * @param mc
+     *            the unification context.
      * 
      * @return true, if successful
      * 
-     * @throws RuleException may be thrown by the where condition
+     * @throws RuleException
+     *             may be thrown by the where condition
      */
     private boolean matchWhereClauses(TermMatcher mc) throws RuleException {
         
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
+        
         for (WhereClause wc : whereClauses) {
-            if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, goal, env))
+            wc.addInstantiations(mc, ruleAppMaker, env);
+        }
+        
+        for (WhereClause wc : whereClauses) {
+            if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, env))
                 return false;
         }
         return true;

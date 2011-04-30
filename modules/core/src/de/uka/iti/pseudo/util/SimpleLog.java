@@ -31,8 +31,6 @@ public class SimpleLog implements Log.LogImplementation {
     
     @Override
     public void doLog(int level, String string) {
-        // TODO Implement LogImplementation.doLog
-        
         if(level >= minLevel) {
             String prefix = getClassAndMethod(4);
             String threadName = Thread.currentThread().getName();

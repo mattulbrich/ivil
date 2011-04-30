@@ -665,7 +665,7 @@ public class UniversalType {
 
         // create some commonly used schema variables
         SchemaType vt = new SchemaType("v");
-        SchemaVariable v = new SchemaVariable("%v", vt);
+        SchemaVariable v = SchemaVariable.getInst("%v", vt);
 
         Term store_arg[] = new Term[domain.length + 2];
         Term load_arg[] = new Term[domain.length + 1];
@@ -674,20 +674,20 @@ public class UniversalType {
 
         for (int i = 0; i < domain.length; i++) {
             map_drt[i] = new SchemaType("D" + i);
-            store_arg[i + 1] = new SchemaVariable("%d1_" + i, new SchemaType("d1_" + i));
-            load_arg[i + 1] = new SchemaVariable("%d2_" + i, new SchemaType("d2_" + i));
+            store_arg[i + 1] = SchemaVariable.getInst("%d1_" + i, new SchemaType("d1_" + i));
+            load_arg[i + 1] = SchemaVariable.getInst("%d2_" + i, new SchemaType("d2_" + i));
         }
 
         map_drt[domain.length] = new SchemaType("R");
 
         Type mt = state.env.mkType(map_t, map_drt);
-        SchemaVariable m = new SchemaVariable("%m", mt);
+        SchemaVariable m = SchemaVariable.getInst("%m", mt);
 
         store_arg[0] = m;
         store_arg[store_arg.length - 1] = v;
 
-        load_arg[0] = new Application(state.env.getFunction(map_t + "_store"), mt, store_arg);
-        Term default_find = new Application(state.env.getFunction(map_t + "_load"), new SchemaType("rt"), load_arg);
+        load_arg[0] = Application.getInst(state.env.getFunction(map_t + "_store"), mt, store_arg);
+        Term default_find = Application.getInst(state.env.getFunction(map_t + "_load"), new SchemaType("rt"), load_arg);
 
         try { // /////////////// LOAD STORE SAME
 
@@ -700,7 +700,7 @@ public class UniversalType {
 
             for (int i = 0; i < domain.length; i++) {
                 drt[i] = new SchemaType("d" + i);
-                args1[i + 1] = args2[i + 1] = new SchemaVariable("%d" + i, drt[i]);
+                args1[i + 1] = args2[i + 1] = SchemaVariable.getInst("%d" + i, drt[i]);
             }
 
             drt[domain.length] = vt;
@@ -708,8 +708,8 @@ public class UniversalType {
             args1[0] = m;
             args1[args1.length - 1] = v;
 
-            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
-            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+            args2[0] = Application.getInst(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = Application.getInst(state.env.getFunction(map_t + "_load"), vt, args2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -741,10 +741,10 @@ public class UniversalType {
 
             for (int i = 0; i < domain.length; i++) {
                 drt[i] = new SchemaType("d" + i);
-                args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-                args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
+                args1[i + 1] = SchemaVariable.getInst("%d" + i, drt[i]);
+                args2[i + 1] = SchemaVariable.getInst("%t" + i, drt[i]);
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                assumes.add(new LocatedTerm(Application.getInst(state.env.getFunction("$eq"), bool_it, new Term[] {
                         args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
             }
 
@@ -753,8 +753,8 @@ public class UniversalType {
             args1[0] = m;
             args1[args1.length - 1] = v;
 
-            args2[0] = new Application(state.env.getFunction(map_t + "_store"), mt, args1);
-            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, args2);
+            args2[0] = Application.getInst(state.env.getFunction(map_t + "_store"), mt, args1);
+            Term find = Application.getInst(state.env.getFunction(map_t + "_load"), vt, args2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -779,7 +779,8 @@ public class UniversalType {
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
-            actions.add(new GoalAction("samegoal", null, false, new Application(state.env.getFunction(map_t + "_load"),
+            actions.add(new GoalAction("samegoal", null, false, Application.getInst(state.env.getFunction(map_t
+                    + "_load"),
                     default_find.getType(), args3), new LinkedList<Term>(), new LinkedList<Term>()));
 
             Map<String, String> tags = new HashMap<String, String>();
@@ -814,7 +815,8 @@ public class UniversalType {
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
-            actions.add(new GoalAction("samegoal", null, false, new Application(state.env.getFunction(map_t + "_load"),
+            actions.add(new GoalAction("samegoal", null, false, Application.getInst(state.env.getFunction(map_t
+                    + "_load"),
                     default_find.getType(), args3), new LinkedList<Term>(), new LinkedList<Term>()));
 
             Map<String, String> tags = new HashMap<String, String>();
@@ -827,7 +829,7 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                assumes.add(new LocatedTerm(Application.getInst(state.env.getFunction("$eq"), bool_it, new Term[] {
                         load_arg[i + 1], store_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
@@ -840,7 +842,7 @@ public class UniversalType {
 
                 List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-                assumes.add(new LocatedTerm(new Application(state.env.getFunction("$eq"), bool_it, new Term[] {
+                assumes.add(new LocatedTerm(Application.getInst(state.env.getFunction("$eq"), bool_it, new Term[] {
                         store_arg[i + 1], load_arg[i + 1] }), MatchingLocation.SUCCEDENT));
 
                 state.env.addRule(new Rule(name, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
@@ -868,17 +870,18 @@ public class UniversalType {
                                                     // case of map0
 
             for (int i = 0; i < domain.length; i++)
-                condition = new Application(state.env.getFunction("$and"), bool_it, new Term[] {
-                        new Application(state.env.getFunction("$eq"), bool_it, new Term[] { store_arg[i + 1],
+                condition = Application.getInst(state.env.getFunction("$and"), bool_it, new Term[] {
+                        Application.getInst(state.env.getFunction("$eq"), bool_it, new Term[] { store_arg[i + 1],
                                 load_arg[i + 1] }), condition });
 
             Term newload_args[] = load_arg.clone();
             newload_args[0] = store_arg[0];
-            Term load = new Application(state.env.getFunction(map_t + "_load"), vt, newload_args);
+            Term load = Application.getInst(state.env.getFunction(map_t + "_load"), vt, newload_args);
 
-            Term replacement = new Application(state.env.getFunction("cond"), vt, new Term[] { condition, v, load });
+            Term replacement = Application
+                    .getInst(state.env.getFunction("cond"), vt, new Term[] { condition, v, load });
 
-            Term find = new Application(state.env.getFunction(map_t + "_load"), vt, load_arg);
+            Term find = Application.getInst(state.env.getFunction(map_t + "_load"), vt, load_arg);
 
             actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
 
@@ -917,13 +920,14 @@ public class UniversalType {
 
                 for (int i = domain.length - 1; i >= 0; i--) {
                     drt[i] = new SchemaType("d" + i);
-                    X[i] = new SchemaVariable("%x" + i, drt[i]);
-                    argLoad[i + 1] = new SchemaVariable("%y" + i, drt[i]);
+                    X[i] = SchemaVariable.getInst("%x" + i, drt[i]);
+                    argLoad[i + 1] = SchemaVariable.getInst("%y" + i, drt[i]);
 
                     curry_t = state.env.mkType("map", drt[i], curry_t);
-                    lambda = new Binding(state.env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
+                    lambda = Binding.getInst(state.env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
 
-                    replace = new Application(state.env.getFunction("$$subst"), vt, new Term[] { X[i], argLoad[i + 1],
+                    replace = Application.getInst(state.env.getFunction("$$subst"), vt, new Term[] { X[i],
+                            argLoad[i + 1],
                             replace });
                 }
 
@@ -931,9 +935,9 @@ public class UniversalType {
 
                 drt[domain.length] = vt;
 
-                argLoad[0] = new Application(state.env.getFunction(map_t + "_curry"), mt, new Term[] { lambda });
+                argLoad[0] = Application.getInst(state.env.getFunction(map_t + "_curry"), mt, new Term[] { lambda });
 
-                Term find = new Application(state.env.getFunction(map_t + "_load"), vt, argLoad);
+                Term find = Application.getInst(state.env.getFunction(map_t + "_load"), vt, argLoad);
 
                 actions.add(new GoalAction("samegoal", null, false, replace, none, none));
 

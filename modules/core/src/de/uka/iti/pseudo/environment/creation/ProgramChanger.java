@@ -420,7 +420,7 @@ public class ProgramChanger {
      */
     private Term fromInt(int number) throws TermException {
         Function f = env.getNumberLiteral(BigInteger.valueOf(number));
-        return new Application(f, Environment.getIntType(), new Term[0]);
+        return Application.getInst(f, Environment.getIntType(), new Term[0]);
     }
 
     /**

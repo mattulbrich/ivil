@@ -37,7 +37,7 @@ public class IncPrgMetaFunction extends MetaFunction {
         
         if (arg instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) arg;
-            return new LiteralProgramTerm(progTerm.getProgramIndex() + 1, progTerm);
+            return LiteralProgramTerm.getInst(progTerm.getProgramIndex() + 1, progTerm);
         } else {
             throw new TermException("not a program term " + arg);
         }

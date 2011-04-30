@@ -218,7 +218,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // quantified variables differ from ordinary variables, as they aren't
         // functions
         if (node.isQuantified() || node.getParent() instanceof FunctionDeclaration) {
-            boundVars.put(name, new de.uka.iti.pseudo.term.Variable(name, state.ivilTypeMap.get(node)));
+            boundVars.put(name, de.uka.iti.pseudo.term.Variable.getInst(name, state.ivilTypeMap.get(node)));
 
         } else {
             try {
@@ -264,13 +264,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     // shortcut to create $extends applications
     private Term extend(Term a, VariableDeclaration b) throws TermException {
-        return new Application(state.env.getFunction("$extends"), bool_t, new Term[] { a,
-                new Application(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()) });
+        return Application.getInst(state.env.getFunction("$extends"), bool_t, new Term[] { a,
+                Application.create(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()) });
     }
 
     private Term extend(VariableDeclaration b, Term a) throws TermException {
-        return new Application(state.env.getFunction("$extends"), bool_t, new Term[] {
-                new Application(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()), a });
+        return Application.getInst(state.env.getFunction("$extends"), bool_t, new Term[] {
+                Application.create(state.env.getFunction(state.translation.variableNames.get(b)), a.getType()), a });
     }
 
     final private Function extd, extu;
@@ -289,9 +289,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     // add edges
 
                     for (ExtendsParent p : node.getParents()) {
-                        Term ext = new Application(p.unique ? extu : extd, bool_t, new Term[] {
-                                new Application(state.env.getFunction(state.translation.variableNames.get(v)), t),
-                                new Application(state.env.getFunction(state.translation.variableNames.get(state.names
+                        Term ext = Application.getInst(p.unique ? extu : extd, bool_t, new Term[] {
+                                Application.create(state.env.getFunction(state.translation.variableNames.get(v)), t),
+                                Application.create(state.env.getFunction(state.translation.variableNames
+                                        .get(state.names
                                         .findVariable(p.getName(), node))), t) });
 
                         state.env.addAxiom(new Axiom(v.getName() + "<:" + p.getName(), ext,
@@ -302,20 +303,21 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     // specified
                     // ∀ x : t :: v <: x ==> x == v || (|| ∀P <: x)
 
-                    Variable x = new Variable("x", t);
+                    Variable x = Variable.getInst("x", t);
 
-                    Term axiom = new Application(state.env.getFunction("$eq"), bool_t, new Term[] { x,
-                            new Application(state.env.getFunction(state.translation.variableNames.get(v)), t) });
+                    Term axiom = Application.getInst(state.env.getFunction("$eq"), bool_t, new Term[] { x,
+                            Application.create(state.env.getFunction(state.translation.variableNames.get(v)), t) });
 
                     // || ∀P <: x
                     for (ExtendsParent p : node.getParents()) {
-                        axiom = new Application(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
+                        axiom = Application.getInst(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
                                 extend(state.names.findVariable(p.getName(), node), x) });
                     }
 
-                    axiom = new Application(state.env.getFunction("$impl"), bool_t, new Term[] { extend(v, x), axiom });
+                    axiom = Application.getInst(state.env.getFunction("$impl"), bool_t,
+                            new Term[] { extend(v, x), axiom });
 
-                    axiom = new Binding(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
+                    axiom = Binding.getInst(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
 
                     state.env.addAxiom(new Axiom("parents of " + v.getName(), axiom, new HashMap<String, String>(),
                             node));
@@ -328,22 +330,23 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     // ∀ x : t :: x <: v ==> x == v || (|| ∀c:Children . x <: c)
 
-                    Variable x = new Variable("x", t);
+                    Variable x = Variable.getInst("x", t);
 
-                    Term axiom = new Application(state.env.getFunction("$eq"), bool_t, new Term[] { x,
-                            new Application(state.env.getFunction(state.translation.variableNames.get(v)), t) });
+                    Term axiom = Application.getInst(state.env.getFunction("$eq"), bool_t, new Term[] { x,
+                            Application.create(state.env.getFunction(state.translation.variableNames.get(v)), t) });
 
                     // || ∀c: x <: c
                     // if this is null, no child exists, thus x <: v <-> x = v
                     if (null != usage)
                         for (VariableDeclaration c : usage) {
-                            axiom = new Application(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
+                            axiom = Application.getInst(state.env.getFunction("$or"), bool_t, new Term[] { axiom,
                                     extend(x, state.names.findVariable(c.getName(), node)) });
                         }
 
-                    axiom = new Application(state.env.getFunction("$impl"), bool_t, new Term[] { extend(x, v), axiom });
+                    axiom = Application.getInst(state.env.getFunction("$impl"), bool_t,
+                            new Term[] { extend(x, v), axiom });
 
-                    axiom = new Binding(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
+                    axiom = Binding.getInst(state.env.getBinder("\\forall"), bool_t, x, new Term[] { axiom });
 
                     state.env.addAxiom(new Axiom("children of " + v.getName(), axiom, new HashMap<String, String>(),
                             node));
@@ -370,7 +373,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$extends"), Environment.getBoolType(), args));
+ Application.getInst(state.env.getFunction("$extends"), Environment
+                    .getBoolType(), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -400,14 +404,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 // add "f(x) == expr"
                 args = new Term[] {
-                        new Application(state.env.getFunction("fun__" + node.getName()), state.ivilTypeMap.get(node
+                        Application.getInst(state.env.getFunction("fun__" + node.getName()), state.ivilTypeMap.get(node
                                 .getOutParemeter()), inArgs), args[0] };
 
-                args = new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
+                args = new Term[] { Application.getInst(state.env.getFunction("$eq"), Environment.getBoolType(), args) };
 
                 // add quantifiers before body
                 for (VariableDeclaration v : node.getInParameters()) {
-                    args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
+                    args = new Term[] { Binding.getInst(state.env.getBinder("\\forall"), Environment.getBoolType(),
                             boundVars.get(state.translation.variableNames.get(v)), args) };
                 }
 
@@ -415,7 +419,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 {
                     UniversalType[] params = state.typeMap.get(node).parameters;
                     for (int i = 0; i < params.length; i++) {
-                        args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+                        args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.ALL,
                                 params[i].toIvilType(state), args[0]) };
                     }
                 }
@@ -517,7 +521,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 // occurs, if some idiot uses old in requires
                 statements.preStatements.add(0,
                         new de.uka.iti.pseudo.term.statement.AssignmentStatement(node.getLocationToken().beginLine,
-                                new Application(old, old.getResultType()), new Application(var, var.getResultType())));
+ Application.create(old, old.getResultType()), Application
+                        .create(var, var.getResultType())));
                 statements.preAnnotations.add(0, null);
             } catch (TermException e) {
                 e.printStackTrace();
@@ -656,7 +661,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 statements.bodyStatements.add(new SkipStatement(node.getLocationToken().beginLine, NO_ARGS));
                 statements.bodyAnnotations.add("$label:" + labelElse);
 
-                statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(
+                statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, Application
+                        .getInst(
                         state.env.getFunction("$not"), Environment.getBoolType(), new Term[] { state.translation.terms
                                 .get(node.getGuard()) })));
                 statements.bodyAnnotations.add(null);
@@ -721,13 +727,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         if (null == freeInvariant)
                             freeInvariant = state.translation.terms.get(inv.getExpression());
                         else
-                            freeInvariant = new Application(state.env.getFunction("$and"), Environment.getBoolType(),
+                            freeInvariant = Application.getInst(state.env.getFunction("$and"),
+                                    Environment.getBoolType(),
                                     new Term[] { state.translation.terms.get(inv.getExpression()), freeInvariant });
                     } else {
                         if (null == invariant)
                             invariant = state.translation.terms.get(inv.getExpression());
                         else
-                            invariant = new Application(state.env.getFunction("$and"), Environment.getBoolType(),
+                            invariant = Application.getInst(state.env.getFunction("$and"), Environment.getBoolType(),
                                     new Term[] { state.translation.terms.get(inv.getExpression()), invariant });
                     }
                 }
@@ -775,7 +782,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 statements.bodyAnnotations.add(null);
             }
 
-            statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, new Application(
+            statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, Application.getInst(
                     state.env.getFunction("$not"), Environment.getBoolType(), new Term[] { state.translation.terms
                             .get(node.getGuard()) })));
             statements.bodyAnnotations.add(null);
@@ -847,7 +854,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 VariableDeclaration decl = state.names.findVariable(name, node);
 
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
-                        .getLocationToken().beginLine, new Application(state.env
+                        .getLocationToken().beginLine, Application.create(state.env
                         .getFunction(state.translation.variableNames.get(decl)), state.ivilTypeMap.get(decl))));
                 statements.bodyAnnotations.add(null);
 
@@ -878,9 +885,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             // call forall will quantify wildcards
             if (node.getParent() instanceof CallForallStatement) {
-                state.translation.terms.put(node, new de.uka.iti.pseudo.term.Variable(w.getName(), w.getResultType()));
+                state.translation.terms.put(node, Variable.getInst(w.getName(), w.getResultType()));
             } else {
-                state.translation.terms.put(node, new Application(w, state.ivilTypeMap.get(node)));
+                state.translation.terms.put(node, Application.create(w, state.ivilTypeMap.get(node)));
             }
 
         } catch (TermException e) {
@@ -962,7 +969,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         boundvars.add(var);
                         boundVars.put(newIns[i].getName(), var);
                     } else {
-                        assignments.add(new Assignment(new Application(newIns[i], newIns[i].getResultType()),
+                        assignments.add(new Assignment(Application.create(newIns[i], newIns[i].getResultType()),
                                 state.translation.terms.get(val)));
                     }
                 }
@@ -996,7 +1003,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 cond.getCondition().visit(this);
 
-                PRE = new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { PRE,
+                PRE = Application.getInst(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { PRE,
                         state.translation.terms.get(cond.getCondition()) });
             }
 
@@ -1010,7 +1017,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             for (Postcondition cond : assumptions) {
                 cond.getCondition().visit(this);
 
-                POST = new Application(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { POST,
+                POST = Application.getInst(state.env.getFunction("$and"), Environment.getBoolType(), new Term[] { POST,
                         state.translation.terms.get(cond.getCondition()) });
             }
 
@@ -1029,11 +1036,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // add assumption
         Term assumption;
         try {
-            assumption = new Application(state.env.getFunction("$impl"), Environment.getBoolType(), new Term[] { PRE,
+            assumption = Application.getInst(state.env.getFunction("$impl"), Environment.getBoolType(), new Term[] {
+                    PRE,
                     POST });
 
             while (boundvars.size() > 0)
-                assumption = new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
+                assumption = Binding.getInst(state.env.getBinder("\\forall"), Environment.getBoolType(),
                         boundvars.remove(0), new Term[] { assumption });
 
             // note: no type quantification is needed here, as polymorphic
@@ -1109,12 +1117,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Type t = state.ivilTypeMap.get(var);
                 Function f = new Function(state.env.createNewFunctionName("oldStore"), t, NO_TYPE, false, true, node);
 
-                Term value = new Application(state.env.getFunction("old_" + state.translation.variableNames.get(var)),
+                Term value = Application.create(state.env
+                        .getFunction("old_" + state.translation.variableNames.get(var)),
                         t);
 
-                Term overwrite = new Application(state.env.getFunction(state.translation.variableNames.get(var)), t);
+                Term overwrite = Application
+.create(state.env.getFunction(state.translation.variableNames.get(var)), t);
 
-                oldStore[i] = new Assignment(new Application(f, t), value);
+                oldStore[i] = new Assignment(Application.create(f, t), value);
                 oldOverwrite[i] = new Assignment(value, overwrite);
 
                 i++;
@@ -1136,7 +1146,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     val.visit(this);
 
-                    assignments[i] = new Assignment(new Application(newIns[i], newIns[i].getResultType()),
+                    assignments[i] = new Assignment(Application.create(newIns[i], newIns[i].getResultType()),
                             state.translation.terms.get(val));
                 }
                 for (int j = 0; i < assignments.length - oldOverwrite.length; i++, j++)
@@ -1185,7 +1195,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                     VariableDeclaration decl = state.names.findVariable(name, node);
 
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
-                            .getLocationToken().beginLine, new Application(state.env
+                            .getLocationToken().beginLine, Application.create(state.env
                             .getFunction(state.translation.variableNames.get(decl)), state.ivilTypeMap.get(decl))));
                     statements.bodyAnnotations.add(null);
                 } catch (TermException e) {
@@ -1197,7 +1207,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         for(Function out : newOuts){
             try {
                 statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.HavocStatement(node
-                        .getLocationToken().beginLine, new Application(out, out.getResultType())));
+                        .getLocationToken().beginLine, Application.create(out, out.getResultType())));
                 statements.bodyAnnotations.add(null);
             } catch (TermException e) {
                 e.printStackTrace();
@@ -1237,7 +1247,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     target.visit(this);
 
-                    assignments[i] = new Assignment(state.translation.terms.get(target), new Application(newOuts[i],
+                    assignments[i] = new Assignment(state.translation.terms.get(target), Application.create(
+                            newOuts[i],
                             newOuts[i].getResultType()));
                 }
                 for (int i = newOuts.length, j = 0; i < assignments.length; i++, j++)
@@ -1301,14 +1312,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
                         && !((Application) name).getFunction().isAssignable()) {
 
                     // unroll by creating new inner variables
-                    Application tmp = new Application(new Function(state.env.createNewFunctionName("innerMap"),
+                    Application tmp = Application.create(new Function(state.env.createNewFunctionName("innerMap"),
                             name.getType(), NO_TYPE, false, true, node), name.getType());
                     state.env.addFunction(tmp.getFunction());
 
                     args[0] = tmp;
 
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, tmp, new Application(store, tmp.getType(), args)));
+                            .getLocationToken().beginLine, tmp, Application.getInst(store, tmp.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -1318,7 +1329,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 } else {
 
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, name, new Application(store, name.getType(), args)));
+                            .getLocationToken().beginLine, name, Application.getInst(store, name.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -1389,7 +1400,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$plus"), Environment.getIntType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$plus"), Environment
+                    .getIntType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1407,7 +1419,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$minus"),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$minus"),
                     Environment.getIntType(), args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1426,7 +1438,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$equiv"), Environment.getBoolType(), args));
+ Application.getInst(state.env.getFunction("$equiv"), Environment
+                    .getBoolType(), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -1443,7 +1456,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$impl"),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$impl"),
                     Environment.getBoolType(), args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1461,7 +1474,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$and"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$and"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1479,7 +1493,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$or"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$or"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1498,7 +1513,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         }
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$eq"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$eq"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1517,8 +1533,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
 
-            state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment.getBoolType(),
-                    new Term[] { new Application(state.env.getFunction("$eq"), Environment.getBoolType(), args) }));
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$not"), Environment
+                    .getBoolType(), new Term[] { Application.getInst(state.env.getFunction("$eq"), Environment
+                    .getBoolType(), args) }));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -1535,7 +1552,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$lt"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$lt"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1553,7 +1571,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$lte"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$lte"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1571,7 +1590,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$gt"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$gt"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1589,7 +1609,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$gte"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$gte"), Environment
+                    .getBoolType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1608,7 +1629,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$bv_concat"), state.env.mkType("bitvector"), args));
+ Application.getInst(state.env.getFunction("$bv_concat"), state.env
+                    .mkType("bitvector"), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -1629,7 +1651,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$mult"), Environment.getIntType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$mult"), Environment
+                    .getIntType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1647,7 +1670,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$div"), Environment.getIntType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$div"), Environment
+                    .getIntType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1665,7 +1689,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$mod"), Environment.getIntType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$mod"), Environment
+                    .getIntType(),
                     args));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1678,7 +1703,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$neg"), Environment.getIntType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$neg"), Environment
+                    .getIntType(),
                     new Term[] { state.translation.terms.get(node.getOperands().get(0)) }));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1691,7 +1717,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         defaultAction(node);
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("$not"), Environment.getBoolType(),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("$not"), Environment
+                    .getBoolType(),
                     new Term[] { state.translation.terms.get(node.getOperands().get(0)) }));
         } catch (TermException e) {
             e.printStackTrace();
@@ -1704,7 +1731,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getNumberLiteral(node.getValue()), Environment.getIntType()));
+ Application.create(state.env.getNumberLiteral(node.getValue()),
+                    Environment.getIntType()));
         } catch (TermException e) {
             e.printStackTrace();
         }
@@ -1718,10 +1746,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             state.translation.terms.put(
                     node,
-                    new Application(state.env.getFunction("$bv_select"), state.env.mkType("bitvector"), new Term[] {
+ Application.getInst(state.env.getFunction("$bv_select"), state.env
+                    .mkType("bitvector"), new Term[] {
                             state.translation.terms.get(node.getTarget()),
-                            new Application(state.env.getNumberLiteral(node.getFirst()), Environment.getIntType()),
-                            new Application(state.env.getNumberLiteral(node.getLast()), Environment.getIntType()) }));
+                    Application.create(state.env.getNumberLiteral(node.getFirst()), Environment.getIntType()),
+                    Application.create(state.env.getNumberLiteral(node.getLast()), Environment.getIntType()) }));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1748,7 +1777,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Type range_t = state.ivilTypeMap.get(node);
 
-            Term tmp = new Application(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
+            Term tmp = Application.getInst(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
 
             state.translation.terms.put(node, tmp);
 
@@ -1775,7 +1804,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Type type = state.ivilTypeMap.get(node);
 
-            state.translation.terms.put(node, new Application(state.env.getFunction("map" + d.size() + "_store"), type,
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("map" + d.size() + "_store"),
+                    type,
                     args));
 
         } catch (TermException e) {
@@ -1801,11 +1831,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             Term[] args = new Term[2];
-            args[0] = new Application(state.env.getNumberLiteral(node.getValue()), Environment.getIntType());
-            args[1] = new Application(state.env.getNumberLiteral(node.getDimension()), Environment.getIntType());
+            args[0] = Application.create(state.env.getNumberLiteral(node.getValue()), Environment.getIntType());
+            args[1] = Application.create(state.env.getNumberLiteral(node.getDimension()), Environment.getIntType());
 
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$bv_new"), state.env.mkType("bitvector"), args));
+ Application.getInst(state.env.getFunction("$bv_new"), state.env
+                    .mkType("bitvector"), args));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1827,7 +1858,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             args[i] = state.translation.terms.get(node.getOperands().get(i));
 
         try {
-            state.translation.terms.put(node, new Application(state.env.getFunction("fun__" + node.getName()),
+            state.translation.terms.put(node, Application.getInst(state.env.getFunction("fun__" + node.getName()),
                     state.ivilTypeMap.get(node), args));
 
         } catch (TermException e) {
@@ -1854,7 +1885,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 state.translation.terms.put(node, bound);
             else
                 state.translation.terms.put(node,
-                        new Application(state.env.getFunction(name), state.ivilTypeMap.get(node)));
+ Application.create(state.env.getFunction(name), state.ivilTypeMap
+                        .get(node)));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1893,7 +1925,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             String name;
             for (VariableDeclaration v : node.getBody().getQuantifiedVariables()) {
                 name = state.translation.variableNames.get(v);
-                args = new Term[] { new Binding(state.env.getBinder("\\forall"), Environment.getBoolType(),
+                args = new Term[] { Binding.getInst(state.env.getBinder("\\forall"), Environment.getBoolType(),
                         boundVars.get(name), args) };
                 boundVars.remove(name);
             }
@@ -1902,7 +1934,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             {
                 UniversalType[] params = state.typeMap.get(node.getBody()).parameters;
                 for (int i = 0; i < params.length; i++) {
-                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.ALL,
+                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.ALL,
                             params[i].toIvilType(state), args[0]) };
                 }
             }
@@ -1933,7 +1965,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             String name;
             for (VariableDeclaration v : node.getBody().getQuantifiedVariables()) {
                 name = state.translation.variableNames.get(v);
-                args = new Term[] { new Binding(state.env.getBinder("\\exists"), Environment.getBoolType(),
+                args = new Term[] { Binding.getInst(state.env.getBinder("\\exists"), Environment.getBoolType(),
                         boundVars.get(name), args) };
                 boundVars.remove(name);
             }
@@ -1942,7 +1974,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             {
                 UniversalType[] params = state.typeMap.get(node.getBody()).parameters;
                 for (int i = 0; i < params.length; i++) {
-                    args = new Term[] { new TypeVariableBinding(TypeVariableBinding.Kind.EX,
+                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX,
                             params[i].toIvilType(state), args[0]) };
                 }
             }
@@ -1981,12 +2013,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 Variable var = boundVars.remove(state.translation.variableNames.get(v));
                 result_t = state.env.mkType("map", new Type[] { var.getType(), result_t });
 
-                args = new Term[] { new Binding(state.env.getBinder("\\lambda"), result_t,
+                args = new Term[] { Binding.getInst(state.env.getBinder("\\lambda"), result_t,
  var, args) };
             }
 
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("map" + b.getQuantifiedVariables().size() + "_curry"),
+ Application.getInst(state.env.getFunction("map"
+                    + b.getQuantifiedVariables().size() + "_curry"),
                             state.ivilTypeMap.get(node), args));
 
         } catch (TermException e) {
@@ -2010,7 +2043,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node,
-                    new Application(state.env.getFunction("cond"), state.ivilTypeMap.get(node.getThen()), args));
+ Application.getInst(state.env.getFunction("cond"), state.ivilTypeMap
+                    .get(node.getThen()), args));
         } catch (TermException e) {
             e.printStackTrace();
             throw new ASTVisitException(e);
@@ -2050,7 +2084,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             rval = new Function(name, result_t, NO_TYPE, false, false, node);
 
             state.env.addFunction(rval);
-            codeexpressionResult = new Variable("rval", result_t);
+            codeexpressionResult = Variable.getInst("rval", result_t);
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
@@ -2078,7 +2112,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // create term '\some rval; [codeexpression;0]'
         try {
-            state.translation.terms.put(node, new Binding(state.env.getBinder("\\some"), result_t,
+            state.translation.terms.put(node, Binding.getInst(state.env.getBinder("\\some"), result_t,
                     codeexpressionResult, new Term[] { new LiteralProgramTerm(0, false, C) }));
 
         } catch (TermException e) {
@@ -2097,7 +2131,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         node.getRval().visit(this);
 
         try {
-            statements.bodyStatements.add(new EndStatement(node.getLocationToken().beginLine, new Application(state.env
+            statements.bodyStatements.add(new EndStatement(node.getLocationToken().beginLine, Application.getInst(
+                    state.env
                     .getFunction("$eq"), Environment.getBoolType(), new Term[] { codeexpressionResult,
                     state.translation.terms.get(node.getRval()) })));
 

@@ -10,36 +10,30 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Collections;
-import java.util.List;
-
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.statement.AssertStatement;
-import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 public class TestWhereConditions extends TestCaseWithEnv {
 
     public void testProgramFree() throws Exception {
         
         ProgramFree pf = new ProgramFree();
-        assertTrue(pf.check(null, new Term[] { makeTerm("1+2 = 3") }, null, null, env));
-        assertFalse(pf.check(null, new Term[] { makeTerm("true & [5;P]") }, null, null, env));
+        assertTrue(pf.check(null, new Term[] { makeTerm("1+2 = 3") }, null, env));
+        assertFalse(pf.check(null, new Term[] { makeTerm("true & [5;P]") }, null, env));
         
     }
     
     public void testIntLiteral() throws Exception {
         IntLiteral intLit = new IntLiteral();
         
-        assertTrue(intLit.check(null, new Term[] { makeTerm("22") }, null, null, env));
-        assertFalse(intLit.check(null, new Term[] { makeTerm("2+2") }, null, null, env));
+        assertTrue(intLit.check(null, new Term[] { makeTerm("22") }, null, env));
+        assertFalse(intLit.check(null, new Term[] { makeTerm("2+2") }, null, env));
     }
 
     public void testDistinctAssumeAndFind() throws Exception {
@@ -48,17 +42,31 @@ public class TestWhereConditions extends TestCaseWithEnv {
         MutableRuleApplication ra = new MutableRuleApplication();
         ra.setFindSelector(new TermSelector("A.1.1"));
         ra.getAssumeSelectors().add(new TermSelector("A.0"));
-        assertTrue(daf.check(null, null, ra, null, DEFAULT_ENV));
+        assertTrue(daf.check(null, null, ra, DEFAULT_ENV));
     }
     
     public void testCanEval() throws Exception {
         CanEvaluateMeta can = new CanEvaluateMeta();
         
-        assertTrue(can.check(null, new Term[] { makeTerm("$$intEval(1+1)") }, null, null, env));
-        assertFalse(can.check(null, new Term[] { makeTerm("$$intEval(i1+1)") }, null, null, env));
-        assertFalse(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, new RuleApplicationMaker(env), null, env));
+        assertTrue(can.check(null, new Term[] { makeTerm("$$intEval(1+1)") }, null, env));
+        assertFalse(can.check(null, new Term[] { makeTerm("$$intEval(i1+1)") }, null, env));
+        assertFalse(can.check(null, new Term[] { makeTerm("$$skolem(1)") }, new RuleApplicationMaker(env), env));
         
     }
+    
+    public void testFreshVar() throws Exception {
+        FreshVariable fresh = new FreshVariable();
+        
+        assertTrue(fresh.check(null, new Term[] { makeTerm("\\var x as int"), makeTerm("(\\forall x as int; true)")}, null, env));
+        assertFalse(fresh.check(null, new Term[] { makeTerm("\\var x as int"), makeTerm("\\var x + 2")}, null, env));
+        
+        TermMatcher tm = new TermMatcher(env);
+        fresh.addInstantiations(tm, new Term[] { makeTerm("%x as int"), makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") });
+        Term result = tm.getTermInstantiation().get("%x");
+        assertEquals(makeTerm("\\var x2 as int"), result);
+        assertTrue(fresh.check(null, new Term[] { result, makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") }, null, env));
+    }
+    
     
     public void testInteractive() throws Exception {
         Interactive inter = new Interactive();
@@ -122,7 +130,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     private boolean checkNoFree(NoFreeVars noFree, String s) throws RuleException,
             Exception {
-        return noFree.check(null, new Term[] { makeTerm(s) }, null, null, env);
+        return noFree.check(null, new Term[] { makeTerm(s) }, null, null);
     }
 
 }

@@ -230,6 +230,8 @@ public class Main {
      */
     public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
             ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
+        
+        Preferences.userNodeForPackage(Main.class).put("last problem", url.toString());
 
         Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
@@ -263,7 +265,7 @@ public class Main {
                     throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
             }
 
-            problemTerm = new LiteralProgramTerm(0, false, p);
+            problemTerm = LiteralProgramTerm.getInst(0, false, p);
         }
 
         return openProver(env, problemTerm, url);
@@ -302,7 +304,7 @@ public class Main {
         
         resource += "#" + program;
         
-        LiteralProgramTerm problemTerm = new LiteralProgramTerm(0, false, program);
+        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, false, program);
         
         return openProver(env, problemTerm, new URL(resource));
     }

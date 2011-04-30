@@ -107,12 +107,12 @@ public class Function {
         
         if (!TypeVariableCollector.collectSchema(resultType).isEmpty())
             throw new EnvironmentException(
-                    "Result types must no contain schema types: " + resultType
+                    "Result types must not contain schema types: " + resultType
                             + " for " + name);
         
         if(!TypeVariableCollector.collectSchema(Arrays.asList(argumentTypes)).isEmpty()) {
             throw new EnvironmentException(
-                    "Argument types must no contain schema types: "
+                    "Argument types must not contain schema types: "
                             + Arrays.asList(argumentTypes)
                             + " for " + name);
         }

@@ -14,7 +14,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
+import checkers.nullness.quals.AssertNonNullIfFalse;
+import checkers.nullness.quals.AssertNonNullIfTrue;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
@@ -36,10 +39,10 @@ import de.uka.iti.pseudo.util.Util;
  */
 public class AssignmentStatement extends Statement {
     
-    private Assignment[] assignments;
+    private @NonNull Assignment /*@Nullable*/[] assignments;
     private @Nullable String schemaIdentifier; 
     
-    //@ invariant assignments.length == 0 <==> schemaIdentifier != null 
+    //@ invariant assignments == null <==> schemaIdentifier != null 
 
     // TODO DOC
     public AssignmentStatement(int sourceLineNumber, List<Assignment> assignments) throws TermException {
@@ -72,6 +75,8 @@ public class AssignmentStatement extends Statement {
 
     }
 
+    @AssertNonNullIfTrue("schemaIdentifier")
+    @AssertNonNullIfFalse("assignments")
     public boolean isSchematic() {
         return schemaIdentifier != null;
     }
@@ -115,6 +120,9 @@ public class AssignmentStatement extends Statement {
     }
 
     public List<Function> getAssignedVars() {
+        
+        assert !isSchematic() : "nullness: This method must not be called on schematic assignment statements";
+        
         List<Function> result = new ArrayList<Function>();
         for (Assignment ass : assignments) {
             Term target = ass.getTarget();

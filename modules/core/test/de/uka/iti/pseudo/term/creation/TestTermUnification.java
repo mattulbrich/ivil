@@ -41,8 +41,8 @@ public class TestTermUnification extends TestCaseWithEnv {
         mc = new TermMatcher(env);
         res = mc.leftMatch(mt("%a + %i"), mt("2 + 3"));
         assertTrue(res);
-        assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getIntType())));
-        assertEquals(mt("2"), mc.getTermFor(new SchemaVariable("%a", Environment.getBoolType())));
+        assertEquals(mt("2"), mc.getTermFor(SchemaVariable.getInst("%a", Environment.getIntType())));
+        assertEquals(mt("2"), mc.getTermFor(SchemaVariable.getInst("%a", Environment.getBoolType())));
         assertEquals(mt("3"), mc.instantiate(mt("%i")));
         
         // the types have been set automatically!
@@ -110,11 +110,11 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(mc.leftMatch(mt("[%a : assert %b]"), mt("[1;P]")));
         assertFalse(mc.leftMatch(mt("[%a]"), mt("[2;P]")));
         
-        assertEquals(mt("b2"), mc.getTermFor(new SchemaVariable("%b", bool)));
+        assertEquals(mt("b2"), mc.getTermFor(SchemaVariable.getInst("%b", bool)));
         
         assertTrue(mc.leftMatch(mt("[%c : %x := %v]"), mt("[5;P]")));
-        assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%x", intTy)));
-        assertEquals(mt("i2+i3"), mc.instantiate(new SchemaVariable("%v", intTy)));
+        assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%x", intTy)));
+        assertEquals(mt("i2+i3"), mc.instantiate(SchemaVariable.getInst("%v", intTy)));
         
         assertFalse(mc.leftMatch(mt("[0;P]"), mt("[0;Q]")));
         
@@ -136,21 +136,21 @@ public class TestTermUnification extends TestCaseWithEnv {
         
         assertFalse(mc.leftMatch(mt("[%h : skip_loopinv %inv]"), mt("[8;P]")));
         assertTrue(mc.leftMatch(mt("[%h : skip_loopinv %inv, %var]"), mt("[8;P]")));;
-        assertEquals(mt("i1 > 0"), mc.instantiate(new SchemaVariable("%inv", bool)));
-        assertEquals(mt("i2"), mc.instantiate(new SchemaVariable("%var", intTy)));
+        assertEquals(mt("i1 > 0"), mc.instantiate(SchemaVariable.getInst("%inv", bool)));
+        assertEquals(mt("i2"), mc.instantiate(SchemaVariable.getInst("%var", intTy)));
         
         assertTrue(mc.leftMatch(mt("[%i : havoc %j]"), mt("[4;P]")));
-        assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%j", intTy)));
+        assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%j", intTy)));
         
         Update upd = ((UpdateTerm)mt("{i1:=1||b1:=true}true")).getUpdate();
         assertTrue(mc.leftMatch(mt("[%k : U]"), mt("[9;P]")));
         assertEquals(upd, mc.getUpdateFor("U"));
         
         assertTrue(mc.leftMatch(mt("[%k : %o:=%l || %m:=%n]"), mt("[9;P]")));
-        assertEquals(mt("i1"), mc.instantiate(new SchemaVariable("%o", intTy)));
-        assertEquals(mt("1"), mc.instantiate(new SchemaVariable("%l", intTy)));
-        assertEquals(mt("b1"), mc.instantiate(new SchemaVariable("%m", bool)));
-        assertEquals(mt("true"), mc.instantiate(new SchemaVariable("%n", bool)));
+        assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%o", intTy)));
+        assertEquals(mt("1"), mc.instantiate(SchemaVariable.getInst("%l", intTy)));
+        assertEquals(mt("b1"), mc.instantiate(SchemaVariable.getInst("%m", bool)));
+        assertEquals(mt("true"), mc.instantiate(SchemaVariable.getInst("%n", bool)));
     }
     
     
@@ -175,7 +175,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     public void testOccurCheck() throws Exception {
         TermMatcher mc = new TermMatcher(env);
         try {
-            mc.addInstantiation(new SchemaVariable("%a", Environment
+            mc.addInstantiation(SchemaVariable.getInst("%a", Environment
                     .getIntType()), mt("%a + 2"));
             fail("should fail");
         } catch (TermException e) {
@@ -198,9 +198,9 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(mc.leftMatch(mt("(\\forall %i; %b)"), term));
         assertEquals(Environment.getBoolType(), mc.getTypeFor("b"));
         assertEquals(Environment.getIntType(), mc.getTypeFor("i"));
-        assertEquals(term.getSubterm(0), mc.getTermFor(new SchemaVariable("%b", Environment.getBoolType())));
-        assertEquals(new Variable("i", Environment.getIntType()), 
-                mc.getTermFor(new SchemaVariable("%i", Environment.getBoolType())));
+        assertEquals(term.getSubterm(0), mc.getTermFor(SchemaVariable.getInst("%b", Environment.getBoolType())));
+        assertEquals(Variable.getInst("i", Environment.getIntType()), 
+                mc.getTermFor(SchemaVariable.getInst("%i", Environment.getBoolType())));
         
         mc = new TermMatcher(env);
         assertFalse(mc.leftMatch(mt("(\\exists %i; %b)"), term));

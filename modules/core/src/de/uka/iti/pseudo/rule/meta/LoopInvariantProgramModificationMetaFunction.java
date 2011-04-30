@@ -14,8 +14,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -44,11 +47,13 @@ import de.uka.iti.pseudo.term.statement.StatementVisitor;
 /**
  * Modify a program such that it can be used in an invariant rule application.
  * 
- * <h2>Arguments</h2> The meta function expects 3 Arguments:
+ * <h2>Arguments</h2>
+ * The meta function expects 3 Arguments:
  * <ol>
  * <li>A literal program term (with some statement) <code>[n ; P ]</code>
  * <li>a boolean term to be used as invariant <code>%inv</code>.
- * <li>an integer term to be used as variant <code>%var</code>. </ul>
+ * <li>an integer term to be used as variant <code>%var</code>.
+ * </ul>
  * 
  * <p>
  * If the variant is the integer 0, only partial correctness will be treated.
@@ -81,45 +86,46 @@ import de.uka.iti.pseudo.term.statement.StatementVisitor;
  * analysis (depth first search) is performed which covers all possible paths
  * from [n;P] back to [n;P]. All assigned variables are collected and havoced.
  * 
- * <b>Please note</b>The resulting term is only good for the induction step. For
- * the base case you need to proff that the (same) invariant holds in the
+ * <b>Please note</b>The resulting term is only good for the induction step.
+ * For the base case you need to proff that the (same) invariant holds in the
  * beginning. This is not covered by this class.
  * 
  * 
  * <h2>Technical ...</h2>
  * 
  * The meta function itself delegates most of the work to the class
- * {@link LoopModifier} of which it creates an instance during evaluation. This
- * is done so that the meta function itself does not hold any state and can be
- * evaluated even on different threads.
+ * {@link LoopModifier} of which it creates an instance during evaluation.
+ * This is done so that the meta function itself does not hold any state
+ * and can be evaluated even on different threads.
  * 
- * This class is package readable to allow access for unit tests.
+ * This class is package readable to allow access for unit tests. 
  */
 public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
-
+    
     private static final Type BOOL = Environment.getBoolType();
-    private static final Type INT = Environment.getIntType();
-
+    private static final Type INT= Environment.getIntType();
+    
     public LoopInvariantProgramModificationMetaFunction() throws EnvironmentException {
         super(BOOL, "$$loopInvPrgMod", BOOL, BOOL, INT);
     }
-
-    public Term evaluate(Application application, Environment env, RuleApplication ruleApp) throws TermException {
-
+    
+    public Term evaluate(Application application, Environment env,
+            RuleApplication ruleApp) throws TermException {
+        
         LiteralProgramTerm programTerm;
         if (application.getSubterm(0) instanceof LiteralProgramTerm) {
             programTerm = (LiteralProgramTerm) application.getSubterm(0);
         } else {
             throw new TermException("First argument needs to be a program term");
         }
-
+        
         Term invariant = application.getSubterm(1);
         Term variant = application.getSubterm(2);
-
-        Application zero = new Application(env.getNumberLiteral("0"), Environment.getIntType());
-
+        
+        Application zero = Application.create(env.getNumberLiteral("0"), Environment.getIntType());
+        
         // "0" as variant means no variant.
-        if (zero.equals(variant))
+        if(zero.equals(variant))
             variant = null;
 
         // use an external object so that no state is stored in the meta
@@ -134,6 +140,7 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
     }
 }
 
+        
 class LoopModifier {
 
     private Set<Function> modifiedAssignables = new HashSet<Function>();
@@ -180,9 +187,9 @@ class LoopModifier {
         String name = env.createNewProgramName(program.getName());
         Program newProgram = programChanger.makeProgram(name);
         env.addProgram(newProgram);
-
-        LiteralProgramTerm newProgramTerm = new LiteralProgramTerm(index, programTerm.isTerminating(), newProgram);
-
+        
+        LiteralProgramTerm newProgramTerm = LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram);
+        
         return newProgramTerm;
 
     }
@@ -335,7 +342,7 @@ class LoopModifier {
                     ASTLocatedElement.CREATED);
             try {
                 env.addFunction(varAtPreSym);
-                varAtPre = new Application(varAtPreSym, varAtPreSym.getResultType());
+                varAtPre = Application.create(varAtPreSym, varAtPreSym.getResultType());
             } catch (EnvironmentException e) {
                 throw new TermException(e);
             }

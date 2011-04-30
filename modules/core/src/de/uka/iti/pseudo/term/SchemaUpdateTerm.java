@@ -10,15 +10,21 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 
-public class SchemaUpdateTerm extends Term {
+@NonNull
+public final class SchemaUpdateTerm extends Term {
 
     private String schemaIdentifier;
 
-    public SchemaUpdateTerm(String schemaUpdateId, Term subterm) {
+    private SchemaUpdateTerm(String schemaUpdateId, Term subterm) {
         super(new Term[] { subterm }, subterm.getType());
         this.schemaIdentifier = schemaUpdateId;
+    }
+    
+    public static SchemaUpdateTerm getInst(String schemaUpdateId, Term subterm) {
+        return (SchemaUpdateTerm) new SchemaUpdateTerm(schemaUpdateId, subterm).intern();
     }
 
     public boolean equals(@Nullable Object object) {

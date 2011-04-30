@@ -319,7 +319,7 @@ public class InteractiveRuleApplicationComponent extends
                 textField.setText("");
             }
 
-            Log.println("handler: " + textField.getTransferHandler());
+            Log.log("handler: " + textField.getTransferHandler());
             instantiationsPanel.add(textField, 1);
             interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));

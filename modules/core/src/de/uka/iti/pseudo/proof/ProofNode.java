@@ -15,11 +15,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import checkers.nullness.quals.AssertNonNullAfter;
-
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.GoalList;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -315,6 +314,33 @@ public class ProofNode implements Comparable<ProofNode> {
     }
 
     /**
+     * Checks whether ruleApp can be applied or not.
+     */
+    public boolean applicable(RuleApplication ruleApp, Environment env) {
+        try{
+            if (appliedRuleApp != null)
+                throw new ProofException("Trying to apply proof to a non-leaf proof node");
+
+            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
+            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
+            Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
+            TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, updateMap, env);
+
+            Rule rule = ruleApp.getRule();
+
+            assert rule != null : "Rule in RuleApplication must not be null";
+
+            matchFindClause(ruleApp, inst, rule);
+            matchAssumeClauses(ruleApp, inst, rule);
+            verifyWhereClauses(ruleApp, inst, rule, env);
+            doActions(ruleApp, inst, env, rule);
+        } catch (ProofException e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Apply a {@link RuleApplication} to this node. The find, where and assume 
      * clauses are checked the action clauses executed.
      * 
@@ -501,7 +527,7 @@ public class ProofNode implements Comparable<ProofNode> {
             Rule rule, Environment env) throws ProofException {
         for (WhereClause whereClause : rule.getWhereClauses()) {
             try {
-                if(!whereClause.applyTo(inst, ruleApp, this, env)) {
+                if(!whereClause.applyTo(inst, ruleApp, env)) {
                     Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
                     Log.log(Log.DEBUG, "Term inst: " + inst);
                     throw new ProofException("WhereClause failed: " + whereClause + 

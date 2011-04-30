@@ -45,7 +45,7 @@
 		
 		<settingsMenu text="Settings" mnemonic="S">
 			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
-			smt.keepwindowopen
+			smt.keepwindowopen settings.autoDnD
 		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
@@ -260,6 +260,7 @@
 		<verbosity>ACTION view/VerbosityAction</verbosity>
         <showNumbers>TOGGLE_ACTION view/ShowNumbersInTreeAction</showNumbers>
         <showProgramTrace>TOGGLE_ACTION view/ShowProgramTraceAction</showProgramTrace>
+        <autoDnD>TOGGLE_ACTION UseHighestPriorityDragAndDropAction</autoDnD>
 		<pp>
 			<typed>TOGGLE_ACTION view/PrettyPrintTypedRadioAction</typed>
 			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>

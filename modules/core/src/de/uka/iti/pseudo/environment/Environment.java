@@ -727,7 +727,7 @@ public class Environment {
         try {
             Function cnstTrue = BUILT_IN_ENV.getFunction("true");
             assert cnstTrue != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstTrue, getBoolType());
+            return Application.create(cnstTrue, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -743,7 +743,7 @@ public class Environment {
         try {
             Function cnstFalse= BUILT_IN_ENV.getFunction("false");
             assert cnstFalse != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstFalse, getBoolType());
+            return Application.create(cnstFalse, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }

@@ -19,8 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.SwingUtilities;
 
@@ -70,7 +68,7 @@ import de.uka.iti.pseudo.util.Util;
  * A general PropertyChange mechanism is installed to provide an opportunity to
  * work with general properties on the proof process.
  */
-public class ProofCenter implements Observer {
+public class ProofCenter {
 
     /**
      * Property key indicating that an automatic proof is on the run. This will
@@ -112,9 +110,11 @@ public class ProofCenter implements Observer {
     /**
      * Notification signal to indicate that a node in the proof has been
      * changed. Activated every time that the proof is changed (observing the
-     * proof)
+     * proof)<br>
+     * 
+     * Type: {@literal List<ProofNode>}
      */
-    public static final String PROOFNODE_HAS_CHANGED = "pseudo.proofnode_changed";
+    public static final String PROOFNODES_HAVE_CHANGED = "pseudo.proofnode_changed";
 
     /**
      * Notification signal to indicate that the proof has changed. This is
@@ -204,7 +204,7 @@ public class ProofCenter implements Observer {
         this.strategyManager = new StrategyManager(proof, env);
         this.strategyManager.registerAllKnownStrategies();
 
-        proof.addObserver(this);
+        proof.addObserver(new ProofObserver(this));
 
         mainWindow = new MainWindow(this, env.getResourceName());
 
@@ -431,22 +431,6 @@ public class ProofCenter implements Observer {
         return getStrategyManager().getStrategy(BreakpointStrategy.class).getBreakpointManager();
     }
 
-    /**
-     * react to changes on the proof ... delegate to the UI components (on UI
-     * thread)
-     */
-    @Override
-    public void update(Observable o, Object arg) {
-
-        final ProofNode pn = (ProofNode) arg;
-
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                fireNotification(PROOFNODE_HAS_CHANGED, pn);
-            }
-        });
-    }
-
     // Delegations to changeSupport!
 
     /**
@@ -546,7 +530,7 @@ public class ProofCenter implements Observer {
      * 
      * @return the property's value. null if not set
      */
-    public Object getProperty(String propertyName) {
+    public @Nullable Object getProperty(String propertyName) {
         return generalProperties.get(propertyName);
     }
 

@@ -52,7 +52,7 @@ public class UnorderedTerms extends WhereCondition {
      */
     @Override
     public boolean check(Term[] formalArguments, Term[] actualArguments,
-            RuleApplication ruleApp, ProofNode goal, Environment env)
+            RuleApplication ruleApp, Environment env)
             throws RuleException {
         
         if(termComparator == null) {

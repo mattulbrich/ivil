@@ -90,7 +90,7 @@ public class RuleAxiomExtractor {
         @Override
         public void visit(SchemaVariable schemaVariable) throws TermException {
 
-            Variable variable = new Variable(schemaVariable.getName().substring(1),
+            Variable variable = Variable.getInst(schemaVariable.getName().substring(1),
                     modifyType(schemaVariable.getType()));
 
             newVariables.add(variable);
