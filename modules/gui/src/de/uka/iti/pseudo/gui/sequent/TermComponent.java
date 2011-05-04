@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -45,6 +46,8 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.Highlighter.HighlightPainter;
+
+import com.javadocking.util.SwingUtil;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -755,9 +758,9 @@ public class TermComponent extends JTextPane {
                 for (RuleApplication ra : ruleApps)
                     popup.add(ra.getRule().getName()).addActionListener(listener);
 
-                popup.setLocation(MouseInfo.getPointerInfo().getLocation());
-
-                popup.setVisible(true);
+                Point p = MouseInfo.getPointerInfo().getLocation();
+                SwingUtilities.convertPointFromScreen(p, this);
+                popup.show(this, p.x, p.y);
 
                 // in this case, the event is created by the action listener
                 return null;

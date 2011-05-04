@@ -63,7 +63,7 @@ public class TermMatcher implements Cloneable {
     
     /**
      * The mapping from schema updates to their instantiations.
-     * <p> We use {@link AppendMap} here because we ne often need to clone
+     * <p> We use {@link AppendMap} here because we often need to clone
      * for unification attempts.
      */
     private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
