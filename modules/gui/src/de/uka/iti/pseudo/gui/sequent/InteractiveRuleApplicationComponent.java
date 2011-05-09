@@ -49,6 +49,7 @@ import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.RuleApplicationComponent;
+import de.uka.iti.pseudo.gui.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
@@ -66,7 +67,6 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
-import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
 import de.uka.iti.pseudo.util.settings.ColorResolver;
