@@ -12,26 +12,35 @@ package de.uka.iti.pseudo.util;
 
 import java.awt.Component;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
+import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 /**
- * @author timm.felden@felden.com
+ * This class implements string based drag and drop for TermComponent. This
+ * allows for fast interactive rule applications by dropping terms from
+ * TermComponents or unformatted text from other applications such as text
+ * editors.
  * 
- *         This class implements string based drag and drop for TermComponent.
- *         This allows for fast interactive rule applications by dropping terms
- *         from TermComponents or unformatted text from other applications such
- *         as text editors.
+ * @author timm.felden@felden.com
  */
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;
+    private static final TransferHandler instance = new TermSelectionTransfer();
+
+    /**
+     * The transfer handler has no state and is therefore thread safe and can be
+     * used as singleton.
+     */
+    private TermSelectionTransfer(){
+    }
 
     public int getSourceActions(JComponent c) {
         Log.enter(c);
@@ -43,17 +52,20 @@ public class TermSelectionTransfer extends TransferHandler {
         if (c instanceof TermComponent) {
             TermComponent tc = (TermComponent) c;
             return tc.createTransferable();
-        }
+        } else if (c instanceof JTextComponent)
+            return new StringSelection(((JTextComponent) c).getText());
+
         return null;
     }
     
+    @Override
     public boolean importData(TransferSupport support) {
         Log.enter(support);
         try {
             Component c = support.getComponent();
+            Transferable t = support.getTransferable();
             if (c instanceof TermComponent) {
                 TermComponent tc = (TermComponent) c;
-                Transferable t = support.getTransferable();
                 
                 String text = (String) t.getTransferData(DataFlavor.stringFlavor);
                 ProofNode target;
@@ -68,6 +80,10 @@ public class TermSelectionTransfer extends TransferHandler {
 
                     return true;
                 }
+            } else if (c instanceof JTextComponent) {
+                String text = (String) t.getTransferData(DataFlavor.stringFlavor);
+                ((JTextComponent) c).setText(text);
+                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -77,13 +93,16 @@ public class TermSelectionTransfer extends TransferHandler {
         return false;
     }
     
-    public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
-        Log.enter(comp, Arrays.asList(transferFlavors));
-        for (DataFlavor dataFlavor : transferFlavors) {
-            if (dataFlavor.equals(DataFlavor.stringFlavor)) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public boolean canImport(TransferSupport support) {
+        
+        if (support.getTransferable() instanceof TermSelectionTransferable)
+            return true;
+
+        return support.isDataFlavorSupported(DataFlavor.stringFlavor);
+    }
+
+    public static TransferHandler getInstance() {
+        return instance;
     }
 }

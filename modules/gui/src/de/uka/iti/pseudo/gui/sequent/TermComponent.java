@@ -15,7 +15,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,8 +46,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.Highlighter.HighlightPainter;
 
-import com.javadocking.util.SwingUtil;
-
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -76,6 +73,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TermSelectionTransfer;
+import de.uka.iti.pseudo.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
@@ -258,7 +256,7 @@ public class TermComponent extends JTextPane {
         setCaret(new NotScrollingCaret());
         annotatedString.appendToDocument(getDocument(), attributeFactory);
         setDragEnabled(true);
-        setTransferHandler(new TermSelectionTransfer());
+        setTransferHandler(TermSelectionTransfer.getInstance());
 
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
@@ -603,8 +601,9 @@ public class TermComponent extends JTextPane {
         if(mouseSelection == null)
             return null;
         
-        // Note: it might be necessary to transfer typed formulas
-        return new StringSelection(mouseSelection.getTerm().toString(false));
+
+        return new TermSelectionTransferable(mouseSelection.getTermSelector(termSelector), mouseSelection.getTerm()
+                .toString(true));
     }
 
     /**
@@ -621,6 +620,8 @@ public class TermComponent extends JTextPane {
     @SuppressWarnings("unchecked")
     public ProofNode dropTermOnLocation(String term) {
         final Environment env = proofCenter.getEnvironment();
+        
+        // TODO move this function to transfer handler
         
         try {
             Term instantiation;
