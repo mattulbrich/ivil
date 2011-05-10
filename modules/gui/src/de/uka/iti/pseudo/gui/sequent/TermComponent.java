@@ -244,7 +244,7 @@ public class TermComponent extends JTextPane {
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
             public void mouseExited(MouseEvent e) {
-                TermComponent.this.mouseExited(e);
+                TermComponent.this.mouseExited();
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -257,6 +257,8 @@ public class TermComponent extends JTextPane {
                 DropLocation loc = (DropLocation) evt.getNewValue();
                 if(loc != null)
                     TermComponent.this.mouseMoved(loc.getDropPoint());
+                else
+                    TermComponent.this.mouseExited();
             }
         });
 
@@ -339,9 +341,11 @@ public class TermComponent extends JTextPane {
     /*
      * Mouse exited the component: remove highlighting
      */
-    private void mouseExited(MouseEvent e) {
+    private void mouseExited() {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
+            setSelectionStart(0);
+            setSelectionEnd(0);
             mouseSelection = null;
         } catch (BadLocationException ex) {
             // this shant happen
@@ -372,6 +376,8 @@ public class TermComponent extends JTextPane {
                     Log.log(Log.VERBOSE, mouseSelection);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
+                setSelectionStart(0);
+                setSelectionEnd(0);
                 mouseSelection = null;
             }
         } catch (BadLocationException ex) {
