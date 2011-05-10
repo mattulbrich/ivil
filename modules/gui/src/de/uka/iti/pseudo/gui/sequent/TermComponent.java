@@ -46,6 +46,7 @@ import de.uka.iti.pseudo.gui.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.gui.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.SubtermSelector;
@@ -600,5 +601,18 @@ public class TermComponent extends JTextPane {
      */
     public final ProofCenter getProofCenter() {
         return proofCenter;
+    }
+
+    /**
+     * @return a list of rules which can be applied to the selected term
+     * @throws ProofException
+     *             see {@link ProofCenter#getApplicableRules(TermSelector)}
+     */
+    public List<RuleApplication> getApplicableRules() throws ProofException {
+        if (null == mouseSelection)
+            return new ArrayList<RuleApplication>(0);
+
+        else
+            return proofCenter.getApplicableRules(termSelector);
     }
 }
