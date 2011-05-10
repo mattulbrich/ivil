@@ -57,6 +57,10 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * @author timm.felden@felden.com
  */
+// TODO try to get rid of the text component code, as IRAPopup should be working
+// as intended without this special transfer handler; if this works, move the
+// transfer classes to the sequent namespace and make some public methods more
+// private
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;
@@ -66,7 +70,7 @@ public class TermSelectionTransfer extends TransferHandler {
      * The transfer handler has no state and is therefore thread safe and can be
      * used as singleton.
      */
-    private TermSelectionTransfer(){
+    private TermSelectionTransfer() {
     }
 
     public int getSourceActions(JComponent c) {
@@ -84,7 +88,7 @@ public class TermSelectionTransfer extends TransferHandler {
 
         return null;
     }
-    
+
     @Override
     public boolean importData(TransferSupport support) {
         Log.enter(support);
@@ -98,7 +102,7 @@ public class TermSelectionTransfer extends TransferHandler {
                 if (null != tc.getProofCenter().getCurrentProofNode().getChildren())
                     return false;
 
-                return dropTermOnTermComponent(tc, support) || dropStringOnTermComponent(tc, support);
+                return dropOnTermComponent(tc, support);
             } else if (c instanceof JTextComponent) {
                 String text = (String) t.getTransferData(DataFlavor.stringFlavor);
                 ((JTextComponent) c).setText(text);
@@ -114,7 +118,7 @@ public class TermSelectionTransfer extends TransferHandler {
 
     @Override
     public boolean canImport(TransferSupport support) {
-        
+
         if (support.getTransferable() instanceof TermSelectionTransferable)
             return true;
 
@@ -124,54 +128,35 @@ public class TermSelectionTransfer extends TransferHandler {
     public static TransferHandler getInstance() {
         return instance;
     }
-    
-    
-    //////////////////////////////////// RULE APPLICATION CODE //////////////////////////////////////////////
+
+    // /////////// RULE APPLICATION CODE /////////////////// //
+
 
     /**
      * try to drop the term in support on target
      */
-    private boolean dropTermOnTermComponent(final TermComponent target, final TransferSupport support) {
-
-        final ProofCenter pc = target.getProofCenter();
-        
-        // we only handle transfer of term selectors; strings will be handled elsewhere
-        if (!support.isDataFlavorSupported(TermSelectionTransferable.TERM_DATA_FLAVOR))
-            return false;
-        
-        TermSelectionTransferable ts = (TermSelectionTransferable) support.getTransferable();
-        
-        // the drag and drop locations do not correspond to the same proofs
-        if (target.getProofCenter() != ts.getSource().getProofCenter())
-            return false;
-
-        try {
-            // find applications
-            final List<List<RuleApplication>> buckets = findRulesApplicable(ts.getSelector().selectSubterm(
-                    pc.getCurrentProofNode().getSequent()), ts.getSelector(), target, pc);
-
-            // select applications
-            return applyBestRule(buckets, target, pc);
-
-        } catch (Exception e) {
-            ExceptionDialog.showExceptionDialog(pc.getMainWindow(), e);
-            return false;
-        }
-    }
-
-
-    /**
-     * try to drop the string in support on target
-     */
-    private boolean dropStringOnTermComponent(final TermComponent target, final TransferSupport support) {
+    private boolean dropOnTermComponent(final TermComponent target, final TransferSupport support) {
 
         final ProofCenter pc = target.getProofCenter();
 
-        // the transfered term will be moved here
         Term transferedTerm;
+        TermSelector location = null;
         try {
-            transferedTerm = TermMaker.makeAndTypeTerm((String) support.getTransferable().getTransferData(
-                    DataFlavor.stringFlavor), pc.getEnvironment());
+            if (!support.isDataFlavorSupported(TermSelectionTransferable.TERM_DATA_FLAVOR)) {
+                transferedTerm = TermMaker.makeAndTypeTerm((String) support.getTransferable().getTransferData(
+                        DataFlavor.stringFlavor), pc.getEnvironment());
+
+            } else {
+                TermSelectionTransferable ts = (TermSelectionTransferable) support.getTransferable().getTransferData(
+                        TermSelectionTransferable.TERM_DATA_FLAVOR);
+
+                transferedTerm = ts.getSelector().selectSubterm(pc.getCurrentProofNode().getSequent());
+
+                // the location can only be used if both terms belong to the
+                // same proof
+                if (target.getProofCenter() == ts.getSource().getProofCenter())
+                    location = ts.getSelector();
+            }
         } catch (Exception e) {
             // if an exception occurs here, the dropped text is not a term
 
@@ -182,7 +167,8 @@ public class TermSelectionTransfer extends TransferHandler {
 
         try {
             // find applications
-            final List<List<RuleApplication>> buckets = findRulesApplicable(transferedTerm, target, pc);
+            final List<List<RuleApplication>> buckets = findRulesApplicable(transferedTerm, location, target,
+                    pc);
 
             // select applications
             return applyBestRule(buckets, target, pc);
@@ -193,25 +179,26 @@ public class TermSelectionTransfer extends TransferHandler {
         }
     }
 
-    private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm, final TermSelector location,
-            TermComponent target, final ProofCenter proofCenter) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /**
-     * Try to find rules that can be used with drag and drop and are
-     * interactive, because non-interactive drag and drop rules assume the
-     * dropped term, which can not be done without the knowledge of the location
-     * of the source term. Fortunately prohibited by the core, this would enable
-     * the user to assume arbitrary terms by dragging them from a source such as
-     * a text editor.
+     * Try to find all applicable rules with a dragdrop tag.
+     * 
+     * <p>
+     * If the Term is not located on the ProofNode(iff location == null), try to
+     * find only rules that can be used with drag and drop and are
+     * <b>interactive</b>, because non-interactive drag and drop rules assume
+     * the dropped term, which can not be done without the knowledge of the
+     * location of the source term. Fortunately prohibited by the core, this
+     * would enable the user to assume arbitrary terms by dragging them from a
+     * source such as a text editor.
      */
-    private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm, final TermComponent target,
-            final ProofCenter proofCenter) throws ProofException {
-
+    private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm, final TermSelector location,
+            TermComponent target, final ProofCenter proofCenter) throws ProofException {
+        
         final Environment env = proofCenter.getEnvironment();
 
+        // if we can apply a rule using drap and drop, we can also apply the
+        // same rule without drag and drop, so it is enaugh to find all
+        // applicable rules and filter them
         final List<RuleApplication> rulesApplicable = target.getApplicableRules();
 
         // buckets for priority 0 - 9
@@ -225,7 +212,9 @@ public class TermSelectionTransfer extends TransferHandler {
             if (null == level)
                 continue;
 
+
             int lvl = Integer.parseInt(level);
+            boolean isInteractive = false;
 
             // set the interactive field to match instantiation
             for (Map.Entry<String, String> entry : ra.getProperties().entrySet()) {
@@ -258,6 +247,26 @@ public class TermSelectionTransfer extends TransferHandler {
                 ra.getSchemaVariableMapping().put(svName, transferedTerm);
                 if (typeMode)
                     ra.getTypeVariableMapping().put(((SchemaType) svType).getVariableName(), transferedTerm.getType());
+
+                // only allow rules with one interaction
+                isInteractive = true;
+                break;
+            }
+            // we have to ensure, that the rule has only one assume clause and
+            // we have to replace this clause
+            if (!isInteractive){
+                // the drag originated not from our proof
+                if (null == location)
+                    continue;
+
+                if (ra.getRule().getAssumptions().size() != 1) {
+                    Log.log(Log.ERROR, "The rule " + ra.getRule() + " is illformed respective to the 'dragdrop' tag!");
+                    continue;
+                }
+                // the assumption has to be the one we dragged, or the
+                // application is not interesting
+                if (!ra.getAssumeSelectors().get(0).equals(location))
+                    continue;
             }
 
             // check if ra is still applicable
@@ -279,15 +288,15 @@ public class TermSelectionTransfer extends TransferHandler {
     private boolean applyBestRule(final List<List<RuleApplication>> buckets, final TermComponent tc,
             final ProofCenter proofCenter) throws ProofException {
         final LinkedList<RuleApplication> ruleApps = new LinkedList<RuleApplication>();
-        
+
         // the user might have specified, that he wants always the rule in
         // the highest bucket to be applied
         {
-           boolean highestOnly = (Boolean) proofCenter.getProperty(TermComponent.HIGHEST_PRIORITY_DRAG_AND_DROP);
+            boolean highestOnly = (Boolean) proofCenter.getProperty(TermComponent.HIGHEST_PRIORITY_DRAG_AND_DROP);
             for (int i = 9; i >= 0; i--) {
                 ruleApps.addAll(buckets.get(i));
-                
-                if(highestOnly && !ruleApps.isEmpty())
+
+                if (highestOnly && !ruleApps.isEmpty())
                     break;
             }
         }

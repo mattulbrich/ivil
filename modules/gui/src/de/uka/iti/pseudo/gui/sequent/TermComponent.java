@@ -613,6 +613,6 @@ public class TermComponent extends JTextPane {
             return new ArrayList<RuleApplication>(0);
 
         else
-            return proofCenter.getApplicableRules(termSelector);
+            return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
     }
 }
