@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.util;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.Component;
 import java.awt.MouseInfo;
@@ -32,7 +32,6 @@ import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
@@ -57,10 +56,6 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * @author timm.felden@felden.com
  */
-// TODO try to get rid of the text component code, as IRAPopup should be working
-// as intended without this special transfer handler; if this works, move the
-// transfer classes to the sequent namespace and make some public methods more
-// private
 public class TermSelectionTransfer extends TransferHandler {
 
     private static final long serialVersionUID = -1292983185215324664L;
@@ -129,9 +124,10 @@ public class TermSelectionTransfer extends TransferHandler {
         return instance;
     }
 
+    
     // /////////// RULE APPLICATION CODE /////////////////// //
 
-
+    
     /**
      * try to drop the term in support on target
      */

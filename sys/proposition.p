@@ -25,11 +25,13 @@ rule close_antecedent
   assume  %b  |-
   closegoal
   tags rewrite "close"
+       dragdrop "9"
 
 rule close_succedent
   find  %b  |-
   assume |-  %b 
   closegoal
+  tags dragdrop "9"
 
 rule close_true_right
   find |-  true 
@@ -66,6 +68,7 @@ rule replace_known_left
   where
     distinctAssumeAndFind
   samegoal replace  true 
+  tags dragdrop "9"
 
 rule replace_known_right
   find  %b 
@@ -75,6 +78,7 @@ rule replace_known_right
   where
     distinctAssumeAndFind
   samegoal replace  false 
+  tags dragdrop "9"
 
 rule cut
   where

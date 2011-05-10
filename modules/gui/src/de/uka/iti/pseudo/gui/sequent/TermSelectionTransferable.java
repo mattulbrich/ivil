@@ -8,14 +8,13 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.util;
+package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.TermSelector;
 
 public class TermSelectionTransferable implements Transferable {

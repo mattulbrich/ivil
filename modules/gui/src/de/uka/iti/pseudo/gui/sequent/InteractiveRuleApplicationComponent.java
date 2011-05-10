@@ -38,7 +38,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
@@ -49,7 +48,6 @@ import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.RuleApplicationComponent;
-import de.uka.iti.pseudo.gui.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;

@@ -43,8 +43,8 @@ import javax.swing.plaf.TextUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
-import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 /**
  * The Class BracketMatchingTextArea provides a GUI TextArea component which

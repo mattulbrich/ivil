@@ -42,8 +42,6 @@ import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.util.TermSelectionTransfer;
-import de.uka.iti.pseudo.gui.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -599,7 +597,7 @@ public class TermComponent extends JTextPane {
     /**
      * returns the ProofCenter it belongs to
      */
-    public final ProofCenter getProofCenter() {
+    final ProofCenter getProofCenter() {
         return proofCenter;
     }
 
@@ -608,10 +606,9 @@ public class TermComponent extends JTextPane {
      * @throws ProofException
      *             see {@link ProofCenter#getApplicableRules(TermSelector)}
      */
-    public List<RuleApplication> getApplicableRules() throws ProofException {
+    List<RuleApplication> getApplicableRules() throws ProofException {
         if (null == mouseSelection)
             return new ArrayList<RuleApplication>(0);
-
         else
             return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
     }
