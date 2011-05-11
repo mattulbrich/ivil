@@ -38,7 +38,7 @@ public class TestTypeUnification extends TestCaseWithEnv {
         TypeUnification tu = new TypeUnification();
         
         try {
-            tu.leftUnify(Environment.getBoolType(), Environment.getIntType());
+            tu.unify(Environment.getBoolType(), Environment.getIntType());
             fail("Should fail");
         } catch (UnificationException e) {
             if(VERBOSE)
@@ -50,9 +50,9 @@ public class TestTypeUnification extends TestCaseWithEnv {
     public void testRecoveryAfterException() throws Exception {
         
         TypeUnification tu = new TypeUnification();
-        tu.leftUnify(tyvA, tyvB);
+        tu.unify(tyvA, tyvB);
         try {
-            tu.leftUnify(tyvA, setB);
+            tu.unify(tyvA, setB);
             fail("Should have cyclic occur failure here");
         } catch(UnificationException ex) {
             if(VERBOSE)
@@ -67,7 +67,7 @@ public class TestTypeUnification extends TestCaseWithEnv {
         // immediate
         TypeUnification tu = new TypeUnification();
         try {
-            tu.leftUnify(tyvA, setA);
+            tu.unify(tyvA, setA);
             fail("Should have occur failure here");
         } catch (UnificationException ex) {
             if (VERBOSE)
@@ -75,9 +75,9 @@ public class TestTypeUnification extends TestCaseWithEnv {
         }
 
         // mediate
-        tu.leftUnify(tyvA, tyvB);
+        tu.unify(tyvA, tyvB);
         try {
-            tu.leftUnify(tyvA, setB);
+            tu.unify(tyvA, setB);
             fail("Should have cyclic occur failure here");
         } catch (UnificationException ex) {
             if (VERBOSE)
@@ -85,10 +85,10 @@ public class TestTypeUnification extends TestCaseWithEnv {
         }
         
         tu = new TypeUnification();
-        tu.leftUnify(tyvB, tyvA);
+        tu.unify(tyvB, tyvA);
         // indirect
         try {
-            tu.leftUnify(tyvA, setB);
+            tu.unify(tyvA, setB);
             fail("Should have cyclic occur failure here");
         } catch (UnificationException ex) {
             if (VERBOSE)
@@ -117,9 +117,9 @@ public class TestTypeUnification extends TestCaseWithEnv {
     public void testTwice() throws Exception {
         
         TypeUnification tu = new TypeUnification();
-        tu.leftUnify(tyvB, Environment.getBoolType());
+        tu.unify(tyvB, Environment.getBoolType());
         try {
-            tu.leftUnify(tyvB, Environment.getIntType());
+            tu.unify(tyvB, Environment.getIntType());
         } catch (UnificationException e) {
             if(VERBOSE)
                 e.printStackTrace();
@@ -135,8 +135,8 @@ public class TestTypeUnification extends TestCaseWithEnv {
         
         TypeUnification tu = new TypeUnification();
         
-        tu.leftUnify(tyvA, tyvB);
-        tu.leftUnify(tyvD, ty);
+        tu.unify(tyvA, tyvB);
+        tu.unify(tyvD, ty);
         
         assertEquals(tu.instantiate(ty), tu.instantiate(tyvD));
     }
