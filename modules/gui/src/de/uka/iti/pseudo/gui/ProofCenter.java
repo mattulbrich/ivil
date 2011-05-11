@@ -132,7 +132,7 @@ public class ProofCenter {
     /**
      * The main window.
      */
-    private MainWindow mainWindow;
+    private final MainWindow mainWindow;
 
     /**
      * The used environment.
@@ -208,10 +208,31 @@ public class ProofCenter {
 
         mainWindow = new MainWindow(this, env.getResourceName());
 
-        firePropertyChange(ONGOING_PROOF, false);
+        if (SwingUtilities.isEventDispatchThread()) {
+            firePropertyChange(ONGOING_PROOF, false);
 
-        mainWindow.makeGUI();
-        fireSelectedProofNode(proof.getRoot());
+            mainWindow.makeGUI();
+            fireSelectedProofNode(proof.getRoot());
+        } else {
+            try {
+                // ensure basic tests create the GUI in the right thread
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        firePropertyChange(ONGOING_PROOF, false);
+
+                        try {
+                            mainWindow.makeGUI();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        fireSelectedProofNode(proof.getRoot());
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         prepareRuleLists();
     }

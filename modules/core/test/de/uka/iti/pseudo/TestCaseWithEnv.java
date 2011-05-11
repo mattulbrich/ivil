@@ -9,7 +9,6 @@
  */
 package de.uka.iti.pseudo;
 
-import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 
