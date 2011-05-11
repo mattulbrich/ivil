@@ -617,7 +617,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             StringBuilder sb = new StringBuilder();
             sb.append("(").append(translation);
             TypeUnification tu = new TypeUnification();
-            tu.leftUnify(TypeUnification.makeSchemaVariant(
+            tu.unify(TypeUnification.makeSchemaVariant(
                     function.getResultType()), application.getType());
             for (TypeVariable tv : freeTypeVars) {
                 Type t = TypeUnification.makeSchemaVariant(tv);

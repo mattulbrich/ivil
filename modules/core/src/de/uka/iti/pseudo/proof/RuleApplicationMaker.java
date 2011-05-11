@@ -37,7 +37,7 @@ public class RuleApplicationMaker implements RuleApplication {
     
     public RuleApplicationMaker(Environment env) {
         // TODO Perhaps set this to null here?
-        termMatcher = new TermMatcher(env);
+        termMatcher = new TermMatcher();
     }
 
     public void setProofNode(ProofNode proofNode) {

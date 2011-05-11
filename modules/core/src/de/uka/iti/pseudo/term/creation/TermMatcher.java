@@ -15,8 +15,6 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -127,11 +125,8 @@ public class TermMatcher implements Cloneable {
 
     /**
      * Instantiates a new term unification.
-     * 
-     * @param env
-     *            the environment to look things up.
      */
-    public TermMatcher(Environment env) {
+    public TermMatcher() {
         termMatcherVisitor = new TermMatchVisitor(this);
     }
     

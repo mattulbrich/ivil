@@ -68,8 +68,13 @@ class TermMatchVisitor extends DefaultTermVisitor {
     public TermMatchVisitor(TermMatcher termMatcher) {
         this.termUnification = termMatcher;
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
-	// compareTerm is a non-null element
-	this.compareTerm = Environment.getTrue();
+        // compareTerm is a non-null element
+        try {
+            this.compareTerm = SchemaVariable.getInst("%a", new SchemaType("a"));
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false : "schema code broken or specs changed";
+        }
     }
 
     /**
