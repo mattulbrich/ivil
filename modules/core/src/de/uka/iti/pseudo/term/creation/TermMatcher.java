@@ -289,10 +289,11 @@ public class TermMatcher implements Cloneable {
     /**
      * Gets the instantiation for a schema type.
      * 
-     * @param sv
+     * @param variableName
      *            the schema type to look up
      * 
-     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     * @return the instantiation stored in the mapping if there is any, null
+     *         otherwise.
      */
     public @Nullable Type getTypeFor(String variableName) {
         return typeInstantiation.get(variableName);
@@ -301,10 +302,11 @@ public class TermMatcher implements Cloneable {
     /**
      * Gets the instantiation for a schema update.
      * 
-     * @param sv
+     * @param schemaIdentifier
      *            the schema update to look up
      * 
-     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     * @return the instantiation stored in the mapping if there is any, null
+     *         otherwise.
      */
     public @Nullable Update getUpdateFor(String schemaIdentifier) {
         return updateInst.get(schemaIdentifier);

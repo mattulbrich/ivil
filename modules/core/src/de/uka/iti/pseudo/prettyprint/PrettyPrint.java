@@ -205,6 +205,7 @@ public class PrettyPrint {
     /**
      * pretty print a list of assignments using the currently set properties on
      * this object. The format is as follows:
+     * 
      * <pre>
      *  v1 := exp1 || v2 := exp2 || ... || vn := expn
      * </pre>
@@ -212,7 +213,7 @@ public class PrettyPrint {
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
      * 
-     * @param assignmentList
+     * @param assignments
      *            the list to pretty print
      * @return a freshly created annotated string object.
      */

@@ -32,7 +32,7 @@ import de.uka.iti.pseudo.term.creation.TermFactory;
  * 
  * The result of this process still contains schema entities.
  * 
- * @see de.uka.iti.pseudo.justify.RuleProblemExtractor;
+ * @see de.uka.iti.pseudo.justify.RuleProblemExtractor
  * @see RuleAxiomExtractor
  */
 public class RuleFormulaExtractor {

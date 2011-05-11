@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -39,10 +38,7 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
-import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.TimingOutTask;

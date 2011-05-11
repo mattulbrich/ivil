@@ -31,8 +31,6 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TermFactory;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
-import de.uka.iti.pseudo.util.Log;
 
 
 //not threadsafe

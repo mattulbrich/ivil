@@ -170,15 +170,16 @@ public class SequentHistory {
     /**
      * Instantiates a new sequent history using information for the creation of
      * annotations and a parent sequent history. {@link #antecedent} and
-     * {@link #succedent} are copies of the lists in <code>sequentHistory</code>.
+     * {@link #succedent} are copies of the lists in <code>sequentHistory</code>
+     * .
      * 
      * @param sequentHistory
-     *            the sequent history used for initialisation
+     *            the sequent history used for initialization
      * @param ruleAppText
      *            the text used for new annotations
      * @param reasonAnnotation
      *            the parent annotation used for new annotations
-     * @param creatingProofNode
+     * @param proofNode
      *            the creating proof node used for new annotations
      */
     public SequentHistory(SequentHistory sequentHistory, String ruleAppText,
