@@ -88,10 +88,12 @@ public class TermSelector {
      */
     public TermSelector(boolean inAntecedent, int termNo, int... path) {
         assert termNo >= 0 && termNo <= Byte.MAX_VALUE;
-        
+
         this.inAntecedent = inAntecedent;
         this.termNumber = (byte) termNo;
-        // FIXME can this ever be null
+
+        // null check is needed, because "new TermSelector(true, 0, null);" is a
+        // valid java expression
         if(path != null && path.length > 0)
             this.subtermSelector = new SubtermSelector(path);
         else
