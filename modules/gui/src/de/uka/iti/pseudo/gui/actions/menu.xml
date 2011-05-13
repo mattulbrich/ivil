@@ -307,13 +307,16 @@
 	<termComponent>
 		<popup>
 			termComponent.showInfo termComponent.jumpToIntroduction
-			termComponent.autoHere proof.axiom
+			termComponent.autoHere proof.axiom termComponent.reintroduceHiddenTerm
 			SEPARATOR
 			termComponent.copy termComponent.copyPretty
 		</popup>
 		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
 		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
         <autoHere>TODO Apply automatic rules here </autoHere>
+        <reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
         <copy>ACTION sequent/CopyTerm</copy>
         <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
 	</termComponent>
