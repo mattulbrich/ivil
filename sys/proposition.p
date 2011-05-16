@@ -80,6 +80,28 @@ rule replace_known_right
   samegoal replace  false 
   tags dragdrop "9"
 
+rule remove_duplicate_left
+  find %b |-
+  assume %b |-
+  where
+    toplevel
+  where
+    distinctAssumeAndFind
+  remove
+  tags dragdrop "9"
+       verbosity "1"
+       
+rule remove_duplicate_right
+  find |- %b
+  assume |- %b
+  where
+    toplevel
+  where
+    distinctAssumeAndFind
+  remove
+  tags dragdrop "9"
+       verbosity "1"
+
 rule cut
   where
     interact  %inst as bool 
