@@ -38,7 +38,7 @@ import de.uka.iti.pseudo.util.Pair;
  *   where knownFormula %b, %left
  *   add %b |-
  *   tags autoonly
- *        display "Unhide formula from {property hiddenFormula}"
+ *        display "Unhide formula from {property knownFormula}"
  * </pre>
  * 
  * The same (mutatis mutandis) for {@code unhide_right}.

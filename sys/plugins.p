@@ -99,10 +99,10 @@ rule unhide_left
   where knownFormula %b, %LEFT
   add %b |-
   tags autoonly
-       display "Unhide formula from {property hiddenFormula}"
+       display "Unhide formula from {property knownFormula}"
        
 rule unhide_right
   where knownFormula %b, %RIGHT
   add |- %b
   tags autoonly
-       display "Unhide formula from {property hiddenFormula}"
+       display "Unhide formula from {property knownFormula}"
