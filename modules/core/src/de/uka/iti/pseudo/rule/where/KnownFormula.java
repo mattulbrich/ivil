@@ -98,7 +98,7 @@ public class KnownFormula extends WhereCondition {
     
     public static final String KNOWN_FORMULA_PROPERY = "knownFormula";
 
-    protected KnownFormula() {
+    public KnownFormula() {
         super("knownFormula");
     }
 
@@ -209,7 +209,7 @@ public class KnownFormula extends WhereCondition {
     private Pair<Integer, TermSelector> splitProperty(String property) throws RuleException {
         
         if(property == null)
-            throw new RuleException("Property " + KNOWN_FORMULA_PROPERY + "not set on rule application");
+            throw new RuleException("Property " + property + "not set on rule application");
 
         try {
             String[] parts = property.split(":");
@@ -247,8 +247,8 @@ public class KnownFormula extends WhereCondition {
             throw new RuleException("knownFormula expects a boolean term as first argument");
         
         String location = arguments[1].toString(false);
-        if(!"%RIGHT".equals(location) || !"%LEFT".equals(location))
-            throw new RuleException("knownFormula expects either %LEFT or %RIGHT as second argument");
+        if (!"%RIGHT".equals(location) && !"%LEFT".equals(location))
+            throw new RuleException("knownFormula expects either %LEFT or %RIGHT as second argument, was " + location);
     }
 
 }

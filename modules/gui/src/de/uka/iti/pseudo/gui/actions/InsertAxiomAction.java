@@ -100,7 +100,6 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
             ruleApp.setRule(axiomRule);
             ruleApp.getSchemaVariableMapping().put("%b", axiom.getTerm());
             
-            // TODO put this inside the lock! (or threaded)
             ProofNode node = pc.getCurrentProofNode();
             
             ruleApp.setProofNode(node);

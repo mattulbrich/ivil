@@ -29,12 +29,15 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.KnownFormula;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
@@ -50,34 +53,24 @@ import de.uka.iti.pseudo.util.Pair;
 public class ReintroduceHiddenTermAction extends BarAction implements InitialisingAction, PropertyChangeListener,
         NotificationListener {
 
-    private Rule axiomRule;
+    private Rule leftRule, rightRule;
 
-    public ReintroduceHiddenTermAction() {
+    public ReintroduceHiddenTermAction() throws ProofException {
         super("Reintroduce hidden term");
         putValue(SHORT_DESCRIPTION, "Allows you to reintroduce a term that was hidden earlier.");
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0));
-
-        ensurePresenceOfUnhideRule();
-    }
-
-    /**
-     * Ensures that the loaded environment contains the unhide_{left/right}
-     * rules.
-     * 
-     * @note it might be better to move the rule definition elsewhere
-     */
-    private void ensurePresenceOfUnhideRule() {
-        // TODO create a hide term rule
     }
 
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if (proofCenter != null) {
 
-            axiomRule = proofCenter.getEnvironment().getRule("axiom");
+            leftRule = getProofCenter().getEnvironment().getRule("unhide_left");
+            rightRule = getProofCenter().getEnvironment().getRule("unhide_right");
 
-            if (axiomRule == null) {
+            if (null == leftRule || null == rightRule) {
                 setEnabled(false);
+                putValue(SHORT_DESCRIPTION, "Missing unhide rule, load \"$plugins.p\".");
             } else {
                 proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
                 proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
@@ -103,31 +96,28 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
         Log.log(Log.TRACE, "before set visible");
         dlg.setVisible(true);
-        String axiomName = dlg.getAxiomName();
+        DataRecord selection = dlg.getSelection();
 
-        Log.log("Selected axiom: " + axiomName);
 
-        if (axiomName != null) {
-            Axiom axiom = env.getAxiom(axiomName);
+        if (selection != null) {
+            Log.log("Selected term: " + selection.term);
 
-            assert axiom != null : "the axiom must be found in the environment";
 
-            // MutableRuleApplication ruleApp = new MutableRuleApplication();
-            // ruleApp.getProperties().put(AxiomCondition.AXIOM_NAME_PROPERTY,
-            // axiomName);
-            // ruleApp.setRule(axiomRule);
-            // ruleApp.getSchemaVariableMapping().put("%b", axiom.getTerm());
-            //                    
-            // // TODO put this inside the lock! (or threaded)
-            // ProofNode node = pc.getCurrentProofNode();
-            //                    
-            // ruleApp.setProofNode(node);
-            // try {
-            // proof.apply(ruleApp, env);
-            // } catch (ProofException ex) {
-            // ex.printStackTrace();
-            // }
-            // pc.fireProoftreeChangedNotification(true);
+            MutableRuleApplication ruleApp = new MutableRuleApplication();
+            ruleApp.getProperties().put(KnownFormula.KNOWN_FORMULA_PROPERY,
+                    selection.location.fst() + ":" + selection.location.snd());
+            ruleApp.setRule(selection.location.snd().isAntecedent() ? leftRule : rightRule);
+            ruleApp.getSchemaVariableMapping().put("%b", selection.term);
+
+            ProofNode node = pc.getCurrentProofNode();
+
+            ruleApp.setProofNode(node);
+            try {
+                proof.apply(ruleApp, env);
+            } catch (ProofException ex) {
+                ex.printStackTrace();
+            }
+            pc.fireProoftreeChangedNotification(true);
 
         }
     }
@@ -208,7 +198,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
     }
 
     /**
-     * simple struct which stores data for hidden term entries.
+     * simple structure which stores data for hidden term entries.
      */
     static final class DataRecord {
         final Pair<Integer, TermSelector> location;
@@ -236,7 +226,9 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
     static class TermChooserDialog extends JDialog {
 
-        private String axiomName = null;
+        private static final long serialVersionUID = 6476000033251755919L;
+
+        private DataRecord selection = null;
 
         private JList termList;
 
@@ -287,7 +279,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
                     cancel.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            axiomName = null;
+                            selection = null;
                             dispose();
                         }
                     });
@@ -306,7 +298,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
                     ok.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            axiomName = (String) termList.getSelectedValue();
+                            selection = (DataRecord) termList.getSelectedValue();
                             dispose();
                         }
                     });
@@ -320,10 +312,10 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
         }
 
         /**
-         * @return the axiomName
+         * @return the selected term
          */
-        public String getAxiomName() {
-            return axiomName;
+        public DataRecord getSelection() {
+            return selection;
         }
 
     }
