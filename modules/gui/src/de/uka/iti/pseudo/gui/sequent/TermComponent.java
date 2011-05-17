@@ -437,11 +437,12 @@ public class TermComponent extends JTextPane {
             if (creatingProofNode == null || shouldShow(creatingProofNode)) {
                 String text = h.getText();
 
-                if (creatingProofNode != null)
+                if (creatingProofNode != null) {
                     text = instantiateString(creatingProofNode.getAppliedRuleApp(), text);
 
-                sb.append("<li>").append(text);
-
+                    sb.append("<li>Node ").append(creatingProofNode.getNumber()).append(": ");
+                }
+                sb.append(text);
                 sb.append("</li>\n");
                 len++;
             }

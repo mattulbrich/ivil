@@ -23,7 +23,6 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
@@ -52,6 +51,8 @@ import de.uka.iti.pseudo.util.Pair;
  */
 public class ReintroduceHiddenTermAction extends BarAction implements InitialisingAction, PropertyChangeListener,
         NotificationListener {
+
+    private static final long serialVersionUID = 5513782367544705985L;
 
     private Rule leftRule, rightRule;
 
@@ -83,7 +84,6 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
         setEnabled(!(Boolean) evt.getNewValue());
     }
 
-    // TODO if that works, create quantify-hide rules
     @Override
     public void actionPerformed(ActionEvent e) {
         Vector<DataRecord> terms = searchForHiddenTerms(getProofCenter().getCurrentProofNode());
