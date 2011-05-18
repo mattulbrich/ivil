@@ -208,6 +208,8 @@ ASTType TypeRef():
 		{ return new ASTTypeApplication(token, args); }
 	|
 		ty=BindableTypeRef() { return ty; }
+    |
+        ty=MapTypeRef() { return ty; }
 }
 
 /* type references that can be used for type binders.
@@ -222,7 +224,40 @@ ASTType BindableTypeRef():
         |
                 ( token = <SCHEMA_TYPE_IDENTIFIER> )
                 { return new ASTSchemaType(token); }
-} 
+}
+
+/*
+ may types look a lot like boogie maps, but the polymorphic bound use {} instead of < > to avoid the collision with the set of operators
+*/
+ASTType MapTypeRef():
+{
+  Token location;
+  List<ASTType> boundvars = new ArrayList<ASTType>();
+  List<ASTType> domain = new ArrayList<ASTType>();
+  ASTType range, tmp;
+}
+{
+  (
+    "{" tmp=BindableTypeRef() { boundvars.add(tmp); }
+    (
+      "," tmp=BindableTypeRef() { boundvars.add(tmp); }
+    )*
+    "}"
+  )?
+  location="["
+  (
+     tmp=TypeRef() { domain.add(tmp); }
+    (
+      "," tmp=TypeRef() { domain.add(tmp); }
+    )*
+  )?
+  "]"
+  range=TypeRef()
+  
+  {
+    return new ASTMapType(location, boundvars, domain, range);
+  }
+}
 
         
 ASTTerm ApplicationTerm():
