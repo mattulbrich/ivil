@@ -85,6 +85,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
+import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
@@ -190,14 +191,31 @@ public final class ProgramMaker extends DefaultASTVisitor {
             e.visit(this);
     }
 
+    /**
+     * Collects function symbol names in sb.
+     */
+    private void createRecAxiomName(StringBuilder sb, ASTElement axiom) {
+        if (axiom instanceof FunctionCallExpression) {
+            sb.append("_").append(((FunctionCallExpression) axiom).getName());
+        }
+        for (ASTElement t : axiom.getChildren())
+            createRecAxiomName(sb, t);
+    }
+
     @Override
     public void visit(AxiomDeclaration node) throws ASTVisitException {
+        // create the axiom
         defaultAction(node);
 
+        // construct a usable name
+        StringBuilder sb = new StringBuilder("axiom");
+        createRecAxiomName(sb, node.getAxiom());
+
         // add axiom
+        Term axiom = state.translation.terms.get(node.getAxiom());
         try {
-            state.env.addAxiom(new Axiom("axiom_" + state.env.getAllAxioms().size(), state.translation.terms.get(node
-                    .getAxiom()), new HashMap<String, String>(), node));
+            state.env.addAxiom(new Axiom(state.env.createNewAxiomName(sb.toString()), axiom,
+                    new HashMap<String, String>(), node));
         } catch (EnvironmentException e) {
             e.printStackTrace();
         }
