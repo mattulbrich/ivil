@@ -227,7 +227,10 @@ ASTType BindableTypeRef():
 }
 
 /*
- may types look a lot like boogie maps, but the polymorphic bound use {} instead of < > to avoid the collision with the set of operators
+ may types look a lot like boogie maps, but the polymorphic bound use {} instead of < > to avoid the collision with the set of operators.
+ This works, because {} is used in updates(term) and parallel assignments(statement) and thus can not
+ be confused with types. [] is used by modal operators(term) and therefor can also not be confused with types.
+ Also does the addition of this rule not create any new warnings.
 */
 ASTType MapTypeRef():
 {
