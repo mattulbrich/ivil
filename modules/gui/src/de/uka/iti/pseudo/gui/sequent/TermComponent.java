@@ -13,12 +13,8 @@ package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -27,12 +23,10 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
@@ -47,13 +41,9 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.parser.ASTVisitException;
-import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
-import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -62,19 +52,12 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
-import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
-import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.TextInstantiator;
-import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -255,13 +238,13 @@ public class TermComponent extends JTextPane {
         setCaret(new NotScrollingCaret());
         annotatedString.appendToDocument(getDocument(), attributeFactory);
         setDragEnabled(true);
-        setTransferHandler(new TermSelectionTransfer());
+        setTransferHandler(TermSelectionTransfer.getInstance());
 
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
             public void mouseExited(MouseEvent e) {
-                TermComponent.this.mouseExited(e);
+                TermComponent.this.mouseExited();
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -274,6 +257,8 @@ public class TermComponent extends JTextPane {
                 DropLocation loc = (DropLocation) evt.getNewValue();
                 if(loc != null)
                     TermComponent.this.mouseMoved(loc.getDropPoint());
+                else
+                    TermComponent.this.mouseExited();
             }
         });
 
@@ -356,9 +341,11 @@ public class TermComponent extends JTextPane {
     /*
      * Mouse exited the component: remove highlighting
      */
-    private void mouseExited(MouseEvent e) {
+    private void mouseExited() {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
+            setSelectionStart(0);
+            setSelectionEnd(0);
             mouseSelection = null;
         } catch (BadLocationException ex) {
             // this shant happen
@@ -389,6 +376,8 @@ public class TermComponent extends JTextPane {
                     Log.log(Log.VERBOSE, mouseSelection);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
+                setSelectionStart(0);
+                setSelectionEnd(0);
                 mouseSelection = null;
             }
         } catch (BadLocationException ex) {
@@ -448,11 +437,12 @@ public class TermComponent extends JTextPane {
             if (creatingProofNode == null || shouldShow(creatingProofNode)) {
                 String text = h.getText();
 
-                if (creatingProofNode != null)
+                if (creatingProofNode != null) {
                     text = instantiateString(creatingProofNode.getAppliedRuleApp(), text);
 
-                sb.append("<li>").append(text);
-
+                    sb.append("<li>Node ").append(creatingProofNode.getNumber()).append(": ");
+                }
+                sb.append(text);
                 sb.append("</li>\n");
                 len++;
             }
@@ -600,173 +590,8 @@ public class TermComponent extends JTextPane {
         if(mouseSelection == null)
             return null;
         
-        // Note: it might be necessary to transfer typed formulas
-        return new StringSelection(mouseSelection.getTerm().toString(false));
-    }
-
-    /**
-     * Drops a dragged term on this term component, which results in a rule
-     * application pop where only interactive rules are displayed, which are
-     * initialized with the dragged term.
-     * 
-     * @param term
-     *            This string has to represent a valid term
-     * 
-     * @return the node on which the rule was applied or null if no rule could
-     *         be applied
-     */
-    @SuppressWarnings("unchecked")
-    public ProofNode dropTermOnLocation(String term) {
-        final Environment env = proofCenter.getEnvironment();
-        
-        try {
-            Term instantiation;
-            try{
-                instantiation = TermMaker.makeAndTypeTerm(term, env);
-            } catch (Exception e) {
-                // if an exception occurs here, the dropped text is not a term
-
-                // this behavior is needed to allow terms to be dragged out of
-                // other applications such as browsers or document viewers
-                return null;
-            }
-
-            final List<RuleApplication> rulesApplicable = proofCenter.getApplicableRules(termSelector), ruleApps = new LinkedList<RuleApplication>();
-            
-            // buckets for priority 0 - 9
-            List<RuleApplication>[] bucket = new List[10];
-            for(int i = 0 ; i < 10; i++)
-                bucket[i] = new ArrayList<RuleApplication>();
-
-            // filter rules
-            for (RuleApplication ra : rulesApplicable) {
-                final String level = ra.getRule().getProperty("interactive");
-                if(null == level)
-                    continue;
-                
-                int lvl = Integer.parseInt(level);
-                
-                // set the interactive field to match instantiation
-                for (Map.Entry<String, String> entry : ra.getProperties().entrySet()) {
-                    String key = entry.getKey();
-                    if(!key.startsWith(Interactive.INTERACTION + "("))
-                       continue;
-
-                    String value = entry.getValue();
-                    boolean typeMode = false;
-
-                    if (value.startsWith(Interactive.INSTANTIATE_PREFIX)) {
-                        typeMode = true;
-                        value = value.substring(Interactive.INSTANTIATE_PREFIX.length());
-                    }
-
-                    String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
-                    Type svType;
-                    try {
-                        svType = TermMaker.makeType(value, env);
-                    } catch (ASTVisitException e) {
-                        Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
-                        continue;
-                    } catch (ParseException e) {
-                        Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
-                        continue;
-                    }
-                    
-                    ra = new MutableRuleApplication(ra);
-
-                    ra.getSchemaVariableMapping().put(svName, instantiation);
-                    if(typeMode)
-                        ra.getTypeVariableMapping().put(((SchemaType) svType).getVariableName(),
-                                instantiation.getType());
-                }
-
-                // check if ra is still applicable
-                if (!ra.getProofNode().applicable(ra, env))
-                    continue;
-
-                // adjust level; if level is invalid, map it to 0
-                lvl = lvl > 0 && lvl < 10? lvl : 0;
-                bucket[lvl].add(ra);
-            }
-            // the user might have specified, that he wants allways the rule in
-            // the highest bucket to be applied
-            if ((Boolean) proofCenter.getProperty(TermComponent.HIGHEST_PRIORITY_DRAG_AND_DROP)) {
-                for (int i = 9; i >= 0; i--) {
-                    for (RuleApplication ra : bucket[i]) {
-                        proofCenter.apply(ra);
-                        return ra.getProofNode();
-                    }
-                }
-            }
-
-            for (int i = 0; i < 10; i++)
-                ruleApps.addAll(0, bucket[i]);
-
-            // if no rules are applicable, the drop failed
-            if (ruleApps.size() == 0)
-                return null;
-
-            // only one rule is applicable, so apply it
-            if (ruleApps.size() == 1) {
-                proofCenter.apply(ruleApps.get(0));
-                return ruleApps.get(0).getProofNode();
-            }
-
-            // we don't know which rule to select, so let the user decide what
-            // he wants
-            {
-                final JPopupMenu popup = new JPopupMenu();
-
-                ActionListener listener = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        popup.setVisible(false);
-
-                        final String rule = ((JMenuItem) e.getSource()).getText();
-
-                        // we have to search the rule with the same name as
-                        // rule, but this is not a problem, as in general, there
-                        // are only few rules applicable
-
-                        for (RuleApplication ra : ruleApps) {
-                            if (ra.getRule().getName().equals(rule)) {
-                                try {
-                                    proofCenter.apply(ra);
-
-                                    final ProofNode target = ra.getProofNode();
-
-                                    // select the most interesting node
-                                    if (target.getChildren().size() > 0)
-                                        proofCenter.fireSelectedProofNode(target.getChildren().get(0));
-                                    else if (proofCenter.getProof().hasOpenGoals())
-                                        proofCenter.fireSelectedProofNode(proofCenter.getProof().getGoalbyNumber(0));
-                                    else
-                                        proofCenter.fireSelectedProofNode(proofCenter.getProof().getRoot());
-
-                                } catch (ProofException e1) {
-                                    ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), e1);
-                                }
-                                return;
-                            }
-                        }
-                    }
-                };
-
-                for (RuleApplication ra : ruleApps)
-                    popup.add(ra.getRule().getName()).addActionListener(listener);
-
-                popup.setLocation(MouseInfo.getPointerInfo().getLocation());
-
-                popup.setVisible(true);
-
-                // in this case, the event is created by the action listener
-                return null;
-            }
-
-        } catch (ProofException ex) {
-            ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), ex);
-        }
-        return null;
+        return new TermSelectionTransferable(this, mouseSelection.getTermSelector(termSelector), mouseSelection
+                .getTerm().toString(true));
     }
 
     /**
@@ -779,7 +604,19 @@ public class TermComponent extends JTextPane {
     /**
      * returns the ProofCenter it belongs to
      */
-    public final ProofCenter getProofCenter() {
+    final ProofCenter getProofCenter() {
         return proofCenter;
+    }
+
+    /**
+     * @return a list of rules which can be applied to the selected term
+     * @throws ProofException
+     *             see {@link ProofCenter#getApplicableRules(TermSelector)}
+     */
+    List<RuleApplication> getApplicableRules() throws ProofException {
+        if (null == mouseSelection)
+            return new ArrayList<RuleApplication>(0);
+        else
+            return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
     }
 }

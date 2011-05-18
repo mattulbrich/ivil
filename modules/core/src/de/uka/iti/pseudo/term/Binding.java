@@ -13,6 +13,8 @@ package de.uka.iti.pseudo.term;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
+import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Util;
 
@@ -152,22 +154,16 @@ public final class Binding extends Term {
                     + Util.listTerms(getSubterms()));
         }
 
-        TypeUnification unify = new TypeUnification();
+        TypeMatchVisitor matcher = new TypeMatchVisitor(new TermMatcher());
         Type[] argumentTypes = binder.getArgumentTypes();
 
         try {
-            for (int i = 0; i < countSubterms(); i++) {
-                unify.leftUnify(
-                        TypeUnification.makeSchemaVariant(argumentTypes[i]), 
-                        getSubterm(i).getType());
-            }
-            unify.leftUnify(
-                    TypeUnification.makeSchemaVariant(binder.getVarType()),
-                    getVariableType());
-            
-            unify.leftUnify(
-                    TypeUnification.makeSchemaVariant(binder.getResultType()),
-                    getType());
+            for (int i = 0; i < countSubterms(); i++)
+                TypeUnification.makeSchemaVariant(argumentTypes[i]).accept(matcher, getSubterm(i).getType());
+
+            TypeUnification.makeSchemaVariant(binder.getVarType()).accept(matcher, getVariableType());
+
+            TypeUnification.makeSchemaVariant(binder.getResultType()).accept(matcher, getType());
             
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()

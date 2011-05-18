@@ -32,6 +32,7 @@ import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.DropMode;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -61,8 +62,9 @@ import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.PopupDisappearListener;
-import de.uka.iti.pseudo.util.TermSelectionTransfer;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.WindowMover;
 import de.uka.iti.pseudo.util.settings.ColorResolver;
@@ -243,7 +245,6 @@ public class InteractiveRuleApplicationComponent extends
             }
         }
     }
-    
     private String htmlize(String message) {
         message = GUIUtil.htmlentities(message).replace("\n", "<br>");
         return "<html><pre>" + message + "</pre>";
@@ -268,19 +269,19 @@ public class InteractiveRuleApplicationComponent extends
     protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
         interactionList.clear();
-        for(Map.Entry<String, String> entry : app.getProperties().entrySet()) {
+        for (Map.Entry<String, String> entry : app.getProperties().entrySet()) {
             String key = entry.getKey();
-            if(!key.startsWith(Interactive.INTERACTION + "("))
-               continue;
-            
+            if (!key.startsWith(Interactive.INTERACTION + "("))
+                continue;
+
             String value = entry.getValue();
             boolean typeMode = false;
-            
-            if(value.startsWith(Interactive.INSTANTIATE_PREFIX)) {
+
+            if (value.startsWith(Interactive.INSTANTIATE_PREFIX)) {
                 typeMode = true;
                 value = value.substring(Interactive.INSTANTIATE_PREFIX.length());
             }
-            
+
             String svName = Util.stripQuotes(key.substring(Interactive.INTERACTION.length()));
             Type svType;
             try {
@@ -292,19 +293,20 @@ public class InteractiveRuleApplicationComponent extends
                 Log.log(Log.WARNING, "cannot parseType: " + value + ", continue anyway");
                 continue;
             }
-            
+
             JLabel label;
-            if(typeMode) {
+            if (typeMode) {
                 label = new JLabel(svName + " of some type");
             } else {
-                label = new JLabel(svName + " as " + svType); 
+                label = new JLabel(svName + " as " + svType);
             }
-            
+
             instantiationsPanel.add(label, 0);
             BracketMatchingTextArea textField = new BracketMatchingTextArea();
             textField.addActionListener(this);
             textField.setDragEnabled(true);
-            textField.setTransferHandler(new TermSelectionTransfer());
+            textField.setDropMode(DropMode.USE_SELECTION);
+            textField.setTransferHandler(TermSelectionTransfer.getInstance());
 
             // try to initialize the text field with a formula from the clip
             // board
@@ -322,7 +324,7 @@ public class InteractiveRuleApplicationComponent extends
             Log.log("handler: " + textField.getTransferHandler());
             instantiationsPanel.add(textField, 1);
             interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));
-            instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
+            instantiationsPanel.add(Box.createRigidArea(new Dimension(10, 10)));
         }
     }
 
@@ -353,7 +355,7 @@ class InteractionEntry {
  * into a {@link JWindow} which can then be shown as a popup.  
  */
 
-class InteractiveRuleApplicationPopup extends JWindow {
+class InteractiveRuleApplicationPopup extends JWindow implements NotificationListener {
 
     private static final long serialVersionUID = 251617174624191216L;
 
@@ -387,5 +389,14 @@ class InteractiveRuleApplicationPopup extends JWindow {
                 proofCenter.firePropertyChange(ProofCenter.SELECTED_RULEAPPLICATION, null);
             }
         });
+
+        // fixes: popup will remain visible if a rule is applied without using
+        // the popup
+        proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
+    }
+
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        setVisible(false);
     }
 }

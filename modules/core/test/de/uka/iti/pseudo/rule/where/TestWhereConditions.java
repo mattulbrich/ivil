@@ -60,7 +60,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(fresh.check(null, new Term[] { makeTerm("\\var x as int"), makeTerm("(\\forall x as int; true)")}, null, env));
         assertFalse(fresh.check(null, new Term[] { makeTerm("\\var x as int"), makeTerm("\\var x + 2")}, null, env));
         
-        TermMatcher tm = new TermMatcher(env);
+        TermMatcher tm = new TermMatcher();
         fresh.addInstantiations(tm, new Term[] { makeTerm("%x as int"), makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") });
         Term result = tm.getTermInstantiation().get("%x");
         assertEquals(makeTerm("\\var x2 as int"), result);

@@ -39,7 +39,7 @@
 		</editorMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
-			proof.prune proof.auto proof.autoSubtree proof.axiom proof.conjecture proof.decProc
+			proof.prune proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
 			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
 		</proofMenu>
 		
@@ -228,6 +228,9 @@
 		</prune>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
+		<reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
 		<axiom>ACTION InsertAxiomAction</axiom>
 		<conjecture>ACTION ConjectureAction
 		    <icon>img/lightbulb_add.png</icon>
@@ -307,13 +310,16 @@
 	<termComponent>
 		<popup>
 			termComponent.showInfo termComponent.jumpToIntroduction
-			termComponent.autoHere proof.axiom
+			termComponent.autoHere proof.axiom termComponent.reintroduceHiddenTerm
 			SEPARATOR
 			termComponent.copy termComponent.copyPretty
 		</popup>
 		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
 		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
         <autoHere>TODO Apply automatic rules here </autoHere>
+        <reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
         <copy>ACTION sequent/CopyTerm</copy>
         <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
 	</termComponent>

@@ -294,14 +294,15 @@ public class Settings {
     public boolean getBoolean(String key) throws SettingsException {
         return "true".equalsIgnoreCase(getProperty(key));
     }
-    
+
     /**
-     * return the boolean property that is stored in key.
-     * If there is no such property defValue is returned.
+     * return the boolean property that is stored in key. If there is no such
+     * property defValue is returned.
      * 
-     * @param key the key to lookup
-     * @param defValue the default value to return if the
-     * key is not defined
+     * @param key
+     *            the key to lookup
+     * @param defaultValue
+     *            the default value to return if the key is not defined
      * @return true iff key stored and has the value "true"
      */
     public boolean getBoolean(String key, boolean defaultValue)  {

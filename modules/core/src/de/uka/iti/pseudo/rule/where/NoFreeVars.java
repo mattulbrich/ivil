@@ -92,7 +92,7 @@ public class NoFreeVars extends WhereCondition {
             } else {
                 // if schema variable bound
                 // LOG if we use logging once
-                Log.println("We should actually only check unschematic terms, but: "
+                Log.log("We should actually only check unschematic terms, but: "
                                 + binding);
                 super.visit(binding);
             }

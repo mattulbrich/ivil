@@ -30,7 +30,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     }
     
     public void testLeftUnify1() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         
         Term t1 = mt("%a");
         Term t2 = mt("2+2");
@@ -38,7 +38,7 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertTrue(res);
         assertEquals(t2, mc.instantiate(t1));
         
-        mc = new TermMatcher(env);
+        mc = new TermMatcher();
         res = mc.leftMatch(mt("%a + %i"), mt("2 + 3"));
         assertTrue(res);
         assertEquals(mt("2"), mc.getTermFor(SchemaVariable.getInst("%a", Environment.getIntType())));
@@ -50,7 +50,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     }
     
     public void testUnifyIncomparable() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         Term t1 = mt("g(%b, %a as int)");
         Term t2 = mt("g(0, true)");
         assertFalse(mc.leftMatch(t1, t2));
@@ -60,18 +60,18 @@ public class TestTermUnification extends TestCaseWithEnv {
     
     // from an early bug
     public void testInstantiateConst() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         assertEquals(mt("true"), mc.instantiate(mt("true")));
     }
     
     public void testDiffInst() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         
         assertFalse(mc.leftMatch(mt("%a + %a"), mt("2+3")));
     }
     
     public void testConsecutiveUnification() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         
         assertTrue(mc.leftMatch(mt("%i"), mt("2")));
         assertTrue(mc.leftMatch(mt("%i1 + %i"), mt("4 + 2")));
@@ -81,7 +81,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     }
 
     public void testUpdates() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         
         assertFalse(mc.leftMatch(mt("{ i1 := 0 }true"), mt("{ i1 := 1 }true")));
         assertTrue(mc.leftMatch(mt("{ i1 := 0 }true"), mt("{ i1 := 0 }true")));
@@ -101,7 +101,7 @@ public class TestTermUnification extends TestCaseWithEnv {
      *  9: i1:=1 || b1 := true
      */  
     public void testModalities() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         Type bool = Environment.getBoolType();
         Type intTy = Environment.getIntType();
         Term.SHOW_TYPES = true;
@@ -155,7 +155,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     
     
     public void testTyping() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         mc.leftMatch(mt("%a"), mt("2"));
         
         assertEquals(mt("arb = 2"), mc.instantiate(mt("arb = %a as int")));
@@ -163,17 +163,17 @@ public class TestTermUnification extends TestCaseWithEnv {
     
     public void testDoubling() throws Exception {
         
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         assertFalse(mc.leftMatch(mt("g(arb as %'a, arb as %'a)"), mt("g(arb as int,arb as bool)")));
-        mc = new TermMatcher(env);
+        mc = new TermMatcher();
         assertFalse(mc.leftMatch(mt("(\\T_all %'b; bf(%x as %'b))"), mt("(\\T_all 'a; bf(0))")));
-        mc = new TermMatcher(env);
+        mc = new TermMatcher();
         assertFalse(mc.leftMatch(mt("(\\T_all %'a; true) & arb as %'a = arb"), mt("(\\T_all %'a; true) & arb as int = arb")));
         
     }
     
     public void testOccurCheck() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         try {
             mc.addInstantiation(SchemaVariable.getInst("%a", Environment
                     .getIntType()), mt("%a + 2"));
@@ -193,7 +193,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     }
     
     public void testBinder() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         Term term = mt("(\\forall i; i > 0)");
         assertTrue(mc.leftMatch(mt("(\\forall %i; %b)"), term));
         assertEquals(Environment.getBoolType(), mc.getTypeFor("b"));
@@ -202,12 +202,12 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(Variable.getInst("i", Environment.getIntType()), 
                 mc.getTermFor(SchemaVariable.getInst("%i", Environment.getBoolType())));
         
-        mc = new TermMatcher(env);
+        mc = new TermMatcher();
         assertFalse(mc.leftMatch(mt("(\\exists %i; %b)"), term));
     }
     
     public void testSchemaUpdates() throws Exception {
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         mc.leftMatch(mt("{U}%a"), mt("{i1:=0}b2"));
         
         assertEquals(mt("{i1:=0}i1"), mc.instantiate(mt("{U}i1")));
@@ -216,12 +216,12 @@ public class TestTermUnification extends TestCaseWithEnv {
     
     public void testTypeQuantification() throws Exception {
     
-        TermMatcher mc = new TermMatcher(env);
+        TermMatcher mc = new TermMatcher();
         
         mc.leftMatch(mt("(\\T_all %'a; arb = arb as %'a)"), mt("(\\T_all 'a; arb = arb as 'a)"));
         assertEquals(new TypeVariable("a"), mc.getTypeFor("a"));
         
-        mc = new TermMatcher(env);
+        mc = new TermMatcher();
         boolean res = mc.leftMatch(mt("(\\T_all %'a; (\\forall %x as %'a; %b))"), mt("(\\T_all 'a; (\\forall y as 'a; id(y)=y))"));
         assertTrue(res);
         
@@ -232,7 +232,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     // was a bug
     public void testClone1() throws Exception {
         
-        TermMatcher matcher = new TermMatcher(env);
+        TermMatcher matcher = new TermMatcher();
         
         boolean res = matcher.leftMatch(makeTerm("%x > 0"), makeTerm("i1 > 1"));
         assertFalse(res);

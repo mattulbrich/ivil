@@ -1,27 +1,61 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.rule.where;
 
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
-import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Term;
 
-// TODO
+/**
+ * The where condition "axiom" can be used to introduce axioms known to the
+ * system onto the working sequence.
+ * 
+ * It is usually used in a context like and triggered not by matching but by
+ * separate mechanisms in GUI or automation (hence "autoonly")
+ * 
+ * When applying a rule, the {@link RuleApplication} needs to have the property
+ * {@value #AXIOM_NAME_PROPERTY} set to the name of the axiom to be added.
+ * Additionally, the parameter (%b in the example) needs to match the axiom's
+ * formula.
+ * 
+ * <pre>
+ * rule `axiom`
+ *   where `axiom` %b
+ *   add %b |-
+ *   tags autoonly
+ *        display "Insert axiom {property axiomName}"
+ * </pre>
+ * 
+ * @author mattias ulbrich
+ */
 public class AxiomCondition extends WhereCondition {
+
+    public static final String AXIOM_NAME_PROPERTY = "axiomName";
 
     public AxiomCondition() {
         super("axiom");
-        // TODO Auto-generated constructor stub
     }
 
+    /**
+     * Extract the axiom name from the rule application. Retrieve the axiom and
+     * check that the actual paramter is identical.
+     */
     @Override
     public boolean check(Term[] formalArguments, Term[] actualArguments,
             RuleApplication ruleApp, Environment env)
             throws RuleException {
         
-        String axiomName = ruleApp.getProperties().get("axiomName");
+        String axiomName = ruleApp.getProperties().get(AXIOM_NAME_PROPERTY);
         if(axiomName == null) {
             throw new RuleException("Property axiomName not set on rule application");
         }
@@ -43,6 +77,10 @@ public class AxiomCondition extends WhereCondition {
         
     }
 
+    /**
+     * Syntax check:
+     * We expect exactly one boolean argument.
+     */
     @Override
     public void checkSyntax(Term[] arguments) throws RuleException {
         if(arguments.length != 1)

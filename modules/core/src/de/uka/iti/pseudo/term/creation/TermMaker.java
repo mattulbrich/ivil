@@ -134,16 +134,21 @@ public class TermMaker extends ASTDefaultVisitor {
         return termMaker.resultTerm;
         
     }
-    
+
     /**
      * Make a term from a ast term object.
      * 
      * The AST must NOT have been visited by a {@link TypingResolver}.
-     *  
+     * 
      * @param astTerm
      *            the term represented in an ast.
      * @param env
      *            the environment to use
+     * 
+     * @param targetType
+     *            the target type of the whole term. This type must not contain
+     *            SchemaTypes
+     * 
      * @return a term representing the ast
      * 
      * @throws ASTVisitException
@@ -161,9 +166,7 @@ public class TermMaker extends ASTDefaultVisitor {
         
         try {
             if(targetType != null) {
-                // we use leftUnify in order to not change the targetType 
-                // TypingResolver#solveConstraint uses bidirectional unify.
-                typingResolver.getTypingContext().leftUnify(astTerm.getTyping().getRawType(), targetType);
+                typingResolver.getTypingContext().unify(astTerm.getTyping().getRawType(), targetType);
             }
         } catch (UnificationException e) {
             throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
@@ -230,8 +233,7 @@ public class TermMaker extends ASTDefaultVisitor {
             throws ParseException, ASTVisitException {
         return makeAndTypeTerm(content, env, context, null);
     }
-    
-    
+
     /**
      * Make a term from a string.
      * 
@@ -240,7 +242,8 @@ public class TermMaker extends ASTDefaultVisitor {
      * information. An instance of this class then creates a {@link Term} object
      * out of the AST.
      * 
-     * <p>The resulting term is typed as targetType. If this is not possible, an
+     * <p>
+     * The resulting term is typed as targetType. If this is not possible, an
      * exception is thrown.
      * 
      * @param content
@@ -250,7 +253,8 @@ public class TermMaker extends ASTDefaultVisitor {
      * @param context
      *            the context name to be reported as file name to the parser
      * @param targetType
-     *            the target type of the whole term.
+     *            the target type of the whole term. This type must not contain
+     *            SchemaTypes
      * 
      * @return a term representing the string, it has type targetType
      * 
