@@ -912,32 +912,34 @@ public class UniversalType {
                 // create schema variables and types
                 SchemaVariable X[] = new SchemaVariable[domain.length];
                 Term argLoad[] = new Term[domain.length + 1];
-                Term lambda = v;
-                Term replace = v;
+                SchemaType curry_vt = new SchemaType("R");
 
-                Type curry_t = vt;
+                Term lambda = SchemaVariable.getInst("%v", curry_vt), replace = lambda;
+
+
+                Type curry_t = curry_vt;
                 Type drt[] = new Type[domain.length + 1];
 
                 for (int i = domain.length - 1; i >= 0; i--) {
-                    drt[i] = new SchemaType("d" + i);
+                    drt[i] = new SchemaType("D" + i);
                     X[i] = SchemaVariable.getInst("%x" + i, drt[i]);
                     argLoad[i + 1] = SchemaVariable.getInst("%y" + i, drt[i]);
 
                     curry_t = state.env.mkType("map", drt[i], curry_t);
                     lambda = Binding.getInst(state.env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
 
-                    replace = Application.getInst(state.env.getFunction("$$subst"), vt, new Term[] { X[i],
+                    replace = Application.getInst(state.env.getFunction("$$subst"), curry_vt, new Term[] { X[i],
                             argLoad[i + 1],
                             replace });
                 }
 
                 // lambda is now λ %X . %v
 
-                drt[domain.length] = vt;
+                drt[domain.length] = curry_vt;
 
                 argLoad[0] = Application.getInst(state.env.getFunction(map_t + "_curry"), mt, new Term[] { lambda });
 
-                Term find = Application.getInst(state.env.getFunction(map_t + "_load"), vt, argLoad);
+                Term find = Application.getInst(state.env.getFunction(map_t + "_load"), curry_vt, argLoad);
 
                 actions.add(new GoalAction("samegoal", null, false, replace, none, none));
 
