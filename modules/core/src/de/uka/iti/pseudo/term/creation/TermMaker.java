@@ -164,11 +164,15 @@ public class TermMaker extends ASTDefaultVisitor {
         astTerm.visit(typingResolver);
         astTerm = (ASTTerm) head.getWrappedElement();
         
+
         try {
             if(targetType != null) {
-                typingResolver.getTypingContext().unify(astTerm.getTyping().getRawType(), targetType);
+                TypeMatchVisitor matcher = new TypeMatchVisitor(new TermMatcher());
+                astTerm.getTyping().getRawType().accept(matcher, targetType);
             }
         } catch (UnificationException e) {
+            throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
+        } catch (TermException e) {
             throw new ASTVisitException("cannot type term as " + targetType, astTerm, e);
         }
         
@@ -253,8 +257,7 @@ public class TermMaker extends ASTDefaultVisitor {
      * @param context
      *            the context name to be reported as file name to the parser
      * @param targetType
-     *            the target type of the whole term. This type must not contain
-     *            SchemaTypes
+     *            the target type of the whole term.
      * 
      * @return a term representing the string, it has type targetType
      * 
