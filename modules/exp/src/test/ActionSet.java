@@ -12,6 +12,8 @@ public class ActionSet {
 
     static Action a = new AbstractAction() {
         
+        private static final long serialVersionUID = 2606750864175560539L;
+
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Hello World! " + getValue(SELECTED_KEY));

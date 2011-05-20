@@ -110,11 +110,11 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         }
         
         Object resource = chooseResource();
-        if(resource != null && !resource.equals(displayedResource)) {
+        if (resource != null && !resource.equals(displayedResource)) {
             selectionBox.setSelectedItem(resource);
+
             // this assertion ensures that the resource was in the list
-            // FIXME FIXME FIXME why is that to be removed now?!?!?!
-           // assert !resource.equals(displayedResource) : resource + " vs. " + getDisplayedResource();
+            assert resource.equals(displayedResource) : resource + " vs. " + getDisplayedResource();
         }
         
         getSourceComponent().removeHighlights();

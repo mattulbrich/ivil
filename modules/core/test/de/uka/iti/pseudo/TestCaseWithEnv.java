@@ -9,7 +9,6 @@
  */
 package de.uka.iti.pseudo;
 
-import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 
@@ -26,7 +25,7 @@ import de.uka.iti.pseudo.util.Util;
  * The Class TestCaseWithEnv provides infrastructure for test cases which need
  * environments.
  */
-public class TestCaseWithEnv extends TestCase {
+public abstract class TestCaseWithEnv extends TestCase {
 
     /**
      * DEFAULT_ENV is a default environment loaded from "testenv.p" and remains

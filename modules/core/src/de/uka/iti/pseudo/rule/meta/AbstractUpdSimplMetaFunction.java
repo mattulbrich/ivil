@@ -124,10 +124,10 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         Term[] args = new Term[application.countSubterms()];
         
         for (int i = 0; i < args.length; i++) {
-            args[i] = new UpdateTerm(update, application.getSubterm(i));
+            args[i] = UpdateTerm.getInst(update, application.getSubterm(i));
         }
         
-        return new Application(f, type, args);
+        return Application.getInst(f, type, args);
     }
     
     /*
@@ -143,10 +143,10 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         BindableIdentifier bi = binding.getVariable();
         Term[] args = new Term[binding.countSubterms()];
         for (int i = 0; i < args.length; i++) {
-            args[i] = new UpdateTerm(update, binding.getSubterm(i));
+            args[i] = UpdateTerm.getInst(update, binding.getSubterm(i));
         }
         
-        return new Binding(b, type, bi, args);
+        return Binding.getInst(b, type, bi, args);
     }
 
     /**
@@ -185,12 +185,12 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         
         // add all new updates in which the old update is applied
         for (Assignment ass : newAss) {
-            UpdateTerm value = new UpdateTerm(oldAss, ass.getValue());
+            UpdateTerm value = UpdateTerm.getInst(oldAss, ass.getValue());
             Assignment freshAss = new Assignment(ass.getTarget(), value);
             result.add(freshAss);
         }
         
-        return new UpdateTerm(new Update(result), updTerm.getSubterm(0));
+        return UpdateTerm.getInst(new Update(result), updTerm.getSubterm(0));
     }
     
     /*

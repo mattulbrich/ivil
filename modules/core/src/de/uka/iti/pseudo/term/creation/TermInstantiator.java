@@ -116,14 +116,14 @@ public class TermInstantiator extends RebuildingTermVisitor {
         {
             Update resultingUpdate = updateMap.get(schemaIdentifier);
             if(resultingUpdate != null) {
-                resultingTerm = new UpdateTerm(resultingUpdate, schemaUpdateTerm.getSubterm(0));
+                resultingTerm = UpdateTerm.getInst(resultingUpdate, schemaUpdateTerm.getSubterm(0));
             }
         } else {
             Update resultingUpdate = updateMap.get(schemaIdentifier);
             if(resultingUpdate == null) {
-                resultingTerm = new SchemaUpdateTerm(schemaIdentifier, resultingTerm);
+                resultingTerm = SchemaUpdateTerm.getInst(schemaIdentifier, resultingTerm);
             } else {
-                resultingTerm = new UpdateTerm(resultingUpdate, resultingTerm);
+                resultingTerm = UpdateTerm.getInst(resultingUpdate, resultingTerm);
             }
         }
     }
@@ -203,10 +203,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
         }
         
         if(newAssignments != null) {
-            resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
+            resultingTerm = UpdateTerm.getInst(new Update(newAssignments), innerResult);
         } else if(innerResult != updateTerm.getSubterm(0)) {
             newAssignments = Util.listToArray(assignments, Assignment.class);
-            resultingTerm = new UpdateTerm(new Update(newAssignments), innerResult);
+            resultingTerm = UpdateTerm.getInst(new Update(newAssignments), innerResult);
         } else {
             resultingTerm = null;
         }

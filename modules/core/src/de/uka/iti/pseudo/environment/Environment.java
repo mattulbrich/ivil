@@ -32,9 +32,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
-import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
-import de.uka.iti.pseudo.util.protocol.none.Handler;
 
 /**
  * The Class Environment captures all defined entities for a proof environment
@@ -507,13 +505,8 @@ public class Environment {
     public @NonNull
     String createNewSortName(@NonNull String prefix) {
         String newName = prefix;
-        int counter = 1;
-        boolean exists = getSort(newName) != null;
-        while (exists) {
+        for (int counter = 1; null != getSort(newName); counter++)
             newName = prefix + counter;
-            counter++;
-            exists = getSort(newName) != null;
-        }
 
         return newName;
     }
@@ -655,7 +648,7 @@ public class Environment {
      * Gets a number literal. It is dynamically added to the top level
      * environment if not already present.
      * 
-     * @param numberliteral
+     * @param value
      *            the literal, must be a positive number
      * 
      * @return the number literal as a function
@@ -724,7 +717,7 @@ public class Environment {
         try {
             Function cnstTrue = BUILT_IN_ENV.getFunction("true");
             assert cnstTrue != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstTrue, getBoolType());
+            return Application.create(cnstTrue, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -740,7 +733,7 @@ public class Environment {
         try {
             Function cnstFalse= BUILT_IN_ENV.getFunction("false");
             assert cnstFalse != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstFalse, getBoolType());
+            return Application.create(cnstFalse, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -920,11 +913,6 @@ public class Environment {
      * 
      * @return a sort with the name <code>name</code>, null if none found Gets
      *         the binder.
-     * 
-     * @param name
-     *            the name
-     * 
-     * @return the binder
      */
     public @Nullable
     Binder getBinder(@NonNull String name) {
@@ -1005,11 +993,6 @@ public class Environment {
      *            the name to look up
      * 
      * @return a rule with the name <code>name</code>, null if none found
-     * 
-     * @param name
-     *            the name to lookup
-     * 
-     * @return a rule by that name
      */
     public @Nullable
     Rule getRule(@NonNull String name) {
@@ -1249,13 +1232,31 @@ public class Environment {
     public @NonNull
     String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;
-        int counter = 1;
-        boolean exists = getFunction(newName) != null;
-        while (exists) {
+
+        for (int counter = 1; null != getFunction(newName); counter++)
             newName = prefix + counter;
-            counter++;
-            exists = getFunction(newName) != null;
-        }
+
+        return newName;
+    }
+
+    /**
+     * create a new symbol name which is not yet used.
+     * 
+     * We append natural numbers starting with 1. The first one which is not yet
+     * used is the candidate to choose.
+     * 
+     * @param prefix
+     *            the resulting function name will start with this prefix
+     * 
+     * @return an identifier that can be used as a axiom name for this
+     *         environment
+     */
+    public @NonNull
+    String createNewAxiomName(@NonNull String prefix) {
+        String newName = prefix;
+
+        for (int counter = 1; null != getAxiom(newName); counter++)
+            newName = prefix + counter;
 
         return newName;
     }

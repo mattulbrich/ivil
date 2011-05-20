@@ -114,8 +114,6 @@ public class RewriteRuleCollection {
      * We apply a {@link RuleApplicationFinder} first to the antecedent then to
      * the succedent.
      * 
-     * @param proof
-     *            the proof to look in
      * @param node
      *            the proof node to find a rule for
      * 

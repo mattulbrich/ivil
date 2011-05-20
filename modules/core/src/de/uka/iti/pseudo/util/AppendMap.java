@@ -28,7 +28,7 @@ import nonnull.Nullable;
  * <li>Snapshooting (i.e. calls to clone()) should be cheap
  * </ol>
  * 
- * AppendMaps keeps data as a singly-linked list of {@link LinkedEntry} objects.
+ * AppendMap keeps data as a singly-linked list of {@link LinkedEntry} objects.
  * Putting a new key into the map is achieved by <b>prepending</b> a new entry
  * to the list of entries. Overwriting the value for a key is performed by
  * partially copying the list and changing the entry in the copied list, always

@@ -81,7 +81,7 @@ public class FreshVariable extends WhereCondition {
             String varname = freshVarname(finder, prefix);
             Type type = termInstantiator.instantiate(schemaVar.getType());
             
-            termMatcher.addInstantiation(schemaVar, new Variable(varname, type));
+            termMatcher.addInstantiation(schemaVar, Variable.getInst(varname, type));
         
         } catch (TermException e) {
             throw new RuleException(e);

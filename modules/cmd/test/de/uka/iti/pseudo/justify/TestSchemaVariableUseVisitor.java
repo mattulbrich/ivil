@@ -51,10 +51,10 @@ public class TestSchemaVariableUseVisitor extends TestCaseWithEnv {
 	}
 	
 	private SchemaVariable sv(String string) throws TermException {
-		return new SchemaVariable(string, Environment.getBoolType());
+		return SchemaVariable.getInst(string, Environment.getBoolType());
 	}
 	
 	private SchemaVariable svInt(String string) throws TermException {
-		return new SchemaVariable(string, Environment.getIntType());
+		return SchemaVariable.getInst(string, Environment.getIntType());
 	}
 }

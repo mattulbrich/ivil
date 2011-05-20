@@ -43,8 +43,8 @@ import javax.swing.plaf.TextUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Document;
-import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 /**
  * The Class BracketMatchingTextArea provides a GUI TextArea component which
@@ -323,7 +323,8 @@ public class BracketMatchingTextArea extends JTextArea implements CaretListener 
     static private class BorderPainter implements HighlightPainter {
 
         /**
-         * The code is copied from {@link DefaultHighlighter#DefaultPainter#paint(Graphics)}
+         * The code is copied from {@link DefaultHighlighter#DefaultPainter
+         * #paint(Graphics)}.
          */
         public void paint(Graphics g, int offs0, int offs1, Shape bounds,
                 JTextComponent c) {

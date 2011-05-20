@@ -99,8 +99,8 @@ public class Util {
 	    }
 	    return sb.toString();
 	}
-	
-	/**
+
+    /**
      * Join an array of objects into a string separated by some string in
      * between them
      * 
@@ -111,7 +111,8 @@ public class Util {
      *            some array of objects
      * @param sep
      *            the separating string
-     * @return
+     * 
+     * @return the concatenation of the objects as strings.
      */
     public static String join(Object[] array, String sep) {
         return join(readOnlyArrayList(array), sep);
@@ -424,7 +425,7 @@ public class Util {
     /**
      * Get the currently running version number as a string.
      * 
-     * The version is read from the resource {@value VERSION_PATH}. If this
+     * The version is read from the resource {@value #VERSION_PATH}. If this
      * cannot be read, "&lt&unknown version&gt;" is returned.
      * 
      * @return a non-null version description

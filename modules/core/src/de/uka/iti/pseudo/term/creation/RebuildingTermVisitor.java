@@ -94,7 +94,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             Type varType = variable.getType();
             Type type = modifyType(varType);
             if(!type.equals(varType))
-                resultingTerm = new Variable(variable.getName(), type);
+                resultingTerm = Variable.getInst(variable.getName(), type);
         }
     }
 
@@ -109,7 +109,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             Type varType = schemaVariable.getType();
             Type type = modifyType(varType);
             if(!type.equals(varType))
-                resultingTerm = new SchemaVariable(schemaVariable.getName(), type);
+                resultingTerm = SchemaVariable.getInst(schemaVariable.getName(), type);
         }
     }
     
@@ -148,12 +148,12 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             
             Type modifiedType = modifyType(binding.getType());
             if(args != null) {
-                resultingTerm = new Binding(binding.getBinder(), modifiedType,
+                resultingTerm = Binding.getInst(binding.getBinder(), modifiedType,
                         (BindableIdentifier)bindingReplacement, args);
             } else if(!modifiedType.equals(binding.getType()) ||
                     !bindingReplacement.equals(binding.getVariable())) {
                 args = Util.listToArray(binding.getSubterms(), Term.class);
-                resultingTerm = new Binding(binding.getBinder(), modifiedType,
+                resultingTerm = Binding.getInst(binding.getBinder(), modifiedType,
                         (BindableIdentifier)bindingReplacement, args);
             } else {
                 resultingTerm = null;
@@ -196,7 +196,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
 
             if(changed) {
-                resultingTerm = new TypeVariableBinding(tyVarBinding.getKind(),
+                resultingTerm = TypeVariableBinding.getInst(tyVarBinding.getKind(),
                         boundType, subterm);
             } else {
                 resultingTerm = null;
@@ -252,11 +252,11 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
             Type modifiedType = modifyType(application.getType());
             if(args != null) {
-                resultingTerm = new Application(application.getFunction(), 
+                resultingTerm = Application.getInst(application.getFunction(), 
                         modifiedType, args);
             } else if(!modifiedType.equals(application.getType())) {
                 args = Util.listToArray(application.getSubterms(), Term.class);
-                resultingTerm = new Application(application.getFunction(), 
+                resultingTerm = Application.getInst(application.getFunction(), 
                         modifiedType, args);
             } else {
                 resultingTerm = null;
@@ -286,7 +286,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 if(childResult == null)
                     childResult = updateTerm.getSubterm(0);
                 Update update = new Update(newAssignments);
-                resultingTerm = new UpdateTerm(update, childResult);
+                resultingTerm = UpdateTerm.getInst(update, childResult);
             } else {
                 resultingTerm = null;
             }
@@ -301,7 +301,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
         defaultVisitTerm(schemaUpdateTerm);
         if(resultingTerm != null) {
-            resultingTerm = new SchemaUpdateTerm(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
+            resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
         }
     }
 

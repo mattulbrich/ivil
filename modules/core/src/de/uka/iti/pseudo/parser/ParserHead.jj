@@ -33,6 +33,7 @@ import java.net.URL;
 
 import de.uka.iti.pseudo.util.Pair;
 
+@SuppressWarnings("all")
 public class Parser {
 
     public Parser() {

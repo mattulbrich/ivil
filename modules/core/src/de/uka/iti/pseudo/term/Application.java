@@ -14,6 +14,8 @@ package de.uka.iti.pseudo.term;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
+import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Util;
 
@@ -23,7 +25,7 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * The arguments are stored as subterms in the superclass.
  */
-public class Application extends Term {
+public final class Application extends Term {
 
     /**
      * The function which is this term's top level symbol
@@ -31,7 +33,11 @@ public class Application extends Term {
     private Function function;
 
     /**
-     * Instantiates a new application term.
+     * Create a new application term.
+     * 
+     * <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
      * 
      * @param funct
      *            the function symbol to use
@@ -43,7 +49,7 @@ public class Application extends Term {
      * @throws TermException
      *             if the type check fails.
      */
-    public Application(@NonNull Function funct, @NonNull Type type, Term[] subterms)
+    private Application(@NonNull Function funct, @NonNull Type type, Term[] subterms)
             throws TermException {
         super(subterms, type);
         this.function = funct;
@@ -51,20 +57,44 @@ public class Application extends Term {
     }
 
     /**
-     * Instantiates a new constant w/o arguments.
+     * Gets an application term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
      * 
      * @param funct
-     *            the constant symbol
+     *            the function symbol to use
      * @param type
-     *            the type to set
-     * 
+     *            the type to set for this term
+     * @param subterms
+     *            the arguments to the symbol
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
      * @throws TermException
-     *            if type checking fails.
+     *             if the type check fails.
      */
-    public Application(Function funct, Type type) throws TermException {
-        super(type);
-        this.function = funct;
-        typeCheck();
+    public static @NonNull Application getInst(@NonNull Function funct, @NonNull Type type, Term[] subterms) throws TermException {
+        return (Application) new Application(funct, type, subterms).intern();
+    }
+    
+    /**
+     * Gets an application term for a constant w/o parameters.
+     * 
+     * If a term with the given parameters already exists in the system, it is
+     * returned instead of freshly created one.
+     * 
+     * @param funct
+     *            the function symbol to use
+     * @param type
+     *            the type to set for this term
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
+     * @throws TermException
+     *             if the type check fails.
+     */
+    public static Application create(@NonNull Function funct, @NonNull Type type) throws TermException {
+        return getInst(funct, type, NO_ARGUMENTS);
     }
     
     /**
@@ -94,19 +124,14 @@ public class Application extends Term {
                     + Util.listTerms(getSubterms()));
         }
 
-        TypeUnification unify = new TypeUnification();
+        TypeMatchVisitor matcher = new TypeMatchVisitor(new TermMatcher());
         Type[] argumentTypes = function.getArgumentTypes();
 
         try {
-            for (int i = 0; i < countSubterms(); i++) {
-                unify.leftUnify(
-                        TypeUnification.makeSchemaVariant(argumentTypes[i]), 
-                        getSubterm(i).getType());
-            }
+            for (int i = 0; i < countSubterms(); i++)
+                TypeUnification.makeSchemaVariant(argumentTypes[i]).accept(matcher, getSubterm(i).getType());
             
-            unify.leftUnify(
-                    TypeUnification.makeSchemaVariant(function.getResultType()),
-                    getType());
+            TypeUnification.makeSchemaVariant(function.getResultType()).accept(matcher, getType());
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
                     + " cannot be typed.\nFunction symbol: " + function 

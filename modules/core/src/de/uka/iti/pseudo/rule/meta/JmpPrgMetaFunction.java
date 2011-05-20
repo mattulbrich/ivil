@@ -57,7 +57,7 @@ public class JmpPrgMetaFunction extends MetaFunction {
         
         if (arg instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) arg;
-            return new LiteralProgramTerm(jmpTarget, progTerm);
+            return LiteralProgramTerm.getInst(jmpTarget, progTerm);
         } else {
             throw new TermException("not a program term " + arg);
         }

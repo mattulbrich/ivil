@@ -10,10 +10,9 @@
  */
 package de.uka.iti.pseudo.term;
 
-import checkers.nullness.quals.AssertNonNullAfter;
-import checkers.nullness.quals.AssertNonNullIfTrue;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import checkers.nullness.quals.AssertNonNullIfTrue;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Util;
 
@@ -26,7 +25,7 @@ import de.uka.iti.pseudo.util.Util;
  * a literal program term. If the matching statement is null, no matching is
  * performed.
  */
-public class SchemaProgramTerm extends ProgramTerm {
+public final class SchemaProgramTerm extends ProgramTerm {
 
     /**
      * The matching statement to match against.
@@ -36,6 +35,30 @@ public class SchemaProgramTerm extends ProgramTerm {
     /**
      * Instantiates a new schema program term.
      * 
+     * <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
+     * 
+     * @param schemaVariable
+     *            the schema variable to capture the whole program term
+     * @param terminating
+     *            the termination state of this term
+     * @param matchingStatement
+     *            the matching statement, may be null
+     */
+    private SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
+            boolean terminating, @Nullable Statement matchingStatement) {
+        super(new Term[] { schemaVariable }, terminating);
+        this.matchingStatement = matchingStatement;
+    }
+
+    /**
+     * Gets an application term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
      * @param schemaVariable
      *            the schema variable to capture the whole program term
      * @param terminating
@@ -43,14 +66,13 @@ public class SchemaProgramTerm extends ProgramTerm {
      * @param matchingStatement
      *            the matching statement, may be null
      * 
-     * @throws TermException
-     *             never thrown
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
      */
-    public SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement)
-            throws TermException {
-        super(new Term[] { schemaVariable }, terminating);
-        this.matchingStatement = matchingStatement;
+    public static @NonNull SchemaProgramTerm getInst(@NonNull SchemaVariable schemaVariable,
+            boolean terminating, @Nullable Statement matchingStatement) {
+        return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, terminating,
+                matchingStatement).intern();
     }
 
     /**

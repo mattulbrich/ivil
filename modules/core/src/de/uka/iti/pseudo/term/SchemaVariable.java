@@ -23,7 +23,7 @@ import nonnull.Nullable;
  * <p>Schema variables can be bound in {@link Binding} which is the reason why the class extends {@link BindableIdentifier} 
  * rather than {@link Term} directly.
  */
-public class SchemaVariable extends BindableIdentifier {
+public final class SchemaVariable extends BindableIdentifier {
 
     /**
      * The prefix with which schema variables' names have to begin.
@@ -38,6 +38,10 @@ public class SchemaVariable extends BindableIdentifier {
     /**
      * Instantiates a new schema variable.
      * 
+     *  <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
+     * 
      * @param name
      *            the name of the schema variable which has to begin with {@value #SCHEMA_PREFIX}
      * @param type
@@ -46,11 +50,35 @@ public class SchemaVariable extends BindableIdentifier {
      * @throws TermException
      *             if the name does not begin with the {@link #SCHEMA_PREFIX}
      */
-    public SchemaVariable(@NonNull String name, @NonNull Type type) throws TermException {
+    private SchemaVariable(@NonNull String name, @NonNull Type type) throws TermException {
         super(type);
         this.name = name;
         if(!name.startsWith(SCHEMA_PREFIX))
             throw new TermException("Schema variables need to have a name starting with " + SCHEMA_PREFIX);
+    }
+
+    /**
+     * Gets an scheme variable term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
+     * @param name
+     *            the name of the schema variable which has to begin with
+     *            {@value #SCHEMA_PREFIX}
+     * @param type
+     *            the type of the schema variable
+     * 
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
+     * 
+     * @throws TermException
+     *             if the name does not begin with the {@link #SCHEMA_PREFIX}
+     */
+    
+    public static @NonNull SchemaVariable getInst(@NonNull String name, @NonNull Type type) throws TermException {
+        return (SchemaVariable) new SchemaVariable(name, type).intern();
     }
     
     /* (non-Javadoc)

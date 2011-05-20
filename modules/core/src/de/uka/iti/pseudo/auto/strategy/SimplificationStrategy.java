@@ -155,7 +155,6 @@ public class SimplificationStrategy extends AbstractStrategy implements
         }
 
         // check if env asks us to change split mode
-        // FIXME Error if valueOf fails.
         {
             String value = env.getProperty(this.getClass().getSimpleName()
                     + ".splitMode");

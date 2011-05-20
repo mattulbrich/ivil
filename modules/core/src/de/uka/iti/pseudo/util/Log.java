@@ -159,21 +159,6 @@ public class Log {
     
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
-     * 
-     * Logging level {@link #DEBUG} is used.
-     * 
-     * Deprecated: Use the log methods instead.
-     * 
-     * @see PrintStream#println(Object)
-     * @param s the message to log
-     */
-    @Deprecated
-    public static void println(Object s) {
-        dbgPrint(DEBUG, s.toString());
-    }
-    
-    /**
-     * Log an message (using {@link Object#toString()}) to {@link System#err}.
      * A line break is automatically amended.
      * 
      * Logging level {@link #DEBUG} is used.

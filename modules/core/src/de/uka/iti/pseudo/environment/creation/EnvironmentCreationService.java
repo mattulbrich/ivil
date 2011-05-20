@@ -95,7 +95,7 @@ public abstract class EnvironmentCreationService {
      * 
      * @param stream
      *            the source the data should be taken from.
-     * @param url
+     * @param resource
      *            the resource name to set in the environment.
      * 
      * @return a pair of environment and problem term. The latter may be

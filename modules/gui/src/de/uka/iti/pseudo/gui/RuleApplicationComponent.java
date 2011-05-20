@@ -33,7 +33,6 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 
@@ -104,6 +103,7 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
             panel.setBorder(BorderFactory.createTitledBorder("Rule"));
             ruleText = new JTextArea();
             ruleText.setEditable(false);
+            ruleText.setFocusable(false);
             ruleText.setBackground(getBackground());
             ruleText.setFont(RULE_FONT);
             panel.add(ruleText, BorderLayout.CENTER);

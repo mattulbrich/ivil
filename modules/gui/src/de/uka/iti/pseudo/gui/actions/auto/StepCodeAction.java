@@ -124,7 +124,7 @@ public abstract class StepCodeAction extends BarAction implements
 
                             for (ProofNode node : current.getChildren()) {
                                 CodeLocation next = getCodeLocation(node);
-                                if (null == next || next.equals(loc)) {
+                                if (null == next || next.sameAs(loc)) {
                                     todo.add(node);
                                 }
                             }

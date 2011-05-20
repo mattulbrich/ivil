@@ -38,6 +38,16 @@ public class TestAppendSet extends TestCaseWithEnv {
         }
     }
     
+    public void testClear() throws Exception {
+        AppendSet<Integer> map = new AppendSet<Integer>();
+        map.add(22);
+        map.add(44);
+        map.add(22);
+        map.clear();
+        
+        assertEquals(0, map.size());
+    }
+    
     public void testClone() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);

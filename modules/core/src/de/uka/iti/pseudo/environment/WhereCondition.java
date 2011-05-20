@@ -12,10 +12,10 @@ package de.uka.iti.pseudo.environment;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
-import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 
@@ -30,16 +30,15 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
  * <li> {@link #checkSyntax(Term[])} which is called when creating a where
  * clause. An implementation should check the number and static type of
  * arguments, etc.
- * <li> {@link #check(Term[], Term[], RuleApplication, ProofNode, Environment)}
- * is used to check whether a where clause allows the application of a rule or
- * inhibits it given a schema variable instantiation.
+ * <li> {@link #check(Term[], Term[], RuleApplication, Environment)} is used to
+ * check whether a where clause allows the application of a rule or inhibits it
+ * given a schema variable instantiation.
  * </ol>
  * 
  * <h4>Immutable rule applications</h4>
  * 
- * The {@link #check(Term[], Term[], RuleApplication, ProofNode, Environment)}
- * method receives a {@link RuleApplication} as argument, but must not modify
- * it.
+ * The {@link #check(Term[], Term[], RuleApplication, Environment)} method
+ * receives a {@link RuleApplication} as argument, but must not modify it.
  * 
  * @see Rule
  * @see WhereClause

@@ -1,6 +1,6 @@
 #
 # This file is part of This file is part of
-#    ivil - Interactive Verification on Intermediate Language
+#    ivil - dragdrop Verification on Intermediate Language
 #
 # Copyright (C) 2009 Universitaet Karlsruhe, Germany
 #    written by Mattias Ulbrich
@@ -25,13 +25,31 @@ rule exists_right
   find  |-  (\exists %x; %b) 
   where
     interact %inst
-  add |-  $$subst(%x, %inst, %b) 
+  add |-  $$subst(%x, %inst, %b)
+  tags dragdrop "6"
+  
+rule exists_right_hide
+  find  |-  (\exists %x; %b) 
+  where
+    interact %inst
+  replace  $$subst(%x, %inst, %b)
+  tags dragdrop "6"
+       hiding "find"
 
 rule forall_left
   find  (\forall %x; %b)  |-
   where
     interact %inst
   add $$subst(%x, %inst, %b) |-
+  tags dragdrop "6"
+
+rule forall_left_hide
+  find  (\forall %x; %b)  |-
+  where
+    interact %inst
+  replace $$subst(%x, %inst, %b)
+  tags dragdrop "6"
+       hiding "find"
 
 rule exists_left
   find   (\exists %x; %b)  |-
@@ -45,12 +63,30 @@ rule typed_forall_left
   where
     interact %inst as %'inst, true
   add $$polymorphicSpec(%x as %'a, %inst, %b, true) |-
+  tags dragdrop "7"
+  
+rule typed_forall_left_hide
+  find (\T_all %'a; (\forall %x as %'a; %b)) |-
+  where
+    interact %inst as %'inst, true
+  replace $$polymorphicSpec(%x as %'a, %inst, %b, true)
+  tags dragdrop "7"
+       hiding "find"
 
 rule type_quant_left
   find (\T_all %'a; %b) |-
   where
     interact %inst as %'inst, true
   add $$polymorphicSpec(arb as %'a, %inst, %b, false) |-
+  tags dragdrop "4"
+
+rule type_quant_left_hide
+  find (\T_all %'a; %b) |-
+  where
+    interact %inst as %'inst, true
+  replace $$polymorphicSpec(arb as %'a, %inst, %b, false)
+  tags dragdrop "4"
+       hiding "find"
 
 (*
  * Conditionals
@@ -111,7 +147,8 @@ rule equality_apply
   assume  %t = %u  |-
   where
     toplevel
-  replace   %u 
+  replace   %u
+  tags dragdrop "8"
 
 rule auto_equality_apply
   find %t 

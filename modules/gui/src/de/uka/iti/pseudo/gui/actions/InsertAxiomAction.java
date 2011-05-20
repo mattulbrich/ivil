@@ -33,6 +33,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.AxiomCondition;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
@@ -95,11 +96,10 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
             assert axiom != null : "the axiom must be found in the environment";
             
             MutableRuleApplication ruleApp = new MutableRuleApplication();
-            ruleApp.getProperties().put("axiomName", axiomName);
+            ruleApp.getProperties().put(AxiomCondition.AXIOM_NAME_PROPERTY, axiomName);
             ruleApp.setRule(axiomRule);
             ruleApp.getSchemaVariableMapping().put("%b", axiom.getTerm());
             
-            // TODO put this inside the lock! (or threaded)
             ProofNode node = pc.getCurrentProofNode();
             
             ruleApp.setProofNode(node);

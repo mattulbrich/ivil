@@ -23,7 +23,7 @@ public class TestTermReplacer extends TestCaseWithEnv {
         TermReplacer tr = new TermReplacer();
         
         TypeVariable alpha = new TypeVariable("a");
-        Term varx = new Variable("x", alpha);
+        Term varx = Variable.getInst("x", alpha);
         Term replaceWith = makeTerm("other as 'a");
         
         // replaceIn = "x = arb"

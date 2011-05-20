@@ -128,20 +128,19 @@ public class EnvironmentMaker {
     throws ParseException, ASTVisitException, MalformedURLException, IOException {
         this(parser, url, Environment.BUILT_IN_ENV);
     }
-    
+
     /**
      * Instantiates a new environment maker.
-     *
+     * 
      * The file is parsed and the environment created automatically. The
      * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
      * as parent.
-     *
+     * 
      * @param parser
      *            the parser to use for include instructions
-     * @param url
-     *            the url to parse, its name is used as name for the
-     *            environment
-     *
+     * @param resource
+     *            the url to parse, its name is used as name for the environment
+     * 
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException

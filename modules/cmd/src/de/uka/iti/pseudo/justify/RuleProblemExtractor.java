@@ -291,7 +291,7 @@ public class RuleProblemExtractor {
                     assert TypeVariableCollector.collectSchema(instType).isEmpty() : 
                         "Ensure no free schema type in instantiation";
                     
-                    mapVars.put(schemaName, new Variable(newname, instType));
+                    mapVars.put(schemaName, Variable.getInst(newname, instType));
                 }
             }
         }
@@ -374,7 +374,7 @@ public class RuleProblemExtractor {
 
         //
         // build skolemisation (application)
-        Term sk = new Application(f, instType, argTerms);
+        Term sk = Application.getInst(f, instType, argTerms);
         assert TypeVariableCollector.collectSchema(sk).isEmpty() :
             "Ensure no free schema type in skolemisation";
 

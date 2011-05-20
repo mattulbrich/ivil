@@ -290,6 +290,7 @@ rule loop_invariant
     replace $$loopInvPrgMod(%a, %inv, 0)
   tags
     display "invariant in {%a}: {explain %a}"
+    interactive "5"
 
 rule loop_invariant_update
   find |- {U}[%a]
@@ -300,6 +301,7 @@ rule loop_invariant_update
     replace {U}$$loopInvPrgMod(%a, %inv, 0)
   tags
     display "invariant in {%a}: {explain %a}"
+    interactive "5"
 
 rule loop_invariant_t
   find |- [[%a]]
@@ -313,6 +315,7 @@ rule loop_invariant_t
     replace $$loopInvPrgMod(%a, %inv, %var)
   tags
     display "invariant in {%a}: {explain %a}"
+    dragdrop "5"
 
 rule loop_invariant_update_t
   find |- {U}[[%a]]
@@ -324,6 +327,7 @@ rule loop_invariant_update_t
     replace {U}$$loopInvPrgMod(%a, %inv, %var)
   tags
     display "invariant in {%a}: {explain %a}"
+    dragdrop "5"
 
 rule auto_loop_invariant
   find |- [%a : skip_loopinv %inv]

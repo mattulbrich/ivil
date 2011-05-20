@@ -23,10 +23,10 @@ import de.uka.iti.pseudo.term.statement.Statement;
  * The index must be a non-negative number, but may exceed the index range of
  * the program.
  */
-public class LiteralProgramTerm extends ProgramTerm {
+public final class LiteralProgramTerm extends ProgramTerm {
 
     // TODO the two following fields look as if they should be replaced by a
-    // CodeLocation
+    // CodeLocation (TF)
     /**
      * The statement counter index into the program
      */
@@ -39,6 +39,10 @@ public class LiteralProgramTerm extends ProgramTerm {
 
     /**
      * Instantiates a new literal program term for an index into a program.
+     * 
+     * <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
      * 
      * @param programIndex
      *            a non-negative number
@@ -61,6 +65,56 @@ public class LiteralProgramTerm extends ProgramTerm {
     }
 
     /**
+     * Gets an application term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
+     * @param programIndex
+     *            a non-negative number
+     * @param terminating
+     *            the termination state of the modality
+     * @param program
+     *            the referenced program
+     * 
+     * @throws TermException
+     *             if parameters not well-defined
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
+     */
+    public static @NonNull
+    LiteralProgramTerm getInst(int programIndex, boolean terminating,
+            @NonNull Program program) throws TermException {
+        return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
+                terminating, program).intern();
+    }
+
+    /**
+     * Gets an literal program term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
+     * @param index
+     *            program index of the new program term
+     * @param original
+     *            the original program term
+     * @throws TermException
+     *             if the index is invalid
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
+     * 
+     */
+    public static @NonNull
+    LiteralProgramTerm getInst(int programIndex,
+            @NonNull LiteralProgramTerm original) throws TermException {
+        return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
+                original.isTerminating(), original.getProgram()).intern();
+    }
+
+    /**
      * create a new literal program term which is a copy of the original program
      * term with the exception of the programIndex which differs.
      * 
@@ -71,14 +125,15 @@ public class LiteralProgramTerm extends ProgramTerm {
      * @throws TermException
      *             if the index is invalid
      */
-    public LiteralProgramTerm(int index,  @NonNull LiteralProgramTerm original)
+    public LiteralProgramTerm(int index, @NonNull LiteralProgramTerm original)
             throws TermException {
         super(original.isTerminating());
         this.program = original.program;
         programIndex = index;
 
         if (programIndex < 0)
-            throw new TermException("Illegally formated literal program index: " + index);
+            throw new TermException(
+                    "Illegally formated literal program index: " + index);
 
     }
 
