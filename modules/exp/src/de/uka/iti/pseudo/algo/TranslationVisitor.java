@@ -11,6 +11,11 @@ public class TranslationVisitor implements AlgoParserVisitor {
     private List<String> header = new ArrayList<String>();
     private List<String> statements = new ArrayList<String>();
     private IdentifierProducer idProducer = new IdentifierProducer();
+    private String sourceFile;
+    
+    public TranslationVisitor(String sourceFile) {
+        this.sourceFile = sourceFile;
+    }
     
     private void addSourceLineStatement(SimpleNode node) {
         statements.add(" sourceline " + node.jjtGetFirstToken().beginLine);
@@ -41,7 +46,10 @@ public class TranslationVisitor implements AlgoParserVisitor {
     @Override
     public String visit(ASTAlgo node, Object data) {
         String id = visitChild(node, 0);
-        statements.add("program " + id + " source \"dij.algo\"");
+        if(sourceFile != null)
+            statements.add("program " + id + " source \"" + sourceFile + "\"");
+        else
+            statements.add("program " + id);
         node.childrenAccept(this, data);
         statements.add("");
         return null;

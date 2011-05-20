@@ -1,0 +1,72 @@
+// uses "prioq.algo.p"
+uses "array.p"
+uses "$symbex.p"
+uses "$decproc.p"
+
+algo PrioQueueTake
+
+var /* in/out */
+  h : map(int, int)
+  
+var
+  last : int
+  i : int
+  min : int
+  h0 : map(int, int)
+  
+output
+  result : int
+  
+do
+  /* preconditions */
+  assume len(h) > 0 ; "pre cond" ;;
+  assume (\forall i; 1<=i & i < len(h) -> h[i] >= h[(i-1)/2]) ; "invariant" ;;
+  
+  h0 := h ;;
+  
+  assert 0 <= 0 & 0 < len(h) ; "range check h[0]" ;;
+  result := h[0] ;;
+  
+  assert 0 <= len(h)-1 & len(h)-1 < len(h) ; "range check h[len(h) - 1]" ;;
+  last := h[len(h) - 1] ;;
+  
+  assert 0 <= len(h)-1 & len(h)-1 < len(h) ; "range check removeLast" ;;
+  h := removeNo(h, len(h)-1) ;;
+  
+  if len(h) > 0
+  then
+  
+    assert 0 <= 0 & 0 < len(h) ; "range check h[0]" ;;
+    h[0] := last ;;
+  
+    note isPermN(write(removeNo(idPerm(len(h0)), 0), len(h)-1, 0)) ;;
+  
+    i := 0 ;;
+    while i < len(h) / 2 - 1
+      inv len(h) = len(h0) - 1
+       & isPerm(h, removeNo(h0, 0))
+      var len(h) - i
+    do
+       if h[2*i + 1] > h[2*i + 2]
+       then
+         min := 2*i+2
+       else
+         min := 2*i+1
+       end ;;
+     
+       if h[i] > h[min]
+       then
+         h := swap(h, i, min) ;;
+         i := min
+       else
+         i := len(h) // "break"
+       end
+    end 
+  end ;;
+  
+  /* post cond */
+  assert len(h) = len(h0) - 1 ;;
+  assert (\forall i; 1<=i & i < len(h) -> h[i] >= h[(i-1)/2]) ; "invariant" ;;
+  assert isPerm(h, removeNo(h0, 0)) 
+end
+  
