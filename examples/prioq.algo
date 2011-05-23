@@ -14,6 +14,10 @@ var
   min : int
   h0 : map(int, int)
   
+// temp:
+var
+  perm : map(int, int)
+  
 output
   result : int
   
@@ -38,8 +42,14 @@ do
   
     assert 0 <= 0 & 0 < len(h) ; "range check h[0]" ;;
     h[0] := last ;;
-  
-    note isPermN(write(removeNo(idPerm(len(h0)), 0), len(h)-1, 0)) ;;
+
+    perm := insert(idPerm(len(h)-1), 0, len(h)-1) ;;
+    note isPermN(perm) ;;
+    assert h[0] = read(removeNo(h0, 0), perm[0]) ;;
+   
+    assert (\forall i; 0<=i & i<len(perm) -> h[i] = 
+    	read(removeNo(h0, 0), perm[i])) ;;
+    assert len(perm) = len(h0) - 1;;
   
     i := 0 ;;
     while i < len(h) / 2 - 1

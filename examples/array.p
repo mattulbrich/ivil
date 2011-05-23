@@ -5,7 +5,7 @@ include "$int.p"
 function
   int          len(map(int, 'b))
   map('a,'b)   swap(map('a,'b), 'a, 'a)
-  map(int,'b)  append(map(int, 'b), 'b)
+  map(int,'b)  insert(map(int,'b), int, 'b)
   map(int,'b)  emptyArray
   map(int,'b)  removeNo(map(int, 'b), int)
   bool         isPerm(map(int, 'b), map(int, 'b))
@@ -15,10 +15,6 @@ function
 rule read_swap
   find read(swap(%m, %x, %y), %a)
   replace read(%m, cond(%x=%a, %y, cond(%y=%a, %x, %a)))
-
-rule append_to_write
-  find append(%m, %b)
-  replace write(%m, len(%m), %b)
 
 rule len_write
   find len(write(%m, %a, %b))
@@ -32,9 +28,11 @@ rule len_swap
   tags 
     rewrite "fol simp"
 
-rule len_append
-  find len(append(%m, %b))
+rule len_insert
+  find len(insert(%m, %i, %b))
   replace len(%m) + 1
+  tags 
+    rewrite "fol simp"
 
 rule len_emptyArray
   find len(emptyArray)
@@ -54,9 +52,15 @@ rule len_removeNo
 
 rule read_removeNo
   find read(removeNo(%m, %n), %i)
-  replace read(%m, cond(%i < %n, %i, %i - 1))
+  replace read(%m, cond(%i < %n, %i, %i + 1))
   tags 
     rewrite "fol simp"
+
+rule read_insert
+  find read(insert(%m, %i, %b), %j)
+  replace cond(%j = %i, %b, read(%m, cond(%j < %i, %j, %j-1)))
+  tags 
+    rewrite "fol simp"  
 
 rule isPerm_swap
   find isPerm(swap(%m, %a, %b), %n)
@@ -67,7 +71,7 @@ rule isPerm_def
   replace len(%a) = len(%b) 
     & (\exists p; isPermN(p) & len(p) = len(%a)
        & (\forall i; 0 <= i & i < len(p) ->
-            (\exists j; 0 <= j & j < len(p) & read(%a, i) = read(%b, read(p, j)))))
+            read(%a, i) = read(%b, read(p, i))))
 
 rule read_idPerm
   find read(idPerm(%n), %i)
