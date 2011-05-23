@@ -17,11 +17,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import checkers.nullness.quals.AssertNonNullAfter;
-import checkers.nullness.quals.Nullable;
-
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
+import checkers.nullness.quals.Nullable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;

@@ -52,7 +52,7 @@
         </settingsMenu>
         
         <experimentalMenu text="Experimental" mnemonic="X">
-           experimental.exportSMT experimental.exportEnv
+           experimental.exportSMT experimental.exportEnv file.reloadAndReprove
         </experimentalMenu>
         
 	</prover>
@@ -206,6 +206,13 @@
 			<text>Reload problem</text>
 			<icon>img/page_white_green_text.png</icon>
 		</reloadProb>
+		<reloadAndReprove>ACTION io/ReloadAndReproveProblemAction
+			<tooltip>reload the problem of the current frame into a 
+			   new frame and replay this proof.</tooltip>
+			<mnemonic>L</mnemonic>
+			<accelerator>control shift R</accelerator>
+			<text>Reload and reprove problem</text>
+		</reloadAndReprove>
 		<recentProb>COMPONENT RecentProblemsMenu</recentProb>
 		<loadProof>ACTION io/LoadProofAction
 			<tooltip>load a proof to the currently active problem</tooltip>
