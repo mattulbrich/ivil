@@ -73,6 +73,12 @@ rule isPerm_def
        & (\forall i; 0 <= i & i < len(p) ->
             read(%a, i) = read(%b, read(p, i))))
 
+rule isPerm_refl
+  find isPerm(%a, %a)
+  replace true
+  tags
+    rewrite "fol simp"
+
 rule read_idPerm
   find read(idPerm(%n), %i)
   replace %i
@@ -89,4 +95,8 @@ rule isPermN_def
   find isPermN(%p)
   replace (\forall i; 0 <= i & i < len(%p) -> 
       (\exists j; 0 <= j & j < len(%p) & read(%p, i) = j))
+
+rule isPermN_idPerm
+  find isPermN(idPerm(%n))
+  replace true
   
