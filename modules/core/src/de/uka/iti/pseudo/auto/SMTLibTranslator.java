@@ -97,7 +97,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             "true", "true", "$not", "not", "$and", "and", "$or", "or", "$impl",
             "implies", "$equiv", "iff", "\\forall", "forall", "\\exists",
             "exists", "$gt", ">", "$lt", "<", "$gte", ">=", "$lte", "<=",
-            "$eq", "=", "$plus", "+", "$minus", "-", "$mult", "*", "$neg", "-" };
+            "$eq", "=", "$plus", "+", "$minus", "-", "$mult", "*", "$div",
+            "div", "$neg", "-" };
 
     /**
      * These symbols are predicates and, hence, result in a FORMULA rather than
