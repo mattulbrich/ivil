@@ -163,15 +163,15 @@
 		</redo>
 		
 		<settings>
-			<lineWrap>TOGGLE_ACTION EditorPropertyAction lineWrap
+			<lineWrap>TOGGLE_ACTION editor/EditorPropertyAction lineWrap
 				<text>Wrap long lines</text>
 				<tooltip>break long lines for display</tooltip>
 			</lineWrap>
-			<syntaxChecking>TOGGLE_ACTION EditorPropertyAction syntaxCheck
+			<syntaxChecking>TOGGLE_ACTION editor/EditorPropertyAction syntaxCheck
 				<text>Syntax checking</text>
 				<tooltip>automatically check for syntax errors every 500ms</tooltip>
 			</syntaxChecking>
-            <syntaxHighlighting>TOGGLE_ACTION EditorPropertyAction syntaxHighlight
+            <syntaxHighlighting>TOGGLE_ACTION editor/EditorPropertyAction syntaxHighlight
                 <text>Syntax highlighting</text>
                 <tooltip>mark up ivil syntax in the edited file</tooltip>
             </syntaxHighlighting>
