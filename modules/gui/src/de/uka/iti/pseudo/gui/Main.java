@@ -172,10 +172,11 @@ public class Main {
     }
 
 
-    public static void openEditor(File file) throws IOException {
+    public static PFileEditor openEditor(File file) throws IOException {
         PFileEditor editor = new PFileEditor(file);
         editor.setSize(600, 800);
         showFileEditor(editor);
+        return editor;
     }
     
     private static void showFileEditor(PFileEditor editor) {
