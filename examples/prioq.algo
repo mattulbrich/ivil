@@ -47,20 +47,35 @@ do
     note isPermN(perm) ;;
   
     i := 0 ;;
-    while i < len(h) / 2 - 1
+    while i < len(h) / 2
       inv len(h) = len(h0) - 1
-       & (\forall j; 1<=j & j < len(h) & ! i = (j-1)/2 ->
-          h[j] >= h[(j-1)/2])
+       & i >= 0
+       
+       & (\forall j; 1<=j & j < len(h) ->
+         cond(i = (j-1)/2, 
+           !i=0 -> h[j] >= h[(i-1)/2],
+           h[j] >= h[(j-1)/2]))
+           
        & isPerm(h, removeNo(h0, 0))
       var len(h) - i
     do
-       if h[2*i + 1] > h[2*i + 2]
+    
+       if 2*i+2 = len(h)
        then
-         min := 2*i+2
+         min := 2*i + 1
        else
-         min := 2*i+1
+         assert 0<=2*i+1 & 2*i+1<len(h) ; "rangecheck h[2*i + 1]" ;;
+         assert 0<=2*i+2 & 2*i+2<len(h) ; "rangecheck h[2*i + 2]" ;;
+         if h[2*i + 1] > h[2*i + 2]
+         then
+           min := 2*i+2
+         else
+           min := 2*i+1
+         end
        end ;;
      
+       assert 0<=i & i<len(h) ; "rangecheck h[i]" ;;
+       assert 0<=min & min<len(h) ; "rangecheck h[min]" ;;
        if h[i] > h[min]
        then
          h := swap(h, i, min) ;;

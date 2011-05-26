@@ -21,24 +21,28 @@ rule len_write
   replace len(%m)
   tags 
     rewrite "fol simp"
+    verbosity "7"
 
 rule len_swap
   find len(swap(%m, %x, %y))
   replace len(%m)
   tags 
     rewrite "fol simp"
+    verbosity "7"
 
 rule len_insert
   find len(insert(%m, %i, %b))
   replace len(%m) + 1
   tags 
     rewrite "fol simp"
+    verbosity "7"
 
 rule len_emptyArray
   find len(emptyArray)
   replace 0
   tags 
     rewrite "fol simp"
+    verbosity "7"
 
 rule len_nonneg
   find len(%a)
@@ -49,18 +53,21 @@ rule len_removeNo
   replace len(%m) - 1
   tags 
     rewrite "fol simp"
+    verbosity "7"
 
 rule read_removeNo
   find read(removeNo(%m, %n), %i)
   replace read(%m, cond(%i < %n, %i, %i + 1))
   tags 
     rewrite "fol simp"
+    verbosity "8"
 
 rule read_insert
   find read(insert(%m, %i, %b), %j)
   replace cond(%j = %i, %b, read(%m, cond(%j < %i, %j, %j-1)))
   tags 
-    rewrite "fol simp"  
+    rewrite "fol simp"
+    verbosity "7"
 
 rule isPerm_swap
   find isPerm(swap(%m, %a, %b), %n)
@@ -78,24 +85,28 @@ rule isPerm_refl
   replace true
   tags
     rewrite "fol simp"
+    verbosity "6"
 
 rule read_idPerm
   find read(idPerm(%n), %i)
   replace %i
   tags 
-    rewrite "fol simp"  
+    rewrite "fol simp"
+    verbosity "8"
 
 rule len_idPerm
   find len(idPerm(%n))
   replace %n
   tags 
     rewrite "fol simp"
+    verbosity "8"
 
 rule isPermN_def
   find isPermN(%p)
   replace (\forall i; 0 <= i & i < len(%p) -> 
       (\exists j; 0 <= j & j < len(%p) & read(%p, i) = j))
 
+# todo: this is not sound ...
 rule isPermN_idPerm
   find isPermN(idPerm(%n))
   replace true
