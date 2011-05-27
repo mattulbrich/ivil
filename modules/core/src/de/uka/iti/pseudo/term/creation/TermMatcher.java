@@ -15,8 +15,6 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
-import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -63,7 +61,7 @@ public class TermMatcher implements Cloneable {
     
     /**
      * The mapping from schema updates to their instantiations.
-     * <p> We use {@link AppendMap} here because we ne often need to clone
+     * <p> We use {@link AppendMap} here because we often need to clone
      * for unification attempts.
      */
     private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
@@ -127,11 +125,8 @@ public class TermMatcher implements Cloneable {
 
     /**
      * Instantiates a new term unification.
-     * 
-     * @param env
-     *            the environment to look things up.
      */
-    public TermMatcher(Environment env) {
+    public TermMatcher() {
         termMatcherVisitor = new TermMatchVisitor(this);
     }
     
@@ -289,10 +284,11 @@ public class TermMatcher implements Cloneable {
     /**
      * Gets the instantiation for a schema type.
      * 
-     * @param sv
+     * @param variableName
      *            the schema type to look up
      * 
-     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     * @return the instantiation stored in the mapping if there is any, null
+     *         otherwise.
      */
     public @Nullable Type getTypeFor(String variableName) {
         return typeInstantiation.get(variableName);
@@ -301,10 +297,11 @@ public class TermMatcher implements Cloneable {
     /**
      * Gets the instantiation for a schema update.
      * 
-     * @param sv
+     * @param schemaIdentifier
      *            the schema update to look up
      * 
-     * @return the instantiation stored in the mapping if there is any, null otherwise.
+     * @return the instantiation stored in the mapping if there is any, null
+     *         otherwise.
      */
     public @Nullable Update getUpdateFor(String schemaIdentifier) {
         return updateInst.get(schemaIdentifier);

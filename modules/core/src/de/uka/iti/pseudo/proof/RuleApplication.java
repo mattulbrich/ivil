@@ -26,7 +26,8 @@ import de.uka.iti.pseudo.term.Update;
  * application, i.e., it records
  * <ol>
  * <li>which {@link Rule} is to be applied
- * <li>to which open goal of a {@link Proof} (see {@link Proof#getGoal(int)})
+ * <li>to which open goal of a {@link Proof} (see
+ * {@link Proof#getGoalbyNumber(int)})
  * <li>It provides a {@link TermSelector} indicating the <i>find</i> clause of
  * the rule,
  * <li>as well as a list of {@code TermSelector}s indicating the <i>assume</i>
@@ -63,7 +64,7 @@ public interface RuleApplication {
      * Retrieves the goal to apply the rule on. The node must be a leaf in a
      * proof: It must not have been pruned and must not have children yet.
      * 
-     * @see Proof#getGoal(int)
+     * @see Proof#getGoalbyNumber(int)
      * @see ProofNode#getNumber()
      * @return a non-negative integer
      */

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" path="modules/boogie/src"/>
+	<classpathentry kind="src" path="modules/boogie/test"/>
+	<classpathentry kind="src" path="modules/cmd/src"/>
+	<classpathentry kind="src" path="modules/cmd/test"/>
 	<classpathentry kind="src" path="modules/core/genSrc"/>
 	<classpathentry kind="src" path="modules/core/src"/>
-	<classpathentry kind="src" path="modules/boogie/src"/>
-	<classpathentry kind="src" path="modules/cmd/src"/>
+	<classpathentry kind="src" path="modules/core/test"/>
 	<classpathentry kind="src" path="modules/exp/src"/>
 	<classpathentry kind="src" path="modules/gui/src"/>
-	<classpathentry kind="src" path="modules/core/test"/>
-	<classpathentry kind="src" path="modules/cmd/test"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
-	<classpathentry kind="src" path="modules/boogie/test"/>
 	<classpathentry kind="lib" path="lib/javadocking.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

@@ -1,0 +1,36 @@
+This presents a small overview of tags. It might be a good idea to write a nicer
+ documentation some day.
+
+
+dragdrop
+========
+
+Purpose:
+ Tells the GUI, that this rule can be used using drag and drop gestures.
+
+Argument:
+ Digit from 0 to 9 which the discribes how "interesting" it will be to the user
+ to chose this application over others. There is an option that will make the 
+ user chose the rule with the highest number be chosen automatically.
+ 
+Restrictions:
+ This tag can only be used if the rule has exactly one interact where condition
+ or, if it has no interact condition, it has exactly one assume statement.
+ This is because only one term can be transfered using drag and drop.
+ 
+ 
+hiding
+======
+
+Purpose:
+ States, that the Argument terms were hidden and might be interesting later.
+ 
+Argument:
+ List of locations seperated by ','. Locations can be either 'find', to match 
+ the find clause, or 'a%i' where %i is the i'th assume statement. As there is
+ at the moment writing no mechanism to hide other terms then the find clause,
+ only the find mechanism is encouraged to be used.
+ 
+Restrictions:
+ The hidden terms have to be toplevel terms, as other terms can generally not be
+ reintroduced to the sequent.

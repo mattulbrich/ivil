@@ -35,40 +35,47 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
-import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
+import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
-import de.uka.iti.pseudo.util.TermSelectionTransfer;
-import de.uka.iti.pseudo.util.TermSelectionTransferable;
 import de.uka.iti.pseudo.util.TextInstantiator;
+import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
+ * 
+ * To the user, objects of this class will appear as a single term in the
+ * sequent view.
  */
 public class TermComponent extends JTextPane {
 
     public static final String TERM_COMPONENT_SELECTED_TAG =
         "termComponent.popup.selectedTermTag";
+
+    /**
+     * The key is used to control the drag and drop mode.
+     */
+    public static final String HIGHEST_PRIORITY_DRAG_AND_DROP = "pseudo.termcomponent.autoDnD";
 
     private static Settings S = Settings.getInstance();
     
@@ -198,7 +205,6 @@ public class TermComponent extends JTextPane {
         }
     };
 
-    // TODO DOC
     /**
      * Instantiates a new term component.
      * 
@@ -232,13 +238,13 @@ public class TermComponent extends JTextPane {
         setCaret(new NotScrollingCaret());
         annotatedString.appendToDocument(getDocument(), attributeFactory);
         setDragEnabled(true);
-        setTransferHandler(new TermSelectionTransfer());
+        setTransferHandler(TermSelectionTransfer.getInstance());
 
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
             public void mouseExited(MouseEvent e) {
-                TermComponent.this.mouseExited(e);
+                TermComponent.this.mouseExited();
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -251,6 +257,8 @@ public class TermComponent extends JTextPane {
                 DropLocation loc = (DropLocation) evt.getNewValue();
                 if(loc != null)
                     TermComponent.this.mouseMoved(loc.getDropPoint());
+                else
+                    TermComponent.this.mouseExited();
             }
         });
 
@@ -270,7 +278,7 @@ public class TermComponent extends JTextPane {
             setComponentPopupMenu(popupMenu);
             popupMenu.addPopupMenuListener(popupMenuListener);
         } catch (IOException ex) {
-            Log.println("Disabling popup menu in term component");
+            Log.log(Log.DEBUG, "Disabling popup menu in term component");
             Log.stacktrace(ex);
         }
     }
@@ -333,9 +341,11 @@ public class TermComponent extends JTextPane {
     /*
      * Mouse exited the component: remove highlighting
      */
-    private void mouseExited(MouseEvent e) {
+    private void mouseExited() {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
+            setSelectionStart(0);
+            setSelectionEnd(0);
             mouseSelection = null;
         } catch (BadLocationException ex) {
             // this shant happen
@@ -353,6 +363,8 @@ public class TermComponent extends JTextPane {
                 int begin = annotatedString.getBeginAt(index);
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
+                setSelectionStart(begin);
+                setSelectionEnd(end);
                 
                 mouseSelection = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(mouseSelection));
@@ -364,10 +376,11 @@ public class TermComponent extends JTextPane {
                     Log.log(Log.VERBOSE, mouseSelection);
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
+                setSelectionStart(0);
+                setSelectionEnd(0);
                 mouseSelection = null;
             }
         } catch (BadLocationException ex) {
-            // TODO just ignore this for now
             ex.printStackTrace();
         }
     }
@@ -392,9 +405,6 @@ public class TermComponent extends JTextPane {
      * <li>For programs, print the current statement
      * <li>The history, at least the first 60 elements
      * </ol>
-     * 
-     * TODO Have something like "F2" to focus on the content and provide links
-     * ;)
      * 
      * @param termTag
      *            tag to print info on
@@ -427,11 +437,12 @@ public class TermComponent extends JTextPane {
             if (creatingProofNode == null || shouldShow(creatingProofNode)) {
                 String text = h.getText();
 
-                if (creatingProofNode != null)
+                if (creatingProofNode != null) {
                     text = instantiateString(creatingProofNode.getAppliedRuleApp(), text);
 
-                sb.append("<li>").append(text);
-
+                    sb.append("<li>Node ").append(creatingProofNode.getNumber()).append(": ");
+                }
+                sb.append(text);
                 sb.append("</li>\n");
                 len++;
             }
@@ -548,7 +559,7 @@ public class TermComponent extends JTextPane {
         }
         
         if(begin == -1) {
-            Log.println("cannot mark subterm number " + termNo + " in " + annotatedString);
+            Log.log(Log.DEBUG, "cannot mark subterm number " + termNo + " in " + annotatedString);
             return;
         }
 
@@ -561,31 +572,51 @@ public class TermComponent extends JTextPane {
         }
     }
 
-    public void clearMarks() {
+    /**
+     * removes all highlights
+     */
+    void clearMarks() {
         for (Object highlight : marks) {
             getHighlighter().removeHighlight(highlight);
         }
         marks.clear();
     }
 
+    /**
+     * used by drag and drop to create a transferable version, i.e. a string, of
+     * the selected formula
+     */
     public Transferable createTransferable() {
         if(mouseSelection == null)
             return null;
         
-        TermSelector ts = mouseSelection.getTermSelector(termSelector);
-        String string = mouseSelection.getTerm().toString(false);
-        return new TermSelectionTransferable(ts, string);
+        return new TermSelectionTransferable(this, mouseSelection.getTermSelector(termSelector), mouseSelection
+                .getTerm().toString(true));
     }
 
-    public boolean dropTermOnLocation(TermSelector ts, Point point) {
-        // TODO Implement drag and drop between terms
-        Log.log(Log.WARNING, "NOT IMPLEMENTED YET");
-        Log.log(Log.WARNING, ts +" on " + getTermAt(point));
-        return false;
-    }
-
+    /**
+     * basic getter
+     */
     public TermTag getMouseSelection() {
         return mouseSelection;
     }
 
+    /**
+     * returns the ProofCenter it belongs to
+     */
+    final ProofCenter getProofCenter() {
+        return proofCenter;
+    }
+
+    /**
+     * @return a list of rules which can be applied to the selected term
+     * @throws ProofException
+     *             see {@link ProofCenter#getApplicableRules(TermSelector)}
+     */
+    List<RuleApplication> getApplicableRules() throws ProofException {
+        if (null == mouseSelection)
+            return new ArrayList<RuleApplication>(0);
+        else
+            return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
+    }
 }

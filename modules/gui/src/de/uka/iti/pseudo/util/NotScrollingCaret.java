@@ -25,9 +25,6 @@ public class NotScrollingCaret extends DefaultCaret {
 
     /**
      * Instantiates a new not scrolling caret.
-     * 
-     * @param caret
-     *            the caret
      */
     public NotScrollingCaret() {
         super();

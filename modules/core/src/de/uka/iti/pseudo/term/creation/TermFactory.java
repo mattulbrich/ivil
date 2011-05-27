@@ -41,63 +41,63 @@ public class TermFactory {
 
     public @NonNull Term and(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$and");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term or(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$or");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term not(@NonNull Term t1) throws TermException {
         Function f = env.getFunction("$not");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1 });
     }
 
     public @NonNull Term number(int i) throws TermException {
-        return new Application(env.getNumberLiteral(BigInteger.valueOf(i)), Environment.getIntType());
+        return Application.create(env.getNumberLiteral(BigInteger.valueOf(i)), Environment.getIntType());
     }
 
     public @NonNull Term gt(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$gt");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term gte(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$gte");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term lt(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$lt");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term cons(Function constantSymbol) throws TermException {
-        return new Application(constantSymbol, constantSymbol.getResultType(), new Term[0]);
+        return Application.getInst(constantSymbol, constantSymbol.getResultType(), new Term[0]);
     }
 
     public @NonNull Term eq(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$eq");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term impl(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = env.getFunction("$impl");
-        return new Application(f, Environment.getBoolType(), new Term[] { t1, t2 });
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term forall(@NonNull Variable variable, @NonNull Term term) throws TermException {
         Binder b = env.getBinder("\\forall");
-        return new Binding(b, Environment.getBoolType(), variable, new Term[] { term });
+        return Binding.getInst(b, Environment.getBoolType(), variable, new Term[] { term });
     }
 
     public @NonNull Term typeForall(TypeVariable typeVar, Term term) throws TermException {
-        return new TypeVariableBinding(TypeVariableBinding.Kind.ALL, typeVar, term);
+        return TypeVariableBinding.getInst(TypeVariableBinding.Kind.ALL, typeVar, term);
     }
 
     public @NonNull Term typeExists(TypeVariable typeVar, Term term) throws TermException {
-        return new TypeVariableBinding(TypeVariableBinding.Kind.EX, typeVar, term);
+        return TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX, typeVar, term);
     }
 
 }

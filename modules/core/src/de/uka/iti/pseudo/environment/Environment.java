@@ -505,13 +505,8 @@ public class Environment {
     public @NonNull
     String createNewSortName(@NonNull String prefix) {
         String newName = prefix;
-        int counter = 1;
-        boolean exists = getSort(newName) != null;
-        while (exists) {
+        for (int counter = 1; null != getSort(newName); counter++)
             newName = prefix + counter;
-            counter++;
-            exists = getSort(newName) != null;
-        }
 
         return newName;
     }
@@ -727,7 +722,7 @@ public class Environment {
         try {
             Function cnstTrue = BUILT_IN_ENV.getFunction("true");
             assert cnstTrue != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstTrue, getBoolType());
+            return Application.create(cnstTrue, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -743,7 +738,7 @@ public class Environment {
         try {
             Function cnstFalse= BUILT_IN_ENV.getFunction("false");
             assert cnstFalse != null : "nullness: existence guaranteed by construction";
-            return new Application(cnstFalse, getBoolType());
+            return Application.create(cnstFalse, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -1242,13 +1237,31 @@ public class Environment {
     public @NonNull
     String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;
-        int counter = 1;
-        boolean exists = getFunction(newName) != null;
-        while (exists) {
+
+        for (int counter = 1; null != getFunction(newName); counter++)
             newName = prefix + counter;
-            counter++;
-            exists = getFunction(newName) != null;
-        }
+
+        return newName;
+    }
+
+    /**
+     * create a new symbol name which is not yet used.
+     * 
+     * We append natural numbers starting with 1. The first one which is not yet
+     * used is the candidate to choose.
+     * 
+     * @param prefix
+     *            the resulting function name will start with this prefix
+     * 
+     * @return an identifier that can be used as a axiom name for this
+     *         environment
+     */
+    public @NonNull
+    String createNewAxiomName(@NonNull String prefix) {
+        String newName = prefix;
+
+        for (int counter = 1; null != getAxiom(newName); counter++)
+            newName = prefix + counter;
 
         return newName;
     }

@@ -39,13 +39,13 @@
 		</editorMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
-			proof.prune proof.auto proof.autoSubtree proof.axiom proof.conjecture proof.decProc
+			proof.prune proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
 			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
 		</proofMenu>
 		
 		<settingsMenu text="Settings" mnemonic="S">
 			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
-			smt.keepwindowopen
+			smt.keepwindowopen settings.autoDnD
 		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
@@ -228,6 +228,9 @@
 		</prune>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
+		<reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
 		<axiom>ACTION InsertAxiomAction</axiom>
 		<conjecture>ACTION ConjectureAction
 		    <icon>img/lightbulb_add.png</icon>
@@ -260,6 +263,7 @@
 		<verbosity>ACTION view/VerbosityAction</verbosity>
         <showNumbers>TOGGLE_ACTION view/ShowNumbersInTreeAction</showNumbers>
         <showProgramTrace>TOGGLE_ACTION view/ShowProgramTraceAction</showProgramTrace>
+        <autoDnD>TOGGLE_ACTION UseHighestPriorityDragAndDropAction</autoDnD>
 		<pp>
 			<typed>TOGGLE_ACTION view/PrettyPrintTypedRadioAction</typed>
 			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>
@@ -306,13 +310,16 @@
 	<termComponent>
 		<popup>
 			termComponent.showInfo termComponent.jumpToIntroduction
-			termComponent.autoHere proof.axiom
+			termComponent.autoHere proof.axiom termComponent.reintroduceHiddenTerm
 			SEPARATOR
 			termComponent.copy termComponent.copyPretty
 		</popup>
 		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
 		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
         <autoHere>TODO Apply automatic rules here </autoHere>
+        <reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
+            <icon>img/book_next_grey.png</icon>
+        </reintroduceHiddenTerm>
         <copy>ACTION sequent/CopyTerm</copy>
         <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
 	</termComponent>

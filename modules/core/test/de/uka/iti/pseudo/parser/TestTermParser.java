@@ -62,7 +62,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("(\\exists x as int; \\var x = x)","(\\exists x;$eq(\\var x,\\var x))", false);
         
         Term t1 = makeTerm("\\var x as int");
-        Term t2 = new Variable("x", Environment.getIntType());
+        Term t2 = Variable.getInst("x", Environment.getIntType());
         assertEquals(t2, t1);
         
         // different x have different types
@@ -186,7 +186,7 @@ public class TestTermParser extends TestCaseWithEnv {
         Term st = new SubtermSelector(0,0).selectSubterm(t);
         
         assertEquals(Variable.class, st.getClass());
-        assertEquals(new Variable("i1", Environment.getIntType()), st);
+        assertEquals(Variable.getInst("i1", Environment.getIntType()), st);
     }
     
     public void testMakeAndType() throws Exception {

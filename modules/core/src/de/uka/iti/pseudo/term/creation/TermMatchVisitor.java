@@ -68,8 +68,13 @@ class TermMatchVisitor extends DefaultTermVisitor {
     public TermMatchVisitor(TermMatcher termMatcher) {
         this.termUnification = termMatcher;
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
-	// compareTerm is a non-null element
-	this.compareTerm = Environment.getTrue();
+        // compareTerm is a non-null element
+        try {
+            this.compareTerm = SchemaVariable.getInst("%a", new SchemaType("a"));
+        } catch (TermException e) {
+            e.printStackTrace();
+            assert false : "schema code broken or specs changed";
+        }
     }
 
     /**
@@ -233,8 +238,8 @@ class TermMatchVisitor extends DefaultTermVisitor {
             // rhs may not contain schema stuff
             assert !b2.hasSchemaVariable();
             termUnification.addInstantiation(
-                    new SchemaVariable(b1.getVariableName(), b1.getVariableType()), 
-                    new Variable(b2.getVariableName(), b2.getVariableType()));
+                    SchemaVariable.getInst(b1.getVariableName(), b1.getVariableType()), 
+                    Variable.getInst(b2.getVariableName(), b2.getVariableType()));
         } else if(!b1.getVariableName().equals(b2.getVariableName())) {
             throw new UnificationException("Different variable", b1, b2);
         }

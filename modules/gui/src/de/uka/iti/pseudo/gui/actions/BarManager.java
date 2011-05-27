@@ -740,13 +740,15 @@ public class BarManager {
                 return cached;
             }
             
-            Class<?> clss = Class.forName(className);
+            Class<? extends Action> clss = 
+                Class.forName(className).asSubclass(Action.class);
+            
             Action action;
             if(parameter == null) {
                 action = (Action) clss.newInstance();
             } else {
-                Constructor<?> constr = clss.getConstructor(String.class);
-                action = (Action) constr.newInstance(parameter);
+                Constructor<? extends Action> constr = clss.getConstructor(String.class);
+                action = constr.newInstance(parameter);
             }
             
             initialiseAction(action, prefix);

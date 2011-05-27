@@ -180,15 +180,12 @@ public class TypeUnification implements Cloneable {
      */
     private class Unifier implements TypeVisitor<Void, Type> {
         
-        private boolean bidirectional;
-        
-        public Unifier(boolean bidirectional) {
-            this.bidirectional = bidirectional;
+        public Unifier() {
         }
 
         @Override
         public Void visit(TypeApplication adaptApp, Type fixType) throws TermException {
-            if (bidirectional && fixType instanceof SchemaType) {
+            if (fixType instanceof SchemaType) {
                 fixType.accept(this, adaptApp);
             } else
             
@@ -217,7 +214,7 @@ public class TypeUnification implements Cloneable {
         @Override
         public Void visit(TypeVariable adaptVar, Type fixType)
                 throws TermException {
-            if (bidirectional && fixType instanceof SchemaType) {
+            if (fixType instanceof SchemaType) {
                 fixType.accept(this, adaptVar);
             } else {
                 // we can simply use the equality check here since type variables
@@ -249,60 +246,7 @@ public class TypeUnification implements Cloneable {
         
     }
     
-    private Unifier leftUnifier = new Unifier(false);
-    private Unifier unifier = new Unifier(true);
-
-    /**
-     * Do unification in which only type variables in the first type argument
-     * are matched. A type variable in the second argument does not match a
-     * non-variable in the first argument.
-     * 
-     * Is often combined with one argument changed using
-     * {@link #makeSchemaVariant(Type)}.
-     * 
-     * All instantiations are recorded in {@link #instantiation} The results on
-     * the mapping are atomic. On success all instantiations appear, otherwise
-     * none does.
-     * 
-     * @param adaptingType
-     *            the type that may match variables
-     * @param fixType
-     *            the fixed type that must not match variables.
-     * 
-     * @return a type equal to fixType
-     * 
-     * @throws UnificationException
-     *             if the unification fails.
-     *             
-     * @deprecated use {@link TypeMatchVisitor} instead which runs in linear
-     *             rather than with potentially exponential overhead
-     */
-    // FIXME remove this function and test everything
-    @Deprecated
-    public @NonNull Type leftUnify(@NonNull Type adaptingType,
-            @NonNull Type fixType) throws UnificationException {
-
-        AppendMap<String, Type> copy = instantiation.clone();
-
-        try {
-            adaptingType.accept(leftUnifier, fixType);
-            assert instantiate(adaptingType).equals(fixType) : adaptingType + " vs " + fixType;
-            return fixType;
-        } catch (TermException ex) {
-            // restore old mapping
-            instantiation = copy;
-            
-            assert ex instanceof UnificationException :
-                "Only unification exception may be thrown here";
-        
-            UnificationException uex = (UnificationException) ex;
-            uex.addDetail("Cannot left-unify \"" + adaptingType + "\" and \""
-                    + fixType + "\"");
-            
-            throw uex;
-        }
-
-    }
+    private Unifier unifier = new Unifier();
     
     
 

@@ -52,7 +52,6 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
-// TODO: Auto-generated Javadoc
 /**
  * This class provides functionality to solve typing constraints of terms, it
  * performs type inference.

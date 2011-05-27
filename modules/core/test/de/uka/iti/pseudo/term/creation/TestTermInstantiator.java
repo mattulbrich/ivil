@@ -39,15 +39,15 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     // from a bug
     public void testInstantiateTerm() throws Exception {
         
-        Term orig = makeTerm("(\\exists %x as int; %x = 5)");
-        termmap.put("%x", new Variable("xx", Environment.getIntType()));
-        assertEquals(makeTerm("(\\exists xx as int; xx = 5)"), inst.instantiate(orig));
+        Term orig = makeTerm("(\\exists %x; %x = 5)");
+        termmap.put("%x", Variable.getInst("xx", Environment.getIntType()));
+        assertEquals(makeTerm("(\\exists xx; xx = 5)"), inst.instantiate(orig));
     }
     
     // from a bug
     public void testInstantiateUnusedBoundSchemaVar() throws Exception {
         Term orig = makeTerm("(\\exists %x as int; true)");
-        termmap.put("%x", new Variable("xx", Environment.getIntType()));
+        termmap.put("%x", Variable.getInst("xx", Environment.getIntType()));
         assertEquals(makeTerm("(\\exists xx as int; true)"), inst.instantiate(orig));
     }
     

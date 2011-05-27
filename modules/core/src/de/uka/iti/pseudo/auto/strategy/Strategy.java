@@ -66,7 +66,7 @@ public interface Strategy {
     /**
      * Find an applicable rule application. The proof upon which the strategy
      * has to work has been set using
-     * {@link #init(Proof, Environment, StrategyManager), StrategyManager)} Find
+     * {@link #init(Proof, Environment, StrategyManager), StrategyManager)}. Find
      * a rule to apply for this proof.
      * 
      * A strategy may return null to indicate that it cannot provide a rule
@@ -80,7 +80,7 @@ public interface Strategy {
      * If the result is not <code>null</code>, the returned rule application is
      * guaranteed to point to the given proof node.
      * 
-     * @see findRuleApplication()
+     * @see #findRuleApplication()
      * @param target
      *            a proof node which is a leaf of the proof under consideration
      * @throws StrategyException

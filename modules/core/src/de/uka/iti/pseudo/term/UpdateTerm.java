@@ -12,8 +12,8 @@ package de.uka.iti.pseudo.term;
 
 import java.util.List;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.term.statement.Assignment;
 
 /**
@@ -29,19 +29,45 @@ import de.uka.iti.pseudo.term.statement.Assignment;
  * </ol>
  * The updated <em>targets</em> are <b>not</b> subterms of an update term.
  */
-public class UpdateTerm extends Term {
+public final class UpdateTerm extends Term {
     
     private Update update;
-    
+
     /**
-     * Instantiates a new update term with the given update and the updated term.
+     * Instantiates a new update term with the given update and the updated
+     * term.
      * 
-     * @param update the update to apply
-     * @param term the term to be updated
+     * <p>
+     * The constructor is not visible. Use the {@code getInst} methods to
+     * get/create an object of this Class.
+     * 
+     * @param update
+     *            the update to apply
+     * @param term
+     *            the term to be updated
      */
-    public UpdateTerm(Update update, Term term) {
+    private UpdateTerm(Update update, Term term) {
         super(prepareSubterms(term, update), term.getType());
         this.update = update;
+    }
+    
+    /**
+     * Gets an updated term from the given update and the updated term.
+     * 
+     * If a term with the given parameters already exists in the system, a
+     * reference to it is returned instead of a freshly created one. If not, a
+     * new instance is created.
+     * 
+     * @param update
+     *            the update to apply
+     * @param term
+     *            the term to be updated
+     * 
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
+     */
+    public static @NonNull UpdateTerm getInst(@NonNull Update update, @NonNull Term term) {
+        return (UpdateTerm) new UpdateTerm(update, term).intern();
     }
     
     /*

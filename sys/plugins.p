@@ -70,10 +70,13 @@ plugin
 
     # check whether the formula to be added is indeed an axiom
     whereCondition : "de.uka.iti.pseudo.rule.where.AxiomCondition"
-
+    
     # check whether two terms are not yet in ordered form
     whereCondition : "de.uka.iti.pseudo.rule.where.UnorderedTerms"
 
+    # check whether the formula to be added is indeed known and legal
+    whereCondition : "de.uka.iti.pseudo.rule.where.KnownFormula"
+    
 (*
  * This rule can -- in combination with the where condition axiom
  * be used to add axioms from the environment to the sequent.
@@ -86,3 +89,20 @@ rule `axiom`
     add %b |-
     tags autoonly
          display "Insert axiom {property axiomName}"
+         
+         
+(*
+ * These rules are used to unhide hidden terms. To use these rules, the unhide
+ * term action has to be used (accessible over f9 or rightclick on term).
+ *)
+rule unhide_left
+  where knownFormula %b, %LEFT
+  add %b |-
+  tags autoonly
+       display "Unhide formula from {property knownFormula}"
+       
+rule unhide_right
+  where knownFormula %b, %RIGHT
+  add |- %b
+  tags autoonly
+       display "Unhide formula from {property knownFormula}"

@@ -31,8 +31,6 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TermFactory;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
-import de.uka.iti.pseudo.util.Log;
 
 
 //not threadsafe
@@ -90,7 +88,7 @@ public class RuleAxiomExtractor {
         @Override
         public void visit(SchemaVariable schemaVariable) throws TermException {
 
-            Variable variable = new Variable(schemaVariable.getName().substring(1),
+            Variable variable = Variable.getInst(schemaVariable.getName().substring(1),
                     modifyType(schemaVariable.getType()));
 
             newVariables.add(variable);

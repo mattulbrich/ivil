@@ -106,19 +106,19 @@ public class IntEvalMetaFunction extends MetaFunction {
 
     private Term makeBool(boolean val, Environment env) throws TermException {
         Function f = env.getFunction(Boolean.toString(val));
-        return new Application(f, Environment.getBoolType());
+        return Application.create(f, Environment.getBoolType());
     }
     
     private Term makeInt(BigInteger val, Environment env) throws TermException {
         if(val.signum() >= 0) {
             Function f = env.getNumberLiteral(val);
-            return new Application(f, Environment.getIntType());
+            return Application.create(f, Environment.getIntType());
         } else {
             Function f = env.getNumberLiteral(val.negate());
-            Term a = new Application(f, Environment.getIntType());
+            Term a = Application.create(f, Environment.getIntType());
             Function neg = env.getFunction("$neg");
             assert neg != null;
-            return new Application(neg, Environment.getIntType(), new Term[] { a });
+            return Application.getInst(neg, Environment.getIntType(), new Term[] { a });
         }
     }
 
