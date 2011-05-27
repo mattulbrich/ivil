@@ -62,7 +62,24 @@ public class AssignmentStatement extends Statement {
         this.assignments = null;
         this.schemaIdentifier = identifier;
     }
-    
+
+    /**
+     * Convenience constructor for a single assignment.
+     * 
+     * @param sourceLineNumber
+     *            the line in the sources at which the statement appears.
+     * @param target
+     *            the left hand side of the assignment
+     * @param value
+     *            the right hand side of the assignment
+     * @throws TermException
+     *             if the assignment cannot be checked.
+     */
+    public AssignmentStatement(int sourceLineNumber, Term target, Term value) throws TermException {
+        this(sourceLineNumber, Arrays.asList(new Assignment(target, value)));
+
+    }
+
     @AssertNonNullIfTrue("schemaIdentifier")
     @AssertNonNullIfFalse("assignments")
     public boolean isSchematic() {

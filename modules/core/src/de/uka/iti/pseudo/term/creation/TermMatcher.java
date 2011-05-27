@@ -335,7 +335,7 @@ public class TermMatcher implements Cloneable {
         instantiation.clear();
         typeInstantiation.clear();
         updateInst.clear();
-        boundSchemaTypes.clear();
+        boundSchemaTypes = new AppendSet<SchemaType>();
     }
 
     /**

@@ -31,14 +31,10 @@ public class DifferentTypesInEq extends WhereCondition {
         super("differentTypesInEq");
     }
 
-    @Override public void checkSyntax(Term[] arguments) throws RuleException {
-        if (arguments.length != 2)
-            throw new RuleException("differentTypes expects two arguments");
-    }
-
     @Override
-    public boolean check(Term[] formalArguments, Term[] actualArguments, RuleApplication ruleApp, Environment env)
-            throws RuleException {
+    public boolean check(Term[] formalArguments, Term[] actualArguments,
+            RuleApplication ruleApp, Environment env) throws RuleException {
+
         Type type1 = actualArguments[0].getType();
         Type type2 = actualArguments[1].getType();
 
@@ -48,7 +44,13 @@ public class DifferentTypesInEq extends WhereCondition {
         if (!TypeVariableCollector.collect(type2).isEmpty())
             return false;
 
-        return !type1.equals(type2);
+        return ! type1.equals(type2);
+
+    }
+
+    @Override public void checkSyntax(Term[] arguments) throws RuleException {
+        if (arguments.length != 2)
+            throw new RuleException("differentTypes expects two arguments");
     }
 
 }

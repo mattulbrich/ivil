@@ -10,13 +10,8 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.Collections;
-import java.util.List;
-
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
@@ -135,7 +130,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     private boolean checkNoFree(NoFreeVars noFree, String s) throws RuleException,
             Exception {
-        return noFree.check(null, new Term[] { makeTerm(s) }, null, env);
+        return noFree.check(null, new Term[] { makeTerm(s) }, null, null);
     }
 
 }

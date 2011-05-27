@@ -14,8 +14,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -115,7 +118,7 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
         } else {
             throw new TermException("First argument needs to be a program term");
         }
-
+        
         Term invariant = application.getSubterm(1);
         Term variant = application.getSubterm(2);
         
