@@ -29,6 +29,8 @@ import de.uka.iti.pseudo.parser.file.ASTProperties;
 import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.term.ASTType;
+import de.uka.iti.pseudo.term.MapType;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
@@ -71,8 +73,14 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         int arity = arg.getTypeVariables().size();
 
         try {
-            env.addSort(new Sort(name, arity, arg));
+            if (arg.isAliased())
+                ((MapType) TermMaker.makeType(arg.getAlias(), env)).flatten(env, name);
+            else
+                env.addSort(new Sort(name, arity, arg));
+
         } catch (EnvironmentException e) {
+            throw new ASTVisitException(arg, e);
+        } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }
     }

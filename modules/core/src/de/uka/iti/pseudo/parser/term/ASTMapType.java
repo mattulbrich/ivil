@@ -35,7 +35,7 @@ public class ASTMapType extends ASTType {
 
 	@Override
     public void visit(ASTVisitor v) throws ASTVisitException {
-        // v.visit(this);
+        v.visit(this);
     }
     
     @Override public Token getLocationToken() {

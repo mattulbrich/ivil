@@ -208,8 +208,6 @@ ASTType TypeRef():
 		{ return new ASTTypeApplication(token, args); }
 	|
 		ty=BindableTypeRef() { return ty; }
-    |
-        ty=MapTypeRef() { return ty; }
 }
 
 /* type references that can be used for type binders.
@@ -226,13 +224,15 @@ ASTType BindableTypeRef():
                 { return new ASTSchemaType(token); }
 }
 
-/*
+/**
+ @note: map type ref can only occur in sort declarations
+
  may types look a lot like boogie maps, but the polymorphic bound use {} instead of < > to avoid the collision with the set of operators.
  This works, because {} is used in updates(term) and parallel assignments(statement) and thus can not
  be confused with types. [] is used by modal operators(term) and therefor can also not be confused with types.
  Also does the addition of this rule not create any new warnings.
 */
-ASTType MapTypeRef():
+ASTMapType MapTypeRef():
 {
   Token location;
   List<ASTType> boundvars = new ArrayList<ASTType>();
@@ -249,13 +249,22 @@ ASTType MapTypeRef():
   )?
   location="["
   (
-     tmp=TypeRef() { domain.add(tmp); }
     (
-      "," tmp=TypeRef() { domain.add(tmp); }
+      tmp=TypeRef() { domain.add(tmp); }
+    | tmp=MapTypeRef() { domain.add(tmp); }
+    )
+    (
+      ","
+      (        tmp=TypeRef() { domain.add(tmp); }
+      | tmp=MapTypeRef() { domain.add(tmp); }
+      )
     )*
   )?
   "]"
-  range=TypeRef()
+  (
+    range=TypeRef()
+  | range=MapTypeRef()
+  )
   
   {
     return new ASTMapType(location, boundvars, domain, range);

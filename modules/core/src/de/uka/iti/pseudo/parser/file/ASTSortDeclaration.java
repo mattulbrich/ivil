@@ -17,16 +17,21 @@ import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.parser.term.ASTMapType;
 
 public class ASTSortDeclaration extends ASTElement {
 
     private List<Token> typeVariables;
-
+    private ASTMapType alias;
     private Token name;
 
-    public ASTSortDeclaration(Token name, List<Token> tyvars) {
+    public ASTSortDeclaration(Token name, List<Token> tyvars, ASTMapType alias) {
         this.name = name;
         this.typeVariables = tyvars;
+        this.alias = alias;
+
+        if (isAliased())
+            addChild(alias);
     }
 
     public List<Token> getTypeVariables() {
@@ -45,4 +50,12 @@ public class ASTSortDeclaration extends ASTElement {
     	return name;
 	}
 
+    public boolean isAliased() {
+        return null != alias;
+    }
+
+    public ASTMapType getAlias() {
+        assert isAliased() : "ensure to call this only if you checked the presence of an alias";
+        return alias;
+    }
 }

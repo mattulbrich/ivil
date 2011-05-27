@@ -52,6 +52,7 @@ import de.uka.iti.pseudo.parser.term.ASTExplicitVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTMapType;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
@@ -171,6 +172,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     //
 
     public void visit(ASTTypeApplication arg) throws ASTVisitException {
+        visitDefaultType(arg);
+    }
+
+    public void visit(ASTMapType arg) throws ASTVisitException {
         visitDefaultType(arg);
     }
 
