@@ -48,7 +48,7 @@ public class CloseEditorAction extends BarAction
 
     private void tryClose() {
         PFileEditor editor = getEditor();
-        boolean changed = editor.hasUnsafedChanges();
+        boolean changed = editor.hasUnsavedChanges();
         if(changed) {
             int result = JOptionPane.showConfirmDialog(getParentFrame(),
                     "There are changes in the current edit window. Close anyway?",

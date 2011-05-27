@@ -111,13 +111,12 @@ public class Log4JLogImplementation implements Log.LogImplementation {
 
         Log.enter((Object) args);
 
-        // should not do anything
         Log.leave();
-        Log.log(Log.VERBOSE, "VERBOSE: Should not be printed");
-        Log.log(Log.DEBUG, "DEBUG: Should be printed");
+        Log.log(Log.VERBOSE, "DEBUG: Should be printed");
+        Log.log(Log.DEBUG, "INFO: Should be printed");
         Log.log(Log.WARNING, "WARNING: Should be printed");
         Log.log(Log.ERROR, "ERROR: Should be printed");
-        Log.log(88, "88: Should be printed");
+        Log.log(88, "FATAL: Should be printed");
 
         try {
             throw new Exception("Hello World");

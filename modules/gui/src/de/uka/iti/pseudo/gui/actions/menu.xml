@@ -45,7 +45,7 @@
 		
 		<settingsMenu text="Settings" mnemonic="S">
 			settings.verbosity settings.showNumbers settings.showProgramTrace prover.settingsMenu.prettyPrintingMenu smt.activation
-			smt.keepwindowopen settings.autoDnD
+			smt.keepwindowopen settings.autoDnD settings.stepContinueWithoutProgram
 		    <prettyPrintingMenu text="Pretty printing" mnemonic="P">
 		    	SUBMENU settings.pp.typed settings.pp.fix settings.pp.mod
 		    </prettyPrintingMenu>
@@ -122,10 +122,17 @@
 		<!--img/bullet_orange.png ? -->
 		
 		<save>ACTION editor/SaveEditorAction
-            <icon>img/page_white_text_edit.png</icon>
+            <icon>img/page_white_text_save.png</icon>
+            <text>Save As ...</text>
+            <tooltip>save the edited file under a new name</tooltip>
+            <mnemonic>A</mnemonic>
         </save> 
 		<saveAs>ACTION editor/SaveAsEditorAction
-            <icon>img/page_white_text_edit.png</icon>
+            <icon>img/page_white_text_save.png</icon>
+            <text>Save</text>
+            <tooltip>save the edited file</tooltip>
+            <accelerator>control S</accelerator>
+            <mnemonic>S</mnemonic>
         </saveAs>
 		<new>ACTION editor/NewEditorAction
             <icon>img/page_white_text_new.png</icon>
@@ -276,6 +283,11 @@
 			<fix>TOGGLE_ACTION view/PrettyPrintFixedRadioAction</fix>
 			<mod>TOGGLE_ACTION view/PrettyPrintPluginsRadioAction</mod>
 		</pp>
+		<stepContinueWithoutProgram>
+			TOGGLE_ACTION ProofCenterPropertyAction pseudo.step.continueWithoutProgram
+		    <text>Continue without program</text>
+		    <tooltip>Continue automitic proving on branches w/o program</tooltip>
+		</stepContinueWithoutProgram>
 	</settings>
 	
 	<experimental>

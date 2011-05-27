@@ -33,6 +33,7 @@ import java.net.URL;
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -58,6 +59,7 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.environment.creation.PFileEnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
+import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -83,18 +85,21 @@ public class PFileEditor extends JFrame implements ActionListener {
     private DocumentListener doclistener = new DocumentListener() {
 
         public void changedUpdate(DocumentEvent e) {
+            Log.enter(e);
             updateThread.changed();
-            setHasChanges(true);
+            setHasUnsavedChanges(true);
         }
 
         public void insertUpdate(DocumentEvent e) {
+            Log.enter(e);
             updateThread.changed();
-            setHasChanges(true);
+            setHasUnsavedChanges(true);
         }
 
         public void removeUpdate(DocumentEvent e) {
+            Log.enter(e);
             updateThread.changed();
-            setHasChanges(true);
+            setHasUnsavedChanges(true);
         }
         
     };
@@ -103,6 +108,7 @@ public class PFileEditor extends JFrame implements ActionListener {
     private boolean hasChanged;
     public boolean syntaxChecking = false;
     private boolean syntaxHighlighting = true;
+    private long fileModDate;
 
     private class UpdateThread extends Thread {
         public UpdateThread() {
@@ -169,7 +175,6 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
         {
             editor = new RSyntaxTextArea();
-            // TODO make this configurable
             editor.setLineWrap(false);
             editor.setTextAntiAliasHint("VALUE_TEXT_ANTIALIAS_ON");
             editor.setBracketMatchingEnabled(true);
@@ -427,16 +432,55 @@ public class PFileEditor extends JFrame implements ActionListener {
             action.actionPerformed(evt);
     }
 
-    public boolean hasUnsafedChanges() {
+    public boolean hasUnsavedChanges() {
         return hasChanged;
     }
 
-    public void setHasChanges(boolean b) {
+    public void setHasUnsavedChanges(boolean b) {
         boolean old = hasChanged;
+        
+        if(b && handleConcurrentMod(b)) {
+            return;
+        }
+        
         hasChanged = b;
         if(hasChanged != old)
             updateTitle();
     }
+
+    private boolean handleConcurrentMod(boolean changes) {
+        Log.enter(changes);
+        if (changes) {
+            if (editedFile != null &&
+                    editedFile.lastModified() != fileModDate) {
+                String mess = "The file "
+                        + editedFile
+                        + " has been changed on the file system. Do you "
+                        + "want to reread the file from disk, overwriting"
+                        + "this buffer?";
+
+                int res = JOptionPane.showConfirmDialog(this, mess,
+                        "File has been changed", JOptionPane.YES_NO_OPTION);
+
+                if (res == JOptionPane.YES_OPTION) {
+                    try {
+                        loadFile(editedFile);
+                        return true;
+                    } catch (IOException e) {
+                        ExceptionDialog.showExceptionDialog(this, e);
+                    }
+                } else {
+                    fileModDate = editedFile.lastModified();
+                }
+            }
+            return false;
+        } else {
+            // after saving.
+            fileModDate = editedFile.lastModified();
+            return false;
+        }
+    }
+
 
     public String getContent() {
         return editor.getText();
@@ -463,17 +507,20 @@ public class PFileEditor extends JFrame implements ActionListener {
                 setProperty(SYNTAX_CHECKING_PROPERTY, true);
             }
             
+            fileModDate = file.lastModified();
+            
         } else {
             editor.setText("");
             checker = new PFileEnvironmentCreationService();
             setProperty(SYNTAX_CHECKING_PROPERTY, true);
+            fileModDate = -1;
         }
         
         this.editedFile = file;
         
         editor.discardAllEdits();
         setProperty(SYNTAX_CHECKER_PROPERTY, checker);
-        setHasChanges(false);
+        setHasUnsavedChanges(false);
         updateTitle();
     }
 
