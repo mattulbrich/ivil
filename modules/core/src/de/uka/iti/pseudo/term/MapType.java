@@ -23,12 +23,16 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
+import de.uka.iti.pseudo.rule.where.DifferentTypesInEq;
+import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
@@ -221,12 +225,167 @@ public class MapType extends Type {
                 else
                     store_sig[i] = SchemaVariable.getInst("%" + store_t[i].toString(), store_t[i]);
         }
-        Type map_st = load_sig[1].getType();
 
-        // create rules
+        createRules(name, $load, $store, env, declaringLocation);
+
+        return env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
+    }
+
+    /**
+     * create rules needed in order to handle objects of the created map type
+     * efficiently
+     */
+    private void createRules(String name, Function $load, Function $store, Environment env,
+            ASTLocatedElement declaringLocation) throws EnvironmentException {
+
+        try { // /////////////// LOAD STORE SAME
+            String rule = name + "_load_store_same";
+            // find: $load($store(%m, %D, %v), %D)
+            // replace: %v
+
+            // $load($store(%m, %D, %v), %D)
+            StringBuilder sbFind = new StringBuilder();
+            sbFind.append($load.getName()).append("(");
+            sbFind.append($store.getName()).append("(%m, ");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append("%d").append(i).append(", ");
+            sbFind.append("%v)");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append(", ").append("%d").append(i);
+            sbFind.append(")");
+
+            // %v
+            StringBuilder sbReplace = new StringBuilder("%v");
+
+            Term factory;
+
+            try {
+                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            } catch (ASTVisitException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            }
+            Term find, replace;
+
+            find = factory.getSubterm(0);
+            replace = factory.getSubterm(1);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions
+                    .add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(),
+                            new LinkedList<Term>()));
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            env.addRule(new Rule(rule, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
+                    new LinkedList<WhereClause>(), actions, tags, declaringLocation));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
+
+        // TODO load store same assume
+
+        try { // /////////////// LOAD STORE OTHER TYPE
+            // creates #domain rules of the form:
+
+            // find: $load($store(%m, %D, %v), %T)
+            // where: differentTypesInEq %di %ti
+            // replace: $load(%m, %T)
+
+            // and an additional rule for different types in range with the
+            // where condition:
+
+            // where: differentInEq %v $load($store(%m, %D, %v), %T)
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            tags.put("rewrite", "concrete");
+
+            // $load($store(%m, %D, %v), %T)
+            StringBuilder sbFind = new StringBuilder();
+            sbFind.append($load.getName()).append("(");
+            sbFind.append($store.getName()).append("(%m, ");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append("%d").append(i).append(", ");
+            sbFind.append("%v)");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append(", ").append("%t").append(i);
+            sbFind.append(")");
+
+            // $load(%m, %T)
+            StringBuilder sbReplace = new StringBuilder($load.getName());
+            sbReplace.append("(%m");
+            for (int i = 0; i < domain.size(); i++)
+                sbReplace.append(", ").append("%t").append(i);
+            sbReplace.append(")");
+
+            Term factory;
+
+            try {
+                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            } catch (ASTVisitException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            }
+            Term find, replace;
+
+            find = factory.getSubterm(0);
+            replace = factory.getSubterm(1);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions
+                    .add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(),
+                            new LinkedList<Term>()));
+
+            for (int i = 0; i < domain.size(); i++) {
+                String rule = name + "_load_store_other_type_domain_" + i;
+
+                LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+                // ensure %di and %ti have different types
+                where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
+                        new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }));
+
+                env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                        declaringLocation));
+            }
+
+            // add rule for range type miss match
+            String rule = name + "_load_store_other_type_range";
+
+            LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+            where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
+                    new Term[] { find.getSubterm(0).getSubterm(domain.size() + 1), find }));
+
+            env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                    declaringLocation));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
+
+        // TODO load store other
 
         try { // /////////////// LOAD STORE COND, aka McCarthy axiom
             String rule = name + "_load_store_cond";
+            // find: $load($store(%m, %D, %v), %T)
+            // replace: cond(%D = %T, %v, $load(%m, %T))
 
             Map<String, String> tags = new HashMap<String, String>();
 
@@ -236,39 +395,46 @@ public class MapType extends Type {
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
-            Term[] load_arg = new Term[flat_dom.length + 1];
-            Term[] store_arg = new Term[flat_dom.length + 2];
-            SchemaVariable v = SchemaVariable.getInst("%v", load_sig[0].getType());
+            // $load($store(%m, %D, %v), %T)
+            StringBuilder sbFind = new StringBuilder();
+            sbFind.append($load.getName()).append("(");
+            sbFind.append($store.getName()).append("(%m, ");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append("%d").append(i).append(", ");
+            sbFind.append("%v)");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append(", ").append("%t").append(i);
+            sbFind.append(")");
 
-            // TODO does this even work for deeper nested maps? we might want to
-            // create schema variants of the mapDomainRange/mapDomain types
-            store_arg[0] = SchemaVariable.getInst("%m", map_st);
-            store_arg[store_arg.length - 1] = v;
-
-            for (int i = 1; i <= flat_dom.length; i++) {
-                load_arg[i] = load_sig[i + 1];
-                store_arg[i] = null;
+            // cond(%D = %T, %v, $load(%m, %T))
+            StringBuilder sbReplace = new StringBuilder("cond(");
+            if (0 == domain.size())
+                sbReplace.append("true");
+            for (int i = 0; i < domain.size(); i++) {
+                if (i > 0)
+                    sbReplace.append("&");
+                sbReplace.append("%d").append(i).append("=").append("%t").append(i);
             }
+            sbReplace.append(", %v, ").append($load.getName()).append("(%m");
+            for (int i = 0; i < domain.size(); i++)
+                sbReplace.append(", ").append("%t").append(i);
+            sbReplace.append("))");
 
-            // needed to be correct in case of maps, that do not have a
-            // domain
-            Term condition = Environment.getTrue();
+            Term factory;
 
-            for (int i = 0; i < flat_dom.length; i++)
-                condition = Application.getInst(env.getFunction("$and"), BOOL_T, new Term[] {
-                        Application.getInst(env.getFunction("$eq"), BOOL_T, new Term[] { store_arg[i + 1],
-                                load_arg[i + 1] }), condition });
 
-            load_arg[0] = Application.getInst($store, map_st, store_arg);
+            try {
+                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            }
+            Term find, replace;
 
-            Term load = Application.getInst($load, v.getType(), load_arg);
+            find = factory.getSubterm(0);
+            replace = factory.getSubterm(1);
 
-            Term replacement = Application.getInst(env.getFunction("cond"), v.getType(), new Term[] { condition, v,
-                    load });
-
-            Term find = Application.getInst($load, v.getType(), load_arg);
-
-            actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
+            actions.add(new GoalAction("samegoal", null, false, replace, none, none));
 
             env.addRule(new Rule(rule, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
                     new LinkedList<WhereClause>(), actions, tags, declaringLocation));
@@ -276,11 +442,14 @@ public class MapType extends Type {
         } catch (RuleException e) {
             e.printStackTrace();
             throw new EnvironmentException(e);
+        } catch (ASTVisitException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
         }
-        return env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
-    }
 
-    private final static Type BOOL_T = Environment.getBoolType();
+        // TODO load lambda?
+
+    }
 
     /**
      * collects the free type variables in a MapType free type

@@ -63,6 +63,9 @@ plugin
 
     # check whether two terms have different types
     whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypes"
+    
+    # check whether two terms have different types but only returns true if the types are concrete different types, i.e. they if type varibles are present, false is returned
+    whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypesInEq"
 
     # check whether the find selector is not whitin a modality
     # or in the range of a modality term
