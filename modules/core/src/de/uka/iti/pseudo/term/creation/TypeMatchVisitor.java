@@ -1,8 +1,6 @@
 package de.uka.iti.pseudo.term.creation;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -24,11 +22,10 @@ public class TypeMatchVisitor extends DefaultTypeVisitor<Type> {
     }
 
     @Override
-    public Void visit(SchemaType var, Type argument)
+    public Void visit(SchemaType schemaTypeVariable, Type argument)
             throws TermException {
-
-        // try to assign a type to the associated schema set
-        String varName = var.getVariableName();
+        
+        String varName = schemaTypeVariable.getVariableName();
         tryInstantiation(varName, argument);
         return null;
     }

@@ -30,7 +30,7 @@ public class ASTSortDeclaration extends ASTElement {
         this.typeVariables = tyvars;
         this.alias = alias;
 
-        if (isAliased())
+        if (isMapAlias())
             addChild(alias);
     }
 
@@ -50,12 +50,12 @@ public class ASTSortDeclaration extends ASTElement {
     	return name;
 	}
 
-    public boolean isAliased() {
+    public boolean isMapAlias() {
         return null != alias;
     }
 
     public ASTMapType getAlias() {
-        assert isAliased() : "ensure to call this only if you checked the presence of an alias";
+        assert isMapAlias() : "ensure to call this only if you checked the presence of an alias";
         return alias;
     }
 }

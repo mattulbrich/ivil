@@ -73,7 +73,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         int arity = arg.getTypeVariables().size();
 
         try {
-            if (arg.isAliased())
+            if (arg.isMapAlias())
                 ((MapType) TermMaker.makeType(arg.getAlias(), env)).flatten(env, name);
             else
                 env.addSort(new Sort(name, arity, arg));
