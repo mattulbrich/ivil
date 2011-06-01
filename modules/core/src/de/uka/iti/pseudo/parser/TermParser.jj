@@ -277,6 +277,7 @@ ASTTerm ApplicationTerm():
   Token symbol;
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
+  ASTTerm result, assignment=null;
 }
 {
         (symbol=<IDENTIFIER> | symbol=<META_IDENTIFIER> | symbol=<INTERNAL_IDENTIFIER>)
@@ -289,9 +290,30 @@ ASTTerm ApplicationTerm():
         )?
         
     { if(subterms.size() > 0) 
-        return new ASTApplicationTerm(symbol, subterms); 
+        result = new ASTApplicationTerm(symbol, subterms); 
       else
-        return new ASTIdentifierTerm(symbol);
+        result = new ASTIdentifierTerm(symbol);
+    }
+
+    // allow for an arbitrary number of map access operations
+    (
+      {
+        List<ASTTerm> args = new ArrayList<ASTTerm>();      }
+		symbol="["
+		  (
+		    t = Term(){ args.add(t); }
+		    ("," t = Term(){ args.add(t); })*
+		  )?
+		  (
+		     ":=" assignment=Term()
+		  )? 
+		  "]"
+		  {
+		    result = new ASTMapOperationTerm(symbol, result, args, assignment);
+		  }
+    )*
+
+    {      return result;
     }
 }
 

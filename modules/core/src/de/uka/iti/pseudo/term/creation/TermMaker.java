@@ -50,6 +50,7 @@ import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTMapOperationTerm;
 import de.uka.iti.pseudo.parser.term.ASTMapType;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
@@ -75,6 +76,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -457,6 +459,29 @@ public class TermMaker extends ASTDefaultVisitor {
             resultTerm = Application.getInst(funct, type, subterms);
         } catch (TermException e) {
             throw new ASTVisitException(applicationTerm,e );
+        }
+    }
+
+    public void visit(ASTMapOperationTerm term) throws ASTVisitException {
+
+        Type map_t = term.getMapTerm().getTyping().getType();
+        assert map_t instanceof TypeApplication;
+
+        final String operationName = (term.isLoad() ? "$load_" : "$store_")
+                + ((TypeApplication) map_t).getSort().getName();
+
+        Function operation = env.getFunction(operationName);
+
+        // checked elsewhere
+        assert operation != null;
+
+        Term[] subterms = collectSubterms(term);
+
+        Type type = term.getTyping().getType();
+        try {
+            resultTerm = Application.getInst(operation, type, subterms);
+        } catch (TermException e) {
+            throw new ASTVisitException(term, e);
         }
     }
 

@@ -59,4 +59,6 @@ public interface ASTTermVisitor {
 
     void visit(ASTProgramTerm programTerm) throws ASTVisitException;
 
+    void visit(ASTMapOperationTerm mapOperationTerm) throws ASTVisitException;
+
 }

@@ -292,6 +292,7 @@ public class MapType extends Type {
         }
 
         // TODO load store same assume
+        // TODO make load store same assume interactive, is domain.size() == 1
 
         try { // /////////////// LOAD STORE OTHER TYPE
             // creates #domain rules of the form:

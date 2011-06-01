@@ -35,6 +35,7 @@ import de.uka.iti.pseudo.parser.term.ASTExplicitVariableTerm;
 import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTMapOperationTerm;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
 import de.uka.iti.pseudo.parser.term.ASTSchemaType;
@@ -49,6 +50,7 @@ import de.uka.iti.pseudo.parser.term.ASTUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 
@@ -158,7 +160,45 @@ public class TypingResolver extends ASTDefaultVisitor {
                     "\n" + e.getDetailedMessage(), applicationTerm, e);
         }
     }
-    
+
+    /**
+     * transforms T[d1, ...dn] into $load_type(T)(T,d1, ...dn) and<br>
+     * T[d1, ...dn := a] into $store_type(T)(T,d1...dn,a)
+     */
+    @Override
+    public void visit(ASTMapOperationTerm term) throws ASTVisitException {
+
+        super.visit(term);
+
+        Type map_t = term.getMapTerm().getTyping().getType();
+        if (!(map_t instanceof TypeApplication))
+            throw new ASTVisitException("Expected the first argument to be a map type, but got " + map_t, term);
+
+        final String operationName = (term.isLoad() ? "$load_" : "$store_")
+                + ((TypeApplication) map_t).getSort().getName();
+
+        Function operation = env.getFunction(operationName);
+
+        if (operation == null)
+            throw new ASTVisitException("Unknown function symbol " + operationName, term);
+
+        Type resultType = operation.getResultType();
+        List<ASTTerm> subterms = term.getSubterms();
+        Type[] argumentTypes = operation.getArgumentTypes();
+
+        if (argumentTypes.length != subterms.size())
+            throw new ASTVisitException("Function symbol " + operation + " expects " + argumentTypes.length
+                    + " arguments, but received " + subterms.size(), term);
+
+        try {
+            setTyping(term, subterms, resultType, argumentTypes);
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inference failed for function " + operationName + "\nFunction: "
+                    + operation
+                    + "\n" + e.getDetailedMessage(), term, e);
+        }
+    }
+
     /*
      * Compare the visitation for applications. visit children, lookup function
      * symbol, check arity, call setTyping to solve the constraints.
