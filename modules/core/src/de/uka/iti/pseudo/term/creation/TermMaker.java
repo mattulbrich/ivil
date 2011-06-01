@@ -720,7 +720,7 @@ public class TermMaker extends ASTDefaultVisitor {
         
         map.getRange().visit(this);
 
-        resultType = new MapType(bound, domain, resultType);
+        resultType = new MapType(bound, domain, resultType, map);
     }
 
     // drop the '

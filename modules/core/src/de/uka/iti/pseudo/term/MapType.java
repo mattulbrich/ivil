@@ -46,14 +46,17 @@ public class MapType extends Type {
     private final List<TypeVariable> boundVars;
     private final List<Type> domain;
     private final Type range;
+    private final ASTLocatedElement declaringLocation;
 
     /**
      * Create a new map type.
      */
-    public MapType(@NonNull List<TypeVariable> boundVars, @NonNull List<Type> domain, @NonNull Type range) {
+    public MapType(@NonNull List<TypeVariable> boundVars, @NonNull List<Type> domain, @NonNull Type range,
+            final ASTLocatedElement declaringLocation) {
         this.boundVars = boundVars;
         this.domain = domain;
         this.range = range;
+        this.declaringLocation = declaringLocation;
     }
 
     /**
@@ -152,8 +155,6 @@ public class MapType extends Type {
      *             things into another function
      */
     public Type flatten(Environment env, String name) throws EnvironmentException, TermException {
-        // get a location
-        final ASTLocatedElement declaringLocation = null;
         
         if(null!=name && null!=env.getSort(name))
             throw new EnvironmentException("the sort " + name + " exists already");
@@ -226,7 +227,7 @@ public class MapType extends Type {
                     store_sig[i] = SchemaVariable.getInst("%" + store_t[i].toString(), store_t[i]);
         }
 
-        createRules(name, $load, $store, env, declaringLocation);
+        createRules(name, $load, $store, env);
 
         return env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
     }
@@ -235,8 +236,7 @@ public class MapType extends Type {
      * create rules needed in order to handle objects of the created map type
      * efficiently
      */
-    private void createRules(String name, Function $load, Function $store, Environment env,
-            ASTLocatedElement declaringLocation) throws EnvironmentException {
+    private void createRules(String name, Function $load, Function $store, Environment env) throws EnvironmentException {
 
         try { // /////////////// LOAD STORE SAME
             String rule = name + "_load_store_same";
