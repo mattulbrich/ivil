@@ -80,6 +80,10 @@ plugin
     # check whether the formula to be added is indeed known and legal
     whereCondition : "de.uka.iti.pseudo.rule.where.KnownFormula"
     
+    
+    #pretty printing for maps
+	prettyPrinter : "test.MapPrettyPrinter"
+    
 (*
  * This rule can -- in combination with the where condition axiom
  * be used to add axioms from the environment to the sequent.
