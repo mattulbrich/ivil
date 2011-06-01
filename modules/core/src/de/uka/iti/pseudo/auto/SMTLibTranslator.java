@@ -52,6 +52,8 @@ import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.TypeVariableBinding.Kind;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
+import de.uka.iti.pseudo.term.creation.TermMatcher;
+import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -95,7 +97,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             "true", "true", "$not", "not", "$and", "and", "$or", "or", "$impl",
             "implies", "$equiv", "iff", "\\forall", "forall", "\\exists",
             "exists", "$gt", ">", "$lt", "<", "$gte", ">=", "$lte", "<=",
-            "$eq", "=", "$plus", "+", "$minus", "-", "$mult", "*", "$neg", "-" };
+            "$eq", "=", "$plus", "+", "$minus", "-", "$mult", "*", "$div",
+            "div", "$neg", "-" };
 
     /**
      * These symbols are predicates and, hence, result in a FORMULA rather than
@@ -616,12 +619,16 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         if (!freeTypeVars.isEmpty() || hasArgs) {
             StringBuilder sb = new StringBuilder();
             sb.append("(").append(translation);
-            TypeUnification tu = new TypeUnification();
-            tu.unify(TypeUnification.makeSchemaVariant(
-                    function.getResultType()), application.getType());
+
+            TermMatcher matcher = new TermMatcher();
+            TypeMatchVisitor visitor = new TypeMatchVisitor(matcher);
+
+            TypeUnification.makeSchemaVariant(function.getResultType()).accept(visitor, application.getType());
             for (TypeVariable tv : freeTypeVars) {
                 Type t = TypeUnification.makeSchemaVariant(tv);
-                String typeString = tu.instantiate(t).accept(typeToTerm, false);
+                assert t instanceof SchemaType : "either tv was not a type variable or the specification of makeSchemaVariant changed";
+
+                String typeString = matcher.getTypeFor(((SchemaType) t).getVariableName()).accept(typeToTerm, false);
                 sb.append(" ").append(typeString);
             }
 

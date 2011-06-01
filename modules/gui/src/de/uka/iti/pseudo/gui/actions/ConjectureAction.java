@@ -24,19 +24,21 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.NotificationEvent;
+import de.uka.iti.pseudo.util.NotificationListener;
 
 
 // TODO DOC!
 @SuppressWarnings("serial")
 public class ConjectureAction extends BarAction implements InitialisingAction,
-        PropertyChangeListener, Runnable {
+        PropertyChangeListener, Runnable, NotificationListener {
 
     private Rule cutRule;
     private String conjecture;
 
     public ConjectureAction() {
         super("Add a Conjecture",
- GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/lightbulb_add.png")));
+                GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/lightbulb_add.png")));
         
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         putValue(SHORT_DESCRIPTION, "Add a hypothesis and prove it");
@@ -53,6 +55,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
         } else {
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, this);
             proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+            proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
         }
        
     }
@@ -146,6 +149,15 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
+        reconsiderEnableState();
+    }
+    
+    @Override
+    public void handleNotification(NotificationEvent event) {
+        reconsiderEnableState();
+    }
+
+    private void reconsiderEnableState() {
         ProofCenter proofCenter = getProofCenter();
 
         boolean ongoing = (Boolean) proofCenter.getProperty(ProofCenter.ONGOING_PROOF);
@@ -154,5 +166,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
         setEnabled(!ongoing && isLeaf);
     }
+
+   
 
 }

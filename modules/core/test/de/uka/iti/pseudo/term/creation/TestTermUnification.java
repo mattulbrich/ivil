@@ -14,6 +14,8 @@ import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.parser.ASTVisitException;
+import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -49,6 +51,21 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(Environment.getIntType(), mc.getTypeInstantiation().get("a"));
     }
     
+    // tests a bug introduced by the removal of left unify from type unification
+    public void testLeftUnify2() throws Exception {
+
+        // ensure make and type is working as expected
+        TermMaker.makeAndTypeTerm("3", env, "test", Environment.getIntType());
+
+        try {
+            // this is not legal, as 3 can not have arbitrary schema type %'a
+            TermMaker.makeAndTypeTerm("3", env, "test", new SchemaType("a"));
+        } catch (ASTVisitException e) {
+            return;
+        }
+        fail("type resolution related exception expected");
+    }
+
     public void testUnifyIncomparable() throws Exception {
         TermMatcher mc = new TermMatcher();
         Term t1 = mt("g(%b, %a as int)");

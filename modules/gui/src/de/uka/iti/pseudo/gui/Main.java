@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
@@ -171,10 +172,11 @@ public class Main {
     }
 
 
-    public static void openEditor(File file) throws IOException {
+    public static PFileEditor openEditor(File file) throws IOException {
         PFileEditor editor = new PFileEditor(file);
         editor.setSize(600, 800);
         showFileEditor(editor);
+        return editor;
     }
     
     private static void showFileEditor(PFileEditor editor) {
@@ -239,8 +241,6 @@ public class Main {
     public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
             ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
         
-        Preferences.userNodeForPackage(Main.class).put("last problem", url.toString());
-
         Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
@@ -355,23 +355,30 @@ public class Main {
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String recent[] = prefs.get("recent problems", "").split("\n");
         List<String> newRecent = new ArrayList<String>(recent.length+1);
+        
         String toAdd = url.toString();
         newRecent.add(toAdd);
 
-        for (String p : recent) {
-            if (!toAdd.equals(p))
-                newRecent.add(p);
-        }
-
-        StringBuilder next = new StringBuilder(2 * NUMBER_OF_RECENT_FILES);
-        for (int i = 0; i < NUMBER_OF_RECENT_FILES && i < newRecent.size(); i++) {
-            if (i > 0) {
-                next.append("\n");
+        // add old recent files w/o the parameter
+        for (int i = 0; i < recent.length && 
+                newRecent.size() < NUMBER_OF_RECENT_FILES; i++) {
+            
+            if (!toAdd.equals(recent[i])) {
+                newRecent.add(recent[i]);
             }
-            next.append(newRecent.get(i));
         }
         
-        prefs.put("recent problems", next.toString());
+        assert newRecent.size () <= NUMBER_OF_RECENT_FILES;
+        
+        String prefString = Util.join(newRecent, "\n");
+        prefs.put("recent problems", prefString);
+        
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            // this is quite an unimportant error. ... Only log it.
+            Log.log(Log.ERROR, "Could not store away the list of recently opened files.", e);
+        }
     }
     
     private static void showProofCenter(ProofCenter proofCenter) {
