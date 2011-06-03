@@ -43,7 +43,7 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
          *            URL to the problem to be loaded
          */
         public LoadProblem(String location) {
-            //use only the last part of the URL in the menu
+            // use only the last part of the URL in the menu
             super(location.substring(location.lastIndexOf('/') + 1));
             this.location = location;
             putValue(SHORT_DESCRIPTION, "Load the problem at " + location);
@@ -85,12 +85,17 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
     public void menuSelected(MenuEvent e) {
         removeAll();
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
-        String allProblems = prefs.get("recent problems", "");
+        String allProblems = prefs.get("recent problems", null);
         
-        if(!allProblems.equals("")){
+        if(allProblems != null) {
             String recent[] = allProblems.split("\n");
             for (int i = 0; i < recent.length; i++)
                 add(new JMenuItem(new LoadProblem(recent[i])));
+        } else {
+            // Indicate that nothing can be reopened
+            JMenuItem item = new JMenuItem("empty.");
+            item.setEnabled(false);
+            add(item);
         }
     }
 

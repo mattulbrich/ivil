@@ -95,16 +95,23 @@ ASTSortDeclarationBlock SortDeclarationBlock():
 ASTSortDeclaration SortDeclaration():
 {
   Token name, ty;
-  List<Token> tyvars = new ArrayList<Token>(); 
+  List<Token> tyvars = new ArrayList<Token>();
+  ASTMapType alias = null; 
 }
 {
-        name=<IDENTIFIER>
-        (
-          "(" ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); }
-             ( "," ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); } )*
-          ")"
-        )?
-        { return new ASTSortDeclaration(name, tyvars); }
+  name=<IDENTIFIER>
+  (
+    (
+      "(" ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); }
+        ( "," ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); } )*
+      ")"
+    )
+  |
+    (      "as"
+      alias=MapTypeRef()
+    )
+  )?
+        { return new ASTSortDeclaration(name, tyvars, alias); }
 }
 
 ASTFunctionDeclarationBlock FunctionDeclarationBlock():

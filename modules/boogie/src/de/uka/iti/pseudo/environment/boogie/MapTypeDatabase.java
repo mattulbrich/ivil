@@ -1,36 +1,21 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
-import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
-import de.uka.iti.pseudo.parser.file.MatchingLocation;
-import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.LocatedTerm;
-import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.rule.where.DifferentTypesInEq;
-import de.uka.iti.pseudo.term.Application;
-import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.MapType;
 import de.uka.iti.pseudo.term.SchemaType;
-import de.uka.iti.pseudo.term.SchemaVariable;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
-import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
-import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
  * This class maps map types to ivil types. Map types are normalised to ensure
@@ -46,123 +31,109 @@ public final class MapTypeDatabase {
      * 
      * @author timm.felden@felden.com
      */
-    class UnfoldedMap extends Type {
-        final Type[] domain;
-        final Type range;
-        final HashSet<TypeVariable> parameters;
+    static class BoogieMap extends MapType {
         
-        final private LinkedList<InferencePath>[] paths;
 
-        @SuppressWarnings("unchecked")
-        public UnfoldedMap(Type[] domain, Type range, TypeVariable[] parameters, MapTypeDatabase mapDB)
-                throws TypeSystemException {
-            this.domain = domain;
-            this.range = range;
-            this.parameters = new HashSet<TypeVariable>(Arrays.asList(parameters));
-
-            this.paths = new LinkedList[parameters.length];
-            for (int i = 0; i < paths.length; i++) {
-                paths[i] = InferencePath.getPaths(this, parameters[i], mapDB);
-                if (0 == paths[i].size())
-                    throw new TypeSystemException("The typevariable <" + parameters[i] + "> is not used.");
-
-                Collections.sort(paths[i]);
-            }
-
-            Arrays.sort(paths, InferencePath.listComparator);
+        public BoogieMap(List<TypeVariable> boundVars, List<Type> domain, Type range,
+                ASTLocatedElement declaringLocation) {
+            super(boundVars, domain, range, declaringLocation);
         }
 
-        @Override
-        public <R, A> R accept(TypeVisitor<R, A> visitor, A parameter) throws TermException {
-            assert false : "can not be visited";
-            return null;
+        public Boolean accept(BoogieMapEqualityVisitor visitor, Type parameter) throws TermException {
+            return visitor.visit(this, parameter);
+        }
+
+        static class BoogieMapEqualityVisitor implements TypeVisitor<Boolean, Type> {
+
+            // TODO polymorphic equality
+
+            @Override
+            public Boolean visit(TypeApplication app, Type parameter) throws TermException {
+                if (!(parameter instanceof TypeApplication))
+                    return false;
+                
+                TypeApplication p = (TypeApplication) parameter;
+                
+                if (!p.getSort().equals(app.getSort()))
+                    return false;
+                
+                boolean result = true;
+                for (int i = 0; i < p.getArguments().size() && result; i++)
+                    result = app.getArguments().get(i).accept(this, p.getArguments().get(i));
+                    
+                return result;
+            }
+
+            public Boolean visit(BoogieMap map, Type parameter) throws TermException {
+                if (!(parameter instanceof BoogieMap))
+                    return false;
+
+                BoogieMap p = (BoogieMap) parameter;
+
+                if (p.boundVars.size() != map.boundVars.size() || p.domain.size() != map.domain.size())
+                    return false;
+                
+                // TODO update variable mapping
+                
+                boolean result = map.range.accept(this, p.range);
+
+                for (int i = 0; i < map.domain.size() && result; i++)
+                    result = map.domain.get(i).accept(this, p.domain.get(i));
+
+                return result;
+            }
+
+            @Override
+            public Boolean visit(TypeVariable var, Type parameter) throws TermException {
+                if (!(parameter instanceof TypeVariable))
+                    return false;
+
+                TypeVariable p = (TypeVariable) parameter;
+
+                // TODO
+
+                return var.equals(p);
+            }
+
+            @Override
+            public Boolean visit(SchemaType schemaType, Type parameter) throws TermException {
+                // can this even happen?
+                return schemaType.equals(parameter);
+            }
+
         }
 
         @Override
         public boolean equals(Object object) {
-            if (!(object instanceof UnfoldedMap))
+            if (!(object instanceof BoogieMap))
                 return false;
 
-            UnfoldedMap m = (UnfoldedMap) object;
-            
-            return mapEquals(this, m, new HashMap<TypeVariable, TypeVariable>());
-        }
-
-        private boolean mapEquals(UnfoldedMap t, UnfoldedMap m, HashMap<TypeVariable, TypeVariable> names) {
-            // inference paths have to be equal
-            if (t.paths.length == m.paths.length) {
-                for (int i = 0; i < t.paths.length; i++) {
-                    if (t.paths[i].size() != m.paths[i].size())
-                        return false;
-
-                    for (int j = 0; j < t.paths[i].size(); j++)
-                        if (0 != t.paths[i].get(j).compareTo(m.paths[i].get(j)))
-                            return false;
-                }
-            } else
+            BoogieMap m = (BoogieMap) object;
+            try {
+                return new BoogieMapEqualityVisitor().visit(this, m);
+            } catch (TermException e) {
                 return false;
-
-            // inference paths lead to new mappings of typevariable names
-            for(int i = 0; i < t.paths.length; i++)
-                names.put(t.paths[i].getFirst().getTypeVariable(), m.paths[i].getFirst().getTypeVariable());
-
-            // compare arguments and range using renamed typevariables
-            for (int i = 0; i < t.domain.length; i++) {
-                if (!typeEquals(t.domain[i], m.domain[i], names))
-                        return false;
             }
-
-            return typeEquals(t.range, m.range, names);
         }
 
-        private boolean typeEquals(Type t, Type m, HashMap<TypeVariable, TypeVariable> names) {
-            if (hasType(t) != hasType(m))
-                return false;
-            
-            if (hasType(t) && hasType(m))
-                return mapEquals(getUnfoldedMap(t), getUnfoldedMap(m), names);
-
-            // no argument is a map, so we can simply compare using renaming
-            if (t instanceof TypeVariable && m instanceof TypeVariable && names.containsKey(t))
-                    return names.get(t).equals(m);
-
-            return t.equals(m);
-        }
-
+        /**
+         * @note the hash code is very bad for boogie maps, as it is hard to
+         *       guarantee that two equal maps have the same hash code for
+         *       useful hash codes.
+         */
         @Override
-        public String toString() {
-            StringBuilder b = new StringBuilder();
-            b.append('[');
-            for (int i = 0; i < domain.length; i++) {
-                if (i != 0)
-                    b.append(',');
-                b.append(domain[i]);
-            }
-            b.append(']');
-            b.append(range);
-            b.append(" :: {");
-            for (int i = 0; i < paths.length; i++) {
-                b.append('(');
-                for (InferencePath p : paths[i])
-                    b.append(p);
-
-                b.append(')');
-            }
-            b.append('}');
-
-            return b.toString();
+        public int hashCode() {
+            return 100 * boundVars.size() + domain.size();
         }
-
     }
 
     /**
      * this direction is needed to add new map types
      */
-    private final Map<UnfoldedMap, Type> mapTo = new HashMap<UnfoldedMap, Type>();
-    private final Map<Type, UnfoldedMap> mapFrom = new HashMap<Type, UnfoldedMap>();
+    private final Map<BoogieMap, Type> mapTo = new HashMap<BoogieMap, Type>();
+    private final Map<Sort, BoogieMap> mapFrom = new HashMap<Sort, BoogieMap>();
 
     private final Environment env;
-    private final static Type BOOL_T = Environment.getBoolType();
 
     public MapTypeDatabase(Environment env) {
         this.env = env;
@@ -189,7 +160,8 @@ public final class MapTypeDatabase {
             EnvironmentCreationState state) throws TypeSystemException {
 
         // create an unfolded map
-        UnfoldedMap entry = new UnfoldedMap(domain, range, parameters, this);
+        BoogieMap entry = new BoogieMap(Arrays.asList(parameters), Arrays.asList(domain), range,
+                node);
 
         // look for the map in the table
         if (mapTo.containsKey(entry))
@@ -198,7 +170,7 @@ public final class MapTypeDatabase {
         // add a new map to the table
         Type t = addMapType(entry, node);
         mapTo.put(entry, t);
-        mapFrom.put(t, entry);
+        mapFrom.put(((TypeApplication) t).getSort(), entry);
         return t;
     }
 
@@ -210,7 +182,9 @@ public final class MapTypeDatabase {
     public Type[] getDomain(Type definition) {
         assert hasType(definition) : "requires definition to be a map type";
 
-        return mapFrom.get(definition).domain.clone();
+        final List<Type> d = mapFrom.get(((TypeApplication) definition).getSort()).getDomain();
+
+        return d.toArray(new Type[d.size()]);
     }
 
     /**
@@ -221,7 +195,7 @@ public final class MapTypeDatabase {
     public Type getRange(Type definition) {
         assert hasType(definition) : "requires definition to be a map type";
 
-        return mapFrom.get(definition).range;
+        return mapFrom.get(((TypeApplication) definition).getSort()).getRange();
     }
 
     /**
@@ -232,57 +206,16 @@ public final class MapTypeDatabase {
     public TypeVariable[] getParameters(Type definition) {
         assert hasType(definition) : "requires definition to be a map type";
 
-        HashSet<TypeVariable> p = mapFrom.get(definition).parameters;
+        List<TypeVariable> p = mapFrom.get(((TypeApplication) definition).getSort()).getBoundVars();
 
         return p.toArray(new TypeVariable[p.size()]);
     }
 
     // used by inference path
-    UnfoldedMap getUnfoldedMap(Type definition) {
+    BoogieMap getBoogieMap(Type definition) {
         assert hasType(definition) : "requires definition to be a map type (was : " + definition + ")";
 
-        return mapFrom.get(definition);
-    }
-
-    /**
-     * Replaces the maps type parameters with new schemaTypes created with
-     * context.
-     */
-    public Type[] getMapSignature(Type definition, final TypingContext context) {
-        final UnfoldedMap map = getUnfoldedMap(definition);
-        
-        // create a mapping from bound type variables to new schema types
-        final Map<TypeVariable, SchemaType> replace = new HashMap<TypeVariable, SchemaType>();
-        for(TypeVariable v : map.parameters)
-            replace.put(v, context.newSchemaType());
-
-        // This visitor is used to replace locally bound type variables with fresh schema variables.
-        try{
-            
-            RebuildingTypeVisitor<TypingContext> visitor = new RebuildingTypeVisitor<TypingContext>() {
-
-                // FIXME this will not work for nested map definitions such as
-                // <a>[a, <a,b>[a]b]a
-
-                @Override
-                public Type visit(TypeVariable typeVariable, TypingContext parameter) throws TermException {
-                    return map.parameters.contains(typeVariable) ? replace.get(typeVariable) : typeVariable;
-                }
-            };
-            
-            Type[] sig = new Type[map.domain.length + 1];
-            for (int i = 0; i < map.domain.length; i++)
-                sig[i] = map.domain[i].accept(visitor, context);
-
-            sig[map.domain.length] = map.range.accept(visitor, context);
-
-            return sig;
-
-        } catch (TermException e) {
-            e.printStackTrace();
-            assert false : "internal error";
-        }
-        return null;
+        return mapFrom.get(((TypeApplication) definition).getSort());
     }
 
     /**
@@ -294,7 +227,9 @@ public final class MapTypeDatabase {
      *         this object
      */
     public boolean hasType(Type type) {
-        return mapFrom.containsKey(type);
+        if (type instanceof TypeApplication)
+            return mapFrom.containsKey(((TypeApplication) type).getSort());
+        return false;
     }
 
     /**
@@ -303,375 +238,29 @@ public final class MapTypeDatabase {
      * @param type
      * @return the ivil type that can be used to represent the map
      * 
-     *         TODO detailed doc
-     * 
-     *         TODO renaming of variables
-     * 
-     *         TODO will only locally bound type variables be schema types?
+     * @throws TypeSystemException
+     *             if type creation failed
      */
-    private Type addMapType(UnfoldedMap type, ASTLocatedElement astLocatedElement) {
-        final Type[] domain = type.domain;
-
+    private Type addMapType(BoogieMap type, ASTLocatedElement astLocatedElement) throws TypeSystemException {
         try {
-            // create name ...
-            final String name = "map" + (1 + mapTo.size());
-
-            // ... sort ...
-            env.addSort(new Sort(name, 0, astLocatedElement));
-
-            // ... types ...
-
-            Type map_t = env.mkType(name);
-
-            Type domainRange[] = new Type[domain.length + 1];
-            Type mapDomainRange[] = new Type[domain.length + 2];
-            Type mapDomain[] = new Type[domain.length + 1];
-            Type curryMap[] = new Type[] { null }; // needed for lambda
-
-            for (int i = domain.length - 1; i >= 0; i--) {
-                if (null == curryMap[0])
-                    curryMap[0] = env.mkType("map", new Type[] { domain[i], type.range });
-                else
-                    curryMap[0] = env.mkType("map", new Type[] { domain[i], curryMap[0] });
-            }
-
-            mapDomainRange[0] = mapDomain[0] = map_t;
-
-            for (int i = 0; i < domain.length; i++)
-                domainRange[i] = mapDomain[i + 1] = mapDomainRange[i + 1] = domain[i];
-
-            domainRange[domainRange.length - 1] = mapDomainRange[mapDomainRange.length - 1] = type.range;
-
-            // ... functions ...
-            env.addFunction(new Function(name + "_store", map_t, mapDomainRange, false, false, astLocatedElement));
-
-            env.addFunction(new Function(name + "_load", domainRange[domainRange.length - 1], mapDomain, false, false,
-                    astLocatedElement));
-
-            // used to uncurry lambda expressions; lambda expressions always
-            // create maps with a domain larger then 0
-            if (domain.length > 0)
-                env.addFunction(new Function(name + "_curry", mapDomain[0], curryMap, false, false, astLocatedElement));
-
-
-            // create some commonly used schema variables
-            Type vt = type.range instanceof TypeVariable ? new SchemaType("v") : type.range;
-            SchemaVariable v = new SchemaVariable("%v", vt);
-
-            Term store_arg[] = new Term[domain.length + 2];
-            Term load_arg[] = new Term[domain.length + 1];
-
-            Type map_drt[] = new Type[domain.length + 1];
-
-            for (int i = 0; i < domain.length; i++) {
-                // use schema types only if the domain uses a type variable
-                final boolean tvar = domain[i] instanceof TypeVariable;
-
-                map_drt[i] = tvar ? new SchemaType("D" + i) : domain[i];
-                store_arg[i + 1] = new SchemaVariable("%d1_" + i, tvar ? new SchemaType("d1_" + i) : domain[i]);
-                load_arg[i + 1] = new SchemaVariable("%d2_" + i, tvar ? new SchemaType("d2_" + i) : domain[i]);
-            }
-
-            map_drt[domain.length] = type.range instanceof TypeVariable ? new SchemaType("R") : type.range;
-
-            SchemaVariable m = new SchemaVariable("%m", map_t);
-
-            store_arg[0] = m;
-            store_arg[store_arg.length - 1] = v;
-
-            load_arg[0] = new Application(env.getFunction(name + "_store"), map_t, store_arg);
-            Term default_find = new Application(env.getFunction(name + "_load"),
-                    type.range instanceof TypeVariable ? new SchemaType("rt") : type.range, load_arg);
-
-            try { // /////////////// LOAD STORE SAME
-
-                String rule = name + "_load_store_same";
-
-                Term args1[] = new Term[domain.length + 2];
-                Term args2[] = new Term[domain.length + 1];
-
-                Type drt[] = new Type[domain.length + 1];
-
-                for (int i = 0; i < domain.length; i++) {
-                    drt[i] = domain[i] instanceof TypeVariable ? new SchemaType("d" + i) : domain[i];
-                    args1[i + 1] = args2[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-                }
-
-                drt[domain.length] = vt;
-
-                args1[0] = m;
-                args1[args1.length - 1] = v;
-
-                args2[0] = new Application(env.getFunction(name + "_store"), map_t, args1);
-                Term find = new Application(env.getFunction(name + "_load"), vt, args2);
-
-                List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                actions.add(new GoalAction("samegoal", null, false, v, new LinkedList<Term>(), new LinkedList<Term>()));
-
-                Map<String, String> tags = new HashMap<String, String>();
-
-                tags.put("rewrite", "concrete");
-
-                env.addRule(new Rule(rule, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
-                        new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-            } catch (RuleException e) {
-                e.printStackTrace();
-                throw new EnvironmentException(e);
-            }
-
-            try { // /////////////// LOAD STORE SAME ASSUME
-
-                String rule = name + "_load_store_same_assume";
-
-                Term args1[] = new Term[domain.length + 2];
-                Term args2[] = new Term[domain.length + 1];
-
-                Type drt[] = new Type[domain.length + 1];
-
-                List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-
-                for (int i = 0; i < domain.length; i++) {
-                    drt[i] = domain[i] instanceof TypeVariable ? new SchemaType("d" + i) : domain[i];
-                    args1[i + 1] = new SchemaVariable("%d" + i, drt[i]);
-                    args2[i + 1] = new SchemaVariable("%t" + i, drt[i]);
-
-                    assumes.add(new LocatedTerm(new Application(env.getFunction("$eq"), BOOL_T, new Term[] {
-                            args1[i + 1], args2[i + 1] }), MatchingLocation.ANTECEDENT));
-                }
-
-                drt[domain.length] = vt;
-
-                args1[0] = m;
-                args1[args1.length - 1] = v;
-
-                args2[0] = new Application(env.getFunction(name + "_store"), map_t, args1);
-                Term find = new Application(env.getFunction(name + "_load"), vt, args2);
-
-                List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                actions.add(new GoalAction("samegoal", null, false, v, new LinkedList<Term>(), new LinkedList<Term>()));
-
-                Map<String, String> tags = new HashMap<String, String>();
-
-                tags.put("rewrite", "concrete");
-
-                env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH),
-                        new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-            } catch (RuleException e) {
-                e.printStackTrace();
-                throw new EnvironmentException(e);
-            }
-
-            try { // /////////////// LOAD STORE OTHER TYPE
-
-                Term[] args3 = load_arg.clone();
-                args3[0] = store_arg[0];
-
-                List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                actions.add(new GoalAction("samegoal", null, false, new Application(env.getFunction(name + "_load"),
-                        default_find.getType(), args3), new LinkedList<Term>(), new LinkedList<Term>()));
-
-                Map<String, String> tags = new HashMap<String, String>();
-
-                List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-
-                tags.put("rewrite", "concrete");
-
-                // add rules for domain type miss match
-                for (int i = 0; i < domain.length; i++) {
-                    String rule = name + "_load_store_other_type_" + i;
-
-                    LinkedList<WhereClause> where = new LinkedList<WhereClause>();
-
-                    where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
-                            new Term[] { load_arg[i + 1], store_arg[i + 1] }));
-
-                    env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH), where,
-                            actions, tags, astLocatedElement));
-                }
-
-                // add rule for range type miss match
-                String rule = name + "_load_store_other_type_range";
-
-                LinkedList<WhereClause> where = new LinkedList<WhereClause>();
-
-                where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
-                        new Term[] { default_find, store_arg[store_arg.length - 1] }));
-
-                env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH), where,
-                        actions, tags, astLocatedElement));
-
-            } catch (RuleException e) {
-                e.printStackTrace();
-                throw new EnvironmentException(e);
-            }
-
-            try { // /////////////// LOAD STORE OTHER
-
-                Term[] args3 = load_arg.clone();
-                args3[0] = store_arg[0];
-
-                List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                actions.add(new GoalAction("samegoal", null, false, new Application(env.getFunction(name + "_load"),
-                        default_find.getType(), args3), new LinkedList<Term>(), new LinkedList<Term>()));
-
-                Map<String, String> tags = new HashMap<String, String>();
-
-                tags.put("rewrite", "concrete");
-
-                // in order
-                for (int i = 0; i < domain.length; i++) {
-                    String rule = name + "_load_store_other_" + i;
-
-                    List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-
-                    assumes.add(new LocatedTerm(new Application(env.getFunction("$eq"), BOOL_T, new Term[] {
-                            load_arg[i + 1], store_arg[i + 1] }), MatchingLocation.SUCCEDENT));
-
-                    env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
-                            new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-                }
-                // reversed order
-                for (int i = 0; i < domain.length; i++) {
-                    String rule = name + "_load_store_other_r" + i;
-
-                    List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-
-                    assumes.add(new LocatedTerm(new Application(env.getFunction("$eq"), BOOL_T, new Term[] {
-                            store_arg[i + 1], load_arg[i + 1] }), MatchingLocation.SUCCEDENT));
-
-                    env.addRule(new Rule(rule, assumes, new LocatedTerm(default_find, MatchingLocation.BOTH),
-                            new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-                }
-
-            } catch (RuleException e) {
-                e.printStackTrace();
-                throw new EnvironmentException(e);
-            }
-
-            try { // /////////////// LOAD STORE COND, aka McCarthy axiom
-                String rule = name + "_load_store_cond";
-
-                Map<String, String> tags = new HashMap<String, String>();
-
-                tags.put("rewrite", "split");
-
-                List<Term> none = new LinkedList<Term>();
-
-                List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                // needed to be correct in case of maps, that do not have a
-                // domain
-                Term condition = Environment.getTrue();
-
-                for (int i = 0; i < domain.length; i++)
-                    condition = new Application(env.getFunction("$and"), BOOL_T, new Term[] {
-                            new Application(env.getFunction("$eq"), BOOL_T, new Term[] { store_arg[i + 1],
-                                    load_arg[i + 1] }), condition });
-
-                Term newload_args[] = load_arg.clone();
-                newload_args[0] = store_arg[0];
-                Term load = new Application(env.getFunction(name + "_load"), vt, newload_args);
-
-                Term replacement = new Application(env.getFunction("cond"), vt, new Term[] { condition, v, load });
-
-                Term find = new Application(env.getFunction(name + "_load"), vt, load_arg);
-
-                actions.add(new GoalAction("samegoal", null, false, replacement, none, none));
-
-                env.addRule(new Rule(rule, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
-                        new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-            } catch (RuleException e) {
-                e.printStackTrace();
-                throw new EnvironmentException(e);
-            }
-
-            if (domain.length > 0)
-                try { // /////////////// LOAD LAMBDA
-                    String rule = name + "_load_lambda";
-
-                    // find: map_load(map_curry(λ x_1; ... λ x_n ; v), y_1, ...
-                    // y_n)
-                    // replace: $$subst(X, Y, v)
-
-                    Map<String, String> tags = new HashMap<String, String>();
-
-                    tags.put("rewrite", "concrete");
-
-                    List<Term> none = new LinkedList<Term>();
-
-                    List<GoalAction> actions = new LinkedList<GoalAction>();
-
-                    // create schema variables and types
-                    SchemaVariable X[] = new SchemaVariable[domain.length];
-                    Term argLoad[] = new Term[domain.length + 1];
-                    Term lambda = v;
-                    Term replace = v;
-
-                    Type curry_t = type.range instanceof TypeVariable ? new SchemaType("ct_"
-                            + ((TypeVariable) type.range).getVariableName()) : vt;
-                    Type domain_t[] = new Type[domain.length];
-
-                    for (int i = domain.length - 1; i >= 0; i--) {
-                        // use schema types only if the domain uses a type
-                        // variable
-                        final boolean tvar = domain[i] instanceof TypeVariable;
-
-                        domain_t[i] = tvar ? new SchemaType("ct_" + ((TypeVariable) domain[i]).getVariableName()) : domain[i];
-                        X[i] = new SchemaVariable("%x" + i, domain_t[i]);
-                        argLoad[i + 1] = new SchemaVariable("%y" + i, domain_t[i]);
-
-                        curry_t = env.mkType("map", domain_t[i], curry_t);
-                        lambda = new Binding(env.getBinder("\\lambda"), curry_t, X[i], new Term[] { lambda });
-
-                        replace = new Application(env.getFunction("$$subst"), vt, new Term[] { X[i], argLoad[i + 1],
-                                replace });
-                    }
-
-                    // lambda is now λ %X . %v
-
-                    argLoad[0] = new Application(env.getFunction(name + "_curry"), map_t, new Term[] { lambda });
-
-                    Term find = new Application(env.getFunction(name + "_load"), vt, argLoad);
-
-                    actions.add(new GoalAction("samegoal", null, false, replace, none, none));
-
-                    env.addRule(new Rule(rule, new LinkedList<LocatedTerm>(), new LocatedTerm(find,
-                            MatchingLocation.BOTH), new LinkedList<WhereClause>(), actions, tags, astLocatedElement));
-
-                } catch (RuleException e) {
-                    e.printStackTrace();
-                    throw new EnvironmentException(e);
-                }
-
-            return map_t;
-
+            return type.flatten(env, null);
         } catch (EnvironmentException e) {
             e.printStackTrace();
-            assert false : "internal error: " + e.getMessage();
-
+            throw new TypeSystemException("type flattening failed", e);
         } catch (TermException e) {
             e.printStackTrace();
-            assert false : "internal error: " + e.getMessage();
+            throw new TypeSystemException("type flattening failed", e);
         }
-        return null;
     }
 
     @Override
     public String toString() {
         StringBuffer b = new StringBuffer();
-        for (Type t : mapFrom.keySet()) {
-            b.append(t);
+        for (Sort s : mapFrom.keySet()) {
+            b.append(s);
+            b.append("(#").append(s.getArity()).append(")");
             b.append(" ==> ");
-            b.append(mapFrom.get(t));
+            b.append(mapFrom.get(s));
             b.append('\n');
         }
         return b.toString();

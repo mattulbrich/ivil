@@ -50,6 +50,8 @@ import de.uka.iti.pseudo.parser.term.ASTFixTerm;
 import de.uka.iti.pseudo.parser.term.ASTHeadElement;
 import de.uka.iti.pseudo.parser.term.ASTIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTListTerm;
+import de.uka.iti.pseudo.parser.term.ASTMapOperationTerm;
+import de.uka.iti.pseudo.parser.term.ASTMapType;
 import de.uka.iti.pseudo.parser.term.ASTNumberLiteralTerm;
 import de.uka.iti.pseudo.parser.term.ASTOperatorIdentifierTerm;
 import de.uka.iti.pseudo.parser.term.ASTProgramTerm;
@@ -66,6 +68,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.MapType;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -73,6 +76,7 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.UnificationException;
@@ -461,6 +465,29 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
 
+    public void visit(ASTMapOperationTerm term) throws ASTVisitException {
+
+        Type map_t = term.getMapTerm().getTyping().getType();
+        assert map_t instanceof TypeApplication;
+
+        final String operationName = (term.isLoad() ? "$load_" : "$store_")
+                + ((TypeApplication) map_t).getSort().getName();
+
+        Function operation = env.getFunction(operationName);
+
+        // checked elsewhere
+        assert operation != null;
+
+        Term[] subterms = collectSubterms(term);
+
+        Type type = term.getTyping().getType();
+        try {
+            resultTerm = Application.getInst(operation, type, subterms);
+        } catch (TermException e) {
+            throw new ASTVisitException(term, e);
+        }
+    }
+
     public void visit(ASTBinderTerm binderTerm) throws ASTVisitException {
         try {
             String binderSymb = binderTerm.getBinderToken().image;
@@ -677,6 +704,28 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
     
+    public void visit(ASTMapType map) throws ASTVisitException {
+        
+        List<TypeVariable> bound = new ArrayList<TypeVariable>(map.getBoundVars().size());
+        for(ASTType t : map.getBoundVars()){
+            t.visit(this);
+            if(resultType instanceof TypeVariable)
+                bound.add((TypeVariable) resultType);
+            else
+                throw new ASTVisitException("the map bound something, that is not a type variable, what is not legal for a map");
+        }
+        
+        List<Type> domain = new ArrayList<Type>(map.getDomain().size());
+        for(ASTType t : map.getDomain()){
+            t.visit(this);
+            domain.add(resultType);
+        }
+        
+        map.getRange().visit(this);
+
+        resultType = new MapType(bound, domain, resultType, map);
+    }
+
     // drop the '
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
         resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));

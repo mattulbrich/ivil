@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
@@ -158,7 +159,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      */
     private void unify(ASTElement node, Type type) throws ASTVisitException {
         try {
-            context.unify(schemaTypes.get(node), type);
+            context.unify(type, schemaTypes.get(node));
         } catch (UnificationException e) {
             throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
         }
@@ -592,11 +593,19 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if(!(t instanceof TypeApplication))
             throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
         
-        Type[] signature = state.mapDB.getMapSignature(t, context);
+        Function $load = state.env.getFunction("$load_" + ((TypeApplication) t).getSort().getName());
         
+        Type[] signature = context.makeNewSignature($load.getResultType(), $load.getArgumentTypes());
+        
+        // signature contains result, map
+        if (node.getOperands().size() != signature.length - 2)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 2)
+                    + " got: " + node.getOperands().size());
+
         for (int i = 0; i < node.getOperands().size(); i++)
-            unify(node.getOperands().get(i), signature[i]);
-        unify(node, signature[signature.length - 1]);
+            unify(node.getOperands().get(i), signature[i + 2]);
+        unify(node, signature[0]);
     }
 
     @Override
@@ -618,30 +627,32 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        if (schemaTypes.has(node))
-            return;
-        schemaTypes.add(node, context.newSchemaType());
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        ASTElement decl = state.names.functionSpace.get(node.getName());
-        if (null == decl)
-            throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
-
-        if (!schemaTypes.has(decl))
-            decl.visit(this);
-
-        // @note: this is a type application, if the object is a map
-        Type t = context.instantiate(schemaTypes.get(decl));
-        if (!(t instanceof TypeApplication))
-            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
-
-        Type[] signature = state.mapDB.getMapSignature(t, context);
-
-        for (int i = 0; i < node.getOperands().size(); i++)
-            unify(node.getOperands().get(i), signature[i]);
-        unify(node, signature[signature.length - 1]);
+        // if (schemaTypes.has(node))
+        // return;
+        // schemaTypes.add(node, context.newSchemaType());
+        //
+        // for (ASTElement n : node.getChildren())
+        // n.visit(this);
+        //
+        // ASTElement decl = state.names.functionSpace.get(node.getName());
+        // if (null == decl)
+        // throw new ASTVisitException("Function " + node.getName() +
+        // " is used but never declared anywhere.");
+        //
+        // if (!schemaTypes.has(decl))
+        // decl.visit(this);
+        //
+        // // @note: this is a type application, if the object is a map
+        // Type t = context.instantiate(schemaTypes.get(decl));
+        // if (!(t instanceof TypeApplication))
+        // throw new ASTVisitException(node.getLocation() +
+        // " the used map object has no map type!");
+        //
+        // Type[] signature = state.mapDB.getMapSignature(t, context);
+        //
+        // for (int i = 0; i < node.getOperands().size(); i++)
+        // unify(node.getOperands().get(i), signature[i]);
+        // unify(node, signature[signature.length - 1]);
     }
 
     @Override

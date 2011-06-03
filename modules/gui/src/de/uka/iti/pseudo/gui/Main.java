@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
@@ -69,6 +70,7 @@ public class Main {
     public static final String PROPERTIES_FILE_KEY = "pseudo.settingsFile";
     public static final String BASE_DIRECTORY_KEY = "pseudo.baseDir";
     public static final String BASE_DIRECTORY;
+    public static final String SYSTEM_DIRECTORY_KEY = "pseudo.sysDir";
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
 
     private static final String VERSION_PATH = "/META-INF/VERSION";
@@ -88,8 +90,9 @@ public class Main {
     private static JFileChooser fileChooser[] = new JFileChooser[2];
 
     /*
-     * - setup the settings from default resource, file and command line. - set
-     * assertion state accordingly - set directories accordingly
+     * - setup the settings from default resource, file and command line.
+     * - set assertion state accordingly
+     * - set directories accordingly 
      */
     static {
         loadProperties();
@@ -105,20 +108,20 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    printVersion();
+                printVersion();
 
-                    CommandLine commandLine = makeCommandLine();
-                    commandLine.parse(args);
+                CommandLine commandLine = makeCommandLine();
+                commandLine.parse(args);
 
-                    if (commandLine.isSet(CMDLINE_HELP)) {
-                        commandLine.printUsage(System.out);
-                        System.exit(0);
-                    }
+                if(commandLine.isSet(CMDLINE_HELP)) {
+                    commandLine.printUsage(System.out);
+                    System.exit(0);
+                }
 
-                    List<String> fileArguments = commandLine.getArguments();
+                List<String> fileArguments = commandLine.getArguments();
 
-                    if (fileArguments.isEmpty()) {
-                        startupWindow = new StartupWindow();
+                if(fileArguments.isEmpty()) {
+                    startupWindow = new StartupWindow();
                         startupWindow.setVisible(true);
                     } else {
                         File file = new File(fileArguments.get(0));
@@ -162,10 +165,12 @@ public class Main {
         return cl;
     }
 
-    public static void openEditor(File file) throws IOException {
+
+    public static PFileEditor openEditor(File file) throws IOException {
         PFileEditor editor = new PFileEditor(file);
         editor.setSize(600, 800);
         showFileEditor(editor);
+        return editor;
     }
 
     private static void showFileEditor(PFileEditor editor) {
@@ -231,8 +236,6 @@ public class Main {
     public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
             ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
         
-        Preferences.userNodeForPackage(Main.class).put("last problem", url.toString());
-
         Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
@@ -346,26 +349,33 @@ public class Main {
     private static void addToRecentProblems(@NonNull URL url) {
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String recent[] = prefs.get("recent problems", "").split("\n");
-        List<String> newRecent = new ArrayList<String>(recent.length + 1);
+        List<String> newRecent = new ArrayList<String>(recent.length+1);
+        
         String toAdd = url.toString();
         newRecent.add(toAdd);
 
-        for (String p : recent) {
-            if (!toAdd.equals(p))
-                newRecent.add(p);
-        }
-
-        StringBuilder next = new StringBuilder(2 * NUMBER_OF_RECENT_FILES);
-        for (int i = 0; i < NUMBER_OF_RECENT_FILES && i < newRecent.size(); i++) {
-            if (i > 0) {
-                next.append("\n");
+        // add old recent files w/o the parameter
+        for (int i = 0; i < recent.length && 
+                newRecent.size() < NUMBER_OF_RECENT_FILES; i++) {
+            
+            if (!toAdd.equals(recent[i])) {
+                newRecent.add(recent[i]);
             }
-            next.append(newRecent.get(i));
         }
-
-        prefs.put("recent problems", next.toString());
+        
+        assert newRecent.size () <= NUMBER_OF_RECENT_FILES;
+        
+        String prefString = Util.join(newRecent, "\n");
+        prefs.put("recent problems", prefString);
+        
+        try {
+            prefs.flush();
+        } catch (BackingStoreException e) {
+            // this is quite an unimportant error. ... Only log it.
+            Log.log(Log.ERROR, "Could not store away the list of recently opened files.", e);
+        }
     }
-
+    
     private static void showProofCenter(ProofCenter proofCenter) {
         if (startupWindow != null) {
             startupWindow.dispose();
@@ -386,11 +396,10 @@ public class Main {
         if (PROOF_CENTERS.isEmpty() && EDITORS.isEmpty())
             System.exit(0);
     }
-
+    
     /**
-     * check whether at least one open proof center or one editor has unsaved
-     * changes
-     * 
+     * check whether at least one open proof center or one editor
+     * has unsaved changes
      * @return true iff there are changes in one window
      */
     public static boolean windowsHaveChanges() {
@@ -427,8 +436,8 @@ public class Main {
     }
 
     /**
-     * add all properties from the system and from a certain file to the
-     * properties in {@link ProofCenter}.
+     * add all properties from the system and from a certain file to
+     * the properties in {@link ProofCenter}.
      * 
      * Command line and system overwrite the file
      */

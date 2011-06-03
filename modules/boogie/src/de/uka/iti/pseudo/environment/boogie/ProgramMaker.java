@@ -81,6 +81,7 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -208,7 +209,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // quantified variables differ from ordinary variables, as they aren't
         // functions
         if (node.isQuantified() || node.getParent() instanceof FunctionDeclaration) {
-            boundVars.put(name, de.uka.iti.pseudo.term.Variable.getInst(name, state.ivilTypeMap.get(node)));
+            boundVars.put(name, de.uka.iti.pseudo.term.Variable.getInst(name, state.typeMap.get(node)));
 
         } else {
             try {
@@ -412,8 +413,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             .getTypeParameters().get(i)), args[0]) };
 
             } catch (TermException e) {
-                e.printStackTrace();
-            } catch (EnvironmentException e) {
                 e.printStackTrace();
             }
 
@@ -1279,7 +1278,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             // ! @note: this works, because we are transforming lvalues, thus no
             // other map operation can occur here
-            while (target instanceof Application && ((Application) target).getFunction().getName().startsWith("map")
+            while (target instanceof Application && ((Application) target).getFunction().getName().startsWith("$load_")
                     && !((Application) target).getFunction().isAssignable()) {
                 // currently, terms[getTarget] is a map_load(name, domain),
                 // but
@@ -1296,9 +1295,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 args[args.length - 1] = nval;
 
-                Function store = state.env.getFunction(name.getType().toString() + "_store");
+                Function $store;
 
-                if (name instanceof Application && ((Application) name).getFunction().getName().startsWith("map")
+                if (name instanceof Application && ((Application) name).getFunction().getName().startsWith("$load_")
                         && !((Application) name).getFunction().isAssignable()) {
 
                     // unroll by creating new inner variables
@@ -1308,8 +1307,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                     args[0] = tmp;
 
+                    $store = state.env.getFunction("$store_"
+                            + ((TypeApplication) args[0].getType()).getSort().getName());
+
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, tmp, Application.getInst(store, tmp.getType(), args)));
+                            .getLocationToken().beginLine, tmp, Application.getInst($store, tmp.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -1318,8 +1320,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
                 } else {
 
+                    $store = state.env.getFunction("$store_" + ((TypeApplication) name.getType()).getSort().getName());
+
                     statements.bodyStatements.add(new de.uka.iti.pseudo.term.statement.AssignmentStatement(node
-                            .getLocationToken().beginLine, name, Application.getInst(store, name.getType(), args)));
+                            .getLocationToken().beginLine, name, Application.getInst($store, name.getType(), args)));
 
                     statements.bodyAnnotations.add(null);
 
@@ -1401,24 +1405,6 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        defaultAction(node);
-
-        Term[] args = new Term[2];
-
-        for (int i = 0; i < 2; i++)
-            args[i] = state.translation.terms.get(node.getOperands().get(i));
-
-        try {
-            state.translation.terms.put(node,
-                    new Application(state.env.getFunction("$equiv"), Environment.getBoolType(), args));
-        } catch (TermException e) {
-            e.printStackTrace();
-            throw new ASTVisitException(e);
-        }
-    }
-
-    @Override
-    public void visit(ImpliesExpression node) throws ASTVisitException {
         defaultAction(node);
 
         Term[] args = new Term[2];
@@ -1627,19 +1613,22 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // translate to mapI_load(name, domain)
         defaultAction(node);
 
-        List<de.uka.iti.pseudo.parser.boogie.ast.expression.Expression> d = node.getOperands();
+        List<de.uka.iti.pseudo.parser.boogie.ast.expression.Expression> domain = node.getOperands();
 
         try {
-            Term args[] = new Term[d.size() + 1];
+            Term args[] = new Term[domain.size() + 1];
             args[0] = state.translation.terms.get(node.getName());
-            for (int i = 0; i < d.size(); i++)
-                args[i + 1] = state.translation.terms.get(d.get(i));
+            for (int i = 0; i < domain.size(); i++)
+                args[i + 1] = state.translation.terms.get(domain.get(i));
 
             Type range_t = state.typeMap.get(node);
 
             assert null != range_t || state.printDebugInformation() : "range type should be nonnull";
 
-            Term tmp = Application.getInst(state.env.getFunction("map" + d.size() + "_load"), range_t, args);
+            final Function $load = state.env.getFunction("$load_"
+                    + ((TypeApplication) args[0].getType()).getSort().getName());
+
+            Term tmp = Application.getInst($load, range_t, args);
 
             state.translation.terms.put(node, tmp);
 
@@ -1667,8 +1656,10 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             Type type = state.typeMap.get(node);
 
-            state.translation.terms.put(node, Application.getInst(state.env.getFunction(type.toString() + "_store"), type,
-                    args));
+            final Function $store = state.env.getFunction("$store_"
+                    + ((TypeApplication) args[0].getType()).getSort().getName());
+
+            state.translation.terms.put(node, Application.getInst($store, type, args));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1721,7 +1712,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         try {
             state.translation.terms.put(node, Application.getInst(state.env.getFunction("fun__" + node.getName()),
-                    state.ivilTypeMap.get(node), args));
+                    state.typeMap.get(node), args));
 
         } catch (TermException e) {
             throw new ASTVisitException(node.getLocation(), e);
@@ -1745,7 +1736,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 state.translation.terms.put(node, bound);
             else
                 state.translation.terms.put(node,
- Application.create(state.env.getFunction(name), state.ivilTypeMap
+ Application.create(state.env.getFunction(name), state.typeMap
                         .get(node)));
 
         } catch (TermException e) {
