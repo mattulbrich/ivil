@@ -52,10 +52,6 @@ public class AssignmentStatement extends Statement {
         assignments.toArray(this.assignments);
     }
 
-    public AssignmentStatement(int sourceLineNumber, Term target, Term value) throws TermException {
-        this(sourceLineNumber, Arrays.asList(new Assignment[] { new Assignment(target, value) }));
-    }
-
 
     public AssignmentStatement(int sourceLineNumber, String identifier) {
         super(sourceLineNumber);

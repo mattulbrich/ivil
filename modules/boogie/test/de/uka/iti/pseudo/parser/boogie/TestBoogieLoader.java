@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.gui.Main;
 public class TestBoogieLoader extends TestCaseWithEnv {
 
     public void test_SimpleGuiLoader() throws Exception {
-        String path = "examples/boogie/test/closable/tfe_test/simple.bpl";
+        String path = "modules/boogie/test/data/closable/tfe_test/simple.bpl";
         
         Main.openProver(new File(path));
     }
