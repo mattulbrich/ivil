@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.gui.editor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -23,17 +24,14 @@ import java.awt.event.WindowListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
 import java.io.StringBufferInputStream;
 import java.net.URL;
 
 import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
@@ -59,7 +57,6 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.environment.creation.PFileEnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
-import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -82,6 +79,10 @@ public class PFileEditor extends JFrame implements ActionListener {
     private BarManager barManager;
     private UpdateThread updateThread;
     private String errorFilename;
+    
+    private ModificationListener modListener = 
+        new ModificationListener(this);
+    
     private DocumentListener doclistener = new DocumentListener() {
 
         public void changedUpdate(DocumentEvent e) {
@@ -108,7 +109,6 @@ public class PFileEditor extends JFrame implements ActionListener {
     private boolean hasChanged;
     public boolean syntaxChecking = false;
     private boolean syntaxHighlighting = true;
-    private long fileModDate;
 
     private class UpdateThread extends Thread {
         public UpdateThread() {
@@ -189,6 +189,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             // TODO make this configurable
             // TODO use the parser manager from RSyntax...
             editor.getDocument().addDocumentListener(doclistener);
+            editor.getDocument().addDocumentListener(modListener);
             try {
                 errorHighlighting = editor.getHighlighter().addHighlight(0, 0, new CurlyHighlightPainter());
             } catch (BadLocationException e) {
@@ -225,6 +226,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         {
             addWindowListener((WindowListener) barManager.makeAction("general.close"));    
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            addWindowListener(modListener);
         }
     }
     
@@ -347,23 +349,6 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
     }
     
-    /** 
-     * @param filePath      name of file to open. The file can reside
-     *                      anywhere in the classpath
-     */
-    private static String readFileAsString(File file)
-            throws java.io.IOException {
-        StringBuffer fileData = new StringBuffer();
-        Reader reader = new FileReader(file);
-        char[] buf = new char[1024];
-        int numRead = 0;
-        while ((numRead = reader.read(buf)) != -1) {
-            fileData.append(buf, 0, numRead);
-        }
-        reader.close();
-        return fileData.toString();
-    }
-    
     // from http://www.java2s.com/Code/Java/Swing-JFC/AddingUndoandRedotoaTextComponent.htm
    
 //    @SuppressWarnings("serial")
@@ -439,48 +424,10 @@ public class PFileEditor extends JFrame implements ActionListener {
     public void setHasUnsavedChanges(boolean b) {
         boolean old = hasChanged;
         
-        if(b && handleConcurrentMod(b)) {
-            return;
-        }
-        
         hasChanged = b;
         if(hasChanged != old)
             updateTitle();
     }
-
-    private boolean handleConcurrentMod(boolean changes) {
-        Log.enter(changes);
-        if (changes) {
-            if (editedFile != null &&
-                    editedFile.lastModified() != fileModDate) {
-                String mess = "The file "
-                        + editedFile
-                        + " has been changed on the file system. Do you "
-                        + "want to reread the file from disk, overwriting"
-                        + "this buffer?";
-
-                int res = JOptionPane.showConfirmDialog(this, mess,
-                        "File has been changed", JOptionPane.YES_NO_OPTION);
-
-                if (res == JOptionPane.YES_OPTION) {
-                    try {
-                        loadFile(editedFile);
-                        return true;
-                    } catch (IOException e) {
-                        ExceptionDialog.showExceptionDialog(this, e);
-                    }
-                } else {
-                    fileModDate = editedFile.lastModified();
-                }
-            }
-            return false;
-        } else {
-            // after saving.
-            fileModDate = editedFile.lastModified();
-            return false;
-        }
-    }
-
 
     public String getContent() {
         return editor.getText();
@@ -488,9 +435,12 @@ public class PFileEditor extends JFrame implements ActionListener {
     
     public void loadFile(File file) throws IOException {
         EnvironmentCreationService checker; 
+        
+        Log.enter(file);
+        assert EventQueue.isDispatchThread();
             
         if(file != null) {
-            String content = readFileAsString(file);
+            String content = Util.readFileAsString(file);
             editor.setText(content);
             editor.setCaretPosition(0);
             
@@ -507,13 +457,13 @@ public class PFileEditor extends JFrame implements ActionListener {
                 setProperty(SYNTAX_CHECKING_PROPERTY, true);
             }
             
-            fileModDate = file.lastModified();
+            modListener.setEditedFile(file);
             
         } else {
             editor.setText("");
             checker = new PFileEnvironmentCreationService();
             setProperty(SYNTAX_CHECKING_PROPERTY, true);
-            fileModDate = -1;
+            modListener.setEditedFile(null);
         }
         
         this.editedFile = file;
@@ -522,6 +472,8 @@ public class PFileEditor extends JFrame implements ActionListener {
         setProperty(SYNTAX_CHECKER_PROPERTY, checker);
         setHasUnsavedChanges(false);
         updateTitle();
+        
+        Log.leave();
     }
 
     private void updateTitle() {
