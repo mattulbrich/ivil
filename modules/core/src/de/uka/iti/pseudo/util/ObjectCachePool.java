@@ -9,11 +9,12 @@
  */
 package de.uka.iti.pseudo.util;
 
-import java.util.Collections;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import checkers.nullness.quals.NonNull;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class implements an object pool similar to the mechanism used in
@@ -51,6 +52,11 @@ import checkers.nullness.quals.NonNull;
  * The cache does, hence, not keep unneeded objects.
  * 
  * <p>
+ * The map is synchronised using R/W locks, allowing for concurrent writes.
+ *  
+ * TODO Get rid of the soft references. ...
+ * 
+ * <p>
  * The implementation is thread-safe.
  */
 public final class ObjectCachePool {
@@ -58,10 +64,13 @@ public final class ObjectCachePool {
     /**
      * The pool to store references in.
      */
-    Map<Object, Object> thePool =
-        Collections.synchronizedMap(new WeakHashMap<Object, Object>());
+    private Map<Object, SoftReference<Object>> thePool =
+        new WeakHashMap<Object, SoftReference<Object>>();
     
     // invariant key instanceof T ==> thePool.get(key) instanceof T;
+    
+    private ReadWriteLock lock =
+        new ReentrantReadWriteLock();
 
     /**
      * Get the canonical representative of an object from the cache.
@@ -85,12 +94,29 @@ public final class ObjectCachePool {
         if(instance == null)
             return null;
         
-        Object result = thePool.get(instance);
-        if(result == null) {
-            thePool.put(instance, instance);
-            result = instance;
+        lock.readLock().lock();
+        try {
+            Reference ref = thePool.get(instance);
+            Object result;
+            if(ref == null)
+                result = null;
+            else
+                result = ref.get();
+                
+            if(result == null) {
+                lock.writeLock().lock();
+                try {
+                    thePool.put(instance, new SoftReference(instance));
+                } finally {
+                    lock.writeLock().unlock();
+                }
+                result = instance;
+            }
+            return (T) result;
+        } finally {
+            lock.readLock().unlock();
         }
-        return (T) result;
+        
     }
     
     /**
