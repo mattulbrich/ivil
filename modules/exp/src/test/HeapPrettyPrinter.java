@@ -63,6 +63,15 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
             int last_ = name.lastIndexOf('_');
             append(name.substring(last_+1));
         }
+
+        // TODO how can be drop the dot?
+        if(isFieldType(function.getResultType()) && function.getArity() == 1 &&
+                name.length() > 3 &&
+                name.substring(name.length() - 3).equals("Idx")) {
+            append("[");
+            printSubterm(application, 0);
+            append("]");
+        }
                 
         
     }

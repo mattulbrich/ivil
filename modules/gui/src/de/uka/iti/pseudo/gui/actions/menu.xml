@@ -123,16 +123,16 @@
 		
 		<save>ACTION editor/SaveEditorAction
             <icon>img/page_white_text_save.png</icon>
-            <text>Save As ...</text>
-            <tooltip>save the edited file under a new name</tooltip>
-            <mnemonic>A</mnemonic>
+            <text>Save</text>
+            <accelerator>control S</accelerator>
+            <tooltip>save the edited file</tooltip>
+            <mnemonic>S</mnemonic>
         </save> 
 		<saveAs>ACTION editor/SaveAsEditorAction
             <icon>img/page_white_text_save.png</icon>
-            <text>Save</text>
-            <tooltip>save the edited file</tooltip>
-            <accelerator>control S</accelerator>
-            <mnemonic>S</mnemonic>
+            <text>Save As ...</text>
+            <tooltip>save the edited file under a new name</tooltip>
+            <mnemonic>A</mnemonic>
         </saveAs>
 		<new>ACTION editor/NewEditorAction
             <icon>img/page_white_text_new.png</icon>
