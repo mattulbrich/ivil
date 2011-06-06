@@ -161,7 +161,7 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     }
     
     public void testTypeQuant() throws Exception {
-        typemap.put("v", new TypeVariable("inst"));
+        typemap.put("v", TypeVariable.getInst("inst"));
         typemap.put("w", Environment.getIntType());
         
         Term t = inst.instantiate(makeTerm("(\\T_all %'v; true)"));

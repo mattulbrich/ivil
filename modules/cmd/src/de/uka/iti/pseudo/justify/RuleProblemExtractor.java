@@ -266,7 +266,7 @@ public class RuleProblemExtractor {
             String name = schType.getVariableName();
             if(!mapTypeVars.containsKey(name)) {
                 String newName = freshTypeVariableName(name);
-                TypeVariable tv = new TypeVariable(newName);
+                TypeVariable tv = TypeVariable.getInst(newName);
                 mapTypeVars.put(name, tv);
             }
         }

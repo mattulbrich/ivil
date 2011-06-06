@@ -32,7 +32,7 @@ public class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
             result[i] = arguments.get(i).accept(this, parameter);
         }
         
-        return new TypeApplication(sort, result);
+        return TypeApplication.getInst(sort, result);
     }
 
     public Type visit(TypeVariable typeVariable, A parameter) throws TermException {

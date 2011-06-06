@@ -59,7 +59,7 @@ public class TestTermUnification extends TestCaseWithEnv {
 
         try {
             // this is not legal, as 3 can not have arbitrary schema type %'a
-            TermMaker.makeAndTypeTerm("3", env, "test", new SchemaType("a"));
+            TermMaker.makeAndTypeTerm("3", env, "test", SchemaType.getInst("a"));
         } catch (ASTVisitException e) {
             return;
         }
@@ -236,7 +236,7 @@ public class TestTermUnification extends TestCaseWithEnv {
         TermMatcher mc = new TermMatcher();
         
         mc.leftMatch(mt("(\\T_all %'a; arb = arb as %'a)"), mt("(\\T_all 'a; arb = arb as 'a)"));
-        assertEquals(new TypeVariable("a"), mc.getTypeFor("a"));
+        assertEquals(TypeVariable.getInst("a"), mc.getTypeFor("a"));
         
         mc = new TermMatcher();
         boolean res = mc.leftMatch(mt("(\\T_all %'a; (\\forall %x as %'a; %b))"), mt("(\\T_all 'a; (\\forall y as 'a; id(y)=y))"));

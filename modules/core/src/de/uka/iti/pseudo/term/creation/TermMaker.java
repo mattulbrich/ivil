@@ -541,7 +541,7 @@ public class TermMaker extends ASTDefaultVisitor {
         	} else {
         		Function funcSymbol = env.getFunction(name);
         		if (funcSymbol != null) {
-        			resultTerm = Application.create(funcSymbol, type);
+        			resultTerm = Application.getInst(funcSymbol, type);
         		} else {
         			throw new TermException("Unknown symbol: " + identifierTerm);
         		}
@@ -576,7 +576,7 @@ public class TermMaker extends ASTDefaultVisitor {
         Function funct = env.getNumberLiteral(numberLiteralTerm
                 .getNumberToken().image);
         try {
-            resultTerm = Application.create(funct, Environment.getIntType());
+            resultTerm = Application.getInst(funct, Environment.getIntType());
         } catch (TermException e) {
             throw new ASTVisitException(numberLiteralTerm, e);
         }
@@ -679,11 +679,11 @@ public class TermMaker extends ASTDefaultVisitor {
     
     // drop the '
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
-        resultType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
+        resultType = TypeVariable.getInst(typeVar.getTypeVarToken().image.substring(1));
     }
     
     public void visit(ASTSchemaType schemaType) throws ASTVisitException {
-        resultType = new SchemaType(schemaType.getSchemaTypeToken().image.substring(2));
+        resultType = SchemaType.getInst(schemaType.getSchemaTypeToken().image.substring(2));
     }
 
     public void visit(ASTAssertStatement arg) throws ASTVisitException {

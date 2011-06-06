@@ -237,7 +237,7 @@ public class TypingResolver extends ASTDefaultVisitor {
             // bound schema variable: the type is according.
             // discard the leading %
             String name = var.substring(1);
-            varType = new SchemaType(name);
+            varType = SchemaType.getInst(name);
             super.visit(binderTerm);
         }
         
@@ -408,7 +408,7 @@ public class TypingResolver extends ASTDefaultVisitor {
             throws ASTVisitException {
         // discard the leading %
         String name = schemaVariableTerm.getToken().image.substring(1);
-        SchemaType typeVar = new SchemaType(name);
+        SchemaType typeVar = SchemaType.getInst(name);
         schemaVariableTerm.setTyping(new Typing(typeVar, typingContext));
     }
     
@@ -466,7 +466,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
         if(programTerm.isSchema()) {
-            SchemaType tv = new SchemaType(programTerm.getLabel().image.substring(1));
+            SchemaType tv = SchemaType.getInst(programTerm.getLabel().image.substring(1));
             try {
                 typingContext.solveConstraint(Environment.getBoolType(), tv);
             } catch (UnificationException e) {
@@ -503,12 +503,12 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     @Override
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
-        resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
+        resultingType = TypeVariable.getInst(typeVar.getTypeVarToken().image.substring(1));
     }
     
     @Override
     public void visit(ASTSchemaType schemaType) throws ASTVisitException {
-        resultingType = new SchemaType(schemaType.getSchemaTypeToken().image.substring(2));
+        resultingType = SchemaType.getInst(schemaType.getSchemaTypeToken().image.substring(2));
     }
     
     //////////////////////////////////////////////////

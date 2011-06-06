@@ -55,7 +55,7 @@ public class TermFactory {
     }
 
     public @NonNull Term number(int i) throws TermException {
-        return Application.create(env.getNumberLiteral(BigInteger.valueOf(i)), Environment.getIntType());
+        return Application.getInst(env.getNumberLiteral(BigInteger.valueOf(i)), Environment.getIntType());
     }
 
     public @NonNull Term gt(@NonNull Term t1, @NonNull Term t2) throws TermException {
