@@ -48,6 +48,7 @@ import de.uka.iti.pseudo.term.creation.TestToplevelCheckVisitor;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestAppendMap;
+import de.uka.iti.pseudo.util.TestConcurrentSoftHashCache;
 import de.uka.iti.pseudo.util.TestLinearLookupMap;
 import de.uka.iti.pseudo.util.TestRewindMap;
 import de.uka.iti.pseudo.util.TestTextInstantiator;
@@ -103,6 +104,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestLinearLookupMap.class);
         suite.addTestSuite(TestToplevelCheckVisitor.class);
         suite.addTestSuite(TestXMLOutput.class);
+        suite.addTestSuite(TestConcurrentSoftHashCache.class);
         //$JUnit-END$
         return suite;
     }

@@ -9,13 +9,6 @@
  */
 package de.uka.iti.pseudo.util;
 
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 /**
  * This class implements an object pool similar to the mechanism used in
  * {@link String#intern()}.
@@ -47,31 +40,23 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * {@link Object#equals(Object)} and {@link Object#hashCode()}.
  * 
  * <p>
- * Internally a {@link WeakHashMap} is used. If the runtime environment does no
- * longer contain a reference to a representative, it is removed from the cache.
- * The cache does, hence, not keep unneeded objects.
+ * Internally a {@link ConcurrentSoftHashCacheImpl} is used. If the runtime
+ * environment does no longer contain a reference to a representative, it is
+ * removed from the cache. The cache does, hence, not keep unneeded objects.
  * 
  * <p>
- * The map is synchronised using R/W locks, allowing for concurrent writes.
- *  
- * TODO Get rid of the soft references. ...
- * 
- * <p>
- * The implementation is thread-safe.
+ * The map is synchronised and thread-safe.
  */
 public final class ObjectCachePool {
     
     /**
      * The pool to store references in.
      */
-    private Map<Object, SoftReference<Object>> thePool =
-        new WeakHashMap<Object, SoftReference<Object>>();
+    private ConcurrentSoftHashCacheImpl thePool =
+        new ConcurrentSoftHashCacheImpl(4, 8);
     
     // invariant key instanceof T ==> thePool.get(key) instanceof T;
     
-    private ReadWriteLock lock =
-        new ReentrantReadWriteLock();
-
     /**
      * Get the canonical representative of an object from the cache.
      * 
@@ -94,29 +79,19 @@ public final class ObjectCachePool {
         if(instance == null)
             return null;
         
-        lock.readLock().lock();
-        try {
-            Reference ref = thePool.get(instance);
-            Object result;
-            if(ref == null)
-                result = null;
-            else
-                result = ref.get();
-                
-            if(result == null) {
-                lock.writeLock().lock();
-                try {
-                    thePool.put(instance, new SoftReference(instance));
-                } finally {
-                    lock.writeLock().unlock();
+        Object result = thePool.get(instance);
+        
+        if(result == null) {
+            synchronized (this) {
+                // double check: might have been added in the meantime by another thread.
+                if(thePool.get(instance) == null) {
+                    thePool.put(instance);
+                    result = instance;
                 }
-                result = instance;
             }
-            return (T) result;
-        } finally {
-            lock.readLock().unlock();
         }
         
+        return (T) result;
     }
     
     /**
