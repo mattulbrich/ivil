@@ -412,9 +412,13 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
     
     public void actionPerformed(ActionEvent evt) {
-        Action action = editor.getActionMap().get(evt.getActionCommand());
-        if(action != null)
-            action.actionPerformed(evt);
+        String command = evt.getActionCommand();
+        if(command != null) {
+            Action action = editor.getActionMap().get(command);
+            if(action != null) {
+                action.actionPerformed(evt);
+            }
+        }
     }
 
     public boolean hasUnsavedChanges() {
