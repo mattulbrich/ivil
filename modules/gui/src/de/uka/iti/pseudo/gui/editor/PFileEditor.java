@@ -423,7 +423,6 @@ public class PFileEditor extends JFrame implements ActionListener {
 
     public void setHasUnsavedChanges(boolean b) {
         boolean old = hasChanged;
-        
         hasChanged = b;
         if(hasChanged != old)
             updateTitle();
@@ -509,6 +508,7 @@ public class PFileEditor extends JFrame implements ActionListener {
 
 
     public void setFilename(File path) {
+        modListener.setEditedFile(path);
         editedFile = path;
         updateTitle();
     }

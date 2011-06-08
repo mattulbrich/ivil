@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.gui.editor;
 
 import java.awt.event.WindowEvent;
@@ -13,6 +22,18 @@ import javax.swing.event.DocumentListener;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 
+/**
+ * A modification listener can be added to listen to changes in an
+ * {@link PFileEditor}. It reacts on changes to the document and on the mouse
+ * pointer reentering the frame.
+ * 
+ * It then checks whether the underlying file has a changed modification date.
+ * If so, it has been altered outside the editor. The user is asked whether she
+ * wants to reload the file from disk or discard the external changes.
+ * 
+ * @author mattias ulbrich
+ * @see PFileEditor
+ */
 public class ModificationListener implements DocumentListener, WindowListener {
 
     private final PFileEditor editor;
@@ -63,6 +84,7 @@ public class ModificationListener implements DocumentListener, WindowListener {
     }
 
     public void setEditedFile(File file) {
+        Log.enter(file);
         this.editedFile = file;
         if(file != null) {
             this.expectedModTime = file.lastModified();
