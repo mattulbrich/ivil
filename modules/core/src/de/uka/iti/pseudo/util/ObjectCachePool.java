@@ -9,6 +9,8 @@
  */
 package de.uka.iti.pseudo.util;
 
+import nonnull.Nullable;
+
 /**
  * This class implements an object pool similar to the mechanism used in
  * {@link String#intern()}.
@@ -25,7 +27,8 @@ package de.uka.iti.pseudo.util;
  * 
  *     public boolean equals(Object o) { ... }
  * 
- *     public int hashCode() { ... }}
+ *     public int hashCode() { ... }
+ * }
  * 
  * class ImmutableFactory {
  *     ObjectCachePool pool = new ObjectCachePool();
@@ -52,8 +55,8 @@ public final class ObjectCachePool {
     /**
      * The pool to store references in.
      */
-    private ConcurrentSoftHashCacheImpl thePool =
-        new ConcurrentSoftHashCacheImpl(4, 8);
+    private final ConcurrentSoftHashCacheImpl thePool =
+        new ConcurrentSoftHashCacheImpl(4, 6);
     
     // invariant key instanceof T ==> thePool.get(key) instanceof T;
     
@@ -74,7 +77,7 @@ public final class ObjectCachePool {
      *         with {@code instance.equals(t)} otherwise.
      */
     @SuppressWarnings("unchecked")
-    public <T> T cache(T instance) {
+    public <T> T cache(@Nullable T instance) {
         
         if(instance == null)
             return null;
@@ -91,7 +94,9 @@ public final class ObjectCachePool {
             }
         }
         
-        return (T) result;
+        Class<? extends T> clss = (Class<? extends T>) instance.getClass();
+        
+        return clss.cast(result);
     }
     
     /**

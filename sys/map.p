@@ -32,3 +32,4 @@ rule readwrite
   replace cond(%a1 = %a2, %b, read(%m, %a2))
   tags
     rewrite "fol simp"
+    verbosity "8"
