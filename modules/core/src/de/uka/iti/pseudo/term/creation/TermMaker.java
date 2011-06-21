@@ -468,24 +468,58 @@ public class TermMaker extends ASTDefaultVisitor {
 
             // checked elsewhere
             assert binder != null;
+            
+            if(binderTerm.countBoundVariables() != 1 &&
+                    binder.getArity() != 1) {
+                throw new ASTVisitException("Binding more than one variable to a multi-ary binder", binderTerm);
+            }
+            
+            int oldStackSize = boundIdentifiers.size();
+            
+            // Put bound variables on stack
+            for (int v = 0; v < binderTerm.countBoundVariables(); v++) {
+                String variableName = binderTerm.getVariableToken(v).image;
+                boundIdentifiers.push(variableName);
+            }
+            
+            // make subterms
+            Term[] subterms = collectSubterms(binderTerm);
+            
+            // pop variables
+            boundIdentifiers.setSize(oldStackSize);
 
-            Type variableType = binderTerm.getVariableTyping().getType();
-            String variableName = binderTerm.getVariableToken().image;
+            
+            // one variable is mandatory: the last, the innermost one
+            int innermost = binderTerm.countBoundVariables() - 1;
+            Type variableType = binderTerm.getVariableTyping(innermost).getType();
+            String variableName = binderTerm.getVariableToken(innermost).image;
             BindableIdentifier boundId;
-
+            
             if(variableName.startsWith("%")) {
                 boundId = SchemaVariable.getInst(variableName, variableType);
             } else {
                 boundId = Variable.getInst(variableName, variableType);
             }
 
-            boundIdentifiers.push(boundId.getName());
-            Term[] subterms = collectSubterms(binderTerm);
-            boundIdentifiers.pop();
-
-
             resultTerm = Binding.getInst(binder, binderTerm.getTyping().getType(),
                     boundId, subterms);
+            
+            // Additional variables may be present: decreasingly
+            for(int var = binderTerm.countBoundVariables() - 2; var >= 0; var--) {
+                variableType = binderTerm.getVariableTyping(var).getType();
+                variableName = binderTerm.getVariableToken(var).image;
+
+                if(variableName.startsWith("%")) {
+                    boundId = SchemaVariable.getInst(variableName, variableType);
+                } else {
+                    boundId = Variable.getInst(variableName, variableType);
+                }
+
+                // wrap the result so far again
+                resultTerm = Binding.getInst(binder, binderTerm.getTyping().getType(),
+                        boundId, new Term[] { resultTerm });
+            }
+            
         } catch (TermException e) {
             throw new ASTVisitException(binderTerm, e);
         }

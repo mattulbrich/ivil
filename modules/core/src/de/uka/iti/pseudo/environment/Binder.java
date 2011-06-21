@@ -131,9 +131,10 @@ public class Binder {
     }
 
     /**
-     * get the arity of this binder
+     * get the arity of this binder (excludes the variable)
      * 
-     * @return the number of arguments this object expects
+     * @return the number of arguments the binder expects (excluding the
+     *         variable position)
      */
     public int getArity() {
         return getArgumentTypes().length;

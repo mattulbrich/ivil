@@ -10,10 +10,10 @@
  */
 package de.uka.iti.pseudo.parser.term;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nonnull.Nullable;
-import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
@@ -22,10 +22,11 @@ import de.uka.iti.pseudo.util.Pair;
 
 public class ASTBinderTerm extends ASTTerm {
     
-    private @LazyNonNull Typing variableTyping = null;
+    private Typing[] variableTypings;
 
     private Token binderToken;
 
+    // the list is reversed: first element in list is last in this enumeration
     private List<Pair<Token, ASTType>> boundVars;
     
     public ASTBinderTerm(Token binderToken, List<Pair<Token, ASTType>> boundVars,
@@ -33,6 +34,7 @@ public class ASTBinderTerm extends ASTTerm {
         super(subterms);
         this.binderToken = binderToken;
         this.boundVars = boundVars;
+        this.variableTypings = new Typing[boundVars.size()];
         
         for (Pair<Token, ASTType> var : boundVars) {
             ASTType type = var.snd();
@@ -51,7 +53,7 @@ public class ASTBinderTerm extends ASTTerm {
         return binderToken;
     }
     
-    public final int countBoundVariabls() {
+    public final int countBoundVariables() {
         return boundVars.size();
     }
 
@@ -63,16 +65,16 @@ public class ASTBinderTerm extends ASTTerm {
         return boundVars.get(index).fst();
     }
     
-	public Token getLocationToken() {
-    	return binderToken;
-	}
-
-    public @Nullable Typing getVariableTyping() {
-        return variableTyping;
+    public Token getLocationToken() {
+        return binderToken;
     }
 
-    public void setVariableTyping(Typing variableTyping) {
-        this.variableTyping = variableTyping;
+    public @Nullable Typing getVariableTyping(int index) {
+        return variableTypings[index];
+    }
+
+    public void setVariableTyping(int index, Typing variableTyping) {
+        variableTypings[index] = variableTyping;
     }
 
 }

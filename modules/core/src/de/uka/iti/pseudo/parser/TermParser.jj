@@ -161,7 +161,7 @@ ASTBinderTerm BinderTerm():
   ASTTerm t;
   Pair<Token, ASTType> bound;
   List<Pair<Token, ASTType>> boundVars = new ArrayList<Pair<Token, ASTType>>();
-  List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
+  LinkedList<ASTTerm> subterms = new LinkedList<ASTTerm>(); 
 }
 {
         binderToken = <BINDER_IDENTIFIER>
