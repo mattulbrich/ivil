@@ -59,7 +59,7 @@ public abstract class TestCaseWithEnv extends TestCase {
             env.setFixed();
             return env;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error while reading 'testenv.p'", e);
         }
     }
 

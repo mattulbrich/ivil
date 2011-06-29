@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -20,7 +19,11 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 
-// TODO Documentation needed
+/**
+ * The Class IncPrgMetaFunction can be used to increment the index of a program
+ * term. It is usually used in symbolic execution rules to step to the next
+ * statement.
+ */
 public class IncPrgMetaFunction extends MetaFunction {
     
     private static final Type BOOL = Environment.getBoolType();
@@ -37,7 +40,9 @@ public class IncPrgMetaFunction extends MetaFunction {
         
         if (arg instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) arg;
-            return LiteralProgramTerm.getInst(progTerm.getProgramIndex() + 1, progTerm);
+            return LiteralProgramTerm.getInst(
+                    progTerm.getProgramIndex() + 1, 
+                    progTerm);
         } else {
             throw new TermException("not a program term " + arg);
         }

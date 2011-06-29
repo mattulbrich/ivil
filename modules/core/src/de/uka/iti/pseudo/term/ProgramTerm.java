@@ -10,12 +10,17 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 
 /**
- * The Class ProgramTerm encapsulates a a reference to a program state. 
- * The actual content of this program depends on the concrete subclass. A {@link LiteralProgramTerm}
- * has a pair of a program counter value and a reference to a program while a {@link SchemaProgramTerm}
+ * The Class ProgramTerm encapsulates a a reference to a program term. The
+ * actual content of this program depends on the concrete subclass. A
+ * {@link LiteralProgramTerm} has a pair of a program counter value and a
+ * reference to a program while a {@link SchemaProgramTerm} contains a reference
+ * to a schema variable and possibly a matching statement.
+ * 
+ * The first subterm is always the term suffixed to the program modality.
  * 
  * Program terms can be terminating or non-terminating.
  */
@@ -26,30 +31,38 @@ public abstract class ProgramTerm extends Term {
      */
     private boolean terminating;
 
+//    /**
+//     * Instantiates a new program term with a 
+//     * given termination status and no subterms.
+//     * 
+//     * @param terminating
+//     *            termination status
+//     */
+//    protected ProgramTerm(boolean terminating) {
+//        super(Environment.getBoolType());
+//        this.terminating = terminating;
+//    }
+
     /**
-     * Instantiates a new program term with a 
-     * given termination status and no subterms.
-     * 
-     * @param terminating
-     *            termination status
-     */
-    protected ProgramTerm(boolean terminating) {
-        super(Environment.getBoolType());
-        this.terminating = terminating;
-    }
-    
-    /**
-     * Instantiates a new program term with a given termination status and
-     * an array of subterms.
+     * Instantiates a new program term with a given termination status and an
+     * array of subterms.
      * 
      * @param subterms
-     *            the future subterms of the array 
+     *            the future subterms of the array
      * @param terminating
      *            the termination status
+     * @throws TermException
+     *             if the program terms does not have a boolean suffixed boolean
+     *             term.
      */
-    public ProgramTerm(Term[] subterms, boolean terminating) {
+    public ProgramTerm(Term[] subterms, boolean terminating) throws TermException {
         super(subterms, Environment.getBoolType());
         this.terminating = terminating;
+        
+        if(subterms.length == 0 ||
+                !subterms[0].getType().equals(Environment.getBoolType())) {
+            throw new TermException("Program term needs a boolean suffix term");
+        }
     }
 
     /**
@@ -62,6 +75,18 @@ public abstract class ProgramTerm extends Term {
     }
     
     /**
+     * Gets the suffix term, the wrapped formula.
+     * 
+     * It is the first subterm of this term.
+     * 
+     * @return the wrapped term in the modality. 
+     */
+    public @NonNull Term getSuffixTerm() {
+        return getSubterm(0);
+    }
+
+    
+    /**
      * {@inheritDoc}
      * 
      * The content strings depends on the implementing class. Terminating
@@ -71,16 +96,18 @@ public abstract class ProgramTerm extends Term {
      * @param typed whether or not types are to be made explicit
      */
     public String toString(boolean typed) {
-        String res;
+        StringBuilder res = new StringBuilder();
         if(isTerminating())
-            res =  "[[" + getContentString(typed) + "]]";
+            res.append("[[").append(getContentString(typed)).append("]]");
         else
-            res =  "[" + getContentString(typed) + "]";
+            res.append("[").append(getContentString(typed)).append("]");
         
-        if(typed)
-            res += " as bool";
+        if (typed)
+            res.append("(").append(getSubterm(0).toString(true)).append(") as bool");
+        else
+            res.append(getSubterm(0).toString(false));
         
-        return res;
+        return res.toString();
     }
 
     /**

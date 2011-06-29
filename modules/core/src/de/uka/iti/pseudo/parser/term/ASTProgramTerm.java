@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
+import java.util.List;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -29,7 +30,7 @@ public class ASTProgramTerm extends ASTTerm {
         super(Collections.<ASTTerm>emptyList());
         this.terminating = terminating;
         this.position = position;
-	this.programReference = null;
+        this.programReference = null;
     }
 
     public ASTProgramTerm(Token label, boolean termination,
@@ -70,7 +71,7 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public boolean hasMatchingStatement() {
-        return isSchema() && getChildren().size() > 0;
+        return isSchema() && getChildren().size() > 1;
     }
 
     public ASTStatement getMatchingStatement() {
@@ -82,6 +83,14 @@ public class ASTProgramTerm extends ASTTerm {
         return position.kind == ParserConstants.SCHEMA_IDENTIFIER;
     }
 
-
+    public ASTTerm getSuffixFormula() {
+        List<ASTTerm> children = getSubterms();
+        int size = children.size();
+        if(size > 0) {
+            return children.get(size - 1);
+        } else {
+            return null;
+        }
+    }
 
 }

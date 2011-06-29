@@ -27,7 +27,6 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssignment;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
-import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
@@ -501,6 +500,13 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
+        try {
+            typingContext.solveConstraint(Environment.getBoolType(), 
+                    programTerm.getSuffixFormula().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("A program term needs a boolean suffix term", programTerm, e);
+        }
+        
         if(programTerm.isSchema()) {
             SchemaType tv = SchemaType.getInst(programTerm.getLabel().image.substring(1));
             try {
@@ -577,17 +583,12 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
     
     /* 
-     * End statements have boolean type.
+     * End statements have no arguments.
      */
-    @Override 
-    public void visit(ASTEndStatement arg) throws ASTVisitException {
-        super.visit(arg);
-        try {
-            typingContext.solveConstraint(Environment.getBoolType(), arg.getTerm().getTyping().getRawType());
-        } catch (UnificationException e) {
-            throw new ASTVisitException("An end statement needs a boolean argument", arg, e);
-        }
-    }
+//    @Override 
+//    public void visit(ASTEndStatement arg) throws ASTVisitException {
+//        super.visit(arg);
+//    }
 
     /*
      * in goto statements, only the schema identifiers need to be constrained to

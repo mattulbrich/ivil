@@ -47,13 +47,13 @@ rule test_where
      replace  true 
      
 rule test_mod
-     find  [ 1;P ]
+     find  [ 1;P ]%b
    samegoal
-     replace  cond(%b, [ 2;P ], [[ 3;P ]])
+     replace  cond(%b, [ 2;P ]%b, [[ 3;P ]]%b)
 
 rule test_schema_mod
-   find  [ %a ]
-   replace  %a -> %a
+   find  [ %a ] %b
+   replace  %a -> %b
 
 program P source "somefilename"
   label: assume t > 0

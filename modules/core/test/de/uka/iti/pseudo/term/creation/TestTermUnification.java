@@ -123,11 +123,12 @@ public class TestTermUnification extends TestCaseWithEnv {
         Type intTy = Environment.getIntType();
         Term.SHOW_TYPES = true;
         
-        assertFalse(mc.leftMatch(mt("[%a : assert %b]"), mt("[0;P]")));
-        assertTrue(mc.leftMatch(mt("[%a : assert %b]"), mt("[1;P]")));
-        assertFalse(mc.leftMatch(mt("[%a]"), mt("[2;P]")));
+        assertFalse(mc.leftMatch(mt("[%a : assert %b]%phi"), mt("[0;P]true")));
+        assertTrue(mc.leftMatch(mt("[%a : assert %b]%phi"), mt("[1;P]b1")));
+        assertFalse(mc.leftMatch(mt("[%a]%phi2"), mt("[2;P]b2")));
         
         assertEquals(mt("b2"), mc.getTermFor(SchemaVariable.getInst("%b", bool)));
+        assertEquals(mt("b1"), mc.getTermFor(SchemaVariable.getInst("%phi", bool)));
         
         assertTrue(mc.leftMatch(mt("[%c : %x := %v]"), mt("[5;P]")));
         assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%x", intTy)));

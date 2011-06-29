@@ -187,7 +187,8 @@ class LoopModifier {
         Program newProgram = programChanger.makeProgram(name);
         env.addProgram(newProgram);
         
-        LiteralProgramTerm newProgramTerm = LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram);
+        LiteralProgramTerm newProgramTerm = 
+            LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram, programTerm.getSuffixTerm());
         
         return newProgramTerm;
         
@@ -364,7 +365,8 @@ class LoopModifier {
             index++;
         }
         
-        programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
+        // was: programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
+        programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, Environment.getFalse()));
         index ++;
         
         return index;

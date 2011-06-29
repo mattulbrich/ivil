@@ -10,18 +10,15 @@
  */
 package de.uka.iti.pseudo.term.statement;
 
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 
 /**
- * Captures an <code>end</code> statement whose semantics is to assert a
- * property and afterwards end the execution. <code>end phi</code> is equivalent
- * to the statement sequence <code>assert phi; assume false</code>. It is,
- * hence, a redundant feature and may be - at a later point - removed from the
- * set of core statements.
+ * Captures an <code>end</code> statement whose semantics is to end the execution.
+ * A trace ending on an 'end' statement is true iff the last state makes the formula
+ * after the program term true.
  * 
  * <p>
- * An <tt>end</tt> statement takes exactly one boolean argument.
+ * An <tt>end</tt> statement takes no argument.
  */
 public class EndStatement extends Statement {
 
@@ -30,20 +27,16 @@ public class EndStatement extends Statement {
      * 
      * @param sourceLineNumber
      *            the source line number to set for this statement
-     * @param conditionTerm
-     *            the condition term to be used for the check
-     * 
      * @throws TermException
      *             thrown if {@code conditionTerm} is not of boolean type.
      */
-    public EndStatement(int sourceLineNumber, Term conditionTerm)
+    public EndStatement(int sourceLineNumber)
             throws TermException {
-        super(sourceLineNumber, conditionTerm);
-        ensureCondition();
+        super(sourceLineNumber);
     }
 
     public String toString(boolean typed) {
-        return "end " + getSubterms().get(0).toString(typed);
+        return "end";
     }
 
     public void visit(StatementVisitor visitor) throws TermException {

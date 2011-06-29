@@ -45,10 +45,15 @@ public final class SchemaProgramTerm extends ProgramTerm {
      *            the termination state of this term
      * @param matchingStatement
      *            the matching statement, may be null
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
+     * @throws TermException
+     *             if the suffix term is illegal
      */
     private SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement) {
-        super(new Term[] { schemaVariable }, terminating);
+            boolean terminating, @Nullable Statement matchingStatement, Term formula) throws TermException {
+        super(new Term[] { formula, schemaVariable }, terminating);
         this.matchingStatement = matchingStatement;
     }
 
@@ -65,14 +70,19 @@ public final class SchemaProgramTerm extends ProgramTerm {
      *            the termination state of this term
      * @param matchingStatement
      *            the matching statement, may be null
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
      * 
      * @return a term with the given parameters. Not necessarily freshly
      *         created.
+     * @throws TermException
+     *             if the suffix term is illegal
      */
     public static @NonNull SchemaProgramTerm getInst(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement) {
+            boolean terminating, @Nullable Statement matchingStatement, Term formula) throws TermException {
         return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, terminating,
-                matchingStatement).intern();
+                matchingStatement, formula).intern();
     }
 
     /**
@@ -136,12 +146,13 @@ public final class SchemaProgramTerm extends ProgramTerm {
     }
 
     /**
-     * Gets the schema variable.
+     * Gets the schema variable. That is always the second subterm (the first
+     * being the suffix formula).
      * 
      * @return the schema variable
      */
     public @NonNull SchemaVariable getSchemaVariable() {
-        return (SchemaVariable) getSubterm(0);
+        return (SchemaVariable) getSubterm(1);
     }
 
     /**

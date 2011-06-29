@@ -45,7 +45,7 @@ public class TestUpdSimplification extends TestCaseWithEnv {
                 "{i1 :=1 || b1 := {i1:=1}(i1>0)}b1");
 
         try {
-            eval.evalutate(makeTerm("$$updSimpl({i1:=1}[0;P])"));
+            eval.evalutate(makeTerm("$$updSimpl({i1:=1}[0;P]true)"));
             fail("updated program term should not evaluate");
         } catch (TermException ex) {
             if (VERBOSE)
@@ -84,7 +84,7 @@ public class TestUpdSimplification extends TestCaseWithEnv {
         
         // fail if updated program
         try {
-            eval.evalutate(makeTerm("$$deepUpdSimpl({i1:=1}[0;P])"));
+            eval.evalutate(makeTerm("$$deepUpdSimpl({i1:=1}[0;P]true)"));
             fail("updated program term should not evaluate (nothing to update)");
         } catch (TermException ex) {
             if (VERBOSE)

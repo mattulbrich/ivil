@@ -7,8 +7,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.TextInstantiator;
 
 public class TestTextInstantiator extends TestCaseWithEnv {
-
-    
     
     public void testStringInst() throws Exception {
         
@@ -16,7 +14,7 @@ public class TestTextInstantiator extends TestCaseWithEnv {
         TextInstantiator inst = new TextInstantiator(mra);
         
         Term t1 = makeTerm("1+2");
-        Term t2 = makeTerm("[99; P]");
+        Term t2 = makeTerm("[99; P]b1");
         mra.getSchemaVariableMapping().put("%x", t1);
         mra.getSchemaVariableMapping().put("%longerName", t2);
         
@@ -44,7 +42,7 @@ public class TestTextInstantiator extends TestCaseWithEnv {
         MutableRuleApplication mra = new MutableRuleApplication();
         TextInstantiator inst = new TextInstantiator(mra);
         PrettyPrint pp = new PrettyPrint(env);
-        Term t1 = makeTerm("[0;P]");
+        Term t1 = makeTerm("[0;P]b1");
         mra.getSchemaVariableMapping().put("%x", t1);
         
         String instantiated = inst.replaceInString("test {explain %x}", pp);

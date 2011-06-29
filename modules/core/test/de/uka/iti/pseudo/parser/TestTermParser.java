@@ -153,12 +153,13 @@ public class TestTermParser extends TestCaseWithEnv {
     }
 
     public void testModality() throws Exception {
-        testTerm("[5;P] as bool", true);
-        testTerm("[[7;P]]", false);
-        testTerm("[7;P] -> [9; Q]", "$impl([7;P],[9;Q])", false);
-        testTerm("[[%a]]", false);
-        testTerm("[%a: end %b]", false);
-        testTerm("[%a: goto %b, %c]", false);
+        testTerm("[5;P](true as bool) as bool", true);
+        testTerm("[5;P](%a as bool) as bool", true);
+        testTerm("[[7;P]]true", false);
+        testTerm("[7;P]b1 -> [9; Q]true", "$impl([7;P]b1,[9;Q]true)", false);
+        testTerm("[[%a]]%b", false);
+        testTerm("[%a: end]%b", false);
+        testTerm("[%a: goto %b, %c]false", false);
         
         testTermFail("[6; Unknown]");
         testTermFail("[6: end true");

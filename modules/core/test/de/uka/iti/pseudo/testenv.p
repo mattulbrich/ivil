@@ -67,8 +67,8 @@ program P (* tested in TerstTermUnification *)
     goto 5, 0
     havoc i1
     i1 := i2 + i3
-    end true
-    end true
+    end
+    end
     skip_loopinv i1 > 0, i2
     i1:=1 || b1 := true
 
