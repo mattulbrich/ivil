@@ -82,6 +82,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -1799,16 +1800,13 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             // add type quantifiers before ordinary quantifiers
-            // TODO
-            // {
-            // UniversalType[] params =
-            // state.typeMap.get(node.getBody()).parameters;
-            // for (int i = 0; i < params.length; i++) {
-            // args = new Term[] { new
-            // TypeVariableBinding(TypeVariableBinding.Kind.ALL,
-            // params[i].toIvilType(state), args[0]) };
-            // }
-            // }
+            {
+                TypeVariable[] boundvars = state.mapDB.getParameters(state.typeMap.get(node.getBody()));
+                for (int i = 0; i < boundvars.length; i++) {
+                    args = new Term[] { TypeVariableBinding
+                            .getInst(TypeVariableBinding.Kind.ALL, boundvars[i], args[0]) };
+                }
+            }
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1839,16 +1837,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             // add type quantifiers before ordinary quantifiers
-            // TODO
-            // {
-            // UniversalType[] params =
-            // state.typeMap.get(node.getBody()).parameters;
-            // for (int i = 0; i < params.length; i++) {
-            // args = new Term[] { new
-            // TypeVariableBinding(TypeVariableBinding.Kind.EX,
-            // params[i].toIvilType(state), args[0]) };
-            // }
-            // }
+            {
+                TypeVariable[] boundvars = state.mapDB.getParameters(state.typeMap.get(node.getBody()));
+                for (int i = 0; i < boundvars.length; i++) {
+                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX, boundvars[i], args[0]) };
+                }
+            }
 
         } catch (TermException e) {
             e.printStackTrace();
