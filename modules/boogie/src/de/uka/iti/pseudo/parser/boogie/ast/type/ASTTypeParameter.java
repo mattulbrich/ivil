@@ -16,6 +16,9 @@ public class ASTTypeParameter extends ASTType implements NamedASTElement {
 
     public ASTTypeParameter(Token first) {
         this.first = first;
+        // note: naming conventions are important, as it guarantees,that no type
+        // parameters with names _%i, where %i is an arbitrary integer, can
+        // exist
         this.name = ASTConversions.getEscapedName(first);
     }
 

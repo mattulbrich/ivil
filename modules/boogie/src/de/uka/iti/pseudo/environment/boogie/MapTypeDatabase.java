@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,6 @@ public final class MapTypeDatabase {
      */
     static class BoogieMap extends MapType {
         
-
         public BoogieMap(List<TypeVariable> boundVars, List<Type> domain, Type range,
                 ASTLocatedElement declaringLocation) {
             super(boundVars, domain, range, declaringLocation);
@@ -117,6 +117,150 @@ public final class MapTypeDatabase {
         }
 
         /**
+         * In order to make equal map types equal, one has to do the following:
+         * <ul>
+         * <li>for each map a representing map is constructed
+         * <li>the map mechanism is still used as intended, but in general more
+         * arguments have to be added
+         * <li>domain and range will be modified recursively according to:
+         * <ul>
+         * <li>bound type variables are treated as before
+         * <li>unbound type variables don't get their own arguments any longer
+         * <li>type applications, that do not contain bound type variables are
+         * transformed into a new argument of the type constructor. In order to
+         * create the desired type, the type application is used as respective
+         * argument.
+         * <li>type applications, that contain bound type variables contribute
+         * to the structure of the map, as such map types can not be made equal
+         * to other maps by using what ever arguments to unbound type variables
+         * </ul>
+         * </ul>
+         * 
+         * Some examples:
+         * <ul>
+         * <li>{@literal <a>[ref a]a => map : ref a-> a}
+         * <li> {@literal <a>[ref aint]a => map(int->b) : ref a, b -> a}
+         * <li> {@literal <b>[b]<a>[ref a b]a => map : b-> map'(b) where map'(b)
+         * : ref a b -> a}
+         * <li> {@literal [int]int => map(int->a, int->b) : a -> b * }
+         * </ul>
+         * 
+         * @note (boogie style) map equality checks are still needed to
+         *       guarantee that maps such as {@literal <a>[a]a} and
+         *       {@literal<b>[b]b} are represented by the same map type
+         */
+        public Type flatten(final Environment env, final String desiredName, final MapTypeDatabase mapDB) throws EnvironmentException, TermException {
+            
+            // //
+            // 1. create representing map type
+
+            LinkedList<Type> omittedTypes = new LinkedList<Type>();
+            // note created typevaribales are named "_<ommitedTypes.size()>"
+
+            // note: no list for bound type variables is needed, as the same
+            // variables will be bound
+            LinkedList<Type> dom = new LinkedList<Type>();
+            for (Type t : domain)
+                dom.add(generalize(t, omittedTypes, env, mapDB));
+
+            Type ran = generalize(range, omittedTypes, env, mapDB);
+
+            // //
+            // 2. flatten representing map type
+            BoogieMap representation = new BoogieMap(boundVars, dom, ran, declaringLocation);
+            TypeApplication flatRepresentation;
+
+            if (mapDB.mapTo.containsKey(representation)) {
+                flatRepresentation = (TypeApplication) mapDB.mapTo.get(representation);
+            } else {
+                flatRepresentation = (TypeApplication) new MapType(representation.getBoundVars(), representation
+                        .getDomain(), representation.getRange(), declaringLocation).flatten(env, null);
+                mapDB.mapTo.put(representation, flatRepresentation);
+                mapDB.mapFrom.put(flatRepresentation.getSort(), representation);
+            }
+
+            // //
+            // 3. create actual result type by inserting omitted branches into
+            // arguments
+
+            return env.mkType(flatRepresentation.getSort().getName(), omittedTypes
+                    .toArray(new Type[omittedTypes.size()]));
+        }
+
+        /**
+         * does the actual generalization needed in flatten.
+         * 
+         * @note new parameters are named _%i, as such variable names can not be
+         *       the result of any legal type parameter name after escaping it
+         *       propperly
+         */
+        private Type generalize(Type t, LinkedList<Type> omittedTypes, Environment env, MapTypeDatabase mapDB)
+                throws EnvironmentException,
+                TermException {
+            if (t instanceof TypeVariable) {
+                if (boundVars.contains(t)) {
+                    return t;
+                }
+
+                // unbound type variable detected, add argument
+                Type rval = new TypeVariable("_" + omittedTypes.size());
+                omittedTypes.add(t);
+                return rval;
+
+            } else if (t instanceof TypeApplication) {
+                if (ApplicationContainsBoundVars(t)) {
+                    TypeApplication app = (TypeApplication) t;
+                    
+                    Type[] args = new Type[app.getSort().getArity()];
+                    for (int i = 0; i < args.length; i++)
+                        args[i] = generalize(app.getArguments().get(i), omittedTypes, env, mapDB);
+                    return env.mkType(app.getSort().getName(), args);
+
+                } else {
+                    Type rval = new TypeVariable("_" + omittedTypes.size());
+                    omittedTypes.add(t);
+                    return rval;    
+                }
+
+            } else if (t instanceof BoogieMap) {
+                return generalize(((BoogieMap) t).flatten(env, null, mapDB), omittedTypes, env, mapDB);
+            } else {
+                assert false : "generalization of unexpected type:" + t.getClass().getCanonicalName();
+                return null;
+            }
+        }
+
+        /**
+         * checks if locally bound vars occur in a type. It is not relevant, if
+         * type variables, that are bound by other maps occur. Because inner
+         * variable declarations can not shadow outer variables, it is not
+         * important to keep track of the list of bound variables, because the
+         * relevant set of bound variables does not change.
+         */
+        private boolean ApplicationContainsBoundVars(Type t) {
+            if (t instanceof TypeVariable) {
+                return boundVars.contains(t);
+            } else if (t instanceof TypeApplication) {
+                for (Type s : ((TypeApplication) t).getArguments()) {
+                    if (ApplicationContainsBoundVars(s))
+                        return true;
+                }
+                return false;
+
+            } else if (t instanceof BoogieMap) {
+                BoogieMap m = (BoogieMap) t;
+                for (Type s : m.domain)
+                    if (ApplicationContainsBoundVars(s))
+                        return true;
+                
+                return ApplicationContainsBoundVars(m.range);
+            } else {
+                assert false : "generalization of unexpected type:" + t.getClass().getCanonicalName();
+                return false;
+            }
+        }
+
+        /**
          * @note the hash code is very bad for boogie maps, as it is hard to
          *       guarantee that two equal maps have the same hash code for
          *       useful hash codes.
@@ -163,15 +307,8 @@ public final class MapTypeDatabase {
         BoogieMap entry = new BoogieMap(Arrays.asList(parameters), Arrays.asList(domain), range,
                 node);
 
-        // look for the map in the table
-        if (mapTo.containsKey(entry))
-            return mapTo.get(entry);
-
         // add a new map to the table
-        Type t = addMapType(entry, node);
-        mapTo.put(entry, t);
-        mapFrom.put(((TypeApplication) t).getSort(), entry);
-        return t;
+        return addMapType(entry, node);
     }
 
     /**
@@ -240,10 +377,11 @@ public final class MapTypeDatabase {
      * 
      * @throws TypeSystemException
      *             if type creation failed
+     * 
      */
     private Type addMapType(BoogieMap type, ASTLocatedElement astLocatedElement) throws TypeSystemException {
         try {
-            return type.flatten(env, null);
+            return type.flatten(env, null, this);
         } catch (EnvironmentException e) {
             e.printStackTrace();
             throw new TypeSystemException("type flattening failed", e);
@@ -258,7 +396,6 @@ public final class MapTypeDatabase {
         StringBuffer b = new StringBuffer();
         for (Sort s : mapFrom.keySet()) {
             b.append(s);
-            b.append("(#").append(s.getArity()).append(")");
             b.append(" ==> ");
             b.append(mapFrom.get(s));
             b.append('\n');

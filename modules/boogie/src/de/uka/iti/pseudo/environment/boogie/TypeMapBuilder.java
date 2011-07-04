@@ -63,7 +63,7 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
-import de.uka.iti.pseudo.term.creation.TypingContext;
+import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
 
 /**
  * This visitor decorates ASTElements with types. Typechecking is done using the
@@ -81,7 +81,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     // shortcut to state.schemaTypes
     private final Decoration<SchemaType> schemaTypes;
     // shortcut to state.context
-    private final TypingContext context;
+    private final BoogieTypingContext context;
 
     /**
      * Searches for declaration of type variable name.
@@ -539,10 +539,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         Type t = schemaTypes.get(node.getTarget());
 
-        // TODO is this still needed?: !state.typeMap!.add(node, null == t.range
-        // ? t : t.range);
+
         try {
             context.unify(schemaTypes.get(node), t);
+            context.unify(schemaTypes.get(node.getNewValue()), t);
         } catch (UnificationException e) {
             throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
         }
@@ -593,19 +593,50 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         if(!(t instanceof TypeApplication))
             throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
         
-        Function $load = state.env.getFunction("$load_" + ((TypeApplication) t).getSort().getName());
-        
-        Type[] signature = context.makeNewSignature($load.getResultType(), $load.getArgumentTypes());
+        Type[] signature;
+        try {
+            signature = makeMapSignature((TypeApplication) t);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
+        }
         
         // signature contains result, map
-        if (node.getOperands().size() != signature.length - 2)
+        if (node.getOperands().size() != signature.length - 1)
             throw new ASTVisitException(node.getLocation()
-                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 2)
+                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 1)
                     + " got: " + node.getOperands().size());
 
         for (int i = 0; i < node.getOperands().size(); i++)
-            unify(node.getOperands().get(i), signature[i + 2]);
+            unify(node.getOperands().get(i), signature[i + 1]);
         unify(node, signature[0]);
+    }
+
+    private Type[] makeMapSignature(TypeApplication t) throws TermException {
+        Function $load = state.env.getFunction("$load_" + ((TypeApplication) t).getSort().getName());
+        final Type[] rval = new Type[$load.getArity()];
+        
+        Map<TypeVariable, Type> mapping = new HashMap<TypeVariable, Type>();
+        for(int i = 0; i < t.getArguments().size(); i++)
+            mapping.put(new TypeVariable("_"+i), t.getArguments().get(i));
+        
+        RebuildingTypeVisitor<Map<TypeVariable, Type>> visitor = new RebuildingTypeVisitor<Map<TypeVariable, Type>>() {
+            @Override
+            public Type visit(TypeVariable typeVariable, Map<TypeVariable, Type> parameter) throws TermException {
+                if (!parameter.containsKey(typeVariable)) {
+                    // we encountered a locally bound type variable, which has
+                    // to be replaced by a new schema type
+                    parameter.put(typeVariable, context.newSchemaType());
+                }
+                return parameter.get(typeVariable);
+            }
+        };
+        
+        rval[0] = $load.getResultType().accept(visitor, mapping);
+        for (int i = 1; i < rval.length; i++)
+            rval[i] = $load.getArgumentTypes()[i].accept(visitor, mapping);
+
+        return rval;
     }
 
     @Override
@@ -617,6 +648,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
+        // TODO ensure as well that arguments have the correct type
+
         setTypeSameAs(node, node.getName());
     }
 
@@ -627,32 +660,45 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(FunctionCallExpression node) throws ASTVisitException {
-        // if (schemaTypes.has(node))
-        // return;
-        // schemaTypes.add(node, context.newSchemaType());
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // ASTElement decl = state.names.functionSpace.get(node.getName());
-        // if (null == decl)
-        // throw new ASTVisitException("Function " + node.getName() +
-        // " is used but never declared anywhere.");
-        //
-        // if (!schemaTypes.has(decl))
-        // decl.visit(this);
-        //
-        // // @note: this is a type application, if the object is a map
-        // Type t = context.instantiate(schemaTypes.get(decl));
-        // if (!(t instanceof TypeApplication))
-        // throw new ASTVisitException(node.getLocation() +
-        // " the used map object has no map type!");
-        //
-        // Type[] signature = state.mapDB.getMapSignature(t, context);
-        //
-        // for (int i = 0; i < node.getOperands().size(); i++)
-        // unify(node.getOperands().get(i), signature[i]);
-        // unify(node, signature[signature.length - 1]);
+        // abuse map type of function declarations to infer types
+        
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        ASTElement decl = state.names.functionSpace.get(node.getName());
+        if (null == decl)
+            throw new ASTVisitException("Function " + node.getName() + " is used but never declared anywhere.");
+
+        if (!schemaTypes.has(decl))
+            decl.visit(this);
+
+        // @note: this is a type application, if the object is a map
+        Type t = context.instantiate(schemaTypes.get(decl));
+        if (!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+
+        Type[] signature;
+        try {
+            signature = makeMapSignature((TypeApplication) t);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
+        }
+
+        // signature contains result, map
+        if (node.getOperands().size() != signature.length - 1)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to function call expression. expected: "
+                    + (signature.length - 1)
+                    + " got: " + node.getOperands().size());
+
+        for (int i = 0; i < node.getOperands().size(); i++)
+            unify(node.getOperands().get(i), signature[i + 1]);
+        unify(node, signature[0]);
     }
 
     @Override
@@ -807,7 +853,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         defaultAction(node, Environment.getBoolType());
 
         // operands need to have the same type
-        unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
+        try {
+            context.unify(context.instantiate(schemaTypes.get(node.getOperands().get(0))), context
+                    .instantiate(schemaTypes.get(node.getOperands().get(1))));
+        } catch (UnificationException e) {
+            e.printStackTrace();
+            throw new ASTVisitException("equality illtyped @" + node.getLocation(), e);
+        }
     }
 
     @Override

@@ -237,6 +237,8 @@ public class MapType extends Type {
      * efficiently
      */
     private void createRules(String name, Function $load, Function $store, Environment env) throws EnvironmentException {
+        // TODO ensure presence of needed headers, such as $base.p for most
+        // rules and $map.p for lambda
 
         try { // /////////////// LOAD STORE SAME
             String rule = name + "_load_store_same";
@@ -260,7 +262,7 @@ public class MapType extends Type {
             Term factory;
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
@@ -270,8 +272,8 @@ public class MapType extends Type {
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -333,7 +335,7 @@ public class MapType extends Type {
             Term factory;
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
@@ -343,8 +345,8 @@ public class MapType extends Type {
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -425,15 +427,15 @@ public class MapType extends Type {
 
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             actions.add(new GoalAction("samegoal", null, false, replace, none, none));
 

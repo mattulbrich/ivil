@@ -43,25 +43,22 @@ public class TypeAlias extends Type {
         this.visitor = new RebuildingTypeVisitor<Type[]>() {
             @Override
             public Type visit(TypeApplication target, Type[] parameter) throws TermException {
-                if (state.mapDB.hasType(target)) {
-                    // we have to look into a map
-                    Type[] domain = state.mapDB.getDomain(target);
-                    Type range = state.mapDB.getRange(target);
-
-                    for (int i = 0; i < domain.length; i++)
-                        domain[i] = domain[i].accept(this, parameter);
-
-                    range = range.accept(this, parameter);
-
-                    try {
-                        return state.mapDB.getType(domain, range, state.mapDB.getParameters(target), target.getSort()
-                                .getDeclaration(), state);
-                    } catch (TypeSystemException e) {
-                        e.printStackTrace();
-                        assert false : "internal error: " + e;
-                        return null;
-                    }
-                } else {
+                /*
+                 * if (state.mapDB.hasType(target)) { // we have to look into a
+                 * map Type[] domain = state.mapDB.getDomain(target); Type range
+                 * = state.mapDB.getRange(target);
+                 * 
+                 * for (int i = 0; i < domain.length; i++) domain[i] =
+                 * domain[i].accept(this, parameter);
+                 * 
+                 * range = range.accept(this, parameter);
+                 * 
+                 * try { return state.mapDB.getType(domain, range,
+                 * state.mapDB.getParameters(target), target.getSort()
+                 * .getDeclaration(), state); } catch (TypeSystemException e) {
+                 * e.printStackTrace(); assert false : "internal error: " + e;
+                 * return null; } } else
+                 */ {
 
                     Sort sort = target.getSort();
                     List<Type> arguments = target.getArguments();

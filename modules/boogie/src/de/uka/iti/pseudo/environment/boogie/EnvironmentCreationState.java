@@ -17,7 +17,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.creation.TypingContext;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -56,7 +55,7 @@ public final class EnvironmentCreationState {
      */
     final Decoration<SchemaType> schemaTypes = new Decoration<SchemaType>();
 
-    final TypingContext context = new TypingContext();
+    BoogieTypingContext context;
 
     // database needed to map types to map type escapes
     public MapTypeDatabase mapDB;
@@ -119,6 +118,7 @@ public final class EnvironmentCreationState {
             assert false;
         }
 
+        context = new BoogieTypingContext(env);
         mapDB = new MapTypeDatabase(env);
     }
 

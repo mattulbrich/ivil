@@ -75,7 +75,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.expression.UnaryMinusExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
-import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;

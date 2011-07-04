@@ -178,7 +178,7 @@ public class TypeUnification implements Cloneable {
     /*
      * does the actual LEFT unification after Robinson
      */
-    private class Unifier implements TypeVisitor<Void, Type> {
+    protected class Unifier implements TypeVisitor<Void, Type> {
         
         public Unifier() {
         }
@@ -245,7 +245,9 @@ public class TypeUnification implements Cloneable {
         }
     }
     
-    private Unifier unifier = new Unifier();
+    // the unifier might be changed by subclasses in order to get different
+    // treatment of types or equalities of types
+    protected Unifier unifier = new Unifier();
     
     
 
