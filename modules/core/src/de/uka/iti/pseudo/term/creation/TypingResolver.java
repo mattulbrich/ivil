@@ -10,15 +10,16 @@
 package de.uka.iti.pseudo.term.creation;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Stack;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.FixOperator;
 import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.environment.creation.EnvironmentTypingResolver;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
@@ -53,6 +54,7 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
+import de.uka.iti.pseudo.util.Pair;
 
 /**
  * This class provides functionality to solve typing constraints of terms, it
@@ -75,12 +77,17 @@ public class TypingResolver extends ASTDefaultVisitor {
      * The environment in which the resolution is performed
      */
     private Environment env;
-    
+
     /**
      * The mapping of bound variables to their types. Used for typing in bound
      * contexts.
+     * 
+     * It is a stack of pairs since the same variable may be pushed more than
+     * once (due to nested binders). Since nesting of binders is seldom deep,
+     * we can use a list instead of a O(1) map here.
      */
-    private Map<String, Type> boundVariablesTypes = new HashMap<String, Type>();
+    private Stack<Pair<String, Type>> boundVariablesTypes = 
+        new Stack<Pair<String, Type>>();
     
     /**
      * The typing context is used for solving constraints (i.e. unification)
@@ -262,46 +269,59 @@ public class TypingResolver extends ASTDefaultVisitor {
     @Override
     public void visit(ASTBinderTerm binderTerm)
             throws ASTVisitException {
-        
-        String var = binderTerm.getVariableToken().image;
-        Type varType = null;
-        ASTType astVarType = binderTerm.getVariableType();
-        
-        if(!var.startsWith("%")) {
-            // bound "usual" variable
-            varType = typingContext.newSchemaType();
-            boundVariablesTypes.put(var, varType);
-            super.visit(binderTerm);
-            boundVariablesTypes.remove(var);
-        } else {
-            // bound schema variable: the type is according.
-            // discard the leading %
-            String name = var.substring(1);
-            varType = new SchemaType(name);
-            super.visit(binderTerm);
-        }
-        
-        //
-        // handle explicit (\binder x as type; ...) typings
-        if(astVarType != null) {
-            astVarType.visit(this);
-            try {
-                typingContext.solveConstraint(varType, resultingType);
-            } catch (UnificationException e) {
-                throw new ASTVisitException("Type inference failed for binder variable for " + var +
-                        "\nVariable type: " + varType +
-                        "\n" + e.getDetailedMessage(), binderTerm, e);
-            }
-        }
-        
-        binderTerm.setVariableTyping(new Typing(varType, typingContext));
-        
         String binderSymb = binderTerm.getBinderToken().image;
         Binder binder = env.getBinder(binderSymb);
-        
+
         if(binder == null)
             throw new ASTVisitException("Unknown binder symbol " + binderSymb, binderTerm);
         
+        if(binderTerm.countBoundVariables() != 1 &&
+                !TypeVariableCollector.collect(binder.getResultType()).isEmpty()) {
+            // Is this limitation needed? Better be conservative ... but think about this (MU)
+            throw new ASTVisitException("Binding more than one variable to a binder " +
+            		"with variable result type", binderTerm);
+        }
+        
+        int oldStackSize = boundVariablesTypes.size();
+
+        // push variables onto stack
+        for(int v = 0; v < binderTerm.countBoundVariables(); v++) {
+            String var = binderTerm.getVariableToken(v).image;
+            Type varType = null;
+            ASTType astVarType = binderTerm.getVariableType(v);
+            if(!var.startsWith("%")) {
+                // bound "usual" variable
+                varType = typingContext.newSchemaType();
+                boundVariablesTypes.push(Pair.make(var, varType));
+            } else {
+                // bound schema variable: the type is according.
+                // discard the leading %
+                String name = var.substring(1);
+                varType = SchemaType.getInst(name);
+            }
+        
+            //
+            // handle explicit (\binder x as type; ...) typings
+            if(astVarType != null) {
+                astVarType.visit(this);
+                try {
+                    typingContext.solveConstraint(varType, resultingType);
+                } catch (UnificationException e) {
+                    throw new ASTVisitException("Type inference failed for binder variable for " + var +
+                            "\nVariable type: " + varType +
+                            "\n" + e.getDetailedMessage(), binderTerm, e);
+                }
+            }
+        
+            binderTerm.setVariableTyping(v, new Typing(varType, typingContext));
+        }        
+        
+        // call on subterms
+        super.visit(binderTerm);
+        
+        // pop variables from stack
+        boundVariablesTypes.setSize(oldStackSize);
+
         List<ASTTerm> subterms = binderTerm.getSubterms();
         Type[] arguments = binder.getArgumentTypes();
         
@@ -330,7 +350,10 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         term.setTyping(new Typing(sig[0], typingContext));
 
-        typingContext.solveConstraint(sig[1], term.getVariableTyping().getRawType());
+        // we take the typing of the last bound variable here, because this is the
+        // innermost.
+        Typing lastTyping = term.getVariableTyping(term.countBoundVariables() - 1);
+        typingContext.solveConstraint(sig[1], lastTyping.getRawType());
         
         for (int i = 2; i < sig.length; i++) {
             try {
@@ -399,7 +422,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     throws ASTVisitException {
         String name = identifierTerm.getSymbol().image;
         Function funcSymbol = env.getFunction(name);
-        Type tv = boundVariablesTypes.get(name);
+        Type tv = getBoundVariableType(name);
 
         if(tv != null) {
             identifierTerm.setTyping(new Typing(tv, typingContext));
@@ -428,7 +451,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     public void visit(ASTExplicitVariableTerm explicitVariable)
             throws ASTVisitException {
         String name = explicitVariable.getVarToken().image;
-        Type tv = boundVariablesTypes.get(name);
+        Type tv = getBoundVariableType(name);
         
         // a bound variable name is set to the according type
         if(tv != null) {
@@ -438,7 +461,20 @@ public class TypingResolver extends ASTDefaultVisitor {
             explicitVariable.setTyping(new Typing(typingContext.newSchemaType(), typingContext));
         }
     }
-    
+
+    /*
+     * look up a variable name in the stack of bound variables
+     */
+    private @Nullable Type getBoundVariableType(String name) {
+        for(int i = boundVariablesTypes.size() - 1; i >= 0; i--) {
+            Pair<String, Type> pair = boundVariablesTypes.get(i);
+            if(pair.fst().equals(name)) {
+                return pair.snd(); 
+            }
+        }
+        return null;
+    }
+
     /* 
      * A schema variable gets its canonic schema type.
      * ( %a gets the type %'a )
@@ -448,7 +484,7 @@ public class TypingResolver extends ASTDefaultVisitor {
             throws ASTVisitException {
         // discard the leading %
         String name = schemaVariableTerm.getToken().image.substring(1);
-        SchemaType typeVar = new SchemaType(name);
+        SchemaType typeVar = SchemaType.getInst(name);
         schemaVariableTerm.setTyping(new Typing(typeVar, typingContext));
     }
     
@@ -506,7 +542,7 @@ public class TypingResolver extends ASTDefaultVisitor {
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
         
         if(programTerm.isSchema()) {
-            SchemaType tv = new SchemaType(programTerm.getLabel().image.substring(1));
+            SchemaType tv = SchemaType.getInst(programTerm.getLabel().image.substring(1));
             try {
                 typingContext.solveConstraint(Environment.getBoolType(), tv);
             } catch (UnificationException e) {
@@ -543,12 +579,12 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     @Override
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
-        resultingType = new TypeVariable(typeVar.getTypeVarToken().image.substring(1));
+        resultingType = TypeVariable.getInst(typeVar.getTypeVarToken().image.substring(1));
     }
     
     @Override
     public void visit(ASTSchemaType schemaType) throws ASTVisitException {
-        resultingType = new SchemaType(schemaType.getSchemaTypeToken().image.substring(2));
+        resultingType = SchemaType.getInst(schemaType.getSchemaTypeToken().image.substring(2));
     }
     
     //////////////////////////////////////////////////

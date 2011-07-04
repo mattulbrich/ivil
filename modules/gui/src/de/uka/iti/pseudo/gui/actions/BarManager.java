@@ -378,6 +378,7 @@ public class BarManager {
                 if(toolbarOnlyIcons && button.getIcon() != null)
                     button.setText(null);
                 
+                button.setFocusable(false);
                 result = button;
                 
             } else if(args[0].equals("TOGGLE_ACTION")) {
@@ -392,6 +393,7 @@ public class BarManager {
                 if(toolbarOnlyIcons && button.getIcon() != null)
                     button.setText(null);
                 
+                button.setFocusable(false);
                 result = button;
 
             } else if(args[0].equals("COMMAND")) {
@@ -420,6 +422,7 @@ public class BarManager {
                 if(actionListener != null)
                     button.addActionListener(actionListener);
                 
+                button.setFocusable(false);
                 result = button;
                 
             } else if(args[0].equals("COMPONENT")) {
@@ -442,6 +445,7 @@ public class BarManager {
                     }
                 }
                 
+                button.setFocusable(false);
                 result = button;
                 
             } else {

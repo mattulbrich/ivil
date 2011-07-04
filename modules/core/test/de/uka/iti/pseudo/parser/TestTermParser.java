@@ -58,6 +58,26 @@ public class TestTermParser extends TestCaseWithEnv {
                 "(\\forall %x as int;$eq(%x as int,%x as int) as bool) as bool", true);
     }
     
+    // was a bug
+    public void testReusedBinderVar() throws Exception {
+        testTerm("(\\forall x as int; (\\forall x as bool; true) & x=x)",
+                 "(\\forall x as int;$and((\\forall x as bool;true as bool) as bool," +
+                 "$eq(\\var x as int,\\var x as int) as bool) as bool) as bool", true);
+    }
+    
+    public void testMultiBinder() throws Exception {
+        testTerm("(\\forall x, y; x>0 & y)",
+                 "(\\forall x as int;(\\forall y as bool;$and($gt(\\var x as int," +
+                 "0 as int) as bool,\\var y as bool) as bool) as bool) as bool", true);
+    }
+    
+    public void testMultiBinderTwice() throws Exception {
+        testTerm("(\\forall x as int, x as bool; x)",
+                "(\\forall x as int;(\\forall x as bool;\\var x as bool) as bool) as bool", true);
+        
+        testTermFail("(\\forall x as bool, x as int; x)");
+    }
+    
     public void testExplicitVariable() throws Exception {
         testTerm("(\\exists x as int; \\var x = x)","(\\exists x;$eq(\\var x,\\var x))", false);
         

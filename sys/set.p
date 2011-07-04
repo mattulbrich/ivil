@@ -16,6 +16,8 @@
  *)
 
 include "$setdefs.p"
+plugin
+  prettyPrinter : "test.SetPrettyPrinter"
 
 (*
  * rules with emptyset
@@ -100,7 +102,10 @@ rule subset_trans
 find %x::%s |-
 assume %s <: %t |-
 add %x :: %t |-
-
+tags
+  rewrite "fol add"
+  derived
+  
 (*
  * rules with union
  *)
@@ -119,6 +124,40 @@ tags
   rewrite "fol simp"
   derived
 
+rule in_union
+find %x :: %a \/ %b
+replace %x::%a | %x::%b
+
+rule union_subset
+assume %a <: %c |-
+find %a /\ %b <: %c
+replace true
+
+(*
+ * rules with intersect
+ *)
+ 
+rule intersect_empty_l
+find emptyset /\ %a
+replace emptyset
+tags
+  rewrite "concrete"
+  derived
+  
+rule intersect_empty_r
+find %a /\ emptyset
+replace emptyset
+tags
+  rewrite "concrete"
+  derived
+
+rule in_intersect
+find %x :: %a /\ %b
+replace %x :: %a & %x :: %b
+tags
+  derived
+  
+
 (*
  * rules with complement
  *)
@@ -128,3 +167,20 @@ replace !%x :: %s
 tags
   rewrite "fol simp"
   derived
+
+(*
+ * rules with equality
+ *)
+# TODO save variable name
+rule set_equality
+find %a = %b
+replace (\forall ii; ii::%a <-> ii::%b)
+tags
+  derived
+
+(*
+ * rules with \set
+ *)
+rule in_setext
+find %a :: (\set %x; %b)
+replace $$subst(%x, %a, %b)

@@ -22,7 +22,7 @@ public class TestTermReplacer extends TestCaseWithEnv {
     public void testReplace() throws Exception {
         TermReplacer tr = new TermReplacer(env);
         
-        TypeVariable alpha = new TypeVariable("a");
+        TypeVariable alpha = TypeVariable.getInst("a");
         Term varx = Variable.getInst("x", alpha);
         Term replaceWith = makeTerm("other as 'a");
         

@@ -223,7 +223,7 @@ public class TypeVariableCollector {
      *            elements in the set
      * @param set
      *            set to handle
-     * @return a refrence to an empty set if {@code set==null} is true, {@code
+     * @return a reference to an empty set if {@code set==null} is true, {@code
      *         set} otherwise.
      */
     private static @NonNull <E> Set<E> makeSet(@Nullable Set<E> set) {

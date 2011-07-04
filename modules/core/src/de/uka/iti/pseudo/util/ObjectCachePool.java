@@ -9,11 +9,7 @@
  */
 package de.uka.iti.pseudo.util;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.WeakHashMap;
-
-import checkers.nullness.quals.NonNull;
+import nonnull.Nullable;
 
 /**
  * This class implements an object pool similar to the mechanism used in
@@ -31,7 +27,8 @@ import checkers.nullness.quals.NonNull;
  * 
  *     public boolean equals(Object o) { ... }
  * 
- *     public int hashCode() { ... }}
+ *     public int hashCode() { ... }
+ * }
  * 
  * class ImmutableFactory {
  *     ObjectCachePool pool = new ObjectCachePool();
@@ -46,23 +43,23 @@ import checkers.nullness.quals.NonNull;
  * {@link Object#equals(Object)} and {@link Object#hashCode()}.
  * 
  * <p>
- * Internally a {@link WeakHashMap} is used. If the runtime environment does no
- * longer contain a reference to a representative, it is removed from the cache.
- * The cache does, hence, not keep unneeded objects.
+ * Internally a {@link ConcurrentSoftHashCacheImpl} is used. If the runtime
+ * environment does no longer contain a reference to a representative, it is
+ * removed from the cache. The cache does, hence, not keep unneeded objects.
  * 
  * <p>
- * The implementation is thread-safe.
+ * The map is synchronised and thread-safe.
  */
 public final class ObjectCachePool {
     
     /**
      * The pool to store references in.
      */
-    Map<Object, Object> thePool =
-        Collections.synchronizedMap(new WeakHashMap<Object, Object>());
+    private final ConcurrentSoftHashCacheImpl thePool =
+        new ConcurrentSoftHashCacheImpl(4, 6);
     
     // invariant key instanceof T ==> thePool.get(key) instanceof T;
-
+    
     /**
      * Get the canonical representative of an object from the cache.
      * 
@@ -80,17 +77,26 @@ public final class ObjectCachePool {
      *         with {@code instance.equals(t)} otherwise.
      */
     @SuppressWarnings("unchecked")
-    public <T> T cache(T instance) {
+    public <T> T cache(@Nullable T instance) {
         
         if(instance == null)
             return null;
         
         Object result = thePool.get(instance);
+        
         if(result == null) {
-            thePool.put(instance, instance);
-            result = instance;
+            synchronized (this) {
+                // double check: might have been added in the meantime by another thread.
+                if(thePool.get(instance) == null) {
+                    thePool.put(instance);
+                    result = instance;
+                }
+            }
         }
-        return (T) result;
+        
+        Class<? extends T> clss = (Class<? extends T>) instance.getClass();
+        
+        return clss.cast(result);
     }
     
     /**

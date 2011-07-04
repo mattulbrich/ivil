@@ -61,7 +61,7 @@ public class TypeUnification implements Cloneable {
      */
     private final static RebuildingTypeVisitor<Void> VARIANT_VISITOR = new RebuildingTypeVisitor<Void>() {
         public Type visit(TypeVariable typeVariable, Void parameter) {
-            return new SchemaType(SchemaType.VARIANT_PREFIX + typeVariable.getVariableName());
+            return SchemaType.getInst(SchemaType.VARIANT_PREFIX + typeVariable.getVariableName());
         };
     };
 

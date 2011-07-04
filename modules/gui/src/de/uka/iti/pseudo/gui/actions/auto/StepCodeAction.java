@@ -28,6 +28,7 @@ import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This class is designed to implement stepwise execution on source line basis.
@@ -40,6 +41,9 @@ import de.uka.iti.pseudo.util.NotificationListener;
 public abstract class StepCodeAction extends BarAction implements
         PropertyChangeListener, InitialisingAction, NotificationListener {
     
+    private static final String PROPERTY_CONTINUE_WITHOUT_PROGRAM = 
+        "pseudo.step.continueWithoutProgram";
+
     /**
      * StepProofWorker has a field abort, that by default is false. If it is
      * ever set to true, the worker will abort its task as soon as possible.
@@ -101,6 +105,9 @@ public abstract class StepCodeAction extends BarAction implements
 
         final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
+        
+        final boolean continueWithoutProgram = 
+            getProofCenter().getProperty(PROPERTY_CONTINUE_WITHOUT_PROGRAM) == Boolean.TRUE;
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         (worker = new StepProofWorker() {
@@ -124,7 +131,10 @@ public abstract class StepCodeAction extends BarAction implements
 
                             for (ProofNode node : current.getChildren()) {
                                 CodeLocation next = getCodeLocation(node);
-                                if (null == next || next.sameAs(loc)) {
+                                if (next != null && next.sameAs(loc)) {
+                                    todo.add(node);
+                                }
+                                if(continueWithoutProgram && next == null) {
                                     todo.add(node);
                                 }
                             }
@@ -186,6 +196,9 @@ public abstract class StepCodeAction extends BarAction implements
         proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
         
         selectedProofNode = proofCenter.getProof().getRoot();
+        
+        proofCenter.firePropertyChange(PROPERTY_CONTINUE_WITHOUT_PROGRAM, 
+                Settings.getInstance().getBoolean(PROPERTY_CONTINUE_WITHOUT_PROGRAM, true));
     }
 
     

@@ -521,7 +521,7 @@ public class Environment {
         try {
             Sort intSort = BUILT_IN_ENV.getSort("int");
             assert intSort != null : "nullness: guaranteed by construction of BUILT_IN_ENV";
-            return new TypeApplication(intSort);
+            return TypeApplication.getInst(intSort);
         } catch (TermException e) {
             // "int" is present since builtin
             throw new Error(e);
@@ -537,7 +537,7 @@ public class Environment {
         try {
             Sort boolSort = BUILT_IN_ENV.getSort("bool");
             assert boolSort != null : "nullness: guaranteed by construction of BUILT_IN_ENV";
-            return new TypeApplication(boolSort);
+            return TypeApplication.getInst(boolSort);
         } catch (TermException e) {
             // "boolean" is presend since builtin
             throw new Error(e);
@@ -722,7 +722,7 @@ public class Environment {
         try {
             Function cnstTrue = BUILT_IN_ENV.getFunction("true");
             assert cnstTrue != null : "nullness: existence guaranteed by construction";
-            return Application.create(cnstTrue, getBoolType());
+            return Application.getInst(cnstTrue, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -738,7 +738,7 @@ public class Environment {
         try {
             Function cnstFalse= BUILT_IN_ENV.getFunction("false");
             assert cnstFalse != null : "nullness: existence guaranteed by construction";
-            return Application.create(cnstFalse, getBoolType());
+            return Application.getInst(cnstFalse, getBoolType());
         } catch (TermException e) {
             throw new Error(e);
         }
@@ -928,7 +928,7 @@ public class Environment {
     }
 
     /**
-     * Convenience method to produce Type expressions.
+     * Convenience method to produce type expressions.
      * 
      * @param name
      *            name of the top level sort
@@ -952,7 +952,7 @@ public class Environment {
             throw new EnvironmentException("Sort " + name + " unknown");
         }
 
-        return new TypeApplication(sort, domTy);
+        return TypeApplication.getInst(sort, domTy);
     }
 
     //

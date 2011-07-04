@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.term;
 
+import de.uka.iti.pseudo.util.ObjectCachePool;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
@@ -81,6 +82,20 @@ public abstract class Type {
         return storedHashCode;
     }
 
-    
+    /**
+     * A constant pool is used to ensure that any term is created only once,
+     * hence reusing objects in memory.
+     */
+    private static final ObjectCachePool typePool = new ObjectCachePool();
 
+    /**
+     * Gets the canonical representative for all types which are equal to this.
+     * 
+     * @return a type which is {@linkplain Object#equals(Object) equal} to this
+     *         type object and of exactly the same class.
+     */
+    protected @NonNull Type intern() {
+        return typePool.cache(this);
+    }
+    
 }

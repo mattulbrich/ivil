@@ -12,6 +12,9 @@
 include "$fol.p"
 include "$set.p"
 
+plugin
+  prettyPrinter : "test.PairPrettyPrinter"
+
 sort
   prod('a, 'b)
 
@@ -47,13 +50,19 @@ rule every_pair_constructed
     freshVar %snd, %p
   add (\exists %fst; (\exists %snd; %p = pair(%fst,%snd))) |-
 
-rule dom_restrict_expand
+rule in_dom_restrict
   find %x :: %s <| %r
   replace %x :: %r & fst(%x) :: %s
+  tags
+  rewrite "fol simp"
+  derived
 
-rule rng_restrict_expand
+rule in_rng_restrict
   find %x :: %r |> %s
   replace %x :: %r & snd(%x) :: %s
+  tags
+  rewrite "fol simp"
+  derived
 
 rule fst_concrete
   find fst(pair(%a,%b))

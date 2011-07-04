@@ -1,0 +1,95 @@
+// uses "prioq.algo.p"
+uses "array.p"
+uses "$symbex.p"
+uses "$decproc.p"
+
+algo PrioQueueTake
+
+var /* in/out */
+  h : map(int, int)
+  
+var
+  last : int
+  i : int
+  min : int
+  h0 : map(int, int)
+  
+// temp:
+var
+  perm : map(int, int)
+  
+output
+  result : int
+  
+do
+  /* preconditions */
+  assume len(h) > 0 ; "pre cond" ;;
+  assume (\forall l; 1<=l & l<len(h) -> h[l] >= h[(l-1)/2]) ; "invariant" ;;
+  
+  h0 := h ;;
+  
+  assert 0 <= 0 & 0 < len(h) ; "range check h[0]" ;;
+  result := h[0] ;;
+  
+  assert 0 <= len(h)-1 & len(h)-1 < len(h) ; "range check h[len(h) - 1]" ;;
+  last := h[len(h) - 1] ;;
+  
+  assert 0 <= len(h)-1 & len(h)-1 < len(h) ; "range check removeLast" ;;
+  h := removeNo(h, len(h)-1) ;;
+  
+  if len(h) > 0
+  then
+  
+    assert 0 <= 0 & 0 < len(h) ; "range check h[0]" ;;
+    h[0] := last ;;
+
+    perm := insert(idPerm(len(h)-1), 0, len(h)-1) ;;
+    note isPermN(perm) ;;
+  
+    i := 0 ;;
+    while i < len(h) / 2
+      inv len(h) = len(h0) - 1
+       & i >= 0
+       
+       & (\forall j; 1<=j & j < len(h) ->
+         cond(i = (j-1)/2, 
+           !i=0 -> h[j] >= h[(i-1)/2],
+           h[j] >= h[(j-1)/2]))
+           
+       & isPerm(h, removeNo(h0, 0))
+      var len(h) - i
+    do
+    
+       if 2*i+2 = len(h)
+       then
+         min := 2*i + 1
+       else
+         assert 0<=2*i+1 & 2*i+1<len(h) ; "rangecheck h[2*i + 1]" ;;
+         assert 0<=2*i+2 & 2*i+2<len(h) ; "rangecheck h[2*i + 2]" ;;
+         if h[2*i + 1] > h[2*i + 2]
+         then
+           min := 2*i+2
+         else
+           min := 2*i+1
+         end
+       end ;;
+     
+       assert 0<=i & i<len(h) ; "rangecheck h[i]" ;;
+       assert 0<=min & min<len(h) ; "rangecheck h[min]" ;;
+       if h[i] > h[min]
+       then
+         h := swap(h, i, min) ;;
+         i := min
+       else
+         i := len(h) // "break"
+       end
+    end 
+  end ;;
+  
+  /* post cond */
+  assert len(h) = len(h0) - 1 ;;
+  assert result = h0[0] ;;
+  assert (\forall k; 1<=k & k < len(h) -> h[k] >= h[(k-1)/2]) ; "invariant" ;;
+  assert isPerm(h, removeNo(h0, 0)) 
+end
+  

@@ -408,7 +408,7 @@ public class Main {
                 return true;
         }
         for (PFileEditor editor : EDITORS) {
-            if (editor.hasUnsafedChanges())
+            if(editor.hasUnsavedChanges())
                 return true;
         }
         return false;

@@ -70,7 +70,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
         // compareTerm is a non-null element
         try {
-            this.compareTerm = SchemaVariable.getInst("%a", new SchemaType("a"));
+            this.compareTerm = SchemaVariable.getInst("%a", SchemaType.getInst("a"));
         } catch (TermException e) {
             e.printStackTrace();
             assert false : "schema code broken or specs changed";

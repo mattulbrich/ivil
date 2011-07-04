@@ -45,7 +45,7 @@ public class LoadEditedProblemAction extends BarAction {
             return;
         }
         
-        if(editor.hasUnsafedChanges()) {
+        if(editor.hasUnsavedChanges()) {
             int res = JOptionPane
                     .showConfirmDialog(
                             getParentFrame(),

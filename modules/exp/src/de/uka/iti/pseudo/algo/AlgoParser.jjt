@@ -1,0 +1,327 @@
+options {
+  MULTI=true;
+  VISITOR=true;
+  VISITOR_RETURN_TYPE="String";
+  NODE_DEFAULT_VOID=true;
+  TRACK_TOKENS=true;
+}
+
+PARSER_BEGIN(AlgoParser)
+
+package de.uka.iti.pseudo.algo;
+
+import de.uka.iti.pseudo.util.Pair;
+
+/** An Arithmetic Grammar. */
+@SuppressWarnings("all")
+public class AlgoParser {
+
+  private static String stripQuotes(String s) {
+    return s.substring(1, s.length()-1);
+  }
+
+  /** Main debug entry point. */
+  public static void main(String args[]) {
+    System.out.println("Reading from standard input...");
+    AlgoParser t = new AlgoParser(System.in);
+    try {
+      ASTStart n = t.Start();
+      n.dump("");
+      System.out.println("Thank you.");
+    } catch (Exception e) {
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+      e.printStackTrace();
+    }
+  }
+}
+
+PARSER_END(AlgoParser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| <"/*" (~["*"])* "*" (~["/"] (~["*"])* "*")* "/">
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL>
+      | <HEX_LITERAL>
+      | <OCTAL_LITERAL>
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+|
+  // TODO escaping " in strings
+  <STRING_LITERAL:  "\"" ( ~["\""] )* "\"" >
+}
+
+TOKEN : /* KEYWORDS */
+{
+  < IF : "if" >
+| < IN : "in" >
+| < DO : "do" >
+| < END : "end" >
+| < VAR : "var" >
+| < INV : "inv" >
+| < ELSE : "else" >
+| < THEN : "then" >
+| < SUCH : "such" >
+| < WITH : "with" >
+| < ALGO : "algo" >
+| < USES : "uses" >
+| < THAT : "that" >
+| < NOTE : "note" >
+| < WHILE : "while" >
+| < INPUT : "input" >
+| < OUTPUT : "output" >
+| < CHOOSE : "choose" >
+| < ASSERT : "assert" >
+| < ASSUME : "assume" >
+| < ITERATE : "iterate" >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < LEFTPAREN: "(" >
+|
+  < RIGHTPAREN: ")" >
+|
+  < LEFTSQUARE: "[" >
+|
+  < RIGHTSQUARE: "]" >
+|
+  < LEFTCURLY: "{" >
+|
+  < RIGHTCURLY: "}" >
+|
+  < LEFTDSQUARE: "[[" >
+|
+  < RIGHTDSQUARE: "]]" >
+|
+  < COMMA: "," >
+|
+  < DOT: "." >
+| 
+  < PARALLEL: "||" >
+|
+  < COLON: ":" >
+|
+  < ASSIGNMENT: ":=" >
+|
+  < SEMICOLON: ";" >
+|
+  < DOUBLESEMICOLON: ";;" >
+|
+  < AS: "as" >
+|
+  < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
+|
+  < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >  
+|
+  < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
+|
+  < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","\\","!","^","@",".",":"] )+ >
+|
+  < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
+}
+
+/** Main production. */
+ASTStart Start() #Start : {}
+{
+  ( Uses() )*
+  ( Algo() )+
+  { return jjtThis; }
+}
+
+void Uses() #UsesDeclaration : 
+{
+  Token t;
+} 
+{
+  "uses" t=<STRING_LITERAL>
+  {
+    jjtThis.jjtSetValue(stripQuotes(t.image));
+  }
+}
+
+void Algo() #Algo : 
+{
+  Token t;
+}
+{
+  "algo" Identifier()
+     
+  (  "input" Declarations()  #InputDecl 
+   | "output" Declarations()  #OutputDecl
+   | "var" Declarations()  #VarDecl
+  /* Requires and Ensures */ 
+  )*
+  
+  "do"
+    StatementBlock()
+  "end"
+}
+
+void StatementBlock() #StatementBlock : {}
+{
+  Statement() ( ";;" Statement() )*
+}
+
+/** Declarations */
+void Declarations() : {}
+{
+  ( Identifier() ( "," Identifier() )* ":" Type() )+
+}
+
+void Type() #Type : {}
+{
+  Identifier() 
+  (
+    "("
+    Type()
+    ( "," Type() )*
+    ")"
+  )?
+}
+
+/** Statements */
+void Statement() : {}
+{
+    ChooseStatement()
+  | LOOKAHEAD(2) AssignmentStatement()
+  | MapAssignmentStatement()
+  | WhileStatement()
+  | IterateStatement()
+  | IfStatement()
+  // | CallStatement()
+  | AssertStatement()
+  | AssumeStatement()
+  | NoteStatement()
+}
+
+void AssignmentStatement() #AssignmentStatement : {}
+{
+  Identifier() ":=" Expression()
+}
+
+void MapAssignmentStatement() #MapAssignmentStatement : {}
+{
+  Identifier() "[" Expression() "]" ":=" Expression()
+}
+
+void ChooseStatement() #ChooseStatement : {}
+{
+  "choose"
+    Identifier() ("," Identifier() )*
+  "such" "that"
+    Expression()
+}
+
+void WhileStatement() #WhileStatement : {}
+{
+  "while"
+    Expression()
+    "inv" Expression()
+    "var" Expression()
+  "do"
+    StatementBlock()
+  "end"
+}
+
+void IterateStatement() #IterateStatement : {}
+{
+  "iterate" Expression()
+  "with" Identifier()
+  "do"
+    StatementBlock()
+  "end"
+}
+
+void IfStatement() #IfStatement : {}
+{
+  "if" Expression()
+  "then" StatementBlock()
+  ( "else" StatementBlock() )?
+  "end"
+}
+
+void AssertStatement() #AssertStatement : {}
+{
+  "assert" Expression()
+}
+
+void AssumeStatement() #AssumeStatement : {}
+{
+  "assume" Expression()
+}
+
+void NoteStatement() #NoteStatement : {}
+{
+  "note" Expression()
+}
+
+void Identifier() #Identifier :
+{
+  Token t;
+}
+{
+  t=<IDENTIFIER>
+  {
+    jjtThis.jjtSetValue(t.image);
+  }
+}
+    
+/** An Expression. */
+void Expression() #Expression : {}
+{ 
+  ( 
+    LOOKAHEAD(2) 
+     (Identifier() "[" Expression() "]") #MapAccessExpression
+   |
+     TokenExpression()
+  )+
+}
+
+void TokenExpression() #TokenExpression : {}
+{
+      <INTEGER_LITERAL>
+    | 
+      <BINDER_IDENTIFIER>
+    | 
+      <INTERNAL_IDENTIFIER>
+    |
+      <TYVAR_IDENTIFIER>
+    |
+      <OP_IDENTIFIER>
+    |
+      <IDENTIFIER>
+    |
+      <LEFTPAREN>
+    |
+      <RIGHTPAREN>
+    |
+      <LEFTCURLY>
+    |
+      <RIGHTCURLY>
+    |
+      <COMMA>
+    |
+      <DOT>
+    |
+      <SEMICOLON>
+    |
+      <AS>
+    | 
+      <STRING_LITERAL>
+}

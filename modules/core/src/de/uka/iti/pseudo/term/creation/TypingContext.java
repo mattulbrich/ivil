@@ -104,7 +104,7 @@ public class TypingContext extends TypeUnification {
      */
     public SchemaType newSchemaType() {
         counter ++;
-        return new SchemaType(Integer.toString(counter));
+        return SchemaType.getInst(Integer.toString(counter));
     }
 
     /**

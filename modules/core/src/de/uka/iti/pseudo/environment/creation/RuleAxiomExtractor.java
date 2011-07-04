@@ -63,11 +63,11 @@ public class RuleAxiomExtractor {
                 throws TermException {
 
             String name = "ty_" + schemaType.getVariableName();
-            TypeVariable tv = new TypeVariable(name);
+            TypeVariable tv = TypeVariable.getInst(name);
 
             int i = 1;
             while(usedTypeVariables.contains(tv)) {
-                tv = new TypeVariable(name + i);
+                tv = TypeVariable.getInst(name + i);
                 i++;
             }
 

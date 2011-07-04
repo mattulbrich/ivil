@@ -67,7 +67,7 @@ public class CloseAction extends BarAction
         if(proofCenter != null) {
             changed = proofCenter.getProof().hasUnsafedChanges();
         } else {
-            changed = editor.hasUnsafedChanges();
+            changed = editor.hasUnsavedChanges();
         }
         
         if(changed) {

@@ -81,7 +81,7 @@ public final class TranslationPhase {
                         statements.set(
                                 i,
                                 new de.uka.iti.pseudo.term.statement.GotoStatement(statements.get(i)
-                                .getSourceLineNumber(), new Term[] { Application.create(state.env
+                                .getSourceLineNumber(), new Term[] { Application.getInst(state.env
                                         .getNumberLiteral(returnIndex), Environment.getIntType()) }));
                         annotations.set(i, "return");
 
@@ -111,7 +111,8 @@ public final class TranslationPhase {
 
                     try {
                         for (int index = 0; index < args.length; index++) {
-                            args[index] = Application.create(state.env.getNumberLiteral(targets.get(index).toString()),
+                            args[index] = Application
+                                    .getInst(state.env.getNumberLiteral(targets.get(index).toString()),
                                     Environment.getIntType());
                         }
 

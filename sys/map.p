@@ -17,7 +17,11 @@
 include 
   "$base.p"
 
-  
+include "$fol.p"
+
+plugin
+  prettyPrinter : "test.ArrayPrettyPrinter"
+
 sort
   map('d, 'r)
   

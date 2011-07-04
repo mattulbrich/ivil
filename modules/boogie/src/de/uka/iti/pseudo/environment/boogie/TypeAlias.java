@@ -67,7 +67,7 @@ public class TypeAlias extends Type {
                         result[i] = arguments.get(i).accept(this, parameter);
                     }
 
-                    return new TypeApplication(sort, result);
+                    return TypeApplication.getInst(sort, result);
                 }
             }
             @Override

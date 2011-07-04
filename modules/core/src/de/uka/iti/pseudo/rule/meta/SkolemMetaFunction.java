@@ -63,7 +63,7 @@ public class SkolemMetaFunction extends MetaFunction {
             }
         }
         
-        return Application.create(newFunction, application.getType());
+        return Application.getInst(newFunction, application.getType());
     }
 
     

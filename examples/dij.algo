@@ -1,0 +1,139 @@
+uses "dij.algo.p"
+  
+algo Dij
+input
+   start : node
+output
+   old_dom_distance, dom_distance : set(node)
+   old_distance, distance : map(node, int)   
+
+var 
+   n,o : node
+   s : prod(node, node)
+   d : int
+   visited : set(node)
+   nbors0, nbors : set(node)
+do
+   assume (\forall x; (\forall y; weight(x,y) >= 0)) ;;
+   
+   dom_distance := emptyset ;;
+   distance[start] := 0 ;;
+   dom_distance := singleton(start) ;;
+
+   visited := emptyset ;;
+
+   /* while exists node not in visited */
+   while !emptyset = (dom_distance \ visited)
+     inv 
+       visited <: dom_distance &
+       distance[start] = 0 &
+       start :: dom_distance &
+       (\forall x; x::dom_distance -> distance[x] >= 0) &
+       
+       (\forall y; y::dom_distance \ singleton(start)-> 
+	(\exists x; x::visited & pair(x,y)::dom_weight & 
+	  distance[y]  = distance[x] + weight(x,y))) &
+	  
+       (\forall a; (\forall b;
+         a::visited & b::dom_distance & pair(a,b)::dom_weight ->
+          distance[b] <= distance[a] + weight(a,b))) &
+          
+       /* visited less than non-visited */
+       (\forall a; (\forall b; a :: visited & 
+         b :: dom_distance \ visited ->
+           distance[a] <= distance[b])) &
+          
+       /* reachable from within visited => dom_distance set */
+       (\forall p; (\forall q; p::visited & 
+            pair(p,q)::dom_weight -> q::dom_distance)) 
+
+     var count(dom_distance \ visited)
+   do
+
+     choose n such that 
+        !n :: visited &
+        n :: dom_distance &
+        (\forall m; m::dom_distance \ visited -> 
+            distance[n] <= distance[m]) ;;
+            
+     visited := visited \/ singleton(n) ;;     
+
+     /* festzustellen: */
+     note visited <: dom_distance ;;
+     
+     /* foreach node m with (n,m) in edges which is not visited 
+      * iterate {n} <| weight |>> visited using S and s */
+     
+     old_distance := distance ;;
+     old_dom_distance := dom_distance ;;
+     nbors0 := (\set k; pair(n,k) :: dom_weight & !k::visited) ;;
+     nbors := nbors0 ;;
+     
+     while (\exists t; t::nbors)
+       inv nbors <: nbors0 &
+       
+           /* the distance of visited nodes remains untouched */
+           (\forall r; r::visited -> distance[r] = old_distance[r]) &
+           
+           /* the domain of distance is monotone */
+           old_dom_distance <: dom_distance &
+           
+           /* distances only are made smaller */
+           (\forall s; s::old_dom_distance -> 
+               distance[s] <= old_distance[s]) &
+           
+           distance[start] = 0 &
+           start :: dom_distance &
+           
+           (\forall x; x::dom_distance -> distance[x] >= 0) &
+           
+           (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::visited & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y))) &
+	      
+           (\forall b; b::dom_distance \ nbors & 
+              pair(n,b) :: dom_weight ->
+                distance[b] <= distance[n] + weight(n,b)) &
+                
+           /* visited less than non-visited */
+           (\forall a; (\forall b; a :: visited & 
+             b :: dom_distance \ visited ->
+               distance[a] <= distance[b])) &
+              
+           /* reachable from within visited => dom_distance set */
+           (\forall p; (\forall q; p::visited & !q::nbors &
+              pair(p,q)::dom_weight -> q::dom_distance))
+              
+       var count(nbors)
+     do
+       choose o such that o :: nbors ;;
+       nbors := nbors \ singleton(o) ;;
+
+       /* there must be an edge */
+       assert pair(n,o) :: dom_weight ;;
+       
+       /* d := distance[n] + weigth(n,m); */
+       d := read(distance, n) + weight(n,o) ;;
+
+       if !o::dom_distance | d < distance[o]
+       then
+         dom_distance := dom_distance \/ singleton(o) ;;
+         distance[o] := d
+       end
+     end
+   end ;;
+   
+   /* post conditions */
+   assert visited = dom_distance ;;
+   assert (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y))) ;;
+   assert (\forall a; a::dom_distance ->
+            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+              distance[b] <= distance[a] + weight(a,b)))
+/* to be done ...              
+   ;;
+   assert (\forall p; (\forall q; p::dom_distance & 
+            pair(p,q)::dom_weight -> q::dom_distance))*/
+            
+ end

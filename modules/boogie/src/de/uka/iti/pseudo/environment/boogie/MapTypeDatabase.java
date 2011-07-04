@@ -203,7 +203,7 @@ public final class MapTypeDatabase {
                 }
 
                 // unbound type variable detected, add argument
-                Type rval = new TypeVariable("_" + omittedTypes.size());
+                Type rval = TypeVariable.getInst("_" + omittedTypes.size());
                 omittedTypes.add(t);
                 return rval;
 
@@ -217,7 +217,7 @@ public final class MapTypeDatabase {
                     return env.mkType(app.getSort().getName(), args);
 
                 } else {
-                    Type rval = new TypeVariable("_" + omittedTypes.size());
+                    Type rval = TypeVariable.getInst("_" + omittedTypes.size());
                     omittedTypes.add(t);
                     return rval;    
                 }

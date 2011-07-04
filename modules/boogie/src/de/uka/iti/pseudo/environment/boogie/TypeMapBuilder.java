@@ -141,7 +141,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             TypeVariable p;
             SchemaType q;
 
-            rval.add(p = new TypeVariable(t.getName()));
+            rval.add(p = TypeVariable.getInst(t.getName()));
             schemaTypes.add(t, q = context.newSchemaType());
             try {
                 context.unify(p, q);
@@ -308,7 +308,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 Type[] args = new Type[node.getTypeParameters().size()];
 
                 for (int i = 0; i < args.length; i++) {
-                    args[i] = new TypeVariable("arg" + i);
+                    args[i] = TypeVariable.getInst("arg" + i);
                     // add a new schema variable; this is only needed for
                     // consistency
                     schemaTypes.add(node.getTypeParameters().get(i), context.newSchemaType());
@@ -412,7 +412,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ASTTypeParameter node) throws ASTVisitException {
-        defaultAction(node, new TypeVariable(node.getName()));
+        defaultAction(node, TypeVariable.getInst(node.getName()));
     }
 
     @Override
@@ -619,7 +619,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         
         Map<TypeVariable, Type> mapping = new HashMap<TypeVariable, Type>();
         for(int i = 0; i < t.getArguments().size(); i++)
-            mapping.put(new TypeVariable("_"+i), t.getArguments().get(i));
+            mapping.put(TypeVariable.getInst("_" + i), t.getArguments().get(i));
         
         RebuildingTypeVisitor<Map<TypeVariable, Type>> visitor = new RebuildingTypeVisitor<Map<TypeVariable, Type>>() {
             @Override

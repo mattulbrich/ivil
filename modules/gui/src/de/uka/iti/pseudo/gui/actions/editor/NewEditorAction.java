@@ -20,7 +20,6 @@ import javax.swing.KeyStroke;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
 
 /**

@@ -185,7 +185,7 @@ rule or_left
   find  %a | %b  |-
   samegoal "Disj1: {%a}"
     replace  %a 
-  samegoal "Disj1: {%b}"
+  samegoal "Disj2: {%b}"
     replace  %b 
   tags rewrite "split"
 
