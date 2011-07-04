@@ -64,6 +64,7 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
+import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
  * This visitor decorates ASTElements with types. Typechecking is done using the
@@ -81,7 +82,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     // shortcut to state.schemaTypes
     private final Decoration<SchemaType> schemaTypes;
     // shortcut to state.context
-    private final BoogieTypingContext context;
+    private final TypingContext context;
 
     /**
      * Searches for declaration of type variable name.
