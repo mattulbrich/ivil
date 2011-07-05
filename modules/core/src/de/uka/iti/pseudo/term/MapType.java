@@ -9,6 +9,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,6 +36,7 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.where.DifferentTypesInEq;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TypingContext;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This class encapsulates a map type.
@@ -99,7 +102,10 @@ public class MapType extends Type {
     }
 
     /**
-     * Two type variables are equal iff their names are equal.
+     * two maps are equal, if they bind the same variables and have equal domain
+     * and range. this is however not relevant after map flattening, because
+     * maps, that have been flattened to different sorts will always behave as
+     * if they were unequal.
      */
     @Override
     public boolean equals(@Nullable Object obj) {
@@ -111,19 +117,25 @@ public class MapType extends Type {
             if (boundVars.size() != m.boundVars.size() || domain.size() != m.domain.size())
                 return false;
 
-            // FIXME implement equality!!!
-            return true;
+            for (int i = 0; i < boundVars.size(); i++)
+                if (!boundVars.get(i).equals(m.boundVars.get(i)))
+                    return false;
+
+            for (int i = 0; i < domain.size(); i++)
+                if (!domain.get(i).equals(m.domain.get(i)))
+                    return false;
+
+            return range.equals(m.range);
         }
         return false;
     }
 
     /**
-     * the hashcode of a type variable is the hash code of its name.S
+     * very basic hash code
      */
     @Override
     public int hashCode() {
-        // TODO find something more useful here
-        return 0;
+        return 100 * boundVars.size() + domain.size();
     }
 
     public List<TypeVariable> getBoundVars() {
@@ -150,9 +162,6 @@ public class MapType extends Type {
      * 
      * @throws EnvironmentException
      * @throws TermException
-     * 
-     *             TODO move rule creation and the whole schema type related
-     *             things into another function
      */
     public Type flatten(Environment env, String name) throws EnvironmentException, TermException {
         
@@ -238,6 +247,25 @@ public class MapType extends Type {
      */
     private void createRules(String name, Function $load, Function $store, Environment env) throws EnvironmentException {
 
+        // if base has not been loaded, no rule can be created
+        {
+            File file = null;
+            final String sysDir = Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
+            String[] paths = sysDir.split(File.pathSeparator);
+            for (String path : paths) {
+                file = new File(path + "/base.p");
+                if (file.exists()) {
+                    break;
+                }
+            }
+            try {
+                if (null == file || !env.hasParentResource(file.toURI().toURL().toString()))
+                    return;
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
         try { // /////////////// LOAD STORE SAME
             String rule = name + "_load_store_same";
             // find: $load($store(%m, %D, %v), %D)
@@ -260,7 +288,7 @@ public class MapType extends Type {
             Term factory;
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
@@ -270,8 +298,8 @@ public class MapType extends Type {
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -292,7 +320,7 @@ public class MapType extends Type {
         }
 
         // TODO load store same assume
-        // TODO make load store same assume interactive, is domain.size() == 1
+        // TODO make load store same assume interactive, if domain.size() == 1
 
         try { // /////////////// LOAD STORE OTHER TYPE
             // creates #domain rules of the form:
@@ -333,7 +361,7 @@ public class MapType extends Type {
             Term factory;
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
@@ -343,8 +371,8 @@ public class MapType extends Type {
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             List<GoalAction> actions = new LinkedList<GoalAction>();
 
@@ -425,15 +453,15 @@ public class MapType extends Type {
 
 
             try {
-                factory = TermMaker.makeAndTypeTerm(sbFind + "=" + sbReplace, env);
+                factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
             }
             Term find, replace;
 
-            find = factory.getSubterm(0);
-            replace = factory.getSubterm(1);
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
 
             actions.add(new GoalAction("samegoal", null, false, replace, none, none));
 
@@ -448,8 +476,27 @@ public class MapType extends Type {
             throw new EnvironmentException(e);
         }
 
-        // TODO load lambda?
 
+        // if map.p has not been loaded, the lambda rule can not be created
+        {
+            File file = null;
+            final String sysDir = Settings.getInstance().getExpandedProperty("pseudo.sysDir", "./sys");
+            String[] paths = sysDir.split(File.pathSeparator);
+            for (String path : paths) {
+                file = new File(path + "/map.p");
+                if (file.exists()) {
+                    break;
+                }
+            }
+            try {
+                if (null == file || !env.hasParentResource(file.toURI().toURL().toString()))
+                    return;
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        // TODO load lambda?
     }
 
     /**
