@@ -23,6 +23,9 @@ import de.uka.iti.pseudo.term.TypeVisitor;
  * correct treatment of type equivalence.
  * 
  * @author timm.felden@felden.com
+ * 
+ *         TODO document silently assumed invariants, which make this
+ *         translation work
  */
 public final class MapTypeDatabase {
 
@@ -45,7 +48,6 @@ public final class MapTypeDatabase {
 
         static class BoogieMapEqualityVisitor implements TypeVisitor<Boolean, Type> {
 
-            // TODO polymorphic equality
 
             @Override
             public Boolean visit(TypeApplication app, Type parameter) throws TermException {
@@ -73,12 +75,14 @@ public final class MapTypeDatabase {
                 if (p.boundVars.size() != map.boundVars.size() || p.domain.size() != map.domain.size())
                     return false;
                 
-                // TODO update variable mapping
+                pushNames(map.boundVars);
                 
                 boolean result = map.range.accept(this, p.range);
 
                 for (int i = 0; i < map.domain.size() && result; i++)
                     result = map.domain.get(i).accept(this, p.domain.get(i));
+
+                popNames();
 
                 return result;
             }
@@ -90,17 +94,46 @@ public final class MapTypeDatabase {
 
                 TypeVariable p = (TypeVariable) parameter;
 
-                // TODO
-
-                return var.equals(p);
+                Map<TypeVariable, TypeVariable> map = containsName(var);
+                if(null!=map){
+                    if (null == map.get(var))
+                        return null == map.put(var, p);
+                    else
+                        return map.get(var).equals(p);
+                }
+                else
+                    return var.equals(p);
             }
 
+            /**
+             * @note schema types are not expected to occur in maps
+             */
             @Override
             public Boolean visit(SchemaType schemaType, Type parameter) throws TermException {
-                // can this even happen?
                 return schemaType.equals(parameter);
             }
 
+
+            private final LinkedList<Map<TypeVariable, TypeVariable>> variableRenaming = new LinkedList<Map<TypeVariable, TypeVariable>>();
+
+            private void pushNames(List<TypeVariable> boundVars) {
+                HashMap<TypeVariable, TypeVariable> map = new HashMap<TypeVariable, TypeVariable>();
+                for (TypeVariable v : boundVars)
+                    map.put(v, null);
+
+                variableRenaming.push(map);
+            }
+
+            private void popNames() {
+                variableRenaming.pop();
+            }
+
+            private Map<TypeVariable, TypeVariable> containsName(TypeVariable var) {
+                for (Map<TypeVariable, TypeVariable> m : variableRenaming)
+                    if (m.containsKey(var))
+                        return m;
+                return null;
+            }
         }
 
         @Override

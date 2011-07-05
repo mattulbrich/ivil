@@ -243,8 +243,6 @@ public final class EnvironmentCreationState {
         } catch (RuntimeException e) {
             printDebugInformation();
             throw e;
-        } finally {
-            printDebugInformation();
         }
 
         try {
