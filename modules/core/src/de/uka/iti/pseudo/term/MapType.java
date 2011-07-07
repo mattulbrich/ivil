@@ -164,21 +164,19 @@ public class MapType extends Type {
      * @throws TermException
      */
     public Type flatten(Environment env, String name) throws EnvironmentException, TermException {
-        
-        if(null!=name && null!=env.getSort(name))
-            throw new EnvironmentException("the sort " + name + " exists already");
-        
 
-        //create flat sub types
+        if (null != name && null != env.getSort(name))
+            throw new EnvironmentException("the sort " + name + " exists already");
+
+        // create flat sub types
         Type flat_dom[] = new Type[domain.size()], flat_r;
-        
+
         for (int i = 0; i < flat_dom.length; i++) {
             flat_dom[i] = domain.get(i);
             if (flat_dom[i] instanceof MapType)
                 flat_dom[i] = ((MapType) flat_dom[i]).flatten(env, null);
         }
         flat_r = range instanceof MapType ? ((MapType) range).flatten(env, null) : range;
-
 
         // the list of type variables, that do occur unbound in this type
         Set<Type> freeVars = new HashSet<Type>();
@@ -188,7 +186,7 @@ public class MapType extends Type {
 
         for (Type t : boundVars)
             freeVars.remove(t);
-        
+
         // create map sort and type
         if (null == name)
             name = env.createNewSortName("map");
@@ -200,15 +198,14 @@ public class MapType extends Type {
             Type map_t = env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
             Type[] mapDomainRange = new Type[flat_dom.length + 2];
             Type[] mapDomain = new Type[flat_dom.length + 1];
-            
+
             mapDomainRange[0] = mapDomain[0] = map_t;
             for (int i = 0; i < flat_dom.length; i++)
-                mapDomainRange[i+1] = mapDomain[i+1] = flat_dom[i];
-            
+                mapDomainRange[i + 1] = mapDomain[i + 1] = flat_dom[i];
+
             mapDomainRange[flat_dom.length + 1] = flat_r;
-            
-            env.addFunction($load = new Function("$load_" + name, flat_r, mapDomain, false, false,
-                    declaringLocation));
+
+            env.addFunction($load = new Function("$load_" + name, flat_r, mapDomain, false, false, declaringLocation));
 
             env.addFunction($store = new Function("$store_" + name, map_t, mapDomainRange, false, false,
                     declaringLocation));
@@ -220,12 +217,12 @@ public class MapType extends Type {
             TypingContext t = new TypingContext();
             Type[] load_t = t.makeNewSignature($load.getResultType(), $load.getArgumentTypes());
             load_sig = new Term[load_t.length];
-            for(int i = 0; i < load_sig.length; i++)
+            for (int i = 0; i < load_sig.length; i++)
                 if (load_t[i] instanceof SchemaType)
                     load_sig[i] = SchemaVariable.getInst("%" + ((SchemaType) load_t[i]).getVariableName(), load_t[i]);
                 else
                     load_sig[i] = SchemaVariable.getInst("%" + load_t[i].toString(), load_t[i]);
-            
+
             Type[] store_t = t.makeNewSignature($store.getResultType(), $store.getArgumentTypes());
             store_sig = new Term[store_t.length];
             for (int i = 0; i < store_sig.length; i++)
@@ -319,14 +316,183 @@ public class MapType extends Type {
             throw new EnvironmentException(e);
         }
 
-        // TODO load store same assume
-        // TODO make load store same assume interactive, if domain.size() == 1
+        try { // /////////////// LOAD STORE SAME ASSUME
+            String rule = name + "_load_store_same_assume";
+            // find: $load($store(%m, %D, %v), %T)
+            // ∀i. assume: %di = %ti |-
+            // replace: %v
+
+            // $load($store(%m, %D, %v), %D)
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+            if (domain.size() == 1)
+                tags.put("dragdrop", "8");
+
+            // $load($store(%m, %D, %v), %T)
+            StringBuilder sbFind = new StringBuilder();
+            sbFind.append($load.getName()).append("(");
+            sbFind.append($store.getName()).append("(%m, ");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append("%d").append(i).append(", ");
+            sbFind.append("%v)");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append(", ").append("%t").append(i);
+            sbFind.append(")");
+
+            // add equality to the condition, to ensure, that %D and %T have the
+            // same types.
+            // AND(%di = %ti)
+            StringBuilder sbCond = new StringBuilder("true");
+            for (int i = 0; i < domain.size(); i++)
+                sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+
+            Term factory;
+
+            try {
+                factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            } catch (ASTVisitException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            }
+            Term find, replace;
+
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
+            LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions
+                    .add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(),
+                            new LinkedList<Term>()));
+
+            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            for (int i = 0; i < domain.size(); i++)
+                assumes.add(new LocatedTerm(Application.getInst(env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }),
+                        MatchingLocation.ANTECEDENT));
+
+            env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                    declaringLocation));
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
+
+        try { // /////////////// LOAD STORE OTHER ASSUME
+            // creates #domain rules of the form:
+
+            // find: $load($store(%m, %D, %v), %T)
+            // ∃i. assume |- %di = %ti
+            // replace: $load(%m, %T)
+
+            LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+            Map<String, String> tags = new HashMap<String, String>();
+
+            tags.put("rewrite", "concrete");
+
+            // any other rules has only one assumption and can therefore be a
+            // drag & drop rule
+            tags.put("dragdrop", "8");
+
+            // $load($store(%m, %D, %v), %T)
+            StringBuilder sbFind = new StringBuilder();
+            sbFind.append($load.getName()).append("(");
+            sbFind.append($store.getName()).append("(%m, ");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append("%d").append(i).append(", ");
+            sbFind.append("%v)");
+            for (int i = 0; i < domain.size(); i++)
+                sbFind.append(", ").append("%t").append(i);
+            sbFind.append(")");
+
+            // $load(%m, %T)
+            StringBuilder sbReplace = new StringBuilder($load.getName());
+            sbReplace.append("(%m");
+            for (int i = 0; i < domain.size(); i++)
+                sbReplace.append(", ").append("%t").append(i);
+            sbReplace.append(")");
+
+            // add equality to the condition, to ensure, that %D and %T have the
+            // same types, the actual terms are not relevant
+            // AND(%di = %ti)
+            StringBuilder sbCond = new StringBuilder("true");
+            for (int i = 0; i < domain.size(); i++)
+                sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+
+            Term factory;
+
+            try {
+                factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            } catch (ASTVisitException e) {
+                e.printStackTrace();
+                throw new EnvironmentException(e);
+            }
+            Term find, replace;
+
+            find = factory.getSubterm(1);
+            replace = factory.getSubterm(2);
+
+            List<GoalAction> actions = new LinkedList<GoalAction>();
+
+            actions
+                    .add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(),
+                            new LinkedList<Term>()));
+
+            for (int i = 0; i < domain.size(); i++) {
+                String rule = name + "_load_store_other_assume_l" + i;
+
+                List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+                assumes.add(new LocatedTerm(Application.getInst(env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }),
+                        MatchingLocation.SUCCEDENT));
+
+                env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                        declaringLocation));
+            }
+
+            // %ti and %di might have reverse order; if we want to match, we
+            // have to look at that, too.
+            for (int i = 0; i < domain.size(); i++) {
+                String rule = name + "_load_store_other_assume_r" + i;
+
+                List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+                assumes.add(new LocatedTerm(Application.getInst(env.getFunction("$eq"), Environment.getBoolType(),
+                        new Term[] { find.getSubterm(i + 1), find.getSubterm(0).getSubterm(i + 1) }),
+                        MatchingLocation.SUCCEDENT));
+
+                env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                        declaringLocation));
+            }
+
+        } catch (RuleException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new EnvironmentException(e);
+        }
 
         try { // /////////////// LOAD STORE OTHER TYPE
             // creates #domain rules of the form:
 
             // find: $load($store(%m, %D, %v), %T)
-            // where: differentTypesInEq %di %ti
+            // ∃i. where: differentTypesInEq %di %ti
             // replace: $load(%m, %T)
 
             // and an additional rule for different types in range with the
@@ -334,9 +500,9 @@ public class MapType extends Type {
 
             // where: differentInEq %v $load($store(%m, %D, %v), %T)
 
-            Map<String, String> tags = new HashMap<String, String>();
-
             List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+            Map<String, String> tags = new HashMap<String, String>();
 
             tags.put("rewrite", "concrete");
 
@@ -369,6 +535,7 @@ public class MapType extends Type {
                 e.printStackTrace();
                 throw new EnvironmentException(e);
             }
+
             Term find, replace;
 
             find = factory.getSubterm(1);
@@ -408,8 +575,6 @@ public class MapType extends Type {
             e.printStackTrace();
             throw new EnvironmentException(e);
         }
-
-        // TODO load store other
 
         try { // /////////////// LOAD STORE COND, aka McCarthy axiom
             String rule = name + "_load_store_cond";
@@ -451,7 +616,6 @@ public class MapType extends Type {
 
             Term factory;
 
-
             try {
                 factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
             } catch (ParseException e) {
@@ -475,7 +639,6 @@ public class MapType extends Type {
             e.printStackTrace();
             throw new EnvironmentException(e);
         }
-
 
         // if map.p has not been loaded, the lambda rule can not be created
         {
@@ -503,9 +666,9 @@ public class MapType extends Type {
      * collects the free type variables in a MapType free type
      */
     private static final void collectFreeVars(Type type, Set<Type> freeVars) {
-        if(type instanceof TypeVariable)
+        if (type instanceof TypeVariable)
             freeVars.add(type);
-        else if(type instanceof TypeApplication)
+        else if (type instanceof TypeApplication)
             for (Type t : ((TypeApplication) type).getArguments())
                 collectFreeVars(t, freeVars);
     }
