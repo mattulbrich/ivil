@@ -22,7 +22,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 
 public class TestTypeVariableCollector extends TestCaseWithEnv {
 
-    private static final SchemaType SCHEMA_ALPHA = new SchemaType("a");
+    private static final SchemaType SCHEMA_ALPHA = SchemaType.getInst("a");
 
     public void testCollectTerm() throws Exception {
         Term t = makeTerm("arb as 'a");

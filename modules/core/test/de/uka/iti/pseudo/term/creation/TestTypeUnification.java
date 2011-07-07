@@ -20,9 +20,9 @@ public class TestTypeUnification extends TestCaseWithEnv {
 
     private Type setB;
     private Type setA;
-    private SchemaType tyvA = new SchemaType("a");
-    private SchemaType tyvB = new SchemaType("b");
-    private SchemaType tyvD = new SchemaType("d");
+    private SchemaType tyvA = SchemaType.getInst("a");
+    private SchemaType tyvB = SchemaType.getInst("b");
+    private SchemaType tyvD = SchemaType.getInst("d");
     
     {
         try {

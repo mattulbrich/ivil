@@ -158,18 +158,30 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
 ASTBinderTerm BinderTerm():
 {
   Token binderToken;
-  Token varToken;
-  ASTType type = null; 
   ASTTerm t;
-  List<ASTTerm> subterms = new ArrayList<ASTTerm>(); 
+  Pair<Token, ASTType> bound;
+  List<Pair<Token, ASTType>> boundVars = new ArrayList<Pair<Token, ASTType>>();
+  LinkedList<ASTTerm> subterms = new LinkedList<ASTTerm>(); 
 }
 {
         binderToken = <BINDER_IDENTIFIER>
         
-        ( varToken=<IDENTIFIER> | varToken=<SCHEMA_IDENTIFIER> )
-        ( "as" type = TypeRef() )?
+        bound = BoundVariable() { boundVars.add(bound); }
+        ( "," bound = BoundVariable() { boundVars.add(bound); } )*
+
         ( ";" t=Term() { subterms.add(t); } )+
-   { return new ASTBinderTerm(binderToken, type, varToken, subterms); }
+   { return new ASTBinderTerm(binderToken, boundVars, subterms); }
+}
+
+Pair<Token, ASTType> BoundVariable() :
+{
+  Token varToken;
+  ASTType type = null; 
+}
+{
+  ( varToken=<IDENTIFIER> | varToken=<SCHEMA_IDENTIFIER> )
+  ( "as" type = TypeRef() )?
+    { return Pair.make(varToken, type); }
 }
 
 ASTTypevarBinderTerm TypevarBinderTerm():

@@ -47,9 +47,26 @@ public class SchemaType extends Type {
      * @param typeVar
      *            the name of the schema type (without leading %')
      */
-    public SchemaType(@NonNull String typeVar) {
+    private SchemaType(@NonNull String typeVar) {
         this.name = typeVar;
     }
+
+    /**
+     * Gets a schema type instance for a name.
+     * 
+     * If a type with the given arguments already exists in the system, a
+     * reference to the existing object is returned instead of a freshly created
+     * one. If not, a new instance is created.
+     * 
+     * @param typeVar
+     *            the name of the schema type (without leading %')
+     * @return a schema type with the given name. Not necessarily freshly
+     *         created.
+     */
+    public static SchemaType getInst(@NonNull String typeVar) {
+        return (SchemaType) new SchemaType(typeVar).intern();
+    }
+
 
     /**
      * A type variable is rendered to a string by prepending a prime ' to its

@@ -32,12 +32,12 @@ public class TypeVariable extends Type {
     /** 
      * a predefined type variable for convenience 
      */
-    public final static TypeVariable ALPHA = new TypeVariable("a");
+    public final static TypeVariable ALPHA = TypeVariable.getInst("a");
     
     /** 
      * a second predefined type variable for convenience 
      */
-    public final static TypeVariable BETA = new TypeVariable("b");
+    public final static TypeVariable BETA = TypeVariable.getInst("b");
     
     /**
      * The actual name (w/o leading ')
@@ -50,18 +50,34 @@ public class TypeVariable extends Type {
      * @param typeVar
      *            the name of the type variables (without leading ')
      */
-    public TypeVariable(@NonNull String typeVar) {
+    private TypeVariable(@NonNull String typeVar) {
     	this.name = typeVar;
+    }
+
+    /**
+     * Gets a type variable instance for a name.
+     * 
+     * If a type with the given arguments already exists in the system, a
+     * reference to the existing object is returned instead of a freshly created
+     * one. If not, a new instance is created.
+     * 
+     * @param typeVar
+     *            the name of the type variables (without leading ')
+     * @return a type variable with the given name. Not necessarily freshly
+     *         created.
+     */
+    public static TypeVariable getInst(@NonNull String typeVar) {
+        return (TypeVariable) new TypeVariable(typeVar).intern();
     }
 
     /**
      * A type variable is rendered to a string by prepending a prime ' to its
      * name.
      */
-	@Override
-	public String toString() {
-		return "'" + getVariableName();
-	}
+    @Override
+    public String toString() {
+        return "'" + getVariableName();
+    }
 	
     /**
      * Gets the variable name w/o the leading prime '.

@@ -54,29 +54,64 @@ public class TypeApplication extends Type {
      * 
      * @throws TermException
      *             if the arity of the sort does not match the number of
-     *             paraameters.
+     *             parameters.
      */
-    public TypeApplication(@NonNull Sort sort, @DeepNonNull Type[] typeParameters) throws TermException {
-    	
-    	if(sort.getArity() != typeParameters.length)
-    		throw new TermException("Sort " + sort.getName() + " expects " + sort.getArity() +
-    				" parameters, but received " + typeParameters.length);
-    	
+    private TypeApplication(@NonNull Sort sort,
+            @DeepNonNull Type[] typeParameters) throws TermException {
+
+        if (sort.getArity() != typeParameters.length)
+            throw new TermException("Sort " + sort.getName() + " expects "
+                    + sort.getArity() +
+                    " parameters, but received " + typeParameters.length);
+
         this.sort = sort;
-        this.typeParameters = typeParameters;
+        this.typeParameters = typeParameters.clone();
     }
-    
+
     /**
-     * Instantiates a new type application without parameters
+     * Gets an application type.
+     * 
+     * If a type with the given arguments already exists in the system, a
+     * reference to the existing object is returned instead of a freshly created
+     * one. If not, a new instance is created.
+     * 
+     * @param sort
+     *            the sort
+     * @param typeParameters
+     *            the type parameters to use
+     * 
+     * @throws TermException
+     *             if the arity of the sort does not match the number of
+     *             parameters.
+     * 
+     * @return an application type with the given parameters. Not necessarily
+     *         freshly created.
+     */
+    public static TypeApplication getInst(@NonNull Sort sort, 
+            @DeepNonNull Type[] typeParameters) throws TermException {
+        
+        return (TypeApplication) 
+            new TypeApplication(sort, typeParameters).intern();
+        
+    }
+
+    /**
+     * Gets a type application without parameters.
+     * 
+     * If a type with the given arguments already exists in the system, a
+     * reference to the existing object is returned instead of a freshly created
+     * one. If not, a new instance is created.
      * 
      * @param sort
      *            a nullary sort
      * 
      * @throws TermException
      *             if sort is not nullary.
+     * @return an application type for the given sort. Not necessarily freshly
+     *         created.
      */
-    public TypeApplication(@NonNull Sort sort) throws TermException {
-        this(sort, NO_ARGS);
+    public static TypeApplication getInst(@NonNull Sort sort) throws TermException {
+        return getInst(sort, NO_ARGS);
     }
 
     @Override

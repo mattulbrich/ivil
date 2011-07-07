@@ -6,6 +6,7 @@
   <import file="../build.common.xml" />
 
   <property name="ivil.testclass" value="de.uka.iti.pseudo.AllCoreTests"/>
+
   <path id="ivil.classpath.compile">
     <pathelement path="classes"/>
     <pathelement path="../../lib/checkers-quals.jar"/>

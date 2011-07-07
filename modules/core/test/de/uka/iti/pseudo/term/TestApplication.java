@@ -20,7 +20,7 @@ public class TestApplication extends TestCaseWithEnv {
     // no place to put it but here
     public void testSchemaInFunctionDef() throws Exception {
         try {
-            Function f = new Function("fail", new SchemaType("sch"),
+            Function f = new Function("fail", SchemaType.getInst("sch"),
                     new Type[0],
                     false, false, ASTLocatedElement.CREATED);
             System.out.println(f);
@@ -31,7 +31,7 @@ public class TestApplication extends TestCaseWithEnv {
         }
         try {
             Function f = new Function("fail", Environment.getBoolType(),
-                    new Type[] { new SchemaType("sch2") }, false, false,
+                    new Type[] { SchemaType.getInst("sch2") }, false, false,
                     ASTLocatedElement.CREATED);
             System.out.println(f);
             fail("Should fail due to schema types");
@@ -43,8 +43,8 @@ public class TestApplication extends TestCaseWithEnv {
     
     // due to a bug
     public void testCreateApplicationWithTypes() throws Exception {
-        Application arb = Application.create(env.getFunction("arb"), new TypeVariable("a"));
-        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.getInst(env.getFunction("arb"), TypeVariable.getInst("a"));
+        Application two = Application.getInst(env.getNumberLiteral("2"), Environment.getIntType());
         
         try {
             Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
@@ -55,8 +55,8 @@ public class TestApplication extends TestCaseWithEnv {
     }
     
     public void testCreateApplicationWithTypes2() throws Exception {
-        Application arb = Application.create(env.getFunction("arb"), Environment.getBoolType());
-        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.getInst(env.getFunction("arb"), Environment.getBoolType());
+        Application two = Application.getInst(env.getNumberLiteral("2"), Environment.getIntType());
         
         try {
             Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
@@ -68,8 +68,8 @@ public class TestApplication extends TestCaseWithEnv {
     }
     
     public void testCreateApplicationWithTypes3() throws Exception {
-        Application arb = Application.create(env.getFunction("arb"), Environment.getIntType());
-        Application two = Application.create(env.getNumberLiteral("2"), Environment.getIntType());
+        Application arb = Application.getInst(env.getFunction("arb"), Environment.getIntType());
+        Application two = Application.getInst(env.getNumberLiteral("2"), Environment.getIntType());
         
             Application eq = Application.getInst(env.getFunction("$eq"), Environment.getBoolType(), new Term[] { arb, two });
             assertEquals(makeTerm("arb = 2"), eq);

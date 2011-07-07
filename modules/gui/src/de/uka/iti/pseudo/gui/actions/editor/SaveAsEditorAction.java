@@ -11,7 +11,6 @@
 package de.uka.iti.pseudo.gui.actions.editor;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,12 +28,8 @@ import de.uka.iti.pseudo.util.Log;
 @SuppressWarnings("serial") 
 public class SaveAsEditorAction extends BarAction {
 
-
     public SaveAsEditorAction() {
-        super("Save As ...");
         putValue(ACTION_COMMAND_KEY, "saveas");
-        putValue(SHORT_DESCRIPTION, "save the edited file under a new name");
-        putValue(MNEMONIC_KEY, KeyEvent.VK_A);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -74,7 +69,7 @@ public class SaveAsEditorAction extends BarAction {
 
             fileWriter.write(editor.getContent());
             fileWriter.flush();
-            editor.setHasChanges(false);
+            editor.setHasUnsavedChanges(false);
             editor.setFilename(selectedFile);
 
         } catch (Exception ex) {

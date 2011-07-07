@@ -93,7 +93,7 @@ public final class Application extends Term {
      * @throws TermException
      *             if the type check fails.
      */
-    public static Application create(@NonNull Function funct, @NonNull Type type) throws TermException {
+    public static Application getInst(@NonNull Function funct, @NonNull Type type) throws TermException {
         return getInst(funct, type, NO_ARGUMENTS);
     }
     

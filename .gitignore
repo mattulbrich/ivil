@@ -18,6 +18,7 @@ modules/gui/classes/
 modules/gui/classes-test/
 modules/exp/classes/
 modules/exp/classes-test/
+modules/exp/genSrc/
 javadoc/
 
 # directories which might exist:

@@ -9,36 +9,35 @@
     <pathelement path="../core/classes"/>
     <pathelement path="../gui/classes"/>
     <pathelement path="../cmd/classes"/>
+<!--    <pathelement path="classes"/>-->
   </path>
-
   <path id="ivil.sourcepath.compile">
     <pathelement path="src"/>
-<!--    <pathelement path="genSrc"/> -->
+    <pathelement path="genSrc"/>
   </path>
 
+  <target name="build" depends="javacc, compile, nonnull" />
 
-  <target name="build" depends="compile, nonnull" />
-
-<!--
   <target name="initJavaCC">
     <mkdir dir="genSrc"/>
     <uptodate property="javacc.notRequired"
-              targetFile="genSrc/de/uka/iti/pseudo/parser/PPParser.java">
-        <srcfiles dir="src/de/uka/iti/pseudo/parser" includes="*.jj"/>
+              targetFile="genSrc/de/uka/iti/pseudo/algo/AlgoParser.java">
+        <srcfiles dir="src/de/uka/iti/pseudo/algo/" includes="*.jjt"/>
     </uptodate>
   </target>
 
-
   <target name="javacc" depends="initJavaCC" unless="javacc.notRequired">
-    <exec executable="javacc">
-      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/parser"/>
-      <arg value="src/de/uka/iti/pseudo/parser/PPParser.jj"/>
+    <exec executable="jjtree" failonerror="true">
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/algo" />
+      <arg value="src/de/uka/iti/pseudo/algo/AlgoParser.jjt"/>
     </exec>
-    <delete file="genSrc/de/uka/iti/pseudo/parser/ParseException.java" />
-    <delete file="genSrc/de/uka/iti/pseudo/parser/SimpleCharStream.java" />
-    <delete file="genSrc/de/uka/iti/pseudo/parser/TokenMgrError.java" />
-    <delete file="genSrc/de/uka/iti/pseudo/parser/Token.java" />
+    <exec executable="javacc" failonerror="true">
+      <arg value="-OUTPUT_DIRECTORY=genSrc/de/uka/iti/pseudo/algo"/>
+      <arg value="genSrc/de/uka/iti/pseudo/algo/AlgoParser.jj"/>
+    </exec>
   </target>
--->
 
+  <!-- for the dependencies of compile -->
+  <target name="compile-init" depends="javacc"/>
+  
 </project>

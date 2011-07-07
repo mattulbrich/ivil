@@ -17,6 +17,9 @@
 
 include "$fol.p"
 
+plugin
+  prettyPrinter : "test.ArrayPrettyPrinter"
+
 sort
   map('a, 'b)
 
@@ -27,3 +30,6 @@ function
 rule readwrite
   find read(write(%m, %a1, %b), %a2)
   replace cond(%a1 = %a2, %b, read(%m, %a2))
+  tags
+    rewrite "fol simp"
+    verbosity "8"

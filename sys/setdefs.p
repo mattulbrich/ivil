@@ -31,9 +31,8 @@ function
   set('a)   emptyset
   set('a)   singleton('a)
 
-
-function
-  bool      is
+binder
+  set('a)   (\set 'a; bool)
 
 axiom emptyset_definition
   (\T_all 'a; (\forall x as 'a; !x::emptyset))
@@ -61,4 +60,8 @@ axiom union_definition
 axiom subset_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
     a <: b <-> (\forall x; x::a -> x::b))))
+
+axiom set_equality_definition
+  (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
+    a = b <-> (\forall x; x::a <-> x::b))))
     
