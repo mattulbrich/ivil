@@ -11,15 +11,18 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
+import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
+import de.uka.iti.pseudo.parser.boogie.ast.Trigger;
 import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.AndExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.BinaryIntegerExpression;
@@ -55,6 +58,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.type.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
+import de.uka.iti.pseudo.parser.boogie.ast.type.UserDefinedTypeDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.type.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -972,4 +976,46 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         defaultAction(node);
     }
+
+    @Override
+    public void visit(Trigger node) throws ASTVisitException {
+        // TODO add typing for triggers
+        // note: the following code is valid:
+        // axiom (forall<a> x:Box :: {unbox(x):a} box(unbox(x):a) == x);
+        // therefore it would be necessary to attach the trigger to one of the
+        // generated quantifiers; currently there is no working trigger support
+    }
+    
+    
+    // //////// ALL NODES LISTED BELOW WILL NOT HAVE ANY TYPE //////// //
+
+    /**
+     * @param node
+     *            visit children of node, mark node as processed and set type to
+     *            null
+     * @throws ASTVisitException
+     *             propagated from below
+     */
+    private void visitChildren(ASTElement node) throws ASTVisitException {
+        schemaTypes.add(node, context.newSchemaType());
+        state.typeMap.add(node, null);
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+    }
+
+    @Override
+    public void visit(CompilationUnit node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(UserDefinedTypeDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(AxiomDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
 }
