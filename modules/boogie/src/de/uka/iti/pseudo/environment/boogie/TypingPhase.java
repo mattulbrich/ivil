@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,30 @@ import de.uka.iti.pseudo.term.Type;
  */
 public final class TypingPhase {
 
+    static class TypeInstantiationVisitor extends DefaultASTVisitor {
+
+        public TypeInstantiationVisitor(final EnvironmentCreationState state) {
+            this.state = state;
+        }
+
+        final private EnvironmentCreationState state;
+
+        public List<String> errors = new LinkedList<String>();
+
+        @Override
+        protected void defaultAction(ASTElement node) throws ASTVisitException {
+            if (state.schemaTypes.has(node) && !state.typeMap.has(node)) {
+                final Type t = state.context.instantiate(state.schemaTypes.get(node));
+                if (t instanceof SchemaType)
+                    errors.add(node.toString() + ": the type of this node could not be inferred");
+                state.typeMap.add(node, t);
+            }
+
+            for (ASTElement e : node.getChildren())
+                e.visit(this);
+        }
+    }
+
     final Map<String, Sort> sortMap = new HashMap<String, Sort>();
     final Map<ProcedureDeclaration, List<VariableDeclaration>> modifiable = new HashMap<ProcedureDeclaration, List<VariableDeclaration>>();
 
@@ -41,21 +66,14 @@ public final class TypingPhase {
             try {
 
                 // give each ASTElement the inferred type
-                (new DefaultASTVisitor() {
-                    @Override
-                    protected void defaultAction(ASTElement node) throws ASTVisitException {
-                        if (state.schemaTypes.has(node) && !state.typeMap.has(node)) {
-                            final Type t = state.context.instantiate(state.schemaTypes.get(node));
-                            if (t instanceof SchemaType)
-                                throw new ASTVisitException(node.getLocation() + "::" + node.toString()
-                                        + ": the type of this node could not be inferred");
-                            state.typeMap.add(node, t);
-                        }
-
-                        for (ASTElement e : node.getChildren())
-                            e.visit(this);
-                    }
-                }).visit(state.root);
+                TypeInstantiationVisitor v = new TypeInstantiationVisitor(state);
+                v.visit(state.root);
+                if (v.errors.size() != 0) {
+                    StringBuilder sb = new StringBuilder("Type errors occured:\n");
+                    for (String s : v.errors)
+                        sb.append(s).append("\n");
+                    throw new TypeSystemException(sb.toString());
+                }
             } catch (ASTVisitException e) {
 
                 // this exception is expected

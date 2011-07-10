@@ -7,6 +7,11 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 
+/**
+ * @author timm.felden@felden.com
+ * 
+ *         Op: int x int -> int
+ */
 public final class BinaryIntegerExpression extends Expression {
 
     private final List<Expression> operands;

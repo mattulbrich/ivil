@@ -17,8 +17,13 @@ import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
+import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
+import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
+import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
+import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
@@ -527,10 +532,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(VariableDeclaration node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
+        node.getType().visit(this);
         setTypeSameAs(node, node.getType());
+
+        node.getWhereClause().visit(this);
     }
 
     @Override
@@ -831,11 +836,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     @Override
     public void visit(BinaryIntegerExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getIntType());
+        unify(node.getOperands().get(0), Environment.getIntType());
+        unify(node.getOperands().get(1), Environment.getIntType());
     }
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
         defaultAction(node, Environment.getBoolType());
+        unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
     }
 
     @Override
@@ -1015,6 +1023,31 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(AxiomDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(ConstantDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(GlobalVariableDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(Postcondition node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(Precondition node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(ModifiesClause node) throws ASTVisitException {
         visitChildren(node);
     }
 
