@@ -126,15 +126,16 @@ ASTSortDeclaration SortDeclaration():
 ASTMapType MapTypeRef():
 {
   Token location;
-  List<ASTType> boundvars = new ArrayList<ASTType>();
+  List<ASTTypeVar> boundvars = new ArrayList<ASTTypeVar>();
   List<ASTType> domain = new ArrayList<ASTType>();
   ASTType range, tmp;
+  ASTTypeVar schema;
 }
 {
   (
-    "{" tmp=BindableTypeRef() { boundvars.add(tmp); }
+    "{" schema=TypeVariable() { boundvars.add(schema); }
     (
-      "," tmp=BindableTypeRef() { boundvars.add(tmp); }
+      "," schema=TypeVariable() { boundvars.add(schema); }
     )*
     "}"
   )?
@@ -162,6 +163,16 @@ ASTMapType MapTypeRef():
     return new ASTMapType(location, boundvars, domain, range);
   }
 }
+
+ASTTypeVar TypeVariable():
+{
+  Token token;
+}
+{
+    token = <TYVAR_IDENTIFIER>
+      { return new ASTTypeVar(token); }
+}
+  
 
 ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 {

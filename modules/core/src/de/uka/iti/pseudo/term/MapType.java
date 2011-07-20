@@ -24,6 +24,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
+import de.uka.iti.pseudo.environment.TypeVariableCollector;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
@@ -53,13 +54,37 @@ public class MapType extends Type {
 
     /**
      * Create a new map type.
+     * 
+     * @throws ASTVisitException
+     *             if type variables appear in domain or range.
      */
     public MapType(@NonNull List<TypeVariable> boundVars, @NonNull List<Type> domain, @NonNull Type range,
-            final ASTLocatedElement declaringLocation) {
+            final ASTLocatedElement declaringLocation) throws ASTVisitException {
         this.boundVars = boundVars;
         this.domain = domain;
         this.range = range;
         this.declaringLocation = declaringLocation;
+        
+        checkTypes();
+    }
+
+    /*
+     * check that the type references do not contain schema entities
+     */
+    private void checkTypes() throws ASTVisitException {
+
+        if(!TypeVariableCollector.collectSchema(domain).isEmpty()) {
+            throw new ASTVisitException(
+                    "Map type alias contains schema type in domain",
+                    declaringLocation);
+        }
+        
+        if(!TypeVariableCollector.collectSchema(range).isEmpty()) {
+            throw new ASTVisitException(
+                    "Map type alias contains schema type in range",
+                    declaringLocation);
+        }
+                
     }
 
     /**
@@ -666,11 +691,7 @@ public class MapType extends Type {
      * collects the free type variables in a MapType free type
      */
     private static final void collectFreeVars(Type type, Set<Type> freeVars) {
-        if (type instanceof TypeVariable)
-            freeVars.add(type);
-        else if (type instanceof TypeApplication)
-            for (Type t : ((TypeApplication) type).getArguments())
-                collectFreeVars(t, freeVars);
+        freeVars.addAll(TypeVariableCollector.collect(type));
     }
 
 }

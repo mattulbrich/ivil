@@ -19,10 +19,11 @@ import de.uka.iti.pseudo.parser.Token;
 public class ASTMapType extends ASTType {
     
     private final Token location;
-    private final List<ASTType> boundVars, domain;
+    private final List<ASTTypeVar> boundVars;
+    private final List<ASTType> domain;
     private final ASTType range;
 
-    public ASTMapType(Token location, List<ASTType> boundVars, List<ASTType> domain, ASTType range) {
+    public ASTMapType(Token location, List<ASTTypeVar> boundVars, List<ASTType> domain, ASTType range) {
         this.location = location;
         this.boundVars = boundVars;
         this.domain = domain;
@@ -33,7 +34,7 @@ public class ASTMapType extends ASTType {
         addChild(range);
     }
 
-	@Override
+    @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
@@ -42,7 +43,7 @@ public class ASTMapType extends ASTType {
         return location;
 	}
 
-    public List<ASTType> getBoundVars() {
+    public List<ASTTypeVar> getBoundVars() {
         return boundVars;
     }
 
