@@ -114,6 +114,55 @@ ASTSortDeclaration SortDeclaration():
         { return new ASTSortDeclaration(name, tyvars, alias); }
 }
 
+/**
+ * @note: map type ref can only occur in sort declarations
+ *
+ * may types look a lot like boogie maps, but the polymorphic bound use
+ * {} instead of < > to avoid the collision with the set of operators.
+ * This works, because {} is used in updates(term) and parallel assignments(statement) and thus can not
+ * be confused with types. [] is used by modal operators(term) and therefore can also not be confused with types.
+ * Also does the addition of this rule not create any new warnings.
+ */
+ASTMapType MapTypeRef():
+{
+  Token location;
+  List<ASTType> boundvars = new ArrayList<ASTType>();
+  List<ASTType> domain = new ArrayList<ASTType>();
+  ASTType range, tmp;
+}
+{
+  (
+    "{" tmp=BindableTypeRef() { boundvars.add(tmp); }
+    (
+      "," tmp=BindableTypeRef() { boundvars.add(tmp); }
+    )*
+    "}"
+  )?
+  location="["
+  (
+    (
+      tmp=TypeRef() { domain.add(tmp); }
+    | tmp=MapTypeRef() { domain.add(tmp); }
+    )
+    (
+      ","
+      (
+        tmp=TypeRef() { domain.add(tmp); }
+      | tmp=MapTypeRef() { domain.add(tmp); }
+      )
+    )*
+  )?
+  "]"
+  (
+    range=TypeRef()
+  | range=MapTypeRef()
+  )
+  
+  {
+    return new ASTMapType(location, boundvars, domain, range);
+  }
+}
+
 ASTFunctionDeclarationBlock FunctionDeclarationBlock():
 {
   Token first;

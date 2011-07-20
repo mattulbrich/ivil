@@ -80,7 +80,7 @@ List<ASTAssignment> ParallelAssignment():
                 { assignments.add(assignment); } )*
           	
           { return assignments; }
-}         
+}
 
 ASTTerm AsTerm():
 { 
@@ -88,13 +88,41 @@ ASTTerm AsTerm():
   ASTType type; 
 }
 {
-        term=BaseTerm()
+        term=MapAccessTerm()
         (
           "as"
           type=TypeRef()
             { term = new ASTAsType(term, type); }
         )?  
          { return term; }
+}
+
+ASTTerm MapAccessTerm():
+{
+  List<ASTTerm> args = new ArrayList<ASTTerm>();
+  ASTTerm result, t;
+  Token symbol;
+  ASTTerm assignment = null;  
+}
+{
+    result=BaseTerm()
+    (
+        symbol="["
+        (
+          t=Term() { args.add(t); }
+          ( "," t = Term(){ args.add(t); } )*
+        )?
+        (
+          ":=" assignment=Term()
+        )? 
+        "]"
+        {
+           result = new ASTMapOperationTerm(symbol, result, args, assignment);
+        }
+    )*
+    {
+      return result;
+    }
 }
 
 ASTTerm BaseTerm():
@@ -236,60 +264,13 @@ ASTType BindableTypeRef():
                 { return new ASTSchemaType(token); }
 }
 
-/**
- @note: map type ref can only occur in sort declarations
-
- may types look a lot like boogie maps, but the polymorphic bound use {} instead of < > to avoid the collision with the set of operators.
- This works, because {} is used in updates(term) and parallel assignments(statement) and thus can not
- be confused with types. [] is used by modal operators(term) and therefor can also not be confused with types.
- Also does the addition of this rule not create any new warnings.
-*/
-ASTMapType MapTypeRef():
-{
-  Token location;
-  List<ASTType> boundvars = new ArrayList<ASTType>();
-  List<ASTType> domain = new ArrayList<ASTType>();
-  ASTType range, tmp;
-}
-{
-  (
-    "{" tmp=BindableTypeRef() { boundvars.add(tmp); }
-    (
-      "," tmp=BindableTypeRef() { boundvars.add(tmp); }
-    )*
-    "}"
-  )?
-  location="["
-  (
-    (
-      tmp=TypeRef() { domain.add(tmp); }
-    | tmp=MapTypeRef() { domain.add(tmp); }
-    )
-    (
-      ","
-      (        tmp=TypeRef() { domain.add(tmp); }
-      | tmp=MapTypeRef() { domain.add(tmp); }
-      )
-    )*
-  )?
-  "]"
-  (
-    range=TypeRef()
-  | range=MapTypeRef()
-  )
-  
-  {
-    return new ASTMapType(location, boundvars, domain, range);
-  }
-}
-
         
 ASTTerm ApplicationTerm():
 {
-  Token symbol;
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
-  ASTTerm result, assignment=null;
+  ASTTerm result;
+  Token symbol;
 }
 {
         (symbol=<IDENTIFIER> | symbol=<META_IDENTIFIER> | symbol=<INTERNAL_IDENTIFIER>)
@@ -305,27 +286,8 @@ ASTTerm ApplicationTerm():
         result = new ASTApplicationTerm(symbol, subterms); 
       else
         result = new ASTIdentifierTerm(symbol);
-    }
-
-    // allow for an arbitrary number of map access operations
-    (
-      {
-        List<ASTTerm> args = new ArrayList<ASTTerm>();      }
-		symbol="["
-		  (
-		    t = Term(){ args.add(t); }
-		    ("," t = Term(){ args.add(t); })*
-		  )?
-		  (
-		     ":=" assignment=Term()
-		  )? 
-		  "]"
-		  {
-		    result = new ASTMapOperationTerm(symbol, result, args, assignment);
-		  }
-    )*
-
-    {      return result;
+      
+      return result;
     }
 }
 
