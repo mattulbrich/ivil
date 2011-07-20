@@ -205,7 +205,8 @@ public class TestTermUnification extends TestCaseWithEnv {
     public void testSchemaFind() throws Exception {
         assertTrue(TermMatcher.containsSchemaVariables(mt("{ %c := 0 }true")));
         assertTrue(TermMatcher.containsSchemaVariables(mt("(\\forall %c; true)")));
-        assertTrue(TermMatcher.containsSchemaVariables(mt("[%a]")));
+        assertTrue(TermMatcher.containsSchemaVariables(mt("[%a]true")));
+        assertTrue(TermMatcher.containsSchemaVariables(mt("[3;P]%phi")));
         // from another one:
         assertTrue(TermMatcher.containsSchemaVariables(makeTerm("(\\forall i; %a > i)")));
     }

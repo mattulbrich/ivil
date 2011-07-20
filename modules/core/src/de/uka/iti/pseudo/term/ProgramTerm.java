@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 
@@ -31,18 +32,6 @@ public abstract class ProgramTerm extends Term {
      */
     private boolean terminating;
 
-//    /**
-//     * Instantiates a new program term with a 
-//     * given termination status and no subterms.
-//     * 
-//     * @param terminating
-//     *            termination status
-//     */
-//    protected ProgramTerm(boolean terminating) {
-//        super(Environment.getBoolType());
-//        this.terminating = terminating;
-//    }
-
     /**
      * Instantiates a new program term with a given termination status and an
      * array of subterms.
@@ -55,7 +44,7 @@ public abstract class ProgramTerm extends Term {
      *             if the program terms does not have a boolean suffixed boolean
      *             term.
      */
-    public ProgramTerm(Term[] subterms, boolean terminating) throws TermException {
+    public ProgramTerm(@DeepNonNull Term[] subterms, boolean terminating) throws TermException {
         super(subterms, Environment.getBoolType());
         this.terminating = terminating;
         
@@ -120,4 +109,22 @@ public abstract class ProgramTerm extends Term {
      * @return the content string
      */
     protected abstract String getContentString(boolean typed);
+
+    /**
+     * This equality check is used in the {@link Object#equals(Object)}
+     * implementation of the concrete subclasses of this abstract class.
+     * 
+     * It returns true if the two program terms coincide on their termination
+     * state and the suffix formula.
+     * 
+     * @param oherProgramTerm
+     *            program term to compare with
+     *            
+     * @return true if the program terms are equal on the properties of
+     *         ProgramTerm.
+     */
+    protected boolean equalsPartially(@NonNull ProgramTerm otherProgramTerm) {
+        return terminating == otherProgramTerm.terminating &&
+            getSuffixTerm().equals(otherProgramTerm.getSuffixTerm());
+    }
 }

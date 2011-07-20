@@ -169,7 +169,8 @@ public final class LiteralProgramTerm extends ProgramTerm {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
             return programIndex == prog.programIndex && program == prog.program
-                    && isTerminating() == prog.isTerminating();
+                    && isTerminating() == prog.isTerminating()
+                    && super.equalsPartially(prog);
         }
         return false;
     }

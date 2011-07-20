@@ -16,9 +16,18 @@ public class TestProgramTerm extends TestCaseWithEnv {
     
     // due to a bug
     public void testProgramEqualities() throws Exception {
-        assertEquals(makeTerm("[0;P]"), makeTerm("[0;P]"));
-        assertFalse(makeTerm("[0;P]").equals(makeTerm("[[0;P]]")));
-        assertFalse(makeTerm("[0;Q]").equals(makeTerm("[0;P]")));
+        assertEquals(makeTerm("[0;P]true"), makeTerm("[0;P]true"));
+        assertFalse(makeTerm("[0;P]true").equals(makeTerm("[0;P]false")));
+        assertFalse(makeTerm("[0;P]true").equals(makeTerm("[[0;P]]true")));
+        assertFalse(makeTerm("[0;Q]true").equals(makeTerm("[0;P]true")));
+        assertFalse(makeTerm("[1;Q]true").equals(makeTerm("[0;Q]true")));
     }
     
+    public void testSchemaProgramEqualities() throws Exception {
+        assertEquals(makeTerm("[%a]true"), makeTerm("[%a]true"));
+        assertFalse(makeTerm("[%a]false").equals(makeTerm("[%a]true")));
+        assertFalse(makeTerm("[[%a]]true").equals(makeTerm("[%a]true")));
+        assertFalse(makeTerm("[%a: skip]true").equals(makeTerm("[%a]true")));
+        assertFalse(makeTerm("[%a]%phi").equals(makeTerm("[%a]true")));
+    }
 }

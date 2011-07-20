@@ -93,7 +93,9 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * <ol>
      * <li><code>object</code> is a {@link SchemaProgramTerm} as well.
      * <li>they both have the same schema variable
+     * <li>they both have the same termination state
      * <li>their matching statements are equal or both null
+     * <li>the suffix terms are equal.
      * </ol>
      */
     public boolean equals(@Nullable Object object) {
@@ -101,7 +103,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
             SchemaProgramTerm sch = (SchemaProgramTerm) object;
             return getSchemaVariable().equals(sch.getSchemaVariable())
                     && Util.equalOrNull(matchingStatement,
-                            sch.matchingStatement);
+                            sch.matchingStatement)
+                    && super.equalsPartially(sch);
         }
         return false;
     }
