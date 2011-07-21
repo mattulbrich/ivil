@@ -55,15 +55,36 @@ ASTAssignment Assignment():
 {
         ASTTerm target;
         ASTTerm term;
-        Token t;
+        List<ASTTerm> arguments = null;
+        Token t = null, symbol = null;
 }
 {
-        ( target=SchemaVariable()
-        | ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
+        (
+          target=SchemaVariable()
+        | 
+          ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
                 { target = new ASTIdentifierTerm(t); }
+          (
+             symbol="[" 
+                { arguments = new ArrayList<ASTTerm>(); }
+             term=Term()
+                { arguments.add(term); }
+             ( "," term=Term()
+                { arguments.add(term); }
+             )*
+             "]"
+          )?
         )
         ":=" term=Term()
-        { return new ASTAssignment(target, term); }
+        { 
+            if(arguments != null) {
+               // we cannot use the same ast node twice (it's tree after all), 
+               // so simply create an identical one.
+               ASTTerm targetCopy = new ASTIdentifierTerm(t);
+               term = new ASTMapOperationTerm(symbol, targetCopy, arguments, term);
+            }
+            return new ASTAssignment(target, term); 
+        }
 }
 
 List<ASTAssignment> ParallelAssignment():	 
@@ -118,6 +139,9 @@ ASTTerm MapAccessTerm():
         "]"
         {
            result = new ASTMapOperationTerm(symbol, result, args, assignment);
+           // bugfix:
+           args.clear();
+           assignment = null;
         }
     )*
     {

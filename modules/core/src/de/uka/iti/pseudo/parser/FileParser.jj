@@ -94,24 +94,23 @@ ASTSortDeclarationBlock SortDeclarationBlock():
 
 ASTSortDeclaration SortDeclaration():
 {
-  Token name, ty;
+  Token name,  ty;
   List<Token> tyvars = new ArrayList<Token>();
   ASTMapType alias = null; 
 }
 {
   name=<IDENTIFIER>
+  
   (
-    (
-      "(" ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); }
-        ( "," ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); } )*
-      ")"
-    )
-  |
-    (      "as"
-      alias=MapTypeRef()
-    )
+    "(" ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); }
+       ( "," ty=<TYVAR_IDENTIFIER> { tyvars.add(ty); } )*
+    ")"
   )?
-        { return new ASTSortDeclaration(name, tyvars, alias); }
+  
+  (    "as" alias=MapTypeRef()
+  )?
+
+    { return new ASTSortDeclaration(name, tyvars, alias); }
 }
 
 /**
@@ -143,13 +142,13 @@ ASTMapType MapTypeRef():
   (
     (
       tmp=TypeRef() { domain.add(tmp); }
-    | tmp=MapTypeRef() { domain.add(tmp); }
+ /* | tmp=MapTypeRef() { domain.add(tmp); } */
     )
     (
       ","
       (
         tmp=TypeRef() { domain.add(tmp); }
-      | tmp=MapTypeRef() { domain.add(tmp); }
+   /* | tmp=MapTypeRef() { domain.add(tmp); } */
       )
     )*
   )?

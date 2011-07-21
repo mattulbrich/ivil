@@ -214,6 +214,7 @@ public class EnvironmentMaker {
         doPlugins(astFile);
 
         astFile.visit(new EnvironmentDefinitionVisitor(env));
+        astFile.visit(new MapTypeDefinitionVisitor(env));
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
