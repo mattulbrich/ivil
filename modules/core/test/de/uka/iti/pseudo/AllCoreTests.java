@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.rule.meta.TestTermReplacer;
 import de.uka.iti.pseudo.rule.meta.TestUpdSimplification;
 import de.uka.iti.pseudo.rule.where.TestWhereConditions;
 import de.uka.iti.pseudo.term.TestApplication;
+import de.uka.iti.pseudo.term.TestMapTypes;
 import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
 import de.uka.iti.pseudo.term.TestTermComparator;
@@ -105,6 +106,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestToplevelCheckVisitor.class);
         suite.addTestSuite(TestXMLOutput.class);
         suite.addTestSuite(TestConcurrentSoftHashCache.class);
+        suite.addTestSuite(TestMapTypes.class);
         //$JUnit-END$
         return suite;
     }

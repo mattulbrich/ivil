@@ -42,5 +42,4 @@ public class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
     public Type visit(SchemaType schemaType, A parameter) throws TermException {
         return schemaType;
     }
-
 }

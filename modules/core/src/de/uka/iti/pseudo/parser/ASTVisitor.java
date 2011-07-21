@@ -23,5 +23,4 @@ import de.uka.iti.pseudo.parser.term.ASTTermVisitor;
 // TODO consider making ASTVisitor generic
 // public interface ASTVisitor<R> or ASTVisitor<R,P>
 public interface ASTVisitor extends ASTTermVisitor, ASTFileVisitor, ASTProgramVisitor {
-
 }

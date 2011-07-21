@@ -55,15 +55,36 @@ ASTAssignment Assignment():
 {
         ASTTerm target;
         ASTTerm term;
-        Token t;
+        List<ASTTerm> arguments = null;
+        Token t = null, symbol = null;
 }
 {
-        ( target=SchemaVariable()
-        | ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
+        (
+          target=SchemaVariable()
+        | 
+          ( t=<IDENTIFIER> | t=<INTERNAL_IDENTIFIER> )
                 { target = new ASTIdentifierTerm(t); }
+          (
+             symbol="[" 
+                { arguments = new ArrayList<ASTTerm>(); }
+             term=Term()
+                { arguments.add(term); }
+             ( "," term=Term()
+                { arguments.add(term); }
+             )*
+             "]"
+          )?
         )
         ":=" term=Term()
-        { return new ASTAssignment(target, term); }
+        { 
+            if(arguments != null) {
+               // we cannot use the same ast node twice (it's tree after all), 
+               // so simply create an identical one.
+               ASTTerm targetCopy = new ASTIdentifierTerm(t);
+               term = new ASTMapOperationTerm(symbol, targetCopy, arguments, term);
+            }
+            return new ASTAssignment(target, term); 
+        }
 }
 
 List<ASTAssignment> ParallelAssignment():	 
@@ -80,7 +101,7 @@ List<ASTAssignment> ParallelAssignment():
                 { assignments.add(assignment); } )*
           	
           { return assignments; }
-}         
+}
 
 ASTTerm AsTerm():
 { 
@@ -88,13 +109,44 @@ ASTTerm AsTerm():
   ASTType type; 
 }
 {
-        term=BaseTerm()
+        term=MapAccessTerm()
         (
           "as"
           type=TypeRef()
             { term = new ASTAsType(term, type); }
         )?  
          { return term; }
+}
+
+ASTTerm MapAccessTerm():
+{
+  List<ASTTerm> args = new ArrayList<ASTTerm>();
+  ASTTerm result, t;
+  Token symbol;
+  ASTTerm assignment = null;  
+}
+{
+    result=BaseTerm()
+    (
+        symbol="["
+        (
+          t=Term() { args.add(t); }
+          ( "," t = Term(){ args.add(t); } )*
+        )?
+        (
+          ":=" assignment=Term()
+        )? 
+        "]"
+        {
+           result = new ASTMapOperationTerm(symbol, result, args, assignment);
+           // bugfix:
+           args.clear();
+           assignment = null;
+        }
+    )*
+    {
+      return result;
+    }
 }
 
 ASTTerm BaseTerm():
@@ -234,14 +286,14 @@ ASTType BindableTypeRef():
         |
                 ( token = <SCHEMA_TYPE_IDENTIFIER> )
                 { return new ASTSchemaType(token); }
-} 
+}
 
-        
 ASTTerm ApplicationTerm():
 {
-  Token symbol;
   ASTTerm t;
   List<ASTTerm> subterms = new ArrayList<ASTTerm>();
+  ASTTerm result;
+  Token symbol;
 }
 {
         (symbol=<IDENTIFIER> | symbol=<META_IDENTIFIER> | symbol=<INTERNAL_IDENTIFIER>)
@@ -254,9 +306,11 @@ ASTTerm ApplicationTerm():
         )?
         
     { if(subterms.size() > 0) 
-        return new ASTApplicationTerm(symbol, subterms); 
+        result = new ASTApplicationTerm(symbol, subterms); 
       else
-        return new ASTIdentifierTerm(symbol);
+        result = new ASTIdentifierTerm(symbol);
+      
+      return result;
     }
 }
 
