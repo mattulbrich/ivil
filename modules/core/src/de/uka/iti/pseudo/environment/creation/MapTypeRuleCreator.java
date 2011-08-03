@@ -34,7 +34,7 @@ import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.rule.where.DifferentTypesInEq;
+import de.uka.iti.pseudo.rule.where.DifferentGroundTypes;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -510,7 +510,7 @@ public class MapTypeRuleCreator {
             // creates #domain rules of the form:
     
             // find: $load($store(%m, %D, %v), %T)
-            // ∃i. where: differentTypesInEq %di %ti
+            // ∃i. where: differentGroundTypes %di %ti
             // replace: $load(%m, %T)
     
             // and an additional rule for different types in range with the
@@ -562,7 +562,7 @@ public class MapTypeRuleCreator {
                 LinkedList<WhereClause> where = new LinkedList<WhereClause>();
     
                 // ensure %di and %ti have different types
-                where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
+                where.add(new WhereClause(DifferentGroundTypes.getWhereCondition(env, "differentGroundTypes"), false,
                         new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }));
     
                 env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
@@ -574,7 +574,7 @@ public class MapTypeRuleCreator {
     
             LinkedList<WhereClause> where = new LinkedList<WhereClause>();
     
-            where.add(new WhereClause(DifferentTypesInEq.getWhereCondition(env, "differentTypesInEq"), false,
+            where.add(new WhereClause(DifferentGroundTypes.getWhereCondition(env, "differentGroundTypes"), false,
                     new Term[] { find.getSubterm(0).getSubterm(domain.size() + 1), find }));
     
             Rule rule = new Rule(ruleName, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
@@ -586,7 +586,7 @@ public class MapTypeRuleCreator {
          // /////////////// LOAD STORE COND, aka McCarthy axiom
             String ruleName = name + "_load_store_cond";
             // find: $load($store(%m, %D, %v), %T)
-            // replace: cond(%D = %T, %v, $load(%m, %T))
+            // replace: cond($weq(%D, %T), %v, $load(%m, %T))
     
             Map<String, String> tags = new HashMap<String, String>();
     
@@ -607,14 +607,14 @@ public class MapTypeRuleCreator {
                 sbFind.append(", ").append("%t").append(i);
             sbFind.append(")");
     
-            // cond(%D = %T, %v, $load(%m, %T))
+            // cond($weq(%D, %T), %v, $load(%m, %T))
             StringBuilder sbReplace = new StringBuilder("cond(");
             if (0 == domain.size())
                 sbReplace.append("true");
             for (int i = 0; i < domain.size(); i++) {
                 if (i > 0)
                     sbReplace.append("&");
-                sbReplace.append("%d").append(i).append("=").append("%t").append(i);
+                sbReplace.append("$weq(%d").append(i).append(", ").append("%t)").append(i);
             }
             sbReplace.append(", %v, ").append($load.getName()).append("(%m");
             for (int i = 0; i < domain.size(); i++)
