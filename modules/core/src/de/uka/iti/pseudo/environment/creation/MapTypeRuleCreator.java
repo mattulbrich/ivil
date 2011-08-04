@@ -614,7 +614,7 @@ public class MapTypeRuleCreator {
             for (int i = 0; i < domain.size(); i++) {
                 if (i > 0)
                     sbReplace.append("&");
-                sbReplace.append("$weq(%d").append(i).append(", ").append("%t)").append(i);
+                sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
             }
             sbReplace.append(", %v, ").append($load.getName()).append("(%m");
             for (int i = 0; i < domain.size(); i++)
