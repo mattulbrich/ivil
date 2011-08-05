@@ -452,9 +452,28 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        defaultAction(node);
-        // TODO
-        // // functions can have polymorphic types, so push typeargs
+        // type of procedures is [IN][OUT]bool
+        // therefore procedure declarations behave a lot like map type declarations
+         // functions can have polymorphic types, so push typeargs
+
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+                
+        // blablabla, eventuell will man hier einfach selbst schnell einen
+        // solchen map typ erzeugen, den entsprechend typen und dann nehmen,
+        // vielleicht auch nicht
+        // @note: der map code müsste das problem eigentlich voll automatisch
+        // lösen!
+                
+        
         // List<Type> param = addParameters(node.getTypeParameters(), node),
         // empty = new LinkedList<Type>();
         //
@@ -481,10 +500,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         // }
         //
         // }
-        //
-        // // this is bit of a hack to represent types of procedures, but it
-        // workes
-        // !state.typeMap!.add(node,
+        
+        // this is bit of a hack to represent types of procedures, but it works
+
+        // state.typeMap.add(node,
         // ASTType.newMap(param, domain, ASTType.newMap(empty, range,
         // Environment.getBoolType(),
         // true), true));
