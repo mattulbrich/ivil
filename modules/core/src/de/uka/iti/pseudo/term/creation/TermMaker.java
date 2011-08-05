@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.environment.creation.MapTypeRuleCreator;
 import de.uka.iti.pseudo.parser.ASTDefaultVisitor;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -68,7 +69,6 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
-import de.uka.iti.pseudo.term.MapType;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -738,28 +738,6 @@ public class TermMaker extends ASTDefaultVisitor {
         }
     }
     
-    public void visit(ASTMapType map) throws ASTVisitException {
-        
-        List<TypeVariable> bound = new ArrayList<TypeVariable>(map.getBoundVars().size());
-        for(ASTType t : map.getBoundVars()){
-            t.visit(this);
-            if(resultType instanceof TypeVariable)
-                bound.add((TypeVariable) resultType);
-            else
-                throw new ASTVisitException("the map bound something, that is not a type variable, what is not legal for a map");
-        }
-        
-        List<Type> domain = new ArrayList<Type>(map.getDomain().size());
-        for(ASTType t : map.getDomain()){
-            t.visit(this);
-            domain.add(resultType);
-        }
-        
-        map.getRange().visit(this);
-
-        resultType = new MapType(bound, domain, resultType, map);
-    }
-
     // drop the '
     public void visit(ASTTypeVar typeVar) throws ASTVisitException {
         resultType = TypeVariable.getInst(typeVar.getTypeVarToken().image.substring(1));

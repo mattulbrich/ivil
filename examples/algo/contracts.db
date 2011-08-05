@@ -1,0 +1,30 @@
+
+declaration :
+
+includes : "
+#  include ""listADT.p"" 
+  include ""$decproc.p""
+  
+  function heap pre_h assignable
+  
+  properties
+    BreakpointStrategy.stopAtJumpBack ""false""
+    BreakpointStrategy.stopAtLoop ""false""
+    CompoundStrategy.strategies ""SimplificationStrategy,BreakpointStrategy,SMTStrategy"" "
+
+context PrioQ.take():
+pre :  "!_this = null 
+      & !sel(h, _this, field_PrioQ_h) = null
+      & 0 < sel(h, _this, field_PrioQ_size)
+      & sel(h, _this, field_PrioQ_size) <= arrlen(sel(h, _this, field_PrioQ_h))"
+post : "true"
+
+
+
+(* post:  "0 <= sel(h, _this, field_PrioQ_size)
+      & sel(h, _this, field_PrioQ_size) <= arrlen(sel(h, _this, field_PrioQ_h))" *)
+      
+
+context PrioQ.add(int ?v):
+pre :  "3 = 3"
+post:  "3 = 3"       

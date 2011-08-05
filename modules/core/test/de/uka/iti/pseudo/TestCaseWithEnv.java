@@ -153,8 +153,12 @@ public abstract class TestCaseWithEnv extends TestCase {
      *            message to print
      */
     public static void out(Object message) {
-        if(VERBOSE)
+        if(VERBOSE) {
             System.err.println(message);
+            if(message instanceof Throwable) {
+                ((Throwable)message).printStackTrace();
+            }
+        }
     }
 
 }

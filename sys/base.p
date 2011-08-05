@@ -25,7 +25,7 @@ function
     'a cond(bool, 'a, 'a)
 
 function  # infixes
-    bool $eq('a, 'b)        infix =  50
+    bool $eq('a, 'a)        infix =  50
     bool $and(bool, bool)   infix &  40 
     bool $or(bool, bool)    infix |  30 
     bool $impl(bool, bool)  infix ->  20 
@@ -41,3 +41,15 @@ binder
     bool (\forall 'a; bool)
     bool (\exists 'a; bool)
     'a   (\some 'a; bool)
+    
+    
+(*
+  weakly typed equality which is needed to allow for terms such as:
+  ∀'a. ∀x as 'a. ∀'b. ∀y as 'b. f(x) = f(y) -> x = y
+  which has to be expressed as
+  (\T_all 'a; (\forall x as 'a; (\T_all 'b; (\forall y as 'b; $weq(f(x),f(y)) -> $weq(x,y)))))
+  
+  This is because 'a and 'b can be instantiated with incompatible types such as int and bool.
+ *)
+function 
+    bool $weq('a, 'b)
