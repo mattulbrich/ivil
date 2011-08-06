@@ -11,24 +11,12 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
-import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
-import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
-import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
-import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
-import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
-import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
-import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
-import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
-import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
@@ -68,7 +56,6 @@ import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeApplication;
 import de.uka.iti.pseudo.parser.boogie.ast.type.ASTTypeParameter;
 import de.uka.iti.pseudo.parser.boogie.ast.type.BuiltInType;
 import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
-import de.uka.iti.pseudo.parser.boogie.ast.type.UserDefinedTypeDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.type.UserTypeDefinition;
 import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -255,12 +242,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      * Default action setting a static type, no matter where this node occurs or
      * what its arguments are.
      */
-    protected void defaultAction(ASTElement node, Type type) throws ASTVisitException {
+    protected void defaultTyping(ASTElement node, Type type) throws ASTVisitException {
+        assert null != type : "the node needs a type";
+        
         if (schemaTypes.has(node))
             return;
         schemaTypes.add(node, context.newSchemaType());
 
-        if (null != type)
         try {
             context.unify(schemaTypes.get(node), type);
         } catch (UnificationException e) {
@@ -273,7 +261,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
-        defaultAction(node, null);
+        schemaTypes.add(node, context.newSchemaType());
+        state.typeMap.add(node, null);
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
     }
 
     @Override
@@ -303,7 +294,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BuiltInType node) throws ASTVisitException {
-        defaultAction(node, node.newBasicType(state.env));
+        defaultTyping(node, node.newBasicType(state.env));
     }
 
     @Override
@@ -426,7 +417,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ASTTypeParameter node) throws ASTVisitException {
-        defaultAction(node, TypeVariable.getInst(node.getName()));
+        defaultTyping(node, TypeVariable.getInst(node.getName()));
     }
 
     @Override
@@ -457,8 +448,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-        return;
+        // TODO
+        defaultAction(node);
 
         // type of procedures is [IN][OUT]bool
         // therefore procedure declarations behave a lot like map type declarations
@@ -568,7 +559,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        visitChildren(node);
+        // the node itself is untyped
+        defaultAction(node);
 
         // operands need to have the same type
         try {
@@ -583,7 +575,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ExtendsExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     /**
@@ -592,12 +584,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
      */
     @Override
     public void visit(ConcatenationExpression node) throws ASTVisitException {
-        defaultAction(node, getBitvectorType());
+        defaultTyping(node, getBitvectorType());
     }
 
     @Override
     public void visit(BitvectorSelectExpression node) throws ASTVisitException {
-        defaultAction(node, getBitvectorType());
+        defaultTyping(node, getBitvectorType());
     }
 
     @Override
@@ -713,7 +705,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorLiteralExpression node) throws ASTVisitException {
-        defaultAction(node, getBitvectorType());
+        defaultTyping(node, getBitvectorType());
     }
 
     @Override
@@ -826,14 +818,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ForallExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
         // we know as well, that the quantifier body has a bool range type
         unify(node.getBody().getBody(), Environment.getBoolType());
     }
 
     @Override
     public void visit(ExistsExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
         // we know as well, that the quantifier body has a bool range type
         unify(node.getBody().getBody(), Environment.getBoolType());
     }
@@ -871,47 +863,47 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(LoopInvariant node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(WildcardExpression node) throws ASTVisitException {
         // note: this method will only be called on boolean wildcards, if
         // wildcard occurs in call statements, the parent already typed this
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(BinaryIntegerExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
+        defaultTyping(node, Environment.getIntType());
         unify(node.getOperands().get(0), Environment.getIntType());
         unify(node.getOperands().get(1), Environment.getIntType());
     }
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
         unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
     }
 
     @Override
     public void visit(ImpliesExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(AndExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(OrExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
 
         // operands need to have the same type
         try {
@@ -925,32 +917,32 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(RelationExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(UnaryMinusExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
+        defaultTyping(node, Environment.getIntType());
     }
 
     @Override
     public void visit(NegationExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(IntegerExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getIntType());
+        defaultTyping(node, Environment.getIntType());
     }
 
     @Override
     public void visit(TrueExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
     public void visit(FalseExpression node) throws ASTVisitException {
-        defaultAction(node, Environment.getBoolType());
+        defaultTyping(node, Environment.getBoolType());
     }
 
     @Override
@@ -1035,93 +1027,11 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(Trigger node) throws ASTVisitException {
+        defaultAction(node);
         // TODO add typing for triggers
         // note: the following code is valid:
         // axiom (forall<a> x:Box :: {unbox(x):a} box(unbox(x):a) == x);
         // therefore it would be necessary to attach the trigger to one of the
         // generated quantifiers; currently there is no working trigger support
     }
-    
-    
-    // //////// ALL NODES LISTED BELOW WILL NOT HAVE ANY TYPE //////// //
-
-    /**
-     * @param node
-     *            visit children of node, mark node as processed and set type to
-     *            null
-     * @throws ASTVisitException
-     *             propagated from below
-     */
-    private void visitChildren(ASTElement node) throws ASTVisitException {
-        schemaTypes.add(node, context.newSchemaType());
-        state.typeMap.add(node, null);
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-    }
-
-    @Override
-    public void visit(CompilationUnit node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(UserDefinedTypeDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(AxiomDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(ConstantDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(GlobalVariableDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(LocalVariableDeclaration node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(ProcedureBody node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(AssignmentStatement node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(AssertionStatement node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(AssumptionStatement node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(Postcondition node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(Precondition node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
-    @Override
-    public void visit(ModifiesClause node) throws ASTVisitException {
-        visitChildren(node);
-    }
-
 }
