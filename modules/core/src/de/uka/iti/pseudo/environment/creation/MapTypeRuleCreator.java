@@ -260,6 +260,7 @@ public class MapTypeRuleCreator {
             addLoadStoreAssumeRule(name, $load, $store, env);
             addLoadStoreOtherAssumeRule(name, $load, $store, env);
             addLoadStoreOtherTypeRule(name, $load, $store, env);
+            addLoadStoreCondRule(name, $load, $store, env);
         } catch (ParseException e) {
             throw new ASTVisitException(
                     "Error while creating rules for map type " + name,
@@ -503,139 +504,137 @@ public class MapTypeRuleCreator {
 
     }
 
-    private void addLoadStoreOtherTypeRule(String name, Function $load,
-            Function $store, Environment env) throws EnvironmentException, RuleException, ParseException, ASTVisitException {
-       // /////////////// LOAD STORE OTHER TYPE
-        {
-            // creates #domain rules of the form:
-    
-            // find: $load($store(%m, %D, %v), %T)
-            // ∃i. where: differentGroundTypes %di %ti
-            // replace: $load(%m, %T)
-    
-            // and an additional rule for different types in range with the
-            // where condition:
-    
-            // where: differentInEq %v $load($store(%m, %D, %v), %T)
-    
-            List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
-    
-            Map<String, String> tags = new HashMap<String, String>();
-    
-            tags.put("rewrite", "concrete");
-    
-            // $load($store(%m, %D, %v), %T)
-            StringBuilder sbFind = new StringBuilder();
-            sbFind.append($load.getName()).append("(");
-            sbFind.append($store.getName()).append("(%m, ");
-            for (int i = 0; i < domain.size(); i++)
-                sbFind.append("%d").append(i).append(", ");
-            sbFind.append("%v)");
-            for (int i = 0; i < domain.size(); i++)
-                sbFind.append(", ").append("%t").append(i);
-            sbFind.append(")");
-    
-            // $load(%m, %T)
-            StringBuilder sbReplace = new StringBuilder($load.getName());
-            sbReplace.append("(%m");
-            for (int i = 0; i < domain.size(); i++)
-                sbReplace.append(", ").append("%t").append(i);
-            sbReplace.append(")");
-    
-            Term factory;
-            factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
-    
-            Term find, replace;
-    
-            find = factory.getSubterm(1);
-            replace = factory.getSubterm(2);
-    
-            List<GoalAction> actions = new LinkedList<GoalAction>();
-    
-            actions
-                    .add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(),
-                            new LinkedList<Term>()));
-    
-            for (int i = 0; i < domain.size(); i++) {
-                String rule = name + "_load_store_other_type_domain_" + i;
-    
-                LinkedList<WhereClause> where = new LinkedList<WhereClause>();
-    
-                // ensure %di and %ti have different types
-                where.add(new WhereClause(DifferentGroundTypes.getWhereCondition(env, "differentGroundTypes"), false,
-                        new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }));
-    
-                env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
-                        declaringLocation));
-            }
-    
-            // add rule for range type miss match
-            String ruleName = name + "_load_store_other_type_range";
-    
+    private void addLoadStoreOtherTypeRule(String name, Function $load, Function $store, Environment env)
+            throws EnvironmentException, RuleException, ParseException, ASTVisitException {
+        // /////////////// LOAD STORE OTHER TYPE
+
+        // creates #domain rules of the form:
+
+        // find: $load($store(%m, %D, %v), %T)
+        // ∃i. where: differentGroundTypes %di %ti
+        // replace: $load(%m, %T)
+
+        // and an additional rule for different types in range with the
+        // where condition:
+
+        // where: differentInEq %v $load($store(%m, %D, %v), %T)
+
+        List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
+
+        Map<String, String> tags = new HashMap<String, String>();
+
+        tags.put("rewrite", "concrete");
+
+        // $load($store(%m, %D, %v), %T)
+        StringBuilder sbFind = new StringBuilder();
+        sbFind.append($load.getName()).append("(");
+        sbFind.append($store.getName()).append("(%m, ");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append("%d").append(i).append(", ");
+        sbFind.append("%v)");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append(", ").append("%t").append(i);
+        sbFind.append(")");
+
+        // $load(%m, %T)
+        StringBuilder sbReplace = new StringBuilder($load.getName());
+        sbReplace.append("(%m");
+        for (int i = 0; i < domain.size(); i++)
+            sbReplace.append(", ").append("%t").append(i);
+        sbReplace.append(")");
+
+        Term factory;
+        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+
+        Term find, replace;
+
+        find = factory.getSubterm(1);
+        replace = factory.getSubterm(2);
+
+        List<GoalAction> actions = new LinkedList<GoalAction>();
+
+        actions.add(new GoalAction("samegoal", null, false, replace, new LinkedList<Term>(), new LinkedList<Term>()));
+
+        for (int i = 0; i < domain.size(); i++) {
+            String rule = name + "_load_store_other_type_domain_" + i;
+
             LinkedList<WhereClause> where = new LinkedList<WhereClause>();
-    
+
+            // ensure %di and %ti have different types
             where.add(new WhereClause(DifferentGroundTypes.getWhereCondition(env, "differentGroundTypes"), false,
-                    new Term[] { find.getSubterm(0).getSubterm(domain.size() + 1), find }));
-    
-            Rule rule = new Rule(ruleName, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
-                    declaringLocation);
-            Log.log(Log.DEBUG, "Rule " + rule + " created");
-            env.addRule(rule);
+                    new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }));
+
+            env.addRule(new Rule(rule, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                    declaringLocation));
         }
-        {
-         // /////////////// LOAD STORE COND, aka McCarthy axiom
-            String ruleName = name + "_load_store_cond";
-            // find: $load($store(%m, %D, %v), %T)
-            // replace: cond($weq(%D, %T), %v, $load(%m, %T))
-    
-            Map<String, String> tags = new HashMap<String, String>();
-    
-            tags.put("rewrite", "split");
-    
-            List<Term> none = new LinkedList<Term>();
-    
-            List<GoalAction> actions = new LinkedList<GoalAction>();
-    
-            // $load($store(%m, %D, %v), %T)
-            StringBuilder sbFind = new StringBuilder();
-            sbFind.append($load.getName()).append("(");
-            sbFind.append($store.getName()).append("(%m, ");
-            for (int i = 0; i < domain.size(); i++)
-                sbFind.append("%d").append(i).append(", ");
-            sbFind.append("%v)");
-            for (int i = 0; i < domain.size(); i++)
-                sbFind.append(", ").append("%t").append(i);
-            sbFind.append(")");
-    
-            // cond($weq(%D, %T), %v, $load(%m, %T))
-            StringBuilder sbReplace = new StringBuilder("cond(");
-            if (0 == domain.size())
-                sbReplace.append("true");
-            for (int i = 0; i < domain.size(); i++) {
-                if (i > 0)
-                    sbReplace.append("&");
-                sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
-            }
-            sbReplace.append(", %v, ").append($load.getName()).append("(%m");
-            for (int i = 0; i < domain.size(); i++)
-                sbReplace.append(", ").append("%t").append(i);
-            sbReplace.append("))");
-    
-            Term factory;
-            factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
-            Term find, replace;
-    
-            find = factory.getSubterm(1);
-            replace = factory.getSubterm(2);
-    
-            actions.add(new GoalAction("samegoal", null, false, replace, none, none));
-    
-            Rule rule = new Rule(ruleName, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
-                    new LinkedList<WhereClause>(), actions, tags, declaringLocation);
-            Log.log(Log.DEBUG, "Rule " + rule + " created");
-            env.addRule(rule);
-        } 
-         
+
+        // add rule for range type miss match
+        String ruleName = name + "_load_store_other_type_range";
+
+        LinkedList<WhereClause> where = new LinkedList<WhereClause>();
+
+        where.add(new WhereClause(DifferentGroundTypes.getWhereCondition(env, "differentGroundTypes"), false,
+                new Term[] { find.getSubterm(0).getSubterm(domain.size() + 1), find }));
+
+        Rule rule = new Rule(ruleName, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
+                declaringLocation);
+        Log.log(Log.DEBUG, "Rule " + rule + " created");
+        env.addRule(rule);
+    }
+
+    private void addLoadStoreCondRule(String name, Function $load, Function $store, Environment env)
+            throws EnvironmentException, RuleException, ParseException, ASTVisitException {
+        // /////////////// LOAD STORE COND, aka McCarthy axiom
+        String ruleName = name + "_load_store_cond";
+        // find: $load($store(%m, %D, %v), %T)
+        // replace: cond($weq(%D, %T), %v, $load(%m, %T))
+
+        Map<String, String> tags = new HashMap<String, String>();
+
+        tags.put("rewrite", "split");
+
+        List<Term> none = new LinkedList<Term>();
+
+        List<GoalAction> actions = new LinkedList<GoalAction>();
+
+        // $load($store(%m, %D, %v), %T)
+        StringBuilder sbFind = new StringBuilder();
+        sbFind.append($load.getName()).append("(");
+        sbFind.append($store.getName()).append("(%m, ");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append("%d").append(i).append(", ");
+        sbFind.append("%v)");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append(", ").append("%t").append(i);
+        sbFind.append(")");
+
+        // cond($weq(%D, %T), %v, $load(%m, %T))
+        StringBuilder sbReplace = new StringBuilder("cond(");
+        if (0 == domain.size())
+            sbReplace.append("true");
+        for (int i = 0; i < domain.size(); i++) {
+            if (i > 0)
+                sbReplace.append("&");
+            sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
+        }
+        sbReplace.append(", %v, ").append($load.getName()).append("(%m");
+        for (int i = 0; i < domain.size(); i++)
+            sbReplace.append(", ").append("%t").append(i);
+        sbReplace.append("))");
+
+        Term factory;
+        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        Term find, replace;
+
+        find = factory.getSubterm(1);
+        replace = factory.getSubterm(2);
+
+        actions.add(new GoalAction("samegoal", null, false, replace, none, none));
+
+        Rule rule = new Rule(ruleName, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
+                new LinkedList<WhereClause>(), actions, tags, declaringLocation);
+        Log.log(Log.DEBUG, "Rule " + rule + " created");
+        env.addRule(rule);
     }
 
 }
