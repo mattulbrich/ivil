@@ -26,10 +26,6 @@ function
   int $bv_toInt(bitvector)
 
 
-axiom bv_valid_value
-  (\forall val; (\forall dim; (\forall bv; bv as bitvector = $bv_new(val, dim) -> val < 2^dim)))
-
-
 rule bv_concat
   find $bv_concat($bv_new(%v1, %d1), $bv_new(%v2, %d2))
   replace $bv_new(%v1*2^%d2 + %v2, %d1 + %d2)
