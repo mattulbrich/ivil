@@ -11,6 +11,9 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.AssertionStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.AssignmentStatement;
+import de.uka.iti.pseudo.parser.boogie.ast.AssumptionStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
@@ -20,10 +23,12 @@ import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.GlobalVariableDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
 import de.uka.iti.pseudo.parser.boogie.ast.Postcondition;
 import de.uka.iti.pseudo.parser.boogie.ast.Precondition;
+import de.uka.iti.pseudo.parser.boogie.ast.ProcedureBody;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
 import de.uka.iti.pseudo.parser.boogie.ast.SimpleAssignment;
@@ -176,8 +181,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     /**
-     * this function will set the type of this node to the same type as child
-     * node and will enqueue node, if typeNode has no type decoration
+     * if node has not yet been processed, add shemaType and restricts the type
+     * of node to be the same type as the type of typeNode
      * 
      * @param node
      *            the node that will receive type information
@@ -452,7 +457,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        defaultAction(node);
+        visitChildren(node);
         return;
 
         // type of procedures is [IN][OUT]bool
@@ -563,22 +568,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(SimpleAssignment node) throws ASTVisitException {
-        if (schemaTypes.has(node))
-            return;
-        schemaTypes.add(node, context.newSchemaType());
+        visitChildren(node);
 
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        Type t = schemaTypes.get(node.getTarget());
-
-
+        // operands need to have the same type
         try {
-            context.unify(schemaTypes.get(node), t);
-            context.unify(schemaTypes.get(node.getNewValue()), t);
+            context.unify(context.instantiate(schemaTypes.get(node.getTarget())),
+                    context.instantiate(schemaTypes.get(node.getNewValue())));
         } catch (UnificationException e) {
-            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+            e.printStackTrace();
+            throw new ASTVisitException("assignment illtyped @" + node.getLocation(), e);
         }
+        setTypeSameAs(node, node.getTarget());
     }
 
     @Override
@@ -645,6 +645,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         unify(node, signature[0]);
     }
 
+    /**
+     * Create a map signature as [range, domain0, ..., domainN]
+     */
     private Type[] makeMapSignature(TypeApplication t) throws TermException {
         Function $load = state.env.getFunction("$load_" + ((TypeApplication) t).getSort().getName());
         final Type[] rval = new Type[$load.getArity()];
@@ -674,16 +677,38 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(MapUpdateExpression node) throws ASTVisitException {
-        if (schemaTypes.has(node))
-            return;
-        schemaTypes.add(node, context.newSchemaType());
-
+        // visit children
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
-        // TODO ensure as well that arguments have the correct type
-
+        // set type for this node
         setTypeSameAs(node, node.getName());
+
+
+        // add constraints for update arguments
+                
+        // @note: this is a type application, if the object is a map
+        Type t = context.instantiate(schemaTypes.get(node.getName()));
+        if (!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+
+        Type[] signature;
+        try {
+            signature = makeMapSignature((TypeApplication) t);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
+        }
+
+        // signature contains result, map
+        if (node.getOperands().size() != signature.length - 1)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 1)
+                    + " got: " + node.getOperands().size());
+
+        for (int i = 0; i < node.getOperands().size(); i++)
+            unify(node.getOperands().get(i), signature[i + 1]);
+        unify(node.getUpdate(), signature[0]);
     }
 
     @Override
@@ -1056,6 +1081,31 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(GlobalVariableDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(LocalVariableDeclaration node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(ProcedureBody node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(AssignmentStatement node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(AssertionStatement node) throws ASTVisitException {
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(AssumptionStatement node) throws ASTVisitException {
         visitChildren(node);
     }
 
