@@ -60,25 +60,24 @@ public final class TypingPhase {
 
             // this exception is expected
             throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
-        } finally {
+        }
 
-            // always synthesize types to help the user in case of typing errors
-            try {
+        // always synthesize types to help the user in case of typing errors
+        try {
 
-                // give each ASTElement the inferred type
-                TypeInstantiationVisitor v = new TypeInstantiationVisitor(state);
-                v.visit(state.root);
-                if (v.errors.size() != 0) {
-                    StringBuilder sb = new StringBuilder("Type errors occured:\n");
-                    for (String s : v.errors)
-                        sb.append(s).append("\n");
-                    throw new TypeSystemException(sb.toString());
-                }
-            } catch (ASTVisitException e) {
-
-                // this exception is expected
-                throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
+            // give each ASTElement the inferred type
+            TypeInstantiationVisitor v = new TypeInstantiationVisitor(state);
+            v.visit(state.root);
+            if (v.errors.size() != 0) {
+                StringBuilder sb = new StringBuilder("Type errors occured:\n");
+                for (String s : v.errors)
+                    sb.append(s).append("\n");
+                throw new TypeSystemException(sb.toString());
             }
+        } catch (ASTVisitException e) {
+
+            // this exception is expected
+            throw new TypeSystemException("TypeMap creation failed because of " + e.toString(), e);
         }
 
         // make sure we did not forget something
