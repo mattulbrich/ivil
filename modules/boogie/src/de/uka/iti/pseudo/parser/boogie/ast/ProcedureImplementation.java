@@ -30,6 +30,7 @@ public final class ProcedureImplementation extends DeclarationBlock implements N
         for (Token t : typeParameters)
             this.typeParameters.add(new ASTTypeParameter(t));
 
+        addChildren(this.typeParameters);
         addChildren(inParam);
         addChildren(outParam);
         addChild(body);

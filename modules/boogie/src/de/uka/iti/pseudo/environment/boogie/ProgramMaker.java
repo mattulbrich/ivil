@@ -1048,8 +1048,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
                 assumption = Binding.getInst(state.env.getBinder("\\forall"), Environment.getBoolType(),
                         boundvars.remove(0), new Term[] { assumption });
 
-            // note: no type quantification is needed here, as polymorphic
-            // arguments must have infered types
+            // TODO add type quantification to allow for uninfered polymorphic
+            // variables
 
             statements.bodyStatements.add(new AssumeStatement(node.getLocationToken().beginLine, assumption));
             statements.bodyAnnotations.add(null);

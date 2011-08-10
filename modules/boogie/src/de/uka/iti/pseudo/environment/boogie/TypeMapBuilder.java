@@ -448,105 +448,99 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ProcedureDeclaration node) throws ASTVisitException {
-        // TODO
-        defaultAction(node);
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
 
         // type of procedures is [IN][OUT]bool
         // therefore procedure declarations behave a lot like map type declarations
-         // functions can have polymorphic types, so push typeargs
-        /*
-         * if (schemaTypes.has(node)) return; schemaTypes.add(node,
-         * context.newSchemaType());
-         * 
-         * List<TypeVariable> paramList =
-         * this.addParameters(node.getTypeParameters(), node);
-         * 
-         * TypeVariable[] parameters = paramList.toArray(new
-         * TypeVariable[paramList.size()]);
-         * 
-         * for (ASTElement n : node.getChildren()) n.visit(this);
-         */
-                
-        // blablabla, eventuell will man hier einfach selbst schnell einen
-        // solchen map typ erzeugen, den entsprechend typen und dann nehmen,
-        // vielleicht auch nicht
-        // @note: der map code müsste das problem eigentlich voll automatisch
-        // lösen!
-                
-        
-        // List<Type> param = addParameters(node.getTypeParameters(), node),
-        // empty = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // List<Type> range = new LinkedList<Type>();
-        // for (ASTElement n : node.getOutParameters()) {
-        // if (!state.typeMap!.has(n))
-        // range.add(!state.typeMap!.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        // }
-        // List<Type> domain = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getInParameters()) {
-        // if (!state.typeMap!.has(n))
-        // domain.add(!state.typeMap!.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // }
-        
-        // this is bit of a hack to represent types of procedures, but it works
 
-        // state.typeMap.add(node,
-        // ASTType.newMap(param, domain, ASTType.newMap(empty, range,
-        // Environment.getBoolType(),
-        // true), true));
+        // procedures can have polymorphic types, so push typeargs
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
+
+        for (ASTElement n : node.getInParameters())
+                n.visit(this);
+
+        for (ASTElement n : node.getOutParameters())
+            n.visit(this);
+
+
+        Type[] in = new Type[node.getInParameters().size()];
+        for (int i = 0; i < in.length; i++)
+            in[i] = context.instantiate(schemaTypes.get(node.getInParameters().get(i)));
+
+        Type[] out = new Type[node.getOutParameters().size()];
+        for (int i = 0; i < out.length; i++)
+            out[i] = context.instantiate(schemaTypes.get(node.getOutParameters().get(i)));
+
+        try {
+            unify(node, state.mapDB.getType(in,
+                    state.mapDB.getType(out, Environment.getBoolType(), new TypeVariable[0], node, state), parameters,
+                    node, state));
+
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+        }
+
+        for (ASTElement n : node.getSpecification())
+            n.visit(this);
+
+        node.getBody().visit(this);
     }
 
     @Override
     public void visit(ProcedureImplementation node) throws ASTVisitException {
-        // TODO
-        //
-        // List<Type> param = addParameters(node.getTypeParameters(), node),
-        // empty = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // List<Type> range = new LinkedList<Type>();
-        // for (ASTElement n : node.getOutParameters()) {
-        // if (!state.typeMap!.has(n))
-        // range.add(!state.typeMap!.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        // }
-        //
-        // List<Type> domain = new LinkedList<Type>();
-        //
-        // for (ASTElement n : node.getInParameters()) {
-        // if (!state.typeMap!.has(n))
-        // domain.add(!state.typeMap!.get(n));
-        // else {
-        // todo.add(node);
-        // return;
-        // }
-        //
-        // }
-        //
-        // // this is bit of a hack to represent types of procedures, but it
-        // workes
-        // !state.typeMap!.add(node,
-        // ASTType.newMap(param, domain, ASTType.newMap(empty, range,
-        // Environment.getBoolType(),
-        // true), true));
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+
+        // type of procedures is [IN][OUT]bool
+        // therefore procedure declarations behave a lot like map type
+        // declarations
+
+        // procedures can have polymorphic types, so push typeargs
+        List<TypeVariable> paramList = this.addParameters(node.getTypeParameters(), node);
+
+        TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
+
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
+
+        Type[] in = new Type[node.getInParameters().size()];
+        for (int i = 0; i < in.length; i++)
+            in[i] = context.instantiate(schemaTypes.get(node.getInParameters().get(i)));
+
+        Type[] out = new Type[node.getOutParameters().size()];
+        for (int i = 0; i < out.length; i++)
+            out[i] = context.instantiate(schemaTypes.get(node.getOutParameters().get(i)));
+
+        try {
+            unify(node, state.mapDB.getType(in,
+                    state.mapDB.getType(out, Environment.getBoolType(), new TypeVariable[0], node, state), parameters,
+                    node, state));
+
+        } catch (TypeSystemException e) {
+            throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+        }
+
+        // implementations are required to have the same type as the declaration
+        // with the same name
+        try {
+            ProcedureDeclaration decl = state.names.procedureSpace.get(node.getName());
+            if (null == decl)
+                throw new ASTVisitException("The procedure " + node.getName() + " was implemented but never declared.");
+
+            // ensure that decl has been visited
+            decl.visit(this);
+
+            unify(node, context.instantiate(schemaTypes.get(decl)));
+        } catch (ASTVisitException e) {
+            // create a more usable error message
+            throw new ASTVisitException("The implementation defined @" + node.getLocation()
+                    + " does not match the type of its declaration:\n" + e.getCause().getMessage());
+        }
     }
 
     @Override
@@ -955,6 +949,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
+        // TODO
+
         // for (ASTElement n : node.getChildren())
         // n.visit(this);
         //
@@ -978,51 +974,98 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(CallStatement node) throws ASTVisitException {
+        
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+        state.typeMap.add(node, null);
 
-        // type wildcards in arguments
-        for (int i = 0; i < node.getArguments().size(); i++) {
-            ASTElement n = node.getArguments().get(i);
-            if (n instanceof WildcardExpression) {
-                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getInParameters().get(i));
+        for (ASTElement n : node.getChildren())
+            n.visit(this);
 
-                // TODO :
-                // if
-                // (!state.typeMap!.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
-                // throw new ASTVisitException("\n" + node.getLocation() +
-                // "argument #" + (i + 1)
-                // + " has unresolvable type");
-            }
+        // @note: this is a type application, if the object is a map
+        ASTElement decl = state.names.procedureSpace.get(node.getName());
+        decl.visit(this);
+        Type t = context.instantiate(schemaTypes.get(decl));
+        if(!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+        
+        final Type[] signature;
+        try {
+            signature = makeMapSignature((TypeApplication) t);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
+        }
+        
+        // signature contains result, map
+        if (node.getArguments().size() != signature.length - 1)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 1)
+                    + " got: " + node.getArguments().size());
+
+        for (int i = 0; i < node.getArguments().size(); i++)
+            unify(node.getArguments().get(i), signature[i + 1]);
+
+        final Type[] sigOut;
+        try {
+            sigOut = makeMapSignature((TypeApplication) signature[0]);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
         }
 
-        // type wildcards in results
-        for (int i = 0; i < node.getOutParam().size(); i++) {
-            VariableUsageExpression n = node.getOutParam().get(i);
-            if (n.getName().equals("*")) {
-                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getOutParameters().get(i));
-            }
-        }
+        // signature contains result, map
+        if (node.getOutParam().size() != sigOut.length - 1)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to load expression. expected: " + (sigOut.length - 1)
+                    + " got: " + node.getOutParam().size());
 
-        defaultAction(node);
+        for (int i = 0; i < node.getOutParam().size(); i++)
+            unify(node.getOutParam().get(i), sigOut[i + 1]);
     }
 
     @Override
     public void visit(CallForallStatement node) throws ASTVisitException {
 
-        // type wildcards in arguments
-        for (int i = 0; i < node.getArguments().size(); i++) {
-            ASTElement n = node.getArguments().get(i);
-            if (n instanceof WildcardExpression) {
-                setTypeSameAs(n, state.names.procedureSpace.get(node.getName()).getInParameters().get(i));
-                // TODO
-                // if
-                // (!state.typeMap!.get(state.names.procedureSpace.get(node.getName()).getInParameters().get(i)).isTypeVariable)
-                // throw new ASTVisitException("\n" + node.getLocation() +
-                // "argument #" + (i + 1)
-                // + " has unresolvable type");
-            }
+        // TODO push parameters of the called function in order to allow for
+        // code such as:
+        // procedure P<a>(y:a)returns(x:a){ call forall P(*); }
+
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+        state.typeMap.add(node, null);
+
+        for (ASTElement n : node.getChildren())
+            if(n instanceof WildcardExpression)
+                schemaTypes.add(n, context.newSchemaType());
+            else
+                n.visit(this);
+
+        // @note: this is a type application, if the object is a map
+        ASTElement decl = state.names.procedureSpace.get(node.getName());
+        decl.visit(this);
+        Type t = context.instantiate(schemaTypes.get(decl));
+        if (!(t instanceof TypeApplication))
+            throw new ASTVisitException(node.getLocation() + " the used map object has no map type!");
+
+        final Type[] signature;
+        try {
+            signature = makeMapSignature((TypeApplication) t);
+        } catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation() + ": failed to create map signature", e);
         }
 
-        defaultAction(node);
+        // signature contains result, map
+        if (node.getArguments().size() != signature.length - 1)
+            throw new ASTVisitException(node.getLocation()
+                    + ": mismatching number of operands to load expression. expected: " + (signature.length - 1)
+                    + " got: " + node.getArguments().size());
+
+        for (int i = 0; i < node.getArguments().size(); i++)
+            unify(node.getArguments().get(i), signature[i + 1]);
     }
 
     @Override
