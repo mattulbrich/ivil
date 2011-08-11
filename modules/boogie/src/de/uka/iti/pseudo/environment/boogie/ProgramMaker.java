@@ -1221,6 +1221,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
         }
 
+        // TODO havoc wildcards that occur in this call statement
+
         // TODO assume global and local wheres (in this order)
 
         // assume postcondition
@@ -1249,7 +1251,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             Assignment assignments[] = new Assignment[newOuts.length + oldStore.length];
             if (assignments.length > 0) {
                 for (int i = 0; i < newOuts.length; i++) {
-                    VariableUsageExpression target = node.getOutParam().get(i);
+                    Expression target = node.getOutParam().get(i);
 
                     target.visit(this);
 

@@ -202,6 +202,15 @@ return;
 }
 assert false: "expected TypeSystemException to be trown";}
 
+// generated test for modules/boogie/test/data/TypeSystemException/CallForallResolve.bpl
+public void testBoogieParsemodules_boogie_test_data_TypeSystemException_CallForallResolve() throws Exception {
+try{
+BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/CallForallResolve.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+assert false: "expected TypeSystemException to be trown";}
+
 // generated test for modules/boogie/test/data/TypeSystemException/MapAxiomsConsistency.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_MapAxiomsConsistency() throws Exception {
 try{
@@ -614,6 +623,96 @@ public void testBoogieParsemodules_boogie_test_data_closable_extractloops_t1() t
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/extractloops/t1.bpl"});
 }
 
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test6.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test6() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test6.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test11.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test11() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test11.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test2b.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test2b() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test2b.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test3.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test3() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test3.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test4.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test4() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test4.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test9.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test9() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test9.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test13.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test13() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test13.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test5.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test5() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test5.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test8.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test8() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test8.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test4a.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test4a() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test4a.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test10.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test10() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test10.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test2a.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test2a() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test2a.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test7.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test7() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test7.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test12.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test12() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test12.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test3a.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test3a() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test3a.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test7a.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test7a() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test7a.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_basic_typing/test2.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_basic_typing_test2() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_basic_typing/test2.bpl"});
+}
+
 // generated test for modules/boogie/test/data/closable/test20/TypeSynonyms2.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_test20_TypeSynonyms2() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/test20/TypeSynonyms2.bpl"});
@@ -654,6 +753,11 @@ public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_empty() th
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/empty.bpl"});
 }
 
+// generated test for modules/boogie/test/data/closable/tfe_test/modifies.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_modifies() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/modifies.bpl"});
+}
+
 // generated test for modules/boogie/test/data/closable/tfe_test/goodCoercion.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_goodCoercion() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/goodCoercion.bpl"});
@@ -679,6 +783,11 @@ public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_simple5() 
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/simple5.bpl"});
 }
 
+// generated test for modules/boogie/test/data/closable/tfe_test/WildcardCall.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_WildcardCall() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/WildcardCall.bpl"});
+}
+
 // generated test for modules/boogie/test/data/closable/tfe_test/inferenceTest2.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_inferenceTest2() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/inferenceTest2.bpl"});
@@ -694,6 +803,11 @@ public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_simple3() 
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/simple3.bpl"});
 }
 
+// generated test for modules/boogie/test/data/closable/tfe_test/simple7.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_simple7() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/simple7.bpl"});
+}
+
 // generated test for modules/boogie/test/data/closable/tfe_test/bitvectors.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_bitvectors() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/bitvectors.bpl"});
@@ -707,6 +821,11 @@ BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/simple
 // generated test for modules/boogie/test/data/closable/tfe_test/integerCodeExpr.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_integerCodeExpr() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/integerCodeExpr.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_test/while3.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_while3() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/while3.bpl"});
 }
 
 // generated test for modules/boogie/test/data/closable/tfe_test/typeArgsVsParams2.bpl
@@ -812,11 +931,6 @@ BPLParser.main(new String[] { "modules/boogie/test/data/closable/test1/Orderings
 // generated test for modules/boogie/test/data/closable/test1/Frame0.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_test1_Frame0() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/test1/Frame0.bpl"});
-}
-
-// generated test for modules/boogie/test/data/closable/test1/CallForallResolve.bpl
-public void testBoogieParsemodules_boogie_test_data_closable_test1_CallForallResolve() throws Exception {
-BPLParser.main(new String[] { "modules/boogie/test/data/closable/test1/CallForallResolve.bpl"});
 }
 
 // generated test for modules/boogie/test/data/closable/test1/AttributeTyping.bpl

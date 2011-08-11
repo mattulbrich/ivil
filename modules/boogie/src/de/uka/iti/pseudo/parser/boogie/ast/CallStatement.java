@@ -8,6 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.ASTVisitor;
 import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.VariableUsageExpression;
+import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
 import de.uka.iti.pseudo.parser.boogie.util.ASTConversions;
 
 public final class CallStatement extends Statement {
@@ -18,7 +19,7 @@ public final class CallStatement extends Statement {
     /**
      * NOTE: can be empty if results are discarded.
      */
-    private final List<VariableUsageExpression> outParam;
+    private final List<Expression> outParam;
     private final List<Expression> arglist;
 
     public CallStatement(Token first, List<Attribute> attr, String name, List<Token> outParam, List<Expression> arglist) {
@@ -28,9 +29,12 @@ public final class CallStatement extends Statement {
         this.name = ASTConversions.getEscapedName(name);
         this.arglist = arglist;
 
-        this.outParam = new LinkedList<VariableUsageExpression>();
+        this.outParam = new LinkedList<Expression>();
         for (int i = 0; i < outParam.size(); i++)
-            this.outParam.add(new VariableUsageExpression(outParam.get(i)));
+            if (outParam.get(i).image.equals("*"))
+                this.outParam.add(new WildcardExpression(outParam.get(i)));
+            else
+                this.outParam.add(new VariableUsageExpression(outParam.get(i)));
 
         addChildren(attr);
         addChildren(arglist);
@@ -54,7 +58,7 @@ public final class CallStatement extends Statement {
      * @return the returned list can contain nulls to indicate that the
      *         respective result shall be discarded
      */
-    public List<VariableUsageExpression> getOutParam() {
+    public List<Expression> getOutParam() {
         return outParam;
     }
 

@@ -487,7 +487,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getSpecification())
             n.visit(this);
 
-        node.getBody().visit(this);
+        if (node.isImplemented())
+            node.getBody().visit(this);
     }
 
     @Override
@@ -981,7 +982,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         state.typeMap.add(node, null);
 
         for (ASTElement n : node.getChildren())
-            n.visit(this);
+            if (n instanceof WildcardExpression)
+                schemaTypes.add(n, context.newSchemaType());
+            else
+                n.visit(this);
 
         // @note: this is a type application, if the object is a map
         ASTElement decl = state.names.procedureSpace.get(node.getName());

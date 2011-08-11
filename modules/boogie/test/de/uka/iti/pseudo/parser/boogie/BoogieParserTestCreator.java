@@ -67,9 +67,9 @@ public class BoogieParserTestCreator {
             FileWriter fstream = new FileWriter(PATH);
             BufferedWriter out = new BufferedWriter(fstream);
 
-            out.write("package de.uka.iti.pseudo.parser.boogie;\n"
-                    + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
-                    + "import de.uka.iti.pseudo.parser.boogie.environment.*;\n"
+            out.write("package de.uka.iti.pseudo.parser.boogie;\n" + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
+                    + "import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationException;\n"
+                    + "import de.uka.iti.pseudo.environment.boogie.TypeSystemException;\n"
                     + "public class TestBoogieParser extends TestCaseWithEnv {\n\n");
 
             // create tests for each context
