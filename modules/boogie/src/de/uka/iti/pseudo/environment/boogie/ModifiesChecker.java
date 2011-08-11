@@ -5,6 +5,7 @@ import java.util.List;
 
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.LocalVariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ModifiesClause;
@@ -46,7 +47,6 @@ public final class ModifiesChecker extends DefaultASTVisitor {
         try {
             state.root.visit(this);
         } catch (ASTVisitException e) {
-            e.printStackTrace();
             throw new TypeSystemException("modifies not respected\n" + e);
         }
     }
@@ -138,6 +138,24 @@ public final class ModifiesChecker extends DefaultASTVisitor {
                     if (!(locallyModifiable.contains(v) || modifiable.contains(v)))
                         throw new ASTVisitException("@" + node.getLocation()
                                 + ": call may modify unmodifiable variable " + v);
+                }
+            }
+        }
+    }
+
+    public void visit(CallForallStatement node) throws ASTVisitException {
+        defaultAction(node);
+
+        // check modifies clauses of called procedure
+        ProcedureDeclaration decl = state.names.procedureSpace.get(node.getName());
+        for (Specification s : decl.getSpecification()) {
+            if (s instanceof ModifiesClause) {
+                for (String name : ((ModifiesClause) s).getTargets()) {
+                    VariableDeclaration v = state.names.findVariable(name, node);
+
+                    if (!(locallyModifiable.contains(v) || modifiable.contains(v)))
+                        throw new ASTVisitException("@" + node.getLocation()
+                                + ": call forall may modify unmodifiable variable " + v);
                 }
             }
         }

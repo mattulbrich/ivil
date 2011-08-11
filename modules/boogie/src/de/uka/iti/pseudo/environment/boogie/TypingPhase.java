@@ -84,9 +84,6 @@ public final class TypingPhase {
         assert state.scopeMap.size() == state.typeMap.size() || state.printDebugInformation() : "found "
                 + (state.scopeMap.size() - state.typeMap.size()) + " untyped ASTElements";
 
-        // TODO this should not be needed
-        // new TypeChecker(state);
-
         // ensure correctness of modifies
         new ModifiesChecker(state);
     }

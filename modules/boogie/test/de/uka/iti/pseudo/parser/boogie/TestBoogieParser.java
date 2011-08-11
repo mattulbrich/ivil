@@ -11,7 +11,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/EnvironmentCreationExcep
 } catch(EnvironmentCreationException ex){
 return;
 }
-assert false: "expected EnvironmentCreationException to be trown";}
+fail("expected EnvironmentCreationException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/UpdateExprTyping.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_UpdateExprTyping() throws Exception {
@@ -20,7 +21,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Upda
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Coercions2.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Coercions2() throws Exception {
@@ -29,7 +31,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Coer
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/WhereTyping.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_WhereTyping() throws Exception {
@@ -38,7 +41,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Wher
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/EmptyCallArgs.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_EmptyCallArgs() throws Exception {
@@ -47,7 +51,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Empt
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/duplicateTypeArguments.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_duplicateTypeArguments() throws Exception {
@@ -56,7 +61,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/dupl
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/NullaryMaps.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_NullaryMaps() throws Exception {
@@ -65,7 +71,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Null
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/undefinedImplementation.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_undefinedImplementation() throws Exception {
@@ -74,7 +81,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/unde
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/polymap.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_polymap() throws Exception {
@@ -83,16 +91,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
-
-// generated test for modules/boogie/test/data/TypeSystemException/Boxing.bpl
-public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Boxing() throws Exception {
-try{
-BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Boxing.bpl"});
-} catch(TypeSystemException ex){
-return;
+fail("expected TypeSystemException to be trown");
 }
-assert false: "expected TypeSystemException to be trown";}
 
 // generated test for modules/boogie/test/data/TypeSystemException/strings-no-where.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_strings_no_where() throws Exception {
@@ -101,7 +101,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/stri
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/typeArgsVsParams.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_typeArgsVsParams() throws Exception {
@@ -110,7 +111,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Frame1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Frame1() throws Exception {
@@ -119,7 +121,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Fram
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/MapsTypeErrors.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_MapsTypeErrors() throws Exception {
@@ -128,7 +131,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Maps
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Arrays.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Arrays() throws Exception {
@@ -137,7 +141,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Arra
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/FunBody.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_FunBody() throws Exception {
@@ -146,16 +151,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/FunB
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
-
-// generated test for modules/boogie/test/data/TypeSystemException/Triggers1.bpl
-public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Triggers1() throws Exception {
-try{
-BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Triggers1.bpl"});
-} catch(TypeSystemException ex){
-return;
+fail("expected TypeSystemException to be trown");
 }
-assert false: "expected TypeSystemException to be trown";}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Prog1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Prog1() throws Exception {
@@ -164,7 +161,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Prog
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/badMap.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_badMap() throws Exception {
@@ -173,7 +171,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/badM
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/integerWhere.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_integerWhere() throws Exception {
@@ -182,7 +181,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/inte
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/nestedTypeParemeters.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_nestedTypeParemeters() throws Exception {
@@ -191,7 +191,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/nest
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Family.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Family() throws Exception {
@@ -200,7 +201,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Fami
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/CallForallResolve.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_CallForallResolve() throws Exception {
@@ -209,7 +211,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Call
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/MapAxiomsConsistency.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_MapAxiomsConsistency() throws Exception {
@@ -218,7 +221,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/MapA
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/integerAxiom2.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_integerAxiom2() throws Exception {
@@ -227,7 +231,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/inte
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/duplicateConst.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_duplicateConst() throws Exception {
@@ -236,7 +241,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/dupl
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/ParallelAssignment.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_ParallelAssignment() throws Exception {
@@ -245,7 +251,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Para
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/polyInline.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_polyInline() throws Exception {
@@ -254,7 +261,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/BadLabels0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_BadLabels0() throws Exception {
@@ -263,7 +271,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/BadL
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/PolyPolyPoly2.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_PolyPolyPoly2() throws Exception {
@@ -272,7 +281,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/boog22.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_boog22() throws Exception {
@@ -281,7 +291,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/boog
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/badMapUpdate.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_badMapUpdate() throws Exception {
@@ -290,7 +301,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/badM
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/TypeDecls0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_TypeDecls0() throws Exception {
@@ -299,7 +311,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Prog0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Prog0() throws Exception {
@@ -308,7 +321,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Prog
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/cyclicTypes.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_cyclicTypes() throws Exception {
@@ -317,7 +331,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/cycl
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Lambda.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Lambda() throws Exception {
@@ -326,7 +341,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Lamb
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/WhereResolution.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_WhereResolution() throws Exception {
@@ -335,7 +351,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Wher
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/TypeSynonyms0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_TypeSynonyms0() throws Exception {
@@ -344,7 +361,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/PolyPolyPoly.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_PolyPolyPoly() throws Exception {
@@ -353,7 +371,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/duplicateTypeParameters.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_duplicateTypeParameters() throws Exception {
@@ -362,7 +381,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/dupl
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/duplicateVariable.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_duplicateVariable() throws Exception {
@@ -371,7 +391,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/dupl
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/integerAxiom.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_integerAxiom() throws Exception {
@@ -380,7 +401,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/inte
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/strings-where.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_strings_where() throws Exception {
@@ -389,7 +411,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/stri
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/badCoercion.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_badCoercion() throws Exception {
@@ -398,7 +421,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/badC
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Prog2.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Prog2() throws Exception {
@@ -407,7 +431,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Prog
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Types1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Types1() throws Exception {
@@ -416,7 +441,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/EmptySeq.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_EmptySeq() throws Exception {
@@ -425,7 +451,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Empt
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/MapsResolutionErrors.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_MapsResolutionErrors() throws Exception {
@@ -434,7 +461,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Maps
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/PolyFuns1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_PolyFuns1() throws Exception {
@@ -443,7 +471,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/TypeDecls1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_TypeDecls1() throws Exception {
@@ -452,7 +481,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/EmptyList.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_EmptyList() throws Exception {
@@ -461,7 +491,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Empt
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/EmptySetBug.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_EmptySetBug() throws Exception {
@@ -470,7 +501,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Empt
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/PolyProcs0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_PolyProcs0() throws Exception {
@@ -479,7 +511,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/Coercions.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Coercions() throws Exception {
@@ -488,7 +521,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Coer
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/TypeSynonyms1.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_TypeSynonyms1() throws Exception {
@@ -497,7 +531,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Type
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/ProcParamReordering.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_ProcParamReordering() throws Exception {
@@ -506,7 +541,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Proc
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/expansion.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_expansion() throws Exception {
@@ -515,7 +551,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/expa
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/EmptyCallArgs0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_EmptyCallArgs0() throws Exception {
@@ -524,7 +561,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Empt
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/IfThenElse0.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_IfThenElse0() throws Exception {
@@ -533,7 +571,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/IfTh
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/polymorphicConcatenation.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_polymorphicConcatenation() throws Exception {
@@ -542,7 +581,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/poly
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/TypeSystemException/MapOutputTypeParams.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_MapOutputTypeParams() throws Exception {
@@ -551,7 +591,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/MapO
 } catch(TypeSystemException ex){
 return;
 }
-assert false: "expected TypeSystemException to be trown";}
+fail("expected TypeSystemException to be trown");
+}
 
 // generated test for modules/boogie/test/data/closable/houdini/houd3.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_houdini_houd3() throws Exception {
@@ -751,6 +792,11 @@ BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/polymo
 // generated test for modules/boogie/test/data/closable/tfe_test/empty.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_empty() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/empty.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/tfe_test/Boxing.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_tfe_test_Boxing() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/tfe_test/Boxing.bpl"});
 }
 
 // generated test for modules/boogie/test/data/closable/tfe_test/modifies.bpl
@@ -986,6 +1032,11 @@ BPLParser.main(new String[] { "modules/boogie/test/data/closable/codeexpr/CodeEx
 // generated test for modules/boogie/test/data/closable/test0/Orderings.bpl
 public void testBoogieParsemodules_boogie_test_data_closable_test0_Orderings() throws Exception {
 BPLParser.main(new String[] { "modules/boogie/test/data/closable/test0/Orderings.bpl"});
+}
+
+// generated test for modules/boogie/test/data/closable/test0/Triggers1.bpl
+public void testBoogieParsemodules_boogie_test_data_closable_test0_Triggers1() throws Exception {
+BPLParser.main(new String[] { "modules/boogie/test/data/closable/test0/Triggers1.bpl"});
 }
 
 // generated test for modules/boogie/test/data/closable/test0/AttributeResolution.bpl
@@ -1820,7 +1871,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/bv7.bpl"}
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/LineResolve.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_LineResolve() throws Exception {
@@ -1829,7 +1881,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/LineResol
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/WhereParsing2.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_WhereParsing2() throws Exception {
@@ -1838,7 +1891,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/WherePars
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/bv2.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_bv2() throws Exception {
@@ -1847,7 +1901,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/bv2.bpl"}
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/nestedTypeParemeters.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_nestedTypeParemeters() throws Exception {
@@ -1856,7 +1911,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/nestedTyp
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/ParallelAssignment2.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_ParallelAssignment2() throws Exception {
@@ -1865,7 +1921,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/ParallelA
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/LineParse.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_LineParse() throws Exception {
@@ -1874,7 +1931,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/LineParse
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/AttributeParsingErr.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_AttributeParsingErr() throws Exception {
@@ -1883,7 +1941,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/Attribute
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/bv3.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_bv3() throws Exception {
@@ -1892,7 +1951,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/bv3.bpl"}
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/Types0.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_Types0() throws Exception {
@@ -1901,7 +1961,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/Types0.bp
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/bitvectors2.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_bitvectors2() throws Exception {
@@ -1910,7 +1971,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/bitvector
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/WhereParsing1.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_WhereParsing1() throws Exception {
@@ -1919,7 +1981,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/WherePars
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/bv0.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_bv0() throws Exception {
@@ -1928,7 +1991,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/bv0.bpl"}
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/typedefs.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_typedefs() throws Exception {
@@ -1937,7 +2001,8 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/typedefs.
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 // generated test for modules/boogie/test/data/ParseException/BadQuantifier.bpl
 public void testBoogieParsemodules_boogie_test_data_ParseException_BadQuantifier() throws Exception {
@@ -1946,6 +2011,7 @@ BPLParser.main(new String[] { "modules/boogie/test/data/ParseException/BadQuanti
 } catch(ParseException ex){
 return;
 }
-assert false: "expected ParseException to be trown";}
+fail("expected ParseException to be trown");
+}
 
 }

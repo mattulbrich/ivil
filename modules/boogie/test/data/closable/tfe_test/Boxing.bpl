@@ -1,3 +1,4 @@
+//note: the first assertion could be proved manually
 
 type Box;
 

@@ -1,3 +1,5 @@
+// note: this test currently fails, because it is not very harmful to allow for unused type quantification in ivil
+
 function union(<a> [a] bool, <a> [a] bool) returns (<a> [a] bool);
 
 axiom (forall<alpha>             // error: alpha has to occur in dummy types

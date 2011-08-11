@@ -12,7 +12,7 @@ procedure Q(x: int);
 
 procedure CallQ()
 {
-  call forall Q(5);  // error: P is not allowed here, because it has a modifies clause
+  call forall Q(5);  // error: Q is not allowed here, because it has a modifies clause
 }
 
 procedure R(x: int);

@@ -11,6 +11,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
+import de.uka.iti.pseudo.parser.boogie.ast.AxiomDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
@@ -75,6 +76,8 @@ import de.uka.iti.pseudo.term.creation.TypingContext;
  * 
  */
 public final class TypeMapBuilder extends DefaultASTVisitor {
+
+    private static final Type BOOL_T = Environment.getBoolType();
 
     private final EnvironmentCreationState state;
 
@@ -314,9 +317,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
                 for (int i = 0; i < args.length; i++) {
                     args[i] = TypeVariable.getInst("arg" + i);
-                    // add a new schema variable; this is only needed for
-                    // consistency
-                    schemaTypes.add(node.getTypeParameters().get(i), context.newSchemaType());
+                    // arguments to type constructors are not relevant, if no
+                    // definition was supplied
+                    defaultAction(node.getTypeParameters().get(i));
                 }
 
                 Type result = state.env.mkType(name, args);
@@ -367,9 +370,13 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
                 declaration.visit(this);
 
             // get type
-            if(((UserTypeDefinition)declaration).getDefinition()!=null)
+            if (((UserTypeDefinition) declaration).getDefinition() != null) {
+                if (!state.typeMap.has(declaration))
+                    throw new ASTVisitException(node.getLocation() + " :: The type declared @"
+                            + declaration.getLocation() + " appears to be cyclic.");
+
                 type = state.typeMap.get(declaration);
-            else
+            } else
                 type = context.instantiate(schemaTypes.get(declaration));
 
             if (type instanceof SchemaType)
@@ -477,7 +484,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         try {
             unify(node, state.mapDB.getType(in,
-                    state.mapDB.getType(out, Environment.getBoolType(), new TypeVariable[0], node, state), parameters,
+ state.mapDB.getType(out, BOOL_T, new TypeVariable[0], node, state),
+                    parameters,
                     node, state));
 
         } catch (TypeSystemException e) {
@@ -489,6 +497,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         if (node.isImplemented())
             node.getBody().visit(this);
+
+        for (ASTElement n : node.getAttributes())
+            n.visit(this);
     }
 
     @Override
@@ -519,7 +530,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         try {
             unify(node, state.mapDB.getType(in,
-                    state.mapDB.getType(out, Environment.getBoolType(), new TypeVariable[0], node, state), parameters,
+ state.mapDB.getType(out, BOOL_T, new TypeVariable[0], node, state),
+                    parameters,
                     node, state));
 
         } catch (TypeSystemException e) {
@@ -550,6 +562,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         setTypeSameAs(node, node.getType());
 
         node.getWhereClause().visit(this);
+        unify(node.getWhereClause(), BOOL_T);
     }
 
     @Override
@@ -562,7 +575,6 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
             context.unify(context.instantiate(schemaTypes.get(node.getTarget())),
                     context.instantiate(schemaTypes.get(node.getNewValue())));
         } catch (UnificationException e) {
-            e.printStackTrace();
             throw new ASTVisitException("assignment illtyped @" + node.getLocation(), e);
         }
         setTypeSameAs(node, node.getTarget());
@@ -570,7 +582,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ExtendsExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     /**
@@ -813,16 +825,16 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(ForallExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
         // we know as well, that the quantifier body has a bool range type
-        unify(node.getBody().getBody(), Environment.getBoolType());
+        unify(node.getBody().getBody(), BOOL_T);
     }
 
     @Override
     public void visit(ExistsExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
         // we know as well, that the quantifier body has a bool range type
-        unify(node.getBody().getBody(), Environment.getBoolType());
+        unify(node.getBody().getBody(), BOOL_T);
     }
 
     @Override
@@ -858,14 +870,14 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(LoopInvariant node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
     public void visit(WildcardExpression node) throws ASTVisitException {
         // note: this method will only be called on boolean wildcards, if
         // wildcard occurs in call statements, the parent already typed this
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
@@ -877,42 +889,41 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(EquivalenceExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
         unify(node.getOperands().get(0), schemaTypes.get(node.getOperands().get(1)));
     }
 
     @Override
     public void visit(ImpliesExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
     public void visit(AndExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
     public void visit(OrExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
     public void visit(EqualsExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
 
         // operands need to have the same type
         try {
             context.unify(context.instantiate(schemaTypes.get(node.getOperands().get(0))), context
                     .instantiate(schemaTypes.get(node.getOperands().get(1))));
         } catch (UnificationException e) {
-            e.printStackTrace();
             throw new ASTVisitException("equality illtyped @" + node.getLocation(), e);
         }
     }
 
     @Override
     public void visit(RelationExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
@@ -922,7 +933,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(NegationExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
@@ -932,12 +943,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(TrueExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
     public void visit(FalseExpression node) throws ASTVisitException {
-        defaultTyping(node, Environment.getBoolType());
+        defaultTyping(node, BOOL_T);
     }
 
     @Override
@@ -1070,6 +1081,12 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         for (int i = 0; i < node.getArguments().size(); i++)
             unify(node.getArguments().get(i), signature[i + 1]);
+    }
+
+    @Override
+    public void visit(AxiomDeclaration node) throws ASTVisitException {
+        defaultAction(node);
+        unify(node.getAxiom(), BOOL_T);
     }
 
     @Override

@@ -38,11 +38,8 @@ public class BoogieParserTestCreator {
             out.write("BPLParser.main(new String[] { \"" + path + "\"});\n");
             
             if(!context.equals("closable")){
-                out.write("} catch(" + context + " ex){\n" +
-                        "return;\n"+
-                        "}\n"+
-                        "assert false: \"expected "
-                        + context + " to be trown\";");
+                out.write("} catch(" + context + " ex){\nreturn;\n}\nfail(\"expected " + context
+                        + " to be trown\");\n");
             }
 
             out.write("}\n\n");
