@@ -5,6 +5,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Pair;
+
 /**
  * Creates unit tests out of .bpl files in ./examples/boogie/test/*<br>
  * 
@@ -31,13 +36,13 @@ public class BoogieParserTestCreator {
             out.write("public void testBoogieParse" + path.replace("/", "_").replace(".bpl", "").replace("-", "_")
                     + "() throws Exception {\n");
             
-            if(!context.equals("closable")){
+            if (!context.contains("valid")) {
                 out.write("try{\n");
             }
 
             out.write("BPLParser.main(new String[] { \"" + path + "\"});\n");
             
-            if(!context.equals("closable")){
+            if (!context.contains("valid")) {
                 out.write("} catch(" + context + " ex){\nreturn;\n}\nfail(\"expected " + context
                         + " to be trown\");\n");
             }

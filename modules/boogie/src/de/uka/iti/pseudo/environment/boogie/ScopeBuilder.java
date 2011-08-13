@@ -6,9 +6,11 @@ import de.uka.iti.pseudo.parser.boogie.ASTElement;
 import de.uka.iti.pseudo.parser.boogie.ASTVisitException;
 import de.uka.iti.pseudo.parser.boogie.ast.CompilationUnit;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.IfStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.NamedASTElement;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureImplementation;
+import de.uka.iti.pseudo.parser.boogie.ast.WhileStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.CodeExpression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.QuantifierBody;
 import de.uka.iti.pseudo.parser.boogie.ast.type.MapType;
@@ -127,5 +129,33 @@ public final class ScopeBuilder extends DefaultASTVisitor {
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         defaultChange(node);
+    }
+
+    @Override
+    public void visit(WhileStatement node) throws ASTVisitException {
+        defaultChange(node);
+    }
+
+    @Override
+    public void visit(IfStatement node) throws ASTVisitException {
+
+        node.getGuard().visit(this);
+        scopeMap.add(node, activeScope());
+
+        push(node);
+
+        for (ASTElement n : node.getThenBlock())
+            n.visit(this);
+
+        pop(node);
+
+        if (node.getElseBlock() != null) {
+            push(node);
+
+            for (ASTElement n : node.getElseBlock())
+                n.visit(this);
+
+            pop(node);
+        }
     }
 }

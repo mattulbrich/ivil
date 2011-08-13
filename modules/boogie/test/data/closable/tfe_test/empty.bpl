@@ -1,3 +1,0 @@
-/*
-  The empty problem is easy to prove.
-*/

@@ -54,7 +54,7 @@ public final class TypingPhase {
                 + (state.scopeMap.size() - state.typeMap.size()) + " untyped ASTElements";
 
         // ensure correctness of modifies
-        new ModifiesChecker(state);
+        new ModifiesAndLabelChecker(state);
     }
 
 }

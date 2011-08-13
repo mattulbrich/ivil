@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
 
-public final class WhileStatement extends Statement {
+public final class WhileStatement extends Statement implements NamedASTElement {
 
     private final Expression guard;
     private final List<LoopInvariant> invariants;
@@ -46,6 +46,11 @@ public final class WhileStatement extends Statement {
     public Expression getGuard() {
         assert null != guard;
         return guard;
+    }
+
+    @Override
+    public String getName() {
+        return "while-statment";
     }
 
 }

@@ -9,7 +9,7 @@ import de.uka.iti.pseudo.parser.boogie.Token;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.WildcardExpression;
 
-public final class IfStatement extends Statement {
+public final class IfStatement extends Statement implements NamedASTElement {
 
     private final Expression guard;
     private final List<Statement> thenBlock;
@@ -69,5 +69,10 @@ public final class IfStatement extends Statement {
      */
     public List<Statement> getElseBlock() {
         return elseBlock;
+    }
+
+    @Override
+    public String getName() {
+        return "if-statement";
     }
 }
