@@ -431,14 +431,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
                             .getTypeParameters().get(i)), args[0]) };
 
             } catch (TermException e) {
-                e.printStackTrace();
+                throw new ASTVisitException(e);
             }
 
             // add axiom
             try {
                 state.env.addAxiom(new Axiom("def_" + node.getName(), args[0], new HashMap<String, String>(), node));
             } catch (EnvironmentException e) {
-                e.printStackTrace();
+                throw new ASTVisitException(e);
             }
 
         }

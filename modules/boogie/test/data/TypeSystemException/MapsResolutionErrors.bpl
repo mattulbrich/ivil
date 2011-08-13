@@ -17,7 +17,7 @@ function {:inline true} K<a>(int) returns (Set a)
 { EmptySet() }
 
 
-procedure P<a>(x: int, y: bool) returns (z: int, w: bool);  // error: "a" is not used
+procedure P<a>(x: int, y: bool) returns (z: int, w: bool){}  // error: "a" is not used
 
 procedure Q<a>(x: int, y: bool) returns (z: int, w: a);
 procedure R<a>(x: int, y: bool) returns (z: int, w: Set a);

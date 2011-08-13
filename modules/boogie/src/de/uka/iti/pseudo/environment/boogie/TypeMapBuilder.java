@@ -293,6 +293,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         } catch (TypeSystemException e) {
             throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
         }
+        
+        // the expression musst have the return type
+        if (null != node.getExpression())
+            unify(node.getExpression(), schemaTypes.get(node.getOutParemeter()));
     }
 
     @Override

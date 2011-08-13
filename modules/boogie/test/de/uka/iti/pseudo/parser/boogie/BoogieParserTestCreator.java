@@ -53,29 +53,36 @@ public class BoogieParserTestCreator {
     }
 
     public static void main(String[] args) {
-        final String PATH = "modules/boogie/test/de/uka/iti/pseudo/parser/boogie/TestBoogieParser.java";
+        final String PATH = "modules/boogie/test/de/uka/iti/pseudo/parser/boogie/TestFor";
         final String DATA = "modules/boogie/test/data";
 
-        {
-            File tests = new File(PATH);
-            tests.delete();
-        }
+
         try {
-            FileWriter fstream = new FileWriter(PATH);
+
+            // create tests for each context
+            for (String context : new File(DATA).list()) {
+                final String path = PATH + context + ".java";
+                {
+                    File tests = new File(path);
+                    tests.delete();
+                }
+
+                FileWriter fstream = new FileWriter(path);
             BufferedWriter out = new BufferedWriter(fstream);
 
             out.write("package de.uka.iti.pseudo.parser.boogie;\n" + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
                     + "import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationException;\n"
                     + "import de.uka.iti.pseudo.environment.boogie.TypeSystemException;\n"
-                    + "public class TestBoogieParser extends TestCaseWithEnv {\n\n");
+ + "public class TestFor"
+                        + context + " extends TestCaseWithEnv {\n\n");
 
-            // create tests for each context
-            for (String context : new File(DATA).list())
                 if (new File(DATA + "/" + context).isDirectory())
                     append(out, DATA + "/" + context, context);
 
             out.write("}");
             out.close();
+
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

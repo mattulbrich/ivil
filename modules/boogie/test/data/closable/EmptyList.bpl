@@ -41,7 +41,3 @@ procedure P() returns ()
 
   assert (forall i:int :: i > 0 ==> mar[i] == cdr(mar[i-1]));    // error
 }
-
-procedure Q() returns () {
-  assert Cons(NIL(), NIL()) != NIL();  // warning, but provable
-}
