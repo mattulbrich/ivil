@@ -281,7 +281,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         TypeVariable[] parameters = paramList.toArray(new TypeVariable[paramList.size()]);
 
         for (ASTElement n : node.getChildren())
-            n.visit(this);
+            if (n != node.getExpression())
+                n.visit(this);
 
         Type[] domain = new Type[node.getInParameters().size()];
         for (int i = 0; i < domain.length; i++)
@@ -295,8 +296,10 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         }
         
         // the expression musst have the return type
-        if (null != node.getExpression())
+        if (null != node.getExpression()) {
+            node.getExpression().visit(this);
             unify(node.getExpression(), schemaTypes.get(node.getOutParemeter()));
+        }
     }
 
     @Override

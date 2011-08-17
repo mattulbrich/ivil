@@ -20,11 +20,6 @@ public class GenTestBasic extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_basic_typing/test11.bpl"});
 	}
 
-	// generated test for modules/boogie/test/data/Basic/tfe_basic_typing/test2b.bpl
-	public void testValid_modules_boogie_test_data_Basic_tfe_basic_typing_test2b_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_basic_typing/test2b.bpl"});
-	}
-
 	// generated test for modules/boogie/test/data/Basic/tfe_basic_typing/test3.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_basic_typing_test3_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_basic_typing/test3.bpl"});
@@ -125,11 +120,6 @@ public class GenTestBasic extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/Boxing.bpl"});
 	}
 
-	// generated test for modules/boogie/test/data/Basic/tfe_test/modifies.bpl
-	public void testValid_modules_boogie_test_data_Basic_tfe_test_modifies_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/modifies.bpl"});
-	}
-
 	// generated test for modules/boogie/test/data/Basic/tfe_test/goodCoercion.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_test_goodCoercion_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/goodCoercion.bpl"});
@@ -205,6 +195,11 @@ public class GenTestBasic extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/typeArgsVsParams2.bpl"});
 	}
 
+	// generated test for modules/boogie/test/data/Basic/tfe_test/weq2.bpl
+	public void testValid_modules_boogie_test_data_Basic_tfe_test_weq2_bpl() throws Exception {
+		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/weq2.bpl"});
+	}
+
 	// generated test for modules/boogie/test/data/Basic/tfe_test/doomedContracts.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_test_doomedContracts_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/doomedContracts.bpl"});
@@ -228,6 +223,11 @@ public class GenTestBasic extends TestCaseWithEnv {
 	// generated test for modules/boogie/test/data/Basic/tfe_test/while2.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_test_while2_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/while2.bpl"});
+	}
+
+	// generated test for modules/boogie/test/data/Basic/tfe_test/weq.bpl
+	public void testValid_modules_boogie_test_data_Basic_tfe_test_weq_bpl() throws Exception {
+		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/weq.bpl"});
 	}
 
 	// generated test for modules/boogie/test/data/Basic/tfe_test/mapOrderTest.bpl
