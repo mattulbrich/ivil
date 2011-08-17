@@ -1,0 +1,10 @@
+
+	// generated test for %%
+	public void test_$$() throws Exception {
+		try{
+			BPLParser.main(new String[] { "%%"});
+		} catch(ParseException ex){
+			return;
+		}
+		fail("expected ParseException to be trown");
+	}

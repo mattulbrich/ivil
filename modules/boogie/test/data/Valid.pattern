@@ -1,0 +1,5 @@
+
+	// generated test for %%
+	public void testValid_$$() throws Exception {
+		BPLParser.main(new String[] { "%%"});
+	}
