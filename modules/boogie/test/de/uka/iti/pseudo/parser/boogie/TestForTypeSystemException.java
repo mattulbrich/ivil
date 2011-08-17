@@ -194,6 +194,16 @@ return;
 fail("expected TypeSystemException to be trown");
 }
 
+// generated test for modules/boogie/test/data/TypeSystemException/BadLabels2.bpl
+public void testBoogieParsemodules_boogie_test_data_TypeSystemException_BadLabels2() throws Exception {
+try{
+BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/BadLabels2.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+fail("expected TypeSystemException to be trown");
+}
+
 // generated test for modules/boogie/test/data/TypeSystemException/CallForallResolve.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_CallForallResolve() throws Exception {
 try{
@@ -334,6 +344,16 @@ return;
 fail("expected TypeSystemException to be trown");
 }
 
+// generated test for modules/boogie/test/data/TypeSystemException/BadLabels1.bpl
+public void testBoogieParsemodules_boogie_test_data_TypeSystemException_BadLabels1() throws Exception {
+try{
+BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/BadLabels1.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+fail("expected TypeSystemException to be trown");
+}
+
 // generated test for modules/boogie/test/data/TypeSystemException/WhereResolution.bpl
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_WhereResolution() throws Exception {
 try{
@@ -428,6 +448,16 @@ fail("expected TypeSystemException to be trown");
 public void testBoogieParsemodules_boogie_test_data_TypeSystemException_Types1() throws Exception {
 try{
 BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Types1.bpl"});
+} catch(TypeSystemException ex){
+return;
+}
+fail("expected TypeSystemException to be trown");
+}
+
+// generated test for modules/boogie/test/data/TypeSystemException/BadLabels3.bpl
+public void testBoogieParsemodules_boogie_test_data_TypeSystemException_BadLabels3() throws Exception {
+try{
+BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/BadLabels3.bpl"});
 } catch(TypeSystemException ex){
 return;
 }

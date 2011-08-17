@@ -87,11 +87,57 @@ public class ASTConversions {
      * </ul>
      */
     public static String getEscapedName(String name) {
-        // note: this might decrease the performance of the boogie loader
-        // significantly; it might be useful to decompose the name into a char
-        // array and replace all characters at the same time
+        char[] in = name.toCharArray(), out;
 
-        return name.replace("_", "__").replace("'", "_p").replace("~", "_t").replace("#", "_h")
-                .replace("$", "_d").replace("^", "_c").replace(".", "_o").replace("?", "_q").replace("`", "_a");
+        // calculate target length
+        int length = in.length;
+        for (int i = 0; i < in.length; i++)
+            if (in[i] == '_' || in[i] == '\'' || in[i] == '~' || in[i] == '#' || in[i] == '$' || in[i] == '^'
+                    || in[i] == '.' || in[i] == '?' || in[i] == '`')
+                ++length;
+
+        if (length == in.length)
+            return name;
+
+        out = new char[length];
+        for (int i = 0, j = 0; i < in.length; i++, j++) {
+            if (in[i] == '_' || in[i] == '\'' || in[i] == '~' || in[i] == '#' || in[i] == '$' || in[i] == '^'
+                    || in[i] == '.' || in[i] == '?' || in[i] == '`') {
+                out[j++] = '_';
+                switch (in[i]) {
+                case '_':
+                    out[j] = '_';
+                    break;
+                case '\'':
+                    out[j] = 'p';
+                    break;
+                case '~':
+                    out[j] = 't';
+                    break;
+                case '#':
+                    out[j] = 'h';
+                    break;
+                case '$':
+                    out[j] = 'd';
+                    break;
+                case '^':
+                    out[j] = 'c';
+                    break;
+                case '.':
+                    out[j] = 'o';
+                    break;
+                case '?':
+                    out[j] = 'q';
+                    break;
+                case '`':
+                    out[j] = 'a';
+                    break;
+                }
+            } else {
+                out[j] = in[i];
+            }
+        }
+
+        return new String(out);
     }
 }

@@ -368,29 +368,6 @@ class BoogieMap extends Type {
                     declaringLocation));
         }
 
-        // create schema signatures for load and store
-        Term[] load_sig, store_sig;
-        {
-            TypingContext t = new TypingContext();
-            Type[] load_t = t.makeNewSignature($load.getResultType(), $load.getArgumentTypes());
-            load_sig = new Term[load_t.length];
-            for (int i = 0; i < load_sig.length; i++)
-                if (load_t[i] instanceof SchemaType)
-                    load_sig[i] = SchemaVariable.getInst("%" + ((SchemaType) load_t[i]).getVariableName(),
-                            load_t[i]);
-                else
-                    load_sig[i] = SchemaVariable.getInst("%" + load_t[i].toString(), load_t[i]);
-
-            Type[] store_t = t.makeNewSignature($store.getResultType(), $store.getArgumentTypes());
-            store_sig = new Term[store_t.length];
-            for (int i = 0; i < store_sig.length; i++)
-                if (store_t[i] instanceof SchemaType)
-                    store_sig[i] = SchemaVariable.getInst("%" + ((SchemaType) store_t[i]).getVariableName(),
-                            store_t[i]);
-                else
-                    store_sig[i] = SchemaVariable.getInst("%" + store_t[i].toString(), store_t[i]);
-        }
-
         createRules(name, $load, $store, env);
 
         return env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
