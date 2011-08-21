@@ -2,18 +2,20 @@
 # This file is part of This file is part of
 #    ivil - Interactive Verification on Intermediate Language
 #
-# Copyright (C) 2009 Universitaet Karlsruhe, Germany
-#    written by Mattias Ulbrich
+# Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
+#    written by Timm Felden, Mattias Ulbrich
 #
 # The system is protected by the GNU General Public License.
 # See LICENSE.TXT for details.
 #
 
 (*
- * This files contains the definitions for the set datatype
- *
- * You will find optimised rules in .... .
+ * This file contains an implementation of one dimensional maps and lambdas,
+ * that can be chained to mimic maps of higher dimension.
  *)
+ 
+include 
+  "$base.p"
 
 include "$fol.p"
 
@@ -21,15 +23,54 @@ plugin
   prettyPrinter : "test.ArrayPrettyPrinter"
 
 sort
-  map('a, 'b)
+  map('d, 'r)
+  
 
 function
-  'b read(map('a, 'b), 'a)
-  map('a,'b) write(map('a,'b), 'a, 'b)
+  map('d, 'r) $store(map('d, 'r), 'd, 'r)
+  'r $load(map('d, 'r), 'd)
 
-rule readwrite
-  find read(write(%m, %a1, %b), %a2)
-  replace cond(%a1 = %a2, %b, read(%m, %a2))
-  tags
-    rewrite "fol simp"
-    verbosity "8"
+#this rule can cause a split...
+rule map_load_store
+  find $load($store(%m, %d1, %v), %d2)
+  replace cond($weq(%d1,%d2), %v, $load(%m, %d2))
+  tags rewrite "split"
+  
+# ...so rules were added for cases where no split occurs
+rule map_load_store_same
+  find $load($store(%m, %d, %v), %d)
+  replace %v
+  tags rewrite "concrete"
+  
+rule map_load_store_same_assume
+  find $load($store(%m, %d, %v), %d2)
+  assume %d = %d2 |-
+  replace %v
+  tags rewrite "concrete"
+
+rule map_load_store_other
+  find $load($store(%m, %d1, %v), %d2)
+  assume |- %d1 = %d2
+  replace $load(%m, %d2)
+  tags rewrite "concrete"
+  
+rule map_load_store_other_reverse
+  find $load($store(%m, %d1, %v), %d2)
+  assume |- %d2 = %d1
+  replace $load(%m, %d2)
+  tags rewrite "concrete"
+  
+
+binder
+  map('d, 'r) (\lambda 'd; 'r)
+
+rule map_lambda
+  find $load((\lambda %x; %e), %y)
+  replace $$subst(%x, %y, %e)
+  tags rewrite "concrete"
+  
+rule map_lambda_assume
+  find $load(%m, %y)
+  assume %m = (\lambda %x; %e) |-
+  replace $$subst(%x, %y, %e)
+  tags rewrite "concrete"
