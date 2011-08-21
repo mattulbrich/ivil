@@ -168,7 +168,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
             int sourcelinenumber = pair.fst();
             ASTStatement ast = pair.snd();
             Statement statement = TermMaker.makeAndTypeStatement(ast, sourcelinenumber, env);
-            if(detectSchemaVariables(statement))
+            if(detectSchemaObject(statement))
                 throw new ASTVisitException("Unallowed schema entity in statement", ast);
             statements.add(statement);
             
@@ -194,9 +194,9 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
      * find schema variables in a statement.
      * @return true iff a subterm of statement contains a schema variable
      */
-    private boolean detectSchemaVariables(Statement statement) {
+    private boolean detectSchemaObject(Statement statement) {
         for (Term subterm : statement.getSubterms()) {
-            if(TermMatcher.containsSchemaVariables(subterm))
+            if(TermMatcher.containsSchemaObject(subterm))
                 return true;
         }
         return false;
