@@ -24,15 +24,14 @@ import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.where.DifferentGroundTypes;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaType;
-import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
+import de.uka.iti.pseudo.term.creation.DefaultTypeVisitor;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TypingContext;
 import de.uka.iti.pseudo.util.Log;
 
 /**
@@ -52,11 +51,51 @@ class BoogieMap extends Type {
     protected final ASTLocatedElement declaringLocation;
 
     public BoogieMap(List<TypeVariable> boundVars, List<Type> domain, Type range,
-            ASTLocatedElement declaringLocation) {
+ ASTLocatedElement declaringLocation)
+            throws TypeSystemException {
         this.boundVars = boundVars;
         this.domain = domain;
         this.range = range;
         this.declaringLocation = declaringLocation;
+
+        checkForUnusedTypeVariables();
+    }
+
+    private void checkForUnusedTypeVariables() throws TypeSystemException {
+        try {
+            UnusedBoundVariablesInMapVisitor.check(new HashSet<TypeVariable>(boundVars), domain, range, declaringLocation);
+        } catch (TermException e) {
+            new TypeSystemException(declaringLocation.getLocation() + " map creation failed unexpectedly.", e);
+        }
+    }
+
+    /**
+     * @author timm.felden@felden.com
+     * @note this class assumes that no BoogieMap occurs in domain or range
+     */
+    static class UnusedBoundVariablesInMapVisitor extends DefaultTypeVisitor<HashSet<TypeVariable>> {
+
+        private final static UnusedBoundVariablesInMapVisitor instance = new UnusedBoundVariablesInMapVisitor();
+
+        public static void check(final HashSet<TypeVariable> boundVars, final List<Type> domain,
+                final Type range, final ASTLocatedElement declaringLocation) throws TermException, TypeSystemException {
+
+            for (Type t : domain)
+                t.accept(instance, boundVars);
+
+            range.accept(instance, boundVars);
+                    
+                    if(!boundVars.isEmpty())
+                throw new TypeSystemException("The requested map @" + declaringLocation.getLocation()
+                        + " contains unbound type variables: " + boundVars);
+        }
+
+        @Override
+        public Void visit(TypeVariable typeVariable, HashSet<TypeVariable> boundVars) throws TermException {
+            if (boundVars.contains(typeVariable))
+                boundVars.remove(typeVariable);
+            return null;
+        }
     }
 
     public Boolean accept(BoogieMap.BoogieMapEqualityVisitor visitor, Type parameter) throws TermException {
@@ -241,9 +280,9 @@ class BoogieMap extends Type {
      * transformed into a new argument of the type constructor. In order to
      * create the desired type, the type application is used as respective
      * argument.
-     * <li>type applications, that contain bound type variables contribute
-     * to the structure of the map, as such map types can not be made equal
-     * to other maps by using what ever arguments to unbound type variables
+     * <li>type applications, that contain bound type variables contribute to
+     * the structure of the map, as such map types can not be made equal to
+     * other maps by using what ever arguments to unbound type variables
      * </ul>
      * </ul>
      * 
@@ -256,12 +295,15 @@ class BoogieMap extends Type {
      * <li> {@literal [int]int => map(int->a, int->b) : a -> b * }
      * </ul>
      * 
-     * @note (boogie style) map equality checks are still needed to
-     *       guarantee that maps such as {@literal <a>[a]a} and
-     *       {@literal<b>[b]b} are represented by the same map type
+     * @throws TypeSystemException
+     *             thrown, if the map contains unused bound type variables
+     * 
+     * @note (boogie style) map equality checks are still needed to guarantee
+     *       that maps such as {@literal <a>[a]a} and {@literal<b>[b]b} are
+     *       represented by the same map type
      */
     Type flatten(final Environment env, final String desiredName, final MapTypeDatabase mapDB)
-            throws EnvironmentException, TermException {
+            throws EnvironmentException, TermException, TypeSystemException {
         
         // //
         // 1. create representing map type
@@ -404,13 +446,11 @@ class BoogieMap extends Type {
     /**
      * does the actual generalization needed in flatten.
      * 
-     * @note new parameters are named _%i, as such variable names can not be
-     *       the result of any legal type parameter name after escaping it
-     *       propperly
+     * @note new parameters are named _%i, as such variable names can not be the
+     *       result of any legal type parameter name after escaping it propperly
      */
     private Type generalize(Type t, LinkedList<Type> omittedTypes, Environment env, MapTypeDatabase mapDB)
-            throws EnvironmentException,
-            TermException {
+            throws EnvironmentException, TermException, TypeSystemException {
         if (t instanceof TypeVariable) {
             if (boundVars.contains(t)) {
                 return t;
