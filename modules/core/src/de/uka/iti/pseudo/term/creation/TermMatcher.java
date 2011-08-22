@@ -83,7 +83,16 @@ public class TermMatcher implements Cloneable {
      * 
      * @see SchemaCollectorVisitor
      */
-    private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() { 
+    private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() {
+        protected void defaultVisitTerm(Term term) throws TermException {
+            if (term.getType() instanceof SchemaType)
+                throw new TermException("Unexpected schema type found: " + term.getType());
+
+            for (Term t : term.getSubterms()) {
+                t.visit(this);
+            }
+        }
+
         public void visit(SchemaVariable schemaVariable) throws TermException {
             throw new TermException("Unexpected schema variable found: " + schemaVariable);
         }
@@ -105,16 +114,15 @@ public class TermMatcher implements Cloneable {
     };
 
     /**
-     * Checks whether a term contains schema variables.
-     * 
-     * TODO Possibly extend this to schema updates / schema types.
+     * Checks whether a term contains schema variables, schema updates or schema
+     * types.
      * 
      * @param term
      *            term to check
      * 
-     * @return true iff there occurs at least one schema variable in term 
+     * @return true iff there occurs at least one schema object in term
      */
-    public static boolean containsSchemaVariables(Term term) {
+    public static boolean containsSchemaObject(Term term) {
         try {
             term.visit(schemaFinder);
             return false;
@@ -200,8 +208,8 @@ public class TermMatcher implements Cloneable {
     public void addInstantiation(@NonNull SchemaVariable sv, @NonNull Term term) throws TermException {
         if(instantiation.get(sv.getName()) != null)
             throw new TermException("SchemaVariable " + sv + " already instantiated");
-        if(containsSchemaVariables(term))
-            throw new TermException("Instantiation " + term + " contains schema variable(s)");
+        if(containsSchemaObject(term))
+            throw new TermException("Instantiation " + term + " contains schema entity");
         
         instantiation.put(sv.getName(), term);
     }

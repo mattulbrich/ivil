@@ -33,7 +33,7 @@ function
 #this rule can cause a split...
 rule map_load_store
   find $load($store(%m, %d1, %v), %d2)
-  replace cond(%d1 = %d2, %v, $load(%m, %d2))
+  replace cond($weq(%d1,%d2), %v, $load(%m, %d2))
   tags rewrite "split"
   
 # ...so rules were added for cases where no split occurs

@@ -232,7 +232,7 @@ public class EnvironmentMaker {
         if(term != null) {
             problemTerm = TermMaker.makeTerm(term, env);
 
-            if(TermMatcher.containsSchemaVariables(problemTerm))
+            if(TermMatcher.containsSchemaObject(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
 
             try {
