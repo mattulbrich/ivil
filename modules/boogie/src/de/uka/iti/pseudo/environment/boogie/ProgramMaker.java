@@ -1803,10 +1803,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             // add type quantifiers before ordinary quantifiers
             {
-                TypeVariable[] boundvars = state.mapDB.getParameters(state.typeMap.get(node.getBody()));
-                for (int i = 0; i < boundvars.length; i++) {
-                    args = new Term[] { TypeVariableBinding
-                            .getInst(TypeVariableBinding.Kind.ALL, boundvars[i], args[0]) };
+                final int boundvars = node.getBody().getTypeParameters().size();
+
+                for (int i = 0; i < boundvars; i++) {
+                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.ALL,
+                            state.typeMap.get(node.getBody().getTypeParameters().get(i)), args[0]) };
                 }
             }
 
@@ -1840,9 +1841,11 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
             // add type quantifiers before ordinary quantifiers
             {
-                TypeVariable[] boundvars = state.mapDB.getParameters(state.typeMap.get(node.getBody()));
-                for (int i = 0; i < boundvars.length; i++) {
-                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX, boundvars[i], args[0]) };
+                final int boundvars = node.getBody().getTypeParameters().size();
+
+                for (int i = 0; i < boundvars; i++) {
+                    args = new Term[] { TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX,
+                            state.typeMap.get(node.getBody().getTypeParameters().get(i)), args[0]) };
                 }
             }
 

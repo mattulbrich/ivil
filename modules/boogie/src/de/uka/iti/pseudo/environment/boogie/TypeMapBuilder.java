@@ -829,6 +829,7 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
         for (ASTElement n : node.getChildren())
             n.visit(this);
 
+        if (node.getParent() instanceof LambdaExpression) {
         Type[] domain = new Type[node.getQuantifiedVariables().size()];
         for (int i = 0; i < domain.length; i++)
             domain[i] = context.instantiate(schemaTypes.get(node.getQuantifiedVariables().get(i)));
@@ -839,6 +840,9 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
         } catch (TypeSystemException e) {
             throw new ASTVisitException(node.getLocation() + ":: " + e.getMessage(), e);
+            }
+        } else {
+            unify(node, BOOL_T);
         }
     }
 

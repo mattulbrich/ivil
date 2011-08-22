@@ -535,16 +535,6 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 		fail("expected TypeSystemException to be trown");
 	}
 
-	// generated test for modules/boogie/test/data/TypeSystemException/Prog2.bpl
-	public void test_modules_boogie_test_data_TypeSystemException_Prog2_bpl() throws Exception {
-		try{
-			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Prog2.bpl"});
-		} catch(TypeSystemException ex){
-			return;
-		}
-		fail("expected TypeSystemException to be trown");
-	}
-
 	// generated test for modules/boogie/test/data/TypeSystemException/Types1.bpl
 	public void test_modules_boogie_test_data_TypeSystemException_Types1_bpl() throws Exception {
 		try{

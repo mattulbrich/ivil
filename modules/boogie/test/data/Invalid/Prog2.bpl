@@ -1,4 +1,4 @@
-// note: this test currently fails, because it is not very harmful to allow for unused type quantification in ivil
+// note: this is treated different then in boogie, because it is not very harmful to allow for unused type quantification in ivil
 
 function union(<a> [a] bool, <a> [a] bool) returns (<a> [a] bool);
 
