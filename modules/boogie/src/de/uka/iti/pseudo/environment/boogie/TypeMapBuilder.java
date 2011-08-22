@@ -171,6 +171,17 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     /**
+     * Adds a constraint for node.
+     */
+    private void unify(ASTElement node, ASTElement other) throws ASTVisitException {
+        try {
+            context.unify(schemaTypes.get(other), schemaTypes.get(node));
+        } catch (UnificationException e) {
+            throw new ASTVisitException("Type inferrence failed @ " + node.getLocation(), e);
+        }
+    }
+
+    /**
      * if node has not yet been processed, add shemaType and restricts the type
      * of node to be the same type as the type of typeNode
      * 
@@ -959,28 +970,23 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     }
 
     @Override
-    public void visit(CodeBlock node) throws ASTVisitException {
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        setTypeSameAs(node, node.getChildren().get(node.getChildren().size() - 1));
-    }
-
-    @Override
     public void visit(CodeExpression node) throws ASTVisitException {
-        // TODO
-
-        // for (ASTElement n : node.getChildren())
-        // n.visit(this);
-        //
-        // for (ASTElement n : node.getChildren()) {
-        // if (!state.typeMap!.get(n) != null) {
-        // !state.typeMap!.add(node, !state.typeMap!.get(n));
-        // return;
-        // }
-        // }
-        // throw new ASTVisitException("CodeExpression @" + node.getLocation() +
-        // " has no return statement!");
+        if (schemaTypes.has(node))
+            return;
+        schemaTypes.add(node, context.newSchemaType());
+        
+         for (ASTElement n : node.getChildren())
+         n.visit(this);
+                 
+        boolean returns = false;
+        for (CodeBlock b : node.getCode()) {
+            if (null != b.getReturnStatement()) {
+                returns = true;
+                unify(node, b.getReturnStatement());
+            }
+        }
+        if (!returns)
+            throw new ASTVisitException("CodeExpression @" + node.getLocation() + " has no return statement!");
     }
 
     @Override
