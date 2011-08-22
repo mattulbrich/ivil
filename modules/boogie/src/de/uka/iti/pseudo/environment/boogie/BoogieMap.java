@@ -349,15 +349,21 @@ class BoogieMap extends Type {
         env.addSort(new Sort(name, freeVars.size(), declaringLocation));
 
         // create function symbols
-        Function $load, $store;
+        Function $load, $store, $uncurry;
         {
             Type map_t = env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
             Type[] mapDomainRange = new Type[flat_dom.length + 2];
             Type[] mapDomain = new Type[flat_dom.length + 1];
+            Type[] curryMap = new Type[] { null };
 
             mapDomainRange[0] = mapDomain[0] = map_t;
-            for (int i = 0; i < flat_dom.length; i++)
+            for (int i = flat_dom.length - 1; i >= 0; i--) {
                 mapDomainRange[i + 1] = mapDomain[i + 1] = flat_dom[i];
+                if (null == curryMap[0])
+                    curryMap[0] = env.mkType("map", new Type[] { flat_dom[i], flat_r });
+                else
+                    curryMap[0] = env.mkType("map", new Type[] { flat_dom[i], curryMap[0] });
+            }
 
             mapDomainRange[flat_dom.length + 1] = flat_r;
 
@@ -366,9 +372,20 @@ class BoogieMap extends Type {
 
             env.addFunction($store = new Function("$store_" + name, map_t, mapDomainRange, false, false,
                     declaringLocation));
+
+            // uncurry: (d1 -> (... -> (dn -> v)...)) -> map_t
+
+            // allows to create map_t from map(D_1,(...(map(D_i,r))...))
+            // this is completely unneeded for maps without domain, because it
+            // is used to implement lambda expressions
+            if (flat_dom.length > 0)
+                env.addFunction($uncurry = new Function("$uncurry_" + name, map_t, curryMap, false, false,
+                        declaringLocation));
+            else
+                $uncurry = null;
         }
 
-        createRules(name, $load, $store, env);
+        createRules(name, $load, $store, $uncurry, env);
 
         return env.mkType(name, freeVars.toArray(new Type[freeVars.size()]));
     }
@@ -460,8 +477,10 @@ class BoogieMap extends Type {
     /**
      * create rules needed in order to handle objects of the created map type
      * efficiently
+     * 
+     * @param $uncurry
      */
-    private void createRules(String name, Function $load, Function $store, Environment env)
+    private void createRules(String name, Function $load, Function $store, Function $uncurry, Environment env)
  throws EnvironmentException {
 
         assert $load != null && $store != null : "Functions must already have been added";
@@ -472,6 +491,7 @@ class BoogieMap extends Type {
             addLoadStoreOtherAssumeRule(name, $load, $store, env);
             addLoadStoreOtherTypeRule(name, $load, $store, env);
             addLoadStoreCondRule(name, $load, $store, env);
+            addLoadUncurryLambdaRule(name, $load, $uncurry, env);
         } catch (ParseException e) {
             throw new EnvironmentException("Error while creating rules for map type " + name + "@" + declaringLocation,
                     e);
@@ -795,6 +815,61 @@ class BoogieMap extends Type {
         for (int i = 0; i < domain.size(); i++)
             sbReplace.append(", ").append("%t").append(i);
         sbReplace.append("))");
+
+        Term factory;
+        factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);
+        Term find, replace;
+
+        find = factory.getSubterm(1);
+        replace = factory.getSubterm(2);
+
+        actions.add(new GoalAction("samegoal", null, false, replace, none, none));
+
+        Rule rule = new Rule(ruleName, new LinkedList<LocatedTerm>(), new LocatedTerm(find, MatchingLocation.BOTH),
+                new LinkedList<WhereClause>(), actions, tags, declaringLocation);
+        Log.log(Log.DEBUG, "Rule " + rule + " created");
+        env.addRule(rule);
+    }
+
+    private void addLoadUncurryLambdaRule(String name, Function $load, Function $uncurry, Environment env)
+            throws EnvironmentException, RuleException, ParseException, ASTVisitException {
+        // dont create a rule, if uncurry is not present
+        if (null == $uncurry)
+            return;
+
+        String ruleName = name + "_load_uncurry_lambda";
+        // find: $load($uncurry(\lambda %d1 ... \lambda %dn; %v), %T)
+        // replace: $$subst(%D, %T, %v)
+
+        Map<String, String> tags = new HashMap<String, String>();
+
+        tags.put("rewrite", "concrete");
+
+        List<Term> none = new LinkedList<Term>();
+
+        List<GoalAction> actions = new LinkedList<GoalAction>();
+
+        // $load($uncurry(\lambda %d1 ... \lambda %dn; %v), %T)
+        StringBuilder sbFind = new StringBuilder();
+        sbFind.append($load.getName()).append("(");
+        sbFind.append($uncurry.getName()).append("(");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append("(\\lambda %d").append(i).append("; ");
+        sbFind.append("%v)");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append(")");
+        for (int i = 0; i < domain.size(); i++)
+            sbFind.append(", ").append("%t").append(i);
+        sbFind.append(")");
+
+        // $$subst(%d1, %t1, ... %%subst(%dn, %tn, %v))
+        StringBuilder sbReplace = new StringBuilder();
+        for (int i = 0; i < domain.size(); i++)
+            sbReplace.append("$$subst(%d").append(i).append(", ").append("%t").append(i).append(", ");
+
+        sbReplace.append("%v");
+        for (int i = 0; i < domain.size(); i++)
+            sbReplace.append(")");
 
         Term factory;
         factory = TermMaker.makeAndTypeTerm("cond(true," + sbFind + "," + sbReplace + ")", env);

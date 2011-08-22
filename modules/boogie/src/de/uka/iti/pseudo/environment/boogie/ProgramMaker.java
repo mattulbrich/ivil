@@ -1881,7 +1881,9 @@ public final class ProgramMaker extends DefaultASTVisitor {
             }
 
             state.translation.terms.put(node,
-                    Application.getInst(state.env.getFunction("map" + b.getQuantifiedVariables().size() + "_curry"),
+                    Application.getInst(
+                            state.env.getFunction("$uncurry_"
+                                    + ((TypeApplication) state.typeMap.get(node)).getSort().getName()),
  state.typeMap.get(node), args));
 
         } catch (TermException e) {

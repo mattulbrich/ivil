@@ -200,11 +200,6 @@ public class GenTestBasic extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/weq2.bpl"});
 	}
 
-	// generated test for modules/boogie/test/data/Basic/tfe_test/doomedContracts.bpl
-	public void testValid_modules_boogie_test_data_Basic_tfe_test_doomedContracts_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/doomedContracts.bpl"});
-	}
-
 	// generated test for modules/boogie/test/data/Basic/tfe_test/simple6.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_test_simple6_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/simple6.bpl"});
