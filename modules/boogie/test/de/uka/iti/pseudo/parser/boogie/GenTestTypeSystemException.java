@@ -55,6 +55,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 		fail("expected TypeSystemException to be trown");
 	}
 
+	// generated test for modules/boogie/test/data/TypeSystemException/Prog0modifies.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Prog0modifies_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Prog0modifies.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
 	// generated test for modules/boogie/test/data/TypeSystemException/NullaryMaps.bpl
 	public void test_modules_boogie_test_data_TypeSystemException_NullaryMaps_bpl() throws Exception {
 		try{
@@ -179,6 +189,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 	public void test_modules_boogie_test_data_TypeSystemException_badMap_bpl() throws Exception {
 		try{
 			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/badMap.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
+	// generated test for modules/boogie/test/data/TypeSystemException/Frame0.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Frame0_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Frame0.bpl"});
 		} catch(TypeSystemException ex){
 			return;
 		}
@@ -389,6 +409,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 	public void test_modules_boogie_test_data_TypeSystemException_TypeSynonyms0_bpl() throws Exception {
 		try{
 			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/TypeSynonyms0.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
+	// generated test for modules/boogie/test/data/TypeSystemException/PolyFuns0.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_PolyFuns0_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/PolyFuns0.bpl"});
 		} catch(TypeSystemException ex){
 			return;
 		}

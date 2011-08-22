@@ -17,4 +17,8 @@ public class EnvironmentCreationException extends ParseException {
         super(string);
     }
 
+    public EnvironmentCreationException(String string, Exception cause) {
+        super(string, cause);
+    }
+
 }

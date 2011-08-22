@@ -171,8 +171,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
             state.root.visit(this);
 
         } catch (ASTVisitException e) {
-            e.printStackTrace();
-            throw new EnvironmentCreationException(e.getMessage());
+            throw new EnvironmentCreationException(e.getMessage(), e);
         }
     }
 

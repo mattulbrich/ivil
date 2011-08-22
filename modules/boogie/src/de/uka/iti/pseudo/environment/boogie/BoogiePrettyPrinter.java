@@ -102,6 +102,9 @@ public final class BoogiePrettyPrinter extends PrettyPrintPlugin {
                         case 'a':
                             data[wi] = '`';
                             break;
+                        case 'b':
+                            data[wi] = '\\';
+                            break;
 
                         default:
                             // the argument is not an identifier from the source

@@ -85,11 +85,6 @@ public class GenTestValid extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test20/test3_AddMethod_conv.bpl"});
 	}
 
-	// generated test for modules/boogie/test/data/Valid/test20/PolyFuns0.bpl
-	public void testValid_modules_boogie_test_data_Valid_test20_PolyFuns0_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test20/PolyFuns0.bpl"});
-	}
-
 	// generated test for modules/boogie/test/data/Valid/aitest0/constants.bpl
 	public void testValid_modules_boogie_test_data_Valid_aitest0_constants_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/aitest0/constants.bpl"});
@@ -150,16 +145,6 @@ public class GenTestValid extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/textbook/Find.bpl"});
 	}
 
-	// generated test for modules/boogie/test/data/Valid/test1/Orderings.bpl
-	public void testValid_modules_boogie_test_data_Valid_test1_Orderings_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test1/Orderings.bpl"});
-	}
-
-	// generated test for modules/boogie/test/data/Valid/test1/Frame0.bpl
-	public void testValid_modules_boogie_test_data_Valid_test1_Frame0_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test1/Frame0.bpl"});
-	}
-
 	// generated test for modules/boogie/test/data/Valid/test1/EmptySeq.bpl
 	public void testValid_modules_boogie_test_data_Valid_test1_EmptySeq_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test1/EmptySeq.bpl"});
@@ -218,11 +203,6 @@ public class GenTestValid extends TestCaseWithEnv {
 	// generated test for modules/boogie/test/data/Valid/codeexpr/CodeExpr2.bpl
 	public void testValid_modules_boogie_test_data_Valid_codeexpr_CodeExpr2_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/codeexpr/CodeExpr2.bpl"});
-	}
-
-	// generated test for modules/boogie/test/data/Valid/test0/Orderings.bpl
-	public void testValid_modules_boogie_test_data_Valid_test0_Orderings_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test0/Orderings.bpl"});
 	}
 
 	// generated test for modules/boogie/test/data/Valid/test0/Triggers1.bpl
@@ -708,11 +688,6 @@ public class GenTestValid extends TestCaseWithEnv {
 	// generated test for modules/boogie/test/data/Valid/test2/OldIllegal.bpl
 	public void testValid_modules_boogie_test_data_Valid_test2_OldIllegal_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test2/OldIllegal.bpl"});
-	}
-
-	// generated test for modules/boogie/test/data/Valid/test2/WhereTyping.bpl
-	public void testValid_modules_boogie_test_data_Valid_test2_WhereTyping_bpl() throws Exception {
-		BPLParser.main(new String[] { "modules/boogie/test/data/Valid/test2/WhereTyping.bpl"});
 	}
 
 	// generated test for modules/boogie/test/data/Valid/test2/Ensures.bpl

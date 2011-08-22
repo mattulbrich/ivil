@@ -64,7 +64,7 @@ public class ASTConversions {
      * <li>^ -> _c
      * <li>. -> _o
      * <li>? -> _q
-     * <li>` -> _a
+     * <li>\ -> _b
      * </ul>
      */
     public static String getEscapedName(Token t) {
@@ -84,6 +84,7 @@ public class ASTConversions {
      * <li>. -> _o
      * <li>? -> _q
      * <li>` -> _a
+     * <li>\ -> _b
      * </ul>
      */
     public static String getEscapedName(String name) {
@@ -93,7 +94,7 @@ public class ASTConversions {
         int length = in.length;
         for (int i = 0; i < in.length; i++)
             if (in[i] == '_' || in[i] == '\'' || in[i] == '~' || in[i] == '#' || in[i] == '$' || in[i] == '^'
-                    || in[i] == '.' || in[i] == '?' || in[i] == '`')
+                    || in[i] == '.' || in[i] == '?' || in[i] == '`' || in[i] == '\\')
                 ++length;
 
         if (length == in.length)
@@ -101,40 +102,44 @@ public class ASTConversions {
 
         out = new char[length];
         for (int i = 0, j = 0; i < in.length; i++, j++) {
-            if (in[i] == '_' || in[i] == '\'' || in[i] == '~' || in[i] == '#' || in[i] == '$' || in[i] == '^'
-                    || in[i] == '.' || in[i] == '?' || in[i] == '`') {
-                out[j++] = '_';
-                switch (in[i]) {
-                case '_':
-                    out[j] = '_';
-                    break;
-                case '\'':
-                    out[j] = 'p';
-                    break;
-                case '~':
-                    out[j] = 't';
-                    break;
-                case '#':
-                    out[j] = 'h';
-                    break;
-                case '$':
-                    out[j] = 'd';
-                    break;
-                case '^':
-                    out[j] = 'c';
-                    break;
-                case '.':
-                    out[j] = 'o';
-                    break;
-                case '?':
-                    out[j] = 'q';
-                    break;
-                case '`':
-                    out[j] = 'a';
-                    break;
-                }
-            } else {
+            out[j++] = '_';
+            switch (in[i]) {
+            case '_':
+                out[j] = '_';
+                break;
+            case '\'':
+                out[j] = 'p';
+                break;
+            case '~':
+                out[j] = 't';
+                break;
+            case '#':
+                out[j] = 'h';
+                break;
+            case '$':
+                out[j] = 'd';
+                break;
+            case '^':
+                out[j] = 'c';
+                break;
+            case '.':
+                out[j] = 'o';
+                break;
+            case '?':
+                out[j] = 'q';
+                break;
+            case '`':
+                out[j] = 'a';
+                break;
+            case '\\':
+                out[j] = 'b';
+                break;
+
+            default:
+                j--;
                 out[j] = in[i];
+                break;
+
             }
         }
 

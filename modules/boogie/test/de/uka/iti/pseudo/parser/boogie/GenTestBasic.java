@@ -155,6 +155,11 @@ public class GenTestBasic extends TestCaseWithEnv {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/inferenceTest2.bpl"});
 	}
 
+	// generated test for modules/boogie/test/data/Basic/tfe_test/special.bpl
+	public void testValid_modules_boogie_test_data_Basic_tfe_test_special_bpl() throws Exception {
+		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/special.bpl"});
+	}
+
 	// generated test for modules/boogie/test/data/Basic/tfe_test/typeArgsVsParams3.bpl
 	public void testValid_modules_boogie_test_data_Basic_tfe_test_typeArgsVsParams3_bpl() throws Exception {
 		BPLParser.main(new String[] { "modules/boogie/test/data/Basic/tfe_test/typeArgsVsParams3.bpl"});

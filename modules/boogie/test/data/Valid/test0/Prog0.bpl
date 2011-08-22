@@ -25,7 +25,7 @@ procedure q(x:int, y:ref) returns (z:int)	// Procedure with output params
   requires x > 0;		// as many req/ens/mod you want
   ensures z > 3;	
   ensures old(x) == 1;		// old only in ensures..
-  modifies z,y,$ar;
+  modifies $ar;
 {  
   var t, s: int;
   var r: [int,ref]ref;

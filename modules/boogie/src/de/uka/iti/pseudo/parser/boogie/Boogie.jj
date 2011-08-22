@@ -53,7 +53,7 @@ import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;// we dont
             }
             creator.make();
         }
-    }}PARSER_END(BPLParser)TOKEN :{  < #LETTER : [ "A"-"Z", "a"-"z" ] >| < #DIGIT : [ "0"-"9" ] >| < #SPECIAL : [ "'", "~", "#", "$", "^", "_", ".", "?", "`" ] >| < #GLYPH : [ "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", "\\" ] >| < #NONDIGIT :    (      < LETTER >    | < SPECIAL >    ) >}/* Skip whitespace */SKIP :{  " "| "\t"| "\n"| "\r"}/* Comments */
+    }}PARSER_END(BPLParser)TOKEN :{  < #LETTER : [ "A"-"Z", "a"-"z" ] >| < #DIGIT : [ "0"-"9" ] >| < #SPECIAL : [ "'", "~", "#", "$", "^", "_", ".", "?", "`", "\\" ] >| < #GLYPH : [ "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "-", "_", "=", "+", "[", "{", "]", "}", "|", ";", ":", "'", ",", "<", ".", ">", "/", "?", "\\" ] >| < #NONDIGIT :    (      < LETTER >    | < SPECIAL >    ) >}/* Skip whitespace */SKIP :{  " "| "\t"| "\n"| "\r"}/* Comments */
 // Nesting taken from: http://www.engr.mun.ca/~theo/JavaCC-FAQ/javacc-faq-moz.htm#tth_sEc3.17
 TOKEN_MGR_DECLS : {
    int commentNestingDepth ;

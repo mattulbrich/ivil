@@ -8,5 +8,6 @@ const #:';
 function $('):';
 procedure #<^>($:^) returns (~:^)
 {
-  assert $(#) == $ || ~ == $ || $ == $;
+  var \:';
+  assert $(#) == $ || ~ == $ || $ == $ || $(\) != \;
 }

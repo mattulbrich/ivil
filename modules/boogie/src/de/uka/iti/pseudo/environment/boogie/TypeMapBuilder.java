@@ -621,14 +621,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     public void visit(BitvectorAccessSelectionExpression node) throws ASTVisitException {
-        if (schemaTypes.has(node))
-            return;
-        schemaTypes.add(node, context.newSchemaType());
-
-        for (ASTElement n : node.getChildren())
-            n.visit(this);
-
-        setTypeSameAs(node, node.getOperands().get(0));
+        defaultAction(node);
+        setTypeSameAs(node, node.getTarget());
     }
 
     @Override
