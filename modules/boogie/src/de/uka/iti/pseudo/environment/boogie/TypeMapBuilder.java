@@ -64,8 +64,10 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.RebuildingTypeVisitor;
+import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.term.creation.TypingContext;
 
 /**
@@ -930,12 +932,21 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(EqualsExpression node) throws ASTVisitException {
         defaultTyping(node, BOOL_T);
 
+        final Type t0 = context.instantiate(schemaTypes.get(node.getOperands().get(0))), t1 = context
+                .instantiate(schemaTypes.get(node.getOperands().get(1)));
+
         // operands need to have the same type
         try {
-            context.unify(context.instantiate(schemaTypes.get(node.getOperands().get(0))), context
-                    .instantiate(schemaTypes.get(node.getOperands().get(1))));
+            context.unify(t0, t1);
         } catch (UnificationException e) {
-            throw new ASTVisitException("equality illtyped @" + node.getLocation(), e);
+            // the equality might contain quantified type variables. if so, we
+            // need only to ensure, that both operands can be unified in general
+            try {
+                new TypeUnification().unify(TypeUnification.makeSchemaVariant(t0),
+                        TypeUnification.makeSchemaVariant(t1));
+            } catch (UnificationException e1) {
+                throw new ASTVisitException("equality illtyped @" + node.getLocation() + ": " + t0 + " vs. " + t1, e1);
+            }
         }
     }
 

@@ -1510,10 +1510,12 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             if (node.isInequality())
                 state.translation.terms.put(node, Application.getInst(state.env.getFunction("$not"), Environment
-                        .getBoolType(), new Term[] { Application.getInst(state.env.getFunction("$eq"), Environment
+                        .getBoolType(), new Term[] { Application.getInst(state.env.getFunction("$weq"),
+                        Environment
                         .getBoolType(), args) }));
             else
-                state.translation.terms.put(node, Application.getInst(state.env.getFunction("$eq"), Environment
+                state.translation.terms.put(node,
+                        Application.getInst(state.env.getFunction("$weq"), Environment
                         .getBoolType(), args));
         } catch (TermException e) {
             e.printStackTrace();
