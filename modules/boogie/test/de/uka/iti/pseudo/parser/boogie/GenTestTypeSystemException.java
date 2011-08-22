@@ -75,6 +75,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 		fail("expected TypeSystemException to be trown");
 	}
 
+	// generated test for modules/boogie/test/data/TypeSystemException/Orderings.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Orderings_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Orderings.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
 	// generated test for modules/boogie/test/data/TypeSystemException/undefinedImplementation.bpl
 	public void test_modules_boogie_test_data_TypeSystemException_undefinedImplementation_bpl() throws Exception {
 		try{
@@ -255,6 +265,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 		fail("expected TypeSystemException to be trown");
 	}
 
+	// generated test for modules/boogie/test/data/TypeSystemException/Orderings3.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Orderings3_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Orderings3.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
 	// generated test for modules/boogie/test/data/TypeSystemException/integerAxiom2.bpl
 	public void test_modules_boogie_test_data_TypeSystemException_integerAxiom2_bpl() throws Exception {
 		try{
@@ -279,6 +299,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 	public void test_modules_boogie_test_data_TypeSystemException_ParallelAssignment_bpl() throws Exception {
 		try{
 			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/ParallelAssignment.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
+	// generated test for modules/boogie/test/data/TypeSystemException/Orderings2.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Orderings2_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Orderings2.bpl"});
 		} catch(TypeSystemException ex){
 			return;
 		}
@@ -385,6 +415,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 		fail("expected TypeSystemException to be trown");
 	}
 
+	// generated test for modules/boogie/test/data/TypeSystemException/Orderings5.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Orderings5_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Orderings5.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
 	// generated test for modules/boogie/test/data/TypeSystemException/BadLabels1.bpl
 	public void test_modules_boogie_test_data_TypeSystemException_BadLabels1_bpl() throws Exception {
 		try{
@@ -409,6 +449,16 @@ public class GenTestTypeSystemException extends TestCaseWithEnv {
 	public void test_modules_boogie_test_data_TypeSystemException_TypeSynonyms0_bpl() throws Exception {
 		try{
 			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/TypeSynonyms0.bpl"});
+		} catch(TypeSystemException ex){
+			return;
+		}
+		fail("expected TypeSystemException to be trown");
+	}
+
+	// generated test for modules/boogie/test/data/TypeSystemException/Orderings4.bpl
+	public void test_modules_boogie_test_data_TypeSystemException_Orderings4_bpl() throws Exception {
+		try{
+			BPLParser.main(new String[] { "modules/boogie/test/data/TypeSystemException/Orderings4.bpl"});
 		} catch(TypeSystemException ex){
 			return;
 		}

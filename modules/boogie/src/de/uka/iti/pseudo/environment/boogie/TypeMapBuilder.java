@@ -1,6 +1,7 @@
 package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,8 @@ import de.uka.iti.pseudo.parser.boogie.ast.CallForallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CallStatement;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeBlock;
 import de.uka.iti.pseudo.parser.boogie.ast.CodeExpressionReturn;
+import de.uka.iti.pseudo.parser.boogie.ast.ConstantDeclaration;
+import de.uka.iti.pseudo.parser.boogie.ast.ExtendsParent;
 import de.uka.iti.pseudo.parser.boogie.ast.FunctionDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.LoopInvariant;
 import de.uka.iti.pseudo.parser.boogie.ast.ProcedureDeclaration;
@@ -277,6 +280,8 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
 
     @Override
     protected void defaultAction(ASTElement node) throws ASTVisitException {
+        if (schemaTypes.has(node))
+            return;
         schemaTypes.add(node, context.newSchemaType());
         state.typeMap.add(node, null);
         for (ASTElement n : node.getChildren())
@@ -1105,6 +1110,52 @@ public final class TypeMapBuilder extends DefaultASTVisitor {
     public void visit(AxiomDeclaration node) throws ASTVisitException {
         defaultAction(node);
         unify(node.getAxiom(), BOOL_T);
+    }
+
+    @Override
+    public void visit(ConstantDeclaration node) throws ASTVisitException {
+        defaultAction(node);
+        
+        // ensure declared constants have the same type as the ones they extend
+        if (node.hasExtends()) {
+            for (ExtendsParent p : node.getParents())
+                unify(node.getNames().get(0), p);
+
+            // ensure that identifiers appear only once
+            HashSet<String> names = new HashSet<String>();
+            for (VariableDeclaration v : node.getNames())
+                names.add(v.getName());
+
+            for (ExtendsParent p : node.getParents())
+                if (names.contains(p.getName()))
+                    throw new ASTVisitException(
+                            p.getLocation()
+                                    + ":\n"
+                                    + p.getName()
+                                    + " is not allow to occur as parent because it already appeared in this constant declaration.");
+                else
+                    names.add(p.getName());
+        }
+    }
+
+    @Override
+    public void visit(ExtendsParent node) throws ASTVisitException {
+
+        // find declaration of this variable to get the type of the
+        // declaration
+        Scope scope = state.scopeMap.get(node);
+        VariableDeclaration definition = null;
+        for (; definition == null && scope != null; scope = scope.parent) {
+            definition = state.names.variableSpace.get(new Pair<String, Scope>(node.getName(), scope));
+        }
+
+        if (null == definition)
+            throw new ASTVisitException(node.getLocation() + ":  undefined constant " + node.getName());
+
+        if (!definition.isConstant())
+            throw new ASTVisitException(node.getLocation() + ": parent " + node.getName() + " is not a constant.");
+
+        setTypeSameAs(node, definition);
     }
 
     @Override
