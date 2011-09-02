@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.util;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 
 /**
@@ -77,7 +78,7 @@ public final class ObjectCachePool {
      *         with {@code instance.equals(t)} otherwise.
      */
     @SuppressWarnings("unchecked")
-    public <T> T cache(@Nullable T instance) {
+    public <T> /*@Nullable*/ T cache(@Nullable T instance) {
         
         if(instance == null)
             return null;
@@ -97,6 +98,33 @@ public final class ObjectCachePool {
         Class<? extends T> clss = (Class<? extends T>) instance.getClass();
         
         return clss.cast(result);
+    }
+    
+    /**
+     * Get the canonical representative of an object from the cache.
+     * 
+     * If there is no element in the cache witch is
+     * {@linkplain Object#equals(Object) equal} to the argument, the argument is
+     * added to the cache and its reference returned. If, however, an equal
+     * object is found in the cache, that reference is returned.
+     * 
+     * If the argument is <code>null</code>, <code>null</code> is returned.
+     * 
+     * @param instance
+     *            the instance
+     * 
+     * @return a reference {@code t} with {@code instance.equals(t)} otherwise.
+     * 
+     * @throws NullPointerException
+     *             if {@code instance == null}
+     */
+    public <T> /*@NonNull*/ T cacheNonNull(@NonNull T instance) throws NullPointerException {
+        @Nullable T result = cache(instance);
+        if(result == null) {
+            throw new NullPointerException("cacheNonNull expects non-null argument");
+        } else {
+            return result;
+        }
     }
     
     /**

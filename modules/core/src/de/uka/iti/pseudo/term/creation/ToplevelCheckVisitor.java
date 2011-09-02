@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.Stack;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.term.Application;

@@ -17,6 +17,7 @@ import checkers.nullness.quals.LazyNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTElement;
+import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.term.creation.Typing;
 import de.uka.iti.pseudo.util.SelectList;
@@ -60,7 +61,9 @@ public abstract class ASTTerm extends ASTElement {
      * 
      * @return the typing
      */
-    public @Nullable Typing getTyping() {
+    public @NonNull Typing getTyping() throws ASTVisitException {
+        if(typing == null)
+            throw new ASTVisitException("Retrieving non existing typing", this);
         return typing;
     }
 

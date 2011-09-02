@@ -44,7 +44,7 @@ public abstract class ProgramTerm extends Term {
      *             if the program terms does not have a boolean suffixed boolean
      *             term.
      */
-    public ProgramTerm(@DeepNonNull Term[] subterms, boolean terminating) throws TermException {
+    protected ProgramTerm(@DeepNonNull Term[] subterms, boolean terminating) throws TermException {
         super(subterms, Environment.getBoolType());
         this.terminating = terminating;
         

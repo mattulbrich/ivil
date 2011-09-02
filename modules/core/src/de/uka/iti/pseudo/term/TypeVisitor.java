@@ -10,6 +10,8 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.Nullable;
+
 /**
  * Allow visiting also for type structures. Even though this is a rather small
  * distinction it can make since in combination with for instance TermVisitor.
@@ -17,7 +19,7 @@ package de.uka.iti.pseudo.term;
  * @param <R> Result type for the methods
  * @param <P> Parameter type for the additional parameter to methods.
  */
-public interface TypeVisitor<R, P> {
+public interface TypeVisitor</*@Nullable*/R, /*@Nullable*/P> {
 
     R visit(TypeApplication typeApplication, P parameter) throws TermException;
     

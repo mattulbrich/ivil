@@ -226,7 +226,8 @@ public abstract class Term {
      *         term object and of exactly the same class.
      */
     protected @NonNull Term intern() {
-        return termPool.cache(this);
+        Term result = termPool.cacheNonNull(this);
+        return result;
     }
 
     /**

@@ -91,8 +91,9 @@ public class TypeVariable extends Type {
 	/* (non-Javadoc)
 	 * @see de.uka.iti.pseudo.term.Type#visit(de.uka.iti.pseudo.term.TypeVisitor)
 	 */
-	@Override
-	public <R,A> R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
+	@Override @SuppressWarnings("nullness")
+	public </*@Nullable*/ R, /*@Nullable*/ A>
+	      R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
 	    return visitor.visit(this, parameter);
 	}
 	

@@ -89,7 +89,7 @@ public class ASTProgramTerm extends ASTTerm {
         if(size > 0) {
             return children.get(size - 1);
         } else {
-            return null;
+            throw new IllegalStateException("There is no suffix formula! (Should not be parsed!)");
         }
     }
 

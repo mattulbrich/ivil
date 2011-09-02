@@ -92,7 +92,7 @@ public class SchemaType extends Type {
      * @see
      * de.uka.iti.pseudo.term.Type#visit(de.uka.iti.pseudo.term.TypeVisitor)
      */
-    @Override
+    @Override @SuppressWarnings("nullness")
     public <R,A> R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
         return visitor.visit(this, parameter);
     }

@@ -94,7 +94,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     /**
      * The resulting type is used to transport result during visitation.
      */
-    private Type resultingType;
+    private Type resultingType = TypeVariable.ALPHA;
     
     /**
      * Instantiates a new typing resolver.
@@ -200,7 +200,8 @@ public class TypingResolver extends ASTDefaultVisitor {
      * Creates new schema types for the signature
      * and match these new types against the typings of the parameters.
      */
-    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
+    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) 
+            throws UnificationException, ASTVisitException {
         
         assert subterms.size() == arguments.length;
         
@@ -299,7 +300,8 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     // special version of setTyping adapted for the needs of binding terms
     // see there
-    private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder) throws UnificationException {
+    private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder)
+            throws UnificationException, ASTVisitException {
         
         Type resulType = binder.getResultType();
         Type varType = binder.getVarType();
@@ -484,6 +486,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         
         ASTTerm replacement = ShuntingYard.shuntingYard(env, listTerm);
         ASTElement parent = listTerm.getParent();
+        
+        assert parent != null : "nullness: it must be guaranteed that there is parent";
         
         parent.replaceChild(listTerm, replacement);
         

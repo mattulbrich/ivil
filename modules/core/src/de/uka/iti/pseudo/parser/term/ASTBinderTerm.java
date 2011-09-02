@@ -13,6 +13,7 @@ package de.uka.iti.pseudo.parser.term;
 import java.util.ArrayList;
 import java.util.List;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
@@ -69,7 +70,7 @@ public class ASTBinderTerm extends ASTTerm {
         return binderToken;
     }
 
-    public @Nullable Typing getVariableTyping(int index) {
+    public @NonNull Typing getVariableTyping(int index) {
         return variableTypings[index];
     }
 
