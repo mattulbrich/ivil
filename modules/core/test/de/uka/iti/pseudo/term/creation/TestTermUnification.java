@@ -259,4 +259,16 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(Collections.EMPTY_MAP, matcher.getTypeInstantiation());
     }
     
+    public void testMapStatements() throws Exception {
+        env = makeEnv("sort T as [int]int \n" +
+        		"function T t assignable\n" +
+                "program Q\n" +
+                " t[5] := 4" +
+                " t := t[6:=7]");
+        
+        TermMatcher mc = new TermMatcher();
+        
+        assertTrue(mc.leftMatch(mt("[%a : %x[%y] := %z]"), mt("[0;Q]")));
+    }
+    
 }

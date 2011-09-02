@@ -172,6 +172,9 @@ class TermMatchVisitor extends DefaultTermVisitor {
             typeMatchVisitor.tryInstantiation(sv.getName().substring(1), Environment.getBoolType());
         }
         
+        // match suffixed formula
+        compare(sp.getSuffixTerm(), litPrg.getSuffixTerm());
+        
         if(sp.hasMatchingStatement()) {
             Statement matchingSt = sp.getMatchingStatement();
             Statement statement = litPrg.getStatement();
