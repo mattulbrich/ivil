@@ -76,7 +76,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
             throw new ASTVisitException(arg, e);
         }
     }
-
+    
     /*
      * create a new Function in env
      * rely upon results from children. 

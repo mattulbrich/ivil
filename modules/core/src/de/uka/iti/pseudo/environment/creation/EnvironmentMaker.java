@@ -214,6 +214,7 @@ public class EnvironmentMaker {
         doPlugins(astFile);
 
         astFile.visit(new EnvironmentDefinitionVisitor(env));
+        astFile.visit(new MapTypeDefinitionVisitor(env));
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
@@ -231,7 +232,7 @@ public class EnvironmentMaker {
         if(term != null) {
             problemTerm = TermMaker.makeTerm(term, env);
 
-            if(TermMatcher.containsSchemaVariables(problemTerm))
+            if(TermMatcher.containsSchemaObject(problemTerm))
                 throw new ASTVisitException("Problem term contains schema identifier", term);
 
             try {

@@ -26,5 +26,4 @@ public interface TypeVisitor</*@Nullable*/R, /*@Nullable*/P> {
     R visit(TypeVariable typeVariable, P parameter) throws TermException;
 
     R visit(SchemaType schemaType, P parameter) throws TermException;
-
 }

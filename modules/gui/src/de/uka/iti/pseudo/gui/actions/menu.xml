@@ -39,7 +39,7 @@
 		</editorMenu>
 
 		<proofMenu text="Proof" mnemonic="P">
-			proof.prune proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
+			proof.prune proof.pruneLast proof.auto proof.autoSubtree proof.reintroduceHiddenTerm proof.axiom proof.conjecture proof.decProc
 			proof.snapshots	SEPARATOR proof.stepInstr proof.stepSource
 		</proofMenu>
 		
@@ -247,9 +247,12 @@
 	</file>
 
 	<proof>
-		<prune>ACTION PruneAction
-		  <icon>img/cut.png</icon>
-		</prune>
+        <prune>ACTION PruneAction
+          <icon>img/cut.png</icon>
+        </prune>
+        <pruneLast>ACTION PruneLastAction
+          <icon>img/cut.png</icon>
+        </pruneLast>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
 		<reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction

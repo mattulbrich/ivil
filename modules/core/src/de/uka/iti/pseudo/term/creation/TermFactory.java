@@ -25,8 +25,6 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 
-
-// TODO throw term exception if f == null instead of NPE
 /**
  * TermFactory is a collection of static methods to faciliate the
  * construction of terms. They are merely convenience methods
@@ -38,19 +36,35 @@ public class TermFactory {
     public TermFactory(Environment env) {
         this.env = env;
     }
+    
+    /*
+     * Retrieval for function symbols. Throws exception on fail-case. 
+     */
+    private Function getFunction(String name) throws TermException {
+        Function f = env.getFunction(name);
+        if (f == null) {
+            throw new TermException(
+                    "The function symbol "
+                            + name
+                            + " is not available for the term factory. "
+                            + "Please ensure that it is present");
+        }
+        
+        return f;
+    }
 
     public @NonNull Term and(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$and");
+        Function f = getFunction("$and");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term or(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$or");
+        Function f = getFunction("$or");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term not(@NonNull Term t1) throws TermException {
-        Function f = env.getFunction("$not");
+        Function f = getFunction("$not");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1 });
     }
 
@@ -59,17 +73,17 @@ public class TermFactory {
     }
 
     public @NonNull Term gt(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$gt");
+        Function f = getFunction("$gt");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term gte(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$gte");
+        Function f = getFunction("$gte");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term lt(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$lt");
+        Function f = getFunction("$lt");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
@@ -78,12 +92,12 @@ public class TermFactory {
     }
 
     public @NonNull Term eq(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$eq");
+        Function f = getFunction("$eq");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term impl(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        Function f = env.getFunction("$impl");
+        Function f = getFunction("$impl");
         return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 

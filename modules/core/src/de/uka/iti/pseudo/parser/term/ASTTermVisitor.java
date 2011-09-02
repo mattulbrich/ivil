@@ -45,6 +45,8 @@ public interface ASTTermVisitor {
 
 	void visit(ASTTypeApplication typeRef) throws ASTVisitException;
 	
+    void visit(ASTMapType astMapType) throws ASTVisitException;
+
 	void visit(ASTTypeVar typeVar) throws ASTVisitException;
 	
 	void visit(ASTSchemaType astSchemaType) throws ASTVisitException;
@@ -56,5 +58,7 @@ public interface ASTTermVisitor {
 	void visit(ASTSchemaUpdateTerm updateTerm) throws ASTVisitException;
 
     void visit(ASTProgramTerm programTerm) throws ASTVisitException;
+
+    void visit(ASTMapOperationTerm mapOperationTerm) throws ASTVisitException;
 
 }

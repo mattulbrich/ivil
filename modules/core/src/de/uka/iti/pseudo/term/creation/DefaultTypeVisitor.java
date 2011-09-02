@@ -27,5 +27,4 @@ public class DefaultTypeVisitor<A> implements TypeVisitor<Void, A> {
             throws TermException {
         return null;
     }
-
 }

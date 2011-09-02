@@ -243,7 +243,6 @@ public class TypeUnification implements Cloneable {
             }
             return null;
         }
-        
     }
     
     private Unifier unifier = new Unifier();
