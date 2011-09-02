@@ -131,7 +131,7 @@ public class SchemaCollectorVisitor extends DefaultTermVisitor.DepthTermVisitor 
     }
 
     public void visit(SchemaProgramTerm schemaProgram) throws TermException {
-        schemaVariables.add(schemaProgram.getSchemaVariable());
+        super.visit(schemaProgram);
         Statement statement = schemaProgram.getMatchingStatement();
         if (statement != null) {
             for (Term term : statement.getSubterms()) {

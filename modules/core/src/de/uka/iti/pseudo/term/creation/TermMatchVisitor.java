@@ -321,5 +321,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
         
         if(p.isTerminating() != p2.isTerminating())
             throw new UnificationException("Incompatible termination", p, p2);
+        
+        compare(p.getSuffixTerm(), p2.getSuffixTerm());
     }
 }

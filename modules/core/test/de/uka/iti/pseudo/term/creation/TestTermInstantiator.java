@@ -128,22 +128,22 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         // it suffices if it does not fail
         inst.instantiate(makeTerm("[%a : assert b2]true"));
         inst.instantiate(makeTerm("[%a : assert %b]true"));
-        inst.instantiate(makeTerm("[%a]"));
+        inst.instantiate(makeTerm("[%a]true"));
         
         try {
-            inst.instantiate(makeTerm("[%a : assume b2]"));
+            inst.instantiate(makeTerm("[%a : assume b2]true"));
             fail("should have failed");
         } catch (Exception e) {
         }
         
         try {
-            inst.instantiate(makeTerm("[%a : assert b1]"));
+            inst.instantiate(makeTerm("[%a : assert b1]true"));
             fail("should have failed");
         } catch (Exception e) {
         }
         
         try {
-            inst.instantiate(makeTerm("[%a : assert %c]"));
+            inst.instantiate(makeTerm("[%a : assert %c]true"));
             fail("should have failed");
         } catch (Exception e) {
         }

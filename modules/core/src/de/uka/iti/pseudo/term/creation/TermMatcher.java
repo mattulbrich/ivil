@@ -110,6 +110,7 @@ public class TermMatcher implements Cloneable {
             super.visit(binding);
             if(binding.getVariable() instanceof SchemaVariable)
                 throw new TermException("Unexpected schema variable in binding " + binding);
+            binding.getVariable().visit(this);
         }
     };
 
