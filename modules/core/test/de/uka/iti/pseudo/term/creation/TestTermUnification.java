@@ -203,18 +203,18 @@ public class TestTermUnification extends TestCaseWithEnv {
 
     // was a bug
     public void testSchemaFind() throws Exception {
-        assertTrue(TermMatcher.containsSchemaVariables(mt("{ %c := 0 }true")));
-        assertTrue(TermMatcher.containsSchemaVariables(mt("(\\forall %c; true)")));
-        assertTrue(TermMatcher.containsSchemaVariables(mt("[%a]true")));
-        assertTrue(TermMatcher.containsSchemaVariables(mt("[3;P]%phi")));
+        assertTrue(TermMatcher.containsSchematic(mt("{ %c := 0 }true")));
+        assertTrue(TermMatcher.containsSchematic(mt("(\\forall %c; true)")));
+        assertTrue(TermMatcher.containsSchematic(mt("[%a]true")));
+        assertTrue(TermMatcher.containsSchematic(mt("[3;P]%phi")));
         // from another one:
-        assertTrue(TermMatcher.containsSchemaObject(makeTerm("(\\forall i; %a > i)")));
+        assertTrue(TermMatcher.containsSchematic(makeTerm("(\\forall i; %a > i)")));
 
     }
 
     public void testSchemaForall() throws Exception {
         // should not be allowed
-        assertTrue(TermMatcher.containsSchemaObject(mt("(\\forall x; true)")));
+        assertTrue(TermMatcher.containsSchematic(mt("(\\forall x; true)")));
     }
     
     public void testBinder() throws Exception {

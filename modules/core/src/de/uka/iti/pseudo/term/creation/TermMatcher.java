@@ -122,7 +122,7 @@ public class TermMatcher implements Cloneable {
      * 
      * @return true iff there occurs at least one schema object in term
      */
-    public static boolean containsSchemaObject(Term term) {
+    public static boolean containsSchematic(Term term) {
         try {
             term.visit(schemaFinder);
             return false;
@@ -208,7 +208,7 @@ public class TermMatcher implements Cloneable {
     public void addInstantiation(@NonNull SchemaVariable sv, @NonNull Term term) throws TermException {
         if(instantiation.get(sv.getName()) != null)
             throw new TermException("SchemaVariable " + sv + " already instantiated");
-        if(containsSchemaObject(term))
+        if(containsSchematic(term))
             throw new TermException("Instantiation " + term + " contains schema entity");
         
         instantiation.put(sv.getName(), term);
