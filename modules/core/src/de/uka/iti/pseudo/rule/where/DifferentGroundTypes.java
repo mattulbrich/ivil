@@ -19,16 +19,18 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Type;
 
 /**
- * Checks if two arguments have the different type. In the presence of type
- * variables it's in general unknown whether or not two objects have the same
- * type, thus false is returned.
+ * The condition DifferentTypesInEq returns true if the two actual arguments of
+ * the condition have different ground types. If type variables are present, the
+ * function returns false instead of throwing an exception as DifferentTypes
+ * would do. This is needed to check if two types can be guaranteed to be
+ * unequal.
  * 
  * @author timm.felden@felden.com
  */
-public class DifferentTypesInEq extends WhereCondition {
+public class DifferentGroundTypes extends WhereCondition {
 
-    public DifferentTypesInEq() {
-        super("differentTypesInEq");
+    public DifferentGroundTypes() {
+        super("differentGroundTypes");
     }
 
     @Override
@@ -50,7 +52,7 @@ public class DifferentTypesInEq extends WhereCondition {
 
     @Override public void checkSyntax(Term[] arguments) throws RuleException {
         if (arguments.length != 2)
-            throw new RuleException("differentTypes expects two arguments");
+            throw new RuleException("differentGroundTypes expects two arguments");
     }
 
 }
