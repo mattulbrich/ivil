@@ -58,5 +58,5 @@ after2:
 procEnd:
   skip
 
-problem [0;P]
+problem [0;P]true
 

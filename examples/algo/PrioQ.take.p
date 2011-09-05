@@ -367,4 +367,4 @@ program P source "PrioQ.java"
     assert true
 (* end of program *)
 
-problem [0 ; P]
+problem [0 ; P]true

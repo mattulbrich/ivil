@@ -60,7 +60,7 @@ program P source "fakultaet.pseudo"
     sourceline 12
       c := c * n
     sourceline 13
-      n := n - 1
+      n := n - 2
       goto L1
 
     sourceline 16
@@ -68,5 +68,5 @@ program P source "fakultaet.pseudo"
       assert c = fak(n_pre)
 
 problem
-  [0;P]
+  [0;P]true
 

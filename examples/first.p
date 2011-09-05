@@ -36,5 +36,5 @@ program P source "first.src"
 
 
 problem 
-  [0; P]
+  [0; P]true
 

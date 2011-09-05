@@ -154,4 +154,4 @@ program P source "AList.java"
     assert boolRet = true
 (* end of program *)
 
-problem [0 ; P]
+problem [0 ; P]true

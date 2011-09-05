@@ -62,5 +62,5 @@ program P
     assume !(i <N)
     end (\forall x; x>=0 & x < N -> R(H,a,i)=R(H0,b,i) & R(H,b,i) = R(H0,a,i))
 
-problem [0; P]
+problem [0; P]true
 
