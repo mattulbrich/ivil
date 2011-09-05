@@ -24,7 +24,7 @@ ASTTerm Term():
 {
         ( term=OpIdentifier() { list.add(term); } )*
         term=ModalityTerm() { list.add(term); }
-        (
+        (  
           ( term=OpIdentifier() { list.add(term); } )+
           term=ModalityTerm() { list.add(term); }
         )*
@@ -50,8 +50,9 @@ ASTTerm ModalityTerm():
        | "{" assignments=ParallelAssignment() "}" term=ModalityTerm() 
             { return new ASTUpdateTerm(assignments, term); }
 
-       | (   "[" pt=ProgramTerm_Content(false) "]" 
-           | "[[" pt=ProgramTerm_Content(true) "]]"
+       | (   "[" pt=ProgramTerm_Content(Modality.BOX) "]"
+           | "[[" pt=ProgramTerm_Content(Modality.BOX_TERMINATION) "]" "]"
+           | "[<" pt=ProgramTerm_Content(Modality.DIAMOND) ">]"
          ) term=ModalityTerm() 
             { pt.addChild(term); return pt; }
 
@@ -111,7 +112,7 @@ List<ASTAssignment> ParallelAssignment():
           { return assignments; }
 }
 
-ASTProgramTerm ProgramTerm_Content(boolean termination):
+ASTProgramTerm ProgramTerm_Content(Modality modality):
 {
   Token t, label, progref;
   ASTStatement matchStatement = null, st;
@@ -124,11 +125,11 @@ ASTProgramTerm ProgramTerm_Content(boolean termination):
            | matchStatement=SchematicAssignmentStatement()
            ) 
          )?
-           { return new ASTProgramTerm(label, termination, matchStatement); }
+           { return new ASTProgramTerm(label, modality, matchStatement); }
             
        | 
          label=<NATURAL> ";" (progref=<PROGRAM_IDENTIFIER>|progref=<IDENTIFIER>)
-         { return new ASTProgramTerm(label, termination, progref); }
+         { return new ASTProgramTerm(label, modality, progref); }
        )
 }
 
@@ -315,7 +316,7 @@ ASTTerm OpIdentifier():
   Token t;
 }
 {
-        t=<OP_IDENTIFIER> 
+        t=<OP_IDENTIFIER>
   { return new ASTOperatorIdentifierTerm(t); }
 }
 

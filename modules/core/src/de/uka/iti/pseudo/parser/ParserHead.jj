@@ -20,6 +20,8 @@ package de.uka.iti.pseudo.parser;
 import de.uka.iti.pseudo.parser.file.*;
 import de.uka.iti.pseudo.parser.term.*;
 import de.uka.iti.pseudo.parser.program.*;
+import de.uka.iti.pseudo.term.Modality;
+import de.uka.iti.pseudo.util.Pair;
 
 import java.util.*;
 import java.io.File;
@@ -30,8 +32,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URL;
-
-import de.uka.iti.pseudo.util.Pair;
 
 @SuppressWarnings("all")
 public class Parser {
@@ -165,8 +165,11 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < RIGHTSQUARE: "]" >
 | < LEFTCURLY: "{" >
 | < RIGHTCURLY: "}" >
+| < LEFTDIAMOND: "[<" >
+| < RIGHDIAMOND: ">]" >
 | < LEFTDSQUARE: "[[" >
-| < RIGHTDSQUARE: "]]" >
+// the following causes trouble in "a[b[c]]"
+// | < RIGHTDSQUARE: "]]" >
 | < COMMA: "," >
 | < DOT: "." >
 | < PARALLEL: "||" >

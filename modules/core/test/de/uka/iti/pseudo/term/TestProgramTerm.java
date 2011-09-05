@@ -19,14 +19,31 @@ public class TestProgramTerm extends TestCaseWithEnv {
         assertEquals(makeTerm("[0;P]true"), makeTerm("[0;P]true"));
         assertFalse(makeTerm("[0;P]true").equals(makeTerm("[0;P]false")));
         assertFalse(makeTerm("[0;P]true").equals(makeTerm("[[0;P]]true")));
+        assertFalse(makeTerm("[0;P]true").equals(makeTerm("[<0;P>]true")));
         assertFalse(makeTerm("[0;Q]true").equals(makeTerm("[0;P]true")));
         assertFalse(makeTerm("[1;Q]true").equals(makeTerm("[0;Q]true")));
+    }
+    
+    public void testAllModalityEqualities() throws Exception {
+        Term[] mods = { makeTerm("[0;P]true"), makeTerm("[[0;P]]true"),
+                makeTerm("[<0;P>]true") };
+        
+        for (int i = 0; i < mods.length; i++) {
+            for (int j = 0; j < mods.length; j++) {
+                if(i == j) {
+                    assertEquals(mods[i], mods[j]);
+                } else {
+                    assertFalse("compare " + i + " and " + j, mods[i].equals(mods[j]));
+                }
+            }
+        }
     }
     
     public void testSchemaProgramEqualities() throws Exception {
         assertEquals(makeTerm("[%a]true"), makeTerm("[%a]true"));
         assertFalse(makeTerm("[%a]false").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[[%a]]true").equals(makeTerm("[%a]true")));
+        assertFalse(makeTerm("[<%a>]true").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[%a: skip]true").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[%a]%phi").equals(makeTerm("[%a]true")));
     }

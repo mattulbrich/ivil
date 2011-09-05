@@ -702,19 +702,19 @@ public class TermMaker extends ASTDefaultVisitor {
         
         try {
             Token position = programTerm.getLabel();
-            boolean terminating = programTerm.isTerminating();
+            Modality modality = programTerm.getModality();
             programTerm.getSuffixFormula().visit(this);
             Term suffixFormula = resultTerm;
             if (programTerm.isSchema()) {
                 SchemaVariable sv = SchemaVariable.getInst(position.image, Environment.getBoolType());
-                resultTerm = SchemaProgramTerm.getInst(sv, terminating ? Modality.BOX_TERMINATION : Modality.BOX, matchingStatement, suffixFormula);
+                resultTerm = SchemaProgramTerm.getInst(sv, modality, matchingStatement, suffixFormula);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
                 if(program == null)
                     throw new TermException("Unknown program '" +programReference + "'");
                 int programIndex = Integer.parseInt(position.image);
-                resultTerm = LiteralProgramTerm.getInst(programIndex, terminating ? Modality.BOX_TERMINATION : Modality.BOX, program, suffixFormula);
+                resultTerm = LiteralProgramTerm.getInst(programIndex, modality, program, suffixFormula);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);

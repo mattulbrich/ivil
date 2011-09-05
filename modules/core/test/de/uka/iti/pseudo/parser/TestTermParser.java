@@ -156,6 +156,8 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("[5;P](true as bool) as bool", true);
         testTerm("[5;P](%a as bool) as bool", true);
         testTerm("[[7;P]]true", false);
+        testTerm("[[7;P] ]true", "[[7; P]]true", false);
+        testTerm("[<7;P>]true", false);
         testTerm("[7;P]b1 -> [9; Q]true", "$impl([7;P]b1,[9;Q]true)", false);
         testTerm("[[%a]]%b", false);
         testTerm("[%a: end]%b", false);
@@ -165,6 +167,8 @@ public class TestTermParser extends TestCaseWithEnv {
         testTermFail("[6: end true");
         testTermFail("[%a: end 1");
         testTermFail("[%a || 1:=skip");
+        testTermFail("[0;P]]");
+        testTermFail("[<0;P]");
     }
     
     public void testUpdate() throws Exception {

@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.statement.Statement;
 
 public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
@@ -43,7 +44,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testCollectAssignables() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env.getProgram("P"), Environment.getTrue());
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env.getProgram("P"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), null, env);
         
@@ -57,7 +58,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     
     public void testVarAtPreCreation() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env.getProgram("P"), Environment.getTrue());
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env.getProgram("P"), Environment.getTrue());
         LoopModifier loopMod = new LoopModifier(prog, Environment.getTrue(), makeTerm("var"), env);
         loopMod.apply();
         
@@ -67,7 +68,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testInvariantRule() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, false, env.getProgram("Q"), Environment.getTrue());
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, Modality.BOX, env.getProgram("Q"), Environment.getTrue());
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), makeTerm("var"), env);
         loopMod.setVarAtPre(makeTerm("varAtPre"));
         
@@ -79,7 +80,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testInvariantRuleWithoutVar() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, false, env.getProgram("Q"), Environment.getTrue());
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(5, Modality.BOX, env.getProgram("Q"), Environment.getTrue());
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
         
         LiteralProgramTerm progResult = loopMod.apply();
@@ -91,7 +92,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testBug1() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env.getProgram("Bug1"), Environment.getTrue());
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env.getProgram("Bug1"), Environment.getTrue());
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
         
         LiteralProgramTerm progResult = loopMod.apply();
@@ -102,7 +103,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testChangeAfterLoop() throws Exception {
         env = testEnv("loopTest1.p.txt");
 
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("ChangeAfterLoop"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
@@ -116,7 +117,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testParallelAssignment() throws Exception {
         env = testEnv("loopTest1.p.txt");
         
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("ParallelAssignment"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
@@ -135,7 +136,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testBugTermination() throws Exception {
         env = testEnv("loopTest1.p.txt");
 
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("Bug_termination"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
@@ -164,7 +165,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     
     public void testBugInLoopDetection() throws Exception {
         env = testEnv("loopTest1.p.txt");
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, false, env
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, env
                 .getProgram("BugInLoopDetect"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
@@ -177,7 +178,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     public void testGoBeyond() throws Exception {
         
         env = testEnv("loopTest1.p.txt");
-        LiteralProgramTerm prog = LiteralProgramTerm.getInst(100, false, env
+        LiteralProgramTerm prog = LiteralProgramTerm.getInst(100, Modality.BOX, env
                 .getProgram("GoBeyond"), Environment.getTrue());
         
         LoopModifier loopMod = new LoopModifier(prog, makeTerm("inv"), null, env);
