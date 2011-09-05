@@ -45,8 +45,8 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * 
      * @param programIndex
      *            a non-negative number
-     * @param terminating
-     *            the termination state of the modality
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param program
      *            the referenced program
      * @param formula
@@ -56,9 +56,9 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * @throws TermException
      *             if parameters not well-defined
      */
-    private LiteralProgramTerm(int programIndex, boolean terminating,
+    private LiteralProgramTerm(int programIndex, @NonNull Modality modality,
             @NonNull Program program, @NonNull Term formula) throws TermException {
-        super(new Term[] { formula }, terminating);
+        super(new Term[] { formula }, modality);
         this.program = program;
         this.programIndex = programIndex;
         if (programIndex < 0)
@@ -75,8 +75,8 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * 
      * @param programIndex
      *            a non-negative number
-     * @param terminating
-     *            the termination state of the modality
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param program
      *            the referenced program
      * @param formula
@@ -89,10 +89,10 @@ public final class LiteralProgramTerm extends ProgramTerm {
      *         created.
      */
     public static @NonNull
-    LiteralProgramTerm getInst(int programIndex, boolean terminating,
+    LiteralProgramTerm getInst(int programIndex, @NonNull Modality modality,
             @NonNull Program program, @NonNull Term formula) throws TermException {
         return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
-                terminating, program, formula).intern();
+                modality, program, formula).intern();
     }
 
     /**
@@ -116,7 +116,7 @@ public final class LiteralProgramTerm extends ProgramTerm {
     LiteralProgramTerm getInst(int programIndex,
             @NonNull LiteralProgramTerm original) throws TermException {
         return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
-                original.isTerminating(), original.getProgram(), 
+                original.getModality(), original.getProgram(), 
                 original.getSuffixTerm()).intern();
     }
 
@@ -169,8 +169,7 @@ public final class LiteralProgramTerm extends ProgramTerm {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
             return programIndex == prog.programIndex && program == prog.program
-                    && isTerminating() == prog.isTerminating()
-                    && super.equalsPartially(prog);
+                   && super.equalsPartially(prog);
         }
         return false;
     }

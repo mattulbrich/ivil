@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
@@ -273,7 +274,7 @@ public class Main {
                     throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
             }
 
-            problemTerm = LiteralProgramTerm.getInst(0, false, p, Environment.getTrue());
+            problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, p, Environment.getTrue());
         }
 
         return openProver(env, problemTerm, url);
@@ -313,7 +314,7 @@ public class Main {
         
         resource += "#" + program;
         
-        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, false, program, Environment.getTrue());
+        LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
         
         return openProver(env, problemTerm, new URL(resource));
     }

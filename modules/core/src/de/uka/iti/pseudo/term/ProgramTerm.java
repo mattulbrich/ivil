@@ -30,7 +30,7 @@ public abstract class ProgramTerm extends Term {
     /**
      * The termination flag.
      */
-    private boolean terminating;
+    private Modality modality;
 
     /**
      * Instantiates a new program term with a given termination status and an
@@ -38,15 +38,16 @@ public abstract class ProgramTerm extends Term {
      * 
      * @param subterms
      *            the future subterms of the array
-     * @param terminating
-     *            the termination status
+     * @param modality
+     *            the modality under which the program is to be seen
+     *            
      * @throws TermException
      *             if the program terms does not have a boolean suffixed boolean
      *             term.
      */
-    protected ProgramTerm(@DeepNonNull Term[] subterms, boolean terminating) throws TermException {
+    protected ProgramTerm(@DeepNonNull Term[] subterms, @NonNull Modality modality) throws TermException {
         super(subterms, Environment.getBoolType());
-        this.terminating = terminating;
+        this.modality = modality;
         
         if(subterms.length == 0 ||
                 !subterms[0].getType().equals(Environment.getBoolType())) {
@@ -59,8 +60,8 @@ public abstract class ProgramTerm extends Term {
      * 
      * @return true, if it is terminating
      */
-    public boolean isTerminating() {
-        return terminating;
+    public @NonNull Modality getModality() {
+        return modality;
     }
     
     /**
@@ -80,16 +81,15 @@ public abstract class ProgramTerm extends Term {
      * 
      * The content strings depends on the implementing class. Terminating
      * program terms are put in '[[' while non-terminating program terms have
-     * single '[' delimeters.
+     * single '[' delimiters.
      * 
      * @param typed whether or not types are to be made explicit
      */
     public String toString(boolean typed) {
         StringBuilder res = new StringBuilder();
-        if(isTerminating())
-            res.append("[[").append(getContentString(typed)).append("]]");
-        else
-            res.append("[").append(getContentString(typed)).append("]");
+        res.append(modality.getOpeningDelimiter()).
+                append(getContentString(typed)).
+                append(modality.getClosingDelimiter());
         
         if (typed)
             res.append("(").append(getSubterm(0).toString(true)).append(") as bool");
@@ -124,7 +124,7 @@ public abstract class ProgramTerm extends Term {
      *         ProgramTerm.
      */
     protected boolean equalsPartially(@NonNull ProgramTerm otherProgramTerm) {
-        return terminating == otherProgramTerm.terminating &&
+        return modality == otherProgramTerm.modality &&
             getSuffixTerm().equals(otherProgramTerm.getSuffixTerm());
     }
 }

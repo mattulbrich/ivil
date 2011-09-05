@@ -188,7 +188,7 @@ class LoopModifier {
         env.addProgram(newProgram);
         
         LiteralProgramTerm newProgramTerm = 
-            LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram, programTerm.getSuffixTerm());
+            LiteralProgramTerm.getInst(index, programTerm.getModality(), newProgram, programTerm.getSuffixTerm());
         
         return newProgramTerm;
         

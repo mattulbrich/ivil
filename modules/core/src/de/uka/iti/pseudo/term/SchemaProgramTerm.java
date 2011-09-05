@@ -41,8 +41,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * @param schemaVariable
      *            the schema variable to capture the whole program term
-     * @param terminating
-     *            the termination state of this term
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param matchingStatement
      *            the matching statement, may be null
      * @param formula
@@ -52,8 +52,9 @@ public final class SchemaProgramTerm extends ProgramTerm {
      *             if the suffix term is illegal
      */
     private SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement, Term formula) throws TermException {
-        super(new Term[] { formula, schemaVariable }, terminating);
+            @NonNull Modality modality, @Nullable Statement matchingStatement, 
+            Term formula) throws TermException {
+        super(new Term[] { formula, schemaVariable }, modality);
         this.matchingStatement = matchingStatement;
     }
 
@@ -66,8 +67,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * @param schemaVariable
      *            the schema variable to capture the whole program term
-     * @param terminating
-     *            the termination state of this term
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param matchingStatement
      *            the matching statement, may be null
      * @param formula
@@ -80,8 +81,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
      *             if the suffix term is illegal
      */
     public static @NonNull SchemaProgramTerm getInst(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement, Term formula) throws TermException {
-        return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, terminating,
+            @NonNull Modality modality, @Nullable Statement matchingStatement, Term formula) throws TermException {
+        return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, modality,
                 matchingStatement, formula).intern();
     }
 

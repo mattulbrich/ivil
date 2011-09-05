@@ -158,7 +158,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
         SchemaVariable sv = sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
         
-        if(sp.isTerminating() != litPrg.isTerminating())
+        if(sp.getModality() != litPrg.getModality())
             throw new UnificationException("Incomparable termination", sp, litPrg);
         
         if(inst != null) {
@@ -319,7 +319,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
         if(p.getProgramIndex() != p2.getProgramIndex())
             throw new UnificationException("Incompatible indices", p, p2);
         
-        if(p.isTerminating() != p2.isTerminating())
+        if(p.getModality() != p2.getModality())
             throw new UnificationException("Incompatible termination", p, p2);
         
         compare(p.getSuffixTerm(), p2.getSuffixTerm());

@@ -69,6 +69,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -706,14 +707,14 @@ public class TermMaker extends ASTDefaultVisitor {
             Term suffixFormula = resultTerm;
             if (programTerm.isSchema()) {
                 SchemaVariable sv = SchemaVariable.getInst(position.image, Environment.getBoolType());
-                resultTerm = SchemaProgramTerm.getInst(sv, terminating, matchingStatement, suffixFormula);
+                resultTerm = SchemaProgramTerm.getInst(sv, terminating ? Modality.BOX_TERMINATION : Modality.BOX, matchingStatement, suffixFormula);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
                 if(program == null)
                     throw new TermException("Unknown program '" +programReference + "'");
                 int programIndex = Integer.parseInt(position.image);
-                resultTerm = LiteralProgramTerm.getInst(programIndex, terminating, program, suffixFormula);
+                resultTerm = LiteralProgramTerm.getInst(programIndex, terminating ? Modality.BOX_TERMINATION : Modality.BOX, program, suffixFormula);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);
