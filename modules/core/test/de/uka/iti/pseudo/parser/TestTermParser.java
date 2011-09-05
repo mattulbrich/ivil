@@ -156,7 +156,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("[5;P](true as bool) as bool", true);
         testTerm("[5;P](%a as bool) as bool", true);
         testTerm("[[7;P]]true", false);
-        testTerm("[[7;P] ]true", "[[7; P]]true", false);
+        testTerm("[[7;P] ]true", "[[7;P]]true", false);
         testTerm("[<7;P>]true", false);
         testTerm("[7;P]b1 -> [9; Q]true", "$impl([7;P]b1,[9;Q]true)", false);
         testTerm("[[%a]]%b", false);

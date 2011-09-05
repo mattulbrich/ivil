@@ -371,6 +371,8 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         printer.append(" " + Integer.toString(litProgTerm.getProgramIndex())
                 + "; " + litProgTerm.getProgram() + " ");
         printer.append(litProgTerm.getModality().getClosingDelimiter());
+        currentSubTermIndex = 0;
+        litProgTerm.getSuffixTerm().visit(this);
         printer.resetPreviousStyle();
         printer.end();
         currentTermTag = oldTag;
@@ -387,6 +389,8 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             printer.append(" : " + schemaProgramTerm.getMatchingStatement().toString(pp.isTyped()));
         }
         printer.append(" ").append(schemaProgramTerm.getModality().getClosingDelimiter());
+        currentSubTermIndex = 0;
+        schemaProgramTerm.getSuffixTerm().visit(this);
         printer.resetPreviousStyle();
         printer.end();
         currentTermTag = oldTag;

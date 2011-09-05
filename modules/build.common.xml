@@ -34,7 +34,7 @@
 	  description="build test cases">
     <echo message="Compiling tests in ${ant.file}"/>
     <javac srcdir="test" destdir="classes-test" 
-	   debug="${compile.debug}" sourcepath="test">
+	   debug="${ivil.debug}" sourcepath="test">
       <classpath>
         <pathelement location="lib/junit.jar" />
       	<pathelement path="classes" />
