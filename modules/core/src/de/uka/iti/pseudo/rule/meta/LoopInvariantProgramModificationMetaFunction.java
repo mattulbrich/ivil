@@ -16,9 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
-import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -189,7 +187,8 @@ class LoopModifier {
         Program newProgram = programChanger.makeProgram(name);
         env.addProgram(newProgram);
         
-        LiteralProgramTerm newProgramTerm = LiteralProgramTerm.getInst(index, programTerm.isTerminating(), newProgram);
+        LiteralProgramTerm newProgramTerm = 
+            LiteralProgramTerm.getInst(index, programTerm.getModality(), newProgram, programTerm.getSuffixTerm());
         
         return newProgramTerm;
 
@@ -365,10 +364,11 @@ class LoopModifier {
             programChanger.insertAt(index, assertion, "Continuation reduces variant");
             index++;
         }
-
-        programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
-        index++;
-
+        
+        // was: programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));
+        programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, Environment.getFalse()));
+        index ++;
+        
         return index;
     }
 

@@ -44,7 +44,7 @@ public class Axiom {
         if(!term.getType().equals(Environment.getBoolType()))
             throw new EnvironmentException("Axioms must have boolean type");
         
-        if(TermMatcher.containsSchemaObject(term))
+        if(TermMatcher.containsSchematic(term))
             throw new EnvironmentException("Axiom contains schema entity");
     }
 

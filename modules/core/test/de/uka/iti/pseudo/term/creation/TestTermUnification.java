@@ -31,6 +31,10 @@ public class TestTermUnification extends TestCaseWithEnv {
         return makeTerm(s);
     }
     
+    private Term get(TermMatcher mc, String string) {
+        return mc.getTermInstantiation().get(string);
+    }
+    
     public void testLeftUnify1() throws Exception {
         TermMatcher mc = new TermMatcher();
         
@@ -71,8 +75,8 @@ public class TestTermUnification extends TestCaseWithEnv {
         Term t1 = mt("g(%b, %a as int)");
         Term t2 = mt("g(0, true)");
         assertFalse(mc.leftMatch(t1, t2));
-        assertNull(mc.getTermInstantiation().get("%a"));
-        assertNull(mc.getTermInstantiation().get("%b"));
+        assertNull(get(mc, "%a"));
+        assertNull(get(mc, "%b"));
     }
     
     // from an early bug
@@ -123,47 +127,50 @@ public class TestTermUnification extends TestCaseWithEnv {
         Type intTy = Environment.getIntType();
         Term.SHOW_TYPES = true;
         
-        assertFalse(mc.leftMatch(mt("[%a : assert %b]"), mt("[0;P]")));
-        assertTrue(mc.leftMatch(mt("[%a : assert %b]"), mt("[1;P]")));
-        assertFalse(mc.leftMatch(mt("[%a]"), mt("[2;P]")));
+        assertFalse(mc.leftMatch(mt("[%a : assert %b]%phi"), mt("[0;P]true")));
+        assertTrue(mc.leftMatch(mt("[%a : assert %b]%phi"), mt("[1;P]b1")));
+        assertFalse(mc.leftMatch(mt("[%a]%phi2"), mt("[2;P]b2")));
         
-        assertEquals(mt("b2"), mc.getTermFor(SchemaVariable.getInst("%b", bool)));
+        assertEquals(mt("b2"), get(mc, "%b"));
+        assertEquals(mt("b1"), get(mc, "%phi"));
         
-        assertTrue(mc.leftMatch(mt("[%c : %x := %v]"), mt("[5;P]")));
-        assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%x", intTy)));
-        assertEquals(mt("i2+i3"), mc.instantiate(SchemaVariable.getInst("%v", intTy)));
+        assertTrue(mc.leftMatch(mt("[%c : %x := %v]true"), mt("[5;P]true")));
+        assertEquals(mt("i1"), get(mc, "%x"));
+        assertEquals(mt("i2+i3"), get(mc, "%v"));
         
-        assertFalse(mc.leftMatch(mt("[0;P]"), mt("[0;Q]")));
+        assertFalse(mc.leftMatch(mt("[0;P]true"), mt("[0;Q]true")));
         
         // was a bug
-        assertFalse(mc.leftMatch(mt("[[%d]]"), mt("[7;P]")));
+        assertFalse(mc.leftMatch(mt("[7;P]true"), mt("[7;P]false")));
         // was a bug
-        assertFalse(mc.leftMatch(mt("[[7;P]]"), mt("[7;P]")));
+        assertFalse(mc.leftMatch(mt("[[%d]]true"), mt("[7;P]true")));
+        // was a bug
+        assertFalse(mc.leftMatch(mt("[[7;P]]true"), mt("[7;P]true")));
         
-        assertTrue(mc.leftMatch(mt("[%e]"), mt("[6;P]")));
+        assertTrue(mc.leftMatch(mt("[%e]true"), mt("[6;P]true")));
         // cannot match because not same number even though same statement
-        assertFalse(mc.leftMatch(mt("[%e]"), mt("[7;P]")));
+        assertFalse(mc.leftMatch(mt("[%e]true"), mt("[7;P]true")));
         
         // beyond program range
-        assertTrue(mc.leftMatch(mt("[%f : end true]"), mt("[100;P]")));
+        assertTrue(mc.leftMatch(mt("[%f : end]true"), mt("[100;P]true")));
         
         // skip matching
-        assertFalse(mc.leftMatch(mt("[%g : skip]"), mt("[8;P]")));
-        assertTrue(mc.leftMatch(mt("[%g : skip]"), mt("[2;P]")));
+        assertFalse(mc.leftMatch(mt("[%g : skip]true"), mt("[8;P]true")));
+        assertTrue(mc.leftMatch(mt("[%g : skip]true"), mt("[2;P]true")));
         
-        assertFalse(mc.leftMatch(mt("[%h : skip_loopinv %inv]"), mt("[8;P]")));
-        assertTrue(mc.leftMatch(mt("[%h : skip_loopinv %inv, %var]"), mt("[8;P]")));;
+        assertFalse(mc.leftMatch(mt("[%h : skip_loopinv %inv]true"), mt("[8;P]true")));
+        assertTrue(mc.leftMatch(mt("[%h : skip_loopinv %inv, %var]true"), mt("[8;P]true")));;
         assertEquals(mt("i1 > 0"), mc.instantiate(SchemaVariable.getInst("%inv", bool)));
         assertEquals(mt("i2"), mc.instantiate(SchemaVariable.getInst("%var", intTy)));
         
-        assertTrue(mc.leftMatch(mt("[%i : havoc %j]"), mt("[4;P]")));
+        assertTrue(mc.leftMatch(mt("[%i : havoc %j]true"), mt("[4;P]true")));
         assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%j", intTy)));
         
         Update upd = ((UpdateTerm)mt("{i1:=1||b1:=true}true")).getUpdate();
-        assertTrue(mc.leftMatch(mt("[%k : U]"), mt("[9;P]")));
+        assertTrue(mc.leftMatch(mt("[%k : U]true"), mt("[9;P]true")));
         assertEquals(upd, mc.getUpdateFor("U"));
         
-        assertTrue(mc.leftMatch(mt("[%k : %o:=%l || %m:=%n]"), mt("[9;P]")));
+        assertTrue(mc.leftMatch(mt("[%k : %o:=%l || %m:=%n]true"), mt("[9;P]true")));
         assertEquals(mt("i1"), mc.instantiate(SchemaVariable.getInst("%o", intTy)));
         assertEquals(mt("1"), mc.instantiate(SchemaVariable.getInst("%l", intTy)));
         assertEquals(mt("b1"), mc.instantiate(SchemaVariable.getInst("%m", bool)));
@@ -202,17 +209,19 @@ public class TestTermUnification extends TestCaseWithEnv {
 
     // was a bug
     public void testSchemaFind() throws Exception {
-        assertTrue(TermMatcher.containsSchemaObject(mt("{ %c := 0 }true")));
-        assertTrue(TermMatcher.containsSchemaObject(mt("(\\forall %c; true)")));
-        assertTrue(TermMatcher.containsSchemaObject(mt("[%a]")));
+        assertTrue(TermMatcher.containsSchematic(mt("{ %c := 0 }true")));
+        assertTrue(TermMatcher.containsSchematic(mt("(\\forall %c; true)")));
+        assertTrue(TermMatcher.containsSchematic(mt("[%a]true")));
+        assertTrue(TermMatcher.containsSchematic(mt("[3;P]%phi")));
         // from another one:
-        assertTrue(TermMatcher.containsSchemaObject(makeTerm("(\\forall i; %a > i)")));
+        assertTrue(TermMatcher.containsSchematic(makeTerm("(\\forall i; %a > i)")));
 
     }
 
+    // was a bug, now fixed
     public void testSchemaForall() throws Exception {
         // should not be allowed
-        assertTrue(TermMatcher.containsSchemaObject(mt("(\\forall x; true)")));
+        assertTrue(TermMatcher.containsSchematic(mt("(\\forall x; true)")));
     }
     
     public void testBinder() throws Exception {
@@ -263,4 +272,19 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertEquals(Collections.EMPTY_MAP, matcher.getTypeInstantiation());
     }
     
+    public void testMapStatements() throws Exception {
+        env = makeEnv("sort T as [int]int \n" +
+        		"function bool b T t assignable\n" +
+                "program Q\n" +
+                " t[5] := 4" +
+                " t := t[6:=7]");
+        
+        TermMatcher mc = new TermMatcher();
+        
+        assertTrue(mc.leftMatch(mt("[%a : %x := (%y as T)[%z:=%v] ]%b"), mt("[0;Q]b")));
+        
+        assertEquals(mt("[0;Q]b"), get(mc, "%a"));
+        assertEquals(mt("t"), get(mc, "%x"));
+    }
+
 }

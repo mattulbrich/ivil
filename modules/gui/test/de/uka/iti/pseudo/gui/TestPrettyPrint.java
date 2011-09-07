@@ -41,10 +41,11 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("i1+(i2+i3)", "i1 + (i2 + i3)");
         testTerm("(i1+i2)+i3", "i1 + i2 + i3");
         testTerm("i1+i2+i3", "i1 + i2 + i3");
-        testTerm("(i1+i2)*i3", "(i1 + i2) * i3");
-        testTerm("[ 6; P ]", "[ 6; P ]"); 
+        // this found a bug:
+        testTerm("(i1+i2)*i3", "(i1 + i2) * i3"); 
+        testTerm("[ 6; P ]true", "[ 6; P ]true"); 
         testTerm("{b1 := true}{i1:=0}i2", "{ b1 := true }{ i1 := 0 }i2");
-        testTerm("[[%a : assert %b]]", "[[ %a : assert %b ]]");
+        testTerm("[[%a : assert %b]]%phi", "[[ %a : assert %b ]]%phi");
         testTerm("! !b1", "! !b1");
         testTerm("! -5 = -3", "! -5 = -3");
         testTerm("!((!b1) = true)", "!(!b1) = true");
@@ -170,8 +171,8 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testOrderEqual("1 + 2 +3");
         testOrderEqual("1 + (2+3)");
         testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
-        testOrderEqual("[[ %a : goto %n, %k ]]");
-        testOrderEqual("[ 6 ; P ]");
+        testOrderEqual("[[ %a : goto %n, %k ]]%b");
+        testOrderEqual("[ 6 ; P ]b1");
         testOrderEqual("f(g(3,4))");
     }
 

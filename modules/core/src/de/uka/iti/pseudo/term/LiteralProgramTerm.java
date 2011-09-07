@@ -3,7 +3,6 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -46,17 +45,20 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * 
      * @param programIndex
      *            a non-negative number
-     * @param terminating
-     *            the termination state of the modality
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param program
      *            the referenced program
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
      * 
      * @throws TermException
      *             if parameters not well-defined
      */
-    public LiteralProgramTerm(int programIndex, boolean terminating,
-            @NonNull Program program) throws TermException {
-        super(terminating);
+    private LiteralProgramTerm(int programIndex, @NonNull Modality modality,
+            @NonNull Program program, @NonNull Term formula) throws TermException {
+        super(new Term[] { formula }, modality);
         this.program = program;
         this.programIndex = programIndex;
         if (programIndex < 0)
@@ -73,10 +75,13 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * 
      * @param programIndex
      *            a non-negative number
-     * @param terminating
-     *            the termination state of the modality
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param program
      *            the referenced program
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
      * 
      * @throws TermException
      *             if parameters not well-defined
@@ -84,10 +89,10 @@ public final class LiteralProgramTerm extends ProgramTerm {
      *         created.
      */
     public static @NonNull
-    LiteralProgramTerm getInst(int programIndex, boolean terminating,
-            @NonNull Program program) throws TermException {
+    LiteralProgramTerm getInst(int programIndex, @NonNull Modality modality,
+            @NonNull Program program, @NonNull Term formula) throws TermException {
         return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
-                terminating, program).intern();
+                modality, program, formula).intern();
     }
 
     /**
@@ -111,31 +116,32 @@ public final class LiteralProgramTerm extends ProgramTerm {
     LiteralProgramTerm getInst(int programIndex,
             @NonNull LiteralProgramTerm original) throws TermException {
         return (LiteralProgramTerm) new LiteralProgramTerm(programIndex,
-                original.isTerminating(), original.getProgram()).intern();
+                original.getModality(), original.getProgram(), 
+                original.getSuffixTerm()).intern();
     }
 
-    /**
-     * create a new literal program term which is a copy of the original program
-     * term with the exception of the programIndex which differs.
-     * 
-     * @param index
-     *            program index of the new program term
-     * @param original
-     *            the original program term
-     * @throws TermException
-     *             if the index is invalid
-     */
-    public LiteralProgramTerm(int index, @NonNull LiteralProgramTerm original)
-            throws TermException {
-        super(original.isTerminating());
-        this.program = original.program;
-        programIndex = index;
-
-        if (programIndex < 0)
-            throw new TermException(
-                    "Illegally formated literal program index: " + index);
-
-    }
+//    /**
+//     * create a new literal program term which is a copy of the original program
+//     * term with the exception of the programIndex which differs.
+//     * 
+//     * @param index
+//     *            program index of the new program term
+//     * @param original
+//     *            the original program term
+//     * @throws TermException
+//     *             if the index is invalid
+//     */
+//    public LiteralProgramTerm(int index, @NonNull LiteralProgramTerm original)
+//            throws TermException {
+//        super(original.isTerminating());
+//        this.program = original.program;
+//        programIndex = index;
+//
+//        if (programIndex < 0)
+//            throw new TermException(
+//                    "Illegally formated literal program index: " + index);
+//
+//    }
 
     /**
      * {@inheritDoc}
@@ -163,7 +169,7 @@ public final class LiteralProgramTerm extends ProgramTerm {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
             return programIndex == prog.programIndex && program == prog.program
-                    && isTerminating() == prog.isTerminating();
+                   && super.equalsPartially(prog);
         }
         return false;
     }
@@ -203,5 +209,5 @@ public final class LiteralProgramTerm extends ProgramTerm {
     public Program getProgram() {
         return program;
     }
-
+    
 }

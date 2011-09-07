@@ -102,16 +102,16 @@ public class TestTermInstantiator extends TestCaseWithEnv {
 
     public void testSchemaProgram() throws Exception {
         
-        termmap.put("%a", makeTerm("[2; P]"));
+        termmap.put("%a", makeTerm("[2; P]true"));
         
         Term t = inst.instantiate(makeTerm("%a as bool"));
-        assertEquals(makeTerm("[2; P]"), t);
+        assertEquals(makeTerm("[2; P]true"), t);
         
-        t = inst.instantiate(makeTerm("[%a]"));
-        assertEquals(makeTerm("[2; P]"), t);
+        t = inst.instantiate(makeTerm("[%a]false"));
+        assertEquals(makeTerm("[2; P]true"), t);
         
         try {
-            t = inst.instantiate(makeTerm("[[%a; P]]"));
+            t = inst.instantiate(makeTerm("[[%a; P]]true"));
             fail("wrong termination - should have failed");
         } catch (Exception e) {
         }
@@ -122,28 +122,28 @@ public class TestTermInstantiator extends TestCaseWithEnv {
     public void testProgramComparingInstantiation() throws Exception {
         
         inst = new ProgramComparingTermInstantiator(termmap, typemap, updatemap, env);
-        termmap.put("%a", makeTerm("[1;P]"));
+        termmap.put("%a", makeTerm("[1;P]true"));
         termmap.put("%b", makeTerm("b2"));
         
         // it suffices if it does not fail
-        inst.instantiate(makeTerm("[%a : assert b2]"));
-        inst.instantiate(makeTerm("[%a : assert %b]"));
-        inst.instantiate(makeTerm("[%a]"));
+        inst.instantiate(makeTerm("[%a : assert b2]true"));
+        inst.instantiate(makeTerm("[%a : assert %b]true"));
+        inst.instantiate(makeTerm("[%a]true"));
         
         try {
-            inst.instantiate(makeTerm("[%a : assume b2]"));
+            inst.instantiate(makeTerm("[%a : assume b2]true"));
             fail("should have failed");
         } catch (Exception e) {
         }
         
         try {
-            inst.instantiate(makeTerm("[%a : assert b1]"));
+            inst.instantiate(makeTerm("[%a : assert b1]true"));
             fail("should have failed");
         } catch (Exception e) {
         }
         
         try {
-            inst.instantiate(makeTerm("[%a : assert %c]"));
+            inst.instantiate(makeTerm("[%a : assert %c]true"));
             fail("should have failed");
         } catch (Exception e) {
         }

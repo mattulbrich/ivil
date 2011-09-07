@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Util;
 
@@ -59,7 +60,7 @@ public abstract class TestCaseWithEnv extends TestCase {
             env.setFixed();
             return env;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error while reading 'testenv.p'", e);
         }
     }
 
@@ -100,8 +101,7 @@ public abstract class TestCaseWithEnv extends TestCase {
         try {
             return TermMaker.makeAndTypeTerm(string, env, "*test*");
         } catch (Exception e) {
-            System.err.println("Cannot parse: " + string);
-            throw e;
+            throw new TermException("Cannot parse: " + string, e);
         }
     }
 

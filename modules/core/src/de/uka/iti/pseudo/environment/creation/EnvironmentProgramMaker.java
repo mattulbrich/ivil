@@ -196,7 +196,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
      */
     private boolean detectSchemaObject(Statement statement) {
         for (Term subterm : statement.getSubterms()) {
-            if(TermMatcher.containsSchemaObject(subterm))
+            if(TermMatcher.containsSchematic(subterm))
                 return true;
         }
         return false;

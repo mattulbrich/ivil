@@ -25,7 +25,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
         
         ProgramFree pf = new ProgramFree();
         assertTrue(pf.check(null, new Term[] { makeTerm("1+2 = 3") }, null, env));
-        assertFalse(pf.check(null, new Term[] { makeTerm("true & [5;P]") }, null, env));
+        assertFalse(pf.check(null, new Term[] { makeTerm("true & [5;P]true") }, null, env));
         
     }
     

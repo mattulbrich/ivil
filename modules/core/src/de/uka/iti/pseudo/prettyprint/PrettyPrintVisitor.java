@@ -367,10 +367,12 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(LiteralProgramTerm litProgTerm) throws TermException {
         TermTag oldTag = begin(litProgTerm);
         printer.setStyle("program");
-        printer.append(litProgTerm.isTerminating() ? "[[ " : "[ ");
-        printer.append(Integer.toString(litProgTerm.getProgramIndex())
-                + "; " + litProgTerm.getProgram());
-        printer.append(litProgTerm.isTerminating() ? " ]]" : " ]");
+        printer.append(litProgTerm.getModality().getOpeningDelimiter());
+        printer.append(" " + Integer.toString(litProgTerm.getProgramIndex())
+                + "; " + litProgTerm.getProgram() + " ");
+        printer.append(litProgTerm.getModality().getClosingDelimiter());
+        currentSubTermIndex = 0;
+        litProgTerm.getSuffixTerm().visit(this);
         printer.resetPreviousStyle();
         printer.end();
         currentTermTag = oldTag;
@@ -380,13 +382,15 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
             throws TermException {
         TermTag oldTag = begin(schemaProgramTerm);
         printer.setStyle("program");
-        printer.append(schemaProgramTerm.isTerminating() ? "[[ " : "[ ");
+        printer.append(schemaProgramTerm.getModality().getOpeningDelimiter()).append(" ");
         currentSubTermIndex = 0;
         schemaProgramTerm.getSchemaVariable().visit(this);
         if(schemaProgramTerm.hasMatchingStatement()) {
             printer.append(" : " + schemaProgramTerm.getMatchingStatement().toString(pp.isTyped()));
         }
-        printer.append(schemaProgramTerm.isTerminating() ? " ]]" : " ]");
+        printer.append(" ").append(schemaProgramTerm.getModality().getClosingDelimiter());
+        currentSubTermIndex = 0;
+        schemaProgramTerm.getSuffixTerm().visit(this);
         printer.resetPreviousStyle();
         printer.end();
         currentTermTag = oldTag;

@@ -113,4 +113,4 @@ final1:
   assert isPerm(a, a_pre) ; "a is a permutation of original a"
 
 problem
-  [ 0 ; P ]
+  [ 0 ; P ]true

@@ -101,4 +101,4 @@ program quicksort source "quickSort.algo"
    (\forall i; i < left | i >= right -> read(array, i) = read(initial_array,i))
 
 
-problem (*[0;partition] &*) [0;quicksort]
+problem (*[0;partition]true &*) [0;quicksort]true

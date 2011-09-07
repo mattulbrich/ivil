@@ -69,6 +69,7 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -701,17 +702,19 @@ public class TermMaker extends ASTDefaultVisitor {
         
         try {
             Token position = programTerm.getLabel();
-            boolean terminating = programTerm.isTerminating();
+            Modality modality = programTerm.getModality();
+            programTerm.getSuffixFormula().visit(this);
+            Term suffixFormula = resultTerm;
             if (programTerm.isSchema()) {
                 SchemaVariable sv = SchemaVariable.getInst(position.image, Environment.getBoolType());
-                resultTerm = SchemaProgramTerm.getInst(sv, terminating, matchingStatement);
+                resultTerm = SchemaProgramTerm.getInst(sv, modality, matchingStatement, suffixFormula);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
                 if(program == null)
                     throw new TermException("Unknown program '" +programReference + "'");
                 int programIndex = Integer.parseInt(position.image);
-                resultTerm = LiteralProgramTerm.getInst(programIndex, terminating, program);
+                resultTerm = LiteralProgramTerm.getInst(programIndex, modality, program, suffixFormula);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);
@@ -789,9 +792,8 @@ public class TermMaker extends ASTDefaultVisitor {
     }
     
     public void visit(ASTEndStatement arg) throws ASTVisitException {
-        arg.getTerm().visit(this);
         try {
-            resultStatement = new EndStatement(sourceLineNumber, resultTerm);
+            resultStatement = new EndStatement(sourceLineNumber);
         } catch (TermException e) {
             throw new ASTVisitException(arg, e);
         }

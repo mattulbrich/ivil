@@ -41,14 +41,20 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * @param schemaVariable
      *            the schema variable to capture the whole program term
-     * @param terminating
-     *            the termination state of this term
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param matchingStatement
      *            the matching statement, may be null
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
+     * @throws TermException
+     *             if the suffix term is illegal
      */
     private SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement) {
-        super(new Term[] { schemaVariable }, terminating);
+            @NonNull Modality modality, @Nullable Statement matchingStatement, 
+            Term formula) throws TermException {
+        super(new Term[] { formula, schemaVariable }, modality);
         this.matchingStatement = matchingStatement;
     }
 
@@ -61,18 +67,23 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * @param schemaVariable
      *            the schema variable to capture the whole program term
-     * @param terminating
-     *            the termination state of this term
+     * @param modality
+     *            the modality under which the program is to be executed
      * @param matchingStatement
      *            the matching statement, may be null
+     * @param formula
+     *            the formula to be evaluated in the post states of the program
+     *            execution.
      * 
      * @return a term with the given parameters. Not necessarily freshly
      *         created.
+     * @throws TermException
+     *             if the suffix term is illegal
      */
     public static @NonNull SchemaProgramTerm getInst(@NonNull SchemaVariable schemaVariable,
-            boolean terminating, @Nullable Statement matchingStatement) {
-        return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, terminating,
-                matchingStatement).intern();
+            @NonNull Modality modality, @Nullable Statement matchingStatement, Term formula) throws TermException {
+        return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, modality,
+                matchingStatement, formula).intern();
     }
 
     /**
@@ -83,7 +94,9 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * <ol>
      * <li><code>object</code> is a {@link SchemaProgramTerm} as well.
      * <li>they both have the same schema variable
+     * <li>they both have the same termination state
      * <li>their matching statements are equal or both null
+     * <li>the suffix terms are equal.
      * </ol>
      */
     public boolean equals(@Nullable Object object) {
@@ -91,7 +104,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
             SchemaProgramTerm sch = (SchemaProgramTerm) object;
             return getSchemaVariable().equals(sch.getSchemaVariable())
                     && Util.equalOrNull(matchingStatement,
-                            sch.matchingStatement);
+                            sch.matchingStatement)
+                    && super.equalsPartially(sch);
         }
         return false;
     }
@@ -136,12 +150,13 @@ public final class SchemaProgramTerm extends ProgramTerm {
     }
 
     /**
-     * Gets the schema variable.
+     * Gets the schema variable. That is always the second subterm (the first
+     * being the suffix formula).
      * 
      * @return the schema variable
      */
     public @NonNull SchemaVariable getSchemaVariable() {
-        return (SchemaVariable) getSubterm(0);
+        return (SchemaVariable) getSubterm(1);
     }
 
     /**

@@ -1,8 +1,8 @@
 package de.uka.iti.pseudo.parser.boogie;
-import de.uka.iti.pseudo.TestCaseWithEnv;
+import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationException;
 import de.uka.iti.pseudo.environment.boogie.TypeSystemException;
-public class GenTestValid extends TestCaseWithEnv {
+public class GenTestValid extends TestCase {
 
 
 	// generated test for modules/boogie/test/data/Valid/houdini/houd3.bpl

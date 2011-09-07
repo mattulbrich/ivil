@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.parser.boogie.ast.VariableDeclaration;
 import de.uka.iti.pseudo.parser.boogie.ast.expression.Expression;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
@@ -226,12 +227,12 @@ public final class TranslationPhase {
         for (Program program : problematicPrograms) {
             try {
                 if (problem == null) {
-                    problem = new LiteralProgramTerm(0, false, program);
+                    problem = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
 
                 } else {
                     Term[] args = new Term[2];
                     args[0] = problem;
-                    args[1] = new LiteralProgramTerm(0, false, program);
+                    args[1] = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
 
                     problem = Application.getInst(state.env.getFunction("$and"), Environment.getBoolType(), args);
                 }

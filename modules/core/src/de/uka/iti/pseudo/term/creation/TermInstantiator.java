@@ -151,8 +151,8 @@ public class TermInstantiator extends RebuildingTermVisitor {
     protected void checkSchemaProgramInstantiation(
             SchemaProgramTerm schema, LiteralProgramTerm prog)
             throws TermException {
-        if(prog.isTerminating() != schema.isTerminating())
-            throw new UnificationException("Instantiation failed! Termination incompatible", 
+        if(prog.getModality() != schema.getModality())
+            throw new UnificationException("Instantiation failed! Modalities incompatible", 
                     schema, prog);
     }
     

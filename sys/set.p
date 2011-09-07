@@ -31,6 +31,14 @@ tags
   asAxiom 
   derived
 
+rule anything_in_emptyset
+find %x :: emptyset
+replace false
+tags 
+  rewrite "concrete"
+  asAxiom 
+  derived
+
 rule emptyset_equals
 find emptyset = %s
 where freshVar %x, %s

@@ -81,9 +81,8 @@ plugin
     # check whether the formula to be added is indeed known and legal
     whereCondition : "de.uka.iti.pseudo.rule.where.KnownFormula"
     
-    
-    #pretty printing for maps
-	prettyPrinter : "test.MapPrettyPrinter"
+    # pretty printing for maps
+    prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.MapPrettyPrinter"
     
 (*
  * This rule can -- in combination with the where condition axiom

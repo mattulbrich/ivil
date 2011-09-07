@@ -66,5 +66,5 @@ program P source "./java1.java"
     assert (\forall o; (\forall f; sel(h, o, f) = sel(heapBegin, o, f)))
 
 problem
-  heapBegin = h -> [0; P]
+  heapBegin = h -> [0; P]true
 

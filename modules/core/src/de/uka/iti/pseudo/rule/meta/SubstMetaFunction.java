@@ -97,7 +97,8 @@ public class SubstMetaFunction extends MetaFunction {
                     Program p;
                     env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
 
-                    resultingTerm = new LiteralProgramTerm(node.getProgramIndex(), node.isTerminating(), p);
+                    resultingTerm = LiteralProgramTerm.getInst(node.getProgramIndex(), node.getModality(), p,
+                            node.getSuffixTerm());
                 }
             } catch (EnvironmentException e) {
                 e.printStackTrace();

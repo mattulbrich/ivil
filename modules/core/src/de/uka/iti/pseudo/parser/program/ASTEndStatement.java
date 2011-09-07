@@ -17,13 +17,8 @@ import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTEndStatement extends ASTStatement {
 
-    public ASTEndStatement(Token keyWord, ASTTerm term) {
+    public ASTEndStatement(Token keyWord) {
         super(keyWord);
-        addChild(term);
-    }
-
-    public ASTTerm getTerm() {
-        return (ASTTerm) getChildren().get(0);
     }
 
     public void visit(ASTVisitor v) throws ASTVisitException {

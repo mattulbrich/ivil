@@ -142,8 +142,9 @@ public class TypeApplication extends Type {
         return false;
     }
 
-    @Override
-    public <R,A> R accept(TypeVisitor<R,A> visitor, A parameter) throws TermException {
+    @Override @SuppressWarnings("nullness")
+    public </*@Nullable*/ R, /*@Nullable*/ A> 
+           R accept(@NonNull TypeVisitor<R,A> visitor, A parameter) throws TermException {
         return visitor.visit(this, parameter);
     }
 
@@ -158,7 +159,7 @@ public class TypeApplication extends Type {
      * @throws TermException
      *             may be thrown during the visitation of the types.
      */
-    public <R, A> void acceptDeep(TypeVisitor<R, A> visitor, A arg)
+    public </*@Nullable*/ R, /*@Nullable*/ A> void acceptDeep(TypeVisitor<R, A> visitor, A arg)
             throws TermException {
         for (Type param : typeParameters) {
             param.accept(visitor, arg);

@@ -104,7 +104,7 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
     public void testUnknown() throws Exception {
         SMTLibTranslator trans = new SMTLibTranslator(env);
         
-        assertEquals("unknown0", trans.translate(makeTerm("[0;P]"), FORMULA));
+        assertEquals("unknown0", trans.translate(makeTerm("[0;P]true"), FORMULA));
         assertEquals("unknown1", trans.translate(makeTerm("{i1:=0}i2"), FORMULA));
         assertEquals("unknown2", trans.translate(makeTerm("{i1:=0}i2"), UNIVERSE));
         assertEquals("unknown3", trans.translate(makeTerm("{i1:=0}i2"), INT));

@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package test;
+package de.uka.iti.pseudo.prettyprint.plugin;
 
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin;
@@ -16,9 +16,15 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.TermException;
 
-// TODO DOC
-// TODO Move this somewhere
-
+/**
+ * Use this plugin to format load and store function applications for some map
+ * type X:
+ * 
+ * {@code $load_X(a,b,c) --> a[b, c] }
+ * {@code $store_X(a,b,c,d) --> a[b, c := d] }
+ * 
+ * @author timm felden
+ */
 public class MapPrettyPrinter extends PrettyPrintPlugin {
 
     @Override public void prettyPrintTerm(Application application) throws TermException {

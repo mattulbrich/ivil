@@ -10,12 +10,18 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.DeepNonNull;
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 
 /**
- * The Class ProgramTerm encapsulates a a reference to a program state. 
- * The actual content of this program depends on the concrete subclass. A {@link LiteralProgramTerm}
- * has a pair of a program counter value and a reference to a program while a {@link SchemaProgramTerm}
+ * The Class ProgramTerm encapsulates a a reference to a program term. The
+ * actual content of this program depends on the concrete subclass. A
+ * {@link LiteralProgramTerm} has a pair of a program counter value and a
+ * reference to a program while a {@link SchemaProgramTerm} contains a reference
+ * to a schema variable and possibly a matching statement.
+ * 
+ * The first subterm is always the term suffixed to the program modality.
  * 
  * Program terms can be terminating or non-terminating.
  */
@@ -24,32 +30,29 @@ public abstract class ProgramTerm extends Term {
     /**
      * The termination flag.
      */
-    private boolean terminating;
+    private Modality modality;
 
     /**
-     * Instantiates a new program term with a 
-     * given termination status and no subterms.
-     * 
-     * @param terminating
-     *            termination status
-     */
-    protected ProgramTerm(boolean terminating) {
-        super(Environment.getBoolType());
-        this.terminating = terminating;
-    }
-    
-    /**
-     * Instantiates a new program term with a given termination status and
-     * an array of subterms.
+     * Instantiates a new program term with a given termination status and an
+     * array of subterms.
      * 
      * @param subterms
-     *            the future subterms of the array 
-     * @param terminating
-     *            the termination status
+     *            the future subterms of the array
+     * @param modality
+     *            the modality under which the program is to be seen
+     *            
+     * @throws TermException
+     *             if the program terms does not have a boolean suffixed boolean
+     *             term.
      */
-    public ProgramTerm(Term[] subterms, boolean terminating) {
+    protected ProgramTerm(@DeepNonNull Term[] subterms, @NonNull Modality modality) throws TermException {
         super(subterms, Environment.getBoolType());
-        this.terminating = terminating;
+        this.modality = modality;
+        
+        if(subterms.length == 0 ||
+                !subterms[0].getType().equals(Environment.getBoolType())) {
+            throw new TermException("Program term needs a boolean suffix term");
+        }
     }
 
     /**
@@ -57,30 +60,43 @@ public abstract class ProgramTerm extends Term {
      * 
      * @return true, if it is terminating
      */
-    public boolean isTerminating() {
-        return terminating;
+    public @NonNull Modality getModality() {
+        return modality;
     }
+    
+    /**
+     * Gets the suffix term, the wrapped formula.
+     * 
+     * It is the first subterm of this term.
+     * 
+     * @return the wrapped term in the modality. 
+     */
+    public @NonNull Term getSuffixTerm() {
+        return getSubterm(0);
+    }
+
     
     /**
      * {@inheritDoc}
      * 
      * The content strings depends on the implementing class. Terminating
      * program terms are put in '[[' while non-terminating program terms have
-     * single '[' delimeters.
+     * single '[' delimiters.
      * 
      * @param typed whether or not types are to be made explicit
      */
     public String toString(boolean typed) {
-        String res;
-        if(isTerminating())
-            res =  "[[" + getContentString(typed) + "]]";
+        StringBuilder res = new StringBuilder();
+        res.append(modality.getOpeningDelimiter()).
+                append(getContentString(typed)).
+                append(modality.getClosingDelimiter());
+        
+        if (typed)
+            res.append("(").append(getSubterm(0).toString(true)).append(") as bool");
         else
-            res =  "[" + getContentString(typed) + "]";
+            res.append(getSubterm(0).toString(false));
         
-        if(typed)
-            res += " as bool";
-        
-        return res;
+        return res.toString();
     }
 
     /**
@@ -93,4 +109,22 @@ public abstract class ProgramTerm extends Term {
      * @return the content string
      */
     protected abstract String getContentString(boolean typed);
+
+    /**
+     * This equality check is used in the {@link Object#equals(Object)}
+     * implementation of the concrete subclasses of this abstract class.
+     * 
+     * It returns true if the two program terms coincide on their termination
+     * state and the suffix formula.
+     * 
+     * @param oherProgramTerm
+     *            program term to compare with
+     *            
+     * @return true if the program terms are equal on the properties of
+     *         ProgramTerm.
+     */
+    protected boolean equalsPartially(@NonNull ProgramTerm otherProgramTerm) {
+        return modality == otherProgramTerm.modality &&
+            getSuffixTerm().equals(otherProgramTerm.getSuffixTerm());
+    }
 }

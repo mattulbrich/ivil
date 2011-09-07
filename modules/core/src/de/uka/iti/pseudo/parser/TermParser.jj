@@ -23,10 +23,10 @@ ASTTerm Term():
 }
 {
         ( term=OpIdentifier() { list.add(term); } )*
-        term=UpdateTerm() { list.add(term); }
-        (
+        term=ModalityTerm() { list.add(term); }
+        (  
           ( term=OpIdentifier() { list.add(term); } )+
-          term=UpdateTerm() { list.add(term); }
+          term=ModalityTerm() { list.add(term); }
         )*
    { 
      if(list.size() > 1)
@@ -36,17 +36,26 @@ ASTTerm Term():
    }
 }
 
-ASTTerm UpdateTerm():
+ASTTerm ModalityTerm():
 {
   ASTTerm term;
+  ASTProgramTerm pt;
   Token id;
   List<ASTAssignment> assignments;
 }
 {      LOOKAHEAD(3)
-         "{" id=<IDENTIFIER> "}" term=UpdateTerm()
+         "{" id=<IDENTIFIER> "}" term=ModalityTerm()
             { return new ASTSchemaUpdateTerm(id, term); }
-       | "{" assignments=ParallelAssignment() "}" term=UpdateTerm() 
+
+       | "{" assignments=ParallelAssignment() "}" term=ModalityTerm() 
             { return new ASTUpdateTerm(assignments, term); }
+
+       | (   "[" pt=ProgramTerm_Content(Modality.BOX) "]"
+           | "[[" pt=ProgramTerm_Content(Modality.BOX_TERMINATION) "]" "]"
+           | "[<" pt=ProgramTerm_Content(Modality.DIAMOND) ">]"
+         ) term=ModalityTerm() 
+            { pt.addChild(term); return pt; }
+
        | term=AsTerm()
             { return term; }
 }
@@ -101,6 +110,27 @@ List<ASTAssignment> ParallelAssignment():
                 { assignments.add(assignment); } )*
           	
           { return assignments; }
+}
+
+ASTProgramTerm ProgramTerm_Content(Modality modality):
+{
+  Token t, label, progref;
+  ASTStatement matchStatement = null, st;
+}
+{
+       ( label=<SCHEMA_IDENTIFIER> 
+         (  ":" 
+           ( LOOKAHEAD(2)
+             matchStatement=Statement() 
+           | matchStatement=SchematicAssignmentStatement()
+           ) 
+         )?
+           { return new ASTProgramTerm(label, modality, matchStatement); }
+            
+       | 
+         label=<NATURAL> ";" (progref=<PROGRAM_IDENTIFIER>|progref=<IDENTIFIER>)
+         { return new ASTProgramTerm(label, modality, progref); }
+       )
 }
 
 ASTTerm AsTerm():
@@ -161,7 +191,6 @@ ASTTerm BaseTerm():
         | term=ApplicationTerm()
         | term=SchemaVariable()
         | term=NumberLiteral()
-        | term=ProgramTerm()
         )
         { return term; }
 }
@@ -173,38 +202,6 @@ ASTTerm ExplicitVariableTerm():
 {
     firstToken="\\var" varToken=<IDENTIFIER>
       { return new ASTExplicitVariableTerm(firstToken, varToken); }
-}
-
-ASTTerm ProgramTerm():
-{
-  ASTProgramTerm pt;
-}
-{
-    (  "[" pt=ProgramTerm_Content(false) "]" 
-    |  "[[" pt=ProgramTerm_Content(true) "]]"
-    )
-    { return pt; }
-}
-
-ASTProgramTerm ProgramTerm_Content(boolean termination):
-{
-  Token t, label, progref;
-  ASTStatement matchStatement = null, st;
-}
-{
-       ( label=<SCHEMA_IDENTIFIER> 
-         (  ":" 
-           ( LOOKAHEAD(2)
-             matchStatement=Statement() 
-           | matchStatement=SchematicAssignmentStatement()
-           ) 
-         )?
-           { return new ASTProgramTerm(label, termination, matchStatement); }
-            
-       | 
-         label=<NATURAL> ";" (progref=<PROGRAM_IDENTIFIER>|progref=<IDENTIFIER>)
-         { return new ASTProgramTerm(label, termination, progref); }
-       )
 }
 
 ASTBinderTerm BinderTerm():
@@ -319,7 +316,7 @@ ASTTerm OpIdentifier():
   Token t;
 }
 {
-        t=<OP_IDENTIFIER> 
+        t=<OP_IDENTIFIER>
   { return new ASTOperatorIdentifierTerm(t); }
 }
 

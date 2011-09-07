@@ -78,17 +78,16 @@ import de.uka.iti.pseudo.parser.boogie.util.DefaultASTVisitor;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
-import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
-import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
@@ -1972,7 +1971,8 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // create term '\some rval; [codeexpression;0]'
         try {
             state.translation.terms.put(node, Binding.getInst(state.env.getBinder("\\some"), result_t,
-                    codeexpressionResult, new Term[] { new LiteralProgramTerm(0, false, C) }));
+                    codeexpressionResult,
+                    new Term[] { LiteralProgramTerm.getInst(0, Modality.BOX, C, Environment.getTrue()) }));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1990,10 +1990,14 @@ public final class ProgramMaker extends DefaultASTVisitor {
         node.getRval().visit(this);
 
         try {
-            statements.bodyStatements.add(new EndStatement(node.getLocationToken().beginLine, Application.getInst(
+            statements.bodyStatements.add(new AssertStatement(node.getLocationToken().beginLine, Application.getInst(
                     state.env
                     .getFunction("$eq"), Environment.getBoolType(), new Term[] { codeexpressionResult,
                     state.translation.terms.get(node.getRval()) })));
+
+            statements.bodyAnnotations.add(null);
+            statements.bodyStatements
+                    .add(new AssumeStatement(node.getLocationToken().beginLine, Environment.getFalse()));
 
             statements.bodyAnnotations.add(null);
 

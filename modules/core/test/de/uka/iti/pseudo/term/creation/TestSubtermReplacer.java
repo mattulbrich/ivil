@@ -44,7 +44,7 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
     
     // was a bug!
     public void testBinding() throws Exception {
-        Term org = makeTerm("(\\forall n; n > 0) -> [ 1; P]");
+        Term org = makeTerm("(\\forall n; n > 0) -> [ 1; P]true");
         Term two = TermMaker.makeAndTypeTerm("true", env);
         
         Term result = SubtermReplacer.replace(org, 5, two);
@@ -54,11 +54,11 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
     
     // from a bug!
     public void testInUpdate() throws Exception {
-        Term org = makeTerm("{ i1 := 3 }[ 1; P ]");
-        Term two = makeTerm("{ b1 := true } [2;P]");
+        Term org = makeTerm("{ i1 := 3 }[ 1;P ]b1");
+        Term two = makeTerm("{ b1 := true } [2;P]b1");
         Term result = SubtermReplacer.replace(org, 1, two);
         
-        assertEquals(makeTerm("{i1 := 3 }{ b1 := true } [2;P]"), result);
+        assertEquals(makeTerm("{i1 := 3 }{ b1 := true } [2;P]b1"), result);
     }
     
 }

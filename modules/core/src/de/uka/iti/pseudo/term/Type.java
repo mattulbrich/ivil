@@ -47,7 +47,9 @@ public abstract class Type {
      * @throws TermException
      *             may be thrown by the visitor
      */
-    public abstract <R,A> R accept(@NonNull TypeVisitor<R,A> visitor, A parameter) throws TermException;
+    
+    public abstract </*@Nullable*/ R, /*@Nullable*/A> 
+      R accept(@NonNull TypeVisitor<R,A> visitor, A parameter) throws TermException;
     
     /**
      * {@inheritDoc}
@@ -95,7 +97,7 @@ public abstract class Type {
      *         type object and of exactly the same class.
      */
     protected @NonNull Type intern() {
-        return typePool.cache(this);
+        return typePool.cacheNonNull(this);
     }
     
 }

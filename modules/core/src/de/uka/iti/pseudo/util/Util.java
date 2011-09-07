@@ -16,11 +16,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.AbstractList;
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.Set;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -167,7 +169,7 @@ public class Util {
 
 	/**
      * Wrap an immutable list object around an array. The elements in the array
-     * can by no means be altered. 
+     * can by no means be replaced. 
      * 
      * <p>The result is closely related to {@link Arrays#asList(Object...)} but
      * is unmodifiable.
@@ -230,6 +232,88 @@ public class Util {
         }
 	    
 	}
+	
+	/**
+     * Wrap an immutable set object around an array. The elements in the array
+     * can by no means be replaced. 
+     * 
+     * @param array
+     *            some array
+     * 
+     * @return an immutable set wrapping the argument array.
+     */
+    public static <E> Set<E> readOnlyArraySet(@Nullable E /*@NonNull*/ [] array) {
+        return new ReadOnlyArraySet<E>(array);
+    }
+    
+    // TODO The list interface does not allow for null values, we do
+    @SuppressWarnings({"nullness"})
+    private static class ReadOnlyArraySet<E extends /*@Nullable*/ Object> 
+                    extends AbstractSet<E> implements RandomAccess {
+        @Nullable E[] array;
+
+        private ReadOnlyArraySet(@Nullable E[] array) {
+            if(array == null)
+                throw new NullPointerException();
+            this.array = array;
+        }
+
+
+        @Override
+        public int size() {
+            return array.length;
+        }
+        
+        @Override
+        public @Nullable E[] toArray() {
+            return array.clone();
+        }
+        
+        private int indexOf(Object o) {
+            if (o == null) {
+                for (int i = 0; i < array.length; i++)
+                    if (array[i] == null)
+                        return i;
+            } else {
+                for (int i = 0; i < array.length; i++)
+                    if (o.equals(array[i]))
+                        return i;
+            }
+            return -1;
+        }
+
+        @Override 
+        public boolean contains(Object o) {
+            return indexOf(o) != -1;
+        }
+
+        @Override
+        public Iterator<E> iterator() {
+            return new Iterator<E>() {
+                int cur = 0;
+                
+                @Override
+                public boolean hasNext() {
+                    return cur < array.length;
+                }
+
+                @Override
+                public E next() {
+                    E result = array[cur];
+                    cur ++;
+                    return result;
+                }
+
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException();
+                }
+                
+            };
+        }
+        
+    }
+	
 	
 	/**
 	 * List terms of a list of terms on several lines

@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.parser.term;
 
 import java.util.Collections;
+import java.util.List;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -18,30 +19,31 @@ import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.ParserConstants;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.program.ASTStatement;
+import de.uka.iti.pseudo.term.Modality;
 
 public class ASTProgramTerm extends ASTTerm {
 
-    private boolean terminating;
     private Token position;
     private @Nullable Token programReference;
+    private Modality modality;
     
-    private ASTProgramTerm(Token position, boolean terminating) {
+    private ASTProgramTerm(Token position, Modality modality) {
         super(Collections.<ASTTerm>emptyList());
-        this.terminating = terminating;
+        this.modality = modality;
         this.position = position;
-	this.programReference = null;
+        this.programReference = null;
     }
 
-    public ASTProgramTerm(Token label, boolean termination,
+    public ASTProgramTerm(Token label, Modality modality,
             ASTStatement matchStatement) {
-        this(label, termination);
+        this(label, modality);
         if(matchStatement != null)
             addChild(matchStatement);
     }
 
-    public ASTProgramTerm(Token label, boolean termination,
+    public ASTProgramTerm(Token label, Modality modality,
             Token programReference) {
-        this(label, termination);
+        this(label, modality);
         this.programReference = programReference;
     }
 
@@ -60,8 +62,8 @@ public class ASTProgramTerm extends ASTTerm {
         return position;
     }
     
-    public boolean isTerminating() {
-        return terminating;
+    public Modality getModality() {
+        return modality;
     }
 
     @Override 
@@ -70,7 +72,7 @@ public class ASTProgramTerm extends ASTTerm {
     }
 
     public boolean hasMatchingStatement() {
-        return isSchema() && getChildren().size() > 0;
+        return isSchema() && getChildren().size() > 1;
     }
 
     public ASTStatement getMatchingStatement() {
@@ -82,6 +84,14 @@ public class ASTProgramTerm extends ASTTerm {
         return position.kind == ParserConstants.SCHEMA_IDENTIFIER;
     }
 
-
+    public ASTTerm getSuffixFormula() {
+        List<ASTTerm> children = getSubterms();
+        int size = children.size();
+        if(size > 0) {
+            return children.get(size - 1);
+        } else {
+            throw new IllegalStateException("There is no suffix formula! (Should not be parsed!)");
+        }
+    }
 
 }

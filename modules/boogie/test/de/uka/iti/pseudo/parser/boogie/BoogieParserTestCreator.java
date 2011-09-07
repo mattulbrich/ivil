@@ -70,10 +70,10 @@ public class BoogieParserTestCreator {
                 FileWriter fstream = new FileWriter(path);
                 BufferedWriter out = new BufferedWriter(fstream);
 
-                out.write("package de.uka.iti.pseudo.parser.boogie;\n" + "import de.uka.iti.pseudo.TestCaseWithEnv;\n"
+                out.write("package de.uka.iti.pseudo.parser.boogie;\n" + "import junit.framework.TestCase;\n"
                         + "import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationException;\n"
                         + "import de.uka.iti.pseudo.environment.boogie.TypeSystemException;\n" + "public class GenTest"
-                        + context + " extends TestCaseWithEnv {\n\n");
+                        + context + " extends TestCase {\n\n");
 
 
                 append(out, DATA + "/" + context, readFile(DATA + "/" + context + ".pattern"));

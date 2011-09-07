@@ -17,6 +17,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 
 /**
  * The Class ConcurrentSoftHashCacheImpl implements a cache hash table.
@@ -65,8 +66,8 @@ class ConcurrentSoftHashCacheImpl {
      * An element of the linked list to resolve collisions
      */
     static class Chain extends SoftReference<Object> {
-        volatile Chain next;
-        final Chain[] table;
+        volatile @Nullable Chain next;
+        final @Nullable Chain /*@NonNull*/ [] table;
         final int index;
         
         Chain(Object referent, ReferenceQueue<Object> q, 
@@ -74,6 +75,7 @@ class ConcurrentSoftHashCacheImpl {
             super(referent, q);
             this.table = table;
             this.index = index;
+            this.next = null;
         }
         
         int len() {
@@ -108,7 +110,7 @@ class ConcurrentSoftHashCacheImpl {
          * get an object: Find the index in the table and iterate over the
          * linked list. return the value if equal to argument.
          */
-        Object get(Object comparison, int hash) {
+        @Nullable Object get(Object comparison, int hash) {
             removeStale();
             
             Chain[] myTable = table;
@@ -302,7 +304,7 @@ class ConcurrentSoftHashCacheImpl {
      *         {@code object}, or <code>null</code> if no such element is in the
      *         cache.
      */
-    public Object get(@NonNull Object object) {
+    public @Nullable Object get(@NonNull Object object) {
         if(object == null)
             throw new NullPointerException("cache does not support null");
         

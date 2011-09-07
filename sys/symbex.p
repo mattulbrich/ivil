@@ -52,95 +52,95 @@ function
   int $enumerateAssignables('a, 'b)  infix // 50
 
 rule prg_skip
-  find [%a : skip] 
+  find [%a : skip]%phi
   samegoal replace  $$incPrg(%a)
   tags rewrite "symbex"
        display "|> skip"
 
 rule tprg_skip
-  find [[%a : skip]] 
+  find [[%a : skip]]%phi 
   samegoal replace  $$incPrg(%a) 
   tags rewrite "symbex"
        display "|> skip"
 
 rule prg_goto1
-  find [%a : goto %n] 
+  find [%a : goto %n]%phi
   samegoal replace  $$jmpPrg(%a, %n) 
   tags rewrite "symbex"
        display "|> goto {%n}"
 
 rule tprg_goto1
-  find [[%a : goto %n]] 
+  find [[%a : goto %n]]%phi 
   samegoal replace  $$jmpPrg(%a, %n) 
   tags rewrite "symbex"
        display "|> goto {%n}"
 
 rule prg_goto2
-  find  [%a : goto %n, %k] 
+  find  [%a : goto %n, %k]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k)
   tags display "|> goto {%n}, {%k}"
 
 rule tprg_goto2
-  find  [[%a : goto %n, %k]] 
+  find  [[%a : goto %n, %k]]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
   tags display "|> goto {%n}, {%k}"
 
 
 rule prg_assert
-  find  [%a : assert %b]
+  find  [%a : assert %b]%phi
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
 
 rule tprg_assert
-  find  [[%a : assert %b]]
+  find  [[%a : assert %b]]%phi
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
 
 
 rule prg_assume
-  find [%a : assume %b]
+  find [%a : assume %b]%phi
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
 
 rule tprg_assume
-  find [[%a : assume %b]]
+  find [[%a : assume %b]]%phi
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
 
 
 rule prg_end
-  find [%a : end %b]
+  find [%a : end]%b
   samegoal replace %b
   tags rewrite "symbex"
        display "|> end {%b}: {explain %a}"
 
 rule tprg_end
-  find [[%a : end %b]]
+  find [[%a : end]]%b
   samegoal replace %b
   tags rewrite "symbex"
        display "|> end {%b}: {explain %a}"
 
 
 rule prg_assignment
-  find [%a : U ]
+  find [%a : U ]%phi
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
        display "|> {upd U}"
 
 rule tprg_assignment
-  find [[%a : U]]
+  find [[%a : U]]%phi
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
        display "|> {upd U}"
 
 
 rule prg_havoc
-  find [%a : havoc %v]
+  find [%a : havoc %v]%phi
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
 
 rule tprg_havoc
-  find [[%a : havoc %v]]
+  find [[%a : havoc %v]]%phi
   samegoal replace (\forall x; { %v := x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
 
@@ -151,7 +151,7 @@ rule tprg_havoc
  *)
 
 rule auto_goto2
-  find |- [%a : goto %n, %k]
+  find |- [%a : goto %n, %k]%phi
   samegoal "goto {%n}"
     replace $$jmpPrg(%a, %n) 
   samegoal "goto {%k}"
@@ -160,7 +160,7 @@ rule auto_goto2
        display "|> goto {%n}, {%k}"
 
 rule auto_goto2_upd
-  find |- {U} [%a : goto %n, %k]
+  find |- {U} [%a : goto %n, %k]%phi
   samegoal "goto {%n}"
     replace {U} $$jmpPrg(%a, %n) 
   samegoal "goto {%k}"
@@ -169,7 +169,7 @@ rule auto_goto2_upd
        display "|> goto {%n}, {%k}"
 
 rule autot_goto2
-  find |- [[%a : goto %n, %k]]
+  find |- [[%a : goto %n, %k]]%phi
   samegoal "goto {%n}"
     replace $$jmpPrg(%a, %n) 
   samegoal "goto {%}"
@@ -178,7 +178,7 @@ rule autot_goto2
        display "|> goto {%n}, {%k}"
 
 rule autot_goto2_upd
-  find |- {U} [[%a : goto %n, %k]]
+  find |- {U} [[%a : goto %n, %k]]%phi
   samegoal "goto {%n}"
     replace {U} $$jmpPrg(%a, %n) 
   samegoal "goto {%k}"
@@ -189,7 +189,7 @@ rule autot_goto2_upd
 
 
 rule auto_assert
-  find |- [%a : assert %b]
+  find |- [%a : assert %b]%phi
   samegoal  "assert {%b}: {explain %a}"
     replace %b 
   samegoal "..."
@@ -198,7 +198,7 @@ rule auto_assert
        display "|> assert {%b}: {explain %a}"
 
 rule autot_assert
-  find |- [[%a : assert %b]]
+  find |- [[%a : assert %b]]%phi
   samegoal "{explainOrQuote %a}"
     replace %b 
   samegoal "..."
@@ -207,7 +207,7 @@ rule autot_assert
        display "|> assert {%b}: {explain %a}"
 
 rule auto_assert_upd
-  find |- {U} [%a : assert %b]
+  find |- {U} [%a : assert %b]%phi
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "..."
@@ -216,7 +216,7 @@ rule auto_assert_upd
        display "|> assert {%b}: {explain %a}"
 
 rule autot_assert_upd
-  find |- {U} [[%a : assert %b]]
+  find |- {U} [[%a : assert %b]]%phi
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "..."
@@ -226,7 +226,7 @@ rule autot_assert_upd
 
 
 rule auto_assume
-  find |- [%a : assume %b]
+  find |- [%a : assume %b]%phi
   samegoal 
     replace $$incPrg(%a)
     add %b |-
@@ -234,7 +234,7 @@ rule auto_assume
        display "|> assume {%b}: {explain %a}"
 
 rule autot_assume
-  find |- [[%a : assume %b]]
+  find |- [[%a : assume %b]]%phi
   samegoal 
     replace $$incPrg(%a)
     add %b |-
@@ -242,7 +242,7 @@ rule autot_assume
        display "|> assume {%b}: {explain %a}"
 
 rule auto_assume_upd
-  find |- {U} [%a : assume %b]
+  find |- {U} [%a : assume %b]%phi
   samegoal 
     replace {U} $$incPrg(%a)
     add {U} %b |-
@@ -250,7 +250,7 @@ rule auto_assume_upd
        display "|> assume {%b}: {explain %a}"
 
 rule autot_assume_upd
-  find |- {U} [[%a : assume %b]]
+  find |- {U} [[%a : assume %b]]%phi
   samegoal 
     replace {U} $$incPrg(%a)
     add {U} %b |-
@@ -259,25 +259,25 @@ rule autot_assume_upd
 
 
 rule auto_havoc
-  find |- [%a : havoc %v]
+  find |- [%a : havoc %v]%phi
   samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc
-  find |- [[%a : havoc %v]]
+  find |- [[%a : havoc %v]]%phi
   samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
 
 rule auto_havoc_upd
-  find |- {U} [%a : havoc %v]
+  find |- {U} [%a : havoc %v]%phi
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
 
 rule autot_havoc_upd
-  find |- {U} [[%a : havoc %v]]
+  find |- {U} [[%a : havoc %v]]%phi
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
@@ -287,7 +287,7 @@ rule autot_havoc_upd
  *)
 
 rule loop_invariant
-  find |- [%a]
+  find |- [%a]%phi
   where
     interact %inv
   samegoal "inv initially valid"
@@ -299,7 +299,7 @@ rule loop_invariant
     interactive "5"
 
 rule loop_invariant_update
-  find |- {U}[%a]
+  find |- {U}[%a]%phi
   where
     interact %inv
   samegoal "inv initially valid" replace {U}%inv
@@ -310,7 +310,7 @@ rule loop_invariant_update
     interactive "5"
 
 rule loop_invariant_t
-  find |- [[%a]]
+  find |- [[%a]]%phi
   where
     interact %inv
   where
@@ -324,7 +324,7 @@ rule loop_invariant_t
     dragdrop "5"
 
 rule loop_invariant_update_t
-  find |- {U}[[%a]]
+  find |- {U}[[%a]]%phi
   where
     interact %inv
   where
@@ -336,7 +336,7 @@ rule loop_invariant_update_t
     dragdrop "5"
 
 rule auto_loop_invariant
-  find |- [%a : skip_loopinv %inv]
+  find |- [%a : skip_loopinv %inv]%phi
   samegoal "inv initially valid" 
     replace %inv
   samegoal "run with cut program" 
@@ -345,7 +345,7 @@ rule auto_loop_invariant
        display "invariant in {%a}: {explain %a}"
 
 rule auto_loop_invariant_update
-  find |- {U}[%a : skip_loopinv %inv]
+  find |- {U}[%a : skip_loopinv %inv]%phi
   samegoal "inv initially valid"
     replace {U}%inv
   samegoal "run with cut program" 
@@ -354,7 +354,7 @@ rule auto_loop_invariant_update
        display "invariant in {%a}: {explain %a}"
 
 rule autot_loop_invariant
-  find |- [[%a : skip_loopinv %inv, %var]]
+  find |- [[%a : skip_loopinv %inv, %var]]%phi
   samegoal "inv initially valid" 
     replace %inv
   samegoal "run with cut program" 
@@ -363,7 +363,7 @@ rule autot_loop_invariant
        display "invariant in {%a}: {explain %a}"
 
 rule autot_loop_invariant_update
-  find |- {U}[[%a : skip_loopinv %inv, %var]]
+  find |- {U}[[%a : skip_loopinv %inv, %var]]%phi
   samegoal "inv initially valid" 
     replace {U}%inv
   samegoal "run with cut program" 

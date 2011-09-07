@@ -44,7 +44,7 @@ public class TestProgramParser extends TestCaseWithEnv {
         Environment env = testEnv("program P " +
         		"assume true " +
         		"assert arb " +
-        		"end 1 = 0 " +
+        		"end " +
         		"goto 2, 9999");
     }
     

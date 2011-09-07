@@ -27,7 +27,6 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.program.ASTAssertStatement;
 import de.uka.iti.pseudo.parser.program.ASTAssignment;
 import de.uka.iti.pseudo.parser.program.ASTAssumeStatement;
-import de.uka.iti.pseudo.parser.program.ASTEndStatement;
 import de.uka.iti.pseudo.parser.program.ASTGotoStatement;
 import de.uka.iti.pseudo.parser.term.ASTApplicationTerm;
 import de.uka.iti.pseudo.parser.term.ASTAsType;
@@ -97,7 +96,7 @@ public class TypingResolver extends ASTDefaultVisitor {
     /**
      * The resulting type is used to transport result during visitation.
      */
-    private Type resultingType;
+    private Type resultingType = TypeVariable.ALPHA;
     
     /**
      * Instantiates a new typing resolver.
@@ -241,7 +240,8 @@ public class TypingResolver extends ASTDefaultVisitor {
      * Creates new schema types for the signature
      * and match these new types against the typings of the parameters.
      */
-    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) throws UnificationException {
+    private void setTyping(ASTTerm term, List<ASTTerm> subterms, Type result, Type[] arguments) 
+            throws UnificationException, ASTVisitException {
         
         assert subterms.size() == arguments.length;
         
@@ -340,7 +340,8 @@ public class TypingResolver extends ASTDefaultVisitor {
     
     // special version of setTyping adapted for the needs of binding terms
     // see there
-    private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder) throws UnificationException {
+    private void setBinderTyping(ASTBinderTerm term, List<ASTTerm> subterms, Binder binder)
+            throws UnificationException, ASTVisitException {
         
         Type resulType = binder.getResultType();
         Type varType = binder.getVarType();
@@ -526,6 +527,8 @@ public class TypingResolver extends ASTDefaultVisitor {
         ASTTerm replacement = ShuntingYard.shuntingYard(env, listTerm);
         ASTElement parent = listTerm.getParent();
         
+        assert parent != null : "nullness: it must be guaranteed that there is parent";
+        
         parent.replaceChild(listTerm, replacement);
         
         replacement.visit(this);
@@ -540,6 +543,13 @@ public class TypingResolver extends ASTDefaultVisitor {
         super.visit(programTerm);
         
         programTerm.setTyping(new Typing(Environment.getBoolType(), typingContext));
+        
+        try {
+            typingContext.solveConstraint(Environment.getBoolType(), 
+                    programTerm.getSuffixFormula().getTyping().getRawType());
+        } catch (UnificationException e) {
+            throw new ASTVisitException("A program term needs a boolean suffix term", programTerm, e);
+        }
         
         if(programTerm.isSchema()) {
             SchemaType tv = SchemaType.getInst(programTerm.getLabel().image.substring(1));
@@ -617,17 +627,12 @@ public class TypingResolver extends ASTDefaultVisitor {
     }
     
     /* 
-     * End statements have boolean type.
+     * End statements have no arguments.
      */
-    @Override 
-    public void visit(ASTEndStatement arg) throws ASTVisitException {
-        super.visit(arg);
-        try {
-            typingContext.solveConstraint(Environment.getBoolType(), arg.getTerm().getTyping().getRawType());
-        } catch (UnificationException e) {
-            throw new ASTVisitException("An end statement needs a boolean argument", arg, e);
-        }
-    }
+//    @Override 
+//    public void visit(ASTEndStatement arg) throws ASTVisitException {
+//        super.visit(arg);
+//    }
 
     /*
      * in goto statements, only the schema identifiers need to be constrained to

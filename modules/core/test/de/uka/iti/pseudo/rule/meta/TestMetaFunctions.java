@@ -232,13 +232,13 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     }
     
     public void testIncPrg() throws Exception {
-        assertEvalsTo("$$incPrg([1;P])", "[2;P]");
-        assertEvalsTo("$$incPrg([[100; Q]])", "[[101;Q]]");
+        assertEvalsTo("$$incPrg([1;P]%a)", "[2;P]%a");
+        assertEvalsTo("$$incPrg([[100; Q]]b1)", "[[101;Q]]b1");
     }
     
     public void testJmpPrg() throws Exception {
-        assertEvalsTo("$$jmpPrg([1;P], 0)", "[0;P]");
-        assertEvalsTo("$$jmpPrg([[100 ; Q]], 99)", "[[99 ; Q]]");
+        assertEvalsTo("$$jmpPrg([1;P]true, 0)", "[0;P]true");
+        assertEvalsTo("$$jmpPrg([[100 ; Q]]b2, 99)", "[[99 ; Q]]b2");
     }
     
 }

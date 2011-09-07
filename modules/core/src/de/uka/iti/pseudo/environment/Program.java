@@ -40,7 +40,7 @@ public class Program {
     static {
         try {
             // this statement is not associated with a line number (therefore -1)
-            OUT_OF_BOUNDS_STATEMENT = new EndStatement(-1, Environment.getTrue());
+            OUT_OF_BOUNDS_STATEMENT = new EndStatement(-1);
         } catch (TermException e) {
             // this cannot happen
             throw new Error(e);

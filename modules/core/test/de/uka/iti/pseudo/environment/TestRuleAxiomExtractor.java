@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -27,7 +28,7 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
     public void testAxiomSchemaTyping() throws Exception {
         try {
             new Axiom("invalid", TermMaker.makeAndTypeTerm("arb as %'a = arb as %'a", DEFAULT_ENV),
-                    new HashMap<String, String>(), null);
+                    new HashMap<String, String>(), ASTLocatedElement.CREATED);
         } catch (EnvironmentException e) {
             return;
         }

@@ -17,6 +17,8 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 
+import nonnull.Nullable;
+
 /**
  * Represents a short cut to a sequence of $load_? and $store_? functions. The
  * structure of this is a bit ugly, but needed, as the actual $load_ and $store_
@@ -30,7 +32,7 @@ public class ASTMapOperationTerm extends ASTTerm {
     final private List<ASTTerm> domain;
     final private Token location;
 
-    public ASTMapOperationTerm(Token symbol, ASTTerm map, List<ASTTerm> args, /*@nullable*/ ASTTerm assignment) {
+    public ASTMapOperationTerm(Token symbol, ASTTerm map, List<ASTTerm> args, /*@Nullable*/ ASTTerm assignment) {
         super(new ArrayList<ASTTerm>(0));
         location = symbol;
         this.map = map;

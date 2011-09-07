@@ -27,7 +27,7 @@ program P
   C: c := 0
      goto A, B
   D: d := 0
-     end true
+     end
      goto S 
 
 (* application of invariant rule on [2;Q] with inv and var should yield [5;Q']
@@ -55,8 +55,8 @@ program Q_after
      havoc d
      assert inv ; "Continuation preserves invariant"
      assert var >= 0 & var < varAtPre ; "Continuation reduces variant"
-     end true
-     #  C U T  H E R E
+     assume false
+     #  C U T   H E R E
      havoc d
      havoc b
      havoc c
@@ -75,7 +75,7 @@ program Q_after_without_var
      assume true
      havoc d
      assert inv ; "Continuation preserves invariant"
-     end true
+     assume false
      #  C U T  H E R E
      havoc d
      havoc b
@@ -96,7 +96,7 @@ program Bug1
 program Bug1_after
   loop:
      assert inv
-     end true
+     assume false
      havoc a
      assume inv
      a := 0
