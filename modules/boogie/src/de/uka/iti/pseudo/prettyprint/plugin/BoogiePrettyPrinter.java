@@ -1,4 +1,4 @@
-package de.uka.iti.pseudo.environment.boogie;
+package de.uka.iti.pseudo.prettyprint.plugin;
 
 import java.util.regex.Pattern;
 

@@ -27,7 +27,7 @@ include
 
 (*  Dont use the pretty printer. *)
  plugin
-   prettyPrinter : "de.uka.iti.pseudo.environment.boogie.BoogiePrettyPrinter"
+   prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.BoogiePrettyPrinter"
   
 (*
   \some

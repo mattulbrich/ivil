@@ -1,3 +1,3 @@
 plugin
-  prettyPrinter : "test.UnicodePrettyPrinter"
+  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.UnicodePrettyPrinter"
 

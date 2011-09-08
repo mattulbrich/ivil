@@ -8,7 +8,7 @@
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package test;
+package de.uka.iti.pseudo.prettyprint.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;

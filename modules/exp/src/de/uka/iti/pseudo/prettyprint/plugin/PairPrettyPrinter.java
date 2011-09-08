@@ -1,4 +1,4 @@
-package test;
+package de.uka.iti.pseudo.prettyprint.plugin;
 
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin;
