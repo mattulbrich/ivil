@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class EnvironmentExporter {
 	}
 	
 	public void exportComplete(Environment env) {
-	    // TODO what to do with imports!
+        exportAllIncludes(env);
 	    exportSortsFrom(env);
 	    exportFunctionsFrom(env);
 	    exportAxiomsFrom(env);
@@ -59,6 +60,20 @@ public class EnvironmentExporter {
 	}
 
 	
+    public void exportAllIncludes(Environment env) {
+        List<String> includes = new LinkedList<String>();
+        
+        for (Environment p = env.getParent(); !p.equals(Environment.BUILT_IN_ENV); p = p.getParent()) {
+            // add only includes, which can be loaded again
+            // note: the replace is a hack to create reloadable includes for
+            // system files
+            if (p.getResourceName().endsWith(".p"))
+                includes.add(p.getResourceName().replaceAll("/./", "/"));
+        }
+
+        exportIncludes(includes);
+    }
+
     public void exportIncludes(List<String> includes) {
 	    if(includes.size() > 0) {
 	        pw.println("include");
@@ -168,11 +183,18 @@ public class EnvironmentExporter {
         pw.println("program " + program.getName());
         URL source = program.getSourceFile();
         if(source != null) {
-            pw.println("    sourcefile " + source);
+            pw.println("    source \"" + source + "\"");
         }
-        for (Statement statement : program.getStatements()) {
+        for (int i = 0; i < program.getStatements().size(); i++) {
+            final Statement statement = program.getStatement(i);
+
+            pw.println("sourceline " + statement.getSourceLineNumber());
             pw.print("  ");
-            pw.println(statement.toString(true));
+            pw.print(statement.toString(true));
+            if (program.getTextAnnotation(i) != null)
+                pw.println("; \"" + program.getTextAnnotation(i) + "\"");
+            else
+                pw.print("\n");
         }
         pw.println();
     }

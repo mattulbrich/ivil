@@ -56,7 +56,7 @@ public abstract class Statement {
     /**
      * The source line number.
      */
-    private int sourceLineNumber;
+    final private int sourceLineNumber;
 
     /**
      * The array of subterms.
