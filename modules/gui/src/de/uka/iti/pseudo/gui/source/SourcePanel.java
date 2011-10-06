@@ -88,7 +88,7 @@ public class SourcePanel extends CodePanel {
         
         //print current lines
         for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
-            if (location.getProgram() == getDisplayedResource() && location.getLine() > 0) {
+            if (location.getProgram().equals(getDisplayedResource()) && location.getLine() > 0) {
                 // line numbers start at 1 in code and at 0 in component.
                 getSourceComponent().addHighlight(location.getLine() - 1, false);
             }
