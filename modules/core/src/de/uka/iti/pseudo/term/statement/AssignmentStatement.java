@@ -86,7 +86,14 @@ public class AssignmentStatement extends Statement {
         if(isSchematic()) {
             return schemaIdentifier;
         } else {
-            return Util.join(assignments, " || ");
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < assignments.length; i++)
+                if (i != 0)
+                    sb.append(" || ").append(assignments[i].toString(typed));
+                else
+                    sb.append(assignments[i].toString(typed));
+
+            return sb.toString();
         }
     }
     
