@@ -262,9 +262,9 @@ rule impl_true_r
   tags rewrite "concrete"
        verbosity "8"
 
-rule impl_idempotent
+rule impl_same
   find  %b -> %b 
-  replace  %b 
+  replace  true 
   tags rewrite "concrete"
        verbosity "8"
 
