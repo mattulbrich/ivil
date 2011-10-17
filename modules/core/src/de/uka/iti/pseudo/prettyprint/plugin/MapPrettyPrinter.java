@@ -31,16 +31,16 @@ public class MapPrettyPrinter extends PrettyPrintPlugin {
         
         Function function = application.getFunction();
         String name = function.getName();
-        
+
         if (name.startsWith("$load_")) {
             // map
             printSubterm(application, 0);
             append("[");
-            if (application.getSubterms().size() > 1){
+            if (application.getSubterms().size() > 1) {
                 printSubterm(application, 1);
                 for (int i = 2; i < application.getSubterms().size(); i++) {
                     append(", ");
-                    printSubterm(application, 1);
+                    printSubterm(application, i);
                 }
             }
             append("]");
@@ -52,7 +52,7 @@ public class MapPrettyPrinter extends PrettyPrintPlugin {
                 printSubterm(application, 1);
                 for (int i = 2; i < application.getSubterms().size() - 1; i++) {
                     append(", ");
-                    printSubterm(application, 1);
+                    printSubterm(application, i);
                 }
             }
             append(" := ");
