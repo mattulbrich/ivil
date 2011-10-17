@@ -329,6 +329,15 @@ ASTTerm Identifier():
   { return new ASTIdentifierTerm(t); }
 }
 
+ASTTerm InternalIdentifier():
+{
+  Token t;
+}
+{
+        t=<INTERNAL_IDENTIFIER>
+  { return new ASTIdentifierTerm(t); }
+}
+
 ASTNumberLiteralTerm NumberLiteral():
 {
   Token t;

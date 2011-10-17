@@ -52,7 +52,7 @@ ASTStatement Statement():
 	| kw="skip_loopinv" termList=Statement_TermList()
 	            { result = new ASTSkipStatement(kw, termList); }
 	| kw="skip" { result = new ASTSkipStatement(kw); }
-	| kw="havoc" (term=Identifier() | term=SchemaVariable()) 
+	| kw="havoc" (term=Identifier() | term=InternalIdentifier() | term=SchemaVariable()) 
 	            { result = new ASTHavocStatement(kw, term); }
 	          
 	| asList=ParallelAssignment() /* --> TermParser.jj */
