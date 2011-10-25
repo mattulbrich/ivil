@@ -91,13 +91,22 @@ public class SubstMetaFunction extends MetaFunction {
         @Override
         public void visit(LiteralProgramTerm node) throws TermException {
             ProgramChanger changer = new ProgramChanger(node.getProgram(), env);
+            
+            // possibly replace occurrences in node.
+            // since only variables can be substituted, the result must be a
+            // program term again.
+            super.visit(node);
+            if(resultingTerm != null) {
+                node = (LiteralProgramTerm) resultingTerm;
+            }
 
             try {
                 if (changer.replaceAll(this, termToReplace, replaceWith)) {
                     Program p;
                     env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
 
-                    resultingTerm = LiteralProgramTerm.getInst(node.getProgramIndex(), node.getModality(), p,
+                    resultingTerm =
+                            LiteralProgramTerm.getInst(node.getProgramIndex(), node.getModality(), p,
                             node.getSuffixTerm());
                 }
             } catch (EnvironmentException e) {

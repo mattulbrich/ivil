@@ -60,8 +60,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     
     // was a bug.
     public void testSubstInProg() throws Exception {
-        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst])");
-        assertEvalsTo(t, "[0;test_meta_functions_subst']");
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst]true)");
+        assertEvalsTo(t, "[0;test_meta_functions_subst']true");
         {
             Term argTerm = env.getProgram("test_meta_functions_subst'").
                     getStatement(0).getSubterms().get(0);
@@ -77,15 +77,15 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     
     public void testSubstInProg2() throws Exception {
         // b does not appear unbound in P ==> should remain [0;P]
-        Term t = makeTerm("$$subst(\\var b, true, [0; P])");
-        assertEvalsTo(t, "[0;P]");
+        Term t = makeTerm("$$subst(\\var b, true, [0; P](\\var b))");
+        assertEvalsTo(t, "[0;P]true");
     }
 
     // was a bug
     public void testSubstInProg3() throws Exception {
         // program: b1 := \var b
-        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst2])");
-        assertEvalsTo(t, "[0;test_meta_functions_subst2']");
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst2]true)");
+        assertEvalsTo(t, "[0;test_meta_functions_subst2']true");
         {
             AssignmentStatement stm =
                     (AssignmentStatement) env.getProgram("test_meta_functions_subst2'").
@@ -102,8 +102,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
         // test_meta_functions_subst: assert \var b
         // test_meta_functions_subst3: assert [0;test_meta_functions_subst]
         
-        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst3])");
-        assertEvalsTo(t, "[0;test_meta_functions_subst3']");
+        Term t = makeTerm("$$subst(\\var b, true, [0;test_meta_functions_subst3]true)");
+        assertEvalsTo(t, "[0;test_meta_functions_subst3']true");
         
         Program program = env.getProgram("test_meta_functions_subst'");
         assertNotNull(program);
@@ -126,8 +126,8 @@ public class TestMetaFunctions extends TestCaseWithEnv {
     }
     
     public void testBoundSubst() throws Exception {
-        Term t = makeTerm("(\\bind x; $$subst(x, 3, x + (\\bind x; x*2)))");
-        assertEvalsTo(t.getSubterm(0), "3 + (\\bind x; x*2)");
+        Term t = makeTerm("$$subst(\\var x, 3, \\var x + (\\bind x; x * 2))");
+        assertEvalsTo(t, "3 + (\\bind x; x*2)");
     }
  
     public void testSpec() throws Exception {

@@ -85,5 +85,5 @@ program test_meta_functions_subst
 program test_meta_functions_subst2
     b1 := \var b
     
-#program test_meta_functions_subst3
-#    assert [0; test_meta_functions_subst](true)   
+program test_meta_functions_subst3
+    assert [0; test_meta_functions_subst](true)   
