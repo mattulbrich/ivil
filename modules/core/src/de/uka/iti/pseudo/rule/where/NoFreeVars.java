@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.environment.WhereCondition;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -50,7 +51,8 @@ public class NoFreeVars extends WhereCondition {
                     "notFreeIn expects (schema) varible as first argument");
     }
 
-    @Override public boolean check(Term[] formalArguments,
+    @Override 
+    public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
 
@@ -108,6 +110,13 @@ public class NoFreeVars extends WhereCondition {
                 boundVariables.clear();
                 throw new TermException("Unbound variable found: " + variable);
             }
+        }
+        
+        // TODO Implement depth search for variables in programs
+        @Override
+        public void visit(LiteralProgramTerm literalProgramTerm)
+                throws TermException {
+            throw new TermException("OVERAPPROXIMATION: Programs may potentially contain unbound variables");
         }
     }
 

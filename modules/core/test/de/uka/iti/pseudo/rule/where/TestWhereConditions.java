@@ -10,12 +10,17 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 
@@ -116,7 +121,8 @@ public class TestWhereConditions extends TestCaseWithEnv {
         
         env = makeEnv("include \"$int.p\" " +
         		"function int i1 " +
-        		"program P assert \\var b");
+        		"program P assert \\var b " +
+        		"program Q assert true");
         
         NoFreeVars noFree = new NoFreeVars();
         
@@ -124,13 +130,40 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(checkNoFree(noFree, "i1 as int"));
         assertTrue(checkNoFree(noFree, "(\\forall x; \\var x > 0)"));
         assertFalse(checkNoFree(noFree, "(\\forall x; \\var x > 0) & \\var x < 0"));
-        assertFalse(checkNoFree(noFree, "[0;P]"));
-        assertTrue(checkNoFree(noFree, "(\\forall b as bool; [0;P])"));
+        assertFalse(checkNoFree(noFree, "[0;P]true"));
+        // TODO Due to over approximation the following cannot be shown
+        // assertTrue(checkNoFree(noFree, "(\\forall b as bool; [0;P]true)"));
+        // assertTrue(checkNoFree(noFree, "[0;Q]true"));
+        assertFalse(checkNoFree(noFree, "[0;Q](\\var bb)"));
     }
 
     private boolean checkNoFree(NoFreeVars noFree, String s) throws RuleException,
             Exception {
         return noFree.check(null, new Term[] { makeTerm(s) }, null, null);
     }
+    
+    public void testToplevel() throws Exception {
+        
+        TopLevel tl = new TopLevel();
+        
+        assertFalse(checkToplevel(tl, "{i1:=1}b1", new SubtermSelector(0)));
+        assertTrue(checkToplevel(tl, "{i1:=1}b1", new SubtermSelector(1)));
+        assertFalse(checkToplevel(tl, "[0;P]b1", new SubtermSelector(0)));
+        assertFalse(checkToplevel(tl, "[[0;P]](true -> (true -> (b1)))", new SubtermSelector(0,1,1)));
+        assertTrue(checkToplevel(tl, "(true -> (true -> (b1))) & b1", new SubtermSelector(0,1,1)));
+        
+        assertFalse(checkToplevel(tl, "b1 -> (b1 -> [[0;P]]b1)", new SubtermSelector(1,1,0)));
+        assertTrue(checkToplevel(tl, "b1 -> (b1 -> [[0;P]]b1)", new SubtermSelector(1,1)));
+        assertTrue(checkToplevel(tl, "b1 -> (b1 -> [[0;P]]b1)", new SubtermSelector(1,0)));
+        
+    }
+
+    private boolean checkToplevel(TopLevel tl, String string,
+            SubtermSelector subtermSelector) throws Exception {
+        Term term = makeTerm(string);
+        TermSelector termSel = new TermSelector(new TermSelector("S.0"), subtermSelector);
+        
+        return tl.check(termSel, new Sequent(Collections.<Term>emptyList(), Arrays.asList(term)));
+    }        
 
 }

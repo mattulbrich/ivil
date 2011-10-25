@@ -105,6 +105,30 @@ public class SubtermSelector {
     }
     
     /**
+     * Instantiates a new sub term selector from two sub term selectors by
+     * concatenating them.
+     * 
+     * <p>
+     * The created selector the first argument's path augmented by the second
+     * argument.
+     * 
+     * @param sel1
+     *            the first selector
+     * @param sel2
+     *            the second selector
+     */
+    public SubtermSelector(@NonNull SubtermSelector sel1,
+            @NonNull SubtermSelector sel2) {
+        
+        int len1 = sel1.getDepth();
+        int len2 = sel2.getDepth();
+        selectorInfo = new byte[len1 + len2];
+        
+        System.arraycopy(sel1.selectorInfo, 0, selectorInfo, 0, len1);
+        System.arraycopy(sel2.selectorInfo, 0, selectorInfo, len1, len2);
+    }
+
+    /**
      * Instantiates a new term selector from a string description.
      * 
      * The first character needs to be either 'A' or 'S' followed by a dot followed

@@ -183,7 +183,7 @@ public abstract class WhereCondition implements Mappable {
      * Exceptions should <b>NOT</b> be thrown if the condition check fails. That
      * should be done by
      * {@link #check(Term[], Term[], RuleApplication, Environment)}. If a schema
-     * entitity is already instantiated, do ensure not to try to overwrite that
+     * entity is already instantiated, do ensure not to try to overwrite that
      * result; have it checked later.
      * 
      * @param termMatcher
@@ -191,7 +191,7 @@ public abstract class WhereCondition implements Mappable {
      * @param arguments
      *            the formal arguments of the condition
      * @throws RuleException
-     *             if the matching unexpectly fails
+     *             if the matching unexpectedly fails
      */
     public void addInstantiations(TermMatcher termMatcher, Term[] arguments) throws RuleException {
         // do nothing by default.

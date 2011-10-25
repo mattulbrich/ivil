@@ -114,9 +114,29 @@ public class TermSelector {
      *            the path to select
      */
     public TermSelector(TermSelector termSelector, int... path) {
+        
         this.inAntecedent = termSelector.inAntecedent;
         this.termNumber = termSelector.termNumber;
         this.subtermSelector = new SubtermSelector(termSelector.subtermSelector, path);
+    }
+    
+    /**
+     * Instantiates a new term selector from a term selector and a subterm
+     * number.
+     * 
+     * <p>
+     * The created selector contains the same information as the argument.
+     * Only the path to the subterm is augmented by the given path.
+     * 
+     * @param termSelector
+     *            the term selector to modify
+     * @param path
+     *            the path to select
+     */
+    public TermSelector(TermSelector termSelector, SubtermSelector subSelector) {
+        this.inAntecedent = termSelector.inAntecedent;
+        this.termNumber = termSelector.termNumber;
+        this.subtermSelector = new SubtermSelector(termSelector.subtermSelector, subSelector);
     }
 
     /**

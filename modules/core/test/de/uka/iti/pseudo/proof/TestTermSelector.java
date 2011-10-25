@@ -25,9 +25,11 @@ public class TestTermSelector extends TestCaseWithEnv {
         TermSelector ts3 = new TermSelector(ts1, 3);
         assertEquals("A.0.1.2.3", ts3.toString());
         
-        
         TermSelector ts4 = new TermSelector(ts1, 3, 4, 5);
         assertEquals("A.0.1.2.3.4.5", ts4.toString());
+        
+        TermSelector ts5 = new TermSelector(ts1, new SubtermSelector(3,4,5));
+        assertEquals("A.0.1.2.3.4.5", ts5.toString());
     }
 
     public void testStringConstructors() throws FormatException {
@@ -79,6 +81,17 @@ public class TestTermSelector extends TestCaseWithEnv {
         new TermSelector("A.0.0");
         new TermSelector("A.127.126");
 
+    }
+    
+    public void testSubtermConstructor() throws Exception {
+        SubtermSelector s1 = new SubtermSelector(1,2,3);
+        SubtermSelector s2 = new SubtermSelector();
+        SubtermSelector s3 = new SubtermSelector(4);
+        
+        assertEquals("1.2.3", new SubtermSelector(s1, s2).toString());
+        assertEquals("1.2.3.4", new SubtermSelector(s1, s3).toString());
+        assertEquals("1.2.3.4.5.6", new SubtermSelector(s1, 4,5,6).toString());
+        assertEquals("4.5.6", new SubtermSelector(4,5,6).toString());
     }
 
     // from a bug

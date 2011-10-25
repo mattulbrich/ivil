@@ -17,13 +17,14 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UpdateTerm;
 
 /**
  * The {@link WhereCondition} TopLevel ensures that a term is not within the
- * reach of an update.
+ * reach of an update or program modality
  */
 public class TopLevel extends WhereCondition {
 
@@ -47,14 +48,15 @@ public class TopLevel extends WhereCondition {
     
     /* intermediate step to allow testing */
     /**
-     * Check that the selected term is not within an {@link UpdateTerm}.
+     * Check that the selected term is not within an update or program.
      * 
      * @param select
      *            the term selector to be checked
      * @param sequent
      *            the sequent to check in
      * 
-     * @return true if the term is not within the reach of an update
+     * @return true if the term is not within the reach of an update or program
+     *         term
      * 
      * @throws ProofException
      *             never thrown here.
@@ -65,6 +67,8 @@ public class TopLevel extends WhereCondition {
         
         for (int p : select.getPath()) {
             if(term instanceof UpdateTerm && p == 0)
+                return false;
+            if(term instanceof ProgramTerm)
                 return false;
             term = term.getSubterm(p);
         }
