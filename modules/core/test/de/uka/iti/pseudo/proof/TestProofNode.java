@@ -199,4 +199,18 @@ public class TestProofNode extends TestCaseWithEnv {
         assertEquals(0, s.getAntecedent().size());
         assertEquals(0, s.getSuccedent().size());
     }
+    
+    // was a bug
+    public void testReplaceSameTerm() throws Exception {
+        env = makeEnv("include \"$base.p\"\n" +
+        		"rule sillyReplace find 1 replace 1");
+        Proof p = new Proof(makeTerm("1 = 1"));
+        Rule rule = env.getRule("sillyReplace");
+        RuleApplicationMaker app = new RuleApplicationMaker(env);        
+        app.setRule(rule);
+        app.setProofNode(p.getRoot());
+        app.setFindSelector(new TermSelector("S.0.0"));
+        
+        p.apply(app, env);
+    }
 }

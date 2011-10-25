@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.term.creation;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 
 public class TestSubtermReplacer extends TestCaseWithEnv {
     
@@ -38,8 +39,11 @@ public class TestSubtermReplacer extends TestCaseWithEnv {
         result = SubtermReplacer.replace(org, 0, two);
         assertEquals(two, result);
         
-        result = SubtermReplacer.replace(org, 1000, two);
-        assertNull(result);
+        try {
+            result = SubtermReplacer.replace(org, 1000, two);
+            fail("Should have failed with TermException");
+        } catch(TermException ex) {
+        }
     }
     
     // was a bug!

@@ -160,6 +160,16 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         assertEquals(makeTerm("(\\forall x; x = 1)"), t);
     }
     
+    public void testVarType() throws Exception {
+        typemap.put("a", Environment.getIntType());
+        
+        Term t = inst.instantiate(makeTerm("\\var x as %'a"));
+        assertEquals(makeTerm("\\var x as int"), t);
+        
+        t = inst.instantiate(makeTerm("%a as %'a"));
+        assertEquals(makeTerm("%a as int"), t);
+    }
+    
     public void testTypeQuant() throws Exception {
         typemap.put("v", TypeVariable.getInst("inst"));
         typemap.put("w", Environment.getIntType());
