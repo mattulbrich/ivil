@@ -36,7 +36,7 @@
     <javac srcdir="test" destdir="classes-test" 
 	   debug="${ivil.debug}" sourcepath="test">
       <classpath>
-        <pathelement location="lib/junit.jar" />
+        <pathelement location="../../lib/junit.jar" />
       	<pathelement path="classes" />
         <pathelement path="../core/classes" />
         <pathelement path="../core/classes-test" />
