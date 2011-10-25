@@ -16,6 +16,8 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
+import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.SchemaVariable;
@@ -291,6 +293,32 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                 resultingTerm = null;
             }
         }
+    }
+    
+    /*
+     * a literal program term is rebuilt if the suffix term is modified.
+     * Types are always boolean
+     */
+    @Override
+    public void visit(LiteralProgramTerm literalProgramTerm) throws TermException {
+        defaultVisitTerm(literalProgramTerm);
+        if(resultingTerm == null) {
+            literalProgramTerm.getSuffixTerm().visit(this);
+            Term childResult = resultingTerm;
+            
+            if(childResult != null) {
+                resultingTerm = LiteralProgramTerm.getInst(
+                        literalProgramTerm.getProgramIndex(), 
+                        literalProgramTerm.getModality(),
+                        literalProgramTerm.getProgram(), 
+                        childResult);
+            }
+        }
+    }
+    
+    @Override
+    public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
+        throw new Error("not yet implemented TODO");
     }
     
     /*
