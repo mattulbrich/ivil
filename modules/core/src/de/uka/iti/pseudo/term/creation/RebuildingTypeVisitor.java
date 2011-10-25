@@ -33,6 +33,8 @@ import de.uka.iti.pseudo.util.Util;
  *            An argument to the visitor which is passed through to all children
  *            of the type.
  */
+// TODO do nullness checks
+@SuppressWarnings("nullness")
 public class RebuildingTypeVisitor<A> implements TypeVisitor<Type, A> {
 
     public Type visit(TypeApplication typeApplication, A parameter) throws TermException {

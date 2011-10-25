@@ -509,8 +509,6 @@ public class ProofNode implements Comparable<ProofNode> {
             newTerm = replaceWith;
         }
 
-	assert newTerm != null : "nullness: the new turn cannot be null";
-
         int index = sel.getTermNo();
         if (sel.isAntecedent()) {
             antecedent.set(index, newTerm);

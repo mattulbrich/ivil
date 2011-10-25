@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import checkers.nullness.quals.LazyNonNull;
+
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
@@ -32,7 +34,7 @@ public abstract class AbstractStrategy implements Strategy {
     
     private Set<ProofNode> notMatching = new HashSet<ProofNode>();
     
-    private Proof proof;
+    private @LazyNonNull Proof proof;
     
     @Override
     public void init(Proof proof, Environment env,

@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
@@ -38,9 +39,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
     private Map<String, Type> typeMap;
     private Map<String, Update> updateMap;
 
-    public TermInstantiator(Map<String, Term> termMap,
-            Map<String, Type> typeMap, Map<String, Update> updateMap) {
-    super();
+    public TermInstantiator(
+            @NonNull Map<String, Term> termMap,
+            @NonNull Map<String, Type> typeMap, 
+            @NonNull Map<String, Update> updateMap) {
         this.termMap = termMap;
         this.typeMap = typeMap;
         this.updateMap = updateMap;
@@ -74,7 +76,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
     
     @Override
     protected Type modifyType(Type type) throws TermException {
-        if(typeMap != null) {
+        if(!typeMap.isEmpty()) {
             typesInstantiated = false;
             Type newType = type.accept(typeInstantiator, null);
             if(typesInstantiated)
@@ -87,21 +89,17 @@ public class TermInstantiator extends RebuildingTermVisitor {
     @Override
     public void visit(SchemaVariable schemaVariable) throws TermException {
         // the schema variable might have to be retyped
+        // resultingTerm holds retyped variable then
         super.visit(schemaVariable);
         
-        if(termMap != null) {
-            Term t  = termMap.get(schemaVariable.getName());
+        Term t  = termMap.get(schemaVariable.getName());
             
-            if(t != null) {
-                Type t1 = modifyType(t.getType());
-                Type t2 = modifyType(schemaVariable.getType());
-                if(!t1.equals(t2))
-                    throw new UnificationException("Instantiation failed! Incompatible types", t1, t2);
-                resultingTerm = t;
-            }
-            
-        } else {
-            resultingTerm = null;
+        if(t != null) {
+            Type t1 = modifyType(t.getType());
+            Type t2 = modifyType(schemaVariable.getType());
+            if(!t1.equals(t2))
+                throw new UnificationException("Instantiation failed! Incompatible types", t1, t2);
+            resultingTerm = t;
         }
     }
     
@@ -130,6 +128,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
     
     public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
         // see above
+       // schemaProgramTerm.getSchemaVariable().
         super.visit(schemaProgramTerm);
         
         if(termMap != null) {

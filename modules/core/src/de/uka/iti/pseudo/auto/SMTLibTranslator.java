@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -166,13 +167,13 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      * the result of the translation in the variable {@link #result} and it has
      * to be of the type {@link #requestedType}.
      */
-    private ExpressionType requestedType;
+    private ExpressionType requestedType = FORMULA;
 
     /**
      * Used by the visit functions to pass on the result of a translation. The
      * string placed here has to be of type {@link #requestedType}.
      */
-    private String result;
+    private String result = "";
 
     /**
      * The stack of quantified smt-variables. Used by {@link #typeToTerm},
@@ -185,7 +186,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      * the "cond" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
-    private Function condFunction;
+    private @Nullable Function condFunction;
 
     /**
      * All axioms as they are extracted from the environment.
@@ -214,6 +215,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      * the translation treats every occurrence as bound.
      * 
      */
+    @SuppressWarnings("nullness")
     private TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
@@ -628,7 +630,10 @@ public class SMTLibTranslator extends DefaultTermVisitor {
                 Type t = TypeUnification.makeSchemaVariant(tv);
                 assert t instanceof SchemaType : "either tv was not a type variable or the specification of makeSchemaVariant changed";
 
-                String typeString = matcher.getTypeFor(((SchemaType) t).getVariableName()).accept(typeToTerm, false);
+                Type type = matcher.getTypeFor(((SchemaType) t).getVariableName());
+                assert type != null : "non-nullness: t has been set by the type match visitor";
+                    
+                String typeString = type.accept(typeToTerm, false);
                 sb.append(" ").append(typeString);
             }
 

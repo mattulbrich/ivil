@@ -52,6 +52,22 @@ public class TermFactory {
         
         return f;
     }
+    
+    /*
+     * Retrieval for function symbols. Throws exception on fail-case. 
+     */
+    private Binder getBinder(String name) throws TermException {
+        Binder b = env.getBinder(name);
+        if (b == null) {
+            throw new TermException(
+                    "The binder symbol "
+                            + name
+                            + " is not available for the term factory. "
+                            + "Please ensure that it is present");
+        }
+        
+        return b;
+    }
 
     public @NonNull Term and(@NonNull Term t1, @NonNull Term t2) throws TermException {
         Function f = getFunction("$and");
@@ -102,7 +118,7 @@ public class TermFactory {
     }
 
     public @NonNull Term forall(@NonNull Variable variable, @NonNull Term term) throws TermException {
-        Binder b = env.getBinder("\\forall");
+        Binder b = getBinder("\\forall");
         return Binding.getInst(b, Environment.getBoolType(), variable, new Term[] { term });
     }
 

@@ -62,6 +62,7 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
 
     private Stack<Variable> allowedVariables = new Stack<Variable>();
     
+    @SuppressWarnings("nullness")
     private static TypeVisitor<Void, Void> schemaDetector = new DefaultTypeVisitor<Void>() {
         @Override
         public Void visit(SchemaType st, Void parameter) throws TermException {

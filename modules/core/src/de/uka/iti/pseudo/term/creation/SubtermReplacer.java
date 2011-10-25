@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The SubtermReplacer visitor is used to replace one particular subterm in a
@@ -73,10 +74,19 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *             for instance if the new term cannot be typed or construction
      *             fails otherwise.
      */
-    public static @Nullable Term replace(Term term, int subtermNo, Term replaceWith) throws TermException {
+    public static @NonNull Term replace(Term term, int subtermNo, Term replaceWith) throws TermException {
         SubtermReplacer str = new SubtermReplacer(subtermNo, replaceWith);
         term.visit(str);
-        return str.resultingTerm;
+        Term result = str.resultingTerm;
+        
+        if (result == null) {
+            Log.log(Log.ERROR, "Internal error in term indexing!");
+            throw new TermException("The index " + subtermNo
+                    + " is outside the range [0," + str.counter + "] for term "
+                    + term);
+        }
+        
+        return result;
     }
     
     
@@ -98,7 +108,7 @@ public class SubtermReplacer extends RebuildingTermVisitor {
      *             for instance if the new term cannot be typed or construction
      *             fails otherwise.
      */
-    public static @Nullable Term replace(Term term, SubtermSelector sel, Term replaceWith) throws TermException {
+    public static @NonNull Term replace(Term term, SubtermSelector sel, Term replaceWith) throws TermException {
         return replace(term, sel.getLinearIndex(term), replaceWith);
     }
     

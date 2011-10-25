@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import checkers.nullness.quals.LazyNonNull;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -77,7 +79,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * store for all categories those proof node which did not match and do not
      * try to match again.
      */
-    private Set<ProofNode>[] noMatchNodes;
+    private Set<ProofNode> /*@LazyNonNull*/[] noMatchNodes = null;
 
     /**
      * The currently active split mode.
@@ -88,12 +90,12 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * The rewrite rule handlers for the various categories. Length coincides
      * with the length of {@link #REWRITE_CATEGORIES} plus 1 (for split)
      */
-    private RewriteRuleCollection ruleCollections[];
+    private RewriteRuleCollection ruleCollections /*@LazyNonNull*/[] = null;
 
     /*
      * Find rule application on a certain goal. Try all collections.
      */
-    public @Nullable RuleApplicationMaker findRuleApplication(ProofNode target) {
+    public @Nullable RuleApplicationMaker findRuleApplication(@NonNull ProofNode target) {
         
         // TODO changes as soon as proof nodes are stored in rule applications
         // int goalNumber = getProof().getOpenGoals().indexOf(target);

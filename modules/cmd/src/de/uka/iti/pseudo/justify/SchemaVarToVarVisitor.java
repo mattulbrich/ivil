@@ -21,6 +21,12 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
+
+/**
+ * Does not seem to be used any more ...
+ * (Could possible choke on schematic program terms)
+ */
+@Deprecated
 public class SchemaVarToVarVisitor extends RebuildingTermVisitor {
 
     private Map<SchemaVariable, Variable> map =

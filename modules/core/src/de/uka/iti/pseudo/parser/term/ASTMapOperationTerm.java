@@ -28,11 +28,12 @@ import nonnull.Nullable;
  */
 public class ASTMapOperationTerm extends ASTTerm {
     
-    final private ASTTerm assignment, map;
+    final private @Nullable ASTTerm assignment; 
+    final private ASTTerm map;
     final private List<ASTTerm> domain;
     final private Token location;
 
-    public ASTMapOperationTerm(Token symbol, ASTTerm map, List<ASTTerm> args, /*@Nullable*/ ASTTerm assignment) {
+    public ASTMapOperationTerm(Token symbol, ASTTerm map, List<ASTTerm> args, @Nullable ASTTerm assignment) {
         super(new ArrayList<ASTTerm>(0));
         location = symbol;
         this.map = map;
@@ -67,7 +68,7 @@ public class ASTMapOperationTerm extends ASTTerm {
         return null == assignment;
     }
 
-    public ASTTerm getAssignment() {
+    public @Nullable ASTTerm getAssignment() {
         return assignment;
     }
 }
