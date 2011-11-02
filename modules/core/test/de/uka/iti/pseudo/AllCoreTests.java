@@ -48,7 +48,6 @@ import de.uka.iti.pseudo.term.creation.TestTermUnification;
 import de.uka.iti.pseudo.term.creation.TestToplevelCheckVisitor;
 import de.uka.iti.pseudo.term.creation.TestTypeUnification;
 import de.uka.iti.pseudo.util.TestAnnotatedString;
-import de.uka.iti.pseudo.util.TestAppendMap;
 import de.uka.iti.pseudo.util.TestConcurrentSoftHashCache;
 import de.uka.iti.pseudo.util.TestLinearLookupMap;
 import de.uka.iti.pseudo.util.TestRewindMap;
@@ -77,6 +76,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestUpdSimplification.class);
         suite.addTestSuite(TestLoopInvariantProgramMetaFunction.class);
         suite.addTestSuite(TestAnnotatedString.class);
+        //suite.addTestSuite(TestResetHashMap.class);
         // Deprecated: // suite.addTestSuite(TestSubtermCollector.class);
         suite.addTestSuite(TestSubtermReplacer.class);
         suite.addTestSuite(TestTermUnification.class);
@@ -97,7 +97,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestTextInstantiator.class);
         suite.addTestSuite(TestTermReplacer.class);
         suite.addTestSuite(TestUtil.class);
-        suite.addTestSuite(TestAppendMap.class);
+        //suite.addTestSuite(TestAppendMap.class);
         suite.addTestSuite(TestRewindMap.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestZ3.class);

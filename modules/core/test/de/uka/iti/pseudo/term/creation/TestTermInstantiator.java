@@ -108,12 +108,16 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         assertEquals(makeTerm("[2; P]true"), t);
         
         t = inst.instantiate(makeTerm("[%a]false"));
-        assertEquals(makeTerm("[2; P]true"), t);
+        assertEquals(makeTerm("[2; P]false"), t);
+        
+        t = inst.instantiate(makeTerm("[[%a]]true"));
+        assertEquals(makeTerm("[[2; P]]true"), t);
         
         try {
-            t = inst.instantiate(makeTerm("[[%a; P]]true"));
-            fail("wrong termination - should have failed");
+            inst.instantiate(makeTerm("[%a: skip]true"));
+            fail("Should have failed: has a matching statement");
         } catch (Exception e) {
+            if(VERBOSE) e.printStackTrace();
         }
     }
     
@@ -134,19 +138,25 @@ public class TestTermInstantiator extends TestCaseWithEnv {
             inst.instantiate(makeTerm("[%a : assume b2]true"));
             fail("should have failed");
         } catch (Exception e) {
+            if(VERBOSE) e.printStackTrace();
         }
         
         try {
             inst.instantiate(makeTerm("[%a : assert b1]true"));
             fail("should have failed");
         } catch (Exception e) {
+            if(VERBOSE) e.printStackTrace();
         }
         
         try {
             inst.instantiate(makeTerm("[%a : assert %c]true"));
             fail("should have failed");
         } catch (Exception e) {
+            if(VERBOSE) e.printStackTrace();
         }
+        
+        termmap.put("%c", makeTerm("b2"));
+        inst.instantiate(makeTerm("[%a : assert %c]true"));
     }
     
     // from a bug

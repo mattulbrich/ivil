@@ -33,6 +33,7 @@ import java.util.HashMap;
  * 
  * FIXME delete this class
  */
+@Deprecated
 public class AppendMap<K, V> extends HashMap<K, V> implements Cloneable {
     public AppendMap(AppendMap<K, V> appendMap) {
         super(appendMap);

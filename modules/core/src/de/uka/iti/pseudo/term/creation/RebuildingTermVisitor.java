@@ -318,7 +318,19 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     
     @Override
     public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
-        throw new Error("not yet implemented TODO");
+        defaultVisitTerm(schemaProgramTerm);
+        if(resultingTerm == null) {
+            schemaProgramTerm.getSuffixTerm().visit(this);
+            Term childResult = resultingTerm;
+            
+            if(childResult != null) {
+                resultingTerm = SchemaProgramTerm.getInst(
+                        schemaProgramTerm.getSchemaVariable(), 
+                        schemaProgramTerm.getModality(),
+                        schemaProgramTerm.getMatchingStatement(), 
+                        childResult);
+            }
+        }
     }
     
     /*
@@ -328,14 +340,18 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
      */
     public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
         defaultVisitTerm(schemaUpdateTerm);
-        if(resultingTerm != null) {
-            resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
+        if(resultingTerm == null) {
+            schemaUpdateTerm.getSubterm(0).visit(this);
+            if(resultingTerm != null) {
+                resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
+            }
         }
     }
 
 
     /*
-     * An assignment list is updated if one assignment value is updated. 
+     * An assignment list is updated if one assignment value is updated.
+     * returns null if no value has been changed
      */
     private Assignment[] visitAssignments(
             List<Assignment> assignments) throws TermException {

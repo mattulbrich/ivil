@@ -51,9 +51,11 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * @throws TermException
      *             if the suffix term is illegal
      */
-    private SchemaProgramTerm(@NonNull SchemaVariable schemaVariable,
-            @NonNull Modality modality, @Nullable Statement matchingStatement, 
-            Term formula) throws TermException {
+    private SchemaProgramTerm(
+            @NonNull SchemaVariable schemaVariable,
+            @NonNull Modality modality, 
+            @Nullable Statement matchingStatement, 
+            @NonNull Term formula) throws TermException {
         super(new Term[] { formula, schemaVariable }, modality);
         this.matchingStatement = matchingStatement;
     }
@@ -80,8 +82,13 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * @throws TermException
      *             if the suffix term is illegal
      */
-    public static @NonNull SchemaProgramTerm getInst(@NonNull SchemaVariable schemaVariable,
-            @NonNull Modality modality, @Nullable Statement matchingStatement, Term formula) throws TermException {
+    public static @NonNull SchemaProgramTerm getInst(
+            @NonNull SchemaVariable schemaVariable,
+            @NonNull Modality modality, 
+            @Nullable Statement matchingStatement,
+            @NonNull Term formula) 
+                    throws TermException {
+        
         return (SchemaProgramTerm) new SchemaProgramTerm(schemaVariable, modality,
                 matchingStatement, formula).intern();
     }

@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -15,8 +14,10 @@ import java.util.Map;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -127,34 +128,55 @@ public class TermInstantiator extends RebuildingTermVisitor {
     }
     
     public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
-        // see above
-       // schemaProgramTerm.getSchemaVariable().
         super.visit(schemaProgramTerm);
+        if(resultingTerm != null) {
+            // this is guaranteed to be a schema program term here.
+            schemaProgramTerm = (SchemaProgramTerm) resultingTerm;
+        }
         
         if(termMap != null) {
             SchemaVariable schemaVariable = schemaProgramTerm.getSchemaVariable();
             Term t  = termMap.get(schemaVariable.getName());
-            LiteralProgramTerm progTerm = (LiteralProgramTerm) t;
+            if (!(t instanceof LiteralProgramTerm)) {
+                throw new TermException("Tried to instantiate a schema program term " +
+                        "with a non-program term: " + t);
+            }
             
-            checkSchemaProgramInstantiation(schemaProgramTerm, progTerm);
-            resultingTerm = progTerm;
+            LiteralProgramTerm litProgTerm = (LiteralProgramTerm) t;
+            
+            checkSchemaProgramInstantiation(schemaProgramTerm, litProgTerm);
+            
+            
+            Program program = litProgTerm.getProgram();
+            int index = litProgTerm.getProgramIndex();
+            Term suffixTerm = schemaProgramTerm.getSuffixTerm();
+            Modality modality = schemaProgramTerm.getModality();
+
+            resultingTerm = LiteralProgramTerm.getInst(index, modality,
+                    program, suffixTerm);
         }
 
     }
 
     /**
-     * @param schema
-     * @param prog
-     * @throws TermException 
+     * Check the instantiation of a schema program term.
+     * 
+     * In this class, matching statements are not allowed. Subclasses may choose
+     * to override this behaviour.
+     * 
+     * @throws TermException
+     *             indicates that the matching term is inappropriate.
      */
     protected void checkSchemaProgramInstantiation(
-            SchemaProgramTerm schema, LiteralProgramTerm prog)
-            throws TermException {
-        if(prog.getModality() != schema.getModality())
-            throw new UnificationException("Instantiation failed! Modalities incompatible", 
-                    schema, prog);
+            SchemaProgramTerm schemaProgramTerm, LiteralProgramTerm litProgTerm) throws TermException {
+        
+        if(schemaProgramTerm.hasMatchingStatement()) {
+            throw new TermException("Tried to instantiate a schema program term " +
+                    "with matching statement: " + schemaProgramTerm);
+        }
+        
     }
-    
+
     /*
      * we need to handle this separately since the bound variable may be instantiated. 
      */
