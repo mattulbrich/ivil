@@ -168,6 +168,8 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < LEFTDIAMOND: "[<" >
 | < RIGHDIAMOND: ">]" >
 | < LEFTDSQUARE: "[[" >
+| < LEFTANYMOD: "[?" >
+| < RIGHTANYMOD: "?]" >
 // the following causes trouble in "a[b[c]]"
 // | < RIGHTDSQUARE: "]]" >
 | < COMMA: "," >

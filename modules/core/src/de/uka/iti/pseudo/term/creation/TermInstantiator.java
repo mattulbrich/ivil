@@ -146,11 +146,10 @@ public class TermInstantiator extends RebuildingTermVisitor {
             
             checkSchemaProgramInstantiation(schemaProgramTerm, litProgTerm);
             
-            
             Program program = litProgTerm.getProgram();
             int index = litProgTerm.getProgramIndex();
             Term suffixTerm = schemaProgramTerm.getSuffixTerm();
-            Modality modality = schemaProgramTerm.getModality();
+            Modality modality = litProgTerm.getModality();
 
             resultingTerm = LiteralProgramTerm.getInst(index, modality,
                     program, suffixTerm);

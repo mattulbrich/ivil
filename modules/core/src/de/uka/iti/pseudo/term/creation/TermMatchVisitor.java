@@ -12,10 +12,12 @@ package de.uka.iti.pseudo.term.creation;
 
 import java.util.List;
 
+import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.SchemaProgramTerm;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaUpdateTerm;
@@ -57,7 +59,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
      * The subterm to compare with
      * TODO have this as parameter when the TermVisitor supports parameters.
      */
-    private Term compareTerm;
+    private @LazyNonNull Term compareTerm;
     
     /**
      * Instantiates a new term matcher with a given instantiation object
@@ -68,6 +70,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
     public TermMatchVisitor(TermMatcher termMatcher) {
         this.termUnification = termMatcher;
         this.typeMatchVisitor = new TypeMatchVisitor(termMatcher);
+        /* ?????
         // compareTerm is a non-null element
         try {
             this.compareTerm = SchemaVariable.getInst("%a", SchemaType.getInst("a"));
@@ -75,6 +78,7 @@ class TermMatchVisitor extends DefaultTermVisitor {
             e.printStackTrace();
             assert false : "schema code broken or specs changed";
         }
+        */
     }
 
     /**
@@ -158,8 +162,10 @@ class TermMatchVisitor extends DefaultTermVisitor {
         SchemaVariable sv = sp.getSchemaVariable();
         Term inst = termUnification.getTermFor(sv);
         
-        if(sp.getModality() != litPrg.getModality())
-            throw new UnificationException("Incomparable termination", sp, litPrg);
+        // ANY can be compared with anything
+        if(sp.getModality() != litPrg.getModality() && 
+                sp.getModality() != Modality.ANY)
+            throw new UnificationException("Incomparable modality", sp, litPrg);
         
         if(inst != null) {
             if(!inst.equals(litPrg)) {
@@ -319,8 +325,8 @@ class TermMatchVisitor extends DefaultTermVisitor {
         if(p.getProgramIndex() != p2.getProgramIndex())
             throw new UnificationException("Incompatible indices", p, p2);
         
-        if(p.getModality() != p2.getModality())
-            throw new UnificationException("Incompatible termination", p, p2);
+        if(p.getModality() != p2.getModality()) 
+            throw new UnificationException("Incompatible modality", p, p2);
         
         compare(p.getSuffixTerm(), p2.getSuffixTerm());
     }

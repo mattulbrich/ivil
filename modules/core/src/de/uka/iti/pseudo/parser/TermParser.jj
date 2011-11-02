@@ -53,6 +53,7 @@ ASTTerm ModalityTerm():
        | (   "[" pt=ProgramTerm_Content(Modality.BOX) "]"
            | "[[" pt=ProgramTerm_Content(Modality.BOX_TERMINATION) "]" "]"
            | "[<" pt=ProgramTerm_Content(Modality.DIAMOND) ">]"
+           | "[?" pt=ProgramTerm_Content(Modality.ANY) "?]"
          ) term=ModalityTerm() 
             { pt.addChild(term); return pt; }
 

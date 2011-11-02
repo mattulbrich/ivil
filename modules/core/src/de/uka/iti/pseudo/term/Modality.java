@@ -15,7 +15,9 @@ public enum Modality {
 
     BOX("[", "]"),
     BOX_TERMINATION("[[", "]]"),
-    DIAMOND("[<", ">]");
+    DIAMOND("[<", ">]"),
+    ANY("[?", "?]")
+    ;
     
     private final String openingDelim;
     private final String closingDelim;

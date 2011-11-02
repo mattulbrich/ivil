@@ -206,6 +206,15 @@ public class TestTermUnification extends TestCaseWithEnv {
             // should fail
         }
     }
+    
+    public void testSchemaProgram() throws Exception {
+        TermMatcher mc = new TermMatcher();
+        
+        boolean res = mc.leftMatch(mt("[? %a ?]%phi"), mt("[[ 0; P ]]b1"));
+        assertTrue(res);
+        assertEquals(mt("b1"), mc.getTermInstantiation().get("%phi"));
+        assertEquals(mt("[[0;P]]b1"), mc.getTermInstantiation().get("%a"));
+    }
 
     // was a bug
     public void testSchemaFind() throws Exception {

@@ -24,8 +24,11 @@ import de.uka.iti.pseudo.term.statement.Statement;
  */
 public final class LiteralProgramTerm extends ProgramTerm {
 
-    // TODO the two following fields look as if they should be replaced by a
+    // the two following fields look as if they should be replaced by a
     // CodeLocation (TF)
+    // Not quite. program is guaranteed to be of type Program. It is not in the
+    // current version of CodeLocation. (MU)
+    
     /**
      * The statement counter index into the program
      */
@@ -64,6 +67,11 @@ public final class LiteralProgramTerm extends ProgramTerm {
         if (programIndex < 0)
             throw new TermException(
                     "Illegally formated literal program index: " + programIndex);
+        
+        if(modality == Modality.ANY) {
+            throw new TermException(
+                    "The ANY modality is only allowed for schema program terms: " +  this);
+        }
     }
 
     /**

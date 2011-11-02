@@ -171,6 +171,14 @@ public class TestTermParser extends TestCaseWithEnv {
         testTermFail("[<0;P]");
     }
     
+    public void testAnyModality() throws Exception {
+        
+        testTerm("[?%a?]%b", false);
+        testTerm("[?%a: assert %c?]%b", false);
+        
+        testTermFail("[? 0;P ?]true");
+    }
+    
     public void testUpdate() throws Exception {
         testTerm("{ i1 := 1 as int }(i1 as int)", true);
         testTerm("{ i1 := 1 || i1 := %v }%b", false);

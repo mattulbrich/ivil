@@ -44,6 +44,7 @@ public class TestProgramTerm extends TestCaseWithEnv {
         assertFalse(makeTerm("[%a]false").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[[%a]]true").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[<%a>]true").equals(makeTerm("[%a]true")));
+        assertFalse(makeTerm("[?%a?]true").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[%a: skip]true").equals(makeTerm("[%a]true")));
         assertFalse(makeTerm("[%a]%phi").equals(makeTerm("[%a]true")));
     }

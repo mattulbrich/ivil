@@ -17,7 +17,7 @@
 
 include "$setdefs.p"
 plugin
-  prettyPrinter : "test.SetPrettyPrinter"
+  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SetPrettyPrinter"
 
 (*
  * rules with emptyset

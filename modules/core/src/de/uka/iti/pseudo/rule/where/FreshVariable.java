@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
+ * 
+ * The system is protected by the GNU General Public License. 
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.rule.where;
 
 import java.util.HashSet;
@@ -19,6 +28,10 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.util.Log;
 
+/**
+ * The where condition FreshVariable can be used to create a fresh variable
+ * which does not occur in the condition's argument.
+ */
 public class FreshVariable extends WhereCondition {
 
     public FreshVariable() {

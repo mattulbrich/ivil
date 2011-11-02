@@ -52,37 +52,31 @@ function
   int $enumerateAssignables('a, 'b)  infix // 50
 
 rule prg_skip
-  find [%a : skip]%phi
+  find [? %a : skip ?]%phi
   samegoal replace  $$incPrg(%a)
   tags rewrite "symbex"
        display "|> skip"
 
-rule tprg_skip
-  find [[%a : skip]]%phi 
-  samegoal replace  $$incPrg(%a) 
-  tags rewrite "symbex"
-       display "|> skip"
-
 rule prg_goto1
-  find [%a : goto %n]%phi
+  find [? %a : goto %n ?]%phi
   samegoal replace  $$jmpPrg(%a, %n) 
   tags rewrite "symbex"
        display "|> goto {%n}"
 
-rule tprg_goto1
-  find [[%a : goto %n]]%phi 
-  samegoal replace  $$jmpPrg(%a, %n) 
-  tags rewrite "symbex"
-       display "|> goto {%n}"
 
 rule prg_goto2
-  find  [%a : goto %n, %k]%phi 
+  find  [ %a : goto %n, %k ]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k)
   tags display "|> goto {%n}, {%k}"
 
 rule tprg_goto2
   find  [[%a : goto %n, %k]]%phi 
   samegoal replace  $$jmpPrg(%a, %n) & $$jmpPrg(%a, %k) 
+  tags display "|> goto {%n}, {%k}"
+
+rule dprg_goto2
+  find  [< %a : goto %n, %k >]%phi 
+  samegoal replace  $$jmpPrg(%a, %n) | $$jmpPrg(%a, %k) 
   tags display "|> goto {%n}, {%k}"
 
 
@@ -96,6 +90,11 @@ rule tprg_assert
   samegoal replace %b & $$incPrg(%a)
   tags display "|> assert {%b}: {explain %a}"
 
+rule dprg_assert
+  find  [< %a : assert %b >]%phi
+  samegoal replace %b -> $$incPrg(%a)
+  tags display "|> assert {%b}: {explain %a}"
+
 
 rule prg_assume
   find [%a : assume %b]%phi
@@ -107,28 +106,21 @@ rule tprg_assume
   samegoal replace %b -> $$incPrg(%a)
   tags display "|> assume {%b}: {explain %a}"
 
+rule dprg_assume
+  find [<%a : assume %b>]%phi
+  samegoal replace %b & $$incPrg(%a)
+  tags display "|> assume {%b}: {explain %a}"
+
 
 rule prg_end
-  find [%a : end]%b
+  find [? %a : end ?]%b
   samegoal replace %b
   tags rewrite "symbex"
-       display "|> end {%b}: {explain %a}"
-
-rule tprg_end
-  find [[%a : end]]%b
-  samegoal replace %b
-  tags rewrite "symbex"
-       display "|> end {%b}: {explain %a}"
+       display "|> end: {explain %a}"
 
 
 rule prg_assignment
-  find [%a : U ]%phi
-  samegoal replace  {U}$$incPrg(%a) 
-  tags rewrite "symbex"
-       display "|> {upd U}"
-
-rule tprg_assignment
-  find [[%a : U]]%phi
+  find [? %a : U ?]%phi
   samegoal replace  {U}$$incPrg(%a) 
   tags rewrite "symbex"
        display "|> {upd U}"
@@ -136,12 +128,20 @@ rule tprg_assignment
 
 rule prg_havoc
   find [%a : havoc %v]%phi
-  samegoal replace (\forall x; { %v := x }$$incPrg(%a))
+  where freshVar %x, %phi
+  samegoal replace (\forall %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
 
 rule tprg_havoc
   find [[%a : havoc %v]]%phi
-  samegoal replace (\forall x; { %v := x }$$incPrg(%a))
+  where freshVar %x, %phi
+  samegoal replace (\forall %x; { %v := %x }$$incPrg(%a))
+  tags display "|> havoc {%v}: {explain %a}"
+
+rule dprg_havoc
+  find [<%a : havoc %v>]%phi
+  where freshVar %x, %phi
+  samegoal replace (\exists %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
 
 (*
