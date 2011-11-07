@@ -667,7 +667,9 @@ public class TypingResolver extends ASTDefaultVisitor {
             typingContext.solveConstraint(arg.getTarget().getTyping().getRawType(), arg.getTerm().getTyping()
                     .getRawType());
         } catch (UnificationException e) {
-            throw new ASTVisitException("Cannot infer types in an assignment", arg, e);
+            throw new ASTVisitException("Cannot infer types in an assignment: "
+                    + arg.getTarget().getTyping().getRawType() + " vs. " + arg.getTerm().getTyping().getRawType(), arg,
+                    e);
         }
     }
 
