@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
-import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -163,6 +162,7 @@ public class Main {
 
             System.exit(errorcount);
         } catch(Exception ex) {
+            System.out.println("An Exception was thrown unexpectedly.");
             System.exit(-1);
         }
         
