@@ -27,10 +27,10 @@ import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
- * This class provides the entry point for 
+ * This class provides the entry point for
  */
 public class Main {
-    
+
     /*
      * The constants for the command line option processing
      */
@@ -42,20 +42,22 @@ public class Main {
     private static final String CMDLINE_TIMEOUT = "-t";
     private static final String CMDLINE_THREADS = "-threads";
     private static final String CMDLINE_SOURCE = "-s";
-    
+    private static final String CMDLINE_PIPE = "-pipe";
+
     /**
      * The key to the settings to read the properties file name from
      */
     public static final String PROPERTIES_FILE_KEY = "pseudo.settingsFile";
-    
+
     /**
      * The key to the settings which enables/disables assertions
      */
     public static final String ASSERTION_PROPERTY = "pseudo.enableAssertions";
-    
+
     /*
      * Local fields that hold the values of the command line
      */
+    private static boolean pipeMode;
     private static boolean recursive;
     private static boolean checkOnly;
     private static boolean allSuffix;
@@ -63,24 +65,24 @@ public class Main {
     private static int timeout;
     private static int numberThreads;
     private static boolean relayToSource;
-    
+
     /**
      * The thread pool in which the tasks will be executed.
      */
     private static ExecutorService executor;
-    
+
     /**
      * The results of the execution are stored here.
      */
-    private static List<Future<Result>> results =
-        new ArrayList<Future<Result>>();
-    
+    private static List<Future<Result>> results = new ArrayList<Future<Result>>();
+
     /**
      * Prepare the command line options object.
      * 
      * @return the command line
      */
-    private static @NonNull CommandLine makeCommandLine() {
+    private static @NonNull
+    CommandLine makeCommandLine() {
         CommandLine cl = new CommandLine();
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_VERBOSE, null, "Be verbose in messages");
@@ -90,6 +92,7 @@ public class Main {
         cl.addOption(CMDLINE_TIMEOUT, "[secs]", "time to run before interrupting (-1 for no timeout)");
         cl.addOption(CMDLINE_THREADS, "[no]", "number of simultaneously running threads");
         cl.addOption(CMDLINE_SOURCE, null, "relay error messages to sources");
+        cl.addOption(CMDLINE_PIPE, null, "only YES, NO or ERROR will be printed to stdout");
         return cl;
     }
 
@@ -108,8 +111,6 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            printVersion();
-
             loadProperties();
             ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(
                     Settings.getInstance().getBoolean(ASSERTION_PROPERTY, true));
@@ -117,7 +118,7 @@ public class Main {
             CommandLine commandLine = makeCommandLine();
             commandLine.parse(args);
 
-            if(args.length == 0 || commandLine.isSet(CMDLINE_HELP)) {
+            if (args.length == 0 || commandLine.isSet(CMDLINE_HELP)) {
                 System.out.println("Usage: ivilc [options] [files|dirs]");
                 System.out.println();
                 commandLine.printUsage(System.out);
@@ -131,10 +132,14 @@ public class Main {
             timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
-            
-//            if(verbose) {
-//                Log.setMinLevel(Log.ALL);
-//            }
+            pipeMode = commandLine.isSet(CMDLINE_PIPE);
+
+            if (!pipeMode)
+                printVersion();
+
+            // if(verbose) {
+            // Log.setMinLevel(Log.ALL);
+            // }
 
             executor = Executors.newFixedThreadPool(numberThreads);
 
@@ -147,25 +152,33 @@ public class Main {
 
             int errorcount = 0;
 
-            for (Future<Result> futResult: results) {
+            for (Future<Result> futResult : results) {
                 Result result;
                 try {
                     result = futResult.get();
-                    if(result.getSuccess())
-                        errorcount ++;
-                    result.print(System.err);
+                    if(pipeMode)
+                        System.out.println(result.getSuccess() ? "YES" : "NO");
+                    else if (!result.getSuccess()) {
+                        errorcount++;
+                        result.print(System.err);
+                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    if(pipeMode)
+                        System.out.println("ERROR");
+                    else
+                        e.printStackTrace();
                     errorcount++;
                 }
             }
 
             System.exit(errorcount);
-        } catch(Exception ex) {
-            System.out.println("An Exception was thrown unexpectedly.");
+        } catch (Exception ex) {
+            if (pipeMode)
+                System.out.println("ERROR");
+
             System.exit(-1);
         }
-        
+
     }
 
     /**
@@ -181,19 +194,18 @@ public class Main {
      * @param fileName
      *            the (local) name of the file
      */
-    private static void handleFile(File directory, String fileName)
-            throws ParseException, ASTVisitException, IOException,
-            TermException {
+    private static void handleFile(File directory, String fileName) throws ParseException, ASTVisitException,
+            IOException, TermException {
         File file = new File(directory, fileName);
-        if(file.isDirectory()) {
-            if(recursive) {
+        if (file.isDirectory()) {
+            if (recursive) {
                 String[] children = file.list();
                 for (String child : children) {
                     handleFile(file, child);
                 }
             }
         } else {
-            if(allSuffix || file.getName().endsWith(".p")) {
+            if (allSuffix || file.getName().endsWith(".p")) {
                 handleSingleFile(file);
             }
         }
@@ -210,30 +222,30 @@ public class Main {
      * 
      * Parameters are set on the prover object.
      */
-    private static void handleSingleFile(File file) throws ParseException,
-            ASTVisitException, IOException, TermException {
+    private static void handleSingleFile(File file) throws ParseException, ASTVisitException, IOException,
+            TermException {
 
         AutomaticFileProver prover = new AutomaticFileProver(file);
-        
-        if(!prover.hasProblem()) {
-            if(verbose) {
+
+        if (!prover.hasProblem()) {
+            if (verbose) {
                 System.err.println(file + " does not contain a problem ... ignored");
             }
             return;
         }
-        
+
         prover.setTimeout(timeout);
         prover.setRelayToSource(relayToSource);
-        
+
         Future<Result> future = executor.submit(prover);
         assert future != null;
         results.add(future);
-       
+
     }
-    
+
     /**
-     * add all properties from the system and from a certain file to
-     * the properties in {@link Settings}.
+     * add all properties from the system and from a certain file to the
+     * properties in {@link Settings}.
      * 
      * Command line and system overwrite the file
      */
@@ -247,7 +259,7 @@ public class Main {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Prints the version of ivil.
      */
@@ -255,7 +267,5 @@ public class Main {
         String version = Util.getIvilVersion();
         System.out.println("This is ivil - " + version);
     }
-
-    
 
 }
