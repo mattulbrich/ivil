@@ -119,6 +119,14 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         } catch (Exception e) {
             if(VERBOSE) e.printStackTrace();
         }
+        
+        try {
+            termmap.put("%b", makeTerm("true"));
+            inst.instantiate(makeTerm("[%b]true"));
+            fail("Should have failed: not a program term");
+        } catch (Exception e) {
+            if(VERBOSE) e.printStackTrace();
+        }
     }
     
     // due to problems

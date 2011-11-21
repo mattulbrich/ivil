@@ -117,10 +117,12 @@ public class TermInstantiator extends RebuildingTermVisitor {
             if(resultingUpdate != null) {
                 resultingTerm = UpdateTerm.getInst(resultingUpdate, schemaUpdateTerm.getSubterm(0));
             }
+            // else resultingTerm remains null
         } else {
             Update resultingUpdate = updateMap.get(schemaIdentifier);
             if(resultingUpdate == null) {
-                resultingTerm = SchemaUpdateTerm.getInst(schemaIdentifier, resultingTerm);
+                boolean optional = schemaUpdateTerm.isOptional();
+                resultingTerm = SchemaUpdateTerm.getInst(schemaIdentifier, optional, resultingTerm);
             } else {
                 resultingTerm = UpdateTerm.getInst(resultingUpdate, resultingTerm);
             }
@@ -146,10 +148,12 @@ public class TermInstantiator extends RebuildingTermVisitor {
             
             checkSchemaProgramInstantiation(schemaProgramTerm, litProgTerm);
             
+            // take index and program from literal prog term,
             Program program = litProgTerm.getProgram();
             int index = litProgTerm.getProgramIndex();
+            // take suffix and modality from schema prog term
             Term suffixTerm = schemaProgramTerm.getSuffixTerm();
-            Modality modality = litProgTerm.getModality();
+            Modality modality = schemaProgramTerm.getModality();
 
             resultingTerm = LiteralProgramTerm.getInst(index, modality,
                     program, suffixTerm);
