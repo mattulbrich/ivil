@@ -75,8 +75,7 @@ public class Result {
      * @return the success
      */
     public boolean getSuccess() {
-        // TODO Implement Result.getSuccess
-        return false;
+        return success;
     }
 
     /**
