@@ -587,7 +587,7 @@ public class MapTypeRuleCreator {
         // /////////////// LOAD STORE COND, aka McCarthy axiom
         String ruleName = name + "_load_store_cond";
         // find: $load($store(%m, %D, %v), %T)
-        // replace: cond($weq(%D, %T), %v, $load(%m, %T))
+        // replace: cond($weq(%D, %T), retype(%v), $load(%m, %T))
 
         Map<String, String> tags = new HashMap<String, String>();
 
@@ -608,7 +608,7 @@ public class MapTypeRuleCreator {
             sbFind.append(", ").append("%t").append(i);
         sbFind.append(")");
 
-        // cond($weq(%D, %T), %v, $load(%m, %T))
+        // cond($weq(%D, %T), retype(%v), $load(%m, %T))
         StringBuilder sbReplace = new StringBuilder("cond(");
         if (0 == domain.size())
             sbReplace.append("true");
@@ -617,7 +617,7 @@ public class MapTypeRuleCreator {
                 sbReplace.append("&");
             sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
         }
-        sbReplace.append(", %v, ").append($load.getName()).append("(%m");
+        sbReplace.append(", retype(%v), ").append($load.getName()).append("(%m");
         for (int i = 0; i < domain.size(); i++)
             sbReplace.append(", ").append("%t").append(i);
         sbReplace.append("))");
