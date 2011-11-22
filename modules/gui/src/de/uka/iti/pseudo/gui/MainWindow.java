@@ -182,9 +182,15 @@ public class MainWindow extends JFrame {
             leftTabDock.addDockable(dock, new Position(2));
         }
         {
+            RuleBrowserComponent ruleBrowserComponent = new RuleBrowserComponent(proofCenter);
+            JScrollPane scroll = new JScrollPane(ruleBrowserComponent);
+            Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Browser");
+            leftTabDock.addDockable(dock, new Position(3));
+        }
+        {
             ParameterPanel settings = new ParameterPanel(proofCenter);
             Dockable dock = new DefaultDockable("settings", settings, "Settings");
-            leftTabDock.addDockable(dock, new Position(3));
+            leftTabDock.addDockable(dock, new Position(4));
 
             //show the proof tree
             leftTabDock.setSelectedDockable(leftTabDock.getDockable(1));
