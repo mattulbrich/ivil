@@ -13,18 +13,22 @@ package de.uka.iti.pseudo.term;
 import nonnull.NonNull;
 import nonnull.Nullable;
 
+// TODO DOC
+
 @NonNull
 public final class SchemaUpdateTerm extends Term {
 
-    private String schemaIdentifier;
+    private final String schemaIdentifier;
+    private final boolean optional;
 
-    private SchemaUpdateTerm(String schemaUpdateId, Term subterm) {
+    private SchemaUpdateTerm(String schemaUpdateId, boolean optional, Term subterm) {
         super(new Term[] { subterm }, subterm.getType());
         this.schemaIdentifier = schemaUpdateId;
+        this.optional = optional;
     }
     
-    public static SchemaUpdateTerm getInst(String schemaUpdateId, Term subterm) {
-        return (SchemaUpdateTerm) new SchemaUpdateTerm(schemaUpdateId, subterm).intern();
+    public static SchemaUpdateTerm getInst(String schemaUpdateId, boolean optional, Term subterm) {
+        return (SchemaUpdateTerm) new SchemaUpdateTerm(schemaUpdateId, optional, subterm).intern();
     }
 
     public boolean equals(@Nullable Object object) {
@@ -42,11 +46,16 @@ public final class SchemaUpdateTerm extends Term {
     }
 
     public String toString(boolean typed) {
-        return "{ " + getSchemaIdentifier() + " }" + getSubterm(0).toString(typed);
+        return "{ " + getSchemaIdentifier() + (isOptional() ? " ?}" : " }")
+                + getSubterm(0).toString(typed);
     }
 
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
+    }
+
+    public boolean isOptional() {
+        return optional;
     }
 
 }

@@ -365,7 +365,7 @@ public class TermSelectionTransfer extends TransferHandler {
         if (target.getChildren().size() > 0)
             pc.fireSelectedProofNode(target.getChildren().get(0));
         else if (pc.getProof().hasOpenGoals())
-            pc.fireSelectedProofNode(pc.getProof().getGoalbyNumber(0));
+            pc.fireSelectedProofNode(pc.getProof().getGoalByNumber(0));
         else
             pc.fireSelectedProofNode(pc.getProof().getRoot());
     }

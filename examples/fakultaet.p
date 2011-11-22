@@ -60,7 +60,7 @@ program P source "fakultaet.pseudo"
     sourceline 12
       c := c * n
     sourceline 13
-      n := n - 2
+      n := n - 1
       goto L1
 
     sourceline 16

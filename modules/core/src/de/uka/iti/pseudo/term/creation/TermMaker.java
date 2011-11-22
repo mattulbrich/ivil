@@ -672,8 +672,9 @@ public class TermMaker extends ASTDefaultVisitor {
         Term term = resultTerm;
         
         String identifier = arg.getIdentifierToken().image;
+        boolean optional = arg.isOptional();
         
-        resultTerm = SchemaUpdateTerm.getInst(identifier, term);
+        resultTerm = SchemaUpdateTerm.getInst(identifier, optional, term);
     }
     
 

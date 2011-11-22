@@ -42,10 +42,13 @@ ASTTerm ModalityTerm():
   ASTProgramTerm pt;
   Token id;
   List<ASTAssignment> assignments;
+  boolean optional = false;
 }
 {      LOOKAHEAD(3)
-         "{" id=<IDENTIFIER> "}" term=ModalityTerm()
-            { return new ASTSchemaUpdateTerm(id, term); }
+         "{" id=<IDENTIFIER> 
+           ( "}" | "?}" {optional=true;} )
+           term=ModalityTerm()
+            { return new ASTSchemaUpdateTerm(id, optional, term); }
 
        | "{" assignments=ParallelAssignment() "}" term=ModalityTerm() 
             { return new ASTUpdateTerm(assignments, term); }

@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.ProgramTerm;
+import de.uka.iti.pseudo.term.SchemaUpdateTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UpdateTerm;
@@ -196,15 +197,17 @@ public class RewriteRuleCollection {
             if (findClause == null)
                 continue;
 
-            String classification = getClassification(findClause.getTerm());
+            String[] classifications = getClassification(findClause.getTerm()).split(",");
 
-            List<Rule> targetList = classificationMap.get(classification);
-            if (targetList == null) {
-                targetList = new LinkedList<Rule>();
-                classificationMap.put(classification, targetList);
+            for (String classification : classifications) {
+                List<Rule> targetList = classificationMap.get(classification);
+                if (targetList == null) {
+                    targetList = new LinkedList<Rule>();
+                    classificationMap.put(classification, targetList);
+                }
+                targetList.add(rule);
             }
 
-            targetList.add(rule);
             size++;
         }
 
@@ -213,17 +216,26 @@ public class RewriteRuleCollection {
     /**
      * Gets the classification for a term.
      * 
+     * <p>
+     * For most terms, this returns the single classification of the term:
      * <ul>
      * <li>For a binding, get the binder.
      * <li>For an application, get the function symbol.
      * <li>For a program term, get "[program]"
+     * <li>For an updated term, get "[updated]"
      * <li>Else: get "[generic]"
      * </ul>
+     * 
+     * <P>
+     * For some schematic terms (at the moment {@link SchemaUpdateTerm}s), more
+     * than one category can be returned. Categories are then separated by
+     * commas. For example the schematic terms <tt>{ U ?}[%a: skip]%b</tt> has
+     * the classification "[updated], [program]".
      * 
      * @param term
      *            the term to classify
      * 
-     * @return the classification
+     * @return the classification, comma separated if more than one.
      */
     private @NonNull String getClassification(@NonNull Term term) {
 
@@ -235,6 +247,15 @@ public class RewriteRuleCollection {
         if (term instanceof Application) {
             Application app = (Application) term;
             return app.getFunction().getName();
+        }
+        
+        if (term instanceof SchemaUpdateTerm) {
+            SchemaUpdateTerm sut = (SchemaUpdateTerm) term;
+            if(sut.isOptional()) {
+                return "[updated]," + getClassification(term.getSubterm(0));
+            } else {
+                return "[updated]";
+            }
         }
         
         if (term instanceof UpdateTerm) {
@@ -308,9 +329,12 @@ public class RewriteRuleCollection {
     /*
      * Gets the collection of rules which is applicable to a term (apart from
      * the generic ones)
+     * @param term must be a non-schematic term.
      */
     private @Nullable List<Rule> getRuleSet(Term term) {
         String classif = getClassification(term);
+        // you should not use this with schematic terms:
+        assert !classif.contains(",") : "More than one classification for term: " + term;
         return classificationMap.get(classif);
     }
 

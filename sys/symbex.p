@@ -150,17 +150,8 @@ rule dprg_havoc
  * Are given only for programs on toplevel succendent
  *)
 
-rule auto_goto2
-  find |- [%a : goto %n, %k]%phi
-  samegoal "goto {%n}"
-    replace $$jmpPrg(%a, %n) 
-  samegoal "goto {%k}"
-    replace $$jmpPrg(%a, %k)
-  tags rewrite "symbex"
-       display "|> goto {%n}, {%k}"
-
-rule auto_goto2_upd
-  find |- {U} [%a : goto %n, %k]%phi
+rule auto_box_goto2
+  find |- { U ?} [%a : goto %n, %k]%phi
   samegoal "goto {%n}"
     replace {U} $$jmpPrg(%a, %n) 
   samegoal "goto {%k}"
@@ -168,17 +159,8 @@ rule auto_goto2_upd
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
 
-rule autot_goto2
-  find |- [[%a : goto %n, %k]]%phi
-  samegoal "goto {%n}"
-    replace $$jmpPrg(%a, %n) 
-  samegoal "goto {%}"
-    replace $$jmpPrg(%a, %k)
-  tags rewrite "symbex"
-       display "|> goto {%n}, {%k}"
-
-rule autot_goto2_upd
-  find |- {U} [[%a : goto %n, %k]]%phi
+rule auto_tbox_goto2
+  find |- { U ?} [[%a : goto %n, %k]]%phi
   samegoal "goto {%n}"
     replace {U} $$jmpPrg(%a, %n) 
   samegoal "goto {%k}"
@@ -186,28 +168,17 @@ rule autot_goto2_upd
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
 
-
-
-rule auto_assert
-  find |- [%a : assert %b]%phi
-  samegoal  "assert {%b}: {explain %a}"
-    replace %b 
-  samegoal "..."
-    replace $$incPrg(%a)
+rule auto_dia_goto2
+  find |- { U ?} [<%a : goto %n, %k>]%phi
+  samegoal "goto {%n}, {%k}"
+    replace {U} $$jmpPrg(%a, %n) 
+    add |- {U} $$jmpPrg(%a, %k)
   tags rewrite "symbex"
-       display "|> assert {%b}: {explain %a}"
+       display "|> goto {%n}, {%k}"
 
-rule autot_assert
-  find |- [[%a : assert %b]]%phi
-  samegoal "{explainOrQuote %a}"
-    replace %b 
-  samegoal "..."
-    replace $$incPrg(%a)
-  tags rewrite "symbex"
-       display "|> assert {%b}: {explain %a}"
 
-rule auto_assert_upd
-  find |- {U} [%a : assert %b]%phi
+rule auto_box_assert
+  find |- { U ?} [%a : assert %b]%phi
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "..."
@@ -215,8 +186,8 @@ rule auto_assert_upd
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
 
-rule autot_assert_upd
-  find |- {U} [[%a : assert %b]]%phi
+rule auto_tbox_assert
+  find |- { U ?} [[%a : assert %b]]%phi
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "..."
@@ -224,63 +195,60 @@ rule autot_assert_upd
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
 
-
-rule auto_assume
-  find |- [%a : assume %b]%phi
-  samegoal 
-    replace $$incPrg(%a)
-    add %b |-
+rule auto_dia_assert
+  find |- { U ?} [<%a : assert %b>]%phi
+  samegoal
+    add {U} %b |-
+    replace {U} $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assume {%b}: {explain %a}"
+       display "|> assert {%b}: {explain %a}"
 
-rule autot_assume
-  find |- [[%a : assume %b]]%phi
-  samegoal 
-    replace $$incPrg(%a)
-    add %b |-
-  tags rewrite "symbex"
-       display "|> assume {%b}: {explain %a}"
 
-rule auto_assume_upd
-  find |- {U} [%a : assume %b]%phi
-  samegoal 
+rule auto_box_assume
+  find |- { U ?} [%a : assume %b]%phi
+  samegoal
     replace {U} $$incPrg(%a)
     add {U} %b |-
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
 
-rule autot_assume_upd
+rule auto_tbox_assume
   find |- {U} [[%a : assume %b]]%phi
-  samegoal 
+  samegoal
     replace {U} $$incPrg(%a)
     add {U} %b |-
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
 
-
-rule auto_havoc
-  find |- [%a : havoc %v]%phi
-  samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
+rule auto_dia_assume
+  find |- { U ?} [<%a : assume %b>]%phi
+  samegoal "{explainOrQuote %a}"
+    replace {U} %b 
+  samegoal "..."
+    replace {U} $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> havoc {%v}: {explain %a}"
+       display "|> assert {%b}: {explain %a}"
 
-rule autot_havoc
-  find |- [[%a : havoc %v]]%phi
-  samegoal replace { %v := $$skolem(%v) }$$incPrg(%a)
-  tags rewrite "symbex"
-       display "|> havoc {%v}: {explain %a}"
 
-rule auto_havoc_upd
-  find |- {U} [%a : havoc %v]%phi
+rule auto_box_havoc
+  find |- { U ?} [%a : havoc %v]%phi
   samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
 
-rule autot_havoc_upd
-  find |- {U} [[%a : havoc %v]]%phi
-  samegoal replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
+rule auto_tbox_havoc
+  find |- { U ?} [[%a : havoc %v]]%phi
+  replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
   tags rewrite "symbex"
        display "|> havoc {%v}: {explain %a}"
+
+(*
+rule auto_dia_havoc
+  find |- { U ?} [<%a : havoc %v>]%phi
+  replace {U}{ %v := $$skolem(%v) }$$incPrg(%a)
+  tags rewrite "symbex"
+       display "|> havoc {%v}: {explain %a}"
+*)     
 
 (*
  * loop invariant rules
@@ -384,7 +352,7 @@ rule update_simplification
 *)
 
 rule deep_update_simplification
-  find {U}%t
+  find { U }%t
   where canEval $$deepUpdSimpl({U}%t)
   samegoal replace $$deepUpdSimpl({U}%t)
   tags rewrite "updSimpl"

@@ -342,8 +342,9 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         defaultVisitTerm(schemaUpdateTerm);
         if(resultingTerm == null) {
             schemaUpdateTerm.getSubterm(0).visit(this);
+            boolean optional = schemaUpdateTerm.isOptional();
             if(resultingTerm != null) {
-                resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), resultingTerm);
+                resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), optional, resultingTerm);
             }
         }
     }

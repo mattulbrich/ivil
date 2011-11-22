@@ -41,6 +41,7 @@ import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
 import de.uka.iti.pseudo.term.TestTermComparator;
 import de.uka.iti.pseudo.term.TestTypeVariableBinder;
+import de.uka.iti.pseudo.term.TestUpdates;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TestTermInstantiator;
@@ -73,6 +74,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestRuleApplicationMaker.class);
         suite.addTestSuite(TestWhereConditions.class);
         suite.addTestSuite(TestMetaFunctions.class);
+        suite.addTestSuite(TestUpdates.class);
         suite.addTestSuite(TestUpdSimplification.class);
         suite.addTestSuite(TestLoopInvariantProgramMetaFunction.class);
         suite.addTestSuite(TestAnnotatedString.class);

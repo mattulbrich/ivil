@@ -116,8 +116,8 @@ public class TestTermUnification extends TestCaseWithEnv {
      *  3: goto 5, 0
      *  4: havoc i1
      *  5: i1 := i2 + i3
-     *  6: end true
-     *  7: end true
+     *  6: end
+     *  7: end
      *  8: skip_loopinv i1>0, i2
      *  9: i1:=1 || b1 := true
      */  
@@ -146,6 +146,9 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertFalse(mc.leftMatch(mt("[[%d]]true"), mt("[7;P]true")));
         // was a bug
         assertFalse(mc.leftMatch(mt("[[7;P]]true"), mt("[7;P]true")));
+        
+        assertTrue(mc.leftMatch(mt("[? %d ?]true"), mt("[7;P]true")));
+        assertEquals(mt("[7;P]true"), get(mc, "%d"));
         
         assertTrue(mc.leftMatch(mt("[%e]true"), mt("[6;P]true")));
         // cannot match because not same number even though same statement

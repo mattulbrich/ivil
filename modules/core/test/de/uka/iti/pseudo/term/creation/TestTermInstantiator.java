@@ -113,6 +113,9 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         t = inst.instantiate(makeTerm("[[%a]]true"));
         assertEquals(makeTerm("[[2; P]]true"), t);
         
+        t = inst.instantiate(makeTerm("[? %a ?]true"));
+        assertEquals(makeTerm("[2; P]true"), t);
+        
         try {
             inst.instantiate(makeTerm("[%a: skip]true"));
             fail("Should have failed: has a matching statement");

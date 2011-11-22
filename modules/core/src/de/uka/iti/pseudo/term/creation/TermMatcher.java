@@ -140,15 +140,22 @@ public class TermMatcher implements Cloneable {
     }
     
     /**
-     * Unify two terms in one direction.
-     * The first argument may contain schema variables while the second must not.
+     * Unify two terms in one direction. The first argument may contain schema
+     * variables while the second must not.
+     * 
+     * <p>
+     * The method returns <code>true</code> and updates its schematic
+     * instantiations if the match can be performed. If the attempt fails,
+     * however, <code>false</code> is returned and the method does not affect
+     * the schematic instantiations.
      * 
      * @param adaptingTerm
      *            the matching term which may contain schema entities
      * @param fixTerm
-     *            the matched term which may <b>not</b> contain schema entities.
+     *            the matched term which <b>must not</b> contain schema
+     *            entities.
      * 
-     * @return true, if successful
+     * @return true, if and only if match was successful.
      */
     public boolean leftMatch(Term adaptingTerm, Term fixTerm) {
         

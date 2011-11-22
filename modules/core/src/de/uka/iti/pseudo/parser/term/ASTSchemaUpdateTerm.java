@@ -18,23 +18,31 @@ import de.uka.iti.pseudo.parser.Token;
 
 public class ASTSchemaUpdateTerm extends ASTTerm {
 
-    private Token identifierToken;
+    private final Token identifierToken;
+    private final boolean optional;
 
-    public ASTSchemaUpdateTerm(Token id, ASTTerm term) {
+    public ASTSchemaUpdateTerm(Token id, boolean optional, ASTTerm term) {
         super(Collections.singletonList(term));
         this.identifierToken = id;
+        this.optional = optional;
     }
 
-    @Override public Token getLocationToken() {
+    @Override 
+    public Token getLocationToken() {
         return identifierToken;
     }
 
-    @Override public void visit(ASTVisitor v) throws ASTVisitException {
+    @Override 
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
     public Token getIdentifierToken() {
         return identifierToken;
+    }
+    
+    public boolean isOptional() {
+        return optional;
     }
 
 }

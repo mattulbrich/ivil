@@ -189,7 +189,7 @@ public class Proof {
      *             the implementation may choose to throw this is no goal of
      *             this number exists.
      */
-    public @Nullable ProofNode getGoalbyNumber(int nodeNumber) throws NoSuchElementException {
+    public @Nullable ProofNode getGoalByNumber(int nodeNumber) throws NoSuchElementException {
         for (ProofNode goal : openGoals) {
             if(goal.getNumber() == nodeNumber) {
                 return goal;

@@ -28,7 +28,7 @@ public class TestXMLOutput extends TestCaseWithEnv {
             RuleApplicationMaker ra = new RuleApplicationMaker(env);
             ra.setFindSelector(new TermSelector("S.0"));
             ra.setRule(env.getRule("and_right"));
-            ra.setProofNode(proof.getGoalbyNumber(2));
+            ra.setProofNode(proof.getGoalByNumber(2));
             ra.matchInstantiations();
             proof.apply(ra, env);
         }

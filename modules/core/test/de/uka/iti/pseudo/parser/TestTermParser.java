@@ -158,6 +158,7 @@ public class TestTermParser extends TestCaseWithEnv {
         testTerm("[[7;P]]true", false);
         testTerm("[[7;P] ]true", "[[7;P]]true", false);
         testTerm("[<7;P>]true", false);
+        testTerm("[?%a?]true", false);
         testTerm("[7;P]b1 -> [9; Q]true", "$impl([7;P]b1,[9;Q]true)", false);
         testTerm("[[%a]]%b", false);
         testTerm("[%a: end]%b", false);
@@ -167,8 +168,9 @@ public class TestTermParser extends TestCaseWithEnv {
         testTermFail("[6: end true");
         testTermFail("[%a: end 1");
         testTermFail("[%a || 1:=skip");
-        testTermFail("[0;P]]");
-        testTermFail("[<0;P]");
+        testTermFail("[0;P]]true");
+        testTermFail("[?0;P?]true");
+        testTermFail("[<0;P]true");
     }
     
     public void testAnyModality() throws Exception {

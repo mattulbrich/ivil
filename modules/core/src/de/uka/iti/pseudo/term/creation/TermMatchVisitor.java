@@ -122,10 +122,9 @@ class TermMatchVisitor extends DefaultTermVisitor {
             LiteralProgramTerm litPrg = (LiteralProgramTerm) t2;
             matchSchemaProgram(sp, litPrg);
             
-        } else if(t1 instanceof SchemaUpdateTerm && t2 instanceof UpdateTerm) {
+        } else if(t1 instanceof SchemaUpdateTerm) {
             SchemaUpdateTerm su = (SchemaUpdateTerm) t1;
-            UpdateTerm upt = (UpdateTerm) t2; 
-            matchSchemaUpdate(su, upt);
+            matchSchemaUpdate(su, t2);
             
         } else if(t1.getClass() == t2.getClass()) {
             compareTerm = t2;
@@ -135,16 +134,44 @@ class TermMatchVisitor extends DefaultTermVisitor {
             throw new UnificationException("Incomparable types of terms", t1, t2);
     }
     
-    private void matchSchemaUpdate(SchemaUpdateTerm su, UpdateTerm upt) throws TermException {
+    /*
+     * match a schematic update term "{ U } t" against a term.
+     * 
+     * Schematic update terms can be optional "{ U ?}" in which case U can be mapped
+     * to the empty update and t matched against the other term.
+     * 
+     * This does not cover all matchable cases since the matchable terms
+     *   {U?}{x:=1}true  and  {x:=1}true 
+     * cannot be matched because the update handling is eager.  
+     */
+    private void matchSchemaUpdate(SchemaUpdateTerm su, Term other) throws TermException {
         String schemaIdentifier = su.getSchemaIdentifier();
         Update inst = termUnification.getUpdateFor(schemaIdentifier);
-        if(inst == null){
-            termUnification.addUpdateInstantiation(schemaIdentifier, upt.getUpdate());
+        
+        if (other instanceof UpdateTerm) {
+            // other is an update
+            UpdateTerm upt = (UpdateTerm) other;
+            if(inst == null){
+                termUnification.addUpdateInstantiation(schemaIdentifier, upt.getUpdate());
+            } else {
+                if(!inst.equals(upt.getUpdate()))
+                    throw new UnificationException("Incomparable updates", su, upt);
+            }
+            compare(su.getSubterm(0), upt.getSubterm(0));    
+            
         } else {
-            if(!inst.equals(upt.getUpdate()))
-                throw new UnificationException("Incomparable updates", su, upt);
+            // other is not an update
+            if(inst == null){
+                termUnification.addUpdateInstantiation(schemaIdentifier, Update.EMPTY_UPDATE);
+            } else {
+                if(!inst.isEmpty()) {
+                    throw new UnificationException("Update needs to be empty", su, other);
+                }
+            }
+            compare(su.getSubterm(0), other);
+            
         }
-        compare(su.getSubterm(0), upt.getSubterm(0));
+        
     }
 
     /*

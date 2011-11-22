@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -25,6 +24,17 @@ import de.uka.iti.pseudo.util.Util;
 public class Update {
 
     /**
+     * An empty update. It has no assignments.
+     */
+    public static final Update EMPTY_UPDATE = new Update();
+    
+    /**
+     * The assignments are stored in an array which is not changed.
+     */
+    private Assignment[] assignments;
+
+
+    /**
      * Instantiates a new update using an array of assignments.
      * The array is cloned before using it internally.
      * 
@@ -34,6 +44,13 @@ public class Update {
     public Update(@NonNull Assignment[] assignments) {
         assert assignments.length > 0;
         this.assignments = assignments.clone();
+    }
+    
+    /**
+     * Instantiates a new empty update.
+     */
+    private Update() {
+        this.assignments = new Assignment[0];
     }
 
     /**
@@ -49,12 +66,6 @@ public class Update {
     }
 
     /**
-     * The assignments are stored in an array which is not changed.
-     */
-    private Assignment[] assignments;
-    
-    
-    /**
      * Put the update into a string. We do not print our typing, the typing of
      * the assigned terms suffices.
      * 
@@ -67,10 +78,9 @@ public class Update {
     public String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
 
+        sb.append("{ ");
         for (int i = 0; i < assignments.length; i++) {
-            if (i == 0)
-                sb.append("{ ");
-            else
+            if (i != 0)
                 sb.append(" || ");
             sb.append(assignments[i].toString(typed));
         }
@@ -105,11 +115,19 @@ public class Update {
     }
     
     /**
-     * The hash code of an update is the hash code the assignments array seen as
-     * a list.
+     * Checks if this update is empty, hence contains no assignments.
+     * 
+     * @return true, iff this is empty
+     */
+    public boolean isEmpty() {
+        return assignments.length == 0;
+    }
+
+    /**
+     * The hash code of an update is the hash code of the assignments array.
      */
     public int hashCode() {
-        return Util.readOnlyArrayList(assignments).hashCode();
+        return Arrays.hashCode(assignments);
     }
     
 }
