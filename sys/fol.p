@@ -56,7 +56,7 @@ rule exists_left
   replace  $$subst(%x, $$skolem(%x), %b)
   tags rewrite "fol simp"
 
-(* type quantifications *)
+(* universal type quantifications *)
 
 rule typed_forall_left
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
@@ -87,6 +87,13 @@ rule type_quant_left_hide
   replace $$polymorphicSpec(arb as %'a, %inst, %b, false)
   tags dragdrop "4"
        hiding "find"
+
+rule type_quant_right
+  find |- (\T_all %'a; %b)
+  replace $$polymorphicSpec(arb as %'a, $$skolemType(arb as %'a), %b, false)
+  tags rewrite "fol simp"
+
+(* TODO: existential type quantifications *)
 
 (*
  * Conditionals

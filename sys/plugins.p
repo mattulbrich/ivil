@@ -39,6 +39,9 @@ plugin
     # skolem symbol generation
     metaFunction : "de.uka.iti.pseudo.rule.meta.SkolemMetaFunction"
 
+    # skolem symbol generation
+    metaFunction : "de.uka.iti.pseudo.rule.meta.SkolemTypeMetaFunction"
+    
     # translate an equality of unique terms
     metaFunction : "de.uka.iti.pseudo.rule.meta.ResolveUniqueMetaFunction"
 

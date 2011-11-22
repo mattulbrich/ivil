@@ -109,6 +109,29 @@ public class TypeVariableCollector {
         }
         return makeSet(tvc.typeVariables);
     }
+    
+    /**
+     * Collect type variables in a list of terms. All (indirect) subterms are visited and
+     * all type variables are collected.
+     * 
+     * @param list 
+     *            a collection of terms
+     * 
+     * @return the set of type variable found in term.
+     */
+    public static @DeepNonNull Set<TypeVariable> collectInTerms(@NonNull Collection<Term> terms) {
+        TypeVariableCollector tvc = new TypeVariableCollector();
+        try {
+            for (Term term : terms) {
+                term.visit(tvc.typeVariableTermVisitor);
+            }
+        } catch (TermException e) {
+            // never thrown in the code
+            throw new Error(e);
+        }
+        
+        return makeSet(tvc.typeVariables);
+    }
 
     /**
      * Collect type variables in a type.
