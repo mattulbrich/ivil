@@ -13,7 +13,7 @@ include "$fol.p"
 include "$set.p"
 
 plugin
-  prettyPrinter : "test.PairPrettyPrinter"
+  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.PairPrettyPrinter"
 
 sort
   prod('a, 'b)

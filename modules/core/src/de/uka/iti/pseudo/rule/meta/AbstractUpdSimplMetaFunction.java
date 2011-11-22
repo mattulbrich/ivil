@@ -26,6 +26,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.TypeVariableBinding.Kind;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
@@ -148,6 +150,17 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         
         return Binding.getInst(b, type, bi, args);
     }
+    
+    private static TypeVariableBinding 
+        distributeUpdateInTypeVariableBinding(Update update, TypeVariableBinding tvb) throws TermException {
+        
+        Kind kind = tvb.getKind();
+        Type tyv = tvb.getBoundType();
+        Term subterm = tvb.getSubterm();
+        Term newSubterm = UpdateTerm.getInst(update, subterm);
+        
+        return TypeVariableBinding.getInst(kind, tyv, newSubterm);
+    }
 
     /**
      * Combine two consecutive updates.
@@ -217,6 +230,11 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
         
         public void visit(Variable variable) throws TermException {
             resultTerm  = variable;
+        }
+        
+        @Override
+        public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
+            resultTerm = distributeUpdateInTypeVariableBinding(update, typeVariableBinding);
         }
 
         public void visit(Application application) throws TermException {
