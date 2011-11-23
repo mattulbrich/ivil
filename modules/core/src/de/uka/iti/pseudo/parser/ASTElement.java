@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import checkers.nullness.quals.LazyNonNull;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 
@@ -27,7 +29,7 @@ public abstract class ASTElement implements ASTLocatedElement {
      * The name of the file in which this element is defined.
      * If not read from a file, this can be the resource
      */
-    private @Nullable String fileName;
+    private @LazyNonNull String fileName;
 
     /**
      * The children in the syntax tree
@@ -62,7 +64,7 @@ public abstract class ASTElement implements ASTLocatedElement {
      * 
      * @param fileName the filename or resource name
      */
-    public void setFilename(@Nullable String fileName) {
+    public void setFilename(@NonNull String fileName) {
         this.fileName = fileName;
         for (ASTElement element : getChildren()) {
             element.setFilename(fileName);

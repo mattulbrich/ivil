@@ -72,7 +72,7 @@ public class Program {
      * The statement annotations stored in an array of the same length.
      * Entries may be null, however.
      */
-    private String[] statementAnnotations;
+    private @Nullable String /*@NonNull*/ [] statementAnnotations;
     
     //@ invariant statements.length == statementAnnotations.length;
 
@@ -100,7 +100,7 @@ public class Program {
     public Program(@NonNull String name, 
             @Nullable URL sourceFile,
             List<Statement> statements,
-            List<String> statementAnnotations,
+            List</*@Nullable*/ String> statementAnnotations,
             @NonNull ASTLocatedElement declaration) throws EnvironmentException {
         this.statements = Util.listToArray(statements, Statement.class);
         this.statementAnnotations = Util.listToArray(statementAnnotations, String.class);
@@ -216,7 +216,7 @@ public class Program {
      * 
      * @return an unmodifiable list of text annotations
      */
-    public List<String> getTextAnnotations() {
+    public List</*@Nullable*/String> getTextAnnotations() {
         return Util.readOnlyArrayList(statementAnnotations);
     }
 

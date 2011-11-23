@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -56,7 +57,7 @@ public class ProgramChanger {
     /**
      * The mutable list of statement annotations.
      */
-    private LinkedList<String> statementAnnotations;
+    private LinkedList</*@Nullable*/ String> statementAnnotations;
 
     /**
      * The underlying environment.
@@ -66,7 +67,7 @@ public class ProgramChanger {
     /**
      * The referenced source file.
      */
-    private URL sourceFile;
+    private @Nullable URL sourceFile;
 
     /**
      * Instantiates a new program changer.
@@ -80,7 +81,7 @@ public class ProgramChanger {
         this.env = env;
         this.sourceFile = program.getSourceFile();
         this.statements = new LinkedList<Statement>(program.getStatements());
-        this.statementAnnotations = new LinkedList<String>(program.getTextAnnotations());
+        this.statementAnnotations = new LinkedList</*@Nullable*/ String>(program.getTextAnnotations());
     }
 
     /**
@@ -135,7 +136,7 @@ public class ProgramChanger {
      * @throws NullPointerException
      *             if statement is null
      */
-    public void insertAt(int index, Statement statement, String annotation) throws TermException {
+    public void insertAt(int index, Statement statement, @Nullable String annotation) throws TermException {
         // statements.size() is ok here!
         if (index < 0 || index > statements.size())
             throw new IndexOutOfBoundsException("Index outside the program boundaries");
@@ -268,13 +269,13 @@ public class ProgramChanger {
      * @param index
      *            the index into the statement list
      * 
-     * @return the annotation at index
+     * @return the annotation at index, null if not set
      * 
      * @throws IndexOutOfBoundsException
      *             if the index is negative or beyond the end of the statement
      *             list.
      */
-    public String getAnnotationAt(int index) {
+    public @Nullable String getAnnotationAt(int index) {
         if (index < 0 || index >= statementAnnotations.size())
             throw new IndexOutOfBoundsException("Index outside the program boundaries");
 
@@ -391,9 +392,9 @@ public class ProgramChanger {
      * @throws TermException
      *             if adding integer literals to the environment fails
      */
-    private Term[] updateGotoStatement(int index, int offset, GotoStatement gotoSt) throws TermException {
+    private Term /*@Nullable*/ [] updateGotoStatement(int index, int offset, GotoStatement gotoSt) throws TermException {
         List<Term> orgTargets = gotoSt.getSubterms();
-        Term[] newTargets = null;
+        Term /*@Nullable*/ [] newTargets = null;
         for (int i = 0; i < gotoSt.countSubterms(); i++) {
             int val = toInt(orgTargets.get(i));
             if (val >= index) {

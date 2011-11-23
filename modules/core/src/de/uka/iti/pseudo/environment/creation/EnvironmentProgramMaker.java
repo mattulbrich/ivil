@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
@@ -89,13 +90,13 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     /**
      * The resulting list of annotations.
      */
-    private List<String> statementAnnotations = new ArrayList<String>();
+    private List</*@Nullable*/String> statementAnnotations = new ArrayList</*@Nullable*/String>();
     
     /**
      * The last set source line number.
      * They are set using "sourceline" pseudo statements.
      */
-    private int lastSetSourceLineNumber;
+    private int lastSetSourceLineNumber = 0;
     
     /**
      * A mapping from identifier labels to numeric labels.

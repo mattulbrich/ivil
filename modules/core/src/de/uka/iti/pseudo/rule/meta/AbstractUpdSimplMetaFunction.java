@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -81,7 +83,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
      *         been performed. <code>null</code> if the term cannot be simplified.
      * @throws TermException
      */
-    protected static Term applyUpdate(UpdateTerm updTerm) throws TermException {
+    protected static @Nullable Term applyUpdate(UpdateTerm updTerm) throws TermException {
         Term updatedTerm = updTerm.getSubterm(0);
         Update update = updTerm.getUpdate();
         Visitor visitor = new Visitor(update);
@@ -216,7 +218,7 @@ public abstract class AbstractUpdSimplMetaFunction extends MetaFunction {
      */
     private static class Visitor extends DefaultTermVisitor {
         
-        private Term resultTerm = null;
+        private @Nullable Term resultTerm = null;
         
         private Update update;
 

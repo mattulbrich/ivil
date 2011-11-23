@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import checkers.nullness.quals.LazyNonNull;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
@@ -77,8 +79,7 @@ public class Environment {
     /**
      * The parent environment. Null only for the built in environment
      */
-    private @Nullable
-    Environment parentEnvironment;
+    private @LazyNonNull Environment parentEnvironment;
 
     /**
      * Has this environment been fixed?
@@ -99,7 +100,7 @@ public class Environment {
     private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
     private @Nullable PluginManager pluginManager = null;
     // literal map is created lazily.
-    private @Nullable  Map<BigInteger, NumberLiteral> numberMap = null;
+    private @Nullable Map<BigInteger, NumberLiteral> numberMap = null;
 
     /**
      * The rules are kept as a sorted set and as a map
@@ -112,7 +113,7 @@ public class Environment {
      */
     private Environment() {
         this.resourceName = "none:built-in";
-	this.fixed = false;
+        this.fixed = false;
     }
 
     /**
@@ -131,7 +132,7 @@ public class Environment {
             @NonNull Environment parentEnvironment) throws EnvironmentException {
         this.resourceName = resourceName;
         this.parentEnvironment = parentEnvironment;
-	this.fixed = false;
+        this.fixed = false;
 
         // to find errors in the usage of resourceName
         try {
@@ -187,12 +188,18 @@ public class Environment {
     }
 
     /**
-     * Gets the parent. This may return null. This is the case for the initial
-     * "built-ins-only" environment.
+     * Gets the parent. This cannot return null. An exception is thrown if this
+     * environment is the built-in environment which does not have a parent
+     * environment.
      * 
-     * @return the parent environment, possibly null
+     * @return the parent environment
+     * @throws EnvironmentException
+     *             if <tt>this == {@link #BUILT_IN_ENV}</tt>
      */
-    public @Nullable Environment getParent() {
+    public @NonNull Environment getParent() throws EnvironmentException {
+        if(parentEnvironment == null)
+            throw new EnvironmentException("This environment does not have a parent");
+        
         return parentEnvironment;
     }
 
@@ -1291,8 +1298,7 @@ public class Environment {
      * 
      * @return the resource name for this environment
      */
-    public @NonNull
-    String getResourceName() {
+    public @NonNull String getResourceName() {
         return resourceName;
     }
 

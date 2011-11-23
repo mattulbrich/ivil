@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -34,10 +35,11 @@ public class DeepUpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
         
         arg.visit(visitor);
         
-        if(visitor.getResultingTerm() == null)
+        Term result = visitor.getResultingTerm();
+        if(result == null)
             throw new TermException("deep update simplification has nothing to do.");
         
-        return visitor.getResultingTerm();
+        return result;
     }
     
     private static class Visitor extends RebuildingTermVisitor {
@@ -61,7 +63,7 @@ public class DeepUpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
         /**
          * @return the resultingTerm
          */
-        public Term getResultingTerm() {
+        public @Nullable Term getResultingTerm() {
             return resultingTerm;
         }
 

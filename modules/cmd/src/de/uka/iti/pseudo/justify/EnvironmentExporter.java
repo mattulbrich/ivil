@@ -22,6 +22,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.Sort;
@@ -50,7 +51,7 @@ public class EnvironmentExporter {
 		pw.println();
 	}
 	
-	public void exportComplete(Environment env) {
+	public void exportComplete(Environment env) throws EnvironmentException {
         exportAllIncludes(env);
 	    exportSortsFrom(env);
 	    exportFunctionsFrom(env);
@@ -60,7 +61,7 @@ public class EnvironmentExporter {
 	}
 
 	
-    public void exportAllIncludes(Environment env) {
+    public void exportAllIncludes(Environment env) throws EnvironmentException {
         List<String> includes = new LinkedList<String>();
         
         for (Environment p = env.getParent(); !p.equals(Environment.BUILT_IN_ENV); p = p.getParent()) {

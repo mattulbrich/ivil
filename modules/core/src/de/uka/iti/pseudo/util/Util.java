@@ -372,7 +372,8 @@ public class Util {
      *         {@link Collection#toArray(Object[])}.
      */
     @SuppressWarnings({"unchecked", "nullness"}) 
-    public static <E> E[] listToArray(@NonNull Collection<? extends E> collection, @NonNull Class<E> clss) {
+    public static <E extends /*@Nullable*/ Object> E[] 
+            listToArray(@NonNull Collection<? extends E> collection, @NonNull Class</*@NonNull*/ E> clss) {
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
     }

@@ -315,6 +315,7 @@ public class EnvironmentMaker {
                 String filename = Util.stripQuotes(token.image);
                 importedFilenames.add(filename);
                 try {
+                    assert astFile.getFileName() != null : "filename must be set (nullness-check)";
                     URL res = mkFile(astFile.getFileName(), filename);
 
                     if(env.hasParentResource(res.toExternalForm())) {
