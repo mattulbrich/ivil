@@ -183,8 +183,7 @@ public class MainWindow extends JFrame {
         }
         {
             RuleBrowserComponent ruleBrowserComponent = new RuleBrowserComponent(proofCenter);
-            JScrollPane scroll = new JScrollPane(ruleBrowserComponent);
-            Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Browser");
+            Dockable dock = new DefaultDockable("ruleApp", ruleBrowserComponent, "Rule Browser");
             leftTabDock.addDockable(dock, new Position(3));
         }
         {
