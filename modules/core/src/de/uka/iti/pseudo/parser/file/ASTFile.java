@@ -14,12 +14,10 @@ import java.util.Collections;
 import java.util.List;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.parser.term.ASTTerm;
 
 public class ASTFile extends ASTElement {
 	
@@ -32,7 +30,7 @@ public class ASTFile extends ASTElement {
 	// -1 indicates not present
 	private int problemIndex = -1;
 
-	public ASTFile(List<ASTDeclarationBlock> blocks, ASTTerm problem) {
+	public ASTFile(List<ASTDeclarationBlock> blocks, ASTProblemSequent problem) {
 
 		this.declarationBlocks = blocks;
 		addChildren(blocks);
@@ -55,8 +53,8 @@ public class ASTFile extends ASTElement {
 		return Collections.unmodifiableList(declarationBlocks);
 	}
 
-	public @Nullable ASTTerm getProblemTerm() {
-	    return (ASTTerm) (problemIndex > 0 ? getChildren().get(problemIndex) : null);
+	public @Nullable ASTProblemSequent getProblemSequent() {
+	    return (ASTProblemSequent) (problemIndex > 0 ? getChildren().get(problemIndex) : null);
 	}
 	
 	@Override 

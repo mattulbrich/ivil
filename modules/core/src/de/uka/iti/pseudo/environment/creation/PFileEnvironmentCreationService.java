@@ -12,22 +12,22 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.Token;
-import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Pair;
 
 public class PFileEnvironmentCreationService extends EnvironmentCreationService {
 
     @Override
-    public Pair<Environment, Term> createEnvironment(InputStream inputStream, URL url)
+    public Pair<Environment, Sequent> createEnvironment(InputStream inputStream, URL url)
             throws IOException, EnvironmentException {
         Parser fp = new Parser();
 
         try {
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
-            Term problemTerm = em.getProblemTerm();
+            Sequent problemSequent = em.getProblemSequent();
             
-            return Pair.make(env, problemTerm);
+            return Pair.make(env, problemSequent);
             
         } catch (ParseException e) {
             EnvironmentException resultEx = new EnvironmentException(e);

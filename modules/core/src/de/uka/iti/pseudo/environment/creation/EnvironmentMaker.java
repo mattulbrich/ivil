@@ -34,12 +34,13 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
+import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -62,9 +63,9 @@ public class EnvironmentMaker {
     private Environment env;
 
     /**
-     * The problem term possibly found in the {@link ASTFile}
+     * The problem sequent possibly found in the {@link ASTFile}
      */
-    private @Nullable Term problemTerm;
+    private @Nullable Sequent problemSequent;
 
     /**
      * remember the list of included files. This is not stored in the
@@ -224,25 +225,61 @@ public class EnvironmentMaker {
         doProblem(astFile);
     }
 
+    /**
+     * Instantiates a new environment maker.
+     *
+     * @param parser
+     *            the parser to use for include instructions
+     * @param astFile
+     *            the ast structure to traverse
+     * @param name
+     *            the name of the environment
+     *
+     * @throws ASTVisitException
+     *             some error happened during ast traversal.
+     */
+    public EnvironmentMaker(Parser parser, ASTFile astFile, String name)
+            throws ASTVisitException {
+        this(parser, astFile, name, Environment.BUILT_IN_ENV);
+    }
+
     /*
      * convert the AST term problem description to a real term object.
      */
     private void doProblem(ASTFile astFile) throws ASTVisitException {
-        ASTTerm term = astFile.getProblemTerm();
-        if(term != null) {
-            problemTerm = TermMaker.makeTerm(term, env);
-
-            if(TermMatcher.containsSchematic(problemTerm))
-                throw new ASTVisitException("Problem term contains schema identifier", term);
-
+        ASTProblemSequent seq = astFile.getProblemSequent();
+        if(seq != null) {
+            
+            List<Term> ante = new ArrayList<Term>();
+            List<Term> succ = new ArrayList<Term>();
+            
+            int i = 0;
+            for (ASTTerm ast : SelectList.select(ASTTerm.class, seq.getChildren())) {
+                Term term = TermMaker.makeTerm(ast, env);
+                
+                if(TermMatcher.containsSchematic(term))
+                    throw new ASTVisitException("Problem sequent contains schema type, " +
+                            "schema variable or schema update in " + term, seq);
+                
+                if(i < seq.getAntecedentCount()) {
+                    ante.add(term);
+                } else {
+                    succ.add(term);
+                }
+                
+                i++;
+            }
+            
             try {
-                problemTerm.visit(new ToplevelCheckVisitor());
+                // constructor for sequent checks using ToplevelCheckVisitor
+                problemSequent = new Sequent(ante, succ);
             } catch (TermException e) {
-                throw new ASTVisitException(term, e);
+                throw new ASTVisitException(seq, e);
             }
         }
-
+        
     }
+    
 
     /*
      * register all defined plugins with the plugin manager.
@@ -307,24 +344,6 @@ public class EnvironmentMaker {
     }
 
     /**
-     * Instantiates a new environment maker.
-     *
-     * @param parser
-     *            the parser to use for include instructions
-     * @param astFile
-     *            the ast structure to traverse
-     * @param name
-     *            the name of the environment
-     *
-     * @throws ASTVisitException
-     *             some error happened during ast traversal.
-     */
-    public EnvironmentMaker(Parser parser, ASTFile astFile, String name)
-            throws ASTVisitException {
-        this(parser, astFile, name, Environment.BUILT_IN_ENV);
-    }
-
-    /**
      * Get the environment which has been created during the constructor call
      *
      * @return the environment
@@ -340,8 +359,8 @@ public class EnvironmentMaker {
      *
      * @return the problem term, possibly null
      */
-    public @Nullable Term getProblemTerm() {
-        return problemTerm;
+    public @Nullable Sequent getProblemSequent() {
+        return problemSequent;
     }
 
     /*

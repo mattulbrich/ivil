@@ -19,6 +19,7 @@ import nonnull.Nullable;
 import checkers.nullness.quals.Pure;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 
@@ -61,9 +62,9 @@ public abstract class EnvironmentCreationService {
     /**
      * Actually load the environment from the resource.
      * 
-     * It returns the environment plus the embedded problem term if there is
+     * It returns the environment plus the embedded problem sequent if there is
      * one. The second part of the return pair may be <code>null</code> if no
-     * problem term has been specified.
+     * problem sequent has been specified.
      * 
      * <p>The given URL is used both as source for the data and serves as the
      * name of the resource.
@@ -71,7 +72,7 @@ public abstract class EnvironmentCreationService {
      * @param url
      *            the resource to read the environment from.
      * 
-     * @return a pair of environment and problem term. The latter may be
+     * @return a pair of environment and problem sequent. The latter may be
      *         <code>null</code>.
      * 
      * @throws IOException
@@ -79,7 +80,7 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
-    public final @NonNull Pair<Environment, /*@Nullable*/ Term> 
+    public final @NonNull Pair<Environment, /*@Nullable*/ Sequent> 
         createEnvironment(@NonNull URL url) throws IOException, EnvironmentException {
         
         return createEnvironment(url.openStream(), url);
@@ -89,16 +90,16 @@ public abstract class EnvironmentCreationService {
     /**
      * Actually load the environment from the resource.
      * 
-     * It returns the environment plus the embedded problem term if there is
+     * It returns the environment plus the embedded problem sequent if there is
      * one. The second part of the return pair may be <code>null</code> if no
-     * problem term has been specified.
+     * problem sequent has been specified.
      * 
      * @param stream
      *            the source the data should be taken from.
      * @param resource
      *            the resource name to set in the environment.
      * 
-     * @return a pair of environment and problem term. The latter may be
+     * @return a pair of environment and problem sequent. The latter may be
      *         <code>null</code>.
      * 
      * @throws IOException
@@ -106,7 +107,7 @@ public abstract class EnvironmentCreationService {
      * @throws EnvironmentException
      *             if loading fails for some reason
      */
-    public abstract Pair<Environment, Term> 
+    public abstract Pair<Environment, Sequent> 
           createEnvironment(InputStream stream, URL resource)  
           throws IOException, EnvironmentException;
 
@@ -134,7 +135,7 @@ public abstract class EnvironmentCreationService {
      * @param url
      *            the resource to load
      * 
-     * @return a pair of environment and problem term. The latter may be
+     * @return a pair of environment and problem sequent. The latter may be
      *         <code>null</code>.
      * 
      * @throws EnvironmentException
@@ -143,7 +144,7 @@ public abstract class EnvironmentCreationService {
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
-    public static Pair<Environment, /*@Nullable*/ Term> createEnvironmentByExtension(URL url)
+    public static Pair<Environment, /*@Nullable*/ Sequent> createEnvironmentByExtension(URL url)
             throws EnvironmentException, IOException {
 
         int dotPos = url.getPath().lastIndexOf('.');

@@ -10,7 +10,7 @@ ASTFile File():
 {
   ASTDeclarationBlock block;
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
-  ASTTerm problem = null;
+  ASTSequent problem = null;
 }
 {
        (
@@ -26,12 +26,48 @@ ASTFile File():
         )   { blocks.add(block); }
        )*
        
-       ( "problem" problem=Term() )?
+       ( problem=Problem() )?
        
        <EOF>
        
    { return new ASTFile(blocks, problem); }
 }
+
+ASTSequent Problem():
+{
+  List<ASTTerm> antecedent = new ArrayList<ASTTerm>();
+  List<ASTTerm> succedent = new ArrayList<ASTTerm>();
+  boolean hasSeqSep = false;
+  ASTTerm t;
+}
+{
+        "problem"
+        
+        ( t=Term() {antecedent.add(t);}
+          ( "," t=Term() {antecedent.add(t);} )*
+        )?
+        
+        ( "|-" {hasSeqSep=true;}
+          ( t=Term() {succedent.add(t);}
+            ( "," t=Term() {succedent.add(t);} )*
+          )?
+        )?
+        
+   {  if(antecedent.size() + succedent.size() == 0) {
+         throw new ParseException();
+      }
+      if(!hasSeqSep && antecedent.size() > 1) {
+         throw new ParseException();
+      }
+      if(!hasSeqSep) {
+         // if only a single term, take that as *suc*cendent.
+         return new ASTSequent(Collections.<ASTTerm>emptyList(), antecedent);
+      } else {
+         return new ASTSequent(antecedent, succedent);
+      }
+   }
+}
+        
 
 ASTPlugins PluginsBlock():
 {

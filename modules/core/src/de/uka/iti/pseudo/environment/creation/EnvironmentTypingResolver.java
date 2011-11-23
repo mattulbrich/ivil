@@ -23,12 +23,14 @@ import de.uka.iti.pseudo.parser.file.ASTPropertiesDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTRule;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
+import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.UnificationException;
 import de.uka.iti.pseudo.term.creation.TypingContext;
 import de.uka.iti.pseudo.term.creation.TypingResolver;
+import de.uka.iti.pseudo.util.SelectList;
 
 /**
  * Resolve types in terms that appear in rules.
@@ -62,18 +64,22 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
         arg.visit(typingResolver);
     }
     
-    public void visit(ASTFile arg) throws ASTVisitException {
-        super.visit(arg);
-        
+//    public void visit(ASTFile arg) throws ASTVisitException {
+//        super.visit(arg);
+//    }
+    
+    public void visit(ASTProblemSequent arg) throws ASTVisitException {
         // if there is a problem in the file, the current typing context is the one
         // of the problem term (because problems are last in a file)
-        ASTTerm problemTerm = arg.getProblemTerm();
-        if(problemTerm != null) {
+
+        super.visit(arg);
+        
+        for (ASTTerm child : SelectList.select(ASTTerm.class, arg.getChildren())) {
             try {
                 TypingContext typingContext = typingResolver.getTypingContext();
-                typingContext.solveConstraint(problemTerm.getTyping().getRawType(), Environment.getBoolType());
+                typingContext.solveConstraint(child.getTyping().getRawType(), Environment.getBoolType());
             } catch (UnificationException e) {
-                throw new ASTVisitException("Problem terms must habe type boolean.", arg, e);
+                throw new ASTVisitException("Terms in the problem sequent must have type boolean.", arg, e);
             }
         }
     }
@@ -98,7 +104,7 @@ public class EnvironmentTypingResolver extends ASTDefaultVisitor {
             TypingContext typingContext = typingResolver.getTypingContext();
             typingContext.solveConstraint(arg.getTerm().getTyping().getRawType(), Environment.getBoolType());
         } catch (UnificationException e) {
-            throw new ASTVisitException("Axioms must habe type boolean.", arg, e);
+            throw new ASTVisitException("Axioms must have type boolean.", arg, e);
         }
         
         // reset context for next rule / program / problem

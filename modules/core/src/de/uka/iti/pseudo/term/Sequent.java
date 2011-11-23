@@ -87,7 +87,7 @@ public class Sequent {
      * @throws TermException
      *             if a term is not suitable for toplevel usage.
      */
-    public Sequent(List<Term> antecedent, List<Term> succedent) throws TermException {
+    public Sequent(List<? extends Term> antecedent, List<? extends Term> succedent) throws TermException {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
         check();
@@ -224,13 +224,9 @@ public class Sequent {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (Term t : antecedent) {
-            sb.append(t).append(" ");
-        }
-        sb.append("|-");
-        for (Term t : succedent) {
-            sb.append(" ").append(t);
-        }
+        sb.append(Util.commatize(getAntecedent()));
+        sb.append(" |- ");
+        sb.append(Util.commatize(getSuccedent()));
         return sb.toString();
     }
 

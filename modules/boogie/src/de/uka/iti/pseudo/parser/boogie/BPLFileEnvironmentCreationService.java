@@ -8,7 +8,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.boogie.EnvironmentCreationState;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
-import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Pair;
 
 public final class BPLFileEnvironmentCreationService extends EnvironmentCreationService {
@@ -24,13 +24,13 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
     }
 
     @Override
-    public Pair<Environment, Term> createEnvironment(InputStream inputStream, URL url) 
+    public Pair<Environment, Sequent> createEnvironment(InputStream inputStream, URL url) 
            throws IOException, EnvironmentException {
         try {
             BPLParser p = new BPLParser(inputStream);
             EnvironmentCreationState s = new EnvironmentCreationState(p.parse(url));
 
-            return new Pair<Environment, Term>(s.make(), null);
+            return new Pair<Environment, Sequent>(s.make(), null);
         } catch (ParseException e) {
             EnvironmentException envEx = new EnvironmentException(e);
             Token currentToken = e.currentToken;

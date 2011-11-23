@@ -15,7 +15,7 @@ public class TryImport {
         
         EnvironmentMaker em = new EnvironmentMaker(new Parser(), new File("examples/simple/fakultaet.p"));
         Environment env = em.getEnvironment();
-        Proof proof = new Proof(em.getProblemTerm());
+        Proof proof = new Proof(em.getProblemSequent());
         
         pxml.importProof(new FileInputStream("examples/simple/fakultaet.pxml"), proof, env);
         

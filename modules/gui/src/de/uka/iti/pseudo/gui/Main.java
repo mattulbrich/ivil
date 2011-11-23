@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -38,6 +39,7 @@ import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Modality;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
@@ -237,12 +239,12 @@ public class Main {
     public static ProofCenter openProverFromURL(URL url) throws FileNotFoundException, ParseException,
             ASTVisitException, TermException, IOException, StrategyException, EnvironmentException {
         
-        Pair<Environment, Term> result = EnvironmentCreationService.createEnvironmentByExtension(url);
+        Pair<Environment, Sequent> result = EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
-        Term problemTerm = result.snd();
+        Sequent problemSeq = result.snd();
 
-        if (problemTerm == null) {
+        if (problemSeq == null) {
             String fragment = url.getRef();
             Program p;
 
@@ -269,10 +271,11 @@ public class Main {
                     throw new EnvironmentException("Unknown program '" + fragment + "' mentioned in URL " + url);
             }
 
-            problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, p, Environment.getTrue());
+            Term problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, p, Environment.getTrue());
+            problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
         }
 
-        return openProver(env, problemTerm, url);
+        return openProver(env, problemSeq, url);
     }
     /**
      * Open a new {@link ProofCenter} for a given environment and the name of a
@@ -309,12 +312,13 @@ public class Main {
         resource += "#" + program;
         
         LiteralProgramTerm problemTerm = LiteralProgramTerm.getInst(0, Modality.BOX, program, Environment.getTrue());
+        Sequent problemSeq = new Sequent(Collections.<Term>emptyList(), Collections.singletonList(problemTerm));
         
-        return openProver(env, problemTerm, new URL(resource));
+        return openProver(env, problemSeq, new URL(resource));
     }
 
     
-    public static ProofCenter openProver(Environment env, Term problemTerm) 
+    public static ProofCenter openProver(Environment env, Sequent problemTerm) 
             throws IOException, StrategyException, TermException {
         String resource = env.getResourceName();
         return openProver(env, problemTerm, new URL(resource));
@@ -327,9 +331,9 @@ public class Main {
      * 
      * @return a freshly created proof center
      */
-    private static ProofCenter openProver(Environment env, Term problemTerm, URL urlToRemember) 
+    private static ProofCenter openProver(Environment env, Sequent problemSeq, URL urlToRemember) 
             throws IOException, StrategyException, TermException {
-        Proof proof = new Proof(problemTerm);
+        Proof proof = new Proof(problemSeq);
         ProofCenter proofCenter = new ProofCenter(proof, env);
 
         showProofCenter(proofCenter);

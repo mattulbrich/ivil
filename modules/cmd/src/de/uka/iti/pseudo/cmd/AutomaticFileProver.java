@@ -74,7 +74,7 @@ public class AutomaticFileProver implements Callable<Result> {
     /**
      * The problem term extracted from the file.
      */
-    private Term problemTerm;
+    private Sequent problemSequent;
     
     /**
      * The timeout after which the search will be given up.
@@ -148,12 +148,9 @@ public class AutomaticFileProver implements Callable<Result> {
         Parser parser = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(parser, file);
         env = em.getEnvironment();
-        problemTerm = em.getProblemTerm();
+        problemSequent = em.getProblemSequent();
         
         prettyPrint = new PrettyPrint(env);
-        
-        assert problemTerm == null ||
-            problemTerm.getType().equals(Environment.getBoolType());
         
     }
 
@@ -166,7 +163,7 @@ public class AutomaticFileProver implements Callable<Result> {
     public Result call() throws TermException, StrategyException, ProofException {
         
         
-        Proof proof = new Proof(problemTerm);
+        Proof proof = new Proof(problemSequent);
         
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();
@@ -374,7 +371,7 @@ public class AutomaticFileProver implements Callable<Result> {
      * @return true, if there is a problem defined in {@link #file}.
      */
     public boolean hasProblem() {
-        return problemTerm != null;
+        return problemSequent != null;
     }
 
 }

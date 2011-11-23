@@ -35,7 +35,7 @@ public class TestExamples extends TestCaseWithEnv {
             EnvironmentMaker em = new EnvironmentMaker(fp, new File(path));
             Environment env = em.getEnvironment();
 
-            Proof proof = new Proof(em.getProblemTerm());
+            Proof proof = new Proof(em.getProblemSequent());
 
             ProofCenter proofCenter = new ProofCenter(proof, env);
             MainWindow main = proofCenter.getMainWindow();

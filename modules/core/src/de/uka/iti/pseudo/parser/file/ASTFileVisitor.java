@@ -10,6 +10,7 @@
  */
 package de.uka.iti.pseudo.parser.file;
 
+import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 
 /**
@@ -57,6 +58,8 @@ public interface ASTFileVisitor {
     public void visit(ASTWhereClause whereClause) throws ASTVisitException;
     
     public void visit(ASTLocatedTerm locatedTerm) throws ASTVisitException;
+
+    public void visit(ASTProblemSequent astSequent) throws ASTVisitException;
 
     public void visit(ASTGoalAction goalAction) throws ASTVisitException;
 

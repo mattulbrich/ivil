@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.parser.file.ASTRuleAssume;
 import de.uka.iti.pseudo.parser.file.ASTRuleFind;
 import de.uka.iti.pseudo.parser.file.ASTRuleRemove;
 import de.uka.iti.pseudo.parser.file.ASTRuleReplace;
+import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTSortDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTWhereClause;
@@ -315,6 +316,10 @@ public abstract class ASTDefaultVisitor implements ASTVisitor {
     }
 
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
+        visitDefault(arg);
+    }
+    
+    public void visit(ASTProblemSequent arg) throws ASTVisitException {
         visitDefault(arg);
     }
 

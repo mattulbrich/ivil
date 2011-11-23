@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Sequent;
 
 public class TestFileParser extends TestCase {
 
@@ -135,4 +136,13 @@ public class TestFileParser extends TestCase {
         
     }
     
+    public void testProblemSequent() throws Exception {
+        Parser fp = new Parser();
+        ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" " +
+        		"function bool b  problem b, true |- b, false"), "*test*");
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
+        Sequent problem = em.getProblemSequent();
+        assertNotNull(problem);
+        assertEquals("b, true |- b, false", problem.toString());
+    }
 }
