@@ -43,18 +43,6 @@ public class Sequent {
     private Term[] succedent;
 
     /**
-     * Native code locations, i.e. ivil byte code oder BoogiePL code
-     */
-    private CodeLocation /*@Nullable*/ [] nativeCodeLocations = null;
-
-    /**
-     * Source code locations, i.e. any code that was used to generate the
-     * corresponding native code. Source code will be empty if no corresponding
-     * source code can be found.
-     */
-    private CodeLocation /*@Nullable*/ [] sourceCodeLocations = null;
-
-    /**
      * Instantiates a new sequent.
      *
      * The given arrays are not stored in the sequent themselves but are
@@ -92,55 +80,7 @@ public class Sequent {
         this.succedent = Util.listToArray(succedent, Term.class);
         check();
     }
-
-    /*
-     * Calculates both native and source code locations.
-     */
-    private void calculateCodeLocations() {
-        assert nativeCodeLocations == null && sourceCodeLocations == null;
-
-        final List<LiteralProgramTerm> progTerms = new LinkedList<LiteralProgramTerm>();
-
-        TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
-            public void visit(LiteralProgramTerm progTerm) throws TermException {
-                progTerms.add(progTerm);
-            }
-        };
-
-        try {
-            for (Term t : antecedent) {
-                t.visit(programFindVisitor);
-            }
-
-            for (Term t : succedent) {
-                t.visit(programFindVisitor);
-            }
-        } catch (TermException e) {
-            // never thrown
-            throw new Error(e);
-        }
-
-        if (progTerms.isEmpty()) {
-            nativeCodeLocations = sourceCodeLocations = NO_CODE_LOCATIONS;
-        } else {
-            Set<CodeLocation> nativ = new HashSet<CodeLocation>();
-            Set<CodeLocation> source = new HashSet<CodeLocation>();
-
-            for (LiteralProgramTerm t : progTerms) {
-                nativ.add(new CodeLocation(t.getProgramIndex(), t.getProgram()));
-                URL sourceFile = t.getProgram().getSourceFile();
-                if (null != sourceFile)
-                    source.add(new CodeLocation(t.getStatement().getSourceLineNumber(), sourceFile));
-            }
-
-            nativeCodeLocations = new CodeLocation[nativ.size()];
-            nativ.toArray(nativeCodeLocations);
-
-            sourceCodeLocations = new CodeLocation[source.size()];
-            source.toArray(sourceCodeLocations);
-        }
-    }
-
+    
     /*
      * Check whether all terms are usable as formulas: No schema variables, boolean type, etc.
      * See TopLevelVisitor for details.
@@ -180,14 +120,14 @@ public class Sequent {
      *
      * @return an immutable list of code locations
      */
-    public @DeepNonNull List<CodeLocation> getNativeCodeLocations() {
-        if (null == nativeCodeLocations)
-            calculateCodeLocations();
-
-        assert nativeCodeLocations != null : "nullness";
-        
-        return Util.readOnlyArrayList(nativeCodeLocations);
-    }
+//    public @DeepNonNull List<CodeLocation> getNativeCodeLocations() {
+//        if (null == nativeCodeLocations)
+//            calculateCodeLocations();
+//
+//        assert nativeCodeLocations != null : "nullness";
+//        
+//        return Util.readOnlyArrayList(nativeCodeLocations);
+//    }
 
     /**
      * Gets an immutable view on the source code locations for the program
@@ -200,14 +140,14 @@ public class Sequent {
      *
      * @return an immutable list of code locations
      */
-    public @DeepNonNull List<CodeLocation> getSourceCodeLocations() {
-        if (null == sourceCodeLocations)
-            calculateCodeLocations();
-
-        assert sourceCodeLocations != null : "nullness";
-        
-        return Util.readOnlyArrayList(sourceCodeLocations);
-    }
+//    public @DeepNonNull List<CodeLocation> getSourceCodeLocations() {
+//        if (null == sourceCodeLocations)
+//            calculateCodeLocations();
+//
+//        assert sourceCodeLocations != null : "nullness";
+//        
+//        return Util.readOnlyArrayList(sourceCodeLocations);
+//    }
 
     /**
      * A sequent is represented as a string as two comma separated lists of term

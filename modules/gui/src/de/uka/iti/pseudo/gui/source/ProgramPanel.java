@@ -15,6 +15,7 @@ import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -71,24 +72,27 @@ public class ProgramPanel extends CodePanel {
     @Override protected void addHighlights() {
         // print trace
         for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent())
-            for (CodeLocation location : node.getSequent().getNativeCodeLocations())
+            for (CodeLocation<Program> location : node.getCodeLocations())
                 if (location.getProgram() == getDisplayedResource())
-                    if (location.getLine() < ((Program) location.getProgram()).countStatements())
-                        getSourceComponent().addHighlight(location.getLine(), true);
+                    if (location.getIndex() < ((Program) location.getProgram()).countStatements())
+                        getSourceComponent().addHighlight(location.getIndex(), true);
 
 
-        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations())
+        for (CodeLocation<Program> location : proofCenter.getCurrentProofNode().getCodeLocations())
             if (location.getProgram() == getDisplayedResource())
-                if (location.getLine() < ((Program) location.getProgram()).countStatements())
-                    getSourceComponent().addHighlight(location.getLine(), false);
+                if (location.getIndex() < ((Program) location.getProgram()).countStatements())
+                    getSourceComponent().addHighlight(location.getIndex(), false);
+                
     }
 
     @Override protected Object chooseResource() {
-        List<CodeLocation> locations = proofCenter.getCurrentProofNode().getSequent().getNativeCodeLocations();
-        if (locations.size() == 0) {
-            return null;
+        Set<CodeLocation<Program>> locations = proofCenter.getCurrentProofNode().getCodeLocations();
+        for (CodeLocation<Program> loc : locations) {
+            // if non-empty:
+            return loc.getProgram();
         }
-        return locations.get(0).getProgram();
+        // else if empty:
+        return null;
     }
 
     @Override protected ComboBoxModel getAllResources() {

@@ -11,13 +11,16 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
@@ -26,6 +29,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
+import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -70,6 +74,12 @@ public class ProofNode implements Comparable<ProofNode> {
      * The sequent stored in this node. This does not change.
      */
     private final Sequent sequent;
+    
+    /**
+     * Since this is often queried, the list of code locations is cached in this
+     * field.
+     */
+    private @Nullable Set<CodeLocation<Program>> codeLocations = null;
 
     /**
      * The associated proof.
@@ -613,5 +623,19 @@ public class ProofNode implements Comparable<ProofNode> {
     @Override
     public int compareTo(ProofNode o) {
         return number - o.number;
+    }
+    
+    /**
+     * Get the list of program code locations which occur in the sequent. The
+     * result of the search is cached in this object to make this operation less
+     * expensive.
+     * 
+     * @return an immutable view to the list of code locations.
+     */
+    public Set<CodeLocation<Program>> getCodeLocations() {
+        if(codeLocations == null) {
+            codeLocations = CodeLocation.findCodeLocations(sequent);
+        }
+        return Collections.unmodifiableSet(codeLocations);
     }
 }

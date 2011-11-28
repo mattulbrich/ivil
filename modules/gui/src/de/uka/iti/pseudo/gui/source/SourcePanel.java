@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.ComboBoxModel;
@@ -76,32 +75,40 @@ public class SourcePanel extends CodePanel {
     
     @Override
     protected void addHighlights() {
-        //print trace
+        //collect trace
+        Set<CodeLocation<Program>> progLocs = new HashSet<CodeLocation<Program>>();
         for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent()) {
-            for (CodeLocation location : node.getSequent().getSourceCodeLocations()) {
-                if (location.getProgram() == getDisplayedResource() && location.getLine() > 0) {
-                    // line numbers start at 1 in code and at 0 in component.
-                    getSourceComponent().addHighlight(location.getLine() - 1, true);
-                }
+            progLocs.addAll(node.getCodeLocations());
+        }
+        
+        //print trace
+        for (CodeLocation<Program> progLoc : progLocs) {
+            URL source = progLoc.getProgram().getSourceFile();
+            int sourceLine = progLoc.getProgram().getStatement(progLoc.getIndex()).getSourceLineNumber();
+            if (source == getDisplayedResource() && sourceLine > 0) {
+                // line numbers start at 1 in code and at 0 in component.
+                getSourceComponent().addHighlight(sourceLine - 1, true);
             }
         }
         
         //print current lines
-        for (CodeLocation location : proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations()) {
-            if (location.getProgram().equals(getDisplayedResource()) && location.getLine() > 0) {
+        for (CodeLocation<Program> progLoc : proofCenter.getCurrentProofNode().getCodeLocations()) {
+            URL source = progLoc.getProgram().getSourceFile();
+            int sourceLine = progLoc.getProgram().getStatement(progLoc.getIndex()).getSourceLineNumber();
+            if (source == getDisplayedResource() && sourceLine > 0) {
                 // line numbers start at 1 in code and at 0 in component.
-                getSourceComponent().addHighlight(location.getLine() - 1, false);
+                getSourceComponent().addHighlight(sourceLine - 1, false);
             }
         }
     }
 
     @Override
     protected Object chooseResource() {
-        List<CodeLocation> locations = proofCenter.getCurrentProofNode().getSequent().getSourceCodeLocations();
+        Set<CodeLocation<Program>> locations = proofCenter.getCurrentProofNode().getCodeLocations();
         if (locations.size() == 0) {
             return null;
         }
-        return locations.get(0).getProgram();
+        return locations.iterator().next().getProgram().getSourceFile();
     }
 
 }

@@ -75,7 +75,7 @@ public abstract class StepCodeAction extends BarAction implements
      * @return null if no unique code location exists on the proof node; a valid
      *         code location else
      */
-    protected abstract CodeLocation getCodeLocation(ProofNode node);
+    protected abstract CodeLocation<?> getCodeLocation(ProofNode node);
 
     /**
      * This action takes the current proof node, queries its location in the
