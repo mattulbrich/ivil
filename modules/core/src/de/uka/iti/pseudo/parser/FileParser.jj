@@ -10,7 +10,7 @@ ASTFile File():
 {
   ASTDeclarationBlock block;
   List<ASTDeclarationBlock> blocks = new ArrayList<ASTDeclarationBlock>();
-  ASTSequent problem = null;
+  ASTProblemSequent problem = null;
 }
 {
        (
@@ -33,7 +33,7 @@ ASTFile File():
    { return new ASTFile(blocks, problem); }
 }
 
-ASTSequent Problem():
+ASTProblemSequent Problem():
 {
   List<ASTTerm> antecedent = new ArrayList<ASTTerm>();
   List<ASTTerm> succedent = new ArrayList<ASTTerm>();
@@ -61,9 +61,9 @@ ASTSequent Problem():
       }
       if(!hasSeqSep) {
          // if only a single term, take that as *suc*cendent.
-         return new ASTSequent(Collections.<ASTTerm>emptyList(), antecedent);
+         return new ASTProblemSequent(Collections.<ASTTerm>emptyList(), antecedent);
       } else {
-         return new ASTSequent(antecedent, succedent);
+         return new ASTProblemSequent(antecedent, succedent);
       }
    }
 }
