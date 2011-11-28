@@ -11,8 +11,6 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -26,6 +24,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -40,7 +39,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     private BreakpointManager breakPointManager = new BreakpointManager();
 
     /**
-     * The set of rules which we do consult
+     * The set of rules which we consult
      */
     private static final String REWRITE_CATEGORY = "symbex";
 
@@ -54,8 +53,6 @@ public class BreakpointStrategy extends AbstractStrategy implements
     private boolean stopAtJumpBack = false;
 
     private RewriteRuleCollection ruleCollection;
-
-    private Set<LiteralProgramTerm> seenProgramTerms = new HashSet<LiteralProgramTerm>();
 
     @Override
     public void init(Proof proof, Environment env,
@@ -105,7 +102,44 @@ public class BreakpointStrategy extends AbstractStrategy implements
         return ra;
     }
 
-    private boolean hasBreakpoint(LiteralProgramTerm progTerm) {
+    /**
+     * Decide whether a rule application is to be applied or not.
+     * 
+     * We extract the program term and check whether it is at a breakpoint using
+     * {@link #hasBreakpoint(LiteralProgramTerm)}.
+     * 
+     * @return <code>false</code> iff at a breakpoint
+     */
+    @Override
+    public boolean accepts(RuleApplication ruleApp) throws RuleException {
+        ProofNode proofNode = ruleApp.getProofNode();
+        Sequent sequent = proofNode.getSequent();
+        Term find;
+        try {
+            find = ruleApp.getFindSelector().selectSubterm(sequent);
+        } catch (ProofException e) {
+            throw new RuleException(e);
+        }
+    
+        // updated program term ==> go for the wrapped program
+        if (!(find instanceof LiteralProgramTerm)) {
+            find = find.getSubterm(0);
+        }
+    
+        if (find instanceof LiteralProgramTerm) {
+            LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
+            if (hasBreakpoint(progTerm, proofNode))
+                return false;
+        } else {
+            throw new RuleException(
+                    "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
+                            + ruleApp.getRule().getName());
+        }
+    
+        return true;
+    }
+
+    private boolean hasBreakpoint(LiteralProgramTerm progTerm, ProofNode proofNode) {
         //
         // check for stop at skip
         if (stopAtSkip) {
@@ -132,9 +166,26 @@ public class BreakpointStrategy extends AbstractStrategy implements
         //
         // check for unwanted looping
         if (stopAtLoop) {
-            if (seenProgramTerms.contains(progTerm))
-                return true;
-            seenProgramTerms.add(progTerm);
+            CodeLocation<Program> codeLoc = progTerm.getCodeLocation();
+            
+            // find first parent w/o this codeLoc
+            while(proofNode != null) {
+                if(!proofNode.getCodeLocations().contains(codeLoc)) {
+                    break;
+                }
+                
+                proofNode = proofNode.getParent();
+            }
+            
+            // find another (older) ancestor w/ the codeLoc
+            while(proofNode != null) {
+                if(proofNode.getCodeLocations().contains(codeLoc)) {
+                    // found!
+                    return true;
+                }
+                
+                proofNode = proofNode.getParent();
+            }
         }
         
 
@@ -170,39 +221,14 @@ public class BreakpointStrategy extends AbstractStrategy implements
         return false;
     }
     
-    /**
-     * When starting a new round of automated proving, forget about
-     * program terms that we have encountered in previous runs.
-     */
-    @Override
-    public void beginSearch() throws StrategyException {
-        super.beginSearch();
-        
-        seenProgramTerms.clear();
-    }
-
-    /**
-     * Make integer from term.
-     * 
-     * @throws TermException
-     *             if the term is not a number literal
-     */
-    private int toInt(Term term) {
-        if (term instanceof Application) {
-            Application appl = (Application) term;
-            Function f = appl.getFunction();
-            if (f instanceof NumberLiteral) {
-                NumberLiteral literal = (NumberLiteral) f;
-                return literal.getValue().intValue();
-            }
-        }
-        throw new RuntimeException("The term " + term
-                + " is not a number literal");
-    }
-
-    public BreakpointManager getBreakpointManager() {
-        return breakPointManager;
-    }
+//    /**
+//     * When starting a new round of automated proving, forget about
+//     * program terms that we have encountered in previous runs.
+//     */
+//    @Override
+//    public void beginSearch() throws StrategyException {
+//        super.beginSearch();
+//    }
 
     @Override
     public String toString() {
@@ -212,7 +238,11 @@ public class BreakpointStrategy extends AbstractStrategy implements
     //
     // getter and setter
     //
-
+    
+    public BreakpointManager getBreakpointManager() {
+        return breakPointManager;
+    }
+    
     // due to ParameterSheet, we need get instead of is
     public boolean getObeyProgramBreakpoints() {
         return obeyProgramBreakpoints;
@@ -258,39 +288,26 @@ public class BreakpointStrategy extends AbstractStrategy implements
         this.stopAtJumpBack = stopAtJumpBack;
     }
 
+    //
+    // Helper function
+    //
+    
     /**
-     * Decide whether a rule application is to be applied or not.
+     * Make integer from integer literal term.
      * 
-     * We extract the program term and check whether it is at a breakpoint using
-     * {@link #hasBreakpoint(LiteralProgramTerm)}.
-     * 
-     * @return <code>false</code> iff at a breakpoint
+     * @throws RuntimeException
+     *             if the term is not a number literal
      */
-    @Override
-    public boolean accepts(RuleApplication ruleApp) throws RuleException {
-        Sequent sequent = ruleApp.getProofNode().getSequent();
-        Term find;
-        try {
-            find = ruleApp.getFindSelector().selectSubterm(sequent);
-        } catch (ProofException e) {
-            throw new RuleException(e);
+    private int toInt(Term term) {
+        if (term instanceof Application) {
+            Application appl = (Application) term;
+            Function f = appl.getFunction();
+            if (f instanceof NumberLiteral) {
+                NumberLiteral literal = (NumberLiteral) f;
+                return literal.getValue().intValue();
+            }
         }
-
-        // updated program term ==> go for the wrapped program
-        if (!(find instanceof LiteralProgramTerm)) {
-            find = find.getSubterm(0);
-        }
-
-        if (find instanceof LiteralProgramTerm) {
-            LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
-            if (hasBreakpoint(progTerm))
-                return false;
-        } else {
-            throw new RuleException(
-                    "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
-                            + ruleApp.getRule().getName());
-        }
-
-        return true;
+        throw new RuntimeException("The term " + term
+                + " is not a number literal");
     }
 }
