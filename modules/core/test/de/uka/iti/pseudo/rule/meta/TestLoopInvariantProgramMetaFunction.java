@@ -175,6 +175,36 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         assertEquals(Collections.singleton(fctA), loopMod.getModifiedAssignables());
     }
     
+    // was a bug: b was havoced also in Q'
+    public void testBugWithAssumeFalse() throws Exception {
+        env = testEnv("loopTest2.p");
+        
+        {
+            // Check that P' and Q are same
+            Program P = env.getProgram("P");
+            assertNotNull(P);
+            
+            LiteralProgramTerm prog = LiteralProgramTerm.getInst(0, Modality.BOX, P, Environment.getTrue());
+
+            LoopModifier loopMod = new LoopModifier(prog, makeTerm("true"), null, env);
+            loopMod.apply();
+            assertEqualProgs(env.getProgram("Q"), env.getProgram("P'"));
+        }
+        {
+            // Check that Q' and R are same
+            Program Q = env.getProgram("Q");
+            assertNotNull(Q);
+            Program R = env.getProgram("R");
+            assertNotNull(R);
+            
+            LiteralProgramTerm prog = LiteralProgramTerm.getInst(8, Modality.BOX, Q, Environment.getTrue());
+            LoopModifier loopMod = new LoopModifier(prog, makeTerm("true"), null, env);
+            loopMod.apply();
+            assertEqualProgs(R, env.getProgram("Q'"));
+        }
+        
+    }
+    
     public void testGoBeyond() throws Exception {
         
         env = testEnv("loopTest1.p.txt");
