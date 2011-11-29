@@ -88,7 +88,10 @@ TOKEN : /* KEYWORDS */
 | < CHOOSE : "choose" >
 | < ASSERT : "assert" >
 | < ASSUME : "assume" >
+| < RETURN : "return" >
 | < ITERATE : "iterate" >
+| < ENSURES : "ensures" >
+| < REQUIRES : "requires" >
 }
 
 TOKEN : /* IDENTIFIERS */
@@ -165,7 +168,8 @@ void Algo() #Algo :
   (  "input" Declarations()  #InputDecl 
    | "output" Declarations()  #OutputDecl
    | "var" Declarations()  #VarDecl
-  /* Requires and Ensures */ 
+   | "requires" Expression() #RequiresDecl
+   | "ensures" Expression() #EnsuresDecl
   )*
   
   "do"
@@ -201,6 +205,7 @@ void Statement() : {}
     ChooseStatement()
   | LOOKAHEAD(2) AssignmentStatement()
   | MapAssignmentStatement()
+  | ReturnStatement()
   | WhileStatement()
   | IterateStatement()
   | IfStatement()
@@ -218,6 +223,11 @@ void AssignmentStatement() #AssignmentStatement : {}
 void MapAssignmentStatement() #MapAssignmentStatement : {}
 {
   Identifier() "[" Expression() "]" ":=" Expression()
+}
+
+void ReturnStatement() #ReturnStatement : {}
+{
+  "return"
 }
 
 void ChooseStatement() #ChooseStatement : {}
@@ -241,7 +251,7 @@ void WhileStatement() #WhileStatement : {}
 
 void IterateStatement() #IterateStatement : {}
 {
-  "iterate" Expression()
+  "iterate" Type() Expression()
   "with" Identifier()
   "do"
     StatementBlock()
@@ -290,7 +300,17 @@ void Expression() #Expression : {}
      (Identifier() "[" Expression() "]") #MapAccessExpression
    |
      TokenExpression()
+   |
+     SetExtensionExpression()
   )+
+}
+
+void SetExtensionExpression() #SetExtensionExpression : {}
+{
+// TODO do more than only singletons and empty set
+    <LEFTCURLY>
+       ( Expression() )?
+    <RIGHTCURLY>
 }
 
 void TokenExpression() #TokenExpression : {}
@@ -310,10 +330,6 @@ void TokenExpression() #TokenExpression : {}
       <LEFTPAREN>
     |
       <RIGHTPAREN>
-    |
-      <LEFTCURLY>
-    |
-      <RIGHTCURLY>
     |
       <COMMA>
     |

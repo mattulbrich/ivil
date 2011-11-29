@@ -12,6 +12,8 @@ public class TranslationVisitor implements AlgoParserVisitor {
     private List<String> statements = new ArrayList<String>();
     private IdentifierProducer idProducer = new IdentifierProducer();
     private String sourceFile;
+    private List<String> requirements = new ArrayList<String>();
+    private List<String> ensures = new ArrayList<String>();
     
     public TranslationVisitor(String sourceFile) {
         this.sourceFile = sourceFile;
@@ -89,6 +91,18 @@ public class TranslationVisitor implements AlgoParserVisitor {
     @Override
     public String visit(ASTVarDecl node, Object data) {
         return addDeclarations(node);
+    }
+    
+    @Override
+    public String visit(ASTRequiresDecl node, Object data) {
+        requirements.add(visitChild(node, 0));
+        return null;
+    }
+    
+    @Override
+    public String visit(ASTEnsuresDecl node, Object data) {
+        ensures.add(visitChild(node, 0));
+        return null;
     }
     
     @Override
@@ -174,8 +188,9 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTIterateStatement node, Object data) {
-        String expression = visitChild(node, 0);
-        String identifier = visitChild(node, 1);
+        String type = visitChild(node, 0);
+        String expression = visitChild(node, 1);
+        String identifier = visitChild(node, 2);
 
         String loopLabel = idProducer.makeIdentifier("loop");
         String bodyLabel = idProducer.makeIdentifier("body");
@@ -183,9 +198,8 @@ public class TranslationVisitor implements AlgoParserVisitor {
         String iter = idProducer.makeIdentifier("$it");
         String iterBefore = idProducer.makeIdentifier("$itBefore");
         
-        // TODO TYPING!!
-        header.add("function set(prod(node, node)) " + iter + " assignable");
-        header.add("function set(prod(node, node)) " + iterBefore + " assignable");
+        header.add("function " + type + " " + iter + " assignable");
+        header.add("function " + type + " " + iterBefore + " assignable");
 
         addSourceLineStatement(node);
         statements.add("  " + iterBefore + " := " + expression);
@@ -198,7 +212,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
         statements.add("  havoc " + identifier);
         statements.add("  assume " + identifier + " :: " + iter);
         statements.add("  " + iter + " := " + iter + " \\ singleton(" + identifier + ")");
-        visitChild(node, 2);
+        visitChild(node, 3);
         statements.add("  goto " + loopLabel);
         
         statements.add(" " + afterLabel + ":");
@@ -230,6 +244,13 @@ public class TranslationVisitor implements AlgoParserVisitor {
     }
     
     @Override
+    public String visit(ASTReturnStatement node, Object data) {
+        addSourceLineStatement(node);
+        statements.add("  end ; \"Return Statement\"");
+        return null;
+    }
+    
+    @Override
     public String visit(ASTAssertStatement node, Object data) {
         addSourceLineStatement(node);
         statements.add("  assert " + visitChild(node, 0));
@@ -256,10 +277,18 @@ public class TranslationVisitor implements AlgoParserVisitor {
         return (String) node.jjtGetValue();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public String visit(ASTTokenExpression node, Object data) {
          return node.jjtGetFirstToken().image;
+    }
+    
+    @Override
+    public String visit(ASTSetExtensionExpression node, Object data) {
+        if(node.jjtGetNumChildren() > 0) {
+            return "singleton(" + visitChild(node, 0) + ")";
+        } else {
+            return "emptyset";
+        }
     }
     
     @Override

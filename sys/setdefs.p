@@ -30,6 +30,11 @@ function
   set('a)   $complement(set('a))         prefix ^  80
   set('a)   emptyset
   set('a)   singleton('a)
+  
+function    (* Finiteness and cardinality *)
+  set('a)   fullset
+  bool      finite(set('a))
+  int       card(set('a))
 
 binder
   set('a)   (\set 'a; bool)
