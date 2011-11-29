@@ -298,7 +298,7 @@ class LoopModifier {
     }
 
     /**
-     * Visit all statements wich are reachable from {@link #programTerm}.
+     * Visit all statements which are reachable from {@link #programTerm}.
      * 
      * If the 2nd argument is in the 1st, then analyse the statements: Add the
      * modified assignables to {@link #modifiedAssignables} and analyse it
@@ -437,7 +437,13 @@ class StatementAnalyser implements StatementVisitor {
 
     @Override public void visit(AssumeStatement assumeStatement)
             throws TermException {
-        successorIndices = new int[] { startIndex + 1 };
+        // special casing the assume statement:
+        // if it is assume false, it has no successor state!
+        if(Environment.getFalse().equals(assumeStatement.getSubterms().get(0))) {
+            successorIndices = new int[0];
+        } else {
+            successorIndices = new int[] { startIndex + 1 };
+        }
     }
 
     @Override public void visit(EndStatement endStatement) throws TermException {

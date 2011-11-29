@@ -1,0 +1,99 @@
+include 
+  "$base.p"
+  "$int.p"
+  "$symbex.p"
+
+function
+  int a assignable
+  int b assignable
+  int c assignable
+  int d assignable
+  int e assignable
+ 
+
+(* Resolving the first loop in P, we receive Q *)
+
+program P
+  loop1:
+    skip_loopinv true
+    goto body1, after1
+  body1:
+    assume c = 5
+    a := a+1
+    
+  loop2:
+    skip_loopinv true
+    goto body2, after2
+  body2:
+    assume b<0
+    b := b+1
+  goto loop2
+
+  after2:
+    assume !(b<0)
+    goto loop1
+
+  after1:
+    assume !(c = 5)
+
+
+program Q
+  loop1:
+    assert true ; "Continuation preserves invariant"
+    assume false
+    havoc b
+    havoc a
+    assume true
+    
+    goto body1, after1
+  body1:
+    assume c = 5
+    a := a+1
+    
+  loop2:
+    skip_loopinv true
+    goto body2, after2
+  body2:
+    assume b<0
+    b := b+1
+  goto loop2
+
+  after2:
+    assume !(b<0)
+    goto loop1
+
+  after1:
+    assume !(c = 5)
+
+
+program R
+  loop1:
+    assert true ; "Continuation preserves invariant"
+    assume false
+    havoc b
+    havoc a
+    assume true
+    
+    goto body1, after1
+  body1:
+    assume c = 5
+    a := a+1
+    
+  loop2:
+    assert true ; "Continuation preserves invariant"
+    assume false
+    havoc b
+    assume true
+    
+    goto body2, after2
+  body2:
+    assume b<0
+    b := b+1
+  goto loop2
+
+  after2:
+    assume !(b<0)
+    goto loop1
+
+  after1:
+    assume !(c = 5)
