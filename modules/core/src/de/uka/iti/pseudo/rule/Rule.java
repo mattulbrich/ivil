@@ -40,10 +40,10 @@ import de.uka.iti.pseudo.util.Util;
  */
 public class Rule {
     
-    /**
-     * new line character for pretty printing
-     */
-    private static final String NEWLINE = "\n";
+//    /**
+//     * new line character for pretty printing
+//     */
+//    private static final String NEWLINE = "\n";
     
     /**
      * The name of this rule

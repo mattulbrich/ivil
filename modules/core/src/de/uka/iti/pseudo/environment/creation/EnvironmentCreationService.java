@@ -20,7 +20,6 @@ import checkers.nullness.quals.Pure;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Pair;
 
 /**

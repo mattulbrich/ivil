@@ -54,7 +54,7 @@ public class NumberLiteral extends Function {
         this.value = value;
         
         if(value.signum() == -1)
-            throw new EnvironmentException("A number literal must be positive: " + value);
+            throw new EnvironmentException("A number literal must not be negative: " + value);
     }
     
 }

@@ -127,6 +127,8 @@ rule cut_cond
 (*
  * Weakly typed equality
  *)
+function 'b retype('a)
+
 plugin
     # check whether two terms have different types, but returns false if typevariables are present
     whereCondition : "de.uka.iti.pseudo.rule.where.DifferentGroundTypes"
@@ -143,6 +145,17 @@ rule weakly_typed_equality_same_types
   replace %a = %b
   tags rewrite "concrete"
        verbosity "6"
+
+rule retype_identity
+  find retype(%x as %'a) as %'a
+  replace %x
+  tags rewrite "concrete"
+
+rule apply_weq_retype
+  assume $weq(%a as %'a, %b as %'b) |-
+  find retype(%a) as %'b
+  replace %b
+
 (*
  * Equality
  *)

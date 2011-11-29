@@ -54,12 +54,3 @@ binder
 function 
     bool $weq('a, 'b)
     
-(*
-	retype can be used in type quantification to type terms as intended
-*)
-function 'b retype('a)
-
-rule retype_identity
-find retype(%x as %'a) as %'a
-replace %x
-tags rewrite "concrete"
