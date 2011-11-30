@@ -237,8 +237,9 @@ public class PFileEditor extends JFrame implements ActionListener {
             // TODO find sth better here
             String content = editor.getText();
             InputStream inputStream = new StringBufferInputStream(content);
-            if(getFile() != null) {
-                url = getFile().toURI().toURL();
+            File file = getFile();
+            if(file != null) {
+                url = file.toURI().toURL();
             } else {
                 url = new URL("none:unnamed.p");
             }
@@ -250,7 +251,6 @@ public class PFileEditor extends JFrame implements ActionListener {
             
             Log.log(Log.VERBOSE, "Syntax checked ... no errors");
             
-            setErrorFilename(null);
             markError(null, true);
         } catch (EnvironmentException e) {
             markError(e, url.toString().equals(e.getResource()));
@@ -282,6 +282,13 @@ public class PFileEditor extends JFrame implements ActionListener {
                     if(exc == null || !local) {
                         from = to = 0;
                         setErrorLine(0);
+                        // bugfix:
+                        if (exc instanceof EnvironmentException) {
+                            EnvironmentException envEx = (EnvironmentException) exc;
+                            if(envEx.hasErrorInformation()) {
+                                setErrorFilename(envEx.getResource());
+                            }
+                        }
                     } else {
                         EnvironmentException envEx = (EnvironmentException) exc; 
                         if(envEx.hasErrorInformation()) { 
@@ -291,6 +298,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                         } else {
                             from = to = 0;
                             setErrorLine(0);
+                            setErrorFilename(null);
                         }
                     }
                     editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
@@ -306,6 +314,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                             "syntax check disabled";
                     statusLine.setText(text);
                     statusLine.setToolTipText(null);
+                    setErrorFilename(null);
                 } else {
                     statusLine.setForeground(Color.red);
                     
@@ -317,8 +326,11 @@ public class PFileEditor extends JFrame implements ActionListener {
                         statusLine.setText("Error outside this file while parsing: " + shortMessage(message));
                     else
                         statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
+
+                    statusLine.setToolTipText("<html><pre>"
+                            + GUIUtil.htmlentities(message).replace("\n",
+                                    "<br/>") + "</pre>");
                     
-                    statusLine.setToolTipText("<html><pre>" + GUIUtil.htmlentities(message).replace("\n", "<br/>") + "</pre>");
                 }
 
                 getContentPane().invalidate();

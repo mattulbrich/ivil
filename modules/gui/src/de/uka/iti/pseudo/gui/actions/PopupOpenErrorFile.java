@@ -30,7 +30,7 @@ public class PopupOpenErrorFile
     private String errorFile;
 
     public PopupOpenErrorFile() {
-        super("Open erreroneus file");
+        super("Open erroneous file");
         putValue(SHORT_DESCRIPTION, "open the file containing the error in a new window");
     }
     
