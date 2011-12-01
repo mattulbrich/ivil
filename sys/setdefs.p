@@ -42,6 +42,9 @@ binder
 axiom emptyset_definition
   (\T_all 'a; (\forall x as 'a; !x::emptyset))
 
+axiom fullset_definition
+  (\T_all 'a; (\forall x as 'a; x::fullset))
+
 axiom singleton_definition
   (\T_all 'a; (\forall x as 'a; (\forall y as 'a;
     x :: singleton(y) <-> x=y)))

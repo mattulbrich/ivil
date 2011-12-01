@@ -14,6 +14,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
     private String sourceFile;
     private List<String> requirements = new ArrayList<String>();
     private List<String> ensures = new ArrayList<String>();
+    private String programName;
     
     public TranslationVisitor(String sourceFile) {
         this.sourceFile = sourceFile;
@@ -47,11 +48,11 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTAlgo node, Object data) {
-        String id = visitChild(node, 0);
+        programName = visitChild(node, 0);
         if(sourceFile != null)
-            statements.add("program " + id + " source \"" + sourceFile + "\"");
+            statements.add("program " + programName + " source \"" + sourceFile + "\"");
         else
-            statements.add("program " + id);
+            statements.add("program " + programName);
         node.childrenAccept(this, data);
         statements.add("");
         return null;
@@ -174,7 +175,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
 
         addSourceLineStatement(node);
         statements.add(" " + loopLabel + ":");
-        statements.add("  skip_loopinv " + invariant /*+ ", " + variant*/);
+        statements.add("  skip_loopinv " + invariant + ", " + variant);
         statements.add("  goto " + bodyLabel + ", " + afterLabel);
         statements.add(" " + bodyLabel + ":");
         statements.add("  assume " + condition + "; \"assume condition \"");
@@ -307,14 +308,6 @@ public class TranslationVisitor implements AlgoParserVisitor {
         return "read(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
     }
     
-    public List<String> getHeader() {
-        return header;
-    }
-
-    public List<String> getStatements() {
-        return statements;
-    }
-
     @Override
     public String visit(ASTMapAssignmentStatement node, Object data) {
         addSourceLineStatement(node);
@@ -323,6 +316,35 @@ public class TranslationVisitor implements AlgoParserVisitor {
         String value = visitChild(node, 2);
         statements.add("  " + map + " := write(" + map + ", " + index + ", " + value + ")");
         return null;
+    }
+
+    public List<String> getHeader() {
+        return header;
+    }
+
+    public List<String> getStatements() {
+        return statements;
+    }
+
+    /**
+     * @return the requires expressions
+     */
+    public List<String> getRequirements() {
+        return requirements;
+    }
+
+    /**
+     * @return the ensures expressions
+     */
+    public List<String> getGuarantees() {
+        return ensures;
+    }
+
+    /**
+     * @return the programName
+     */
+    public String getProgramName() {
+        return programName;
     }
 
 }

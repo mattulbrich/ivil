@@ -2,6 +2,10 @@ package de.uka.iti.pseudo.algo;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.List;
+import java.util.ListIterator;
+
+import de.uka.iti.pseudo.util.Util;
 
 public class Translation {
 
@@ -28,6 +32,24 @@ public class Translation {
         for (String string : visitor.getStatements()) {
             System.out.println(string);
         }
+        
+        // parentheses around ensures
+        List<String> guarantees = visitor.getGuarantees();
+        if(guarantees.isEmpty()) {
+            guarantees.add("true");
+        }
+        ListIterator<String> it = guarantees.listIterator();
+        while(it.hasNext()) {
+            it.set("(" + it.next() + ")");
+        }
+
+        System.out.println();
+        System.out.println("problem ");
+        String req = Util.commatize(visitor.getRequirements());
+        String ens = Util.join(guarantees, " & ");  
+        
+        System.out.println(req + " |- [[0;" + visitor.getProgramName() + "]](" + ens + ")");
+        
     }
 
 }
