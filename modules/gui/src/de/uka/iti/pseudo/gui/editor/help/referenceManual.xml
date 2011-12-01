@@ -1,0 +1,253 @@
+<ivildoc>
+  <category name="Rule tag">
+    <entry name="rewrite">
+      <![CDATA[ "rewrite" expects a string argument.
+ 
+ <p>
+ It declares the set of rewrite rules to which a rule belongs. They list
+ of known rule sets include the following:
+ <ol>
+ <li>"updSimpl" - update simplification</li>
+ <li>"close" - rules to close goals</li>
+ <li>"concrete" - rules involving operations on constants (
+ <code>false | a</code> to <code>a</code>)</li>
+ <li>"prop simp" - propositional simplification</li>
+ <li>"fol simp" - first order simplification</li>
+ </ol>
+ Rule sets are applied in that order by the simplification strategy.
+ There are other rule sets for more specific purposes. "symbex" is used
+ for symbolic execution for instance.]]>
+    </entry>
+    <entry name="autoonly">
+      <![CDATA[
+ 
+ "autoonly" does not take an argument.
+ 
+ <p>It makes a rule invisible for manual application.]]>
+    </entry>
+    <entry name="decisionProcedure">
+      <![CDATA[
+ 
+ "decisionProcedure" expects a classname as argument.
+ 
+ <p>It denotes the decision procedure plugin to instantiate.]]>
+    </entry>
+    <entry name="asAxiom">
+      <![CDATA[
+ 
+ "asAxiom" does not take an argument.
+ 
+ <p>It marks a rule to be translated into an axiom which allows it to
+ be translated to SMT. This is not possible for all rules.]]>
+    </entry>
+    <entry name="derived">
+      <![CDATA[
+ 
+ "derived" does not an need argument.
+ 
+ <p>It marks a rule to be inferrable by the rules preceeding it (plus
+ includes)]]>
+    </entry>
+    <entry name="display">
+      <![CDATA[ 
+ 
+ "display" expects a string as argument,
+ possibly with embedded schema variables.
+ 
+ <p>
+ This string is used to annotate history entries and proof tree component
+ labels.
+ 
+ <p>The format is the following:
+ <table>
+ <tr>
+ <th>Text</th>
+ <th>Replacement</th>
+ </tr>
+ <tr>
+ <td>{%c}</td>
+ <td>The text representation of the instantiation for the schema variable,
+ "??" if not instantiated.</td>
+ </tr>
+ <tr>
+ <td>{explain %c}</td>
+ <td>The text representation of the annotation statement to which %c points
+ (if it does exists). Empty string otherwise.</td>
+ </tr>
+ <tr>
+ <td>{explainOrQuote %c}</td>
+ <td>The text representation of the annotation statement to which %c points
+ (if it does). The statement otherwise. Empty string if %c does not hold a
+ program term.</td>
+ </tr>
+ <tr>
+ <td>{property name}</td>
+ <td>The value of the named property of the rule application.</td>
+ </tr>
+ <tr>
+ <td>{upd U}</td>
+ <td>The textual representation of the value of the instantiation of the
+ schema update.</td>
+ </tr>
+ </table>]]>
+    </entry>
+    <entry name="prio">
+      <![CDATA[
+ "prio" expects an integer as argument.
+ 
+ <p>When sorting rules, the priority is used as comparison criterion.]]>
+    </entry>
+    <entry name="timeout">
+      <![CDATA[
+ "timeout" expects an integer as argument.
+ 
+ <p>For decision procedure rules. The time to wait before shutting down the
+ DP.]]>
+    </entry>
+    <entry name="verbosity">
+      <![CDATA[
+ 
+ "verbosity" expects an integer as argument.
+ 
+ <p>It defines from which verbosity level on the rule is printed in the proof
+ component.]]>
+    </entry>
+  </category>
+  <category name="Where condition">
+    <entry name="toplevel">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>toplevel</tt></h2>
+ 
+ This condition can be used to ensure that the term which matches the find
+ clause is not within the reach of an update or program modality.
+ 
+ <h3>Syntax</h3> The where condition expects no arguments.
+ 
+ <h3>Example:</h3>
+ 
+ <pre>
+   rule apply_equality 
+   assume %a=%b |-
+   where toplevel
+   find %a
+   replace %b
+ </pre>
+ 
+ The equality <tt>a=5</tt> must not be applied to replace the second
+ <code>a</code> in the expression <tt>{a:=7}a=5</tt>
+ 
+ <h3>See also:</h3>
+ 
+ <h3>Result:</h3> <code>true</code> if the find clause of the rule matches
+ against a term which is not in the scope of an update or a program modality,
+ <code>false</code> otherwise. Does not fail.]]>
+    </entry>
+    <entry name="freshVar">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>freshVar</tt></h2>
+ 
+ This condition can be used to ensure that a variable does not occur free nor
+ bound in terms.
+ 
+ <p>
+ This is an example of an <em>active</em> condition since it may add variable
+ instantiations. If the first formal parameter is a schema variable, it
+ becomes instantiated with a new variable of the same type which does not
+ occur in the arguments.
+ 
+ <p>
+ The resulting variable is named after the first parameter to the condition,
+ possibly with an added number as suffix.
+ 
+ <h3>Syntax</h3> The where condition expects a first parameter which can
+ either be a variable or a schema variable. Any number of arbitrary terms may
+ follow.
+ 
+ <h3>Example:</h3>
+ 
+ <pre>
+   sort S
+   function bool p(S, S) 
+   function bool allP(S)
+   
+   rule quant_definition
+   find allP(%s1, %s2)
+   where freshVar %x, %s2
+   replace (\forall %x; p(%x, %s2))
+ </pre>
+ 
+ <h3>See also:</h3>
+ 
+ <h3>Result:</h3>
+ <code>true</code> if the first argument (or its instantiation) is (or has
+ been chosen by this condition) a variable which does not occur in the
+ remaining arguments. It fails if the first argument is not matched by a
+ variable.]]>
+    </entry>
+    <entry name="intLiteral">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>intLiteral</tt></h2>
+ This condition can be used to ensure that a term of integer type is a
+ number literal.
+ 
+ <h3>Syntax</h3>
+   The where condition expects exactly one argument of type integer.
+   This can be a schema variable.
+ 
+ <h3>Example:</h3>
+ <pre>
+   rule add_literal
+   find %a + %b
+   where intLiteral %a
+         intLiteral %b
+   replace $$intEval(%a + %b)
+ </pre>
+ 
+ <h3>See also:</h3>
+ <a href="ivil:/Meta function/intEval">intEval</a>
+ 
+ <h3>Result:</h3>
+ 
+ <code>true</code> if the argument is a number literal, 
+ <code>false</code> otherwise,
+ never fails.]]>
+    </entry>
+    <entry name="axiom">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>axiom</tt></h2>
+ 
+ This condition can be used to ensure that a term has been defined as an
+ axiom.
+ 
+ <p>
+ In addition to giving the term of an axiom, the property "axiomName" must be
+ set on the rule application
+ 
+ <h3>Syntax</h3> The where condition expects one parameter.
+ 
+ <h3>Example:</h3>
+ The condition is used in the rule
+ 
+ <pre>
+   rule `axiom`
+   where `axiom` %b
+   add %b |-
+   tags autoonly
+        display "Insert axiom {property axiomName}"
+ </pre>
+ 
+ (axiom needs to back-quoted since it is a keyword)
+ 
+ <h3>See also:</h3> <a href="ivil:/Rule property/asAxiom">asAxiom</a>
+ 
+ <h3>Result:</h3>
+ 
+ <code>true</code> if the argument has been declared as axiom under the
+ specified name. Fails otherwise.]]>
+    </entry>
+  </category>
+</ivildoc>

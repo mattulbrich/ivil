@@ -47,7 +47,7 @@ plugin
 
     # check whether a variable appears free in a term
     # deprecated? and not implemented
-    whereCondition : "de.uka.iti.pseudo.rule.where.NotFreeIn"
+    # whereCondition : "de.uka.iti.pseudo.rule.where.NotFreeIn"
 
     # check whether no free var appears in a term
     whereCondition : "de.uka.iti.pseudo.rule.where.NoFreeVars"

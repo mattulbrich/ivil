@@ -78,7 +78,7 @@
 		</toolbar>
 		
 		<menubar>
-			editor.fileMenu editor.proverMenu editor.editMenu editor.settingsMenu			
+			editor.fileMenu editor.proverMenu editor.editMenu editor.settingsMenu editor.helpMenu		
 		</menubar>
 		
 		<fileMenu text="File" mnemonic="F">
@@ -100,6 +100,10 @@
 			editor.settings.lineWrap editor.settings.syntaxHighlighting editor.settings.syntaxChecking
 		    editor.settings.syntaxChecker
 		</settingsMenu>
+		
+		<helpMenu text="Help" mnemonic="H">
+		        editor.help.referenceManual
+		</helpMenu>
 		
 		<popup>
 			editor.popup.jumpToErrorLine editor.popup.openErrorFile
@@ -194,7 +198,11 @@
             </syntaxHighlighting>
             <syntaxChecker>COMPONENT de.uka.iti.pseudo.gui.editor.SyntaxCheckerChooser</syntaxChecker>
 		</settings>
-		
+		<help>
+		   <referenceManual >ACTION editor/ReferenceManualAction
+		       <text>Show reference manual</text>
+		   </referenceManual>
+		</help>
 	</editor>
 
 	<prover>

@@ -10,6 +10,43 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.statement.Statement;
 
+/**
+ * This class is used to instantiate schema variables in strings.
+ * 
+ * The format is the following:
+ * <table>
+ * <tr>
+ * <th>Text</th>
+ * <th>Replacement</th>
+ * </tr>
+ * <tr>
+ * <td>{%c}</td>
+ * <td>The text representation of the instantiation for the schema variable,
+ * "??" if not instantiated.</td>
+ * </tr>
+ * <tr>
+ * <td>{explain %c}</td>
+ * <td>The text representation of the annotation statement to which %c points
+ * (if it does exists). Empty string otherwise.</td>
+ * </tr>
+ * <tr>
+ * <td>{explainOrQuote %c}</td>
+ * <td>The text representation of the annotation statement to which %c points
+ * (if it does). The statement otherwise. Empty string if %c does not hold a
+ * program term.</td>
+ * </tr>
+ * <tr>
+ * <td>{property name}</td>
+ * <td>The value of the named property of the rule application.</td>
+ * </tr>
+ * <tr>
+ * <td>{upd U}</td>
+ * <td>The textual representation of the value of the instantiation of the
+ * schema update.</td>
+ * </tr>
+ * </table>
+ * 
+ */
 public class TextInstantiator {
     
     private RuleApplication ruleApp;
@@ -38,7 +75,6 @@ public class TextInstantiator {
         return replaceInString(string, null);
     }
     
-    // TODO DOC
     /**
      * Replace schema variables in a string.
      * 

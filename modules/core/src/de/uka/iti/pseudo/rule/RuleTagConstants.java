@@ -29,63 +29,132 @@ public final class RuleTagConstants {
     }
 
     /**
-     * KEY_DECISION_PROCEDURE expects a classname as argument.
+     * @ivildoc "Rule tag/decisionProcedure"
      * 
-     * It denotes the decision procedure plugin to instantiate.
+     * "decisionProcedure" expects a classname as argument.
+     * 
+     * <p>It denotes the decision procedure plugin to instantiate.
      */
     public static final String KEY_DECISION_PROCEDURE = "decisionProcedure";
 
     /**
-     * KEY_TIMEOUT expects an integer as argument.
+     * @ivildoc "Rule tag/timeout"
+     * "timeout" expects an integer as argument.
      * 
-     * For decision procedure rules. The time to wait before shutting down the
+     * <p>For decision procedure rules. The time to wait before shutting down the
      * DP.
      */
     public static final String KEY_TIMEOUT = "timeout";
 
     /**
-     * KEY_REWRITE expects a string argument.
+     * @ivildoc "Rule tag/rewrite" "rewrite" expects a string argument.
      * 
-     * It declares the class of rewrite rules to which a rule belongs.
+     * <p>
+     * It declares the set of rewrite rules to which a rule belongs. They list
+     * of known rule sets include the following:
+     * <ol>
+     * <li>"updSimpl" - update simplification</li>
+     * <li>"close" - rules to close goals</li>
+     * <li>"concrete" - rules involving operations on constants (
+     * <code>false | a</code> to <code>a</code>)</li>
+     * <li>"prop simp" - propositional simplification</li>
+     * <li>"fol simp" - first order simplification</li>
+     * </ol>
+     * Rule sets are applied in that order by the simplification strategy.
+     * There are other rule sets for more specific purposes. "symbex" is used
+     * for symbolic execution for instance. 
      */
     public static final String KEY_REWRITE = "rewrite";
 
     /**
-     * KEY_PRIORITY expects an integer as argument.
+     * @ivildoc "Rule tag/prio"
+     * "prio" expects an integer as argument.
      * 
-     * When sorting rules, the priority is used as comparison criterion.
+     * <p>When sorting rules, the priority is used as comparison criterion.
      */
     public static final String KEY_PRIORITY = "prio";
 
     /**
-     * KEY_DISPLAY expects a string as argument, possibly with embedded
-     * {%schema} variables.
+     * @ivildoc "Rule tag/display" 
      * 
-     * This string is used to annotate history entries and proof component
+     * "display" expects a string as argument,
+     * possibly with embedded schema variables.
+     * 
+     * <p>
+     * This string is used to annotate history entries and proof tree component
      * labels.
+     * 
+     * <p>The format is the following:
+     * <table>
+     * <tr>
+     * <th>Text</th>
+     * <th>Replacement</th>
+     * </tr>
+     * <tr>
+     * <td>{%c}</td>
+     * <td>The text representation of the instantiation for the schema variable,
+     * "??" if not instantiated.</td>
+     * </tr>
+     * <tr>
+     * <td>{explain %c}</td>
+     * <td>The text representation of the annotation statement to which %c points
+     * (if it does exists). Empty string otherwise.</td>
+     * </tr>
+     * <tr>
+     * <td>{explainOrQuote %c}</td>
+     * <td>The text representation of the annotation statement to which %c points
+     * (if it does). The statement otherwise. Empty string if %c does not hold a
+     * program term.</td>
+     * </tr>
+     * <tr>
+     * <td>{property name}</td>
+     * <td>The value of the named property of the rule application.</td>
+     * </tr>
+     * <tr>
+     * <td>{upd U}</td>
+     * <td>The textual representation of the value of the instantiation of the
+     * schema update.</td>
+     * </tr>
+     * </table>
      */
     public static final String KEY_DISPLAY = "display";
 
     /**
-     * KEY_AUTOONLY does not an need argument.
+     * @ivildoc "Rule tag/autoonly"
      * 
-     * It makes a rule invisible for manual application
+     * "autoonly" does not take an argument.
+     * 
+     * <p>It makes a rule invisible for manual application.
      */
     public static final String KEY_AUTOONLY = "autoonly";
 
     /**
-     * KEY_VERBOSITY expects an integer as argument.
+     * @ivildoc "Rule tag/verbosity"
      * 
-     * It defines from which verbosity level on the rule is printed in the proof
+     * "verbosity" expects an integer as argument.
+     * 
+     * <p>It defines from which verbosity level on the rule is printed in the proof
      * component.
      */
     public static final String KEY_VERBOSITY = "verbosity";
 
     /**
-     * KEY_DERIVED_RULE does not an need argument.
+     * @ivildoc "Rule tag/derived"
      * 
-     * It marks a rule to be inferrable by the rules preceeding it (plus
+     * "derived" does not an need argument.
+     * 
+     * <p>It marks a rule to be inferrable by the rules preceeding it (plus
      * includes)
      */
     public static final String KEY_DERIVED_RULE = "derived";
+    
+    /**
+     * @ivildoc "Rule tag/asAxiom"
+     * 
+     * "asAxiom" does not take an argument.
+     * 
+     * <p>It marks a rule to be translated into an axiom which allows it to
+     * be translated to SMT. This is not possible for all rules.
+     */
+    public static final String KEY_AS_AXIOM = "asAxiom";
 }
