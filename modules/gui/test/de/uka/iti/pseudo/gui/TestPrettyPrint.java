@@ -56,6 +56,15 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("f(1+2)", "f(1 + 2)");
     }
     
+    // was a bug
+    public void testParens() throws Exception {
+        testTerm("{ i1 := 1 }(i1 + i1)", "{ i1 := 1 }(i1 + i1)");
+        testTerm("({ i1 := 1 }i1) + i1", "{ i1 := 1 }i1 + i1");
+        
+        testTerm("[0; P](b1 & b1)", "[ 0; P ](b1 & b1)");
+        testTerm("([0; P]b1) & b1", "[ 0; P ]b1 & b1");
+    }
+    
     public void testTyped() throws Exception {
         pp.setTyped(true);
         testTerm("1 + 2", "(1 as int + 2 as int) as int");
