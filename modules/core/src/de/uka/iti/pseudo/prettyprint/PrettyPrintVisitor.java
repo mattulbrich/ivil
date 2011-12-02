@@ -372,7 +372,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
                 + "; " + litProgTerm.getProgram() + " ");
         printer.append(litProgTerm.getModality().getClosingDelimiter());
         currentSubTermIndex = 0;
-        litProgTerm.getSuffixTerm().visit(this);
+        visitMaybeParen(litProgTerm.getSuffixTerm(), Integer.MAX_VALUE);
         printer.resetPreviousStyle();
         printer.end();
         currentTermTag = oldTag;
