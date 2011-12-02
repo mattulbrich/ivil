@@ -127,7 +127,6 @@ rule cut_cond
 (*
  * Weakly typed equality
  *)
-function 'b retype('a)
 
 plugin
     # check whether two terms have different types, but returns false if typevariables are present
