@@ -23,11 +23,15 @@ import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 //TODO Documentation needed
 @SuppressWarnings("serial") 
 public class SaveAsEditorAction extends BarAction {
 
+    private static final int ROTATE_COUNT = 
+            Settings.getInstance().getInteger("pseudo.countbackup", 10);
+    
     public SaveAsEditorAction() {
         putValue(ACTION_COMMAND_KEY, "saveas");
     }
@@ -83,16 +87,35 @@ public class SaveAsEditorAction extends BarAction {
         }
     }
 
+    /*
+     * get the next file name for backup.
+     * 
+     * Append ~0, ~1, ..., ~n to the file name to create backup file names. Use
+     * the oldest of the existing ones or the first which has not been created
+     * yet.
+     */
     private void backupFile(File file) {
         String name = file.getPath();
-        for(int i = 0; i < 100; i++) {
-            File backupFile = new File(name + "~" + i);
-            if(!backupFile.exists()) {
-                file.renameTo(backupFile);
-                return;
+        
+        File backupFile = null;
+        for(int i = 0; i < ROTATE_COUNT; i++) {
+            File f = new File(name + "~" + i);
+            if(!f.exists()) {
+                // does not exists: that is it
+                backupFile = f;
+                break;
+            }
+            if(backupFile == null 
+                    || f.lastModified() < backupFile.lastModified()) {
+                // change if older
+                backupFile = f;
             }
         }
-        Log.log(Log.WARNING, "No backup made ... exceeding limit");
+        
+        assert backupFile != null : "nullness, there must be one backup file";
+        
+        file.renameTo(backupFile);
+        Log.log(Log.DEBUG, file + " backed up to " + backupFile);
     }
     
 }
