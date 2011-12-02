@@ -209,10 +209,10 @@ tags
 (*
  * rules with equality
  *)
-# TODO save variable name
 rule set_equality
 find %a = %b
-replace (\forall ii; ii::%a <-> ii::%b)
+where freshVar %e, %a, %b
+replace (\forall %e; %e::%a <-> %e::%b)
 tags
   derived
 

@@ -20,6 +20,9 @@ VERSION
 modules/core/genSrc/
 modules/core/classes/
 modules/core/classes-test/
+modules/boogie/genSrc/
+modules/boogie/classes/
+modules/boogie/classes-test/
 modules/cmd/classes/
 modules/cmd/classes-test/
 modules/gui/classes/

@@ -28,13 +28,38 @@ import de.uka.iti.pseudo.term.Term;
  * Additionally, the parameter (%b in the example) needs to match the axiom's
  * formula.
  * 
+ * @ivildoc "Where condition/axiom"
+ * 
+ * <h2>Where condition <tt>axiom</tt></h2>
+ * 
+ * This condition can be used to ensure that a term has been defined as an
+ * axiom.
+ * 
+ * <p>
+ * In addition to giving the term of an axiom, the property "axiomName" must be
+ * set on the rule application
+ * 
+ * <h3>Syntax</h3> The where condition expects one parameter.
+ * 
+ * <h3>Example:</h3>
+ * The condition is used in the rule
+ * 
  * <pre>
- * rule `axiom`
+ *   rule `axiom`
  *   where `axiom` %b
  *   add %b |-
  *   tags autoonly
  *        display "Insert axiom {property axiomName}"
  * </pre>
+ * 
+ * (axiom needs to back-quoted since it is a keyword)
+ * 
+ * <h3>See also:</h3> <a href="ivil:/Rule property/asAxiom">asAxiom</a>
+ * 
+ * <h3>Result:</h3>
+ * 
+ * <code>true</code> if the argument has been declared as axiom under the
+ * specified name. Fails otherwise.
  * 
  * @author mattias ulbrich
  */

@@ -116,7 +116,7 @@
 
   <target name="javadoc" depends="init" description="Build Javadoc.">
     <mkdir dir="javadoc"/>
-    <javadoc destdir="javadoc" linksource="yes">
+    <javadoc additionalparam="-tag ivildoc:a:'ivil Ref-Manual Documentation:'" destdir="javadoc" linksource="yes">
       <sourcepath>
         <pathelement location="modules/core/src"/>
         <pathelement location="modules/gui/src"/>
@@ -128,6 +128,17 @@
     </javadoc>
   </target>
 
+  <target name="ivildoc" depends="init" description="Build IvilDoc documentation for help system.">
+    <mkdir dir="javadoc"/>
+    <javadoc additionalparam="-out modules/gui/src/de/uka/iti/pseudo/gui/editor/help/referenceManual.xml"
+    	docletpath="lib" doclet="IvilDoclet">
+      <sourcepath>
+      	<pathelement location="modules/core/genSrc"/>
+        <pathelement location="modules/core/src"/>
+      </sourcepath>
+    </javadoc>
+  </target>
+	
   <target name="clean">
     <subant target="clean">
       <propertyset> <propertyref prefix="ivil."/> </propertyset>

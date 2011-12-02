@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
@@ -37,7 +38,7 @@ import de.uka.iti.pseudo.term.creation.TermFactory;
 // TODO DOC
 public class RuleAxiomExtractor {
 
-    private static final String AXIOM_EXTRACT_KEY = "asAxiom";
+    private static final String AXIOM_EXTRACT_KEY = RuleTagConstants.KEY_AS_AXIOM;
 
     private static final Map<String, String> GENERATED = Collections.singletonMap("fromRule", "");
 
