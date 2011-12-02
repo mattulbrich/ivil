@@ -433,7 +433,12 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
     public void visit(SchemaUpdateTerm schUpdateTerm) throws TermException {
         TermTag oldTag = begin(schUpdateTerm);
         printer.setStyle("update");
-        printer.append("{ " + schUpdateTerm.getSchemaIdentifier() + " }");
+        printer.append("{ " + schUpdateTerm.getSchemaIdentifier());
+        if(schUpdateTerm.isOptional()) {
+            printer.append(" ?}");
+        } else {
+            printer.append(" }");
+        }
         printer.resetPreviousStyle();
         currentSubTermIndex = 0;
         visitMaybeParen(schUpdateTerm.getSubterm(0), Integer.MAX_VALUE);
