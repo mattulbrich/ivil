@@ -143,6 +143,24 @@ add %x :: %t |-
 tags
   rewrite "fol add"
   derived
+
+rule setminus_subset_is_subset
+  find %a \ %b <: %c
+  assume %a <: %c |-
+  where toplevel
+  replace true
+  tags
+    rewrite "fol simp"
+    derived
+
+rule subset_of_union
+  assume  %a <: %b |-
+  find %a <: %b \/ %c
+  where toplevel
+  replace true
+  tags
+    rewrite "fol simp"
+    derived
   
 (*
  * rules with union
@@ -268,6 +286,7 @@ tags
 rule finite_fullset
 assume finite(fullset as set(%'a)) |-
 find finite(%s as set(%'a))
+where distinctAssumeAndFind
 replace true
 tags
   rewrite "fol simp"
@@ -291,10 +310,14 @@ tags
   asAxiom
 
 rule card_setminus_singleton
-assume finite(%s) |-
+assume finite(%s \ singleton(%x)) |-
 find card(%s \ singleton(%x))
-where 
 replace card(%s) - cond(%x :: %s, 1, 0)
 
-
-  
+rule cut_finiteness
+find card(%s)
+where not presentInSequent finite(%s)
+samegoal "Show finite({%s})"
+  add |- finite(%s)
+samegoal "..."
+  add finite(%s) |-

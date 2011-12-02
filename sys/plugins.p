@@ -75,6 +75,11 @@ plugin
     #  or in the range of a modality term
     whereCondition : "de.uka.iti.pseudo.rule.where.TopLevel"
 
+    # check whether the arguments are present in the sequent
+    whereCondition : "de.uka.iti.pseudo.rule.where.PresentInAntecedent"
+    whereCondition : "de.uka.iti.pseudo.rule.where.PresentInSuccedent"
+    whereCondition : "de.uka.iti.pseudo.rule.where.PresentInSequent"
+        
     # check whether the formula to be added is indeed an axiom
     whereCondition : "de.uka.iti.pseudo.rule.where.AxiomCondition"
     

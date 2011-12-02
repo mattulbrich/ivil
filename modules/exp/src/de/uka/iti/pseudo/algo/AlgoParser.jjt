@@ -251,7 +251,7 @@ void WhileStatement() #WhileStatement : {}
 
 void IterateStatement() #IterateStatement : {}
 {
-  "iterate" Type() Expression()
+  "iterate" Type() ":" Expression()
   "with" Identifier()
   "do"
     StatementBlock()
