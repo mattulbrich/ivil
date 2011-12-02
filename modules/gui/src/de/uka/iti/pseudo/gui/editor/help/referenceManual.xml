@@ -215,6 +215,37 @@
  <code>false</code> otherwise,
  never fails.]]>
     </entry>
+    <entry name="distinctAssumeAndFind">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>distinctAssumeAndFind</tt></h2>
+ 
+ This condition can be used to ensure that the find clause does not match the
+ same as any of the assume clauses.
+ 
+ <h3>Syntax</h3> The where condition expects no arguments.
+ 
+ <h3>Example:</h3>
+ 
+ <pre>
+   rule replace_known_left
+   assume  %b |-
+   find    %b 
+   where   toplevel
+   where   distinctAssumeAndFind
+   replace true
+ </pre>
+ 
+ This prevents from replacing an antecedent
+ 
+ <h3>See also:</h3> <a href="ivil:/Where condition/toplevel">toplevel</a>
+ 
+ <h3>Result:</h3>
+ 
+ <code>true</code> if the find clauses does not match the same as an assume
+ clause. <code>false</code> if the find clause matches against the same term
+ in a sequent as an assumption.]]>
+    </entry>
     <entry name="axiom">
       <![CDATA[
  
