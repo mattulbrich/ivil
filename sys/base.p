@@ -36,6 +36,7 @@ function  # prefixes
 
 function  # consts
     'a arb
+    'b retype('a)
 
 binder
     bool (\forall 'a; bool)

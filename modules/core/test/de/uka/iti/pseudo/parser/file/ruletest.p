@@ -42,7 +42,7 @@ rule close_false
 rule test_where
    find (\forall %x; %b) 
    where
-     notFreeIn  %x, 1 
+     freshVar  %x, 1 
    samegoal
      replace  true 
      

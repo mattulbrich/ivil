@@ -177,7 +177,7 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
     
     // was a bug: b was havoced also in Q'
     public void testBugWithAssumeFalse() throws Exception {
-        env = testEnv("loopTest2.p");
+        env = testEnv("loopTest2.p.txt");
         
         {
             // Check that P' and Q are same
