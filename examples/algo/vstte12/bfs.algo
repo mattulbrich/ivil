@@ -1,0 +1,77 @@
+uses "bfs.algo.p"
+
+algo bfs
+input
+   src, dest : vertex
+output
+   d : int
+var
+   size : int
+   V, C, N : set(vertex)
+   Vo, Co, No : set(vertex)
+   tovisit : set(vertex)
+   v,w : vertex
+   
+ensures
+   d >= -1
+   
+ensures
+   d < 0 -> (\forall m; !connect(src,dest,m))
+   
+ensures
+   d >= 0 -> connect(src, dest, d) /* & 
+     (\forall m; 0<=m<d; !connect(src,dest,m))*/
+
+do
+   assume finite(fullset as set(vertex)) ;;
+   size := card(fullset as set(vertex)) ;;
+   
+   V := {src} ;;
+   C := {src} ;;
+   N := {} ;;
+   d := 0 ;;
+   while !(C = {})
+     inv 
+       d >= 0 &
+       (\forall x; x::C -> connect(src, x,d)) &
+       (\forall y; y::N -> connect(src, y, d+1)) &
+       N <: V
+     var size - card((V \ N) \ C)
+   do
+     choose v such that v :: C ;;
+     C := C \ {v} ;;
+     if v = dest 
+     then 
+       return
+     end ;;
+     
+     tovisit := succ(v) ;;
+     Vo := V ;;
+     No := N ;;
+     while !tovisit=emptyset
+       inv tovisit <: succ(v) &
+           Vo <: V &
+           No <: N &
+           (\forall y; y::N -> connect(src, y, d+1))
+       var card(succ(v)) - card(tovisit)
+     do 
+       choose w such that w :: tovisit ;;
+       tovisit := tovisit \ {w} ;;
+       
+       if ! w :: V
+       then
+         V := V \/ {w} ;;
+         N := N \/ {w}
+       end
+     end ;;
+ 
+     if C = {}
+     then
+       C := N ;;
+       N := {} ;;
+       d := d+1
+     end
+   end ;;
+   
+   d := -1
+end
