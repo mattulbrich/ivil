@@ -162,6 +162,9 @@ class TermMatchVisitor extends DefaultTermVisitor {
         } else {
             // other is not an update
             if(inst == null){
+                if(!su.isOptional()) {
+                    throw new UnificationException("Schema update is not optional, cannot match empty update", su, other);
+                }
                 termUnification.addUpdateInstantiation(schemaIdentifier, Update.EMPTY_UPDATE);
             } else {
                 if(!inst.isEmpty()) {

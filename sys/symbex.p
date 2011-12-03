@@ -213,7 +213,7 @@ rule auto_box_assume
        display "|> assume {%b}: {explain %a}"
 
 rule auto_tbox_assume
-  find |- {U} [[%a : assume %b]]%phi
+  find |- { U ?} [[%a : assume %b]]%phi
   samegoal
     replace {U} $$incPrg(%a)
     add {U} %b |-
