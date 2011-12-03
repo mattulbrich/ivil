@@ -284,7 +284,7 @@ public class RewriteRuleCollection {
             if(result != null)
                 return result;
         }
-            return null;
+        return null;
     }
         
     private @Nullable RuleApplicationMaker findRuleApplication(
