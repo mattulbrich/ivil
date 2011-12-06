@@ -313,8 +313,7 @@ public class Util {
         }
         
     }
-	
-	
+    
 	/**
 	 * List terms of a list of terms on several lines
 	 * 

@@ -662,7 +662,14 @@ public class TermMaker extends ASTDefaultVisitor {
             assignments[i-1] = resultAssignment;
         }
         
-        resultTerm = UpdateTerm.getInst(new Update(assignments), term);
+        Update update;
+        if(assignments.length == 0) {
+            update = Update.EMPTY_UPDATE;
+        } else {
+            update = new Update(assignments);
+        }
+        
+        resultTerm = UpdateTerm.getInst(update, term);
     }
     
     public void visit(ASTSchemaUpdateTerm arg) throws ASTVisitException {

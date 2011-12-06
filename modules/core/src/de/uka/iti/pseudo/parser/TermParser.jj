@@ -41,7 +41,7 @@ ASTTerm ModalityTerm():
   ASTTerm term;
   ASTProgramTerm pt;
   Token id;
-  List<ASTAssignment> assignments;
+  List<ASTAssignment> assignments = Collections.emptyList();
   boolean optional = false;
 }
 {      LOOKAHEAD(3)
@@ -50,7 +50,7 @@ ASTTerm ModalityTerm():
            term=ModalityTerm()
             { return new ASTSchemaUpdateTerm(id, optional, term); }
 
-       | "{" assignments=ParallelAssignment() "}" term=ModalityTerm() 
+       | "{" ( assignments=ParallelAssignment() )? "}" term=ModalityTerm() 
             { return new ASTUpdateTerm(assignments, term); }
 
        | (   "[" pt=ProgramTerm_Content(Modality.BOX) "]"

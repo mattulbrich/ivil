@@ -43,7 +43,7 @@ class OptionalUpdateInstantiationChecker extends DepthTermVisitor {
     public static void check(RuleApplication ruleApp) throws ProofException {
         OptionalUpdateInstantiationChecker checker = null;
         for (Map.Entry<String, Update> entry : ruleApp.getSchemaUpdateMapping().entrySet()) {
-            if(entry.getValue().isEmpty()) {
+            if(!entry.getValue().isEmpty()) {
                 continue;
             }
 

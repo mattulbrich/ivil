@@ -198,6 +198,11 @@ public class TestTermParser extends TestCaseWithEnv {
 
     }
     
+    // was a bug
+    public void testEmptyUpdate() throws Exception {
+        testTerm("{  }true", false);
+    }
+    
     public void testAssociativity() throws Exception {
         testTerm("b1 -> b2 -> b1", "$impl($impl(b1,b2),b1)", false);
     }
@@ -234,4 +239,5 @@ public class TestTermParser extends TestCaseWithEnv {
                 ex.printStackTrace();
         }
     }
+    
 }
