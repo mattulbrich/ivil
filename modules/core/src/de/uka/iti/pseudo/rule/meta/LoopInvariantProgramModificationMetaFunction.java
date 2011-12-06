@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.rule.meta;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * Modify a program such that it can be used in an invariant rule application.
@@ -139,6 +141,9 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
 
         
 class LoopModifier {
+    
+    private static final boolean SPLIT_INVARIANT =
+            Settings.getInstance().getBoolean("pseudo.loopAssertionSplit", true);
 
     private Set<Function> modifiedAssignables = new HashSet<Function>();
     private Term varAtPre;
@@ -352,14 +357,18 @@ class LoopModifier {
     private int insertProofObligations(int index) throws TermException {
         int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
 
-        AssertStatement assertion = new AssertStatement(sourceLineNumber, invariant);
-        programChanger.insertAt(index, assertion, "Continuation preserves invariant");
-        index++;
+        List<AssertStatement> assertions = 
+                makeInvariantAssertions(sourceLineNumber);
+                
+        for (AssertStatement assertion : assertions) {
+            programChanger.insertAt(index, assertion, "Continuation preserves invariant");
+            index++;
+        }
 
         if (variant != null) {
             Term varGt0 = tf.gte(variant, tf.number(0));
             Term varLtVar0 = tf.lt(variant, varAtPre);
-            assertion = new AssertStatement(sourceLineNumber, tf.and(varGt0, varLtVar0));
+            AssertStatement assertion = new AssertStatement(sourceLineNumber, tf.and(varGt0, varLtVar0));
             programChanger.insertAt(index, assertion, "Continuation reduces variant");
             index++;
         }
@@ -369,6 +378,30 @@ class LoopModifier {
         index ++;
         
         return index;
+    }
+    
+    private List<AssertStatement> makeInvariantAssertions(int sourceLineNumber)
+            throws TermException {
+        if(!SPLIT_INVARIANT) {
+            return Collections.singletonList(new AssertStatement(sourceLineNumber, invariant));
+        }
+        
+        ArrayList<AssertStatement> result = new ArrayList<AssertStatement>();
+        splitConjunction(invariant, result, sourceLineNumber);
+        return result;
+    }
+
+    private void splitConjunction(Term formula,
+            ArrayList<AssertStatement> result, int sourceLineNumber) throws TermException {
+        if (formula instanceof Application) {
+            Function function = ((Application)formula).getFunction();
+            if("$and".equals(function.getName())) {
+                splitConjunction(formula.getSubterm(0), result, sourceLineNumber);
+                splitConjunction(formula.getSubterm(1), result, sourceLineNumber);
+                return;
+            }
+        }
+        result.add(new AssertStatement(sourceLineNumber, formula));
     }
 
     private void insertAssumptions(int index) throws TermException {
