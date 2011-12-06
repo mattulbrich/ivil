@@ -31,6 +31,7 @@ tags
   rewrite "concrete"
   asAxiom 
   derived
+  verbosity "8"
 
 rule nothing_in_emptyset
 find %x :: emptyset
@@ -39,6 +40,7 @@ tags
   rewrite "concrete"
   asAxiom 
   derived
+  verbosity "8"
 
 rule emptyset_equals
 find emptyset = %s
@@ -48,6 +50,7 @@ tags
   rewrite "concrete"
   #asAxiom
   derived
+  verbosity "6"
 
 (*
  * rules with fullset
@@ -60,6 +63,7 @@ tags
   rewrite "concrete"
   asAxiom
   derived
+  verbosity "8"
 
 rule anything_in_fullset
 find %x :: fullset
@@ -68,6 +72,7 @@ tags
   rewrite "concrete"
   asAxiom
   derived
+  verbosity "8"
 
 rule fullset_equals
 find fullset = %s
@@ -77,6 +82,7 @@ tags
   rewrite "concrete"
   #asAxiom
   derived
+  verbosity "6"
   
 (*
  * rules with singleton
@@ -89,6 +95,7 @@ tags
   rewrite "fol simp"
   asAxiom
   derived
+  verbosity "8"
 
 rule subset_singleton
 find %x <: singleton(%y)
@@ -101,6 +108,7 @@ tags
   rewrite "fol simp"
   asAxiom
   derived
+  verbosity "8"
 
 (*
  * rules with diff
@@ -112,12 +120,21 @@ replace %x::%a & !%x::%b
 tags
   rewrite "fol simp"
   derived
+  verbosity "6"
 
 rule diff_is_conj
 find %x \ %y
 replace %x /\ ^%y
 tags
   derived
+
+rule diff_emptyset
+find %s \ emptyset
+replace %s
+tags
+  rewrite "concrete"
+  derived
+  verbosity "8"
 
 (*
  * rules with subset
@@ -135,6 +152,7 @@ replace true
 tags
   rewrite "fol simp"
   derived
+  verbosity "8"
 
 rule subset_trans
 find %x::%s |-
@@ -143,6 +161,7 @@ add %x :: %t |-
 tags
   rewrite "fol add"
   derived
+  verbosity "6"
 
 rule setminus_subset_is_subset
   find %a \ %b <: %c
@@ -152,6 +171,7 @@ rule setminus_subset_is_subset
   tags
     rewrite "fol simp"
     derived
+    verbosity "6"
 
 rule subset_of_union
   assume  %a <: %b |-
@@ -161,7 +181,8 @@ rule subset_of_union
   tags
     rewrite "fol simp"
     derived
-  
+    verbosity "6"
+
 (*
  * rules with union
  *)
@@ -170,15 +191,17 @@ rule union_empty_l
 find emptyset \/ %a
 replace %a
 tags
-  rewrite "fol simp"
+  rewrite "concrete"
   derived
+  verbosity "8"
   
 rule union_empty_r
 find %a \/ emptyset
 replace %a
 tags
-  rewrite "fol simp"
+  rewrite "concrete"
   derived
+  verbosity "8"
 
 rule in_union
 find %x :: %a \/ %b
@@ -199,6 +222,7 @@ replace emptyset
 tags
   rewrite "concrete"
   derived
+  verbosity "8"
   
 rule intersect_empty_r
 find %a /\ emptyset
@@ -206,6 +230,7 @@ replace emptyset
 tags
   rewrite "concrete"
   derived
+  verbosity "8"
 
 rule in_intersect
 find %x :: %a /\ %b
@@ -223,6 +248,23 @@ replace !%x :: %s
 tags
   rewrite "fol simp"
   derived
+  verbosity "8"
+
+rule complement_disj
+find ^(%s \/ %t)
+replace ^%s /\ ^%t
+tags
+  rewrite "fol simp"
+  derived
+  verbosity "6"
+
+rule complement_conj
+find ^(%s /\ %t)
+replace ^%s \/ ^%t
+tags
+  rewrite "fol simp"
+  derived
+  verbosity "6"
 
 (*
  * rules with equality
@@ -246,18 +288,20 @@ replace $$subst(%x, %a, %b)
  * rules for finiteness
  *)
 rule finite_singleton
-find finite(singleton(%a))
+find |- finite(singleton(%a))
 replace true
 tags
   rewrite "concrete"
   asAxiom
+  verbosity "8"
 
 rule finite_emptyset
-find finite(emptyset)
+find |- finite(emptyset)
 replace true
 tags
   rewrite "concrete"
   asAxiom
+  verbosity "8"
 
 (* This rule is overapproximating, not confluent! *)
 rule finite_conj
@@ -281,6 +325,7 @@ replace finite(%s)
 tags
   rewrite "fol simp"
   asAxiom
+  verbosity "6"
 
 (* finite fullset implies finite set *)
 rule finite_fullset
@@ -290,6 +335,7 @@ where distinctAssumeAndFind
 replace true
 tags
   rewrite "fol simp"
+  verbosity "8"
 
 (*
  * rules for cardinality
@@ -301,6 +347,7 @@ replace 0
 tags
   rewrite "concrete"
   asAxiom
+  verbosity "8"
   
 rule card_singleton
 find card(singleton(%a))
@@ -308,6 +355,7 @@ replace 1
 tags
   rewrite "concrete"
   asAxiom
+  verbosity "8"
 
 rule card_setminus_singleton
 assume finite(%s \ singleton(%x)) |-
@@ -321,3 +369,17 @@ samegoal "Show finite({%s})"
   add |- finite(%s)
 samegoal "..."
   add finite(%s) |-
+
+axiom card_non_negative
+  (\T_all 'a; (\forall s as set('a); card(s) >= 0))
+  
+rule card_non_negative
+find card(%s)
+where not presentInAntecedent card(%s) >= 0
+add card(%s) >= 0 |-
+
+rule card_minus
+assume finite(%s) |-
+assume finite(%t) |-
+find |- card(%s) - card(%t) >= 0
+replace %t <: %s
