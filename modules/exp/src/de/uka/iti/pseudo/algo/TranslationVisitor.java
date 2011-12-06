@@ -173,15 +173,18 @@ public class TranslationVisitor implements AlgoParserVisitor {
         String bodyLabel = idProducer.makeIdentifier("body");
         String afterLabel = idProducer.makeIdentifier("after");
 
-        addSourceLineStatement(node);
+        
         statements.add(" " + loopLabel + ":");
+        addSourceLineStatement((SimpleNode) node.jjtGetChild(1));
         statements.add("  skip_loopinv " + invariant + ", " + variant);
+        addSourceLineStatement(node);
         statements.add("  goto " + bodyLabel + ", " + afterLabel);
         statements.add(" " + bodyLabel + ":");
         statements.add("  assume " + condition + "; \"assume condition \"");
         visitChild(node, 3);
         statements.add("  goto " + loopLabel);
         
+        addSourceLineStatement(node);
         statements.add(" " + afterLabel + ":");
         statements.add("  assume $not(" + condition +")");
         return null;
