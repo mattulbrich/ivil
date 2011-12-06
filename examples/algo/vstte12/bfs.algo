@@ -11,6 +11,7 @@ var
    Vo, Co, No : set(vertex)
    tovisit : set(vertex)
    v,w : vertex
+   done,done0 : set(vertex)
    
 ensures
    d >= -1
@@ -30,16 +31,19 @@ do
    C := {src} ;;
    N := {} ;;
    d := 0 ;;
+   done := {} ;;
    while !(C = {})
      inv 
        d >= 0 &
        (\forall x; x::C -> connect(src, x,d)) &
        (\forall y; y::N -> connect(src, y, d+1)) &
-       N <: V
-     var size - card((V \ N) \ C)
+       N <: V &
+       done /\ C = emptyset
+     var card(^done)
    do
      choose v such that v :: C ;;
      C := C \ {v} ;;
+     done := done \/ {v} ;;
      if v = dest 
      then 
        return
@@ -52,8 +56,9 @@ do
        inv tovisit <: succ(v) &
            Vo <: V &
            No <: N &
+           N <: V &
            (\forall y; y::N -> connect(src, y, d+1))
-       var card(succ(v)) - card(tovisit)
+       var card(tovisit)
      do 
        choose w such that w :: tovisit ;;
        tovisit := tovisit \ {w} ;;
@@ -64,7 +69,7 @@ do
          N := N \/ {w}
        end
      end ;;
- 
+     
      if C = {}
      then
        C := N ;;

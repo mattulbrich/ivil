@@ -15,3 +15,6 @@ rule connect_def
   replace cond(%n=0,
         %a = %b,
         (\exists %x; connect(%a,%x,%n-1) & %b::succ(%x)))
+
+rule oops
+closegoal
