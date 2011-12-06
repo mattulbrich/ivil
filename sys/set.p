@@ -136,6 +136,12 @@ tags
   derived
   verbosity "8"
 
+rule diff_is_empty
+find %s \ %t = emptyset
+replace %s <: %t
+tags
+  derived
+
 (*
  * rules with subset
  *)
@@ -266,6 +272,22 @@ tags
   derived
   verbosity "6"
 
+rule complement_subset
+find ^%s <: ^%t
+replace %t <: %s
+tags
+  rewrite "fol simp"
+  derived
+  verbosity "6"
+
+rule complement_equality
+find ^%s = ^%t
+replace %s = %t
+tags
+  rewrite "fol simp"
+  derived
+  verbosity "6"
+
 (*
  * rules with equality
  *)
@@ -362,6 +384,11 @@ assume finite(%s \ singleton(%x)) |-
 find card(%s \ singleton(%x))
 replace card(%s) - cond(%x :: %s, 1, 0)
 
+
+axiom cut_finiteness
+  (\T_all 'a; (\forall s as set('a); 
+     finite(fullset as set('a)) -> finite(s)))
+
 rule cut_finiteness
 find card(%s)
 where not presentInSequent finite(%s)
@@ -369,6 +396,9 @@ samegoal "Show finite({%s})"
   add |- finite(%s)
 samegoal "..."
   add finite(%s) |-
+#tags
+#  rewrite "fol add"
+
 
 axiom card_non_negative
   (\T_all 'a; (\forall s as set('a); card(s) >= 0))
@@ -383,3 +413,9 @@ assume finite(%s) |-
 assume finite(%t) |-
 find |- card(%s) - card(%t) >= 0
 replace %t <: %s
+
+rule card_lessthan
+assume finite(%s) |-
+assume finite(%t) |-
+find |- card(%s) < card(%t)
+replace %s <: %t & !%s=%t
