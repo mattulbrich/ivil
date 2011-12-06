@@ -229,7 +229,7 @@ public class EnvironmentExporter {
 			for (String prop : properties) {
 				String value = r.getProperty(prop);
 				assert value != null;
-				pw.println("    " + prop + " " + value);
+				pw.println("    " + prop + " \"" + value + "\"");
 			}
 		}
 		
