@@ -239,6 +239,9 @@ public class TranslationVisitor implements AlgoParserVisitor {
         statements.add("  assume $not(" + condition + "); \"else\"");
         if (node.jjtGetNumChildren() > 2) {
             visitChild(node, 2);
+        } else {
+            // no else: goto "end" as far as line number is concerned
+            statements.add(" sourceline " + node.jjtGetLastToken().beginLine);
         }
         statements.add(" " + afterLabel + ":");
         return null;
