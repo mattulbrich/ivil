@@ -36,11 +36,11 @@ public abstract class PresentWhereCondition extends WhereCondition {
         List<Term> formulas = chooseFormulas(seq);
         for (Term arg : actualArguments) {
             if(formulas.contains(arg)) {
-                return false;
+                return true;
             }
         }
         
-        return true;
+        return false;
     }
 
     protected abstract List<Term> chooseFormulas(Sequent seq);
