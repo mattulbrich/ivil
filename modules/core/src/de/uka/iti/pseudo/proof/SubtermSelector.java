@@ -72,7 +72,8 @@ public class SubtermSelector {
         this.selectorInfo = new byte[path.length];
         
         for (int i = 0; i < path.length; i++) {
-            assert path[i] >= 0 && path[i] <= Byte.MAX_VALUE;
+            assert path[i] >= 0 && path[i] <= Byte.MAX_VALUE :
+                "SubtermSelectors must be non-negative byte values, but got: " + path[i];
             this.selectorInfo[i] = (byte) path[i];
         }
     }

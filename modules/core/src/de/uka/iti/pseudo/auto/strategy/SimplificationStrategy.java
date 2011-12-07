@@ -56,7 +56,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * Collects all categories taken into account in this strategy.
      */
     private final static String[] REWRITE_CATEGORIES = { "updSimpl", "close",
-            "concrete", "prop simp", "fol simp", };
+            "concrete", "prop simp", "fol simp", "fol add" };
 
     /**
      * The category name of splitting rules. This is kept separate from the

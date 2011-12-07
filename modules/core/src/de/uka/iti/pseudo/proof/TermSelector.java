@@ -15,6 +15,7 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * The Class TermSelector is used to select a subterm from a sequent. It
@@ -65,7 +66,7 @@ public class TermSelector {
     /**
      * the number of the selected term on its side.
      */
-    private byte termNumber;
+    private short termNumber;
     
     /**
      * If a subterm of the term is selected, then this field contains
@@ -87,10 +88,12 @@ public class TermSelector {
      *            the path to the subterm in the given term
      */
     public TermSelector(boolean inAntecedent, int termNo, int... path) {
-        assert termNo >= 0 && termNo <= Byte.MAX_VALUE;
+       
+        assert termNo >= 0 && termNo <= Short.MAX_VALUE : 
+            "TermSelectors need non-negative short values, but got " + termNo;
 
         this.inAntecedent = inAntecedent;
-        this.termNumber = (byte) termNo;
+        this.termNumber = (short) termNo;
 
         // null check is needed, because "new TermSelector(true, 0, null);" is a
         // valid java expression

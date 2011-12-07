@@ -163,6 +163,8 @@ tags
 rule subset_trans
 find %x::%s |-
 assume %s <: %t |-
+where
+  not presentInAntecedent %x :: %t
 add %x :: %t |-
 tags
   rewrite "fol add"
