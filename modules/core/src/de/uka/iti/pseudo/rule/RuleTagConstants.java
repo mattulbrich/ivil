@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -157,4 +156,14 @@ public final class RuleTagConstants {
      * be translated to SMT. This is not possible for all rules.
      */
     public static final String KEY_AS_AXIOM = "asAxiom";
+    
+    /**
+     * @ivildoc "Rule tag/fromRule"
+     * 
+     * "fromRule" takes a rule name as argument.
+     * 
+     * <p>It is added automatically to axioms which are generated automatically
+     * from rules. The argument is set to the name of the originating rule.
+     */
+    public static final String KEY_GENERATED_AXIOM = "fromRule";
 }

@@ -40,7 +40,8 @@ public class RuleAxiomExtractor {
 
     private static final String AXIOM_EXTRACT_KEY = RuleTagConstants.KEY_AS_AXIOM;
 
-    private static final Map<String, String> GENERATED = Collections.singletonMap("fromRule", "");
+    private static final Map<String, String> GENERATED = 
+            Collections.singletonMap(RuleTagConstants.KEY_GENERATED_AXIOM, "");
 
     private Environment env;
     private TermFactory tf;
