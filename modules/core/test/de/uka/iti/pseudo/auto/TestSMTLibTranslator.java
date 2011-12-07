@@ -45,6 +45,36 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
                 trans.translate(t, FORMULA));
     }
     
+    public void testNestedQuantifier() throws Exception {
+        
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+        
+        Term t = makeTerm("(\\forall x; (\\forall y; x > y))");
+        assertEquals("(forall (?Int.x Int) (?Int.y Int) (> ?Int.x ?Int.y))",
+                trans.translate(t, FORMULA));
+        
+        t = makeTerm("(\\exists x; (\\exists y; x > y))");
+        assertEquals("(exists (?Int.x Int) (?Int.y Int) (> ?Int.x ?Int.y))",
+                trans.translate(t, FORMULA));
+        
+        t = makeTerm("(\\exists x; (\\forall y; x > y))");
+        assertEquals("(exists (?Int.x Int) (forall (?Int.y Int) (> ?Int.x ?Int.y)))",
+                trans.translate(t, FORMULA));
+        
+        env = makeEnv("sort S function bool p(S,S)");
+        
+        // Universe quantifications
+        t = makeTerm("(\\forall x; (\\forall y; p(x,y)))");
+        assertEquals("(forall (?Universe.x Universe) (?Universe.y Universe) " +
+        		"(implies (= (ty ?Universe.x) ty.S) (implies (= (ty ?Universe.y) ty.S) (= (fct.p ?Universe.x ?Universe.y) termTrue))))",
+                trans.translate(t, FORMULA));
+        
+        t = makeTerm("(\\exists x; (\\exists y; p(x,y)))");
+        assertEquals("(exists (?Universe.x Universe) (?Universe.y Universe) " +
+                "(and (= (ty ?Universe.x) ty.S) (and (= (ty ?Universe.y) ty.S) (= (fct.p ?Universe.x ?Universe.y) termTrue))))",
+                trans.translate(t, FORMULA));
+    }
+    
     // formulas and terms are different in SMTLIB
     public void testFormTerm() throws Exception {
         
@@ -108,7 +138,8 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         assertEquals("unknown1", trans.translate(makeTerm("{i1:=0}i2"), FORMULA));
         assertEquals("unknown2", trans.translate(makeTerm("{i1:=0}i2"), UNIVERSE));
         assertEquals("unknown3", trans.translate(makeTerm("{i1:=0}i2"), INT));
-        assertEquals("(forall (?Int.x Int) (> (unknown4 ?Int.x) 0))", trans.translate(makeTerm("(\\forall x; {i1:=0}x>0)"), FORMULA));
+        assertEquals("(forall (?Int.x Int) (> (unknown4 ?Int.x) 0))", 
+                trans.translate(makeTerm("(\\forall x; {i1:=0}x>0)"), FORMULA));
         
         assertTrue(trans.extrapreds.contains("(unknown0)"));
         assertTrue(trans.extrapreds.contains("(unknown1)"));
@@ -198,7 +229,7 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         env = new Environment("none:*test*", env);
         env.addSort(new Sort("array", 1, ASTLocatedElement.CREATED));
         String t2 = trans.translate(makeTerm("(\\forall j as int; (\\forall v as 'ty_v; (\\T_all 'ty_v;true)))"), FORMULA);
-        assertEquals("(forall (?Int.j Int) (forall (?Universe.v Universe) (implies (= (ty ?Universe.v) tyvar.ty_v) (forall (?Type.ty_v Type) true))))", t2);
+        assertEquals("(forall (?Int.j Int) (?Universe.v Universe) (implies (= (ty ?Universe.v) tyvar.ty_v) (forall (?Type.ty_v Type) true)))", t2);
         assertTrue(trans.extrafuncs.contains("(tyvar.ty_v Type)"));
         
     }

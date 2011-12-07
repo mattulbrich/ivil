@@ -49,14 +49,15 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.TypeVariableBinding.Kind;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.Variable;
-import de.uka.iti.pseudo.term.TypeVariableBinding.Kind;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -70,7 +71,7 @@ import de.uka.iti.pseudo.util.Util;
  * 
  * <p>
  * Ivil does not distinguish between boolean terms and formulas. The translation
- * has to, however. Therefore, a mechnism is used which lazily translates a
+ * has to, however. Therefore, a mechanism is used which lazily translates a
  * formula to a term (or vice versa) only if needed.
  * 
  * <p>
@@ -678,40 +679,52 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             defaultVisitTerm(binding);
             return;
         }
+        
+        // delegated to recursive method to handle nested quantifiers
+        Pair<String, String> innerContent = getBinderContent(binder, binding);
+        
+        result = "(" + translation + innerContent.fst() + " " + innerContent.snd() + ")";
+        result = convert(result, FORMULA, myRequestedType);
+    }
+    
+    private Pair<String, String>
+           getBinderContent(Binder binder, Term formula) throws TermException {
 
-        String conj;
-        if ("forall".equals(translation)) {
-            conj = "implies";
-        } else {
-            conj = "and";
+        if (!(formula instanceof Binding)) {
+            return Pair.make("", translate(formula, FORMULA));
         }
+            
+        Binding binding = (Binding) formula;
 
-        StringBuilder retval = new StringBuilder("(" + translation);
+        if(binding.getBinder() != binder) {
+            return Pair.make("", translate(formula, FORMULA));
+        }
+        
+        Term innerFormula = binding.getSubterm(0);
         BindableIdentifier variable = binding.getVariable();
-
         assert variable instanceof Variable;
-
+        
         Type varType = variable.getType();
         String boundType = makeSort(varType);
         String bound = "?" + boundType + "." + variable.getName();
-
-        quantifiedVariables.push(bound);
-        String innerFormula = translate(binding.getSubterm(0), FORMULA);
-        quantifiedVariables.pop();
-
-        retval.append(" (").append(bound).append(" ").
-                append(boundType).append(") ");
         
+        quantifiedVariables.push(bound);
+        Pair<String, String> innerContent = getBinderContent(binder, innerFormula);
+        quantifiedVariables.pop();
+        
+        String declaration = " (" + bound + " " + boundType + ")";
+        String guard;
         if ("Universe".equals(boundType)) {
-            retval.append("(").append(conj).append(" (= (ty ").append(bound)
-                    .append(") ").append(varType.accept(typeToTerm, false))
-                    .append(") ").append(innerFormula).append("))");
+            // TODO inefficient
+            String conj = "\\forall".equals(binder.getName()) ? "implies" : "and";
+            guard = "(" + conj + " (= (ty " + bound + ") " + varType.accept(typeToTerm, false) +
+                    ") " + innerContent.snd() + ")";
         } else {
-            retval.append(innerFormula).append(")");
+            guard = innerContent.snd();
         }
-
-        result = retval.toString();
-        result = convert(result, FORMULA, myRequestedType);
+        
+        return Pair.make(declaration + innerContent.fst(), guard);
+        
     }
 
     public void visit(Variable variable) throws TermException {
