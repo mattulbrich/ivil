@@ -246,7 +246,7 @@ Digit                 = [0-9]
 IdentifierPart        = ({LetterOrUnderscore}|{Digit})
 
 Identifier            = ({LetterOrUnderscore}{IdentifierPart}*)
-OpIdentifier          = ([\\\+\-<>&|\=\*\/!\^\@.\:]+)
+OpIdentifier          = ([\\\+\-<>&|\=\*\/!\^\@.\:~]+)
 MetaIdentifier        = ("$$"{Identifier})
 InternalIdentifier    = ("$"{Identifier})
 SchemaIdentifier      = ("%"{Identifier})
@@ -263,6 +263,8 @@ WhiteSpace				= ([ \t\f])
 MLCBegin              = "(*"
 MLCEnd                = "*)"
 LineCommentBegin      = "#"
+
+ProtectedMode         = "`"
 
 BooleanLiteral        = ("true"|"false")
 Natural               = {Digit}+
@@ -352,6 +354,7 @@ Natural               = {Digit}+
 	{OpIdentifier}					{ addToken(Token.OPERATOR); }
 	
 	{Separators}
+|	{ProtectedMode}
 |	{Brackets}                                      { addToken(Token.SEPARATOR); }
 
 	/* Ended with a line not in a string or comment. */
