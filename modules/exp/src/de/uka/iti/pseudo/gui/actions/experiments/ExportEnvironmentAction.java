@@ -2,13 +2,14 @@ package de.uka.iti.pseudo.gui.actions.experiments;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.FileWriter;
 
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.justify.EnvironmentExporter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
@@ -21,13 +22,26 @@ public class ExportEnvironmentAction extends BarAction {
             ProofCenter proofCenter = getProofCenter();
             Environment env = proofCenter.getEnvironment();
             File tmp = File.createTempFile("ivilEnvironment", ".p");
-            FileWriter wr = new FileWriter(tmp);
             
             EnvironmentExporter exporter = new EnvironmentExporter(tmp);
             exporter.exportComplete(env);
             exporter.close();
             
-            JOptionPane.showMessageDialog(getParentFrame(), "Current environment saved to " + tmp);
+            Object[] options = {"Open in editor", "OK"};
+            int n = JOptionPane.showOptionDialog(getParentFrame(),
+                            "Current environment saved to " + tmp,
+                            "Environment Exported",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.INFORMATION_MESSAGE,
+                            null,
+                            options,
+                            options[1]);
+            
+            if (n == JOptionPane.YES_OPTION) {
+                PFileEditor editor = Main.openEditor(tmp);
+            } 
+            
+            
         } catch (Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         }
