@@ -580,6 +580,8 @@ public class ProofNode implements Comparable<ProofNode> {
         if(!findClause.isFittingSelect(findSelector))
             throw new ProofException("find selector does match find clase: \n" + findClause + 
                     "\n" + instantiated + " - " + findSelector);
+        
+        OptionalUpdateInstantiationChecker.check(ruleApp);
     }
 
     /*

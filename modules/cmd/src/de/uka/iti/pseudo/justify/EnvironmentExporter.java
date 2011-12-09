@@ -29,6 +29,7 @@ import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Term;
@@ -175,9 +176,19 @@ public class EnvironmentExporter {
 
 
 	private void exportAxiom(Axiom axiom) {
-            pw.println("axiom " + axiom.getName());
-            pw.println("  " + axiom.getTerm());
-            pw.println();
+	    if(axiom.getDefinedProperties().contains(RuleTagConstants.KEY_GENERATED_AXIOM)) {
+	        return;
+	    }
+	    
+	    pw.println("axiom " + axiom.getName());
+	    pw.println("  " + axiom.getTerm());
+	    if(!axiom.getDefinedProperties().isEmpty()) {
+	        pw.println("tags");
+	        for (String property : axiom.getDefinedProperties()) {
+	            pw.println("  " + property + " \"" + axiom.getProperty(property) + "\"");
+	        }
+	    }
+	    pw.println();
 	}
 
     private void exportProgram(Program program) {

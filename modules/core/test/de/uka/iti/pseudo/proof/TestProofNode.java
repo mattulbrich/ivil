@@ -20,6 +20,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Update;
 
 public class TestProofNode extends TestCaseWithEnv {
     
@@ -212,5 +213,27 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setFindSelector(new TermSelector("S.0.0"));
         
         p.apply(app, env);
+    }
+    
+    // was a bug
+    public void testOptionalUpdate() throws Exception {
+        env = makeEnv("include \"$base.p\"\n" +
+                "rule sillyReplace find {U}1 replace 1");
+        
+        Proof p = new Proof(makeTerm("1 = 1"));
+        Rule rule = env.getRule("sillyReplace");
+        MutableRuleApplication app = new MutableRuleApplication();        
+        app.setRule(rule);
+        app.setProofNode(p.getRoot());
+        app.setFindSelector(new TermSelector("S.0.0"));
+        app.getSchemaUpdateMapping().put("U", Update.EMPTY_UPDATE);
+        
+        try {
+            p.apply(app, env);
+            fail("should have failed: U was not an optional update");
+        } catch (ProofException e) {
+            if(VERBOSE)
+                e.printStackTrace();
+        }
     }
 }
