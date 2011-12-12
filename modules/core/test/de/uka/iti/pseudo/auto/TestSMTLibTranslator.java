@@ -171,6 +171,13 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         assertEquals("(ite (> 5 4) 3 2)", trans.translate(makeTerm("cond(5>4, 3, 2)"), INT));
     }
     
+    public void testPatterns() throws Exception {
+        SMTLibTranslator trans = new SMTLibTranslator(env);
+        
+        assertEquals("(forall (?Int.x Int) (> (* ?Int.x ?Int.x) 0) :pat { (* ?Int.x ?Int.x) })",
+                trans.translate(makeTerm("(\\forall x; $pattern(x*x, x*x > 0))"), FORMULA));
+    }
+    
     public void testTyping() throws Exception {
         
         env = new Environment("none:*test*", env);

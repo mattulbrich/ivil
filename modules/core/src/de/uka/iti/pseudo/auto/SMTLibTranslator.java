@@ -190,6 +190,13 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     private @Nullable Function condFunction;
 
     /**
+     * the "$pattern" function from the environment must be treated separately. This
+     * may be null if the function is not defined.
+     */
+
+    private @Nullable Function patternFunction;
+
+    /**
      * All axioms as they are extracted from the environment.
      */
     private Collection<Axiom> allAxioms;
@@ -265,6 +272,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         }
 
         condFunction = env.getFunction("cond");
+        patternFunction = env.getFunction("$pattern");
         allAxioms = env.getAllAxioms();
         allSorts = env.getAllSorts();
     }
@@ -586,6 +594,18 @@ public class SMTLibTranslator extends DefaultTermVisitor {
                     .append(" ");
             sb.append(translate(application.getSubterm(2), myRequestedType))
                     .append(")");
+            result = sb.toString();
+            return;
+        }
+        
+        if (function == patternFunction) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(translate(application.getSubterm(1), myRequestedType))
+                    .append(" :pat { ");
+            Term pattern = application.getSubterm(0);
+            // TODO do match against the native type of the subterm. 
+            sb.append(translate(pattern, UNIVERSE));
+            sb.append("}");
             result = sb.toString();
             return;
         }
