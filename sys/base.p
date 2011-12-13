@@ -42,6 +42,9 @@ binder
     bool (\forall 'a; bool)
     bool (\exists 'a; bool)
     'a   (\some 'a; bool)
+
+function
+    'a $pattern('b, 'a)     infix ~~> 5
     
     
 (*

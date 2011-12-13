@@ -209,3 +209,10 @@ rule equality_unique
   replace $$resolveUnique(%t, %u)
   tags rewrite "fol simp"
        verbosity "8"
+
+(*
+ * Pattern treatment
+ *)
+rule remove_pattern
+  find %s ~~> %t
+  replace %t

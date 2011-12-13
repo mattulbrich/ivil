@@ -103,6 +103,8 @@ rule divide_by_self
 (*
  * Rules concerning >, <, >=, <=
  *)
+ 
+# the goal of the automated inequality handling rules is to order all terms using <
 
 rule gte_to_gt
   find %a >= %b
@@ -113,6 +115,7 @@ rule gte_to_nlt
   find %a >= %b
   replace !%a < %b
   tags verbosity "8"
+       rewrite "fol simp"
 
 rule lte_to_ngt
   find %a <= %b
@@ -128,11 +131,26 @@ rule gt_to_lt
   find %a > %b
   replace %b < %a
   tags verbosity "8"
+       rewrite "fol simp"
+       
+rule lt_trans_right
+  find %a < %b |-
+  assume %b < %c |-
+  add %a < %c |-
+  tags verbosity "8"
 
 rule gt_minus_one
   find %a + (-1) >= %b
   replace %a > %b
   tags verbosity "8"
+  
+rule lt_remove_duplicat_information
+  find %a < %b |-
+  assume |- %b < %a
+  remove
+  tags rewrite "fol simp"
+       verbosity "7"
+  
 
 (*
  * Handling expressions with only literals

@@ -91,6 +91,14 @@
  </tr>
  </table>]]>
     </entry>
+    <entry name="fromRule">
+      <![CDATA[
+ 
+ "fromRule" takes a rule name as argument.
+ 
+ <p>It is added automatically to axioms which are generated automatically
+ from rules. The argument is set to the name of the originating rule.]]>
+    </entry>
     <entry name="prio">
       <![CDATA[
  "prio" expects an integer as argument.
