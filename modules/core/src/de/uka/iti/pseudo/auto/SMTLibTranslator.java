@@ -169,10 +169,16 @@ public class SMTLibTranslator extends DefaultTermVisitor {
      * to be of the type {@link #requestedType}.
      */
     private ExpressionType requestedType = FORMULA;
+    
+    /**
+     * Used by the visit functions to pass on the expression type of a
+     * translation. The string in {@link #result} has to be of this type.
+     */
+    private ExpressionType resultingType = FORMULA;
 
     /**
      * Used by the visit functions to pass on the result of a translation. The
-     * string placed here has to be of type {@link #requestedType}.
+     * string placed here has to be of type {@link #resultingType}.
      */
     private String result = "";
 
@@ -300,6 +306,12 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             throws TermException {
         requestedType = asType;
         term.visit(this);
+        if(resultingType != asType) {
+            result = convert(result, resultingType, asType);
+            resultingType = asType;
+        }
+        
+        assert resultingType == asType;
         return result;
     }
 
@@ -569,6 +581,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         case INT:
             extrafuncs.add("(" + name + signature + " Int)");
         }
+        
+        resultingType = requestedType;
     }
 
     /*
@@ -600,13 +614,17 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         
         if (function == patternFunction) {
             StringBuilder sb = new StringBuilder();
-            sb.append(translate(application.getSubterm(1), myRequestedType))
-                    .append(" :pat { ");
             Term pattern = application.getSubterm(0);
-            // TODO do match against the native type of the subterm. 
-            sb.append(translate(pattern, UNIVERSE));
-            sb.append("}");
+            Term value = application.getSubterm(1);
+            sb.append(translate(value, myRequestedType))
+                    .append(" :pat { ");
+            // do not use translate here because no type translation desired!
+            pattern.visit(this);
+            sb.append(result);
+            sb.append(" }");
             result = sb.toString();
+            // the first subterm has already been converted
+            resultingType = myRequestedType;
             return;
         }
 
@@ -618,13 +636,14 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             }
             sb.append(")");
 
-            result = convert(sb.toString(), FORMULA, myRequestedType);
+            result = sb.toString();
+            resultingType = FORMULA;
             return;
         }
 
         if (function instanceof NumberLiteral) {
             result = function.getName();
-            result = convert(result, INT, myRequestedType);
+            resultingType = INT;
             return;
         }
 
@@ -674,25 +693,21 @@ public class SMTLibTranslator extends DefaultTermVisitor {
             result = translation;
         }
 
-        ExpressionType outTy;
         if (ALL_PREDICATES.contains(translation)) {
-            outTy = FORMULA;
+            resultingType = FORMULA;
         } else {
             if (Environment.getIntType().equals(function.getResultType())) {
-                outTy = INT;
+                resultingType = INT;
             } else {
-                outTy = UNIVERSE;
+                resultingType = UNIVERSE;
             }
         }
-
-        result = convert(result, outTy, myRequestedType);
     }
 
     public void visit(Binding binding) throws TermException {
         Binder binder = binding.getBinder();
         String name = binder.getName();
         String translation = translationMap.get(name);
-        ExpressionType myRequestedType = requestedType;
 
         // only exists and forall are defined.
         if (translation == null) {
@@ -704,7 +719,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         Pair<String, String> innerContent = getBinderContent(binder, binding);
         
         result = "(" + translation + innerContent.fst() + " " + innerContent.snd() + ")";
-        result = convert(result, FORMULA, myRequestedType);
+        resultingType = FORMULA;
     }
     
     private Pair<String, String>
@@ -735,7 +750,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         String declaration = " (" + bound + " " + boundType + ")";
         String guard;
         if ("Universe".equals(boundType)) {
-            // TODO inefficient
+            // TODO This is inefficient
             String conj = "\\forall".equals(binder.getName()) ? "implies" : "and";
             guard = "(" + conj + " (= (ty " + bound + ") " + varType.accept(typeToTerm, false) +
                     ") " + innerContent.snd() + ")";
@@ -750,8 +765,8 @@ public class SMTLibTranslator extends DefaultTermVisitor {
     public void visit(Variable variable) throws TermException {
         String sort = makeSort(variable.getType());
         String name = variable.getName();
-        ExpressionType exprType = sortToExpressionType(sort);
-        result = convert("?" + sort + "." + name, exprType, requestedType);
+        resultingType = sortToExpressionType(sort);
+        result = "?" + sort + "." + name;
     }
 
     public void visit(TypeVariableBinding typeVariableBinding)
@@ -759,7 +774,6 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         String quant = typeVariableBinding.getKind() == Kind.ALL ? "forall"
                 : "exists";
         Type bound = typeVariableBinding.getBoundType();
-        ExpressionType myRequestedType = requestedType;
 
         assert bound instanceof TypeVariable : "Only bound type vars are supported!";
 
@@ -771,8 +785,7 @@ public class SMTLibTranslator extends DefaultTermVisitor {
         quantifiedVariables.pop();
 
         result = "(" + quant + " (" + var + " Type) " + innerFormula + ")";
-
-        result = convert(result, FORMULA, myRequestedType);
+        resultingType = FORMULA;
     }
 
     private String makeExtraFunc(Function function) throws TermException {
