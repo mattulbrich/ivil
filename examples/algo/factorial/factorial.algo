@@ -1,0 +1,52 @@
+uses "$int.p"
+uses "$symbex.p"
+uses "$decproc.p"
+
+uses inline
+function
+  int fac(int)
+
+rule fac_0
+  find fac(0)
+  replace 1
+  tags 
+    rewrite "concrete"
+    asAxiom
+
+rule fac_ind
+  find fac(%n)
+  assume %n > 0 |-
+  replace %n * fac(%n-1)
+  tags 
+    rewrite "fol simp"
+    asAxiom
+end
+
+algo factorial
+
+input
+  n : int
+
+var
+  i : int
+  
+output
+  c : int
+
+requires
+  n > 0
+
+ensures
+  c = fac(n)
+
+do
+  i := n ;;
+  c := 1 ;;
+  while(i > 0) 
+    inv fac(n) = c * fac(i) & i >= 0
+    var i
+  do
+    c := c * i ;;
+    i := i - 1
+  end
+end
