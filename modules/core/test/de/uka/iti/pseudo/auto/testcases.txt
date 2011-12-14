@@ -1,0 +1,5 @@
+#
+# Files that can be proved automatically using ivilc
+#
+
+examples/algo/factorial/factorial.p
