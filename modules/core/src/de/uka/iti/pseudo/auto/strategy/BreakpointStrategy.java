@@ -45,10 +45,57 @@ public class BreakpointStrategy extends AbstractStrategy implements
     /*
      * The configurable properties
      */
+    /**
+     * @ivildoc "Environment property/obeyProgramBreakpoints"
+     * 
+     * The environment property
+     * <tt>BreakpointStrategy.obeyProgramBreakpoints</tt> can be used to specify
+     * whether symbolic execution breakpoints set on level of the ivil program
+     * are to be enabled. The value can be "<code>true</code>" or "
+     * <code>false</code>".
+     */
     private boolean obeyProgramBreakpoints = true;
+    
+    /**
+     * @ivildoc "Environment property/obeySourceBreakpoints"
+     * 
+     * The environment property
+     * <tt>BreakpointStrategy.obeySourceBreakpoints</tt> can be used to specify
+     * whether symbolic execution breakpoints set on level of the source code
+     * program are to be enabled. The value can be "<code>true</code>" or "
+     * <code>false</code>".
+     */
     private boolean obeySourceBreakpoints = true;
+    
+    /**
+     * @ivildoc "Environment property/stopAtSkip"
+     * 
+     * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+     * used to specify whether symbolic execution should stop whenever reaching
+     * a <tt>skip</tt> statement. The value can be "<code>true</code>" or "
+     * <code>false</code>".
+     */
     private boolean stopAtSkip = false;
+    
+    /**
+     * @ivildoc "Environment property/stopAtLoop"
+     * 
+     * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+     * used to specify whether symbolic execution should stop whenever reaching
+     * a statement which has been visited already earlier in the proof. The
+     * value can be "<code>true</code>" or " <code>false</code>".
+     */
     private boolean stopAtLoop = true;
+    
+    /**
+     * @ivildoc "Environment property/stopAtLoop"
+     * 
+     * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+     * used to specify whether symbolic execution should stop whenever reaching
+     * a goto statement of which one target lies before the current location.
+     * This happens usually only at the end of a loop. The value can be "
+     * <code>true</code>" or " <code>false</code>".
+     */
     private boolean stopAtJumpBack = false;
 
     private RewriteRuleCollection ruleCollection;

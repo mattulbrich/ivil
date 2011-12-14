@@ -66,6 +66,11 @@ import de.uka.iti.pseudo.util.Log;
  * 
  * If no difference can be found, the string representations are compared to
  * differentiate as best as possible
+ * 
+ * @ivildoc "Environment property/order"
+ * 
+ * Use the property <tt>order.<i>fct</i></tt> to specify the order ... 
+ * TODO IVILDOC
  */
 public class TermComparator implements Comparator<Term>, TermVisitor {
 

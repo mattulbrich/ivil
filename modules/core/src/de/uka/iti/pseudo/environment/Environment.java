@@ -47,6 +47,7 @@ import de.uka.iti.pseudo.util.Util;
  * <li>rules
  * <li>axioms
  * <li>programs
+ * <li>properties
  * </ul>
  * 
  * Every environment has a parent environment which it extends. Lookups that it

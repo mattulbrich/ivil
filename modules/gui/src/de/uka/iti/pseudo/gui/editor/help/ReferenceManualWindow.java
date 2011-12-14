@@ -3,6 +3,8 @@ package de.uka.iti.pseudo.gui.editor.help;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Vector;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -27,7 +29,7 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("serial")
 public class ReferenceManualWindow extends JFrame {
     
-    private DefaultMutableTreeNode rootNode;
+    private RMTreeNode rootNode;
     private JEditorPane contentPane;
     
     public ReferenceManualWindow() throws ParserConfigurationException, SAXException, IOException {
@@ -59,6 +61,7 @@ public class ReferenceManualWindow extends JFrame {
             splitPane.setRightComponent(scrollPane);
         }
         setSize(1000, 400);
+        splitPane.setDividerLocation(250);
     }
 
     protected void setSelection(TreePath path) {
@@ -82,13 +85,13 @@ public class ReferenceManualWindow extends JFrame {
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(is);
         
-        rootNode = new DefaultMutableTreeNode();
+        rootNode = new RMTreeNode("","");
         
         NodeList nodeLst = doc.getElementsByTagName("category");
         for (int s = 0; s < nodeLst.getLength(); s++) {
             Element catElement = (Element) nodeLst.item(s);
             String catName = catElement.getAttribute("name");
-            DefaultMutableTreeNode catNode = new DefaultMutableTreeNode(catName);
+            RMTreeNode catNode = new RMTreeNode(catName, "");
             rootNode.add(catNode);
             NodeList entryList = catElement.getElementsByTagName("entry");
             for (int r = 0; r < entryList.getLength(); r++) {
@@ -99,9 +102,13 @@ public class ReferenceManualWindow extends JFrame {
             }
         }
         
+        for (RMTreeNode node : rootNode.getChildren()) {
+            Collections.sort(node.getChildren());
+        }
+        
     }
 
-    private static class RMTreeNode extends DefaultMutableTreeNode {
+    private static class RMTreeNode extends DefaultMutableTreeNode implements Comparable<RMTreeNode> {
 
         private final String content;
 
@@ -112,6 +119,18 @@ public class ReferenceManualWindow extends JFrame {
 
         public String getContent() {
             return content;
+        }
+        
+        public String getName() {
+            return (String)getUserObject();
+        }
+        
+        public Vector<RMTreeNode> getChildren() {
+            return children;
+        }
+
+        public int compareTo(RMTreeNode o) {
+            return getName().compareToIgnoreCase(o.getName());
         }
     }
     
