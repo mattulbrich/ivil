@@ -170,6 +170,10 @@ public class Main {
                     errorcount++;
                 }
             }
+            
+            if(!pipeMode && errorcount == 0) {
+                System.out.println("All proof obligations have been discharged.");
+            }
 
             System.exit(errorcount);
         } catch (Exception ex) {

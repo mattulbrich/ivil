@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +35,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -140,8 +142,10 @@ public class AutomaticFileProver implements Callable<Result> {
      *             if the semantic analysis fails
      * @throws IOException
      *             Signals that an I/O exception has occurred.
+     * @throws TermException 
+     *             if the creation of the problem term fails.
      */
-    public AutomaticFileProver(File file) throws ParseException, ASTVisitException, IOException {
+    public AutomaticFileProver(File file) throws ParseException, ASTVisitException, IOException, TermException {
         
         this.file = file;
 
@@ -149,9 +153,22 @@ public class AutomaticFileProver implements Callable<Result> {
         EnvironmentMaker em = new EnvironmentMaker(parser, file);
         env = em.getEnvironment();
         problemSequent = em.getProblemSequent();
-        
+
+        // if no explicit problem sequent is given
+        // and there is exactly 1 program, construct
+        // the problem from that.
+        if (problemSequent == null) {
+            List<Program> allPrograms = env.getAllPrograms();
+            if (allPrograms.size() == 1) {
+                Term problem = LiteralProgramTerm.getInst(0,
+                        Modality.BOX_TERMINATION, allPrograms.get(0),
+                        Environment.getTrue());
+                problemSequent = new Sequent(Collections.<Term> emptyList(),
+                        Collections.singletonList(problem));
+            }
+        }
+
         prettyPrint = new PrettyPrint(env);
-        
     }
 
     /**
@@ -161,7 +178,6 @@ public class AutomaticFileProver implements Callable<Result> {
      */
     @Override
     public Result call() throws TermException, StrategyException, ProofException {
-        
         
         Proof proof = new Proof(problemSequent);
         
@@ -233,11 +249,11 @@ public class AutomaticFileProver implements Callable<Result> {
         for (ProofNode goal : openGoals) {
 
             ProofNode last = null;
-            LiteralProgramTerm pt = findProgramTerm(goal);
+            LiteralProgramTerm pt = null;
             while(pt == null && goal != null) {
+                pt = findProgramTerm(goal);
                 last = goal;
                 goal = goal.getParent();
-                pt = findProgramTerm(goal);
             }
 
             if(pt != null) {
