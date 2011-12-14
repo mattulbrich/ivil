@@ -10,8 +10,11 @@
  */
 package de.uka.iti.pseudo;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import de.uka.iti.pseudo.auto.AutomationTests;
 import de.uka.iti.pseudo.justify.TestRuleProblemExtractor;
 import de.uka.iti.pseudo.justify.TestSchemaVariableUseVisitor;
 
@@ -21,11 +24,12 @@ public class AllCmdTests {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
     }
 
-    public static Test suite() {
+    public static Test suite() throws IOException {
         TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo");
         //$JUnit-BEGIN$
         suite.addTestSuite(TestRuleProblemExtractor.class);
         suite.addTestSuite(TestSchemaVariableUseVisitor.class);
+        suite.addTest(AutomationTests.suite());
         //$JUnit-END$
         return suite;
     }

@@ -111,6 +111,7 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         assertEquals("fct.i1", trans.translate(makeTerm("i1"), INT));
         assertTrue(trans.extrafuncs.contains("(fct.i1  Int)"));
         
+        // TODO How about: equality on integers should be on integers not on universe?! (MU)
         assertEquals("(= (i2u fct.i2) (i2u 4))", trans.translate(makeTerm("i2 = 4"), FORMULA));
         assertTrue(trans.extrafuncs.contains("(fct.i2  Int)"));
         

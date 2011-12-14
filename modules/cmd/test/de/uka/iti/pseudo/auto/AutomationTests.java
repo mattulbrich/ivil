@@ -47,7 +47,7 @@ public class AutomationTests extends TestCase {
     }
 
     public static Test suite() throws IOException {
-        TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo - full automation");
+        TestSuite suite = new TestSuite("Automation tests");
         
         InputStream stream = AutomationTests.class.getResourceAsStream("testcases.txt");
         if(stream == null)
