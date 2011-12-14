@@ -41,8 +41,14 @@ public class TranslationVisitor implements AlgoParserVisitor {
     }
     
     @Override
-    public String visit(ASTUsesDeclaration node, Object data) {
+    public String visit(ASTUsesInputDeclaration node, Object data) {
         header.add("include \"" + node.jjtGetValue() + "\"");
+        return null;
+    }
+
+    @Override
+    public String visit(ASTUsesInlineDeclaration node, Object data) {
+        header.add(node.jjtGetValue().toString());
         return null;
     }
     
@@ -58,7 +64,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
         return null;
     }
 
-    private String addDeclarations(SimpleNode node) {
+    private String addDeclarations(SimpleNode node, String mode) {
         int count = node.jjtGetNumChildren();
         List<String> identifiers = new ArrayList<String>();
         
@@ -70,7 +76,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
             } else {
                 assert n instanceof ASTType;
                 for (String string : identifiers) {
-                    header.add("function " + val + " " + string  + " assignable");
+                    header.add("function " + val + " " + string  + mode);
                 }
                 identifiers.clear();
             }
@@ -81,17 +87,17 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTInputDecl node, Object data) {
-        return addDeclarations(node);
+        return addDeclarations(node, "");
     }
 
     @Override
     public String visit(ASTOutputDecl node, Object data) {
-        return addDeclarations(node);
+        return addDeclarations(node, " assignable");
     }
     
     @Override
     public String visit(ASTVarDecl node, Object data) {
-        return addDeclarations(node);
+        return addDeclarations(node, " assignable");
     }
     
     @Override
@@ -254,6 +260,13 @@ public class TranslationVisitor implements AlgoParserVisitor {
     public String visit(ASTReturnStatement node, Object data) {
         addSourceLineStatement(node);
         statements.add("  end ; \"Return Statement\"");
+        return null;
+    }
+    
+    @Override
+    public String visit(ASTInlineStatement node, Object data) {
+        addSourceLineStatement(node);
+        statements.add(node.jjtGetValue().toString());
         return null;
     }
     

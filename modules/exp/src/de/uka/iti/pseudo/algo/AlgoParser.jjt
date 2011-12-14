@@ -19,6 +19,11 @@ public class AlgoParser {
   private static String stripQuotes(String s) {
     return s.substring(1, s.length()-1);
   }
+  
+  // strip leading "inline" and trailing "end"
+  private static String stripInline(String s) {
+    return s.substring(7, s.length()-3);
+  }
 
   /** Main debug entry point. */
   public static void main(String args[]) {
@@ -30,7 +35,6 @@ public class AlgoParser {
       System.out.println("Thank you.");
     } catch (Exception e) {
       System.out.println("Oops.");
-      System.out.println(e.getMessage());
       e.printStackTrace();
     }
   }
@@ -94,6 +98,22 @@ TOKEN : /* KEYWORDS */
 | < REQUIRES : "requires" >
 }
 
+MORE : /* INLINE MODE */
+{
+  "inline" : InlineMode
+}
+
+<InlineMode> TOKEN :
+{
+  < INLINE_BLOCK : "end" > : DEFAULT
+}
+
+<InlineMode> MORE :
+{
+  < ( [ "a"-"z","A"-"Z","_" ] )+ >
+| < ~[ "a"-"z","A"-"Z","_" ] > 
+}
+
 TOKEN : /* IDENTIFIERS */
 {
   < LEFTPAREN: "(" >
@@ -147,15 +167,22 @@ ASTStart Start() #Start : {}
   { return jjtThis; }
 }
 
-void Uses() #UsesDeclaration : 
+void Uses() : 
 {
   Token t;
 } 
 {
-  "uses" t=<STRING_LITERAL>
-  {
-    jjtThis.jjtSetValue(stripQuotes(t.image));
-  }
+  "uses" 
+  (  t=<STRING_LITERAL>
+     {
+        jjtThis.jjtSetValue(stripQuotes(t.image));
+     } #UsesInputDeclaration
+  |
+     t=<INLINE_BLOCK>
+     {
+        jjtThis.jjtSetValue(stripInline(t.image));
+     } #UsesInlineDeclaration
+  )
 }
 
 void Algo() #Algo : 
@@ -213,6 +240,7 @@ void Statement() : {}
   | AssertStatement()
   | AssumeStatement()
   | NoteStatement()
+  | InlineStatement()
 }
 
 void AssignmentStatement() #AssignmentStatement : {}
@@ -280,6 +308,15 @@ void NoteStatement() #NoteStatement : {}
 {
   "note" Expression()
 }
+
+void InlineStatement() #InlineStatement : 
+{
+  Token t;
+}
+{
+  t=<INLINE_BLOCK>
+     { jjtThis.jjtSetValue(stripInline(t.image)); }
+} 
 
 void Identifier() #Identifier :
 {
