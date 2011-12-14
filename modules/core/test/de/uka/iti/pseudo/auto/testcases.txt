@@ -3,3 +3,12 @@
 #
 
 examples/algo/factorial/factorial.p
+examples/algo/arrayMin/arrayMin.p
+examples/simple/largeLinear.p
+examples/simple/maps.p
+examples/fol/equality1.p
+examples/fol/equality2.p
+examples/fol/posetUnique.p
+examples/fol/unqTest.p
+examples/fol/weqQuantification.p
+examples/fol/injsurj.p

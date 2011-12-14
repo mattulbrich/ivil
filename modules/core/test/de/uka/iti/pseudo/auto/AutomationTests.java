@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.cmd.Result;
 
 public class AutomationTests extends TestCase {
     
-    private static final int TIMEOUT = 300;
+    private static final int TIMEOUT = 20;
     
     private static class AutoCase extends TestCase {
         private final String fileName;

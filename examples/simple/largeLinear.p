@@ -1,3 +1,12 @@
+
+#
+# Small test case to ensure that a most simple loop can 
+# be unrolled 300 times w/o problem .
+#
+
+properties
+  BreakpointStrategy.stopAtLoop "false"
+
 include 
   "$int.p"
   "$base.p"
@@ -11,4 +20,4 @@ program T
   i := i - 1
   goto loop 
 
-problem [0;T]
+problem [0;T]true

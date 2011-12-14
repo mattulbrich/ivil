@@ -115,7 +115,8 @@ rule gte_to_nlt
   find %a >= %b
   replace !%a < %b
   tags verbosity "8"
-       rewrite "fol simp"
+#       rewrite "fol simp"
+# TODO discuss the handling of arithmetic! (MU)
 
 rule lte_to_ngt
   find %a <= %b

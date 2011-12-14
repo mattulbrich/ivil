@@ -1,3 +1,7 @@
+#
+# Simple test case for the built in map type
+#
+
 include "$ivil.p"
 
 sort 

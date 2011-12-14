@@ -42,4 +42,4 @@ program P
   assume true -> false
   assert false
   
-problem [0;P]
+problem [0;P]true
