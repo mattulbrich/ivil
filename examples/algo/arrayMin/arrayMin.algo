@@ -1,0 +1,47 @@
+uses "$int.p" 
+uses "$symbex.p"
+uses "$decproc.p"
+
+uses inline
+  function int array(int)
+end
+
+algo arrayMin
+
+input 
+  len : int
+
+var
+  max : int
+  i : int
+
+requires 
+  len > 0
+
+ensures
+  (\forall i; 0<=i & i< len -> array(i) <= max)
+  
+ensures
+  (\exists i; 0<=i & i< len & array(i) = max)
+  
+do
+
+  max := array(0) ;;
+  i := 1 ;;
+    
+  while i < len
+    inv (\forall j; 0<=j & j<i -> array(j) <= max)
+      & (\exists j; 0<=j & j<i & array(j) = max)
+      & 0 <= i & i <= len
+    var len - i
+  do
+
+    if array(i) > max
+    then
+      max := array(i)
+    end ;;
+
+    i := i + 1
+    
+  end
+end
