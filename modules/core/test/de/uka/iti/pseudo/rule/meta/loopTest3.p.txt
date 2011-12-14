@@ -1,0 +1,25 @@
+include 
+  "$base.p"
+  "$int.p"
+  "$symbex.p"
+
+function
+  int a  
+  int b 
+  int c 
+  int d 
+  int e
+ 
+
+(* Splitting the invariant! *)
+
+program P
+  skip_loopinv (a=1 & b=2) & (c=3 & d=4) 
+
+program Q
+  assert a=1 ; "Continuation preserves invariant"
+  assert b=2 ; "Continuation preserves invariant"
+  assert c=3 ; "Continuation preserves invariant"
+  assert d=4 ; "Continuation preserves invariant"
+  assume false
+  assume (a=1 & b=2) & (c=3 & d=4)
