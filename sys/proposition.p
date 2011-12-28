@@ -120,6 +120,16 @@ rule cutOnThat
   samegoal "Assume false for {%c}"
     replace  false 
     add |-  %c 
+    
+rule cut_dragdrop
+  find %a as %'a
+  where interact %b as %'a
+  samegoal "Assume {%a} = {%b}"
+    add     %a = %b  |-
+  samegoal "Assume {%a} != {%b}"
+    add |-  %a = %b
+  tags dragdrop "3"
+       verbosity "2"
 
 (*
  * stuff with and
@@ -327,6 +337,18 @@ rule true_eq
 rule true_eq2
   find %a=true
   replace %a
+  tags rewrite "concrete"
+       verbosity "8"
+       
+rule false_eq
+  find false = %a
+  replace !%a
+  tags rewrite "concrete"
+       verbosity "8"
+
+rule false_eq2
+  find %a=false
+  replace !%a
   tags rewrite "concrete"
        verbosity "8"
        
