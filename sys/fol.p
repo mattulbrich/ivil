@@ -109,6 +109,20 @@ rule cond_false
   replace  %b
   tags rewrite "concrete"
        verbosity "8"
+       
+rule cond_known_left
+  find  cond(%c, %a, %b) 
+  assume %c |-
+  replace  %a
+  tags rewrite "fol simp"
+       verbosity "8"
+       
+rule cond_known_right
+  find  cond(%c, %a, %b) 
+  assume |- %c
+  replace  %b
+  tags rewrite "fol simp"
+       verbosity "8"
 
 rule cut_cond
   find cond(%c, %a, %b)
