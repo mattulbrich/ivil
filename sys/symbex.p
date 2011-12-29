@@ -321,6 +321,24 @@ rule auto_loop_invariant_update
   tags rewrite "symbex"
        display "invariant in {%a}: {explain %a}"
 
+rule auto_loop_invariant_variant
+  find |- [%a : skip_loopinv %inv, %var]%phi
+  samegoal "inv initially valid" 
+    replace %inv
+  samegoal "run with cut program" 
+    replace $$loopInvPrgMod(%a, %inv, %var)
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
+
+rule auto_loop_invariant_variant_update
+  find |- {U}[%a : skip_loopinv %inv, %var]%phi
+  samegoal "inv initially valid" 
+    replace {U}%inv
+  samegoal "run with cut program" 
+    replace {U}$$loopInvPrgMod(%a, %inv, %var)
+  tags rewrite "symbex"
+       display "invariant in {%a}: {explain %a}"
+
 rule autot_loop_invariant
   find |- [[%a : skip_loopinv %inv, %var]]%phi
   samegoal "inv initially valid" 
