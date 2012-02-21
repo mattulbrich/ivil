@@ -66,10 +66,14 @@ public final class RuleTagConstants {
     public static final String KEY_REWRITE = "rewrite";
 
     /**
-     * @ivildoc "Rule tag/prio"
-     * "prio" expects an integer as argument.
+     * @ivildoc "Rule tag/prio" "prio" expects an integer as argument.
      * 
-     * <p>When sorting rules, the priority is used as comparison criterion.
+     *          <p>
+     *          When sorting rules, the priority is used as comparison
+     *          criterion.
+     *          <p>
+     *          Priorities have to be between 100 and 999, where higher priority
+     *          means the rule is likelier to be applied.
      */
     public static final String KEY_PRIORITY = "prio";
 
