@@ -278,7 +278,9 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         }
         
         for(ASTRuleReplace replace : SelectList.select(ASTRuleReplace.class, arg.getChildren())) {
-            assert replaceWith == null;
+            if(replaceWith != null) {
+                throw new ASTVisitException("Goal actions must not contain more than one replace action", replace); 
+            }
             replace.visit(this);
             replaceWith = resultingTerm;
         }

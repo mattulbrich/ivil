@@ -83,6 +83,11 @@ public class TestFileParser extends TestCase {
         assertEnvFail("rule may_not_remove samegoal remove");
     }
     
+    // was a bug
+    public void testDoubleReplace() throws Exception {
+        assertEnvFail("rule doubleReplace find true samegoal replace true replace false");
+    }
+    
     public void testFindReplaceSameType() throws Exception {
         assertEnvFail("rule something find 1 newgoal replace true");
         
