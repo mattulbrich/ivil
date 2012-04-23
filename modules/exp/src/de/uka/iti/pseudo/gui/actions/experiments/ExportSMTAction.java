@@ -6,7 +6,8 @@ import java.io.FileWriter;
 
 import javax.swing.JOptionPane;
 
-import de.uka.iti.pseudo.auto.SMTLibTranslator;
+import de.uka.iti.pseudo.auto.SMTLib2Translator;
+import de.uka.iti.pseudo.auto.SMTLib1Translator;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
@@ -24,13 +25,13 @@ public class ExportSMTAction extends BarAction {
             ProofCenter proofCenter = getProofCenter();
             ProofNode proofNode = proofCenter.getCurrentProofNode();
             Sequent seq = proofNode.getSequent();
-            SMTLibTranslator trans = new SMTLibTranslator(proofCenter.getEnvironment());
+            SMTLib2Translator trans = new SMTLib2Translator(proofCenter.getEnvironment());
             File tmp = File.createTempFile("ivilExport" + proofNode.getNumber() + ".", ".smt");
             FileWriter wr = new FileWriter(tmp);
             wr.write("; Sequent: " + seq.toString() + "\n");
             trans.export(seq, wr);
             wr.close();
-            
+
             Object[] options = {"Open in editor", "OK"};
             int n = JOptionPane.showOptionDialog(getParentFrame(),
                             "Current sequent's translation saved to " + tmp,

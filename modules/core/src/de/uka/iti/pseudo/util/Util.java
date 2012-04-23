@@ -33,14 +33,14 @@ import de.uka.iti.pseudo.term.Term;
  * This is a collection of static methods  
  */
 public class Util {
-    
-    
+
+
     /**
      * the resource path to read the version information from.
      */
     private static final String VERSION_PATH = "/META-INF/VERSION";
 
-	/**
+    /**
      * Join a list of objects into a string, separated by ", "
      * 
      * @param list
@@ -48,9 +48,9 @@ public class Util {
      * 
      * @return the concatenated string, separated by commas
      */
-	public static String commatize(@NonNull List<?> list) {
-	    return join(list, ", ");
-	}
+    public static String commatize(@NonNull List<?> list) {
+        return join(list, ", ");
+    }
 
     /**
      * Join a list of terms into a string, separated by ", ".
@@ -74,8 +74,44 @@ public class Util {
         }
         return sb.toString();
     }
-	
-	/**
+
+    /**
+     * Join a collection of objects into a string, separated by some separating
+     * string in between them. The order in the resulting string is determined
+     * by the order of the iteration.
+     * 
+     * <p>
+     * If <code>ignoreNull</code> is set then only non-null elements will be
+     * used in the result whose string representation is not empty.
+     * 
+     * @param list
+     *            some collection of objects
+     * @param sep
+     *            the separating string
+     * @param ignoreNull
+     *            whether <code>null</code> and empty strings are to be
+     *            included.
+     * 
+     * @return the concatenation of the objects as strings.
+     */
+    public static String join(Collection<?> list, String sep, boolean ignoreNull) {
+        StringBuilder sb = new StringBuilder();
+        Iterator<?> it = list.iterator();
+        while(it.hasNext()) {
+            Object elem = it.next();
+            if(!ignoreNull || elem != null) {
+                String s = elem == null ? "(null)" : elem.toString();
+                if(s.length() > 0) {
+                    if(sb.length() > 0)
+                        sb.append(sep);
+                    sb.append(s);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
      * Join a collection of objects into a string, 
      * separated by some string in between them.
      * The order in the resulting string is determined by the order of 
@@ -91,16 +127,9 @@ public class Util {
      * 
      * @return the concatenation of the objects as strings.
      */
-	public static String join(Collection<?> list, String sep) {
-	    StringBuilder sb = new StringBuilder();
-	    Iterator<?> it = list.iterator();
-	    while(it.hasNext()) {
-	        sb.append(it.next());
-	        if(it.hasNext())
-	            sb.append(sep);
-	    }
-	    return sb.toString();
-	}
+    public static String join(Collection<?> list, String sep) {
+        return join(list, sep, false);
+    }
 
     /**
      * Join an array of objects into a string separated by some string in
@@ -117,38 +146,38 @@ public class Util {
      * @return the concatenation of the objects as strings.
      */
     public static String join(Object[] array, String sep) {
-        return join(readOnlyArrayList(array), sep);
+        return join(readOnlyArrayList(array), sep, false);
     }
 
 
-//    /**
-//     * Join a list of objects separated by some string
-//     * 
-//     * @param strings the strings
-//     * @param sep the sep
-//     * 
-//     * @return the string
-//     */
-//    public String join(String[] strings, String sep) {
-//		StringBuffer sb = new StringBuffer();
-//		for (int i = 0; i < strings.length; i++) {
-//			sb.append(strings[i]);
-//			if(i != strings.length-1)
-//				sb.append(sep);
-//		}
-//		return sb.toString();
-//	}
+    //    /**
+    //     * Join a list of objects separated by some string
+    //     * 
+    //     * @param strings the strings
+    //     * @param sep the sep
+    //     * 
+    //     * @return the string
+    //     */
+    //    public String join(String[] strings, String sep) {
+    //		StringBuffer sb = new StringBuffer();
+    //		for (int i = 0; i < strings.length; i++) {
+    //			sb.append(strings[i]);
+    //			if(i != strings.length-1)
+    //				sb.append(sep);
+    //		}
+    //		return sb.toString();
+    //	}
 
-//    public static <E> boolean replaceInList(List<E> list,
-//            E org, E replacement) {
-//        int index = list.indexOf(org);
-//        if(index != -1) {
-//            list.set(index, replacement);
-//            return true;
-//        }
-//        return false;
-//    }
-	
+    //    public static <E> boolean replaceInList(List<E> list,
+    //            E org, E replacement) {
+    //        int index = list.indexOf(org);
+    //        if(index != -1) {
+    //            list.set(index, replacement);
+    //            return true;
+    //        }
+    //        return false;
+    //    }
+
     /**
      * Duplicate a string a number of times.
      * 
@@ -167,7 +196,7 @@ public class Util {
         return sb.toString();
     }
 
-	/**
+    /**
      * Wrap an immutable list object around an array. The elements in the array
      * can by no means be replaced. 
      * 
@@ -181,39 +210,39 @@ public class Util {
      * 
      * @see Arrays#asList(Object...)
      */
-	public static <E> List<E> readOnlyArrayList(@Nullable E /*@NonNull*/ [] array) {
-	    return new ReadOnlyArrayList<E>(array);
-	}
-	
-	// TODO The list interface does not allow for null values, we do
-	@SuppressWarnings({"nullness"})
-	private static class ReadOnlyArrayList<E extends /*@Nullable*/ Object> 
-	                extends AbstractList<E> implements RandomAccess {
-		@Nullable E[] array;
+    public static <E> List<E> readOnlyArrayList(@Nullable E /*@NonNull*/ [] array) {
+        return new ReadOnlyArrayList<E>(array);
+    }
 
-		private ReadOnlyArrayList(@Nullable E[] array) {
-		    if(array == null)
-		        throw new NullPointerException();
-			this.array = array;
-		}
+    // TODO The list interface does not allow for null values, we do
+    @SuppressWarnings({"nullness"})
+    private static class ReadOnlyArrayList<E extends /*@Nullable*/ Object> 
+    extends AbstractList<E> implements RandomAccess {
+        @Nullable E[] array;
 
-		@Override
-		public @Nullable E get(int index) {
-			return array[index];
-		}
+        private ReadOnlyArrayList(@Nullable E[] array) {
+            if(array == null)
+                throw new NullPointerException();
+            this.array = array;
+        }
 
-		@Override
-		public int size() {
-			return array.length;
-		}
-		
-		@Override
-		public @Nullable E[] toArray() {
-			return array.clone();
-		}
-		
-		@Override 
-		public int indexOf(Object o) {
+        @Override
+        public @Nullable E get(int index) {
+            return array[index];
+        }
+
+        @Override
+        public int size() {
+            return array.length;
+        }
+
+        @Override
+        public @Nullable E[] toArray() {
+            return array.clone();
+        }
+
+        @Override 
+        public int indexOf(Object o) {
             if (o == null) {
                 for (int i = 0; i < array.length; i++)
                     if (array[i] == null)
@@ -226,14 +255,14 @@ public class Util {
             return -1;
         }
 
-	    @Override 
-	    public boolean contains(Object o) {
+        @Override 
+        public boolean contains(Object o) {
             return indexOf(o) != -1;
         }
-	    
-	}
-	
-	/**
+
+    }
+
+    /**
      * Wrap an immutable set object around an array. The elements in the array
      * can by no means be replaced. 
      * 
@@ -245,11 +274,11 @@ public class Util {
     public static <E> Set<E> readOnlyArraySet(@Nullable E /*@NonNull*/ [] array) {
         return new ReadOnlyArraySet<E>(array);
     }
-    
+
     // TODO The list interface does not allow for null values, we do
     @SuppressWarnings({"nullness"})
     private static class ReadOnlyArraySet<E extends /*@Nullable*/ Object> 
-                    extends AbstractSet<E> implements RandomAccess {
+    extends AbstractSet<E> implements RandomAccess {
         @Nullable E[] array;
 
         private ReadOnlyArraySet(@Nullable E[] array) {
@@ -263,12 +292,12 @@ public class Util {
         public int size() {
             return array.length;
         }
-        
+
         @Override
         public @Nullable E[] toArray() {
             return array.clone();
         }
-        
+
         private int indexOf(Object o) {
             if (o == null) {
                 for (int i = 0; i < array.length; i++)
@@ -291,7 +320,7 @@ public class Util {
         public Iterator<E> iterator() {
             return new Iterator<E>() {
                 int cur = 0;
-                
+
                 @Override
                 public boolean hasNext() {
                     return cur < array.length;
@@ -308,29 +337,29 @@ public class Util {
                 public void remove() {
                     throw new UnsupportedOperationException();
                 }
-                
+
             };
         }
-        
+
     }
-    
-	/**
-	 * List terms of a list of terms on several lines
-	 * 
-	 * @param terms the list of terms
-	 * 
-	 * @return the string consisting of a line per term
-	 */
-	public static String listTerms(List<Term> terms) {
-		StringBuilder sb = new StringBuilder();
-		int size = terms.size();
-		for (int i = 0; i < size; i++) {
-			sb.append(i + ": " + terms.get(i));
-			if(i != size - 1)
-				sb.append("\n");
-		}
-		return sb.toString();
-	}
+
+    /**
+     * List terms of a list of terms on several lines
+     * 
+     * @param terms the list of terms
+     * 
+     * @return the string consisting of a line per term
+     */
+    public static String listTerms(List<Term> terms) {
+        StringBuilder sb = new StringBuilder();
+        int size = terms.size();
+        for (int i = 0; i < size; i++) {
+            sb.append(i + ": " + terms.get(i));
+            if(i != size - 1)
+                sb.append("\n");
+        }
+        return sb.toString();
+    }
 
     /**
      * List the types of terms of a list of terms on several lines
@@ -340,17 +369,17 @@ public class Util {
      * 
      * @return the string consisting of a line per term
      */
-	public static String listTypes(List<Term> subterms) {
-		StringBuilder sb = new StringBuilder();
-		int size = subterms.size();
-		for (int i = 0; i < size; i++) {
-			sb.append(i + ": " + subterms.get(i).getType());
-			if(i != size - 1)
-				sb.append("\n");
-		}
-		return sb.toString();
-	}
-	
+    public static String listTypes(List<Term> subterms) {
+        StringBuilder sb = new StringBuilder();
+        int size = subterms.size();
+        for (int i = 0; i < size; i++) {
+            sb.append(i + ": " + subterms.get(i).getType());
+            if(i != size - 1)
+                sb.append("\n");
+        }
+        return sb.toString();
+    }
+
     /**
      * Create an array containing the elements of a collection. The method name
      * is misleading.
@@ -376,7 +405,7 @@ public class Util {
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
     }
-    
+
     /**
      * compares two references that may be null.
      * 
@@ -399,9 +428,9 @@ public class Util {
             return false;
         else
             return o1.equals(o2);
-            
+
     }
-    
+
     /**
      * Strip quoting or similar characters from a string.
      * 
@@ -431,7 +460,7 @@ public class Util {
         }
         return true;
     }
-    
+
     /**
      * Read a file into a string.
      * 
@@ -491,7 +520,7 @@ public class Util {
      */
     public static String readURLAsString(URL url) throws IOException {
         URLConnection conn = url.openConnection();
-        
+
         long length = conn.getContentLength();
         byte[] buffer = new byte[(int)length];
         InputStream f = null;
@@ -525,7 +554,7 @@ public class Util {
         }
         return version;
     }
-    
+
     /**
      * register the url handlers which are used in this project.
      */

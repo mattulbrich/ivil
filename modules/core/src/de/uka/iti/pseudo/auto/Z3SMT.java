@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
@@ -27,26 +26,53 @@ import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TimingOutTask;
 import de.uka.iti.pseudo.util.settings.Settings;
 
+/**
+ * The Decision Procedure Z3 is called from this class. The sequent to be solved
+ * is translated into SMT format using a {@link SMTLibTranslator}.
+ */
 public class Z3SMT implements DecisionProcedure {
-    
-    private static boolean KEEP_CHALLENGES = 
-        Settings.getInstance().getBoolean("pseudo.keepZ3", false);
-    
-    public Z3SMT() {
-    }
 
+    /**
+     * The system settings to read from
+     */
+    private static Settings settings = Settings.getInstance();
+
+    /**
+     * If this flag is set, the challenge is kept after solving and saved to a
+     * file.
+     */
+    private static boolean KEEP_CHALLENGES = 
+        settings.getBoolean("pseudo.z3.keepFile", false);
+
+    /**
+     * The the SMT Lib Version 1 format if <code>true</code>, otherwise use the
+     * more flexible SMT Lib Version 2 format.
+     */
+    private static boolean USE_SMT1 =
+        settings.getBoolean("pseudo.z3.useSMT1", false);
+
+    /* (non-Javadoc)
+     * @see de.uka.iti.pseudo.auto.DecisionProcedure#solve(de.uka.iti.pseudo.term.Sequent, de.uka.iti.pseudo.environment.Environment, int)
+     */
     public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException, IOException {
 
         // System.out.println("Z3 for " + sequent);
-        
+
         StringBuilder builder = new StringBuilder();
-        SMTLibTranslator trans = new SMTLibTranslator(env);
+        SMTLibTranslator trans;
+
+        if(USE_SMT1) {
+            trans = new SMTLib1Translator(env);
+        } else {
+            trans = new SMTLib2Translator(env);
+        }
+
         try {
             trans.export(sequent, builder);
         } catch (TermException e) {
             throw new ProofException("Error while preparing Z3 proof obligation");
         }
-        
+
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
@@ -56,10 +82,11 @@ public class Z3SMT implements DecisionProcedure {
         try {
             Runtime rt = Runtime.getRuntime();
 
-            process = rt.exec("z3 -in -smt");
-            
+            process = rt.exec("z3 -in -smt2");
+
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);
+            w.write("(check-sat)\n");
             w.close();
 
             // System.err.println("Wait for " + process);
@@ -71,14 +98,15 @@ public class Z3SMT implements DecisionProcedure {
             if(Thread.interrupted()) {
                 throw new InterruptedException();
             }
-            
+
             process.waitFor();
 
+            StringBuilder msg = new StringBuilder();
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
+            msg.append(answerLine).append("\n");
 
             r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            StringBuilder msg = new StringBuilder();
             String line = r.readLine();
             while(line != null) {
                 msg.append(line).append("\n");
@@ -100,7 +128,7 @@ public class Z3SMT implements DecisionProcedure {
               Log.log("Result: " + result);
               dumpTmp(challenge);
             }
-            
+
             return result;
         } catch(InterruptedException ex) {
             if(timeoutTask != null && timeoutTask.hasFinished()) {
@@ -114,7 +142,7 @@ public class Z3SMT implements DecisionProcedure {
             // may get lost!
             ex.printStackTrace();
             throw new ProofException("Error while calling decision procedure Z3", ex);
-            
+
         } finally {
             if(timeoutTask != null) {
                 timeoutTask.cancel();
@@ -126,6 +154,12 @@ public class Z3SMT implements DecisionProcedure {
         }
     }
 
+    /**
+     * Dump the challenge into a text file in the temporary directory.
+     * 
+     * @param challenge
+     *            the translated challenge to dump.
+     */
     private void dumpTmp(String challenge) {
         Writer w = null;
         try {

@@ -10,14 +10,16 @@
  */
 package de.uka.iti.pseudo.util;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 public class TestUtil extends TestCase {
 
     public void testJoin() throws Exception {
-        
         assertEquals("a.1.c", Util.join(new Object[] { "a", 1, "c" }, "."));
-        assertEquals("a.null", Util.join(new Object[] { "a", null }, "."));
+        assertEquals("a.(null).b", Util.join(new Object[] { "a", null, "b" }, "."));
+        assertEquals("a.b", Util.join(Arrays.asList("a", null, "b"), ".", true));
     }
-    
+
 }
