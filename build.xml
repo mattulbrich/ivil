@@ -131,7 +131,7 @@
   <target name="ivildoc" depends="init" description="Build IvilDoc documentation for help system.">
     <mkdir dir="javadoc"/>
     <javadoc additionalparam="-out modules/gui/src/de/uka/iti/pseudo/gui/editor/help/referenceManual.xml"
-    	docletpath="lib" doclet="IvilDoclet">
+    	docletpath="lib" doclet="IvilDoclet" private="true">
       <sourcepath>
       	<pathelement location="modules/core/genSrc"/>
         <pathelement location="modules/core/src"/>
