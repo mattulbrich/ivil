@@ -11,6 +11,8 @@ package de.uka.iti.pseudo.cmd;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +45,6 @@ import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.TextInstantiator;
-import de.uka.iti.pseudo.util.TimingOutTask;
 
 /**
  * This class allows to run ivil automatically over one particular ivil input
@@ -67,51 +68,49 @@ public class AutomaticFileProver implements Callable<Result> {
      * The file under inspection
      */
     private File file;
-    
+
     /**
      * The environment extracted from the file.
      */
     private Environment env;
-    
+
     /**
      * The problem term extracted from the file.
      */
     private Sequent problemSequent;
-    
+
     /**
      * The timeout after which the search will be given up.
      */
     private int timeout = -1;
-    
+
     /**
-     * Relay error messages to source files.
-     * (will disappear when result is more elaborate)
+     * Relay error messages to source files. (will disappear when result is more
+     * elaborate)
      */
     private boolean relayToSource;
-    
+
     /**
      * Needed for visitation of sequents to detect modalities
      */
     private LiteralProgramTerm detectedProgramTerm;
-    
+
     /**
      * Pretty printer for the environment
      */
     private PrettyPrint prettyPrint;
-    
+
     /**
      * Visitor to detect program terms anywhere in a term
      */
-    private TermVisitor programDetector = 
-        new DefaultTermVisitor.DepthTermVisitor() {
+    private TermVisitor programDetector = new DefaultTermVisitor.DepthTermVisitor() {
         public void visit(LiteralProgramTerm literalProgramTerm) {
             detectedProgramTerm = literalProgramTerm;
         };
     };
-    
+
     /**
-     * returns the timeout set for this prover.
-     * -1 means no timeout.
+     * returns the timeout set for this prover. -1 means no timeout.
      * 
      * @return the timeout in milliseconds
      */
@@ -120,10 +119,11 @@ public class AutomaticFileProver implements Callable<Result> {
     }
 
     /**
-     * the timeout set for this prover.
-     * -1 means no timeout. A positive value a time span in seconds.
+     * the timeout set for this prover. -1 means no timeout. A positive value a
+     * time span in seconds.
      * 
-     * @param timeout the timeout to set
+     * @param timeout
+     *            the timeout to set
      */
     public void setTimeout(int timeout) {
         assert timeout == -1 || timeout > 0 : timeout;
@@ -142,11 +142,11 @@ public class AutomaticFileProver implements Callable<Result> {
      *             if the semantic analysis fails
      * @throws IOException
      *             Signals that an I/O exception has occurred.
-     * @throws TermException 
+     * @throws TermException
      *             if the creation of the problem term fails.
      */
     public AutomaticFileProver(File file) throws ParseException, ASTVisitException, IOException, TermException {
-        
+
         this.file = file;
 
         Parser parser = new Parser();
@@ -160,11 +160,9 @@ public class AutomaticFileProver implements Callable<Result> {
         if (problemSequent == null) {
             List<Program> allPrograms = env.getAllPrograms();
             if (allPrograms.size() == 1) {
-                Term problem = LiteralProgramTerm.getInst(0,
-                        Modality.BOX_TERMINATION, allPrograms.get(0),
+                Term problem = LiteralProgramTerm.getInst(0, Modality.BOX_TERMINATION, allPrograms.get(0),
                         Environment.getTrue());
-                problemSequent = new Sequent(Collections.<Term> emptyList(),
-                        Collections.singletonList(problem));
+                problemSequent = new Sequent(Collections.<Term> emptyList(), Collections.singletonList(problem));
             }
         }
 
@@ -178,60 +176,48 @@ public class AutomaticFileProver implements Callable<Result> {
      */
     @Override
     public Result call() throws TermException, StrategyException, ProofException {
-        
+
         Proof proof = new Proof(problemSequent);
-        
+
         StrategyManager strategyManager = new StrategyManager(proof, env);
         strategyManager.registerAllKnownStrategies();
         Strategy strategy = strategyManager.getSelectedStrategy();
 
         assert strategy != null;
-        
-        TimingOutTask timingOut = null;
-        if(timeout > 0) {
-            timingOut = new TimingOutTask(timeout * 1000);
-            timingOut.schedule();
+
+        ThreadMXBean threadManager = ManagementFactory.getThreadMXBean();
+
+        strategy.beginSearch();
+
+        while (true) {
+
+            if ((timeout > 0 && threadManager.getCurrentThreadCpuTime() < 1000 * timeout) && (true)) {
+                return new Result(false, file, "timed out");
+            }
+
+            RuleApplication ruleApp = strategy.findRuleApplication();
+
+            if (ruleApp == null) {
+                break;
+            }
+
+            proof.apply(ruleApp, env);
         }
-        
-        try {
-            strategy.beginSearch();
 
-            while(true) {
+        List<ProofNode> openGoals = proof.getOpenGoals();
 
-                if(Thread.interrupted() || (timingOut != null && timingOut.hasFinished())) {
-                    return new Result(false, file, "timed out");
-                }
-
-                RuleApplication ruleApp = strategy.findRuleApplication();
-
-                if(ruleApp == null) {
-                    break;
-                }
-
-                proof.apply(ruleApp, env);
-            }
-
-            List<ProofNode> openGoals = proof.getOpenGoals();
-
-            if(openGoals.isEmpty()) {
-                // if(export) exportProof(proof);
-                return new Result(true, file);
-            }
-
-            if(!relayToSource) {
-                return new Result(false, file, 
-                        openGoals.size() + " remaining open goal(s)");
-            }
-
-            ArrayList<String> messages = makeDetailedReport(openGoals);
-
-            return new Result(false, file, messages);
-        } finally {
-            if(timingOut != null)
-                timingOut.cancel();
-            // clear the interruption flag of the thread in case it has appeared in the meantime 
-            Thread.interrupted();
+        if (openGoals.isEmpty()) {
+            // if(export) exportProof(proof);
+            return new Result(true, file);
         }
+
+        if (!relayToSource) {
+            return new Result(false, file, openGoals.size() + " remaining open goal(s)");
+        }
+
+        ArrayList<String> messages = makeDetailedReport(openGoals);
+
+        return new Result(false, file, messages);
     }
 
     /**
@@ -250,16 +236,16 @@ public class AutomaticFileProver implements Callable<Result> {
 
             ProofNode last = null;
             LiteralProgramTerm pt = null;
-            while(pt == null && goal != null) {
+            while (pt == null && goal != null) {
                 pt = findProgramTerm(goal);
                 last = goal;
                 goal = goal.getParent();
             }
 
-            if(pt != null) {
-                
+            if (pt != null) {
+
                 // the number of the branch
-                
+
                 int index = pt.getProgramIndex();
                 Program program = pt.getProgram();
 
@@ -269,29 +255,25 @@ public class AutomaticFileProver implements Callable<Result> {
                 int sourceLine = statement.getSourceLineNumber();
 
                 StringBuilder msg = new StringBuilder();
-                msg.append(sourceFile).append(":").append(sourceLine)
-                        .append(":\n").append(
-                                "   statement: "
-                                        + prettyPrint.print(statement)
-                                        + "\n");
-                
+                msg.append(sourceFile).append(":").append(sourceLine).append(":\n")
+                        .append("   statement: " + prettyPrint.print(statement) + "\n");
+
                 if (annotation != null) {
                     msg.append("   annotation: " + annotation + "\n");
                 }
-                
-                if(last != null) {
+
+                if (last != null) {
                     int childIndex = goal.getChildren().indexOf(last);
                     assert childIndex >= 0;
                     String branchName = getBranch(goal, childIndex);
                     if (branchName != null) {
-                        msg.append("   branch: ").append(
-                                instantiateString(goal.getAppliedRuleApp(),
-                                        branchName)).append("\n");
+                        msg.append("   branch: ").append(instantiateString(goal.getAppliedRuleApp(), branchName))
+                                .append("\n");
                     }
                 }
-                
+
                 messages.add(msg.toString());
-                        
+
             } else {
                 messages.add("open goal w/o source reference");
             }
@@ -312,18 +294,18 @@ public class AutomaticFileProver implements Callable<Result> {
      * @return the name of the branch
      */
     private String getBranch(ProofNode goal, int childIndex) {
-        if(childIndex == -1)
+        if (childIndex == -1)
             return null;
-        
+
         Rule rule = goal.getAppliedRuleApp().getRule();
         GoalAction action = rule.getGoalActions().get(childIndex);
         return action.getName();
     }
-    
+
     /*
      * instantiate the schema variables in a string.
-     * @see gui 
      * 
+     * @see gui
      */
     private String instantiateString(RuleApplication ruleApp, String string) {
         TextInstantiator textInst = new TextInstantiator(ruleApp);
@@ -342,7 +324,8 @@ public class AutomaticFileProver implements Callable<Result> {
     /**
      * set whether this prover relates error messages to source code
      * 
-     * @param value to set
+     * @param relayToSource
+     *            to set
      */
     public void setRelayToSource(boolean relayToSource) {
         this.relayToSource = relayToSource;
@@ -352,32 +335,32 @@ public class AutomaticFileProver implements Callable<Result> {
      * Find a program term in a proof node.
      * 
      * @param node
-     *            the proof node whose  sequent is to be inspected
+     *            the proof node whose sequent is to be inspected
      * 
      * @return a literal program term or null, if none found
      */
     private LiteralProgramTerm findProgramTerm(ProofNode node) {
-        
+
         Sequent sequent = node.getSequent();
         detectedProgramTerm = null;
-        
+
         try {
             for (Term term : sequent.getAntecedent()) {
                 term.visit(programDetector);
-                if(detectedProgramTerm != null)
+                if (detectedProgramTerm != null)
                     return detectedProgramTerm;
             }
-            
+
             for (Term term : sequent.getSuccedent()) {
-                term.visit(programDetector );
-                if(detectedProgramTerm != null)
+                term.visit(programDetector);
+                if (detectedProgramTerm != null)
                     return detectedProgramTerm;
             }
         } catch (TermException e) {
             // never thrown;
             throw new Error(e);
         }
-        
+
         return null;
     }
 
