@@ -85,6 +85,11 @@ public class AutomaticFileProver implements Callable<Result> {
     private int timeout = -1;
 
     /**
+     * The maximum number of rule applications done.
+     */
+    private int ruleApplicationLimit = -1;
+
+    /**
      * Relay error messages to source files. (will disappear when result is more
      * elaborate)
      */
@@ -128,6 +133,15 @@ public class AutomaticFileProver implements Callable<Result> {
     public void setTimeout(int timeout) {
         assert timeout == -1 || timeout > 0 : timeout;
         this.timeout = timeout;
+    }
+
+    /**
+     * The maximum number of rule applications done before giving up with a
+     * timeout. -1 means no timeout.
+     */
+    public void setRuleLimit(int limit) {
+        assert limit == -1 || limit > 0 : limit;
+        this.ruleApplicationLimit = limit;
     }
 
     /**
@@ -189,9 +203,10 @@ public class AutomaticFileProver implements Callable<Result> {
 
         strategy.beginSearch();
 
-        while (true) {
+        for (int count = 0;; count++) {
 
-            if ((timeout > 0 && threadManager.getCurrentThreadCpuTime() < 1000 * timeout) && (true)) {
+            if ((timeout >= 0 && threadManager.getCurrentThreadCpuTime() < 1000 * timeout)
+                    && (ruleApplicationLimit >= 0 && ruleApplicationLimit > count)) {
                 return new Result(false, file, "timed out");
             }
 
