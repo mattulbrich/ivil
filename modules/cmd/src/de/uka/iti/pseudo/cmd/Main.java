@@ -92,7 +92,7 @@ public class Main {
         cl.addOption(CMDLINE_RECURSIVE, null, "Apply recursively.");
         cl.addOption(CMDLINE_ALLSUFFIX, null, "Read all files (not only *.p)");
         cl.addOption(CMDLINE_TIMEOUT, "[secs]", "time to run before interrupting (-1 for no timeout)");
-        cl.addOption(CMDLINE_RULELIMIT, "[no]", "number of rule applications before interrupting (-1 for no timeout)");
+        cl.addOption(CMDLINE_RULELIMIT, "[no]", "number of rule applications before interrupting (0 for no timeout)");
         cl.addOption(CMDLINE_THREADS, "[no]", "number of simultaneously running threads");
         cl.addOption(CMDLINE_SOURCE, null, "relay error messages to sources");
         cl.addOption(CMDLINE_PIPE, null, "only YES, NO or ERROR will be printed to stdout");
@@ -133,7 +133,7 @@ public class Main {
             allSuffix = commandLine.isSet(CMDLINE_ALLSUFFIX);
             verbose = commandLine.isSet(CMDLINE_VERBOSE);
             timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5);
-            ruleLimit = commandLine.getInteger(CMDLINE_RULELIMIT, -1);
+            ruleLimit = commandLine.getInteger(CMDLINE_RULELIMIT, 0);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
             pipeMode = commandLine.isSet(CMDLINE_PIPE);

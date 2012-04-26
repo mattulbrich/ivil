@@ -11,8 +11,6 @@ package de.uka.iti.pseudo.cmd;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +43,7 @@ import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.TextInstantiator;
+import de.uka.iti.pseudo.util.TimingOutTask;
 
 /**
  * This class allows to run ivil automatically over one particular ivil input
@@ -87,7 +86,7 @@ public class AutomaticFileProver implements Callable<Result> {
     /**
      * The maximum number of rule applications done.
      */
-    private int ruleApplicationLimit = -1;
+    private int ruleApplicationLimit = 0;
 
     /**
      * Relay error messages to source files. (will disappear when result is more
@@ -137,10 +136,10 @@ public class AutomaticFileProver implements Callable<Result> {
 
     /**
      * The maximum number of rule applications done before giving up with a
-     * timeout. -1 means no timeout.
+     * timeout. 0 means no timeout.
      */
     public void setRuleLimit(int limit) {
-        assert limit == -1 || limit > 0 : limit;
+        assert limit >= 0 : limit;
         this.ruleApplicationLimit = limit;
     }
 
@@ -199,40 +198,55 @@ public class AutomaticFileProver implements Callable<Result> {
 
         assert strategy != null;
 
-        ThreadMXBean threadManager = ManagementFactory.getThreadMXBean();
+        TimingOutTask timingOut = null;
+        if (timeout > 0) {
+            timingOut = new TimingOutTask(timeout * 1000);
+            timingOut.schedule();
+        }
 
-        strategy.beginSearch();
+        try {
+            strategy.beginSearch();
 
-        for (int count = 0;; count++) {
+            for (int count = 0;; count++) {
 
-            if ((timeout >= 0 && threadManager.getCurrentThreadCpuTime() < 1000 * timeout)
-                    && (ruleApplicationLimit >= 0 && ruleApplicationLimit > count)) {
-                return new Result(false, file, "timed out");
+                if (Thread.interrupted() || (timingOut != null && timingOut.hasFinished())) {
+                    return new Result(false, file, "timed out");
+                }
+
+                if (ruleApplicationLimit != 0 && ruleApplicationLimit > count) {
+                    return new Result(false, file, "timed out");
+                }
+
+                RuleApplication ruleApp = strategy.findRuleApplication();
+
+                if (ruleApp == null) {
+                    break;
+                }
+
+                proof.apply(ruleApp, env);
             }
 
-            RuleApplication ruleApp = strategy.findRuleApplication();
+            List<ProofNode> openGoals = proof.getOpenGoals();
 
-            if (ruleApp == null) {
-                break;
+            if (openGoals.isEmpty()) {
+                // if(export) exportProof(proof);
+                return new Result(true, file);
             }
 
-            proof.apply(ruleApp, env);
+            if (!relayToSource) {
+                return new Result(false, file, openGoals.size() + " remaining open goal(s)");
+            }
+
+            ArrayList<String> messages = makeDetailedReport(openGoals);
+
+            return new Result(false, file, messages);
+        } finally {
+            if (timingOut != null)
+                timingOut.cancel();
+            // clear the interruption flag of the thread in case it has appeared
+            // in the meantime
+            Thread.interrupted();
         }
-
-        List<ProofNode> openGoals = proof.getOpenGoals();
-
-        if (openGoals.isEmpty()) {
-            // if(export) exportProof(proof);
-            return new Result(true, file);
-        }
-
-        if (!relayToSource) {
-            return new Result(false, file, openGoals.size() + " remaining open goal(s)");
-        }
-
-        ArrayList<String> messages = makeDetailedReport(openGoals);
-
-        return new Result(false, file, messages);
     }
 
     /**
