@@ -213,7 +213,7 @@ public class AutomaticFileProver implements Callable<Result> {
                     return new Result(false, file, "timed out");
                 }
 
-                if (ruleApplicationLimit != 0 && ruleApplicationLimit > count) {
+                if (ruleApplicationLimit != 0 && ruleApplicationLimit < count) {
                     return new Result(false, file, "timed out");
                 }
 
