@@ -104,14 +104,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
-        try {
-            ruleCollection = new RewriteRuleCollection(env.getAllRules(),
-                    REWRITE_CATEGORY, env);
-            ruleCollection.setApplicationFilter(this);
-        } catch (RuleException e) {
-            throw new StrategyException("Cannot initialise BreakpointStrategy",
-                    e);
-        }
+        ruleCollection = new RewriteRuleCollection(env.getAllRules(),
+                REWRITE_CATEGORY, env);
+        ruleCollection.setApplicationFilter(this);
 
         // obey settings in env
         {

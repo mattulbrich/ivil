@@ -10,10 +10,13 @@
  */
 package de.uka.iti.pseudo.auto.strategy;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -59,12 +62,24 @@ import de.uka.iti.pseudo.util.Log;
  * matching since only rules with the appropriate toplevel symbol are checked.
  * 
  */
+@NonNull
 public class RewriteRuleCollection {
 
     /**
      * The map from toplevel symbols to applicable rules
      */
     private Map<String, List<Rule>> classificationMap;
+
+    /**
+     * A cache of terms which have no applicable rule in this collection. No
+     * need to check once again.
+     * 
+     * The mechanism works locally on a term. Hence, rules with assumptions will
+     * break the soundness of caching. This can be switched off (set to
+     * <code>null</code>) if the category contains assumption-rules.
+     */
+    private @Nullable Set<Term> noMatchCache = 
+            Collections.synchronizedSet(new HashSet<Term>());
 
     /**
      * The environment the rules come from
@@ -96,19 +111,18 @@ public class RewriteRuleCollection {
      *            "rewrite"
      * @param env
      *            the environment we work in.
-     * 
-     * @throws RuleException
-     *             probably not at all
+     * @throws StrategyException 
+     *            if a rule in rules is findless or has assumptions.
      */
     public RewriteRuleCollection(List<Rule> rules, String category,
-            Environment env) throws RuleException {
+            Environment env) throws StrategyException {
         this.category = category;
         classificationMap = new HashMap<String, List<Rule>>();
         this.size = 0;
         collectRules(rules, category);
         this.env = env;
     }
-    
+
     /**
      * Find an applicable rule application in a sequent.
      * 
@@ -123,7 +137,7 @@ public class RewriteRuleCollection {
     public @Nullable RuleApplicationMaker findRuleApplication(ProofNode node) {
 
         Proof proof = node.getProof();
-        
+
         RuleApplicationFinder finder = new RuleApplicationFinder(proof, node, env);
         finder.setApplicationFilter(applicationFilter);
         Sequent seq = node.getSequent();
@@ -140,7 +154,7 @@ public class RewriteRuleCollection {
         return ram;
 
     }
-    
+
     /**
      * Gets the currently installed application filter.
      * 
@@ -184,7 +198,7 @@ public class RewriteRuleCollection {
      *             probably not at all
      */
     private void collectRules(List<Rule> rules, String category)
-            throws RuleException {
+            throws StrategyException {
 
         for (Rule rule : rules) {
 
@@ -193,9 +207,16 @@ public class RewriteRuleCollection {
                 continue;
 
             LocatedTerm findClause = rule.getFindClause();
-            
-            if (findClause == null)
-                continue;
+
+            if (findClause == null) {
+                throw new StrategyException("Findless rule " + rule.getName() + " tagged as rewrite.");
+            }
+
+            if (noMatchCache != null && rule.getAssumptions().size() != 0) {
+                Log.log(Log.WARNING, "Assumption-rule " + rule.getName() +
+                        " tagged as rewrite. Switching of caching.");
+                noMatchCache = null;
+            }
 
             String[] classifications = getClassification(findClause.getTerm()).split(",");
 
@@ -248,7 +269,7 @@ public class RewriteRuleCollection {
             Application app = (Application) term;
             return app.getFunction().getName();
         }
-        
+
         if (term instanceof SchemaUpdateTerm) {
             SchemaUpdateTerm sut = (SchemaUpdateTerm) term;
             if(sut.isOptional()) {
@@ -257,7 +278,7 @@ public class RewriteRuleCollection {
                 return "[updated]";
             }
         }
-        
+
         if (term instanceof UpdateTerm) {
             return "[updated]";
         }
@@ -283,13 +304,33 @@ public class RewriteRuleCollection {
             RuleApplicationMaker result = findRuleApplication(finder, term, ts);
             if(result != null)
                 return result;
+            else if(noMatchCache != null) {
+                // we haven't found a rule application, remember that.
+                noMatchCache.add(term);
+                if(noMatchCache.size() % 10000 == 0) {
+                    System.err.println(category + " : cache size=" + noMatchCache.size());
+                }
+            }
         }
         return null;
     }
-        
+
+    /**
+     * find a rule application for single a term at a position.
+     * 
+     * @param finder the RuleApplicationFinder to be used
+     * @param term
+     * @param selector
+     * @return
+     */
     private @Nullable RuleApplicationMaker findRuleApplication(
             RuleApplicationFinder finder, Term term, TermSelector selector) {
-        
+
+        // do not look if the term is known to not match
+        if(noMatchCache != null && noMatchCache.contains(term)) {
+            return null;
+        }
+
         try {
             List<Rule> ruleset = getRuleSet(term);
             if (ruleset != null && ruleset.size() > 0) {
@@ -313,7 +354,8 @@ public class RewriteRuleCollection {
             Log.log(Log.ERROR, "Continuing anyway");
             Log.stacktrace(e);
         }
-        
+
+        // now go recursively into depth
         for (int i = 0; i < term.countSubterms(); i++) {
             Term t = term.getSubterm(i);
             TermSelector s = selector.selectSubterm(i);
@@ -322,11 +364,11 @@ public class RewriteRuleCollection {
                 return ram;
             }
         }
-        
+
         return null;
     }
 
-    /*
+    /**
      * Gets the collection of rules which is applicable to a term (apart from
      * the generic ones)
      * @param term must be a non-schematic term.
@@ -338,8 +380,34 @@ public class RewriteRuleCollection {
         return classificationMap.get(classif);
     }
 
-    @Override public String toString() {
+    @Override 
+    public String toString() {
         return "RuleCollection[" + category + "] with " + size + " rules";
+    }
+
+    /**
+     * clear the no-match cache. This is usually done to cleanup space after
+     * ending an automatic run.
+     */
+    public void clearCache() {
+        if(noMatchCache != null) {
+            noMatchCache.clear();
+        }
+    }
+
+    /**
+     * get an unmodifiable view of the nomatch cache. Mainly for testing
+     * purposes.
+     * 
+     * @return a view to the nomatch-cache, or <code>null</code> if the chache
+     *         is deactivated.
+     */
+    public @Nullable Set<Term> getNoMatchingCache() {
+        if(noMatchCache != null) {
+            return Collections.unmodifiableSet(noMatchCache);
+        } else {
+            return null;
+        }
     }
 
 

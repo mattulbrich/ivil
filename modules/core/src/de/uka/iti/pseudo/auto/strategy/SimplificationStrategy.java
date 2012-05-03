@@ -11,8 +11,6 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import checkers.nullness.quals.LazyNonNull;
 
@@ -75,11 +73,11 @@ public class SimplificationStrategy extends AbstractStrategy implements
         }
     };
 
-    /**
-     * store for all categories those proof node which did not match and do not
-     * try to match again.
-     */
-    private Set<ProofNode> /*@LazyNonNull*/[] noMatchNodes = null;
+//    /**
+//     * store for all categories those proof node which did not match and do not
+//     * try to match again.
+//     */
+//    private Set<ProofNode> /*@LazyNonNull*/[] noMatchNodes = null;
 
     /**
      * The currently active split mode.
@@ -96,17 +94,10 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * Find rule application on a certain goal. Try all collections.
      */
     public @Nullable RuleApplicationMaker findRuleApplication(@NonNull ProofNode target) {
-        
-        // TODO changes as soon as proof nodes are stored in rule applications
-        // int goalNumber = getProof().getOpenGoals().indexOf(target);
 
         assert ruleCollections != null;
 
         for (int collNo = 0; collNo < ruleCollections.length; collNo++) {
-
-            // this node has already been checked: no matches
-            if (noMatchNodes[collNo].contains(target))
-                continue;
 
             RuleApplicationMaker ruleApplication = ruleCollections[collNo]
                     .findRuleApplication(target);
@@ -115,14 +106,11 @@ public class SimplificationStrategy extends AbstractStrategy implements
                 return ruleApplication;
             }
 
-            // no result: no match. Remember for the next time.
-            noMatchNodes[collNo].add(target);
         }
 
         return null;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void init(@NonNull Proof proof, @NonNull Environment env,
             @NonNull StrategyManager strategyManager) throws StrategyException {
@@ -131,30 +119,15 @@ public class SimplificationStrategy extends AbstractStrategy implements
         ruleCollections = new RewriteRuleCollection[REWRITE_CATEGORIES.length + 1];
         List<Rule> allRules = env.getAllRules();
         for (int i = 0; i < REWRITE_CATEGORIES.length; i++) {
-            try {
-                ruleCollections[i] = new RewriteRuleCollection(allRules,
-                        REWRITE_CATEGORIES[i], env);
-            } catch (RuleException e) {
-                throw new StrategyException("Cannot initialise MyStrategy", e);
-            }
+            ruleCollections[i] = new RewriteRuleCollection(allRules,
+                    REWRITE_CATEGORIES[i], env);
         }
 
         // create the splitting rule collection which uses "this" as filter.
-        try {
-            ruleCollections[REWRITE_CATEGORIES.length] = new RewriteRuleCollection(
-                    allRules, SPLIT_CATEGORY, env);
-            ruleCollections[REWRITE_CATEGORIES.length]
-                    .setApplicationFilter(this);
-        } catch (RuleException e) {
-            throw new StrategyException(
-                    "Cannot initialise SimplificationStrategy", e);
-        }
-
-        // set up the noMatchNodes array
-        noMatchNodes = new Set[ruleCollections.length];
-        for (int i = 0; i < noMatchNodes.length; i++) {
-            noMatchNodes[i] = new ConcurrentSkipListSet<ProofNode>();
-        }
+        ruleCollections[REWRITE_CATEGORIES.length] = new RewriteRuleCollection(
+                allRules, SPLIT_CATEGORY, env);
+        ruleCollections[REWRITE_CATEGORIES.length]
+                .setApplicationFilter(this);
 
         // check if env asks us to change split mode
         {
@@ -219,8 +192,8 @@ public class SimplificationStrategy extends AbstractStrategy implements
      */
     @Override
     public void endSearch() {
-        for (Set<ProofNode> set : noMatchNodes) {
-            set.clear();
+        for (RewriteRuleCollection collection : ruleCollections) {
+            collection.clearCache();
         }
     }
 

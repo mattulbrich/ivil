@@ -31,11 +31,11 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  * 
  */
 public abstract class AbstractStrategy implements Strategy {
-    
+
     private Set<ProofNode> notMatching = new HashSet<ProofNode>();
-    
+
     private @LazyNonNull Proof proof;
-    
+
     @Override
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
@@ -55,7 +55,7 @@ public abstract class AbstractStrategy implements Strategy {
     public @Nullable RuleApplication findRuleApplication()
             throws StrategyException {
         List<ProofNode> openGoals = proof.getOpenGoals();
-        
+
         int index = 0;
         for (ProofNode goal : openGoals) {
             if (!notMatching.contains(goal)) {
@@ -68,7 +68,7 @@ public abstract class AbstractStrategy implements Strategy {
             }
             index ++;
         }
-        
+
         return null;
     }
 
