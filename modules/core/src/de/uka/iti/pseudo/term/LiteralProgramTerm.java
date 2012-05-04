@@ -172,6 +172,15 @@ public final class LiteralProgramTerm extends ProgramTerm {
         }
         return false;
     }
+    
+    /*
+     * This implementation incorporates the program and the index into the calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + codeLocation.hashCode();
+    }
+
 
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);

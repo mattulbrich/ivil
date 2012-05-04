@@ -121,6 +121,14 @@ public final class SchemaVariable extends BindableIdentifier {
         return false;
     }
 
+    /*
+     * This implementation takes the hash code from the identifier
+     */
+    @Override
+    protected int calculateHashCode() {
+        return name.hashCode();
+    }
+
     /* 
      * this is for AssignTarget and returns the same as getType()
      */

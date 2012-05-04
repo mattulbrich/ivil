@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
@@ -68,6 +67,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * @see #accepts(RuleApplication)
      */
     private static TermVisitor PROGRAM_DETECTOR = new DefaultTermVisitor.DepthTermVisitor() {
+        @Override
         public void visit(LiteralProgramTerm programTerm) throws TermException {
             throw new TermException("Program found!");
         }
@@ -93,6 +93,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /*
      * Find rule application on a certain goal. Try all collections.
      */
+    @Override
     public @Nullable RuleApplicationMaker findRuleApplication(@NonNull ProofNode target) {
 
         assert ruleCollections != null;

@@ -42,6 +42,7 @@ public final class CodeLocation<P> {
      * Checks if two locations are equivalent.
      */
     public boolean sameAs(CodeLocation<P> c) {
+        // FIXME entanglement with equals. should be done the other way round.
         return equals(c);
     }
 
@@ -53,6 +54,11 @@ public final class CodeLocation<P> {
         }
         return false;
     }
+    
+    @Override
+    public int hashCode() {
+        return program.hashCode() * 47 + index;
+    };
 
     public P getProgram() {
         return program;

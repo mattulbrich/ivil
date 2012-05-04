@@ -133,6 +133,10 @@ public final class Binding extends Term {
         return binder;
     }
 
+    public boolean hasSchemaVariable() {
+        return getVariableName().startsWith("%");
+    }
+
     /**
      * Type check this term. 
      * Check typing against all subterms and the bound variable:
@@ -234,8 +238,13 @@ public final class Binding extends Term {
         return false;
     }
     
-    public boolean hasSchemaVariable() {
-        return getVariableName().startsWith("%");
+    /*
+     * This implementation incorporates the binder and variable symbol into the
+     * calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + (binder.hashCode() ^ variable.hashCode());
     }
 
 

@@ -157,7 +157,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     @Override
     public @Nullable RuleApplication findRuleApplication(ProofNode target) {
-        
+
         RuleApplication ra = ruleCollection.findRuleApplication(target);
         return ra;
     }

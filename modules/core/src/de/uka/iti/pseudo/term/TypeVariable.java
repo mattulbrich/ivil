@@ -109,12 +109,4 @@ public class TypeVariable extends Type {
 		return false;
 	}
 	
-	/**
-	 * the hashcode of a type variable is the hash code of its name.S
-	 */
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
-
 }

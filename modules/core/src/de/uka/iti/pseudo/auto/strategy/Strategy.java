@@ -156,5 +156,5 @@ public interface Strategy {
      * 
      * @return the name of this strategy
      */
-    @NonNull String toString();
+    @Override @NonNull String toString();
 }

@@ -36,10 +36,19 @@ public final class SchemaUpdateTerm extends Term {
             SchemaUpdateTerm schemaUp = (SchemaUpdateTerm) object;
             return schemaIdentifier.equals(schemaUp.getSchemaIdentifier()) &&
             getSubterm(0).equals(schemaUp.getSubterm(0));
-            
+
         }
         return false;
     }
+
+    /*
+     * This implementation takes the hash code from the identifier
+     */
+    @Override
+    protected int calculateHashCode() {
+        return schemaIdentifier.hashCode();
+    }
+
 
     public String getSchemaIdentifier() {
         return schemaIdentifier;

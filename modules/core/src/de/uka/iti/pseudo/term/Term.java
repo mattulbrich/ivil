@@ -9,7 +9,7 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.lang.ref.SoftReference;
+import java.util.Arrays;
 import java.util.List;
 
 import nonnull.DeepNonNull;
@@ -59,14 +59,6 @@ public abstract class Term {
      * The hashcode is stored in here once it has been calculated.
      */
     private int storedHashCode = 0;
-
-    /**
-     * This cache is used to speed up toString at the cost of more memory usage.
-     * It uses soft references as the speedup would be negative in a case where
-     * not enough memory is usable.
-     */
-    private @Nullable SoftReference<String> cachedToStringFalse = null;
-    private @Nullable SoftReference<String> cachedToStringTrue = null;
 
     /**
      * Instantiates a new term with subterms
@@ -159,26 +151,11 @@ public abstract class Term {
      * depending on {@link #SHOW_TYPES} print the term with or without typing
      * information
      * 
-     * @note a cache is used to avoid repeated calculation of toString return
-     *       values, as this has a significant impact on interactive prover
-     *       performance
-     * 
      * @return string for this term
      */
+    @Override
     final public String toString() {
-        // query cache
-        if (SHOW_TYPES && null != cachedToStringTrue && cachedToStringTrue.get() != null)
-            return cachedToStringTrue.get();
-        else if (null != cachedToStringFalse && null != cachedToStringFalse.get())
-            return cachedToStringFalse.get();
-
-        // rebuild cache and return result
-        if (SHOW_TYPES)
-            return (cachedToStringTrue = new SoftReference<String>(toString(SHOW_TYPES))).get();
-        else
-            return (cachedToStringFalse = new SoftReference<String>(toString(SHOW_TYPES))).get();
-        
-        // or, instead, simply: return toString(SHOW_TYPES);
+        return toString(SHOW_TYPES);
     }
 
     /**
@@ -193,30 +170,45 @@ public abstract class Term {
      * @param typed
      *            should the result contain typing information
      * 
-     * @return the string for this term, with tpying information iff
-     *         typed==true.
+     * @return the string for this term, with typing information iff
+     *         <code>typed</code> is <code>true</code>.
      */
     public abstract String toString(boolean typed);
 
     /**
      * {@inheritDoc}
      * 
-     * The hash code of a term is calculated using its string representation.
+     * The hash code of a term is calculated using {@link #calculateHashCode()}.
      * Its result is cached in a field so that the calculation does not need to
      * happen a second time
      * 
-     * Please note that terms which are not equal may have the same string
-     * representation and therefore the same hash code. These cases are rare,
-     * however.
+     * @see #calculateHashCode();
      * 
      * @return the hash code for this
      */
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         if (storedHashCode == 0) {
-            storedHashCode = toString(true).hashCode();
+            storedHashCode = calculateHashCode();
         }
         return storedHashCode;
+    }
+
+    /**
+     * Calculate the hash code of this term object.
+     * 
+     * This implementation takes the hashcode of the type and of the subterms
+     * and stirs them.
+     * 
+     * Subclasses can do a different implementation or add more information.
+     * 
+     * @see Term#hashCode();
+     * 
+     * @return the hash code of this object.
+     */
+    protected int calculateHashCode() {
+        int result = type.hashCode() + 31 * Arrays.hashCode(subterms) ;
+        return result;
     }
 
     /**
@@ -225,7 +217,7 @@ public abstract class Term {
      * @return a term which is {@linkplain Object#equals(Object) equal} to this
      *         term object and of exactly the same class.
      */
-    protected @NonNull Term intern() {
+    protected final @NonNull Term intern() {
         Term result = termPool.cacheNonNull(this);
         return result;
     }
@@ -244,6 +236,7 @@ public abstract class Term {
      * 
      * @return true iff object is a term and structually equal to this term.
      */
+    @Override
     public abstract boolean equals(@Nullable Object object);
 
     /**

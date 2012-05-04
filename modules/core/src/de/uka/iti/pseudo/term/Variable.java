@@ -89,5 +89,12 @@ public final class Variable extends BindableIdentifier {
         }
         return false;
     }
-
+    
+    /*
+     * This implementation takes the hash code from the identifier
+     */
+    @Override
+    protected int calculateHashCode() {
+        return name.hashCode();
+    }
 }

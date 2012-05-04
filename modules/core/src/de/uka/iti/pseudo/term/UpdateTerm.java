@@ -89,6 +89,7 @@ public final class UpdateTerm extends Term {
      * equal to another update term if they have equal assignment sets
      * and equal subterms
      */
+    @Override
     public boolean equals(@Nullable Object object) {
         if (object instanceof UpdateTerm) {
             UpdateTerm ut = (UpdateTerm) object;
@@ -99,9 +100,19 @@ public final class UpdateTerm extends Term {
     }
 
     /*
+     * This implementation incorporates the update into the calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + update.hashCode();
+    }
+
+
+    /*
      * we do not print our own typing. the typing of 
      * the inner term suffices.
      */
+    @Override
     public String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
 
@@ -115,6 +126,7 @@ public final class UpdateTerm extends Term {
         return sb.toString();
     }
 
+    @Override
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }

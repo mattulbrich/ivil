@@ -67,6 +67,15 @@ public final class TypeVariableBinding extends Term {
         return false;
     }
 
+    /*
+     * This implementation incorporates the type variable symbol into the calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + boundType.hashCode();
+    }
+
+    
     /**
      * @return the kind
      */

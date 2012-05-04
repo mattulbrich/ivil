@@ -190,4 +190,12 @@ public final class Application extends Term {
         }
         return false;
     }
+
+    /*
+     * This implementation incorporates the function symbol into the calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + getFunction().hashCode();
+    }
 }

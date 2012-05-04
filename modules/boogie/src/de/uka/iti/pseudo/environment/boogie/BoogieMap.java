@@ -205,15 +205,16 @@ class BoogieMap extends Type {
         }
     }
 
-    /**
-     * @note the hash code is very bad for boogie maps, as it is hard to
-     *       guarantee that two equal maps have the same hash code for useful
-     *       hash codes.
-     */
-    @Override
-    public int hashCode() {
-        return 100 * boundVars.size() + domain.size();
-    }
+//    /**
+//     * @note the hash code is very bad for boogie maps, as it is hard to
+//     *       guarantee that two equal maps have the same hash code for useful
+//     *       hash codes.
+//     * Use the implementation of Type.
+//     */
+//    @Override
+//    public int hashCode() {
+//        return 100 * boundVars.size() + domain.size();
+//    }
 
     public List<TypeVariable> getBoundVars() {
         return boundVars;

@@ -77,7 +77,7 @@ public abstract class Type {
      * {@link #storedHashCode}.
      */
     @Override 
-    public int hashCode() {
+    public final int hashCode() {
         if(storedHashCode == 0) {
             storedHashCode = toString().hashCode();
         }

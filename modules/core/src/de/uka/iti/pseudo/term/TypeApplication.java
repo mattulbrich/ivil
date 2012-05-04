@@ -183,4 +183,5 @@ public class TypeApplication extends Type {
     public List<Type> getArguments() {
         return Util.readOnlyArrayList(typeParameters);
     }
+
 }

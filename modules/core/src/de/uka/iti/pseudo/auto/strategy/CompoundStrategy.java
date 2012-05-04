@@ -85,6 +85,7 @@ public class CompoundStrategy extends AbstractStrategy {
     /**
      * Initialise the strategy. Create the initial {@link #strategies}. 
      */
+    @Override
     @SuppressWarnings("unchecked")
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {

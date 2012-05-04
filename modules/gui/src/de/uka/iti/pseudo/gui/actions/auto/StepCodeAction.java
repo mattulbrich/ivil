@@ -53,7 +53,7 @@ public abstract class StepCodeAction extends BarAction implements
     }
 
     private static final long serialVersionUID = 5444254542006126131L;
-    
+
     protected ProofNode selectedProofNode;
 
     /**
@@ -105,12 +105,13 @@ public abstract class StepCodeAction extends BarAction implements
 
         final List<ProofNode> todo = new LinkedList<ProofNode>();
         todo.add(selectedProofNode);
-        
+
         final boolean continueWithoutProgram = 
             getProofCenter().getProperty(PROPERTY_CONTINUE_WITHOUT_PROGRAM) == Boolean.TRUE;
 
         pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         (worker = new StepProofWorker() {
+            @Override
             public Void doInBackground() {
                 try {
                     strategy.beginSearch();

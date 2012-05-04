@@ -117,6 +117,15 @@ public final class SchemaProgramTerm extends ProgramTerm {
         return false;
     }
 
+    /*
+     * This implementation incorporates the matching statement into the calculation.
+     */
+    @Override
+    protected int calculateHashCode() {
+        return super.calculateHashCode() * 31 + (matchingStatement == null ? 0 : matchingStatement.hashCode());
+    }
+
+
     /**
      * The content string for a schema program term is the schemavariable (<code>%s</code>)
      * followed by the matching statement <code>stm</code> like in
