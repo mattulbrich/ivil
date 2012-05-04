@@ -31,6 +31,8 @@ import de.uka.iti.pseudo.util.Util;
  */
 public class CompoundStrategy extends AbstractStrategy {
     
+    private static final String STRATEGY_PACKAGE_PREFIX = "de.uka.iti.pseudo.auto.strategy.";
+
     /**
      * The {@link #strategies} are initialised to an array
      * of instanced of the here mentioned classes 
@@ -54,8 +56,8 @@ public class CompoundStrategy extends AbstractStrategy {
      * we can apply better algorithms. 
      */
     // TODO Is this still needed?
-    private boolean allAbstractStrategy;
-    
+//    private boolean allAbstractStrategy;
+
     /**
      * To find an application, query one strategy after the other.
      * 
@@ -88,41 +90,41 @@ public class CompoundStrategy extends AbstractStrategy {
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
         this.strategyManager = strategyManager;
-        
+
         // look for strategy list in env
-        String desiredStrategies = env.getProperty(this.getClass()
-                .getSimpleName() + ".strategies");
-        
-        allAbstractStrategy = true;
-        if(null == desiredStrategies)
-        {
+        String desiredStrategies = env.getProperty(
+                this.getClass().getSimpleName() + ".strategies");
+
+        if(desiredStrategies == null) {
+            // no property set in the environment
             strategies = new Strategy[ORIGINAL_STRATEGIES.length];
             for (int i = 0; i < strategies.length; i++) {
-                strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)ORIGINAL_STRATEGIES[i]);
-                allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
+                strategies[i] = strategyManager.getStrategy(
+                        (Class<? extends Strategy>)ORIGINAL_STRATEGIES[i]);
             }
-        }
-        else
-        {
-            String[] s = desiredStrategies.split(",\\s*");
+
+        } else {
+            // read the property
+            String[] s = desiredStrategies.trim().split(",\\s*");
             strategies = new Strategy[s.length];
             for (int i = 0; i < strategies.length; i++) {
                 try {
-                    strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName(s[i]));
+                    strategies[i] = strategyManager.getStrategy(
+                            (Class<? extends Strategy>)Class.forName(s[i]));
                 } catch (ClassNotFoundException ex) {
                     try {
-                        //test for short names of built in strategies
-                        strategies[i] = strategyManager.getStrategy((Class<? extends Strategy>)Class.forName("de.uka.iti.pseudo.auto.strategy."+s[i]));
+                        // test for short names of built-in strategies
+                        strategies[i] = strategyManager.getStrategy((
+                                Class<? extends Strategy>)Class.forName(STRATEGY_PACKAGE_PREFIX + s[i]));
                     } catch (ClassNotFoundException e) {
-                        Log.log(Log.WARNING, s[i]
-                                + " does not name a proper class");
+                        Log.log(Log.WARNING, s[i] + " does not name a proper class");
                         Log.stacktrace(e);
+                        throw new StrategyException(s[i] + " does not name a strategy class", e);
                     }
                 }
-                allAbstractStrategy &= strategies[i] instanceof AbstractStrategy;
             }
         }
-        
+
         assert strategiesError() == null : strategiesError();
     }
 
@@ -138,17 +140,20 @@ public class CompoundStrategy extends AbstractStrategy {
      */
     private @Nullable String strategiesError() {
         for (Strategy strategy : strategies) {
-            if(strategy == null)
+            if(strategy == null) {
                 return "A strategy is null";
+            }
+
             Collection<Strategy> allStrategies = strategyManager.getAllStrategies();
-            
-            if(!allStrategies.contains(strategy))
+            if(!allStrategies.contains(strategy)) {
                 return "A strategy is not known to the strategy manager";
-            
-            if(strategy == this)
-                return "A compound strategy may not contain itself";
+            }
+
+            if(strategy == this) {
+                return "A compound strategy must not contain itself";
+            }
         }
-        
+
         return null;
     }
 
@@ -166,29 +171,19 @@ public class CompoundStrategy extends AbstractStrategy {
      * 
      * @param strategies
      *            the new strategies
-     * @throws RuntimeException
+     * @throws StrategyException
      *             if the argument cannot be installed
      */
-    public void setStrategies(List<Strategy> strategies) throws RuntimeException {
+    public void setStrategies(List<Strategy> strategies) throws StrategyException {
         this.strategies = new Strategy[strategies.size()];
         strategies.toArray(this.strategies);
-        
-        // find out whether there are non implementors or whether all use the
-        // default implementation
-        allAbstractStrategy = true;
-        for (Strategy strategy : strategies) {
-            if(!(strategy instanceof AbstractStrategy)) {
-                allAbstractStrategy = false;
-                break;
-            }
-        }
-        
+
         String error = strategiesError();
-        if(error != null)
-            throw new RuntimeException(error);
+        if(error != null) {
+            throw new StrategyException(error);
+        }
     }
-    
-    
+
     /**
      * The name of this strategy
      */
@@ -246,8 +241,9 @@ public class CompoundStrategy extends AbstractStrategy {
         
         for (Strategy strategy : strategies) {
             RuleApplication ra = strategy.findRuleApplication(target);
-            if(ra != null)
+            if(ra != null) {
                 return ra;
+            }
         }
         return null;
     }

@@ -169,11 +169,13 @@ public class Z3Translator extends DefaultTermVisitor {
         
     }
     
+    @Override
     public void visit(Variable variable) throws TermException {
         int index = boundVariables.indexOf(variable);
-        if(index == -1)
+        if(index == -1) {
             throw new TermException("Unbound variable " + variable);
-        
+        }
+
         registerNo ++;
         translation.add("Var c" + registerNo + " " + index + " " +
                 makeSort(variable.getType()));

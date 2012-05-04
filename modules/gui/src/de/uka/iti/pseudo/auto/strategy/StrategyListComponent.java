@@ -144,7 +144,12 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
     private void writeBack(DefaultListModel model) {
         Strategy[] array = new Strategy[model.size()]; 
         model.copyInto(array);
-        compoundStrategy.setStrategies(Util.readOnlyArrayList(array));
+        try {
+            compoundStrategy.setStrategies(Util.readOnlyArrayList(array));
+        } catch (StrategyException e) {
+            Log.log(Log.ERROR, "The strategy vector cannot be set, we silently continue");
+            Log.stacktrace(Log.ERROR, e);
+        }
     }
     
 }

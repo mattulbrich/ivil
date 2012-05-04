@@ -81,13 +81,12 @@ public interface Strategy {
      * guaranteed to point to the given proof node.
      * 
      * @see #findRuleApplication()
-     * @param target
+     * @param node
      *            a proof node which is a leaf of the proof under consideration
      * @throws StrategyException
      *             if the strategy has run into difficulties.
      */
-    @Nullable
-    RuleApplication findRuleApplication(@NonNull ProofNode target)
+    @Nullable RuleApplication findRuleApplication(@NonNull ProofNode node)
             throws StrategyException;
 
     /**

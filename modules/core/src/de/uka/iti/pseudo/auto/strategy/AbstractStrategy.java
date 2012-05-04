@@ -3,11 +3,11 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
  * 
  * The system is protected by the GNU General Public License. 
  * See LICENSE.TXT (distributed with this file) for details.
  */
+
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.HashSet;
@@ -32,8 +32,17 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  */
 public abstract class AbstractStrategy implements Strategy {
 
+    /**
+     * in this set store the proof nodes for which this strategy was not able to
+     * find a rule application. Later calls will then not search again.
+     * 
+     * TODO Is this caching sensible at all?
+     */
     private Set<ProofNode> notMatching = new HashSet<ProofNode>();
 
+    /**
+     * The proof object to which the strategy belongs.
+     */
     private @LazyNonNull Proof proof;
 
     @Override
@@ -44,19 +53,38 @@ public abstract class AbstractStrategy implements Strategy {
 
     @Override
     public void beginSearch() throws StrategyException {
+        // nothing done in this class. Subclasses may choose to do things
     }
 
     @Override
     public void endSearch() {
+        // empty the cache.
         notMatching.clear();
     }
 
+    /**
+     * Find an applicable rule application.
+     * 
+     * The proof upon which the strategy has to work has been set using
+     * {@link #init(Proof, Environment, StrategyManager), StrategyManager)}.
+     * 
+     * This implementation will call {@link #findRuleApplication(ProofNode)} on
+     * all open goals and return the first hit. If this strategy cannot find a
+     * rule application for a proof node, that fact will be cached ensuring that
+     * the search is not conducted a second time.
+     * 
+     * If no rule application can be found, <code>null</code> is returned.
+     * 
+     * @return the rule application to apply or null
+     * 
+     * @throws StrategyException
+     *             if the strategy has run into difficulties.
+     */
     @Override
     public @Nullable RuleApplication findRuleApplication()
             throws StrategyException {
         List<ProofNode> openGoals = proof.getOpenGoals();
 
-        int index = 0;
         for (ProofNode goal : openGoals) {
             if (!notMatching.contains(goal)) {
                 RuleApplication ra = findRuleApplication(goal);
@@ -66,39 +94,23 @@ public abstract class AbstractStrategy implements Strategy {
                     notMatching.add(goal);
                 }
             }
-            index ++;
         }
 
         return null;
     }
 
-//    @Override
-//    public abstract RuleApplication findRuleApplication(ProofNode target)
-//            throws StrategyException {
-//        
-//        assert target.getProof() == proof;
-//        
-//        int index = proof.getOpenGoals().indexOf(target);
-//
-//        if(-1 == index)
-//            return null;
-//
-//        RuleApplication result = findRuleApplication(index);
-//        // XXX uncomment as soon as this is ready: assert result.getProofNode() == target;
-//        return result;
-//    }
-
-    // protected abstract RuleApplication findRuleApplication(int goalIndex) throws StrategyException;
-
     @Override
     public void notifyRuleApplication(RuleApplication ruleApp)
             throws StrategyException {
+        // nothing done in this class. Subclasses may choose to do things
     }
 
     /**
-     * @return the proof
+     * Gets the proof associated with this strategy.
+     * 
+     * @return the proof associated with this strategy.
      */
-    public Proof getProof() {
+    public final Proof getProof() {
         return proof;
     }
 

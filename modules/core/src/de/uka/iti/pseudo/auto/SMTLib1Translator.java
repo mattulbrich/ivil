@@ -506,8 +506,9 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
      */
     private void includePreamble(Appendable pw) throws IOException {
         InputStream stream = getClass().getResourceAsStream("smt1_preamble.smt");
-        if (stream == null)
+        if (stream == null) {
             throw new IOException("Resource smt1_preamble.smt not found");
+        }
         Reader r = new InputStreamReader(stream);
         char[] buffer = new char[1024];
         int read = r.read(buffer);
@@ -638,8 +639,9 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         }
 
         Set<TypeVariable> freeTypeVars = freeTypeVarMap.get(translation);
-        if (freeTypeVars == null)
+        if (freeTypeVars == null) {
             freeTypeVars = Collections.emptySet();
+        }
 
         boolean hasArgs = application.countSubterms() > 0;
 
@@ -996,8 +998,9 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
             switch (c) {
             case '(':
                 sb.append("\n");
-                for (int j = 0; j < indention; j++)
+                for (int j = 0; j < indention; j++) {
                     sb.append(" ");
+                }
                 sb.append("(");
                 indention++;
                 break;

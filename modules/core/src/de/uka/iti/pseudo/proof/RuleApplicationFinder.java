@@ -31,7 +31,7 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
  * a given term within a sequent.
  */
 public class RuleApplicationFinder {
-    
+
     /**
      * Exception used to indicate that enough rule applications have been gathered.
      * It is thrown from within the matching code and caught to stop further matching
@@ -39,27 +39,27 @@ public class RuleApplicationFinder {
      */
     @SuppressWarnings("serial") 
     private static class EnoughException extends Exception {};
-    
+
     /**
      * The default limit of the number of applicable rules to return.
      */
     private static final int MAX_NUMBER_APPLICATIONS = 20;
-    
+
     /**
      * The sequent under inspection (needed to find assumptions)
      */
     private Sequent sequent;
-    
+
     /**
      * The environment - needed to check where clauses
      */
     private Environment env;
-    
+
     /**
      * Collect applications here.
      */
     private ArrayList<RuleApplication> applications;
-    
+
     /**
      * The currently built rule application.
      */
@@ -99,8 +99,7 @@ public class RuleApplicationFinder {
         this.sequent = goal.getSequent();
         this.env = env;
     }
-        
-    
+
     /**
      * Find one single rule application on a subterm in the sequent under
      * inspection.
@@ -118,7 +117,7 @@ public class RuleApplicationFinder {
     public @Nullable RuleApplicationMaker findOne(TermSelector termSelector,  
             List<Rule> rules) throws ProofException {
         stopAtSize = 1;
-        
+
         try {
             find(termSelector, rules);
             return null;
@@ -126,7 +125,7 @@ public class RuleApplicationFinder {
             return ruleAppMaker;
         }
     }
-    
+
     /**
      * Find all applicable rule applications on a subterm in the sequent under
      * inspection.
@@ -144,15 +143,17 @@ public class RuleApplicationFinder {
     public List<RuleApplication> findAll(TermSelector termSelector,  
             List<Rule> rules) throws ProofException {
         stopAtSize = MAX_NUMBER_APPLICATIONS;
-        
+
         try {
             find(termSelector, rules);
         } catch (EnoughException e) {
+            // the desired number of apps has been found, indicated by this
+            // exception. We can return now. There has not been an error.
         }
-        
+
         return applications;
     }
-    
+
     /**
      * Gets the currently installed application filter.
      * 

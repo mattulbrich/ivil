@@ -20,6 +20,9 @@ import java.util.Map;
 
 import javax.swing.UIManager;
 
+import nonnull.NonNull;
+import nonnull.Nullable;
+
 /**
  * A class with a singleton object to be used to resolve color names to Color objects.
  * 
@@ -58,7 +61,7 @@ public class ColorResolver {
      * 
      * @return the color resolver, null if resource is unavailable.
      */
-    public static ColorResolver getInstance() {
+    public static @NonNull ColorResolver getInstance() {
         if (defaultInstance == null) {
             try {
                 defaultInstance = new ColorResolver();
@@ -84,7 +87,7 @@ public class ColorResolver {
      * @return a Color object, possibly cached, null if the named color has not
      *         been found
      */
-    public Color resolve(String colorString) {
+    public @Nullable Color resolve(@NonNull String colorString) {
         try {
             
             if(colorString.startsWith(UI_REFERENCE_PREFIX)) {
@@ -93,12 +96,14 @@ public class ColorResolver {
                     return color;
             }
             
-            Integer entry= lookuptable.get(colorString);
+            Integer entry = lookuptable.get(colorString);
             
             if (entry == null) {
                 try {
                     entry = Integer.decode(colorString);
-                } catch (NumberFormatException ex) {}
+                } catch (NumberFormatException ex) {
+                    // no valid number --> return null
+                }
             }
             
             if(entry == null)

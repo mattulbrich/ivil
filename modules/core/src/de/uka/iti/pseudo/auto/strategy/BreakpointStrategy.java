@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.auto.strategy;
 
 import java.net.URL;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -32,9 +33,22 @@ import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
+/**
+ * The Class BreakpointStrategy implements the symbolic execution aware of
+ * cycles and breakpoints.
+ * 
+ * There are number of parameters that can be set. See below for ivildoc
+ * comments.
+ * 
+ * If desired the execution stops if a breakpoint is hit.
+ */
 public class BreakpointStrategy extends AbstractStrategy implements
         RuleApplicationFilter {
 
+    /**
+     * The break point manager stores all set breakpoints. It is there that we
+     * query for points to stop at.
+     */
     private BreakpointManager breakPointManager = new BreakpointManager();
 
     /**
@@ -55,7 +69,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      * <code>false</code>".
      */
     private boolean obeyProgramBreakpoints = true;
-    
+
     /**
      * @ivildoc "Environment property/obeySourceBreakpoints"
      * 
@@ -66,7 +80,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      * <code>false</code>".
      */
     private boolean obeySourceBreakpoints = true;
-    
+
     /**
      * @ivildoc "Environment property/stopAtSkip"
      * 
@@ -76,7 +90,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      * <code>false</code>".
      */
     private boolean stopAtSkip = false;
-    
+
     /**
      * @ivildoc "Environment property/stopAtLoop"
      * 
@@ -86,7 +100,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      * value can be "<code>true</code>" or " <code>false</code>".
      */
     private boolean stopAtLoop = true;
-    
+
     /**
      * @ivildoc "Environment property/stopAtLoop"
      * 
@@ -113,26 +127,31 @@ public class BreakpointStrategy extends AbstractStrategy implements
             String name;
 
             name = this.getClass().getSimpleName() + ".obeyProgramBreakpoints";
-            if (env.hasProperty(name))
+            if (env.hasProperty(name)) {
                 obeyProgramBreakpoints = Boolean.parseBoolean(env
                         .getProperty(name));
+            }
 
             name = this.getClass().getSimpleName() + ".obeySourceBreakpoints";
-            if (env.hasProperty(name))
+            if (env.hasProperty(name)) {
                 obeySourceBreakpoints = Boolean.parseBoolean(env
                         .getProperty(name));
+            }
 
             name = this.getClass().getSimpleName() + ".stopAtSkip";
-            if (env.hasProperty(name))
+            if (env.hasProperty(name)) {
                 stopAtSkip = Boolean.parseBoolean(env.getProperty(name));
+            }
 
             name = this.getClass().getSimpleName() + ".stopAtLoop";
-            if (env.hasProperty(name))
+            if (env.hasProperty(name)) { 
                 stopAtLoop = Boolean.parseBoolean(env.getProperty(name));
+            }
 
             name = this.getClass().getSimpleName() + ".stopAtJumpBack";
-            if (env.hasProperty(name))
+            if (env.hasProperty(name)) {
                 stopAtJumpBack = Boolean.parseBoolean(env.getProperty(name));
+            }
         }
     }
 
@@ -169,8 +188,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
     
         if (find instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
-            if (hasBreakpoint(progTerm, proofNode))
+            if (hasBreakpoint(progTerm, proofNode)) {
                 return false;
+            }
         } else {
             throw new RuleException(
                     "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
@@ -198,8 +218,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
                 int currentIndex = progTerm.getProgramIndex();
                 for (Term target : gotoStm.getSubterms()) {
                     int index = toInt(target);
-                    if (index <= currentIndex)
+                    if (index <= currentIndex) {
                         return true;
+                    }
                 }
             }
         }
@@ -236,8 +257,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
         //
         // check for program breakpoint
         if (obeyProgramBreakpoints) {
-            if (breakPointManager.hasBreakpoint(program, number))
+            if (breakPointManager.hasBreakpoint(program, number)) {
                 return true;
+            }
         }
 
         //
@@ -255,13 +277,14 @@ public class BreakpointStrategy extends AbstractStrategy implements
             // at 1
             if (differs
                     && breakPointManager.hasBreakpoint(sourceFile,
-                            sourceline - 1))
+                            sourceline - 1)) {
                 return true;
+            }
         }
 
         return false;
     }
-    
+
 //    /**
 //     * When starting a new round of automated proving, forget about
 //     * program terms that we have encountered in previous runs.
@@ -283,7 +306,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     public BreakpointManager getBreakpointManager() {
         return breakPointManager;
     }
-    
+
     // due to ParameterSheet, we need get instead of is
     public boolean getObeyProgramBreakpoints() {
         return obeyProgramBreakpoints;
@@ -332,14 +355,16 @@ public class BreakpointStrategy extends AbstractStrategy implements
     //
     // Helper function
     //
-    
+
     /**
      * Make integer from integer literal term.
+     * 
+     * @param term a number literal term. 
      * 
      * @throws RuntimeException
      *             if the term is not a number literal
      */
-    private int toInt(Term term) {
+    private int toInt(@NonNull Term term) {
         if (term instanceof Application) {
             Application appl = (Application) term;
             Function f = appl.getFunction();

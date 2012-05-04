@@ -111,8 +111,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
         
         schemaUpdateTerm.getSubterm(0).visit(this);
         
-        if(resultingTerm == null) 
-        {
+        if(resultingTerm == null) {
             Update resultingUpdate = updateMap.get(schemaIdentifier);
             if(resultingUpdate == null) {
                 // remains null: resultingTerm = null;

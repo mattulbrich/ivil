@@ -203,8 +203,9 @@ public class RewriteRuleCollection {
         for (Rule rule : rules) {
 
             String rwProperty = rule.getProperty(RuleTagConstants.KEY_REWRITE);
-            if (rwProperty == null || !category.equals(rwProperty))
+            if (rwProperty == null || !category.equals(rwProperty)) {
                 continue;
+            }
 
             LocatedTerm findClause = rule.getFindClause();
 
@@ -302,9 +303,9 @@ public class RewriteRuleCollection {
             Term term = terms.get(termno);
             TermSelector ts = new TermSelector(side, termno); // ok
             RuleApplicationMaker result = findRuleApplication(finder, term, ts);
-            if(result != null)
+            if(result != null) {
                 return result;
-            else if(noMatchCache != null) {
+            } else if(noMatchCache != null) {
                 // we haven't found a rule application, remember that.
                 noMatchCache.add(term);
                 if(noMatchCache.size() % 10000 == 0) {

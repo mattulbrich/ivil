@@ -121,8 +121,9 @@ public class Z3SMT implements DecisionProcedure {
                 result = Pair.make(Result.NOT_VALID, msg.toString());
             } else if("unknown".equals(answerLine)){
                 result =  Pair.make(Result.UNKNOWN, msg.toString());
-            } else
+            } else {
                 throw new ProofException("Z3 returned an error message: " + msg);
+            }
 
             if(KEEP_CHALLENGES) {
               Log.log("Result: " + result);
@@ -171,12 +172,13 @@ public class Z3SMT implements DecisionProcedure {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if(w != null)
+            if(w != null) {
                 try {
                     w.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
         }
     }
     

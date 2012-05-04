@@ -73,8 +73,9 @@ public class Z3 implements DecisionProcedure {
                 return Pair.make(Result.NOT_VALID, msg.toString());
             } else if("unknown".equals(answerLine)){
                 return Pair.make(Result.UNKNOWN, msg.toString());
-            } else
+            } else {
                 throw new ProofException("Z3 returned an error message: " + msg);
+            }
             
         }};
         
@@ -91,8 +92,9 @@ public class Z3 implements DecisionProcedure {
         } catch(Exception ex) {
             throw new ProofException("Error while calling decision procedure Z3", ex);
         } finally {
-            if(t != null)
+            if(t != null) {
                 t.interrupt();
+            }
         }
     }
 
