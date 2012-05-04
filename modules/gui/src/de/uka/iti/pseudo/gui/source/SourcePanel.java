@@ -73,28 +73,32 @@ public class SourcePanel extends CodePanel {
 
     }
     
-    @Override
+    @Override 
     protected void addHighlights() {
-        //collect trace
-        Set<CodeLocation<Program>> progLocs = new HashSet<CodeLocation<Program>>();
-        for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent()) {
-            progLocs.addAll(node.getCodeLocations());
-        }
-        
-        //print trace
-        for (CodeLocation<Program> progLoc : progLocs) {
-            URL source = progLoc.getProgram().getSourceFile();
-            int sourceLine = progLoc.getProgram().getStatement(progLoc.getIndex()).getSourceLineNumber();
-            if (source == getDisplayedResource() && sourceLine > 0) {
-                // line numbers start at 1 in code and at 0 in component.
-                getSourceComponent().addHighlight(sourceLine - 1, true);
+        // print trace
+        // remember the first parent that has a location
+        Collection<? extends CodeLocation<?>> firstLocs = null;
+        for (ProofNode node = proofCenter.getCurrentProofNode(); 
+                node != null; node = node.getParent()) {
+            Collection<? extends CodeLocation<?>> locs = getCodeLocations(node);
+
+            for (CodeLocation<?> loc : locs) {
+                Object source = loc.getProgram();
+                int sourceLine = loc.getIndex();
+                if (source == getDisplayedResource() && sourceLine > 0) {
+                    // line numbers start at 1 in code and at 0 in component.
+                    getSourceComponent().addHighlight(sourceLine - 1, true);
+                }
+            }
+
+            if(firstLocs == null && !locs.isEmpty()) {
+                firstLocs = locs;
             }
         }
         
-        //print current lines
-        for (CodeLocation<Program> progLoc : proofCenter.getCurrentProofNode().getCodeLocations()) {
-            URL source = progLoc.getProgram().getSourceFile();
-            int sourceLine = progLoc.getProgram().getStatement(progLoc.getIndex()).getSourceLineNumber();
+        for (CodeLocation<?> loc : firstLocs) {
+            Object source = loc.getProgram();
+            int sourceLine = loc.getIndex();
             if (source == getDisplayedResource() && sourceLine > 0) {
                 // line numbers start at 1 in code and at 0 in component.
                 getSourceComponent().addHighlight(sourceLine - 1, false);
@@ -103,12 +107,9 @@ public class SourcePanel extends CodePanel {
     }
 
     @Override
-    protected Object chooseResource() {
-        Set<CodeLocation<Program>> locations = proofCenter.getCurrentProofNode().getCodeLocations();
-        if (locations.size() == 0) {
-            return null;
-        }
-        return locations.iterator().next().getProgram().getSourceFile();
+    protected Collection<? extends CodeLocation<?>> 
+            calculateCodeLocationsOfNode(ProofNode node) {
+        return CodeLocation.findSourceCodeLocations(node.getSequent());
     }
 
 }

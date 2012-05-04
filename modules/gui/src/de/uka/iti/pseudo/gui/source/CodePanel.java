@@ -17,16 +17,22 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.term.CodeLocation;
 
 public abstract class CodePanel extends JPanel implements PropertyChangeListener {
 
@@ -38,6 +44,9 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     protected final ProofCenter proofCenter;
     private BreakpointManager breakpointManager;
     private Object displayedResource;
+
+    private Map<ProofNode, Collection<? extends CodeLocation<?>>> cache =
+            new HashMap<ProofNode, Collection<? extends CodeLocation<?>>>();
     
     public CodePanel(ProofCenter proofCenter, boolean showLinenumbers, 
             Color foregroundColor) throws IOException, StrategyException {
@@ -120,14 +129,35 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         getSourceComponent().removeHighlights();
         addHighlights();
     }
+    
+    protected Collection<? extends CodeLocation<?>> getCodeLocations(ProofNode node) {
+        Collection<? extends CodeLocation<?>> result =
+                cache.get(node);
+        if(result == null) {
+            result = calculateCodeLocationsOfNode(node);
+            cache .put(node, result);
+        }
+        return result;
+    }
+    
+    protected @Nullable Object chooseResource() {
+        Collection<? extends CodeLocation<?>> locations = 
+                getCodeLocations(proofCenter.getCurrentProofNode());
+        
+        if (locations.size() == 0) {
+            return null;
+        }
+        
+        return locations.iterator().next().getProgram();
+    }
 
     abstract protected String makeContent(Object reference);
 
     abstract protected ComboBoxModel getAllResources();
     
-    abstract protected Object chooseResource();
-    
     abstract protected void addHighlights();
+    
+    abstract protected Collection<? extends CodeLocation<?>> calculateCodeLocationsOfNode(ProofNode node);
 
     protected ProofCenter getProofCenter() {
         return proofCenter;

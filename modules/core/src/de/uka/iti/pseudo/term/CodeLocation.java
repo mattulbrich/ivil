@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
@@ -14,6 +16,8 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * Representation of the location of inside a program. This is mostly
  * used to provide useful information for the user.
+ * 
+ * The index may be a sourceline or a statement number.
  * 
  * @param <P>
  *            type of the program reference in the location (typically
@@ -33,24 +37,37 @@ public final class CodeLocation<P> {
      */
     private final P program;
 
-    public CodeLocation(int line, final P program) {
-        this.index = line;
+    /**
+     * Instantiates a new code location.
+     * 
+     * @param index
+     *            the index in the program object
+     * @param program
+     *            the program object to use
+     */
+    public CodeLocation(@NonNull P program, int index) {
+        this.index = index;
         this.program = program;
+    }
+
+    // TODO DOC
+    public static CodeLocation<Program> fromTerm(LiteralProgramTerm progTerm) {
+        int index = progTerm.getProgramIndex();
+        Program program = progTerm.getProgram();
+        return new CodeLocation<Program>(program, index);
     }
 
     /**
      * Checks if two locations are equivalent.
      */
-    public boolean sameAs(CodeLocation<P> c) {
-        // FIXME entanglement with equals. should be done the other way round.
-        return equals(c);
+    public boolean equals(CodeLocation<?> c) {
+        return index == c.index && Util.equalOrNull(program, c.program);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof CodeLocation) {
-            CodeLocation<?> loc = (CodeLocation<?>) obj;
-            return index == loc.index && Util.equalOrNull(program, loc.program);
+            return equals((CodeLocation<?>)obj);
         }
         return false;
     }
@@ -76,8 +93,9 @@ public final class CodeLocation<P> {
         final Set<CodeLocation<Program>> progTerms = new HashSet<CodeLocation<Program>>();
 
         TermVisitor programFindVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+            @Override
             public void visit(LiteralProgramTerm progTerm) throws TermException {
-                progTerms.add(progTerm.getCodeLocation());
+                progTerms.add(new CodeLocation<Program>(progTerm.getProgram(), progTerm.getProgramIndex()));
             }
         };
 
@@ -101,6 +119,10 @@ public final class CodeLocation<P> {
         }
     }
     
+    public static Set<CodeLocation<URL>> findSourceCodeLocations(Sequent sequent) {
+        return findSourceCodeLocations(findCodeLocations(sequent));
+    }
+    
     public static Set<CodeLocation<URL>> findSourceCodeLocations(Collection<CodeLocation<Program>> programLocations) {
 
         Set<CodeLocation<URL>> result = new HashSet<CodeLocation<URL>>();
@@ -110,7 +132,9 @@ public final class CodeLocation<P> {
             if(sourceFile != null) {
                 Statement stm = loc.getProgram().getStatement(loc.getIndex());
                 int line = stm.getSourceLineNumber();
-                result.add(new CodeLocation<URL>(line, sourceFile));
+                if(line != -1) {
+                    result.add(new CodeLocation<URL>(sourceFile, line));
+                }
             }
         }
 

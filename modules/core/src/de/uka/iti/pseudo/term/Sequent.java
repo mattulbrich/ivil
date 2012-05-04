@@ -10,17 +10,11 @@
  */
 package de.uka.iti.pseudo.term;
 
-import java.net.URL;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import nonnull.DeepNonNull;
 import nonnull.NonNull;
-import checkers.nullness.quals.Nullable;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
+import nonnull.Nullable;
 import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 
@@ -29,8 +23,6 @@ import de.uka.iti.pseudo.util.Util;
  * in these lists needs to be of boolean type.
  */
 public class Sequent {
-
-    private static final CodeLocation[] NO_CODE_LOCATIONS = new CodeLocation[0];
 
     /**
      * The antecedent.
@@ -112,42 +104,6 @@ public class Sequent {
     public @NonNull List<Term> getSuccedent() {
         return Util.readOnlyArrayList(succedent);
     }
-
-    /**
-     * Gets an immutable view on the code locations appearing in this sequent.
-     *
-     * The code locations are calculated lazily upon demand and then cached.
-     *
-     * @return an immutable list of code locations
-     */
-//    public @DeepNonNull List<CodeLocation> getNativeCodeLocations() {
-//        if (null == nativeCodeLocations)
-//            calculateCodeLocations();
-//
-//        assert nativeCodeLocations != null : "nullness";
-//        
-//        return Util.readOnlyArrayList(nativeCodeLocations);
-//    }
-
-    /**
-     * Gets an immutable view on the source code locations for the program
-     * formulas appearing in this sequent.
-     *
-     * The code locations are calculated lazily upon demand and then cached.
-     *
-     * The result of this method might be empty even if
-     * {@link #getNativeCodeLocations()} returns a non-empty collection.
-     *
-     * @return an immutable list of code locations
-     */
-//    public @DeepNonNull List<CodeLocation> getSourceCodeLocations() {
-//        if (null == sourceCodeLocations)
-//            calculateCodeLocations();
-//
-//        assert sourceCodeLocations != null : "nullness";
-//        
-//        return Util.readOnlyArrayList(sourceCodeLocations);
-//    }
 
     /**
      * A sequent is represented as a string as two comma separated lists of term

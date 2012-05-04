@@ -93,7 +93,7 @@ public abstract class StepCodeAction extends BarAction implements
             return; // if this effect is undesired, select the first open goal
                     // that has a line number
 
-        final CodeLocation loc = getCodeLocation(selectedProofNode);
+        final CodeLocation<?> loc = getCodeLocation(selectedProofNode);
 
         // stepping should be disabled if no unique code location can be
         // identified
@@ -131,8 +131,8 @@ public abstract class StepCodeAction extends BarAction implements
                             strategy.notifyRuleApplication(ra);
 
                             for (ProofNode node : current.getChildren()) {
-                                CodeLocation next = getCodeLocation(node);
-                                if (next != null && next.sameAs(loc)) {
+                                CodeLocation<?> next = getCodeLocation(node);
+                                if (next != null && next.equals(loc)) {
                                     todo.add(node);
                                 }
                                 if(continueWithoutProgram && next == null) {
@@ -149,6 +149,7 @@ public abstract class StepCodeAction extends BarAction implements
                 return null;
             }
 
+            @Override
             public void done() {
                 pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                 if (selectedProofNode.isClosed()) {

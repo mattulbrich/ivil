@@ -25,10 +25,14 @@ import de.uka.iti.pseudo.term.statement.Statement;
 public final class LiteralProgramTerm extends ProgramTerm {
 
     /**
-     * The statement counter index into the program and the program are captured
-     * in a {@link CodeLocation}.
+     * The program to which this term refers.
      */
-    private CodeLocation<Program> codeLocation;
+    private final Program program;
+
+    /**
+     * The program index to which this term refers.
+     */
+    private final int programIndex;
 
     /**
      * Instantiates a new literal program term for an index into a program.
@@ -53,7 +57,8 @@ public final class LiteralProgramTerm extends ProgramTerm {
     private LiteralProgramTerm(int programIndex, @NonNull Modality modality,
             @NonNull Program program, @NonNull Term formula) throws TermException {
         super(new Term[] { formula }, modality);
-        this.codeLocation = new CodeLocation<Program>(programIndex, program);
+        this.program = program;
+        this.programIndex = programIndex;
 
         if (programIndex < 0)
             throw new TermException(
@@ -148,6 +153,7 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * A literal program prints the index as number and the referenced program
      * by its identifier in the modality brackets.
      */
+    @Override
     protected String getContentString(boolean typed) {
         return getProgramIndex() + ";" + getProgram();
     }
@@ -164,10 +170,12 @@ public final class LiteralProgramTerm extends ProgramTerm {
      *            Object to compare with
      * @return true iff object and this are identical literal program terms.
      */
+    @Override
     public boolean equals(@Nullable Object object) {
         if (object instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) object;
-            return codeLocation.equals(prog.codeLocation)
+            return program.equals(prog.program)
+                   && programIndex == prog.programIndex
                    && super.equalsPartially(prog);
         }
         return false;
@@ -178,10 +186,11 @@ public final class LiteralProgramTerm extends ProgramTerm {
      */
     @Override
     protected int calculateHashCode() {
-        return super.calculateHashCode() * 31 + codeLocation.hashCode();
+        return super.calculateHashCode() * 31 + program.hashCode() + programIndex;
     }
 
 
+    @Override
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }
@@ -192,7 +201,7 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * @return the program index
      */
     public int getProgramIndex() {
-        return codeLocation.getIndex();
+        return programIndex;
     }
 
     /**
@@ -215,16 +224,16 @@ public final class LiteralProgramTerm extends ProgramTerm {
      * @return the referenced program
      */
     public Program getProgram() {
-        return codeLocation.getProgram();
+        return program;
     }
     
-    /**
-     * get the pair of index and program as a {@link CodeLocation} object.
-     * 
-     * @return an immutable object, always the same.
-     */
-    public CodeLocation<Program> getCodeLocation() {
-       return codeLocation; 
-    }
+//    /**
+//     * get the pair of index and program as a {@link CodeLocation} object.
+//     * 
+//     * @return an immutable object, always the same.
+//     */
+//    public CodeLocation<Program> getCodeLocation() {
+//       return codeLocation; 
+//    }
     
 }

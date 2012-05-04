@@ -15,7 +15,6 @@ import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
@@ -42,6 +41,7 @@ public class ProgramPanel extends CodePanel {
         super(proofCenter, false, PROGRAM_COLOR);
     }
 
+    @Override
     protected String makeContent(Object object) {
 
         if (prettyPrinter == null) {
@@ -69,30 +69,38 @@ public class ProgramPanel extends CodePanel {
         return sb.toString();
     }
 
-    @Override protected void addHighlights() {
+    @Override 
+    protected void addHighlights() {
         // print trace
-        for (ProofNode node = proofCenter.getCurrentProofNode().getParent(); null != node; node = node.getParent())
-            for (CodeLocation<Program> location : node.getCodeLocations())
-                if (location.getProgram() == getDisplayedResource())
-                    if (location.getIndex() < ((Program) location.getProgram()).countStatements())
-                        getSourceComponent().addHighlight(location.getIndex(), true);
+        // remember the first parent that has a location
+        Collection<? extends CodeLocation<?>> firstLocs = null;
+        for (ProofNode node = proofCenter.getCurrentProofNode(); 
+                node != null; node = node.getParent()) {
+            Collection<? extends CodeLocation<?>> locs = getCodeLocations(node);
 
+            for (CodeLocation<?> loc : locs) {
+                if(loc.getProgram() == getDisplayedResource() &&
+                        loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
+                    getSourceComponent().addHighlight(loc.getIndex(), true);
+                }
+            }
 
-        for (CodeLocation<Program> location : proofCenter.getCurrentProofNode().getCodeLocations())
-            if (location.getProgram() == getDisplayedResource())
-                if (location.getIndex() < ((Program) location.getProgram()).countStatements())
-                    getSourceComponent().addHighlight(location.getIndex(), false);
-                
+            if(firstLocs == null && !locs.isEmpty()) {
+                firstLocs = locs;
+            }
+        }
+        
+        for (CodeLocation<?> loc : firstLocs) {
+            if(loc.getProgram() == getDisplayedResource() &&
+                    loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
+                getSourceComponent().addHighlight(loc.getIndex(), false);
+            }
+        }
     }
 
-    @Override protected Object chooseResource() {
-        Set<CodeLocation<Program>> locations = proofCenter.getCurrentProofNode().getCodeLocations();
-        for (CodeLocation<Program> loc : locations) {
-            // if non-empty:
-            return loc.getProgram();
-        }
-        // else if empty:
-        return null;
+    @Override
+    protected Collection<? extends CodeLocation<?>> calculateCodeLocationsOfNode(ProofNode node) {
+        return CodeLocation.findCodeLocations(node.getSequent());
     }
 
     @Override protected ComboBoxModel getAllResources() {

@@ -2,12 +2,10 @@ package de.uka.iti.pseudo.gui.actions.auto;
 
 import java.awt.event.KeyEvent;
 import java.net.URL;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.KeyStroke;
 
-import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.term.CodeLocation;
 
@@ -30,8 +28,9 @@ public class StepSourceAction extends StepCodeAction {
 
     @Override
     protected CodeLocation<?> getCodeLocation(ProofNode node) {
-        Set<CodeLocation<Program>> codeLocs = node.getCodeLocations();
-        Set<CodeLocation<URL>> sourceLocs = CodeLocation.findSourceCodeLocations(codeLocs);
+        Set<CodeLocation<URL>> sourceLocs = 
+                CodeLocation.findSourceCodeLocations(node.getSequent());
+
         if (sourceLocs.size() == 1)
             return sourceLocs.iterator().next();
         return null;

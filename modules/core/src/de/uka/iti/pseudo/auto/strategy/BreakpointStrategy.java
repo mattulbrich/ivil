@@ -11,6 +11,9 @@
 package de.uka.iti.pseudo.auto.strategy;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -51,6 +54,13 @@ public class BreakpointStrategy extends AbstractStrategy implements
      */
     private BreakpointManager breakPointManager = new BreakpointManager();
 
+    /**
+     * For detecting loops, code locations must be calculated. They are cached
+     * here.
+     */
+    private Map<ProofNode, Collection<CodeLocation<Program>>> codeLocationCache =
+            new HashMap<ProofNode, Collection<CodeLocation<Program>>>();
+    
     /**
      * The set of rules which we consult
      */
@@ -228,11 +238,11 @@ public class BreakpointStrategy extends AbstractStrategy implements
         //
         // check for unwanted looping
         if (stopAtLoop) {
-            CodeLocation<Program> codeLoc = progTerm.getCodeLocation();
+            CodeLocation<Program> codeLoc = CodeLocation.fromTerm(progTerm);
             
             // find first parent w/o this codeLoc
             while(proofNode != null) {
-                if(!proofNode.getCodeLocations().contains(codeLoc)) {
+                if(!getCodeLocations(proofNode).contains(codeLoc)) {
                     break;
                 }
                 
@@ -241,7 +251,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
             
             // find another (older) ancestor w/ the codeLoc
             while(proofNode != null) {
-                if(proofNode.getCodeLocations().contains(codeLoc)) {
+                if(getCodeLocations(proofNode).contains(codeLoc)) {
                     // found!
                     return true;
                 }
@@ -293,6 +303,15 @@ public class BreakpointStrategy extends AbstractStrategy implements
 //    public void beginSearch() throws StrategyException {
 //        super.beginSearch();
 //    }
+
+    private Collection<CodeLocation<Program>> getCodeLocations(ProofNode proofNode) {
+        Collection<CodeLocation<Program>> result = codeLocationCache.get(proofNode);
+        if(result == null) {
+            result = CodeLocation.findCodeLocations(proofNode.getSequent());
+            codeLocationCache.put(proofNode, result);
+        }
+        return result;
+    }
 
     @Override
     public String toString() {

@@ -106,6 +106,7 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * <li>the suffix terms are equal.
      * </ol>
      */
+    @Override
     public boolean equals(@Nullable Object object) {
         if (object instanceof SchemaProgramTerm) {
             SchemaProgramTerm sch = (SchemaProgramTerm) object;
@@ -122,7 +123,8 @@ public final class SchemaProgramTerm extends ProgramTerm {
      */
     @Override
     protected int calculateHashCode() {
-        return super.calculateHashCode() * 31 + (matchingStatement == null ? 0 : matchingStatement.hashCode());
+        return super.calculateHashCode() * 31 + 
+                (matchingStatement == null ? 0 : matchingStatement.hashCode());
     }
 
 
@@ -139,6 +141,7 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * if no matching statement has been provided.
      */
+    @Override
     protected String getContentString(boolean typed) {
         String res = getSchemaVariable().toString(false);
         if (hasMatchingStatement())
@@ -161,6 +164,7 @@ public final class SchemaProgramTerm extends ProgramTerm {
      * 
      * @see de.uka.iti.pseudo.term.Term#visit(de.uka.iti.pseudo.term.TermVisitor)
      */
+    @Override
     public void visit(TermVisitor visitor) throws TermException {
         visitor.visit(this);
     }

@@ -69,17 +69,17 @@ import de.uka.iti.pseudo.util.Util;
  * @see Proof
  */
 public class ProofNode implements Comparable<ProofNode> {
-    
+
     /**
      * The sequent stored in this node. This does not change.
      */
     private final Sequent sequent;
-    
+
     /**
      * Since this is often queried, the list of code locations is cached in this
      * field.
      */
-    private @Nullable Set<CodeLocation<Program>> codeLocations = null;
+//    private @Nullable Set<CodeLocation<Program>> codeLocations = null;
 
     /**
      * The associated proof.
@@ -618,6 +618,7 @@ public class ProofNode implements Comparable<ProofNode> {
         return sequentHistory;
     }
 
+    @Override
     public String toString() {
         return "ProofNode #" + getSummaryString();
     }
@@ -627,17 +628,17 @@ public class ProofNode implements Comparable<ProofNode> {
         return number - o.number;
     }
     
-    /**
-     * Get the list of program code locations which occur in the sequent. The
-     * result of the search is cached in this object to make this operation less
-     * expensive.
-     * 
-     * @return an immutable view to the list of code locations.
-     */
-    public Set<CodeLocation<Program>> getCodeLocations() {
-        if(codeLocations == null) {
-            codeLocations = CodeLocation.findCodeLocations(sequent);
-        }
-        return Collections.unmodifiableSet(codeLocations);
-    }
+//    /**
+//     * Get the list of program code locations which occur in the sequent. The
+//     * result of the search is cached in this object to make this operation less
+//     * expensive.
+//     * 
+//     * @return an immutable view to the list of code locations.
+//     */
+//    public Set<CodeLocation<Program>> getCodeLocations() {
+//        if(codeLocations == null) {
+//            codeLocations = CodeLocation.findCodeLocations(sequent);
+//        }
+//        return Collections.unmodifiableSet(codeLocations);
+//    }
 }

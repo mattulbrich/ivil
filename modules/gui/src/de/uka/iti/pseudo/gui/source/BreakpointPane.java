@@ -59,22 +59,25 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
     private static final long serialVersionUID = -5566042549810690095L;
 
     private static Settings SETTINGS = Settings.getInstance(); 
-    
+
     private static final Font FONT = 
-        SETTINGS.getFont("pseudo.program.font", null);
-    
+            SETTINGS.getFont("pseudo.program.font", null);
+
     private static final Color HIGHLIGHT_COLOR = 
- SETTINGS.getColor("pseudo.program.highlightcolor", Color.GREEN);
+            SETTINGS.getColor("pseudo.program.highlightcolor", Color.GREEN);
     private static final Color TRACE_COLOR = 
- SETTINGS.getColor("pseudo.program.tracecolor", new Color(200, 230, 200));
-        
+            SETTINGS.getColor("pseudo.program.tracecolor", new Color(200, 230, 200));
+
     private static final Icon BULLET_ICON = GUIUtil.makeIcon(
             BulletBorder.class.getResource("/de/uka/iti/pseudo/gui/img/bullet_blue.png"));
-    private static final HighlightPainter BAR_PAINTER = new BarHighlightPainter(HIGHLIGHT_COLOR);
-    private static final HighlightPainter TRACE_PAINTER = new BarHighlightPainter(TRACE_COLOR);
+    private static final HighlightPainter BAR_PAINTER = 
+            new BarHighlightPainter(HIGHLIGHT_COLOR);
+    private static final HighlightPainter TRACE_PAINTER =
+            new BarHighlightPainter(TRACE_COLOR);
 
-    public static boolean showTrace = SETTINGS.getBoolean("pseudo.program.showtrace", true);
-    
+    public static boolean showTrace = 
+            SETTINGS.getBoolean("pseudo.program.showtrace", true);
+
     private BreakpointManager breakpointManager;
     private Object breakPointResource;
     private List<Object> lineHighlights = new ArrayList<Object>();
@@ -176,13 +179,23 @@ public class BreakpointPane extends BracketMatchingTextArea implements Observer 
         repaint();
     }
 
+    /**
+     * Adds a highlighted line to the display.
+     * 
+     * @param line
+     *            the line to highlight in the display
+     * @param isTrace
+     *            <code>true</code> for a distant highlight, <code>false</code>
+     *            for the direct line.
+     */
     public void addHighlight(int line, boolean isTrace) {
         if (isTrace && !showTrace)
             return;
 
         try {
             int begin = getLineStartOffset(line);
-            Object tag = getHighlighter().addHighlight(begin, begin, isTrace ? TRACE_PAINTER : BAR_PAINTER);
+            Object tag = getHighlighter().addHighlight(begin, begin,
+                    isTrace ? TRACE_PAINTER : BAR_PAINTER);
             lineHighlights.add(tag);
             
             // make this line visible
