@@ -122,26 +122,26 @@ rule rename_schemas
   find (\forall x; (\forall %x; x=%x))
   replace true
   tags expectedTranslation
-        "(\forall x as 'x; (\forall x1 as 'x; x=x1))"
+        "(\\forall x as 'x; (\\forall x1 as 'x; x=x1))"
 
 
 rule rename_schemas2
   find (\forall x; x=%x)
   replace true
   tags expectedTranslation
-        "(\forall x as 'x; x=x1(x))"
+        "(\\forall x as 'x; x=x1(x))"
 
 rule free_numeric_schema_type
   find (\forall x; true)
   replace true
   tags expectedTranslation
-        "(\forall x as 'v2; true)"
+        "(\\forall x as 'v2; true)"
 
 rule rename_schema3
   find (\forall c; c=c) | %c=%c
   replace true
   tags expectedTranslation
-        "((\forall c as 'v3; c=c) | c1 as 'c=c1)"
+        "((\\forall c as 'v3; c=c) | c1 as 'c=c1)"
 
 
 # from a problem
@@ -149,7 +149,7 @@ rule rename_schema4
   find (\forall c; %phi) & %c
   replace true
   tags expectedTranslation
-        "((\forall c as 'v2; phi(c)) & c1)"
+        "((\\forall c as 'v2; phi(c)) & c1)"
 
 
 # from a problem
@@ -157,7 +157,7 @@ rule rename_schema5
   find (\forall %x; true)
   replace true
   tags expectedTranslation
-        "(\forall x as 'x; true)"
+        "(\\forall x as 'x; true)"
 
 
 rule schema_type1
@@ -178,7 +178,7 @@ rule skolemize
   find (\forall %x; %b)
   replace true
   tags expectedTranslation
-       "(\forall x as 'x; b(x))"
+       "(\\forall x as 'x; b(x))"
 # ensure "bool b('x)" is available.
 
 
@@ -186,7 +186,7 @@ rule skolemize2
   find (\forall %x as int; %b)
   replace true
   tags expectedTranslation
-       "(\forall x; b(x))"
+       "(\\forall x; b(x))"
 # ensure "bool b(int)" is available.
 
 function bool f(int)
@@ -195,8 +195,8 @@ rule skolemize3
   find (\forall c; (\forall %x; f(%x) & %a & %b & %d) & %a) & %c & %d | (\exists %e; true)
   replace true
   tags expectedTranslation
-        "((\forall c as 'v3; (\forall x as int; f(x) & a(c) & b(x, \var c as 'v3) & d) & a(c)) & c1 & d |
-         (\exists e as 'e; true))"
+        "((\\forall c as 'v3; (\\forall x as int; f(x) & a(c) & b(x, \\var c as 'v3) & d) & a(c)) & c1 & d |
+         (\\exists e as 'e; true))"
 
 rule type_quant_fails
   find (\T_all 'a; %c)
