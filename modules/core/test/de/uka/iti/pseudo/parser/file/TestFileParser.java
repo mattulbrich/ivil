@@ -109,6 +109,15 @@ public class TestFileParser extends TestCase {
         assertEquals("", rule.getProperty("Tag2"));
     }
     
+    public void testPropertiesWithQuotes() throws Exception {
+        // Is in reality: tags quoted "\\Quotes: \"Hello\""
+        String string = "rule quotes closegoal tags quoted \"\\\\Quotes: \\\"Hello\\\"\"";
+//        System.out.println(string);
+        Environment e = testEnv(string);
+        Rule rule = e.getRule("quotes");
+        assertEquals("\\Quotes: \"Hello\"", rule.getProperty("quoted"));
+    }
+    
     // due to problems with cuts
     public void testGoalActionNaming() throws Exception {
         Environment e = testEnv("rule something find 1 samegoal \"actionname\" replace 2");

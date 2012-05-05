@@ -432,15 +432,33 @@ public class Util {
     }
 
     /**
-     * Strip quoting or similar characters from a string.
+     * Strip quotes from and unescape a string.
+     * 
+     * Strip leading and closing quoting characters from a string.
+     * Additionally translate backslash escapes: \\ becomes \ and \" becomes ".
      * 
      * @param s
      *            some string with length >= 2
      * 
+     * @see #addQuotes(String)
      * @return the string with first and last character removed
      */
-    public static String stripQuotes(String s) {
-        return s.substring(1, s.length() - 1);
+    public static @NonNull String stripQuotes(@NonNull String s) {
+        return s.substring(1, s.length() - 1).replace("\\\"", "\"").replace("\\\\", "\\");
+    }
+
+    /**
+     * Escape a string and add quotes.
+     * 
+     * Add leading and trailing &quot; character and escapes quotes and backslashes.
+     * 
+     * @see #stripQuotes(String)
+     * 
+     * @param s the string to quote
+     * @return the string with quotes special characters and quotes
+     */
+    public static @NonNull String addQuotes(@NonNull String s) {
+        return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
     }
 
     /**

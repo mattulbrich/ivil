@@ -21,5 +21,16 @@ public class TestUtil extends TestCase {
         assertEquals("a.(null).b", Util.join(new Object[] { "a", null, "b" }, "."));
         assertEquals("a.b", Util.join(Arrays.asList("a", null, "b"), ".", true));
     }
+    
+    // stripQuotes and addQuotes belong together
+    
+    public void testQuotes() throws Exception {
+        String string = "abc \" \\";
+        String quoted = Util.addQuotes(string);
+        String unquoted = Util.stripQuotes(quoted);
+        
+        assertEquals("\"abc \\\" \\\\\"", quoted);
+        assertEquals(string, unquoted);
+    }
 
 }

@@ -201,7 +201,7 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < ASSIGN: ":=" >
 
 // Literals
-| < STRING: "\"" ( ~["\""] )* "\"" >
+| < STRING: "\"" ( (~["\"", "\\"]) | ("\\" ["\"", "\\"]) )* "\"" >
 | < NATURAL: ( ["0" - "9"] )+ >
 
 
