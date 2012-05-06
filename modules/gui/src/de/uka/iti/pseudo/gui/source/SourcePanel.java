@@ -95,13 +95,15 @@ public class SourcePanel extends CodePanel {
                 firstLocs = locs;
             }
         }
-        
-        for (CodeLocation<?> loc : firstLocs) {
-            Object source = loc.getProgram();
-            int sourceLine = loc.getIndex();
-            if (source == getDisplayedResource() && sourceLine > 0) {
-                // line numbers start at 1 in code and at 0 in component.
-                getSourceComponent().addHighlight(sourceLine - 1, false);
+
+        if(firstLocs != null) {
+            for (CodeLocation<?> loc : firstLocs) {
+                Object source = loc.getProgram();
+                int sourceLine = loc.getIndex();
+                if (source == getDisplayedResource() && sourceLine > 0) {
+                    // line numbers start at 1 in code and at 0 in component.
+                    getSourceComponent().addHighlight(sourceLine - 1, false);
+                }
             }
         }
     }
