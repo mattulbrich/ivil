@@ -248,5 +248,19 @@ public class CompoundStrategy extends AbstractStrategy {
         }
         return null;
     }
+    
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The implementation of compound strategy delegates the method call to all
+     * child strategies.
+     */
+    @Override
+    public void notifyRuleApplication(RuleApplication ruleApp)
+            throws StrategyException {
+        for (Strategy strategy : strategies) {
+            strategy.notifyRuleApplication(ruleApp);
+        }
+    }
 
 }

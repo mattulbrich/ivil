@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.uka.iti.pseudo.auto.strategy.hint.HintRuleAppFinder;
 import de.uka.iti.pseudo.auto.strategy.hint.HintParser;
+import de.uka.iti.pseudo.auto.strategy.hint.HintRuleAppFinder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -14,20 +14,21 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Log;
 
 public class HintStrategy extends AbstractStrategy {
 
     private static final String HINTS_ON_BRANCHES_PROPERTY = "hintsOnBranches";
     private Map<ProofNode, List<HintRuleAppFinder>> hintMap = 
             new HashMap<ProofNode, List<HintRuleAppFinder>>();
-    private Environment env;
+
     private HintParser hintParser;
+    private boolean raiseErrors = true;
 
     @Override
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
-        this.env = env;
         this.hintParser = new HintParser(env);
     }
     
@@ -56,8 +57,13 @@ public class HintStrategy extends AbstractStrategy {
         return null;
     }
     
-    private RuleApplication followHint(HintRuleAppFinder hint, ProofNode node, ProofNode reasonNode) {
-        return hint.findRuleApplication(node, reasonNode);
+    private RuleApplication followHint(HintRuleAppFinder hint, ProofNode node, ProofNode reasonNode) throws StrategyException {
+        try {
+            return hint.findRuleApplication(node, reasonNode);
+        } catch (Exception e) {
+            handleException(e);
+            return null;
+        }
     }
 
     @Override
@@ -88,8 +94,36 @@ public class HintStrategy extends AbstractStrategy {
                 } 
             }
         } catch (Exception e) {
-            throw new StrategyException("Error while processing hints", e);
+            handleException(e);
         }
     };
+
+    private void handleException(Exception e) throws StrategyException {
+        if(raiseErrors) {
+            throw new StrategyException("Error while handling proof hints: " + e.getMessage(), e);
+        } else {
+            Log.log(Log.ERROR, "Error while handling proof hints");
+            Log.stacktrace(Log.ERROR, e);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Hint Strategy";
+    }
+
+    /**
+     * @return the raiseErrors
+     */
+    public boolean getRaiseErrors() {
+        return raiseErrors;
+    }
+
+    /**
+     * @param raiseErrors the raiseErrors to set
+     */
+    public void setRaiseErrors(boolean raiseErrors) {
+        this.raiseErrors = raiseErrors;
+    }
 
 }

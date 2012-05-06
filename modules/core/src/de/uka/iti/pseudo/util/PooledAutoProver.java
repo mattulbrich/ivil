@@ -59,7 +59,11 @@ public class PooledAutoProver {
                 if (ra != null) {
                     try {
                         node.getProof().apply(ra, env);
+                        strategy.notifyRuleApplication(ra);
                     } catch (ProofException e) {
+                        exceptions.add(e);
+                        return;
+                    } catch (StrategyException e) {
                         exceptions.add(e);
                         return;
                     }

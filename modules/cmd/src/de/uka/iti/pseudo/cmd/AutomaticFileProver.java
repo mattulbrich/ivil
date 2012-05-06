@@ -224,6 +224,7 @@ public class AutomaticFileProver implements Callable<Result> {
                 }
 
                 proof.apply(ruleApp, env);
+                strategy.notifyRuleApplication(ruleApp);
             }
 
             List<ProofNode> openGoals = proof.getOpenGoals();

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 
@@ -23,15 +24,15 @@ public final class HintParser {
         this.env = env;
     }
     
-    public List<HintRuleAppFinder> parse(String string) throws IOException, EnvironmentException {
+    public List<HintRuleAppFinder> parse(String string) throws IOException, EnvironmentException, StrategyException {
         return parse(new StringReader(string));
     }
 
-    public List<HintRuleAppFinder> parse(Reader reader) throws IOException, EnvironmentException {
+    public List<HintRuleAppFinder> parse(Reader reader) throws IOException, EnvironmentException, StrategyException {
         return parse(new PushbackReader(reader));
     }
     
-    public List<HintRuleAppFinder> parse(PushbackReader reader) throws IOException, EnvironmentException {
+    public List<HintRuleAppFinder> parse(PushbackReader reader) throws IOException, EnvironmentException, StrategyException {
         List<HintRuleAppFinder> result = new LinkedList<HintRuleAppFinder>();
         int c;
 
@@ -49,7 +50,7 @@ public final class HintParser {
     
     private enum State { SIMPLE, NORMAL, LITERAL };
 
-    private HintRuleAppFinder parseHint(PushbackReader reader, List<HintRuleAppFinder> hintList) throws IOException, EnvironmentException {
+    private HintRuleAppFinder parseHint(PushbackReader reader, List<HintRuleAppFinder> hintList) throws IOException, EnvironmentException, StrategyException {
         int c = reader.read();
         
         State state;
@@ -109,7 +110,7 @@ public final class HintParser {
         }
     }
 
-    private HintRuleAppFinder makeHint(List<String> list) throws EnvironmentException {
+    private HintRuleAppFinder makeHint(List<String> list) throws EnvironmentException, StrategyException {
         if(list.isEmpty()) {
             return null;
         }

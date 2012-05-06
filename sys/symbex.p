@@ -185,6 +185,7 @@ rule auto_box_assert
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
+       hintsOnBranches "0"
 
 rule auto_tbox_assert
   find |- { U ?} [[%a : assert %b]]%phi
@@ -194,6 +195,7 @@ rule auto_tbox_assert
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
+       hintsOnBranches "0"
 
 rule auto_dia_assert
   find |- { U ?} [<%a : assert %b>]%phi
@@ -202,6 +204,7 @@ rule auto_dia_assert
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
+       hintsOnBranches "0"
 
 
 rule auto_box_assume

@@ -91,6 +91,12 @@ plugin
     
     # pretty printing for maps
     prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.MapPrettyPrinter"
+
+    # proof hint where a rule application is given like §(rule ruleName)
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.RuleProofHint"
+
+    # proof hint to perform a case distinction like §(cut 'a > 0')
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.CutProofHint"
     
 (*
  * This rule can -- in combination with the where condition axiom
