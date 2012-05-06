@@ -15,6 +15,8 @@ import junit.framework.TestSuite;
 import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
+import de.uka.iti.pseudo.auto.strategy.hint.TestHintParser;
+import de.uka.iti.pseudo.auto.strategy.hint.TestHintStrategy;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
 import de.uka.iti.pseudo.environment.TestRuleAxiomExtractor;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
@@ -101,6 +103,8 @@ public class AllCoreTests {
         suite.addTestSuite(TestUtil.class);
         //suite.addTestSuite(TestAppendMap.class);
         suite.addTestSuite(TestRewindMap.class);
+        suite.addTestSuite(TestHintParser.class);
+        suite.addTestSuite(TestHintStrategy.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);
