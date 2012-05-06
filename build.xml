@@ -116,7 +116,8 @@
 
   <target name="javadoc" depends="init" description="Build Javadoc.">
     <mkdir dir="javadoc"/>
-    <javadoc additionalparam="-tag ivildoc:a:'ivil Ref-Manual Documentation:'" destdir="javadoc" linksource="yes">
+    <javadoc additionalparam="-tag ivildoc:a:'ivil Ref-Manual Documentation:'" 
+             destdir="javadoc" linksource="yes">
       <sourcepath>
         <pathelement location="modules/core/src"/>
         <pathelement location="modules/gui/src"/>
@@ -124,6 +125,10 @@
         <pathelement location="modules/boogie/src"/>
         <pathelement location="modules/exp/src"/>
       </sourcepath>
+      <classpath>
+        <pathelement location="lib/nonnull.jar"/>
+        <pathelement location="lib/checkers-quals.jar"/>
+      </classpath>
       <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
     </javadoc>
   </target>

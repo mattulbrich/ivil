@@ -29,10 +29,12 @@ public class ASTWhereClause extends ASTRuleElement {
         addChildren(args);
     }
 
+    @Override
     public Token getLocationToken() {
         return identifier;
     }
 
+    @Override
     public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }

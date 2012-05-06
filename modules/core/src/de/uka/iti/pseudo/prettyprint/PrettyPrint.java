@@ -13,8 +13,10 @@ package de.uka.iti.pseudo.prettyprint;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -403,13 +405,14 @@ public class PrettyPrint {
             }
             sb.append("\n");
         }
+
         for (GoalAction action : rule.getGoalActions()) {
             switch(action.getKind()) {
             case CLOSE: sb.append("  closegoal"); break;
             case COPY: sb.append("  samegoal"); break;
             case NEW: sb.append("  newgoal"); break;
             }
-            
+
             sb.append("\n");
             Term rep = action.getReplaceWith();
             if(rep != null)
@@ -420,6 +423,15 @@ public class PrettyPrint {
             for (Term t : action.getAddSuccedent()) {
                 sb.append("    add |-").append(PrettyPrint.print(env, t)).append("\n");
             }
+        }
+        
+        Collection<String> definedProperties = rule.getDefinedProperties();
+        if(!definedProperties.isEmpty()) {
+            sb.append("    tags\n");
+        }
+        for (String property : definedProperties) {
+            sb.append("      ").append(property).append(" ")
+                    .append(Util.addQuotes(rule.getProperty(property))).append("\n");
         }
         return sb.toString();
     }

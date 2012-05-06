@@ -324,7 +324,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
     
     @Override
     public String visit(ASTMapAccessExpression node, Object data) {
-        return "read(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
+        return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
     }
     
     @Override
@@ -333,7 +333,7 @@ public class TranslationVisitor implements AlgoParserVisitor {
         String map = visitChild(node, 0);
         String index = visitChild(node, 1);
         String value = visitChild(node, 2);
-        statements.add("  " + map + " := write(" + map + ", " + index + ", " + value + ")");
+        statements.add("  " + map + " := store(" + map + ", " + index + ", " + value + ")");
         return null;
     }
 

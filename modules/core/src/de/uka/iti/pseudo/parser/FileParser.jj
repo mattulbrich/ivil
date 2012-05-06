@@ -408,11 +408,19 @@ ASTWhereClause WhereClause(Token headToken):
 }
 {
        ( "not" { inverted = true; } )?
-       
+
        t=<IDENTIFIER>
        (  
              term=Term() { args.add(term); } 
              ( "," term=Term() { args.add(term); } )*
        )?
-       { return new ASTWhereClause(headToken, inverted, t, args); }   
+       { return new ASTWhereClause(headToken, inverted, t, args); }
+    /* perhaps: Implement "Let-expressions" in a future release.
+    |
+       term=<SCHEMA_IDENTIFIER> { args.add(term); }
+       t = "="
+       term=Term() { args.add(term); }
+       { return new ASTWhereClause(headToken, false, t, args); }
+    */
+       
 }
