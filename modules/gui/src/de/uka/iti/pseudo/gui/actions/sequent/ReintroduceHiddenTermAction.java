@@ -62,6 +62,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F9, 0));
     }
 
+    @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if (proofCenter != null) {
@@ -80,6 +81,7 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean) evt.getNewValue());
     }
@@ -155,6 +157,9 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
                 break;
             }
 
+            // TODO explain that property in RuleTags
+            // ACTUALLY, only find clauses can be altered, an assumption cannot be 
+            // changed. Hence: Perhaps remove the location code though it looks good! (MU)
             final String hidingTag = ra.getRule().getProperty("hiding");
             // skip rules that did not hide anything
             if (null == hidingTag)

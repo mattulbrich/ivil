@@ -415,8 +415,11 @@ public class PrettyPrint {
 
             sb.append("\n");
             Term rep = action.getReplaceWith();
-            if(rep != null)
+            if(rep != null) {
                 sb.append("    replace ").append(PrettyPrint.print(env, rep)).append("\n");
+            } else if(action.isRemoveOriginalTerm()) {
+                sb.append("    remove\n");
+            }
             for (Term t : action.getAddAntecedent()) {
                 sb.append("    add ").append(PrettyPrint.print(env, t)).append(" |-").append("\n");
             }

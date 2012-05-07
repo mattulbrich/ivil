@@ -96,6 +96,7 @@ import de.uka.iti.pseudo.util.Pair;
  */
 public class KnownFormula extends WhereCondition {
     
+    // TODO Piut this into RuleConstants and explain it in ivildoc there
     public static final String KNOWN_FORMULA_PROPERY = "knownFormula";
 
     public KnownFormula() {

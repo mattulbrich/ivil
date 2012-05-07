@@ -110,8 +110,20 @@ rule `axiom`
     add %b |-
     tags autoonly
          display "Insert axiom {property axiomName}"
-         
-         
+
+(* These two rules are used to hide a toplevel term.
+ * It can be reintroduced later (see below)
+ *)
+rule hide_left
+  find %b |-
+  samegoal remove
+  tags hiding "find"
+
+rule hide_right
+  find %b |-
+  samegoal remove
+  tags hiding "find"
+
 (*
  * These rules are used to unhide hidden terms. To use these rules, the unhide
  * term action has to be used (accessible over f9 or rightclick on term).
