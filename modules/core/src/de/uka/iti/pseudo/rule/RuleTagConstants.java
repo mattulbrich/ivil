@@ -30,6 +30,8 @@ public final class RuleTagConstants {
     /**
      * @ivildoc "Rule tag/decisionProcedure"
      * 
+     * <h2>Rule tag <tt>decisionProcedure</tt></h2>
+     * 
      * "decisionProcedure" expects a classname as argument.
      * 
      * <p>It denotes the decision procedure plugin to instantiate.
@@ -38,6 +40,8 @@ public final class RuleTagConstants {
 
     /**
      * @ivildoc "Rule tag/timeout"
+     * <h2>Rule tag <tt>timeout</tt></h2>
+     * 
      * "timeout" expects an integer as argument.
      * 
      * <p>For decision procedure rules. The time to wait before shutting down the
@@ -46,7 +50,11 @@ public final class RuleTagConstants {
     public static final String KEY_TIMEOUT = "timeout";
 
     /**
-     * @ivildoc "Rule tag/rewrite" "rewrite" expects a string argument.
+     * @ivildoc "Rule tag/rewrite" 
+     * 
+     * <h2>Rule tag <tt>rewrite</tt></h2>
+     * 
+     * "rewrite" expects a string argument.
      * 
      * <p>
      * It declares the set of rewrite rules to which a rule belongs. They list
@@ -55,7 +63,7 @@ public final class RuleTagConstants {
      * <li>"updSimpl" - update simplification</li>
      * <li>"close" - rules to close goals</li>
      * <li>"concrete" - rules involving operations on constants (
-     * <code>false | a</code> to <code>a</code>)</li>
+     * <tt>false | a</tt> to <tt>a</tt>)</li>
      * <li>"prop simp" - propositional simplification</li>
      * <li>"fol simp" - first order simplification</li>
      * </ol>
@@ -68,6 +76,7 @@ public final class RuleTagConstants {
     /**
      * @ivildoc "Rule tag/prio" "prio" expects an integer as argument.
      * 
+     * <h2>Rule tag <tt>prio</tt></h2>
      *          <p>
      *          When sorting rules, the priority is used as comparison
      *          criterion.
@@ -79,6 +88,8 @@ public final class RuleTagConstants {
 
     /**
      * @ivildoc "Rule tag/display" 
+     * 
+     * <h2>Rule tag <tt>display</tt></h2>
      * 
      * "display" expects a string as argument,
      * possibly with embedded schema variables.
@@ -125,6 +136,8 @@ public final class RuleTagConstants {
     /**
      * @ivildoc "Rule tag/autoonly"
      * 
+     * <h2>Rule tag <tt>autoonly</tt></h2>
+     * 
      * "autoonly" does not take an argument.
      * 
      * <p>It makes a rule invisible for manual application.
@@ -133,6 +146,8 @@ public final class RuleTagConstants {
 
     /**
      * @ivildoc "Rule tag/verbosity"
+     * 
+     * <h2>Rule tag <tt>verbosity</tt></h2>
      * 
      * "verbosity" expects an integer as argument.
      * 
@@ -144,15 +159,19 @@ public final class RuleTagConstants {
     /**
      * @ivildoc "Rule tag/derived"
      * 
+     * <h2>Rule tag <tt>derived</tt></h2>
+     * 
      * "derived" does not an need argument.
      * 
      * <p>It marks a rule to be inferrable by the rules preceeding it (plus
      * includes)
      */
     public static final String KEY_DERIVED_RULE = "derived";
-    
+
     /**
      * @ivildoc "Rule tag/asAxiom"
+     * 
+     * <h2>Rule tag <tt>asAxiom</tt></h2>
      * 
      * "asAxiom" does not take an argument.
      * 
@@ -160,9 +179,11 @@ public final class RuleTagConstants {
      * be translated to SMT. This is not possible for all rules.
      */
     public static final String KEY_AS_AXIOM = "asAxiom";
-    
+
     /**
      * @ivildoc "Rule tag/fromRule"
+     * 
+     * <h2>Rule tag <tt>fromRule</tt></h2>
      * 
      * "fromRule" takes a rule name as argument.
      * 
@@ -170,4 +191,16 @@ public final class RuleTagConstants {
      * from rules. The argument is set to the name of the originating rule.
      */
     public static final String KEY_GENERATED_AXIOM = "fromRule";
+
+    /**
+     * @ivildoc "Rule tag/hintsOnBranches"
+     * 
+     * <h2>Rule tag <tt>hintsOnBranches</tt></h2>
+     * 
+     * "hintsOnBranches" takes a comma separated list of integer numbers as
+     * argument. It is used by the proof hint strategy to decide on which child
+     * branches hints are to be applied. The first child branch has number "0".
+     * 
+     */
+    public static final String HINTS_ON_BRANCHES = "hintsOnBranches";
 }

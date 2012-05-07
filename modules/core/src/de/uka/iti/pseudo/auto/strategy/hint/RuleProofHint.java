@@ -9,10 +9,27 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.rule.Rule;
 
+/**
+ * The Class RuleProofHint implements a proof hint which applies one rule.
+ * 
+ * @ivildoc "Proof hint/rule"
+ * 
+ * <h2>Proof hint <code>cut</code></h2>
+ * 
+ * In order to perform a certain rule on a branch, this hint can be used.
+ * 
+ * <h3>Arguments</h3>
+ * cut takes one argument which is the name of the rule to be applied.
+ * 
+ * <h3>Example</h3>
+ * <pre>
+ * assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
+ * </pre>
+ */
 public class RuleProofHint implements ProofHint {
 
     @Override
-    public Object getKey() {
+    public String getKey() {
         return "rule";
     }
 

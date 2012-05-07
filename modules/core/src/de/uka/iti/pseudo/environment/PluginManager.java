@@ -204,7 +204,7 @@ public class PluginManager {
 
         service.list.add(instance);
         if (instance instanceof Mappable) {
-            Mappable mappable = (Mappable) instance;
+            Mappable<?> mappable = (Mappable<?>) instance;
             service.table.put(mappable.getKey(), instance);
         }
     }

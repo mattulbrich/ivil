@@ -32,7 +32,7 @@ public class MapPrettyPrinter extends PrettyPrintPlugin {
         Function function = application.getFunction();
         String name = function.getName();
 
-        if (name.startsWith("$load_")) {
+        if (name.startsWith("$load")) {
             // map
             printSubterm(application, 0);
             append("[");
@@ -44,7 +44,7 @@ public class MapPrettyPrinter extends PrettyPrintPlugin {
                 }
             }
             append("]");
-        } else if (name.startsWith("$store_")) {
+        } else if (name.startsWith("$store")) {
             // map
             printSubterm(application, 0);
             append("[");

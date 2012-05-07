@@ -4,7 +4,6 @@ import java.awt.Desktop;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Vector;
 
@@ -14,6 +13,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -61,6 +61,7 @@ public class ReferenceManualWindow extends JFrame {
                     setSelection(e.getPath());
                 }
             });
+            categoryTree.setBorder(new EmptyBorder(5, 10, 5, 0));
             JScrollPane scrollPane = new JScrollPane(categoryTree); 
             splitPane.setLeftComponent(scrollPane);
         }

@@ -40,14 +40,67 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
  * The {@link #check(Term[], Term[], RuleApplication, Environment)} method
  * receives a {@link RuleApplication} as argument, but must not modify it.
  * 
+ * <h4>Active where conditions</h4>
+ * 
+ * An active where condition can add new schema instantiations to the context.
+ * Existing schema instantiations will not be changed, only new entries added.
+ * These additional instantiations happen in
+ * {@link #addInstantiations(TermMatcher, Term[])}. An implementation must not
+ * modify existing entries.
+ * 
+ * @ivildoc "Where condition"
+ * 
+ *          <h1>Where conditions</h1>
+ * 
+ *          Where conditions are used to formulate constraints von schema
+ *          instantiations in rule definitions. They describe conditions on the
+ *          matched terms under which the rule may be applied.
+ * 
+ *          <p>
+ *          Where conditions can take arguments, but do not have to. For some
+ *          conditions, <i>marker arguments</i> (schema variables with special
+ *          names) can be used to specify a particular behaviour of a condition.
+ * 
+ *          <h3>Example</h3>
+ * 
+ *          The where condition<br/>
+ *          <tt>&nbsp;&nbsp;&nbsp;where intLiteral %a</tt><br/>
+ * 
+ *          in a rule makes the rule only applicable if the schema variable %a
+ *          is instantiated with an integer literal.
+ * 
+ *          <h2>Active where conditions</h2>
+ * 
+ *          Where conditions cannot only check the instantiation context but
+ *          also act and actively modify it.
+ * 
+ *          <p>
+ *          An active where condition can add new schema instantiations to the
+ *          context. Existing schema instantiations will not be changed, only
+ *          new entries added. Please note that active conditions can also fail
+ *          and not accept an instantiation.
+ * 
+ *          <p>
+ *          The documentation will point out which parameters are active, and
+ *          which are passive. Future syntax changes may make the distinction
+ *          clearer.
+ * 
+ *          <h3>Example</h3>
+ * 
+ *          The where condition<br/>
+ *          <tt>&nbsp;&nbsp;&nbsp;freshVar %z, %condition</tt><br/>
+ * 
+ *          instantiates <code>%z</code> with a variable of the same type which
+ *          does not appear (bound or unbound) in the instantiation of
+ *          <code>%condition</code>.
  * @see Rule
  * @see WhereClause
  */
-public abstract class WhereCondition implements Mappable {
+public abstract class WhereCondition implements Mappable<String> {
 
     //////////////////////////////////////
     // Static material
-    
+
     /**
      * The name under which plugins for this service have to
      * be registered.
@@ -74,15 +127,15 @@ public abstract class WhereCondition implements Mappable {
             throws EnvironmentException {
         return env.getPluginManager().getPlugin(SERVICE_NAME, WhereCondition.class, name);
     }
-    
+
     //////////////////////////////////////
     // Instance material
-    
+
     /**
      * The name of this condition
      */
     private String name;
-    
+
     /**
      * Create a new where condition.
      * 
@@ -100,17 +153,17 @@ public abstract class WhereCondition implements Mappable {
     public @NonNull String getName() {
         return name;
     }
-    
+
     /**
      * {@inheritDoc}
      * 
      * <p>For where conditions, the name is the unique key.
      */
     @Override 
-    public @NonNull Object getKey() {
+    public @NonNull String getKey() {
         return getName();
     }
-    
+
     /**
      * Any implementation must provide this method to check the syntax of 
      * where clauses.

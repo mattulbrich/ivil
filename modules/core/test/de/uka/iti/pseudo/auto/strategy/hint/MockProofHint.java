@@ -16,7 +16,7 @@ public class MockProofHint implements ProofHint {
     }
 
     @Override
-    public Object getKey() {
+    public String getKey() {
         return "mock";
     }
 

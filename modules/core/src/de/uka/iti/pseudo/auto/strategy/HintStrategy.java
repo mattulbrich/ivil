@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.auto.strategy.hint.HintParser;
 import de.uka.iti.pseudo.auto.strategy.hint.HintRuleAppFinder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -12,31 +14,87 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Log;
 
-public class HintStrategy extends AbstractStrategy {
+/**
+ * The Class HintStrategy implements a {@link Strategy} which is configured by
+ * annotation in the program.
+ * 
+ * <P>
+ * Annotations (called 'hints') are added to the program code in the
+ * annotiations to the statements, like assert phi ; "Annotation with §hint".
+ * Parsing is done by class {@link HintParser}. See there for a description of
+ * the format.
+ * 
+ * <p>
+ * When such a statement is symbolically executed, this strategy registers this,
+ * parses the hints and stores the applicable {@link HintRuleAppFinder} for the
+ * new branches in a map.
+ * 
+ * <p>
+ * When queried later for a rule application, the strategy checks the hints of
+ * all parent nodes of a proof node and queries the according
+ * {@link HintRuleAppFinder}.
+ * 
+ * @see HintParser
+ */
+public final class HintStrategy extends AbstractStrategy {
 
-    private static final String HINTS_ON_BRANCHES_PROPERTY = "hintsOnBranches";
+    /**
+     * The name of the corresponding plugin service as
+     * mentioned in file PluginManager.properties.
+     */
+    public static final String PROOF_HINT_SERVICE_NAME = "proofHint";
+    
+    /**
+     * The hint map stores the rule finder per proof node.
+     */
     private Map<ProofNode, List<HintRuleAppFinder>> hintMap = 
             new HashMap<ProofNode, List<HintRuleAppFinder>>();
 
+    /**
+     * The hint parser is used to parse annotations.
+     */
     private HintParser hintParser;
+    
+    /**
+     * A boolean flag how to handle errors: <code>true</code> means report them
+     * as exceptions, <code>false</code> means log them only and then drop them.
+     */
     private boolean raiseErrors = true;
 
+    /* (non-Javadoc)
+     * @see de.uka.iti.pseudo.auto.strategy.AbstractStrategy#init(de.uka.iti.pseudo.proof.Proof, de.uka.iti.pseudo.environment.Environment, de.uka.iti.pseudo.auto.strategy.StrategyManager)
+     */
     @Override
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
         this.hintParser = new HintParser(env);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>Here we clear the map of hints.
+     */
     @Override
     public void endSearch() {
         hintMap.clear();
     }
-    
+
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>
+     * A rule application is found by searching the parent nodes of the given
+     * node. If any of them is attributed with hits, the according
+     * {@link HintRuleAppFinder} are inquired for a rule application. The first
+     * found application is returned.
+     */
     @Override
     public RuleApplication findRuleApplication(ProofNode node)
             throws StrategyException {
@@ -53,11 +111,17 @@ public class HintStrategy extends AbstractStrategy {
             }
             reasonNode = reasonNode.getParent();
         }
-        
+
         return null;
     }
-    
-    private RuleApplication followHint(HintRuleAppFinder hint, ProofNode node, ProofNode reasonNode) throws StrategyException {
+
+    /*
+     * ask the rule finder to find a rule. Errors are handled according to
+     * settings.
+     */
+    private RuleApplication followHint(HintRuleAppFinder hint, 
+            ProofNode node,
+            ProofNode reasonNode) throws StrategyException {
         try {
             return hint.findRuleApplication(node, reasonNode);
         } catch (Exception e) {
@@ -66,13 +130,26 @@ public class HintStrategy extends AbstractStrategy {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>
+     * This implementation ...
+     * <ol>
+     * <li>Checks that the rule is applied on a literal program term
+     * <li>Parses hints in the statements annotations.
+     * <li>Adds the according hint application finders to the branches of the
+     * node which are listed in the {@link RuleTagConstants#HINTS_ON_BRANCHES}
+     * annotiation
+     * </ol>
+     */
     @Override
     public void notifyRuleApplication(RuleApplication ruleApp) throws StrategyException {
 
         try {
             Rule rule = ruleApp.getRule();
             ProofNode node = ruleApp.getProofNode();
-            String hintOn = rule.getProperty(HINTS_ON_BRANCHES_PROPERTY);
+            String hintOn = rule.getProperty(RuleTagConstants.HINTS_ON_BRANCHES);
             if(hintOn == null) {
                 return;
             }
@@ -98,7 +175,18 @@ public class HintStrategy extends AbstractStrategy {
         }
     };
 
-    private void handleException(Exception e) throws StrategyException {
+    /**
+     * Handle occurring exceptions.
+     * 
+     * According to the flag {@link #raiseErrors}, exceptions are either wrapped
+     * into a {@link StrategyException} or logged and ignored.
+     * 
+     * @param e
+     *            the exception to handle
+     * @throws StrategyException
+     *             if {@link #raiseErrors} is <code>true</code>
+     */
+    private void handleException(@NonNull Exception e) throws StrategyException {
         if(raiseErrors) {
             throw new StrategyException("Error while handling proof hints: " + e.getMessage(), e);
         } else {
@@ -113,14 +201,18 @@ public class HintStrategy extends AbstractStrategy {
     }
 
     /**
-     * @return the raiseErrors
+     * Get the value of {@link #raiseErrors}. For the {@link ParameterSheet}.
+     * 
+     * @return raiseErrors
      */
     public boolean getRaiseErrors() {
         return raiseErrors;
     }
 
     /**
-     * @param raiseErrors the raiseErrors to set
+     * Set the value of {@link #raiseErrors}. For the {@link ParameterSheet}.
+     * 
+     * @param raiseErrors the value to set
      */
     public void setRaiseErrors(boolean raiseErrors) {
         this.raiseErrors = raiseErrors;

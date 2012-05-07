@@ -17,7 +17,7 @@ import nonnull.NonNull;
  * indexed by a key. The retrieval can then be done by the key which is usually
  * faster.
  */
-public interface Mappable {
+public interface Mappable<T> {
 
     /**
      * Gets the key under which this object can be retrieved from a map. It must
@@ -25,6 +25,6 @@ public interface Mappable {
      * 
      * @return a nonnull reference
      */
-    public @NonNull Object getKey();
+    public @NonNull T getKey();
     
 }

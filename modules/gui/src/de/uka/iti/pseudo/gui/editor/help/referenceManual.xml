@@ -44,7 +44,11 @@
   </category>
   <category name="Rule tag">
     <entry name="rewrite">
-      <![CDATA[ "rewrite" expects a string argument.
+      <![CDATA[ 
+ 
+ <h2>Rule tag <tt>rewrite</tt></h2>
+ 
+ "rewrite" expects a string argument.
  
  <p>
  It declares the set of rewrite rules to which a rule belongs. They list
@@ -53,7 +57,7 @@
  <li>"updSimpl" - update simplification</li>
  <li>"close" - rules to close goals</li>
  <li>"concrete" - rules involving operations on constants (
- <code>false | a</code> to <code>a</code>)</li>
+ <tt>false | a</tt> to <tt>a</tt>)</li>
  <li>"prop simp" - propositional simplification</li>
  <li>"fol simp" - first order simplification</li>
  </ol>
@@ -64,6 +68,8 @@
     <entry name="autoonly">
       <![CDATA[
  
+ <h2>Rule tag <tt>autoonly</tt></h2>
+ 
  "autoonly" does not take an argument.
  
  <p>It makes a rule invisible for manual application.]]>
@@ -71,12 +77,25 @@
     <entry name="decisionProcedure">
       <![CDATA[
  
+ <h2>Rule tag <tt>decisionProcedure</tt></h2>
+ 
  "decisionProcedure" expects a classname as argument.
  
  <p>It denotes the decision procedure plugin to instantiate.]]>
     </entry>
+    <entry name="hintsOnBranches">
+      <![CDATA[
+ 
+ <h2>Rule tag <tt>hintsOnBranches</tt></h2>
+ 
+ "hintsOnBranches" takes a comma separated list of integer numbers as
+ argument. It is used by the proof hint strategy to decide on which child
+ branches hints are to be applied. The first child branch has number "0".]]>
+    </entry>
     <entry name="asAxiom">
       <![CDATA[
+ 
+ <h2>Rule tag <tt>asAxiom</tt></h2>
  
  "asAxiom" does not take an argument.
  
@@ -86,6 +105,8 @@
     <entry name="derived">
       <![CDATA[
  
+ <h2>Rule tag <tt>derived</tt></h2>
+ 
  "derived" does not an need argument.
  
  <p>It marks a rule to be inferrable by the rules preceeding it (plus
@@ -93,6 +114,8 @@
     </entry>
     <entry name="display">
       <![CDATA[ 
+ 
+ <h2>Rule tag <tt>display</tt></h2>
  
  "display" expects a string as argument,
  possibly with embedded schema variables.
@@ -137,19 +160,28 @@
     <entry name="fromRule">
       <![CDATA[
  
+ <h2>Rule tag <tt>fromRule</tt></h2>
+ 
  "fromRule" takes a rule name as argument.
  
  <p>It is added automatically to axioms which are generated automatically
  from rules. The argument is set to the name of the originating rule.]]>
     </entry>
     <entry name="prio">
-      <![CDATA[
- "prio" expects an integer as argument.
+      <![CDATA[ "prio" expects an integer as argument.
  
- <p>When sorting rules, the priority is used as comparison criterion.]]>
+ <h2>Rule tag <tt>prio</tt></h2>
+          <p>
+          When sorting rules, the priority is used as comparison
+          criterion.
+          <p>
+          Priorities have to be between 100 and 999, where higher priority
+          means the rule is likelier to be applied.]]>
     </entry>
     <entry name="timeout">
       <![CDATA[
+ <h2>Rule tag <tt>timeout</tt></h2>
+ 
  "timeout" expects an integer as argument.
  
  <p>For decision procedure rules. The time to wait before shutting down the
@@ -158,13 +190,104 @@
     <entry name="verbosity">
       <![CDATA[
  
+ <h2>Rule tag <tt>verbosity</tt></h2>
+ 
  "verbosity" expects an integer as argument.
  
  <p>It defines from which verbosity level on the rule is printed in the proof
  component.]]>
     </entry>
   </category>
+  <category name="Proof hint">
+    <entry name="">
+      <![CDATA[ <h1>Proof hints</h1>
+ 
+ Proof hints allow the user to dynamically configure the strategy in use. They
+ are usually added as annotations to <tt>assert</tt> statements. The branch
+ handling the proof obligation for the asserted formula is then treated
+ differently to the rest of the proof. The exact nature of this different
+ behaviour depends on the configuration of the hints. They can take string
+ arguments.]]>
+    </entry>
+    <entry name="rule">
+      <![CDATA[
+ 
+ <h2>Proof hint <code>cut</code></h2>
+ 
+ In order to perform a certain rule on a branch, this hint can be used.
+ 
+ <h3>Arguments</h3>
+ cut takes one argument which is the name of the rule to be applied.
+ 
+ <h3>Example</h3>
+ <pre>
+ assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
+ </pre>]]>
+    </entry>
+    <entry name="cut">
+      <![CDATA[
+ 
+ <h2>Proof hint <code>cut</code></h2>
+ 
+ In order to perform a case distinction on a branch, this hint can be used.
+ 
+ <h3>Arguments</h3>
+ cut takes one argument which is the formula upon which to perform the cut.
+ 
+ <h3>Example</h3>
+ <pre>
+ assert x*x >= 0 ; "examine by sign §(cut 'x >= 0')"
+ </pre>]]>
+    </entry>
+  </category>
   <category name="Where condition">
+    <entry name="">
+      <![CDATA[
+ 
+          <h1>Where conditions</h1>
+ 
+          Where conditions are used to formulate constraints von schema
+          instantiations in rule definitions. They describe conditions on the
+          matched terms under which the rule may be applied.
+ 
+          <p>
+          Where conditions can take arguments, but do not have to. For some
+          conditions, <i>marker arguments</i> (schema variables with special
+          names) can be used to specify a particular behaviour of a condition.
+ 
+          <h3>Example</h3>
+ 
+          The where condition<br/>
+          <tt>&nbsp;&nbsp;&nbsp;where intLiteral %a</tt><br/>
+ 
+          in a rule makes the rule only applicable if the schema variable %a
+          is instantiated with an integer literal.
+ 
+          <h2>Active where conditions</h2>
+ 
+          Where conditions cannot only check the instantiation context but
+          also act and actively modify it.
+ 
+          <p>
+          An active where condition can add new schema instantiations to the
+          context. Existing schema instantiations will not be changed, only
+          new entries added. Please note that active conditions can also fail
+          and not accept an instantiation.
+ 
+          <p>
+          The documentation will point out which parameters are active, and
+          which are passive. Future syntax changes may make the distinction
+          clearer.
+ 
+          <h3>Example</h3>
+ 
+          The where condition<br/>
+          <tt>&nbsp;&nbsp;&nbsp;freshVar %z, %condition</tt><br/>
+ 
+          instantiates <code>%z</code> with a variable of the same type which
+          does not appear (bound or unbound) in the instantiation of
+          <code>%condition</code>.]]>
+    </entry>
     <entry name="toplevel">
       <![CDATA[
  

@@ -11,10 +11,27 @@ import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
+/**
+ * The Class CutProofHint implements a proof hint which applies the cut rule.
+ * 
+ * @ivildoc "Proof hint/cut"
+ * 
+ * <h2>Proof hint <code>cut</code></h2>
+ * 
+ * In order to perform a case distinction on a branch, this hint can be used.
+ * 
+ * <h3>Arguments</h3>
+ * cut takes one argument which is the formula upon which to perform the cut.
+ * 
+ * <h3>Example</h3>
+ * <pre>
+ * assert x*x >= 0 ; "examine by sign §(cut 'x >= 0')"
+ * </pre>
+ */
 public class CutProofHint implements ProofHint {
 
     @Override
-    public Object getKey() {
+    public String getKey() {
         return "cut";
     }
 
@@ -25,6 +42,9 @@ public class CutProofHint implements ProofHint {
     }
 }
 
+/**
+ * This implementation applies the cut rule.
+ */
 class CutHintAppFinder extends HintRuleAppFinder {
 
     private final Environment env;
@@ -34,10 +54,15 @@ class CutHintAppFinder extends HintRuleAppFinder {
         this.env = env;
         
         if(arguments.size() != 2) {
-            throw new StrategyException("The proofhint 'rule' expects exactly one argument");
+            throw new StrategyException("The proofhint 'cut' expects exactly one argument");
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * 
+     * <p>The cut rule is applied only on the reasonNode. 
+     */
     @Override
     public RuleApplication findRuleApplication(ProofNode node,
             ProofNode reasonNode) throws StrategyException {
