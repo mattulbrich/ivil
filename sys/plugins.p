@@ -120,7 +120,7 @@ rule hide_left
   tags hiding "find"
 
 rule hide_right
-  find %b |-
+  find |- %b
   samegoal remove
   tags hiding "find"
 
