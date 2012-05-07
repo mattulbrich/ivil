@@ -59,10 +59,10 @@ public class SourcePanel extends CodePanel {
 
     @Override
     protected String makeContent(Object reference) {
-        
+
         if(!(reference instanceof URL) || reference == null)
             return null;
-        
+
         try {
             return Util.readURLAsString((URL)reference);
         } catch (IOException e) {
@@ -72,7 +72,7 @@ public class SourcePanel extends CodePanel {
         }
 
     }
-    
+
     @Override 
     protected void addHighlights() {
         // print trace

@@ -89,11 +89,13 @@ public class ProgramPanel extends CodePanel {
                 firstLocs = locs;
             }
         }
-        
-        for (CodeLocation<?> loc : firstLocs) {
-            if(loc.getProgram() == getDisplayedResource() &&
-                    loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
-                getSourceComponent().addHighlight(loc.getIndex(), false);
+
+        if(firstLocs != null) {
+            for (CodeLocation<?> loc : firstLocs) {
+                if(loc.getProgram() == getDisplayedResource() &&
+                        loc.getIndex() < ((Program) loc.getProgram()).countStatements()) {
+                    getSourceComponent().addHighlight(loc.getIndex(), false);
+                }
             }
         }
     }
