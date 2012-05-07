@@ -130,7 +130,11 @@ public class ReferenceManualWindow extends JFrame {
                 Element entryElement = (Element) entryList.item(r);
                 String entryName = entryElement.getAttribute("name");
                 String content = entryElement.getTextContent();
-                catNode.add(new RMTreeNode(entryName, content));
+                if(entryName.length() == 0) {
+                    catNode.setContent(content);
+                } else {
+                    catNode.add(new RMTreeNode(entryName, content));
+                }
             }
         }
         
@@ -140,12 +144,18 @@ public class ReferenceManualWindow extends JFrame {
         
     }
 
-    private static class RMTreeNode extends DefaultMutableTreeNode implements Comparable<RMTreeNode> {
+    private static class RMTreeNode 
+            extends DefaultMutableTreeNode 
+            implements Comparable<RMTreeNode> {
 
-        private final String content;
+        private String content;
 
         public RMTreeNode(String name, String content) {
             super(name);
+            this.content = content;
+        }
+
+        public void setContent(String content) {
             this.content = content;
         }
 
