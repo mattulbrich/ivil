@@ -21,15 +21,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -51,7 +53,6 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
-import de.uka.iti.pseudo.term.TypeVariableBinding.Kind;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
@@ -59,7 +60,6 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Log;
-import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -98,11 +98,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * Mapping of built-in functions to built-in smtlib function symbols.
      */
     private static final String[] BUILTIN_FUNCTIONS = { "false", "false",
-            "true", "true", "$not", "not", "$and", "and", "$or", "or", "$impl",
-            "implies", "$equiv", "iff", "\\forall", "forall", "\\exists",
-            "exists", "$gt", ">", "$lt", "<", "$gte", ">=", "$lte", "<=",
-            "$eq", "=", "$plus", "+", "$minus", "-", "$mult", "*", "$div",
-            "div", "$neg", "-" };
+        "true", "true", "$not", "not", "$and", "and", "$or", "or", "$impl",
+        "implies", "$equiv", "iff", "\\forall", "forall", "\\exists",
+        "exists", "$gt", ">", "$lt", "<", "$gte", ">=", "$lte", "<=",
+        "$plus", "+", "$minus", "-", "$mult", "*", "$div",
+        "div", "$neg", "-", "\\T_all", "forall", "\\T_exists", "exists" };
 
     /**
      * These symbols are predicates and, hence, result in a FORMULA rather than
@@ -110,11 +110,19 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      */
     private static final List<String> PROPOSITIONAL_PREDICATES = Util
             .readOnlyArrayList(new String[] { "and", "or", "implies", "iff",
-                    "not" });
+            "not" });
 
     private static final List<String> ALL_PREDICATES = Util
             .readOnlyArrayList(new String[] { "true", "false", "and", "or",
                     "implies", "iff", "not", "<", ">", "<=", ">=", "=" });
+
+    private static final Comparator<TypeVariable> STRING_COMPARATOR = 
+            new Comparator<TypeVariable>() {
+        @Override
+        public int compare(TypeVariable tv1, TypeVariable tv2) {
+            return tv1.getVariableName().compareTo(tv2.getVariableName());
+        }
+    };
 
     /**
      * map storing how function symbols are mapped to SMT counterparts.
@@ -125,7 +133,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * map storing the type variables which appear only in result types of
      * function symbols.
      */
-    private Map<String, Set<TypeVariable>> freeTypeVarMap = new HashMap<String, Set<TypeVariable>>();
+    //    private Map<String, Set<TypeVariable>> freeTypeVarMap = new HashMap<String, Set<TypeVariable>>();
 
     /**
      * counter used to create new distinct symbols (its increment on creation)
@@ -148,7 +156,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * a set of definitions of user created predicate symbols.
      */
-//    /* package */Set<String> extrapreds = new LinkedHashSet<String>();
+    //    /* package */Set<String> extrapreds = new LinkedHashSet<String>();
 
     /**
      * a set of assumptions that are due to the translation.
@@ -171,7 +179,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * to be of the type {@link #requestedType}.
      */
     private ExpressionType requestedType = BOOL;
-    
+
     /**
      * Used by the visit functions to pass on the expression type of a
      * translation. The string in {@link #result} has to be of this type.
@@ -203,12 +211,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      */
 
     private @Nullable Function patternFunction;
-
+    private Function equalityFunction;
     /**
      * All axioms as they are extracted from the environment.
      */
     private Collection<Axiom> allAxioms;
-    
+
     /**
      * All sorts as they are extraced from the environment.
      */
@@ -233,6 +241,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      */
     @SuppressWarnings("nullness")
     private TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
+        @Override
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
 
@@ -281,6 +290,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         condFunction = env.getFunction("cond");
         patternFunction = env.getFunction("$pattern");
+        // TODO think about weak eq.
+        equalityFunction = env.getFunction("$eq");
         allAxioms = env.getAllAxioms();
         allSorts = env.getAllSorts();
     }
@@ -312,7 +323,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             result = convert(result, resultingType, asType);
             resultingType = asType;
         }
-        
+
         assert resultingType == asType;
         return result;
     }
@@ -337,7 +348,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * @throws TermException
      *             if the translation fails for whatever reason
      */
-    public String translate(Sequent sequent) throws TermException {
+    public String translate(@NonNull Sequent sequent) throws TermException {
         StringBuilder sb = new StringBuilder();
         sb.append("(and true ");
         for (Term term : sequent.getAntecedent()) {
@@ -373,6 +384,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
+    @Override
     public void export(@NonNull Sequent sequent, @NonNull Appendable builder)
             throws TermException, IOException {
 
@@ -438,8 +450,9 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             String name = sort.getName();
             if (!name.equals("int") && !name.equals("bool")) {
                 // bool and are treated in preamble already
-                extrafuncs.add("ty." + name + "("
-                        + Util.duplicate(" Type", arity) + ") Type");
+                extrafuncs.add("ty." + name + " ("
+                        + Util.join(Collections.nCopies(arity, "Type"), " ")
+                        + ") Type");
             }
         }
 
@@ -547,9 +560,10 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * We have to add bound variables as parameters! Otherwise the follwing will
      * be proven by SMT: <pre> (\forall x as int; ({a:=0}x)=x) -> c1=c2 </pre>
      */
+    @Override
     protected void defaultVisitTerm(Term term) throws TermException {
         String name = "unknown" + unknownCounter;
-        StringBuilder signature = new StringBuilder();
+        List<String> signature = new ArrayList<String>();
         unknownCounter++;
 
         if (quantifiedVariables.isEmpty()) {
@@ -558,7 +572,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             for (String s : quantifiedVariables) {
                 // find point.
                 int point = s.indexOf('.');
-                signature.append(" " + s.substring(1, point));
+                signature.add(s.substring(1, point));
             }
             result = "(" + name + " " + Util.join(quantifiedVariables, " ")
                     + ")";
@@ -566,15 +580,15 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         switch (requestedType) {
         case BOOL:
-            extrafuncs.add(name + "(" + signature + ") Bool");
+            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Bool");
             break;
         case UNIVERSE:
-            extrafuncs.add(name + "(" +signature + ") Universe");
+            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Universe");
             break;
         case INT:
-            extrafuncs.add(name + "(" +signature + ") Int");
+            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Int");
         }
-        
+
         resultingType = requestedType;
     }
 
@@ -584,10 +598,10 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * 
      * Special treatment for conditional terms and propositional junctors.
      */
+    @Override
     public void visit(Application application) throws TermException {
         Function function = application.getFunction();
         String name = function.getName();
-        String translation = translationMap.get(name);
         ExpressionType myRequestedType = requestedType;
 
         if (function == condFunction) {
@@ -595,31 +609,54 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             sb.append("(ite ");
 
             sb.append(translate(application.getSubterm(0), BOOL))
-                    .append(" ");
+            .append(" ");
 
             sb.append(translate(application.getSubterm(1), myRequestedType))
-                    .append(" ");
+            .append(" ");
             sb.append(translate(application.getSubterm(2), myRequestedType))
-                    .append(")");
+            .append(")");
             result = sb.toString();
             return;
         }
-        
+
         if (function == patternFunction) {
-            StringBuilder sb = new StringBuilder();
-            Term pattern = application.getSubterm(0);
-            Term value = application.getSubterm(1);
-            sb.append(translate(value, myRequestedType))
-                    .append(" :pat { ");
-            // do not use translate here because no type translation desired!
-            pattern.visit(this);
-            sb.append(result);
-            sb.append(" }");
-            result = sb.toString();
-            // the first subterm has already been converted
-            resultingType = myRequestedType;
+            // ignore inner patterns (not in a quantifier)
+            Log.log(Log.WARNING, "Inner pattern found, ignored: " + application);
+            result = translate(application.getSubterm(1), myRequestedType);
             return;
         }
+
+        if(function == equalityFunction) {
+            // smt equality does not have a type argument but ivil has. Make it manually
+            StringBuilder sb = new StringBuilder();
+            sb.append("(= ");
+            
+            Term term1 = application.getSubterm(0);
+            ExpressionType type1 = typeToExpressionType(term1.getType());
+            Term term2 = application.getSubterm(1);
+            ExpressionType type2 = typeToExpressionType(term1.getType());
+            
+            // If both the same type (that should always be the case 
+            // unless weak equality is implemented), use that, otherwise 
+            // resort to UNIVERSE
+            ExpressionType type = (type1==type2) ? type1 : UNIVERSE;
+
+            sb.append(translate(term1, type))
+            .append(" ")
+            .append(translate(term2, type))
+            .append(")");
+            result = sb.toString();
+            resultingType = BOOL;
+            return;
+        }
+
+        if (function instanceof NumberLiteral) {
+            result = function.getName();
+            resultingType = INT;
+            return;
+        }
+
+        String translation = translationMap.get(name);
 
         if (PROPOSITIONAL_PREDICATES.contains(translation)) {
             StringBuilder sb = new StringBuilder();
@@ -634,45 +671,42 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             return;
         }
 
-        if (function instanceof NumberLiteral) {
-            result = function.getName();
-            resultingType = INT;
-            return;
-        }
-
         if (translation == null) {
             translation = makeExtraFunc(function);
             translationMap.put(name, translation);
         }
 
-        Set<TypeVariable> freeTypeVars = freeTypeVarMap.get(translation);
-        if (freeTypeVars == null) {
-            freeTypeVars = Collections.emptySet();
-        }
-
         boolean hasArgs = application.countSubterms() > 0;
+        SortedSet<TypeVariable> typeVars = collectTypeVars(function);
+        Type resultType = function.getResultType();
 
-        if (!freeTypeVars.isEmpty() || hasArgs) {
+        if (!typeVars.isEmpty() || hasArgs) {
             StringBuilder sb = new StringBuilder();
             sb.append("(").append(translation);
+            Type[] argTypes = function.getArgumentTypes();
 
             TermMatcher matcher = new TermMatcher();
             TypeMatchVisitor visitor = new TypeMatchVisitor(matcher);
 
-            TypeUnification.makeSchemaVariant(function.getResultType()).accept(visitor, application.getType());
-            for (TypeVariable tv : freeTypeVars) {
+            TypeUnification.makeSchemaVariant(resultType)
+            .accept(visitor, application.getType());
+            for (int i = 0; i < argTypes.length; i++) {
+                TypeUnification.makeSchemaVariant(argTypes[i])
+                .accept(visitor, application.getSubterm(i).getType());
+            }
+
+            for (TypeVariable tv : typeVars) {
                 Type t = TypeUnification.makeSchemaVariant(tv);
                 assert t instanceof SchemaType : "either tv was not a type variable or the specification of makeSchemaVariant changed";
 
                 Type type = matcher.getTypeFor(((SchemaType) t).getVariableName());
                 assert type != null : "non-nullness: t has been set by the type match visitor";
-                    
+
                 String typeString = type.accept(typeToTerm, false);
                 sb.append(" ").append(typeString);
             }
 
             List<Term> subterms = application.getSubterms();
-            Type[] argTypes = function.getArgumentTypes();
             assert subterms.size() == argTypes.length;
 
             for (int i = 0; i < argTypes.length; i++) {
@@ -687,17 +721,17 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             result = translation;
         }
 
-        if (ALL_PREDICATES.contains(translation)) {
+        if (ALL_PREDICATES.contains(translation) || 
+                Environment.getBoolType().equals(resultType)) {
             resultingType = BOOL;
+        } else if (Environment.getIntType().equals(resultType)) {
+            resultingType = INT;
         } else {
-            if (Environment.getIntType().equals(function.getResultType())) {
-                resultingType = INT;
-            } else {
-                resultingType = UNIVERSE;
-            }
+            resultingType = UNIVERSE;
         }
     }
 
+    @Override
     public void visit(Binding binding) throws TermException {
         Binder binder = binding.getBinder();
         String name = binder.getName();
@@ -708,59 +742,14 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             defaultVisitTerm(binding);
             return;
         }
-
-        // delegated to recursive method to handle nested quantifiers
-        Pair<String, String> innerContent = getBinderContent(binder, binding);
-
-        result = "(" + translation + " (" + innerContent.fst() + ") " + innerContent.snd() + ")";
+        
+        QuantificationTranslator trans = new QuantificationTranslator(translation);
+        binding.visit(trans);
+        result = trans.toString();
         resultingType = BOOL;
     }
 
-    private Pair<String, String>
-           getBinderContent(Binder binder, Term formula) throws TermException {
-
-        if (!(formula instanceof Binding)) {
-            return Pair.make("", translate(formula, BOOL));
-        }
-            
-        Binding binding = (Binding) formula;
-
-        if(binding.getBinder() != binder) {
-            return Pair.make("", translate(formula, BOOL));
-        }
-        
-        Term innerFormula = binding.getSubterm(0);
-        BindableIdentifier variable = binding.getVariable();
-
-        assert variable instanceof Variable;
-
-        
-        Type varType = variable.getType();
-        String boundType = makeSort(varType);
-        String bound = "?" + boundType + "." + variable.getName();
-
-        
-        quantifiedVariables.push(bound);
-        Pair<String, String> innerContent = getBinderContent(binder, innerFormula);
-        quantifiedVariables.pop();
-
-        
-        String declaration = "(" + bound + " " + boundType + ")";
-        String guard;
-        if ("Universe".equals(boundType)) {
-            // TODO This is inefficient
-            String conj = "\\forall".equals(binder.getName()) ? "implies" : "and";
-            guard = "(" + conj + " (= (ty " + bound + ") " + varType.accept(typeToTerm, false) +
-                    ") " + innerContent.snd() + ")";
-        } else {
-            guard = innerContent.snd();
-        }
-
-        
-        return Pair.make(Util.join(Arrays.asList(declaration, innerContent.fst()), " ", true), guard);
-        
-    }
-
+    @Override
     public void visit(Variable variable) throws TermException {
         String sort = makeSort(variable.getType());
         String name = variable.getName();
@@ -768,30 +757,27 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         result = "?" + sort + "." + name;
     }
 
-    public void visit(TypeVariableBinding typeVariableBinding)
+    @Override
+    public void visit(TypeVariableBinding tBinding)
             throws TermException {
-        String quant = typeVariableBinding.getKind() == Kind.ALL ? "forall"
-                : "exists";
-        Type bound = typeVariableBinding.getBoundType();
-
-        assert bound instanceof TypeVariable : "Only bound type vars are supported!";
-
-        String var = "?Type." + ((TypeVariable) bound).getVariableName();
-
-        quantifiedVariables.push(var);
-        String innerFormula = translate(typeVariableBinding.getSubterm(),
-                BOOL);
-        quantifiedVariables.pop();
-
-        result = "(" + quant + " ((" + var + " Type)) " + innerFormula + ")";
-
+        String translation = translationMap.get(tBinding.getKind().toString());
+        
+     // only exists and forall are defined.
+        if (translation == null) {
+            defaultVisitTerm(tBinding);
+            return;
+        }
+        
+        QuantificationTranslator trans = new QuantificationTranslator(translation);
+        tBinding.visit(trans);
+        result = trans.toString();
         resultingType = BOOL;
     }
 
     private String makeExtraFunc(Function function) throws TermException {
         String fctName = function.getName();
         String name = "fct." + fctName;
-        name = name.replace('$', '_');
+        name = name.replace('$', '.');
 
         Type fctResultType = function.getResultType();
         String resultType = makeSort(fctResultType);
@@ -802,84 +788,53 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             argTypes[i] = makeSort(fctArgTypes[i]);
         }
 
-        Set<TypeVariable> resultTypeVariables =
-                TypeVariableCollector.collect(function.getResultType());
+        SortedSet<TypeVariable> allTypeVariables = collectTypeVars(function);
 
-        Set<TypeVariable> argumentTypeVariables =
-                TypeVariableCollector.collect(
-                        Util.readOnlyArrayList(function.getArgumentTypes()));
-
-        Set<TypeVariable> resultOnlyTypeVariables =
-            setDifference(resultTypeVariables, argumentTypeVariables);
-
-        freeTypeVarMap.put(name, resultOnlyTypeVariables);
-
-        List<String> types = new ArrayList<String>(
-                Collections.nCopies(resultOnlyTypeVariables.size(), "Type"));
+        List<String> types = new ArrayList<String>();
+        types.addAll(Collections.nCopies(allTypeVariables.size(), "Type"));
         types.addAll(Arrays.asList(argTypes));
 
         extrafuncs.add(name +" (" + Util.join(types, " ") + ") " + resultType);
 
         // nothing to do for integer functions
-        if (!"Int".equals(resultType)) {
+        if (!"Int".equals(resultType) && !"Bool".equals(resultType)) {
             StringBuilder sb = new StringBuilder();
-            boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
+            //   boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
 
             sb.append("Typing for function symbol ").append(name).append("\n");
 
-            if (resultTypeVariables.isEmpty() &&
-                    argumentTypeVariables.isEmpty() && argTypes.length == 0) {
+            if (allTypeVariables.isEmpty() && argTypes.length == 0) {
 
                 // for a monomorphic constant symbols "bool c" add
                 // "(= (ty fct.c) ty.bool)"
                 sb.append("(= (ty ").append(name).append(") ").
                 append(fctResultType.accept(typeToTerm, false)).
-                append(                                ")");
+                append(")");
 
             } else {
                 sb.append("(forall (");
 
-                for (TypeVariable typeVariable : resultOnlyTypeVariables) {
-                    sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
-                }
-
-                for (TypeVariable typeVariable : argumentTypeVariables) {
+                for (TypeVariable typeVariable : allTypeVariables) {
                     sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
                 }
 
                 for (int i = 0; i < argTypes.length; i++) {
                     sb.append("(?x").append(i).append(" ").append(argTypes[i])
-                        .append(") ");
+                    .append(") ");
                 }
 
-                sb.append(")");
-
-                if (varInResult) {
-                    sb.append("(implies (and");
-                    for (int i = 0; i < argTypes.length; i++) {
-                        if("Universe".equals(argTypes[i])) {
-                            sb
-                                .append(" (= (ty ?x")
-                                .append(i)
-                                .append(") ")
-                                .append(fctArgTypes[i].accept(typeToTerm, true))
-                                .append(")");
-                        }
-                    }
-                    sb.append(") ");
-                }
+                sb.append(") ");
 
                 sb.append("(= (ty (").append(name);
-                for (TypeVariable typeVariable : resultOnlyTypeVariables) {
+                for (TypeVariable typeVariable : allTypeVariables) {
                     sb.append(" ?Type.").append(typeVariable.getVariableName());
                 }
                 for (int i = 0; i < argTypes.length; i++) {
                     sb.append(" ?x").append(i);
                 }
-            
+
                 sb.append(")) ").
-                append(fctResultType.accept(typeToTerm, true)).append("))")
-                        .append(varInResult ? ")" : "");
+                append(fctResultType.accept(typeToTerm, true)).append("))");
             }
             assumptions.add(sb.toString());
         }
@@ -887,20 +842,34 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         return name;
     }
 
-    /*
-     * calculate the difference between two sets.
-     * Only creates a new Object if the difference is not empty. 
-     */
-    private <E> Set<E> setDifference(Set<E> set, Set<E> toSubtract) {
+    private SortedSet<TypeVariable> collectTypeVars(Function function) {
+        Set<TypeVariable> resulttypeVariables =
+                TypeVariableCollector.collect(function.getResultType());
 
-        if(toSubtract.containsAll(set)) {
-            return Collections.emptySet();
-        } else {
-            Set<E> result = new HashSet<E>(set);
-            result.removeAll(toSubtract);
-            return result;
-        }
+        Set<TypeVariable> argumentTypeVariables =
+                TypeVariableCollector.collect(
+                        Util.readOnlyArrayList(function.getArgumentTypes()));
+
+        SortedSet<TypeVariable> allTypeVariables = new TreeSet<TypeVariable>(STRING_COMPARATOR);
+        allTypeVariables.addAll(resulttypeVariables);
+        allTypeVariables.addAll(argumentTypeVariables);
+        return allTypeVariables;
     }
+
+    //    /*
+    //     * calculate the difference between two sets.
+    //     * Only creates a new Object if the difference is not empty. 
+    //     */
+    //    private <E> Set<E> setDifference(Set<E> set, Set<E> toSubtract) {
+    //
+    //        if(toSubtract.containsAll(set)) {
+    //            return Collections.emptySet();
+    //        } else {
+    //            Set<E> result = new HashSet<E>(set);
+    //            result.removeAll(toSubtract);
+    //            return result;
+    //        }
+    //    }
 
     /**
      * Map a logic type to a smt type.
@@ -913,7 +882,9 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     private @NonNull String makeSort(@NonNull Type type) {
         if (Environment.getIntType().equals(type)) {
             return "Int";
-        } else {
+        } else if(Environment.getBoolType().equals(type)) {
+            return "Bool";
+        } else { 
             return "Universe";
         }
     }
@@ -938,8 +909,20 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             return INT;
         } else if ("Universe".equals(sort)) {
             return UNIVERSE;
+        } else if ("Bool".equals(sort)) {
+            return BOOL;
         } else {
             throw new IllegalArgumentException(sort);
+        }
+    }
+
+    private ExpressionType typeToExpressionType(Type type) {
+        if (Environment.getIntType().equals(type)) {
+            return INT;
+        } else if(Environment.getBoolType().equals(type)) {
+            return BOOL;
+        } else { 
+            return UNIVERSE;
         }
     }
 
@@ -980,7 +963,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                 return expr;
             case INT:
                 throw new RuntimeException("This cannot be converted: " + expr
-                        + " from FORMULA to INT");
+                        + " from BOOL to INT");
             }
         case INT:
             switch (to) {
@@ -988,7 +971,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                 return "(i2u " + expr + ")";
             case BOOL:
                 throw new RuntimeException("This cannot be converted: " + expr
-                        + " from INT to FORMULA");
+                        + " from INT to BOOL");
             case INT:
                 return expr;
             }
@@ -1034,4 +1017,159 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         return sb.toString();
     }
 
+    private class QuantificationTranslator extends DefaultTermVisitor {
+
+        private final String binderContext;
+        private List<String> innerVars;
+        private List<String> guards;
+        private String pattern;
+        private String result;
+
+        /**
+         * @param binderContext
+         */
+        public QuantificationTranslator(String binderContext) {
+            this.binderContext = binderContext;
+            this.guards = new ArrayList<String>();
+            this.innerVars = new ArrayList<String>();
+        }
+
+        @Override
+        protected void defaultVisitTerm(Term term) throws TermException {
+            // let the outer visitor do the job then
+            this.result = translate(term, BOOL);
+        }
+
+        @Override
+        public void visit(Binding binding) throws TermException {
+            Binder binder = binding.getBinder();
+            String name = binder.getName();
+            @Nullable String translation = translationMap.get(name);
+
+            // only exists and forall are defined and we are limited to one
+            // context
+            if (!binderContext.equals(translation)) {
+                defaultVisitTerm(binding);
+                return;
+            }
+
+            Term innerFormula = binding.getSubterm(0);
+            BindableIdentifier bindable = binding.getVariable();
+            assert bindable instanceof Variable;
+
+            Type varType = bindable.getType();
+            String boundType = makeSort(varType);
+            String var = "?" + boundType + "." + bindable.getName();
+            innerVars.add("(" + var + " " + boundType + ")");
+
+            addTypeGuard(var, varType);
+            
+            quantifiedVariables.push(var);
+            innerFormula.visit(this);
+            quantifiedVariables.pop();
+        }
+        
+        @Override
+        public void visit(TypeVariableBinding tBinding)
+                throws TermException {
+            String translation = translationMap.get(tBinding.getKind().toString());
+
+            // only exists and forall are defined and we are limited to one
+            // context, otherwise resort to the default treatment
+            if (!binderContext.equals(translation)) {
+                defaultVisitTerm(tBinding);
+                return;
+            }
+
+            Term innerFormula = tBinding.getSubterm();
+            Type boundType = tBinding.getBoundType();
+            // check that not a schema type.
+            assert boundType instanceof TypeVariable :
+                "Only bound type vars are supported!";
+
+            String var = "?Type." + ((TypeVariable)boundType).getVariableName();
+            innerVars.add("(" + var + " Type)");
+
+            quantifiedVariables.push(var);
+            innerFormula.visit(this);
+            quantifiedVariables.pop();
+        }
+        
+        @Override
+        public void visit(Application application) throws TermException {
+            Function function = application.getFunction();
+            if(function == patternFunction) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("(! ");
+                Term pattern = application.getSubterm(0);
+                Type patternType = pattern.getType();
+                ExpressionType patternExpType = typeToExpressionType(patternType);
+                // give a pattern the type it already has: no conversion!
+                String patternTrans = translate(pattern, patternExpType);
+
+                // the value needs to be boolean
+                Term value = application.getSubterm(1);
+                String valueTrans = translate(value, BOOL);
+                
+                this.result = valueTrans;
+                this.pattern = patternTrans;
+            } else {
+                defaultVisitTerm(application);
+            }
+        }
+
+        private void addTypeGuard(String var, Type varType) throws TermException {
+            ExpressionType expType = typeToExpressionType(varType);
+            if (expType == UNIVERSE) {
+                
+                String guard = "(= (ty " + var + ") "
+                        + varType.accept(typeToTerm, false) +
+                        ")";
+                guards.add(guard);
+            }
+        }
+        
+        @Override
+        public String toString() {
+            
+            StringBuilder sb = new StringBuilder();
+            
+            // The quantifier
+            sb.append("(").append(binderContext).append(" ");
+            
+            // The bound variables
+            assert !innerVars.isEmpty();
+            sb.append("(").append(Util.join(innerVars, " ")).append(") ");
+            
+            // The pattern head (if present)
+            if(pattern != null) {
+                sb.append("(! ");
+            }
+            
+            // The guards (if present)
+            if(!guards.isEmpty()) {
+                String conj = "forall".equals(binderContext) ? "(implies"
+                        : "(and";
+                sb.append(conj).append(" (and ");
+                sb.append(Util.join(guards, " "));
+                sb.append(") ");
+            }
+            
+            // the embedded formula
+            sb.append(result);
+            
+            // the tail of guards (if present)
+            if(!guards.isEmpty()) {
+                sb.append(")");
+            }
+            
+            // the tail of pattern (if present)
+            if(pattern != null) {
+                sb.append(" :pattern (").append(pattern).append("))");
+            }
+            
+            sb.append(")");
+            return sb.toString();
+        }
+    }
 }

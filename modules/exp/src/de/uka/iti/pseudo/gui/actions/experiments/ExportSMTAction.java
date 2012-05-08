@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.auto.SMTLib2Translator;
-import de.uka.iti.pseudo.auto.SMTLib1Translator;
 import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;

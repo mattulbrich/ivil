@@ -12,6 +12,7 @@ package de.uka.iti.pseudo;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import de.uka.iti.pseudo.auto.TestSMTLib2Translator;
 import de.uka.iti.pseudo.auto.TestSMTLibTranslator;
 import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
@@ -106,6 +107,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestHintParser.class);
         suite.addTestSuite(TestHintStrategy.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
+        suite.addTestSuite(TestSMTLib2Translator.class);
         suite.addTestSuite(TestZ3.class);
         suite.addTestSuite(TestZ3Translator.class);
         suite.addTestSuite(TestLinearLookupMap.class);

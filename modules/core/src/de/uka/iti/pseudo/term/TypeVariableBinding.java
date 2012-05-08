@@ -7,14 +7,20 @@ import de.uka.iti.pseudo.environment.Environment;
 // TODO DOC
 
 public final class TypeVariableBinding extends Term {
-    
+
     public static enum Kind {
         ALL("\\T_all"),
         EX("\\T_ex");
-        public final String image;
+
+        private final String image;
 
         Kind(String image) {
             this.image = image;
+        }
+        
+        @Override
+        public String toString() {
+            return image;
         }
     };
 

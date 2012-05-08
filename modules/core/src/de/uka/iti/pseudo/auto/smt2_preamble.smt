@@ -29,6 +29,12 @@
     (= (ty ?x) ty.int) 
     (exists ((?y Int)) (= (i2u ?y) ?x)))))
 
+; typing of u2i
+(assert
+  (forall
+   ((?n Int))
+   (= (ty (i2u ?n)) ty.int)))
+
 ; only true and false are boolean values
 (assert
  (forall 
@@ -44,6 +50,9 @@
 (assert (= (b2u false) termFalse))
 (assert (= (u2b termTrue) true))
 (assert (= (u2b termFalse) false))
+
+(assert (= (ty termFalse) ty.bool))
+(assert (= (ty termTrue) ty.bool))
 
 (assert
   (forall 

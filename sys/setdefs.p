@@ -47,7 +47,7 @@ axiom fullset_definition
 
 axiom singleton_definition
   (\T_all 'a; (\forall x as 'a; (\forall y as 'a;
-    x :: singleton(y) <-> x=y)))
+    x :: singleton(y) ~~> x :: singleton(y) <-> x=y)))
 
 axiom complement_definition
   (\T_all 'a; (\forall s as set('a); (\forall x as 'a;
@@ -67,7 +67,7 @@ axiom union_definition
 
 axiom subset_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
-    a <: b <-> (\forall x; x::a -> x::b))))
+    a <: b ~~> a <: b <-> (\forall x; x::a -> x::b))))
 
 axiom set_equality_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);

@@ -299,10 +299,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         currentTermTag = oldTag;
     }
     
+    @Override
     public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
         TermTag oldTag = begin(typeVariableBinding);
         
-        String bindString = typeVariableBinding.getKind().image;
+        String bindString = typeVariableBinding.getKind().toString();
         String typevar = typeVariableBinding.getBoundType().toString();
         printer.append("(").append(bindString).append(" ").append(typevar).append("; ");
         currentSubTermIndex = 0;
@@ -312,6 +313,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         currentTermTag = oldTag;
     }
     
+    @Override
     public void visit(Application application) throws TermException {
         TermTag oldTag = begin(application);
         if(!printByPlugins(application)) { 

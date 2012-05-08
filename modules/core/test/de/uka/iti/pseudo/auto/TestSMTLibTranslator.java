@@ -25,10 +25,6 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
     private static SMTLib1Translator.ExpressionType INT1 = SMTLib1Translator.ExpressionType.INT;
     private static SMTLib1Translator.ExpressionType UNIVERSE1 = SMTLib1Translator.ExpressionType.UNIVERSE;
     
-    private static SMTLib2Translator.ExpressionType BOOL2 = SMTLib2Translator.ExpressionType.BOOL;
-    private static SMTLib2Translator.ExpressionType INT2 = SMTLib2Translator.ExpressionType.INT;
-    private static SMTLib2Translator.ExpressionType UNIVERSE2 = SMTLib2Translator.ExpressionType.UNIVERSE;
-    
     public void test1Quantifiers() throws Exception {
         
         SMTLib1Translator trans = new SMTLib1Translator(env);
@@ -49,28 +45,6 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         assertEquals("(exists (?Universe.x Universe) (and (= (ty ?Universe.x) tyvar.a) (= ?Universe.x ?Universe.x)))",
                 trans.translate(t, FORMULA1));
     }
-    
-    public void test2Quantifiers() throws Exception {
-        
-        SMTLib2Translator trans = new SMTLib2Translator(env);
-        
-        Term t = makeTerm("(\\forall x; x > 0)");
-        assertEquals("(forall ((?Int.x Int)) (> ?Int.x 0))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\forall x as 'a; x = x)");
-        assertEquals("(forall ((?Universe.x Universe)) (implies (= (ty ?Universe.x) tyvar.a) (= ?Universe.x ?Universe.x)))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\exists y; 0 <= y)");
-        assertEquals("(exists ((?Int.y Int)) (<= 0 ?Int.y))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\exists x as 'a; x = x)");
-        assertEquals("(exists ((?Universe.x Universe)) (and (= (ty ?Universe.x) tyvar.a) (= ?Universe.x ?Universe.x)))",
-                trans.translate(t, BOOL2));
-    }
-
     
     public void test1NestedQuantifier() throws Exception {
         
@@ -102,36 +76,6 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
                 trans.translate(t, FORMULA1));
     }
     
-    public void test2NestedQuantifier() throws Exception {
-        
-        SMTLib2Translator trans = new SMTLib2Translator(env);
-        
-        Term t = makeTerm("(\\forall x; (\\forall y; x > y))");
-        assertEquals("(forall ((?Int.x Int) (?Int.y Int)) (> ?Int.x ?Int.y))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\exists x; (\\exists y; x > y))");
-        assertEquals("(exists ((?Int.x Int) (?Int.y Int)) (> ?Int.x ?Int.y))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\exists x; (\\forall y; x > y))");
-        assertEquals("(exists ((?Int.x Int)) (forall ((?Int.y Int)) (> ?Int.x ?Int.y)))",
-                trans.translate(t, BOOL2));
-        
-        env = makeEnv("sort S function bool p(S,S)");
-        
-        // Universe quantifications
-        t = makeTerm("(\\forall x; (\\forall y; p(x,y)))");
-        assertEquals("(forall ((?Universe.x Universe) (?Universe.y Universe)) " +
-                "(implies (= (ty ?Universe.x) ty.S) (implies (= (ty ?Universe.y) ty.S) (u2b (fct.p ?Universe.x ?Universe.y)))))",
-                trans.translate(t, BOOL2));
-        
-        t = makeTerm("(\\exists x; (\\exists y; p(x,y)))");
-        assertEquals("(exists ((?Universe.x Universe) (?Universe.y Universe)) " +
-                "(and (= (ty ?Universe.x) ty.S) (and (= (ty ?Universe.y) ty.S) (u2b (fct.p ?Universe.x ?Universe.y)))))",
-                trans.translate(t, BOOL2));
-    }
-    
     // formulas and terms are different in SMTLIB1
     public void test1FormTerm() throws Exception {
         
@@ -142,26 +86,10 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
                 " (implies (= (fct.id ?Universe.b) termTrue) (= ?Universe.b termTrue))))", trans.translate(t, FORMULA1));
     }
     
-    // formulas and terms are different in SMTLIB
-    public void test2FormTerm() throws Exception {
-        
-        SMTLib2Translator trans = new SMTLib2Translator(env);
-        
-        Term t = makeTerm("(\\forall b; id(b) -> b)");
-        assertEquals("(forall ((?Universe.b Universe)) (implies (= (ty ?Universe.b) ty.bool)" +
-                " (implies (u2b (fct.id ?Universe.b)) (u2b ?Universe.b))))", trans.translate(t, BOOL2));
-    }
-    
     public void test1CollectSchema() throws Exception {
         SMTLib1Translator trans = new SMTLib1Translator(env);
         Term t = makeTerm("arb as int = 4");
         assertEquals("(= (fct.arb ty.int) (i2u 4))", trans.translate(t, FORMULA1));
-    }
-    
-    public void test2CollectSchema() throws Exception {
-        SMTLib2Translator trans = new SMTLib2Translator(env);
-        Term t = makeTerm("arb as int = 4");
-        assertEquals("(= (fct.arb ty.int) (i2u 4))", trans.translate(t, BOOL2));
     }
     
     public void testInts() throws Exception {
@@ -190,35 +118,6 @@ public class TestSMTLibTranslator extends TestCaseWithEnv {
         
         assertEquals("(= (fct.id (i2u fct.i2)) (i2u 4))", trans.translate(makeTerm("id(i2) = 4"), FORMULA1));
         assertTrue(trans.extrafuncs.contains("(fct.id Universe Universe)"));
-        
-    }
-    
-    public void test2Ints() throws Exception {
-        
-        SMTLib2Translator trans = new SMTLib2Translator(env);
-        
-        String[] ops = { "+", "-" };
-        for (String op : ops) {
-            Term t = makeTerm("1" + op + "2");
-            assertEquals("(" + op + " 1 2)" , trans.translate(t, INT2));
-        }
-        
-        String[] preds = { "<", "<=", ">", ">=" };
-        for (String op : preds) {
-            Term t = makeTerm("1" + op + "2");
-            assertEquals("(" + op + " 1 2)" , trans.translate(t, BOOL2));
-        }
-        
-        assertEquals("(i2u 4)", trans.translate(makeTerm("4"), UNIVERSE2));
-        assertEquals("fct.i1", trans.translate(makeTerm("i1"), INT2));
-        assertTrue(trans.extrafuncs.contains("fct.i1 () Int"));
-        
-        // TODO How about: equality on integers should be on integers not on universe?! (MU)
-        assertEquals("(= (i2u fct.i2) (i2u 4))", trans.translate(makeTerm("i2 = 4"), BOOL2));
-        assertTrue(trans.extrafuncs.contains("fct.i2 () Int"));
-        
-        assertEquals("(= (fct.id (i2u fct.i2)) (i2u 4))", trans.translate(makeTerm("id(i2) = 4"), BOOL2));
-        assertTrue(trans.extrafuncs.contains("fct.id (Universe) Universe"));
         
     }
     
