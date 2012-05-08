@@ -19,7 +19,7 @@
 	<prover>
 		
 		<toolbar onlyIcons="true">
-				proof.auto proof.prune SEPARATOR
+				proof.auto proof.pruneLast SEPARATOR
 				prover.openInEditor SEPARATOR 
 				file.loadProb file.loadProof file.saveProof SEPARATOR
 				proof.stepInstr proof.stepSource smt.active proof.conjecture proof.snapshots
@@ -259,7 +259,7 @@
           <icon>img/cut.png</icon>
         </prune>
         <pruneLast>ACTION PruneLastAction
-          <icon>img/cut.png</icon>
+          <icon>img/cut_undo.png</icon>
         </pruneLast>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
