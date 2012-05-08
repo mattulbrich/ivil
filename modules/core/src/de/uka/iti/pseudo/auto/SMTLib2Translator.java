@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -140,23 +139,10 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      */
     private int unknownCounter = 0;
 
-    /*
-     * these storages can be read by test cases, therefore package readable
-     */
-    /**
-     * a set of definitions of user created sorts.
-     */
-    // /* package */ Set<String> extrasorts = new LinkedHashSet<String>();
-
     /**
      * a set of definitions of user created function symbols.
      */
     /* package */Set<String> extrafuncs = new LinkedHashSet<String>();
-
-    /**
-     * a set of definitions of user created predicate symbols.
-     */
-    //    /* package */Set<String> extrapreds = new LinkedHashSet<String>();
 
     /**
      * a set of assumptions that are due to the translation.
@@ -170,7 +156,18 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * Strings treated as smt expressions can be of these three kinds. 
      */
     public static enum ExpressionType {
-        BOOL, INT, UNIVERSE
+        BOOL("Bool"), INT("Int"), UNIVERSE("Universe");
+        
+        private String img;
+        
+        ExpressionType(String img) {
+            this.img = img;
+        }
+        
+        @Override
+        public String toString() {
+            return img;
+        }
     }
 
     /**
@@ -578,17 +575,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                     + ")";
         }
 
-        switch (requestedType) {
-        case BOOL:
-            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Bool");
-            break;
-        case UNIVERSE:
-            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Universe");
-            break;
-        case INT:
-            extrafuncs.add(name + " (" + Util.join(signature, " ") + ") Int");
-        }
-
+        extrafuncs.add(name + " (" + Util.join(signature, " ") + ") " + requestedType);
         resultingType = requestedType;
     }
 
@@ -751,10 +738,9 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     @Override
     public void visit(Variable variable) throws TermException {
-        String sort = makeSort(variable.getType());
+        resultingType = typeToExpressionType(variable.getType());
         String name = variable.getName();
-        resultingType = sortToExpressionType(sort);
-        result = "?" + sort + "." + name;
+        result = "?" + resultingType + "." + name;
     }
 
     @Override
@@ -780,24 +766,26 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         name = name.replace('$', '.');
 
         Type fctResultType = function.getResultType();
-        String resultType = makeSort(fctResultType);
+        ExpressionType resultType = typeToExpressionType(fctResultType);
 
         Type[] fctArgTypes = function.getArgumentTypes();
-        String[] argTypes = new String[fctArgTypes.length];
+        ExpressionType[] argTypes = new ExpressionType[fctArgTypes.length];
         for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = makeSort(fctArgTypes[i]);
+            argTypes[i] = typeToExpressionType(fctArgTypes[i]);
         }
 
         SortedSet<TypeVariable> allTypeVariables = collectTypeVars(function);
 
         List<String> types = new ArrayList<String>();
         types.addAll(Collections.nCopies(allTypeVariables.size(), "Type"));
-        types.addAll(Arrays.asList(argTypes));
+        for (ExpressionType exTy : argTypes) {
+            types.add(exTy.toString());
+        }
 
         extrafuncs.add(name +" (" + Util.join(types, " ") + ") " + resultType);
 
-        // nothing to do for integer functions
-        if (!"Int".equals(resultType) && !"Bool".equals(resultType)) {
+        // only for Universe functions
+        if (resultType == UNIVERSE) {
             StringBuilder sb = new StringBuilder();
             //   boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
 
@@ -871,23 +859,23 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     //        }
     //    }
 
-    /**
-     * Map a logic type to a smt type.
-     * 
-     * @param type
-     *            the logical type
-     * 
-     * @return the string
-     */
-    private @NonNull String makeSort(@NonNull Type type) {
-        if (Environment.getIntType().equals(type)) {
-            return "Int";
-        } else if(Environment.getBoolType().equals(type)) {
-            return "Bool";
-        } else { 
-            return "Universe";
-        }
-    }
+//    /**
+//     * Map a logic type to a smt type.
+//     * 
+//     * @param type
+//     *            the logical type
+//     * 
+//     * @return the string
+//     */
+//    private @NonNull String makeSort(@NonNull Type type) {
+//        if (Environment.getIntType().equals(type)) {
+//            return "Int";
+//        } else if(Environment.getBoolType().equals(type)) {
+//            return "Bool";
+//        } else { 
+//            return "Universe";
+//        }
+//    }
 
     /**
      * Deduce the expression type from a smt type string.
@@ -904,17 +892,17 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      *             if the argument is neither {@code "Int"} nor {@code
      *             "Universe"}.
      */
-    private @NonNull ExpressionType sortToExpressionType(@NonNull String sort) {
-        if ("Int".equals(sort)) {
-            return INT;
-        } else if ("Universe".equals(sort)) {
-            return UNIVERSE;
-        } else if ("Bool".equals(sort)) {
-            return BOOL;
-        } else {
-            throw new IllegalArgumentException(sort);
-        }
-    }
+//    private @NonNull ExpressionType sortToExpressionType(@NonNull String sort) {
+//        if ("Int".equals(sort)) {
+//            return INT;
+//        } else if ("Universe".equals(sort)) {
+//            return UNIVERSE;
+//        } else if ("Bool".equals(sort)) {
+//            return BOOL;
+//        } else {
+//            throw new IllegalArgumentException(sort);
+//        }
+//    }
 
     private ExpressionType typeToExpressionType(Type type) {
         if (Environment.getIntType().equals(type)) {
@@ -1058,7 +1046,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             assert bindable instanceof Variable;
 
             Type varType = bindable.getType();
-            String boundType = makeSort(varType);
+            ExpressionType boundType = typeToExpressionType(varType);
             String var = "?" + boundType + "." + bindable.getName();
             innerVars.add("(" + var + " " + boundType + ")");
 
