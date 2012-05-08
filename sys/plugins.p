@@ -97,6 +97,9 @@ plugin
 
     # proof hint to perform a case distinction like §(cut 'a > 0')
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.CutProofHint"
+
+    # proof hint to perform pick formulas like §(pick A.0 A.1 S.2)
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.PickProofHint"
     
 (*
  * This rule can -- in combination with the where condition axiom

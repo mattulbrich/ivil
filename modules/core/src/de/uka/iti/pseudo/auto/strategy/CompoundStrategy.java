@@ -48,6 +48,24 @@ public class CompoundStrategy extends AbstractStrategy {
     
     /**
      * The array of applied strategies. In order of application.
+     * 
+     * @ivildoc "Environment property/strategies"
+     * 
+     * The environment property <tt>CompoundStrategy.strategies</tt> can be used
+     * to specifify the automatic strategies which are to be bundled to conduct
+     * an automatic proof. The order in which they are specified gives their
+     * order of application.
+     * 
+     * <p>
+     * Usually the default is a good value. If you want to deviate, specify a
+     * comma separated list of implementing classes. If no package is given,
+     * <tt>"de.uka.iti.pseudo.auto.strategy."</tt> is assumed.
+     * 
+     * <p><b>Example:</b>
+     * <pre>
+     * properties
+     *   CompoundStrategy.strategies
+     *      "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"
      */
     private Strategy strategies[];
     

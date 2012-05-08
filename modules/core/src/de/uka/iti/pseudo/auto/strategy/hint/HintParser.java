@@ -162,7 +162,7 @@ public final class HintParser {
         while ((c = reader.read()) != -1) {
             switch (state) {
             case SIMPLE:
-                if (Character.isLetterOrDigit((char) c)) {
+                if (Character.isLetterOrDigit((char) c) || c == '.') {
                     sb.append((char) c);
                 } else {
                     reader.unread(c);

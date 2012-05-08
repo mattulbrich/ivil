@@ -30,3 +30,15 @@ rule auto_smt_close
     timeout "2000"
     autoonly
   
+(*
+ * The rule patient_smt_close is usually triggered by hints or 
+ * manually. It has a longer timeout than the automatic decision 
+ * procedure rules
+ *)
+rule patient_smt
+  where askDecisionProcedure
+  closegoal
+  tags
+    decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
+    timeout "20000"
+    autoonly

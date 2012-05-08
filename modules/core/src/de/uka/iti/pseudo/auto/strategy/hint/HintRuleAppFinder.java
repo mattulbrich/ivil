@@ -6,6 +6,7 @@ import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -38,6 +39,8 @@ public abstract class HintRuleAppFinder {
      *            the textual arguments from the parser
      */
     public HintRuleAppFinder(List<String> arguments) {
+        Log.log(Log.VERBOSE, "A hint rule app finder is created with arguments %s", 
+                arguments);
         this.arguments = Util.listToArray(arguments, String.class);
     }
 

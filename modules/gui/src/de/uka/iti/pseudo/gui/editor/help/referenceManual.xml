@@ -1,5 +1,24 @@
 <ivildoc>
   <category name="Environment property">
+    <entry name="strategies">
+      <![CDATA[
+ 
+ The environment property <tt>CompoundStrategy.strategies</tt> can be used
+ to specifify the automatic strategies which are to be bundled to conduct
+ an automatic proof. The order in which they are specified gives their
+ order of application.
+ 
+ <p>
+ Usually the default is a good value. If you want to deviate, specify a
+ comma separated list of implementing classes. If no package is given,
+ <tt>"de.uka.iti.pseudo.auto.strategy."</tt> is assumed.
+ 
+ <p><b>Example:</b>
+ <pre>
+ properties
+   CompoundStrategy.strategies
+      "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"]]>
+    </entry>
     <entry name="order">
       <![CDATA[
  
@@ -222,6 +241,27 @@
  <h3>Example</h3>
  <pre>
  assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
+ </pre>]]>
+    </entry>
+    <entry name="pick">
+      <![CDATA[
+ 
+ <h2>Proof hint <code>pick</code></h2>
+ 
+ This hint allows you to remove formulas from a sequent and to pick
+ only some of them.
+ 
+ <h3>Arguments</h3>
+ Takes one or more sequent formula locators which match the regular expression
+ <tt>(S|A).[0-9]+</tt>. <tt>A</tt> denoting antecedent and <tt>S</tt> succedent.
+ The number means the number of the formula on the sequent (0 is first). 
+ 
+ <p> Formulas are removed using the <tt>hide_left</tt> and <tt>hide_right</tt>
+ rules.
+ 
+ <h3>Example</h3>
+ <pre>
+ assert x*x >= 0 ; "first two imply goal §(pick A0 A1 S1)"
  </pre>]]>
     </entry>
     <entry name="cut">

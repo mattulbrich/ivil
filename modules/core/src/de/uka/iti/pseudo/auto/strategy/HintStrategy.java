@@ -17,6 +17,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.util.Log;
 
 /**
@@ -153,20 +154,25 @@ public final class HintStrategy extends AbstractStrategy {
             if(hintOn == null) {
                 return;
             }
-
-            for (String string : hintOn.split(" *, *")) {
-                int branchNo = Integer.parseInt(string);
-                ProofNode branch = node.getChildren().get(branchNo);
-                TermSelector findSel = ruleApp.getFindSelector();
             
-                Term findTerm = findSel.selectSubterm(node.getSequent());
-                if (findTerm instanceof LiteralProgramTerm) {
-                    LiteralProgramTerm lpt = (LiteralProgramTerm) findTerm;
-                    String annotation = lpt.getProgram().getTextAnnotation(lpt.getProgramIndex());
-                    if(annotation == null) {
-                        return;
-                    }
-                    List<HintRuleAppFinder> hints = hintParser.parse(annotation);
+            TermSelector findSel = ruleApp.getFindSelector();
+            Term findTerm = findSel.selectSubterm(node.getSequent());
+            
+            // find may have an update ... strip that away ...
+            if (findTerm instanceof UpdateTerm) {
+                findTerm = findTerm.getSubterm(0);
+            }
+
+            if (findTerm instanceof LiteralProgramTerm) {
+                LiteralProgramTerm lpt = (LiteralProgramTerm) findTerm;
+                String annotation = lpt.getProgram().getTextAnnotation(lpt.getProgramIndex());
+                if(annotation == null) {
+                    return;
+                }
+                List<HintRuleAppFinder> hints = hintParser.parse(annotation);
+                for (String string : hintOn.split(" *, *")) {
+                    int branchNo = Integer.parseInt(string);
+                    ProofNode branch = node.getChildren().get(branchNo);
                     hintMap.put(branch, hints);
                 } 
             }
