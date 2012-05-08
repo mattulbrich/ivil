@@ -72,7 +72,8 @@ TOKEN : /* LITERALS */
 
 TOKEN : /* KEYWORDS */
 {
-  < IF : "if" >
+  < AS : "as" >
+| < IF : "if" >
 | < IN : "in" >
 | < DO : "do" >
 | < END : "end" >
@@ -116,45 +117,11 @@ MORE : /* INLINE MODE */
 
 TOKEN : /* IDENTIFIERS */
 {
-  < LEFTPAREN: "(" >
-|
-  < RIGHTPAREN: ")" >
-|
-  < LEFTSQUARE: "[" >
-|
-  < RIGHTSQUARE: "]" >
-|
-  < LEFTCURLY: "{" >
-|
-  < RIGHTCURLY: "}" >
-|
-  < LEFTDSQUARE: "[[" >
-|
-  < RIGHTDSQUARE: "]]" >
-|
-  < COMMA: "," >
-|
-  < DOT: "." >
-| 
-  < PARALLEL: "||" >
-|
-  < COLON: ":" >
-|
-  < ASSIGNMENT: ":=" >
-|
-  < SEMICOLON: ";" >
-|
-  < DOUBLESEMICOLON: ";;" >
-|
-  < AS: "as" >
-|
   < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 |
   < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >  
 |
   < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
-|
-  < OP_IDENTIFIER: ( ["+","-","<",">","&","|","=","*","/","\\","!","^","@",".",":"] )+ >
 |
   < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
 }
@@ -304,9 +271,13 @@ void AssumeStatement() #AssumeStatement : {}
   "assume" Expression()
 }
 
-void NoteStatement() #NoteStatement : {}
+void NoteStatement() #NoteStatement : 
+{ Token t = null; }
 {
-  "note" Expression()
+  "note" Expression() 
+    ( "with" t=<STRING_LITERAL> 
+       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
+    )?
 }
 
 void InlineStatement() #InlineStatement : 
@@ -318,6 +289,17 @@ void InlineStatement() #InlineStatement :
      { jjtThis.jjtSetValue(stripInline(t.image)); }
 } 
 
+void IntegerLiteral() #Identifier :
+{
+  Token t;
+}
+{
+  t=<INTEGER_LITERAL>
+  {
+    jjtThis.jjtSetValue(Integer.decode(t.image));
+  }
+}
+
 void Identifier() #Identifier :
 {
   Token t;
@@ -328,53 +310,126 @@ void Identifier() #Identifier :
     jjtThis.jjtSetValue(t.image);
   }
 }
-    
-/** An Expression. */
-void Expression() #Expression : {}
+
+void BinderIdentifier() #BinderIdentifier :
+{
+  Token t;
+}
+{
+  t=<BINDER_IDENTIFIER>
+  {
+    jjtThis.jjtSetValue(t.image);
+  }
+}
+
+/** Expressions. */
+void Expression() : {}
 { 
-  ( 
-    LOOKAHEAD(2) 
-     (Identifier() "[" Expression() "]") #MapAccessExpression
+  EquivalenceExpression()
+}
+
+void EquivalenceExpression() :
+{ 
+  Token t=null;
+}
+{ 
+   OrExpression() ( t="<->"  EquivalenceExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void OrExpression() :
+{
+  Token t=null;
+}
+{ 
+   AndExpression() ( ( t="->" | t="|" ) OrExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void AndExpression() :
+{
+  Token t=null;
+}
+{ 
+   RelationExpression() ( ( t="&" ) AndExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void RelationExpression() :
+{
+  Token t=null;
+}
+{ 
+   AddExpression() 
+   ( (t="=" | t="<:" | t="::" | t="in" | t="<" | t="<=" | t=">" | t=">=") 
+   RelationExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void AddExpression() :
+{
+  Token t=null;
+}
+{ 
+   MultExpression() ( (t="+" | t="-" | t="\\/" ) AddExpression()  
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void MultExpression() :
+{
+  Token t=null;
+}
+{ 
+   UnaryExpression() ( (t="*" | t="/" | t="/\\" | t="\\" ) MultExpression()  
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+}
+
+void UnaryExpression() :
+{
+   Token t = null;
+}
+{
+     ( ( t="-" | t="!" ) UnaryExpression() { jjtThis.jjtSetValue(t); } ) #UnaryExpression(1)
    |
-     TokenExpression()
+     MapAccessExpression()
+}
+
+void MapAccessExpression() :
+{}
+{
+   AsExpression() ( "[" ExpressionCommaList() "]"  #MapAccessExpression(2) )*
+}
+
+void AsExpression() :
+{}
+{
+   PrimaryExpression() ( "as" Type() #AsExpression(2) )?
+}
+
+void PrimaryExpression() :
+{}
+{
+     ( Identifier() ( "(" ExpressionCommaList() ")" )? ) #ApplicationExpression
+   | LOOKAHEAD(2) 
+     ( "(" BinderIdentifier() Expression() ( ";" Expression() )* ")" ) #BinderExpression
    |
      SetExtensionExpression()
-  )+
+   | 
+     "(" Expression() ")"
+   |
+     IntegerLiteral()
+}
+
+void ExpressionCommaList() #ExpressionCommaList :
+{}
+{
+  Expression() ( "," Expression() )*
 }
 
 void SetExtensionExpression() #SetExtensionExpression : {}
 {
 // TODO do more than only singletons and empty set
-    <LEFTCURLY>
+    "{"
        ( Expression() )?
-    <RIGHTCURLY>
-}
-
-void TokenExpression() #TokenExpression : {}
-{
-      <INTEGER_LITERAL>
-    | 
-      <BINDER_IDENTIFIER>
-    | 
-      <INTERNAL_IDENTIFIER>
-    |
-      <TYVAR_IDENTIFIER>
-    |
-      <OP_IDENTIFIER>
-    |
-      <IDENTIFIER>
-    |
-      <LEFTPAREN>
-    |
-      <RIGHTPAREN>
-    |
-      <COMMA>
-    |
-      <DOT>
-    |
-      <SEMICOLON>
-    |
-      <AS>
-    | 
-      <STRING_LITERAL>
+    "}"
 }

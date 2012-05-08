@@ -288,20 +288,22 @@ public class TranslationVisitor implements AlgoParserVisitor {
     public String visit(ASTNoteStatement node, Object data) {
         addSourceLineStatement(node);
         String expression = visitChild(node, 0);
-        statements.add("  assert " + expression);
-        statements.add("  assume " + expression);
+        Object extra = node.jjtGetValue();
+        String annotation;
+        if(extra != null) {
+            annotation = " ; \" lemma by " + extra.toString() + "\"";
+        } else {
+            annotation = "";
+        }
+        statements.add("  assert " + expression + annotation);
         return null;
     }
     
+    @Override
     public String visit(ASTIdentifier node, Object data) {
-        return (String) node.jjtGetValue();
+        return node.jjtGetValue().toString();
     }
 
-    @Override
-    public String visit(ASTTokenExpression node, Object data) {
-         return node.jjtGetFirstToken().image;
-    }
-    
     @Override
     public String visit(ASTSetExtensionExpression node, Object data) {
         if(node.jjtGetNumChildren() > 0) {
@@ -309,17 +311,6 @@ public class TranslationVisitor implements AlgoParserVisitor {
         } else {
             return "emptyset";
         }
-    }
-    
-    @Override
-    public String visit(ASTExpression node, Object data) {
-        StringBuilder res = new StringBuilder();
-        
-        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-            res.append(visitChild(node, i)).append(" ");
-        }
-        
-        return res.toString();
     }
     
     @Override
@@ -333,8 +324,73 @@ public class TranslationVisitor implements AlgoParserVisitor {
         String map = visitChild(node, 0);
         String index = visitChild(node, 1);
         String value = visitChild(node, 2);
-        statements.add("  " + map + " := store(" + map + ", " + index + ", " + value + ")");
+        statements.add("  " + map + " := $store(" + map + ", " + index + ", " + value + ")");
         return null;
+    }
+
+    @Override
+    public String visit(ASTBinderIdentifier node, Object data) {
+        return node.jjtGetValue().toString();
+    }
+
+    @Override
+    public String visit(ASTBinaryExpression node, Object data) {
+        assert node.jjtGetNumChildren() == 2;
+        return "(" + visitChild(node, 0) + " " + 
+                node.jjtGetValue().toString() + " " +
+                visitChild(node, 1) + ")";
+    }
+
+    @Override
+    public String visit(ASTUnaryExpression node, Object data) {
+        assert node.jjtGetNumChildren() == 1;
+        return node.jjtGetValue().toString() + "("
+                + visitChild(node, 0) + ")";
+    }
+
+    @Override
+    public String visit(ASTApplicationExpression node, Object data) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(visitChild(node, 0));
+        if(node.jjtGetNumChildren() > 1) {
+            sb.append("(");
+            sb.append(visitChild(node, 1));
+            sb.append(")");
+        }
+        return sb.toString(); 
+    }
+
+    @Override
+    public String visit(ASTBinderExpression node, Object data) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        sb.append(visitChild(node, 0));
+        sb.append(" ");
+        for (int i = 1; i < node.jjtGetNumChildren(); i++) {
+            if(i != 1)
+                sb.append("; ");
+            sb.append(visitChild(node, i));
+        }
+        sb.append(")");
+        return sb.toString();
+    }
+
+    @Override
+    public String visit(ASTExpressionCommaList node, Object data) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            if(i != 0) {
+                sb.append(", ");
+            }
+            sb.append(visitChild(node, i));
+        }
+        return sb.toString();
+    }
+    
+    @Override
+    public String visit(ASTAsExpression node, Object data) {
+        return "((" + visitChild(node, 0) + ") as " +
+                visitChild(node, 1) + ")";
     }
 
     public List<String> getHeader() {
@@ -365,5 +421,5 @@ public class TranslationVisitor implements AlgoParserVisitor {
     public String getProgramName() {
         return programName;
     }
-
+    
 }
