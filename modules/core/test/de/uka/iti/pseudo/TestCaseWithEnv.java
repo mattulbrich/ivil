@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo;
@@ -46,6 +46,14 @@ public abstract class TestCaseWithEnv extends TestCase {
     public static final boolean VERBOSE = Boolean.valueOf(System.getProperty(
             "pseudo.test.verbose", "false"));
 
+    private static final boolean ASSERTIONS = Boolean.valueOf(System.getProperty(
+            "pseudo.test.assertions", "true"));
+
+    static {
+        ClassLoader.getSystemClassLoader()
+                .setDefaultAssertionStatus(ASSERTIONS);
+    }
+
     /**
      * provide the object needed for {@link #DEFAULT_ENV}.
      */
@@ -53,8 +61,9 @@ public abstract class TestCaseWithEnv extends TestCase {
         try {
             Parser fp = new Parser();
             URL url = TestCaseWithEnv.class.getResource("testenv.p");
-            if(url == null)
+            if(url == null) {
                 throw new Error("testenv.p not found!");
+            }
             EnvironmentMaker em = new EnvironmentMaker(fp, url);
             Environment env = em.getEnvironment();
             env.setFixed();
@@ -66,13 +75,13 @@ public abstract class TestCaseWithEnv extends TestCase {
 
     /**
      * Returns the environment to be used throughout the test.
-     * 
+     *
      * By default it returns a reference to {@link #DEFAULT_ENV}. Any subclass
      * may decide to overwrite this.
-     * 
+     *
      * This method is called during the object construction of the test. You may
      * chose to call it in setUp or anywhere else. ...
-     * 
+     *
      * @return the environment to be used throughout the test.
      */
 //    protected Environment getEnvironment() {
@@ -86,14 +95,14 @@ public abstract class TestCaseWithEnv extends TestCase {
 
     /**
      * Parse a string to produce a term.
-     * 
+     *
      * The environment used for name resolution is {@link #env}.
-     * 
+     *
      * @param string
      *            the string to parse
-     * 
+     *
      * @return the term which was represented by the argument
-     * 
+     *
      * @throws Exception
      *             various things can fail during the translation.
      */
@@ -107,14 +116,14 @@ public abstract class TestCaseWithEnv extends TestCase {
 
     /**
      * Parse a string to produce an environment.
-     * 
+     *
      * The string is prefixed by {@code include "$base.p"}.
-     * 
+     *
      * @param string
      *            the string to parse
-     * 
+     *
      * @return the environment which was represented by the argument
-     * 
+     *
      * @throws Exception
      *             various things can fail during the translation.
      */
@@ -126,15 +135,15 @@ public abstract class TestCaseWithEnv extends TestCase {
         Environment env = em.getEnvironment();
         return env;
     }
-    
+
     /**
      * Parse a URL to produce an environment.
-     * 
+     *
      * @param url
      *            the url to parse
-     * 
+     *
      * @return the environment which was represented by the argument
-     * 
+     *
      * @throws Exception
      *             various things can fail during the translation.
      */
@@ -144,11 +153,11 @@ public abstract class TestCaseWithEnv extends TestCase {
         Environment env = em.getEnvironment();
         return env;
     }
-    
+
     /**
      * Defbug output. Print to stderr is only performed if {@link #VERBOSE} is
      * set to true.
-     * 
+     *
      * @param message
      *            message to print
      */

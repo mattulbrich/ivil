@@ -574,7 +574,10 @@ public class Util {
     }
 
     /**
-     * register the url handlers which are used in this project.
+     * Register the url handlers which are used in this project.
+     * 
+     * In particular, there is a pseudo protocol "none" used for input w/o
+     * origin.
      */
     public static void registerURLHandlers() {
         System.setProperty("java.protocol.handler.pkgs", 
