@@ -549,7 +549,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         if(SYNTAX_CHECKER_PROPERTY.equals(property)) {
             syntaxChecker = (EnvironmentCreationService) newValue;
             updateThread.changed();
-            System.out.println(syntaxChecker);
+            // System.out.println(syntaxChecker);
         }
         
         if("syntaxHighlight".equals(property)) {

@@ -16,24 +16,31 @@
 (declare-fun b2u (Bool) Universe)
  
 (assert
- (forall ((?x Int)) (= ?x (u2i (i2u ?x)))))
+ (forall ((?x Int)) (! (= ?x (u2i (i2u ?x))) :pattern ((u2i (i2u ?x))) )))
   
 (assert
-  (forall ((?x Int) (?y Int)) (implies (= (i2u ?x) (i2u ?y)) (= ?x ?y))))
+  (forall ((?x Int) (?y Int)) 
+   (!
+    (implies (= (i2u ?x) (i2u ?y)) (= ?x ?y))
+    :pattern ((i2u ?x) (i2u ?y)) )))
   
 ; used to have "iff" here which was wrong!
+; TODO pattern?
 (assert
   (forall 
    ((?x Universe))
-   (implies 
-    (= (ty ?x) ty.int) 
-    (exists ((?y Int)) (= (i2u ?y) ?x)))))
+    (implies 
+     (= (ty ?x) ty.int) 
+     (exists ((?y Int)) (= (i2u ?y) ?x)))
+    ))
 
 ; typing of u2i
 (assert
   (forall
    ((?n Int))
-   (= (ty (i2u ?n)) ty.int)))
+   (!
+    (= (ty (i2u ?n)) ty.int)
+    :pattern ((i2u ?n)) )))
 
 ; only true and false are boolean values
 (assert
@@ -53,14 +60,6 @@
 
 (assert (= (ty termFalse) ty.bool))
 (assert (= (ty termTrue) ty.bool))
-
-(assert
-  (forall 
-   ((?x Universe))
-   (implies 
-    (= (ty ?x) ty.bool) 
-    (or (= ?x termTrue)
-	(= ?x termFalse)))))
 
 ; --- end of preamble
 

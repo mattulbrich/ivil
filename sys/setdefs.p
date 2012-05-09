@@ -40,10 +40,10 @@ binder
   set('a)   (\set 'a; bool)
 
 axiom emptyset_definition
-  (\T_all 'a; (\forall x as 'a; !x::emptyset))
+  (\T_all 'a; (\forall x as 'a; x::emptyset ~~> !x::emptyset))
 
 axiom fullset_definition
-  (\T_all 'a; (\forall x as 'a; x::fullset))
+  (\T_all 'a; (\forall x as 'a; x::fullset ~~> x::fullset))
 
 axiom singleton_definition
   (\T_all 'a; (\forall x as 'a; (\forall y as 'a;
@@ -51,19 +51,19 @@ axiom singleton_definition
 
 axiom complement_definition
   (\T_all 'a; (\forall s as set('a); (\forall x as 'a;
-    x :: ^s <-> !x :: s)))
+    x :: ^s ~~> x :: ^s <-> !x :: s)))
 
 axiom diff_definition
   (\T_all 'a; (\forall x as 'a; (\forall a as set('a); (\forall b as set('a);
-    x :: a \ b <-> x::a & !x::b))))
+    x :: a \ b ~~> x :: a \ b <-> x::a & !x::b))))
 
 axiom intersect_definition
   (\T_all 'a; (\forall x as 'a; (\forall a as set('a); (\forall b as set('a);
-    x :: a /\ b <-> x::a & x::b))))
+    x :: a /\ b ~~> x :: a /\ b <-> x::a & x::b))))
 
 axiom union_definition
   (\T_all 'a; (\forall x as 'a; (\forall a as set('a); (\forall b as set('a);
-    x :: a \/ b <-> x::a | x::b))))
+    x :: a \/ b ~~> x :: a \/ b -> x::a | x::b))))
 
 axiom subset_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
@@ -71,5 +71,5 @@ axiom subset_definition
 
 axiom set_equality_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
-    a = b <-> (\forall x; x::a <-> x::b))))
+    a = b ~~> a = b <-> (\forall x; x::a <-> x::b))))
     

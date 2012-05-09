@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.auto;
@@ -64,31 +64,31 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * The Class SMTLibTranslator translates a term / formula / sequent to its
  * corresponding SMTLib counterpart.
- * 
+ *
  * <p>
  * The translation assumes that certain names have their intended meaning. For
  * instance, <code>$add</code> should be the addition of integers as defined by
  * the rules in <code>$int.p</code>.
- * 
+ *
  * <p>
  * Ivil does not distinguish between boolean terms and formulas. The translation
  * has to, however. Therefore, a mechanism is used which lazily translates a
  * formula to a term (or vice versa) only if needed.
- * 
+ *
  * <p>
  * Since the type system of ivil is by far more complex than the simple type
  * system of smt, we map most of the types to one type "Universe" and introduce
  * type predicates. Hence, type quantification becomes regular quantification
  * and for every type a function symbol is introduced. For every constant symbol
  * a typing axiom is assumed.
- * 
+ *
  * <p>
  * Integer treatment is (as far as possible) kept apart from the universe
  * treatment.
- * 
+ *
  * <p>
  * <a href="http://goedel.cs.uiowa.edu/smtlib/">Page of SMT-LIB</a>
- * 
+ *
  * @author mattias ulbrich
  */
 public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTranslator {
@@ -115,7 +115,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             .readOnlyArrayList(new String[] { "true", "false", "and", "or",
                     "implies", "iff", "not", "<", ">", "<=", ">=", "=" });
 
-    private static final Comparator<TypeVariable> STRING_COMPARATOR = 
+    private static final Comparator<TypeVariable> STRING_COMPARATOR =
             new Comparator<TypeVariable>() {
         @Override
         public int compare(TypeVariable tv1, TypeVariable tv2) {
@@ -126,7 +126,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * map storing how function symbols are mapped to SMT counterparts.
      */
-    private Map<String, String> translationMap = new HashMap<String, String>();
+    private final Map<String, String> translationMap = new HashMap<String, String>();
 
     /**
      * map storing the type variables which appear only in result types of
@@ -146,24 +146,24 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * a set of assumptions that are due to the translation.
-     * 
+     *
      * If the content contains more than one line, everything but the last line
      * is taken to be comment.
      */
     /* package */LinkedList<String> assumptions = new LinkedList<String>();
 
     /**
-     * Strings treated as smt expressions can be of these three kinds. 
+     * Strings treated as smt expressions can be of these three kinds.
      */
     public static enum ExpressionType {
         BOOL("Bool"), INT("Int"), UNIVERSE("Universe");
-        
+
         private String img;
-        
+
         ExpressionType(String img) {
             this.img = img;
         }
-        
+
         @Override
         public String toString() {
             return img;
@@ -194,50 +194,52 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * updated by {@link #visit(Binding)} and
      * {@link #visit(TypeVariableBinding)}
      */
-    private Deque<String> quantifiedVariables = new LinkedList<String>();
+    private final Deque<String> quantifiedVariables = new LinkedList<String>();
 
     /**
      * the "cond" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
-    private @Nullable Function condFunction;
+    private @Nullable
+    final Function condFunction;
 
     /**
      * the "$pattern" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
 
-    private @Nullable Function patternFunction;
-    private Function equalityFunction;
+    private @Nullable
+    final Function patternFunction;
+    private final Function equalityFunction;
     /**
      * All axioms as they are extracted from the environment.
      */
-    private Collection<Axiom> allAxioms;
+    private final Collection<Axiom> allAxioms;
 
     /**
      * All sorts as they are extraced from the environment.
      */
-    private List<Sort> allSorts;
+    private final List<Sort> allSorts;
 
     /**
      * This type visitor is used to translate a type into a term of type meta
      * type Type.
-     * 
+     *
      * For instance {@code set(int)} is translated to {@code (ty.set ty.int)}
      * and {@code product('a, list(bool))} becomes {@code (ty.product tyvar.a
      * (ty.list ty.bool)}.
-     * 
+     *
      * A type variable {@code 'a} is translated either to {@code tyvar.a} if the
      * variable is not under a quantifier and to {@code ?Type.a} if under a
      * quantifier.
-     * 
+     *
      * The quantification context is taken from the {@link #quantifiedVariables}
      * stack. If the parameter to the visitor is set to <code>true</code>, then
      * the translation treats every occurrence as bound.
-     * 
+     *
      */
     @SuppressWarnings("nullness")
-    private TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
+    private final TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
         @Override
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
@@ -276,7 +278,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Instantiates a new SMT-lib translator.
-     * 
+     *
      * @param env
      *            the environment to use.
      */
@@ -295,20 +297,20 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Translate a term to its smt-lib counterpart.
-     * 
+     *
      * <p>
      * Possibly, sort and constant definitions are written to the appropriate
      * storages.
-     * 
+     *
      * @param term
      *            the term to translate
-     * 
+     *
      * @param asType
      *            defines which kind of expression the result has be assured to
      *            be in
-     * 
+     *
      * @return the string representing the translation
-     * 
+     *
      * @throws TermException
      *             if the translation fails for whatever reason
      */
@@ -327,21 +329,21 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Translate a sequent to its smt-lib counterpart, i.e., a formula.
-     * 
+     *
      * <p>
      * Possibly, sort and constant definitions are written to the appropriate
      * storages.
-     * 
+     *
      * <p>
      * The resulting formula is a conjunction of all formulas on the sequent's
      * lhs (positive) and all formulas of the rhs (negative). For the empty
      * sequent <code>"(and true)"</code> is returned.
-     * 
+     *
      * @param sequent
      *            the sequent to translate
-     * 
+     *
      * @return the string representing the translation
-     * 
+     *
      * @throws TermException
      *             if the translation fails for whatever reason
      */
@@ -364,18 +366,18 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Export a sequent to an output stream.
-     * 
+     *
      * <p>
      * It will translate the sequent, add all axioms from the environment and
      * write everything to the output stream. If new sorts and/or symbols are
      * created, they get declared, too.
-     * 
+     *
      * @param sequent
      *            the sequent to export
-     * 
+     *
      * @param builder
      *            the stream to output to
-     * 
+     *
      * @throws TermException
      *             if the translation fails
      * @throws IOException
@@ -427,11 +429,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /*
      * Add type meta symbols for all types of the environment.
-     * 
+     *
      * For every nullary type constructor C we get a constant "(ty.C Type)", for
      * every constructor D of higher arity a symbol with an according number of
      * parameters is added.
-     * 
+     *
      * Assumptions are added which ensure that the symbols are distinct and that
      * the constructors are injective functions.
      */
@@ -548,12 +550,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /*
      * by default replace by a new unknown symbol.
-     * 
+     *
      * TODO cache replacement results => use same symbol for identical terms but
      * ... do this on a per-translation basis!
-     * 
+     *
      * TODO add typing axioms also for those elements?!
-     * 
+     *
      * We have to add bound variables as parameters! Otherwise the follwing will
      * be proven by SMT: <pre> (\forall x as int; ({a:=0}x)=x) -> c1=c2 </pre>
      */
@@ -582,7 +584,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     /*
      * Translate an application.
      * This is quite complicated.
-     * 
+     *
      * Special treatment for conditional terms and propositional junctors.
      */
     @Override
@@ -617,14 +619,14 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             // smt equality does not have a type argument but ivil has. Make it manually
             StringBuilder sb = new StringBuilder();
             sb.append("(= ");
-            
+
             Term term1 = application.getSubterm(0);
             ExpressionType type1 = typeToExpressionType(term1.getType());
             Term term2 = application.getSubterm(1);
             ExpressionType type2 = typeToExpressionType(term1.getType());
-            
-            // If both the same type (that should always be the case 
-            // unless weak equality is implemented), use that, otherwise 
+
+            // If both the same type (that should always be the case
+            // unless weak equality is implemented), use that, otherwise
             // resort to UNIVERSE
             ExpressionType type = (type1==type2) ? type1 : UNIVERSE;
 
@@ -708,7 +710,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             result = translation;
         }
 
-        if (ALL_PREDICATES.contains(translation) || 
+        if (ALL_PREDICATES.contains(translation) ||
                 Environment.getBoolType().equals(resultType)) {
             resultingType = BOOL;
         } else if (Environment.getIntType().equals(resultType)) {
@@ -729,7 +731,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             defaultVisitTerm(binding);
             return;
         }
-        
+
         QuantificationTranslator trans = new QuantificationTranslator(translation);
         binding.visit(trans);
         result = trans.toString();
@@ -747,13 +749,13 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     public void visit(TypeVariableBinding tBinding)
             throws TermException {
         String translation = translationMap.get(tBinding.getKind().toString());
-        
+
      // only exists and forall are defined.
         if (translation == null) {
             defaultVisitTerm(tBinding);
             return;
         }
-        
+
         QuantificationTranslator trans = new QuantificationTranslator(translation);
         tBinding.visit(trans);
         result = trans.toString();
@@ -811,18 +813,25 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                     .append(") ");
                 }
 
-                sb.append(") ");
+                sb.append(") (! (= (ty ");
 
-                sb.append("(= (ty (").append(name);
-                for (TypeVariable typeVariable : allTypeVariables) {
-                    sb.append(" ?Type.").append(typeVariable.getVariableName());
+                StringBuilder fctcallsb = new StringBuilder();
+                {
+                    fctcallsb.append("(").append(name);
+                    for (TypeVariable typeVariable : allTypeVariables) {
+                        fctcallsb.append(" ?Type.")
+                            .append(typeVariable.getVariableName());
+                    }
+                    for (int i = 0; i < argTypes.length; i++) {
+                        fctcallsb.append(" ?x").append(i);
+                    }
+                    fctcallsb.append(")");
                 }
-                for (int i = 0; i < argTypes.length; i++) {
-                    sb.append(" ?x").append(i);
-                }
-
-                sb.append(")) ").
-                append(fctResultType.accept(typeToTerm, true)).append("))");
+                sb.append(fctcallsb).append(") ")
+                        .append(fctResultType.accept(typeToTerm, true))
+                        .append(") :pattern (")
+                        .append(fctcallsb)
+                        .append(")))");
             }
             assumptions.add(sb.toString());
         }
@@ -846,7 +855,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
     //    /*
     //     * calculate the difference between two sets.
-    //     * Only creates a new Object if the difference is not empty. 
+    //     * Only creates a new Object if the difference is not empty.
     //     */
     //    private <E> Set<E> setDifference(Set<E> set, Set<E> toSubtract) {
     //
@@ -861,10 +870,10 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
 //    /**
 //     * Map a logic type to a smt type.
-//     * 
+//     *
 //     * @param type
 //     *            the logical type
-//     * 
+//     *
 //     * @return the string
 //     */
 //    private @NonNull String makeSort(@NonNull Type type) {
@@ -872,22 +881,22 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 //            return "Int";
 //        } else if(Environment.getBoolType().equals(type)) {
 //            return "Bool";
-//        } else { 
+//        } else {
 //            return "Universe";
 //        }
 //    }
 
     /**
      * Deduce the expression type from a smt type string.
-     * 
+     *
      * This maps {@code "Int"} to {@link ExpressionType#INT} and {@code
      * "Universe"} to {@link ExpressionType#UNIVERSE}.
-     * 
+     *
      * @param sort
      *            the sort to translate
-     * 
+     *
      * @return the according expression type
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the argument is neither {@code "Int"} nor {@code
      *             "Universe"}.
@@ -909,7 +918,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             return INT;
         } else if(Environment.getBoolType().equals(type)) {
             return BOOL;
-        } else { 
+        } else {
             return UNIVERSE;
         }
     }
@@ -917,16 +926,16 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * Convert an expression of some expression type into a possibly different
      * type.
-     * 
+     *
      * @param expr
      *            the expression as string
      * @param from
      *            the expression type in which the first argument is to be read
      * @param to
      *            the expression type to convert the argument to
-     * 
+     *
      * @return the converted expression
-     * 
+     *
      * @throws RuntimeException if an undoable conversion is requested (likely a bug)
      */
     @SuppressWarnings("fallthrough")
@@ -978,13 +987,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         StringBuilder sb = new StringBuilder();
         int indention = 0;
-
+        char last = 0;
         for (int i = 0; i < string.length(); i++) {
             char c = string.charAt(i);
-            char next = i < string.length() - 1 ? string.charAt(i+1) : '\0';
             switch (c) {
             case '(':
-                if(next != '(') {
+                if(last != '(') {
                     // new line only if not another '('
                     sb.append("\n");
                     for (int j = 0; j < indention; j++) {
@@ -994,12 +1002,21 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                 sb.append("(");
                 indention++;
                 break;
+            case ':':
+                // :pattern and similar
+                sb.append("\n");
+                for (int j = 0; j < indention; j++) {
+                    sb.append(" ");
+                }
+                sb.append(":");
+                break;
             case ')':
                 indention--;
                 // fall through
             default:
                 sb.append(c);
             }
+            last = c;
         }
 
         return sb.toString();
@@ -1008,8 +1025,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     private class QuantificationTranslator extends DefaultTermVisitor {
 
         private final String binderContext;
-        private List<String> innerVars;
-        private List<String> guards;
+        private final List<String> innerVars;
+        private final List<String> guards;
         private String pattern;
         private String result;
 
@@ -1051,12 +1068,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             innerVars.add("(" + var + " " + boundType + ")");
 
             addTypeGuard(var, varType);
-            
+
             quantifiedVariables.push(var);
             innerFormula.visit(this);
             quantifiedVariables.pop();
         }
-        
+
         @Override
         public void visit(TypeVariableBinding tBinding)
                 throws TermException {
@@ -1082,7 +1099,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             innerFormula.visit(this);
             quantifiedVariables.pop();
         }
-        
+
         @Override
         public void visit(Application application) throws TermException {
             Function function = application.getFunction();
@@ -1098,7 +1115,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                 // the value needs to be boolean
                 Term value = application.getSubterm(1);
                 String valueTrans = translate(value, BOOL);
-                
+
                 this.result = valueTrans;
                 this.pattern = patternTrans;
             } else {
@@ -1109,31 +1126,31 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         private void addTypeGuard(String var, Type varType) throws TermException {
             ExpressionType expType = typeToExpressionType(varType);
             if (expType == UNIVERSE) {
-                
+
                 String guard = "(= (ty " + var + ") "
                         + varType.accept(typeToTerm, false) +
                         ")";
                 guards.add(guard);
             }
         }
-        
+
         @Override
         public String toString() {
-            
+
             StringBuilder sb = new StringBuilder();
-            
+
             // The quantifier
             sb.append("(").append(binderContext).append(" ");
-            
+
             // The bound variables
             assert !innerVars.isEmpty();
             sb.append("(").append(Util.join(innerVars, " ")).append(") ");
-            
+
             // The pattern head (if present)
             if(pattern != null) {
                 sb.append("(! ");
             }
-            
+
             // The guards (if present)
             if(!guards.isEmpty()) {
                 String conj = "forall".equals(binderContext) ? "(implies"
@@ -1142,20 +1159,20 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                 sb.append(Util.join(guards, " "));
                 sb.append(") ");
             }
-            
+
             // the embedded formula
             sb.append(result);
-            
+
             // the tail of guards (if present)
             if(!guards.isEmpty()) {
                 sb.append(")");
             }
-            
+
             // the tail of pattern (if present)
             if(pattern != null) {
                 sb.append(" :pattern (").append(pattern).append("))");
             }
-            
+
             sb.append(")");
             return sb.toString();
         }

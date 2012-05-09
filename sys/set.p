@@ -93,13 +93,16 @@ find %x :: singleton(%y)
 replace %x=%y
 tags
   rewrite "fol simp"
-  asAxiom
   derived
   verbosity "8"
 
 rule subset_singleton
 find %x <: singleton(%y)
 replace %x=emptyset | %x=singleton(%y)
+tags
+  rewrite "fol simp"
+  derived
+  verbosity "8"
 
 rule singleton_eq_singleton
 find singleton(%x) = singleton(%y)
@@ -158,6 +161,7 @@ replace true
 tags
   rewrite "fol simp"
   derived
+  asAxiom
   verbosity "8"
 
 rule subset_trans
@@ -196,195 +200,199 @@ rule subset_of_union
  *)
  
 rule union_empty_l
-find emptyset \/ %a
-replace %a
-tags
-  rewrite "concrete"
-  derived
-  verbosity "8"
+  find emptyset \/ %a
+  replace %a
+  tags
+    rewrite "concrete"
+    derived
+    verbosity "8"
   
 rule union_empty_r
-find %a \/ emptyset
-replace %a
-tags
-  rewrite "concrete"
-  derived
-  verbosity "8"
+  find %a \/ emptyset
+  replace %a
+  tags
+    rewrite "concrete"
+    derived
+    verbosity "8"
 
 rule in_union
-find %x :: %a \/ %b
-replace %x::%a | %x::%b
-
-rule union_subset
-assume %a <: %c |-
-find %a /\ %b <: %c
-replace true
+  find %x :: %a \/ %b
+  replace %x::%a | %x::%b
 
 (*
  * rules with intersect
  *)
  
 rule intersect_empty_l
-find emptyset /\ %a
-replace emptyset
-tags
-  rewrite "concrete"
-  derived
-  verbosity "8"
+  find emptyset /\ %a
+  replace emptyset
+  tags
+    rewrite "concrete"
+    derived
+    verbosity "8"
   
 rule intersect_empty_r
-find %a /\ emptyset
-replace emptyset
-tags
-  rewrite "concrete"
-  derived
-  verbosity "8"
+  find %a /\ emptyset
+  replace emptyset
+  tags
+    rewrite "concrete"
+    derived
+    verbosity "8"
 
 rule in_intersect
-find %x :: %a /\ %b
-replace %x :: %a & %x :: %b
-tags
-  derived
-  
+  find %x :: %a /\ %b
+  replace %x :: %a & %x :: %b
+  tags
+    derived
+
+rule intersection_subset
+  assume %a <: %c |-
+  find %a /\ %b <: %c
+  where toplevel
+  replace true
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "6"
 
 (*
  * rules with complement
  *)
 rule in_complement
-find %x :: ^%s
-replace !%x :: %s
-tags
-  rewrite "fol simp"
-  derived
-  verbosity "8"
+  find %x :: ^%s
+  replace !%x :: %s
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "8"
 
 rule complement_disj
-find ^(%s \/ %t)
-replace ^%s /\ ^%t
-tags
-  rewrite "fol simp"
-  derived
-  verbosity "6"
+  find ^(%s \/ %t)
+  replace ^%s /\ ^%t
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "6"
 
 rule complement_conj
-find ^(%s /\ %t)
-replace ^%s \/ ^%t
-tags
-  rewrite "fol simp"
-  derived
-  verbosity "6"
+  find ^(%s /\ %t)
+  replace ^%s \/ ^%t
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "6"
 
 rule complement_subset
-find ^%s <: ^%t
-replace %t <: %s
-tags
-  rewrite "fol simp"
-  derived
-  verbosity "6"
+  find ^%s <: ^%t
+  replace %t <: %s
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "6"
 
 rule complement_equality
-find ^%s = ^%t
-replace %s = %t
-tags
-  rewrite "fol simp"
-  derived
-  verbosity "6"
+  find ^%s = ^%t
+  replace %s = %t
+  tags
+    rewrite "fol simp"
+    derived
+    verbosity "6"
 
 (*
  * rules with equality
  *)
 rule set_equality
-find %a = %b
-where freshVar %e, %a, %b
-replace (\forall %e; %e::%a <-> %e::%b)
-tags
-  derived
+  find %a = %b
+  where freshVar %e, %a, %b
+  replace (\forall %e; %e::%a <-> %e::%b)
+  tags
+    derived
 
 (*
  * rules with \set
  *)
 rule in_setext
-find %a :: (\set %x; %b)
-replace $$subst(%x, %a, %b)
+  find %a :: (\set %x; %b)
+  replace $$subst(%x, %a, %b)
 
 
 (*
  * rules for finiteness
  *)
 rule finite_singleton
-find |- finite(singleton(%a))
-replace true
-tags
-  rewrite "concrete"
-  asAxiom
-  verbosity "8"
+  find |- finite(singleton(%a))
+  replace true
+  tags
+    rewrite "concrete"
+    asAxiom
+    verbosity "8"
 
 rule finite_emptyset
-find |- finite(emptyset)
-replace true
-tags
-  rewrite "concrete"
-  asAxiom
-  verbosity "8"
+  find |- finite(emptyset)
+  replace true
+  tags
+    rewrite "concrete"
+    asAxiom
+    verbosity "8"
 
 (* This rule is overapproximating, not confluent! *)
 rule finite_conj
-find |- finite(%s /\ %t)
-replace finite(%s) | finite(%t)
-tags
-  rewrite "fol simp"
-  asAxiom
+  find |- finite(%s /\ %t)
+  replace finite(%s) | finite(%t)
+  tags
+    rewrite "fol simp"
+    asAxiom
 
 rule finite_disj
-find finite(%s \/ %t)
-replace finite(%s) & finite(%t)
-tags
-  rewrite "fol simp"
-  asAxiom
+  find finite(%s \/ %t)
+  replace finite(%s) & finite(%t)
+  tags
+    rewrite "fol simp"
+    asAxiom
 
 (* This rule is overapproximating, not confluent! *)
 rule finite_setminus
-find |- finite(%s \ %t)
-replace finite(%s)
-tags
-  rewrite "fol simp"
-  asAxiom
-  verbosity "6"
+  find |- finite(%s \ %t)
+  replace finite(%s)
+  tags
+    rewrite "fol simp"
+    asAxiom
+    verbosity "6"
 
 (* finite fullset implies finite set *)
 rule finite_fullset
-assume finite(fullset as set(%'a)) |-
-find finite(%s as set(%'a))
-where distinctAssumeAndFind
-replace true
-tags
-  rewrite "fol simp"
-  verbosity "8"
+  assume finite(fullset as set(%'a)) |-
+  find finite(%s as set(%'a))
+  where distinctAssumeAndFind
+  replace true
+  tags
+    rewrite "fol simp"
+    verbosity "8"
 
 (*
  * rules for cardinality
  *)
 
 rule card_emptyset
-find card(emptyset)
-replace 0
-tags
-  rewrite "concrete"
-  asAxiom
-  verbosity "8"
+  find card(emptyset)
+  replace 0
+  tags
+    rewrite "concrete"
+    asAxiom
+    verbosity "8"
   
 rule card_singleton
-find card(singleton(%a))
-replace 1
-tags
-  rewrite "concrete"
-  asAxiom
-  verbosity "8"
+  find card(singleton(%a))
+  replace 1
+  tags
+    rewrite "concrete"
+    asAxiom
+    verbosity "8"
 
 rule card_setminus_singleton
-assume finite(%s \ singleton(%x)) |-
-find card(%s \ singleton(%x))
-replace card(%s) - cond(%x :: %s, 1, 0)
+  assume finite(%s \ singleton(%x)) |-
+  find card(%s \ singleton(%x))
+  replace card(%s) - cond(%x :: %s, 1, 0)
 
 
 axiom cut_finiteness
@@ -392,12 +400,13 @@ axiom cut_finiteness
      finite(fullset as set('a)) -> finite(s)))
 
 rule cut_finiteness
-find card(%s)
-where not presentInSequent finite(%s)
-samegoal "Show finite({%s})"
-  add |- finite(%s)
-samegoal "..."
-  add finite(%s) |-
+  find card(%s)
+  where not presentInSequent finite(%s)
+  samegoal "Show finite({%s})"
+    add |- finite(%s)
+  samegoal "..."
+    add finite(%s) |-
+    
 #tags
 #  rewrite "fol add"
 
@@ -406,18 +415,18 @@ axiom card_non_negative
   (\T_all 'a; (\forall s as set('a); card(s) >= 0))
   
 rule card_non_negative
-find card(%s)
-where not presentInAntecedent card(%s) >= 0
-add card(%s) >= 0 |-
+  find card(%s)
+  where not presentInAntecedent card(%s) >= 0
+  add card(%s) >= 0 |-
 
 rule card_minus
-assume finite(%s) |-
-assume finite(%t) |-
-find |- card(%s) - card(%t) >= 0
-replace %t <: %s
+  assume finite(%s) |-
+  assume finite(%t) |-
+  find |- card(%s) - card(%t) >= 0
+  replace %t <: %s
 
 rule card_lessthan
-assume finite(%s) |-
-assume finite(%t) |-
-find |- card(%s) < card(%t)
-replace %s <: %t & !%s=%t
+  assume finite(%s) |-
+  assume finite(%t) |-
+  find |- card(%s) < card(%t)
+  replace %s <: %t & !%s=%t
