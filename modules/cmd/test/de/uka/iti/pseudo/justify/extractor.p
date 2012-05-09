@@ -38,8 +38,8 @@ rule extract_both
     # no change
     add add_left2 |-
 
-  tags expectedTranslation "(((_replace as 'alpha) = _find -> (!add_left | add_right))
-                &((_find as 'alpha) = _find -> !add_left2))
+  tags expectedTranslation "((_find = (_replace as 'alpha)  -> (!add_left | add_right))
+                & (!add_left2))
                 -> (!assume_left | assume_right)"
 
 rule extract_left

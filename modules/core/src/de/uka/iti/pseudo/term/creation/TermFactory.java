@@ -36,7 +36,7 @@ public class TermFactory {
     public TermFactory(Environment env) {
         this.env = env;
     }
-    
+
     /*
      * Retrieval for function symbols. Throws exception on fail-case. 
      */
@@ -49,10 +49,10 @@ public class TermFactory {
                             + " is not available for the term factory. "
                             + "Please ensure that it is present");
         }
-        
+
         return f;
     }
-    
+
     /*
      * Retrieval for function symbols. Throws exception on fail-case. 
      */
@@ -128,6 +128,11 @@ public class TermFactory {
 
     public @NonNull Term typeExists(TypeVariable typeVar, Term term) throws TermException {
         return TypeVariableBinding.getInst(TypeVariableBinding.Kind.EX, typeVar, term);
+    }
+
+    public @NonNull Term pattern(Term pattern, Term term) throws TermException {
+        Function tr = getFunction("$pattern");
+        return Application.getInst(tr, term.getType(), new Term[] { pattern, term }); 
     }
 
 }

@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.justify;
@@ -13,9 +13,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.Map.Entry;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -47,10 +47,10 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
 
 /**
  * This class allows the transformation of a rule into its meaning formula.
- * 
+ *
  * If this formula can be proven valid, the corresponding rule is a valid
  * inference rule schema.
- * 
+ *
  * <h2>Steps</h2>
  * <ol>
  * <li>construct context from <code>assume</code> clauses
@@ -62,42 +62,42 @@ import de.uka.iti.pseudo.term.creation.TermInstantiator;
  * <li>Turn unbound schema variables to skolem symbols with appropriate
  * parameters.
  * </ol>
- * 
+ *
  * <h2>Limitations</h2>
- * 
+ *
  * <h3>Type quantification</h3>
- * 
+ *
  * Type quantification is not supported. Exceptions are thrown if a rule
  * containing type quantification is to be transformed. However, there are only
  * very few and very fundamental rules dealing with this construct. If at one
  * stage, this is to be implemented, we would need type variables which take
  * parameters. The formula {@code (\T_all %'a; (\forall %x as %'x; %phi))} would
  * have to be translated to {@code (\T_all 'a; (\forall x as 'b('a); phi(x)))}.
- * 
+ *
  * The translation {@code (\T_all 'a; (\forall x as 'b; phi(x)))} would not work
  * since this is equivalent to {@code (\forall x as 'b; phi(x))}. That would
  * imply that \T_all can always be dropped - which is not the case.
- * 
+ *
  * <p>
  * (Non-type) variable binders are supported, however.
- * 
+ *
  * <h3>Where conditions</h3> Some where conditions could be semantically
  * expressed as additional assumptions. {@code notFreeIn %x, %b} with the
  * mappings {@code %x->x, %b->b(x)} (resulting from a quantified formula e.g.)
  * could be translated to {@code (\forall x; b(x) = b(arb))} (or a new skolem
  * constant). Other conditions may be translatable, too.
- * 
+ *
  * <h3>Schema updates</h3> If the formula contains a schematic update, it cannot
  * be translated. This could possible be generalised by enumerating all relevant
  * assignables and construct an update {@code a1:=sk_a1 || ... || an:=sk_an}
  * (possibly with bound variables are arguments to the skolem functions.
- * 
+ *
  * <h2>Literature</h2>
- * 
- * This is based on this <a
- * href="http://www.cs.chalmers.se/~philipp/publications/lfm.pdf">paper</a> by
- * Bubel, Roth, and Ruemmer.
- * 
+ *
+ * This is based on the <a href="../doc/lfm.pdf">paper</a>
+ * "Ensuring the Correctness of Lightweight Tactics for JavaCard Dynamic Logic"
+ * by Bubel, Roth, and Ruemmer.
+ *
  * @author mattias ulbrich
  */
 public class RuleProblemExtractor {
@@ -108,7 +108,7 @@ public class RuleProblemExtractor {
     /**
      * The rule to treat.
      */
-    private Rule rule;
+    private final Rule rule;
 
     /**
      * The combined assumptions are called context in the paper.
@@ -118,61 +118,65 @@ public class RuleProblemExtractor {
     /**
      * To create terms.
      */
-    private TermFactory tf;
+    private final TermFactory tf;
 
     /**
      * The environment in which we are working.
      */
-    private Environment env;
+    private final Environment env;
 
     /**
      * The mapping of schema variables to terms. Either map to variables or
      * skolem function symbols.
      */
-    private Map<String, Term> mapVars = new HashMap<String, Term>();
+    private final Map<String, Term> mapVars = new HashMap<String, Term>();
 
     /**
      * The mapping of schema types to type variables.
      */
-    private Map<String, Type> mapTypeVars = new HashMap<String, Type>();
+    private final Map<String, Type> mapTypeVars = new HashMap<String, Type>();
 
     /**
      * The instantiation mechanism using the above maps to instantiate schema
      * instances.
      */
-    private TermInstantiator termInst = new TermInstantiator(mapVars,
+    private final TermInstantiator termInst = new TermInstantiator(mapVars,
             mapTypeVars, Collections.<String, Update> emptyMap());
 
     /**
      * Remember all variable names which are used in quantifications.
      * (we do better not reuse them).
      */
-    private Set<String> usedVariableNames = new HashSet<String>();
-    
+    private final Set<String> usedVariableNames = new HashSet<String>();
+
     /**
      * Rember all type variable names which appear (free or bound) in the
      * formulae. (we better not reuse them).
      */
-    private Set<String> usedTypeVariableNames = new HashSet<String>();
+    private final Set<String> usedTypeVariableNames = new HashSet<String>();
 
     /**
      * Visitor to collect {@link #usedVariableNames} and
      * {@link #usedTypeVariableNames}.
      */
     private class VariableCollector extends DefaultTermVisitor.DepthTermVisitor {
+        @Override
         public void visit(Variable variable) throws TermException {
             usedVariableNames.add(variable.getName());
         }
+        @Override
         public void visit(Binding binding) throws TermException {
             super.visit(binding);
             binding.getVariable().visit(this);
         }
+        @Override
         protected void defaultVisitTerm(Term term) throws TermException {
             super.defaultVisitTerm(term);
         }
     }
-    
+
     private static TermVisitor typeQuantDetector = new DefaultTermVisitor.DepthTermVisitor() {
+        @Override
         public void visit(de.uka.iti.pseudo.term.TypeVariableBinding typeVariableBinding) throws TermException {
             throw new TermException("Type quantification not supported at the moment");
         };
@@ -180,7 +184,7 @@ public class RuleProblemExtractor {
 
     /**
      * Instantiates a new rule problem extractor.
-     * 
+     *
      * @param rule
      *            the rule to extract
      * @param env
@@ -193,12 +197,12 @@ public class RuleProblemExtractor {
         this.tf = new TermFactory(env);
     }
 
-    
+
     /**
      * Perform the problem extraction.
-     * 
+     *
      * @return the extracted term.
-     * 
+     *
      * @throws TermException
      *             if the rule is not suited.
      * @throws RuleException
@@ -210,7 +214,7 @@ public class RuleProblemExtractor {
             EnvironmentException {
 
         Term problem0 = new RuleFormulaExtractor(env).extractMeaningFormula(rule);
-        
+
         //
         // check for type quantification absence
         problem0.visit(typeQuantDetector);
@@ -219,7 +223,7 @@ public class RuleProblemExtractor {
         // collect info on used variables
         SchemaVariableUseVisitor svuv = new SchemaVariableUseVisitor();
         problem0.visit(svuv);
-        
+
         //
         // collect info on used type variables
         Set<TypeVariable> collectedTypeVars = TypeVariableCollector.collect(problem0);
@@ -288,9 +292,9 @@ public class RuleProblemExtractor {
                     String newname = freshName(prefix);
                     Type instType = termInst.instantiate(schemaVar.getType());
 
-                    assert TypeVariableCollector.collectSchema(instType).isEmpty() : 
+                    assert TypeVariableCollector.collectSchema(instType).isEmpty() :
                         "Ensure no free schema type in instantiation";
-                    
+
                     mapVars.put(schemaName, Variable.getInst(newname, instType));
                 }
             }
@@ -308,7 +312,7 @@ public class RuleProblemExtractor {
         usedVariableNames.add(newName);
         return newName;
     }
-    
+
     private String freshTypeVariableName(String prefix) {
         // if the typevariable was internal, make a regulare name of it.
         if(Character.isDigit(prefix.charAt(0))) {
@@ -331,7 +335,7 @@ public class RuleProblemExtractor {
     private void mapRemainingSchemaVars(Term term,
             Map<SchemaVariable, SortedSet<BindableIdentifier>> seenBindablesMap)
             throws TermException, EnvironmentException {
-        for (Entry<SchemaVariable, SortedSet<BindableIdentifier>> entry : 
+        for (Entry<SchemaVariable, SortedSet<BindableIdentifier>> entry :
                 seenBindablesMap.entrySet()) {
             SchemaVariable sv = entry.getKey();
             // not yet mapped

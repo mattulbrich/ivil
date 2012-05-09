@@ -161,7 +161,7 @@ public class RuleAxiomExtractor {
 //        axiom.getTerm().visit(new ToplevelCheckVisitor());
 //        Term.SHOW_TYPES = true;
 //        axiom.dump();
-        
+
         env.addAxiom(axiom);
     }
 
@@ -186,6 +186,15 @@ public class RuleAxiomExtractor {
             result = meaningFormula;
         }
 
+        // add the find clause as trigger if there are variables
+        if(!newTypeVariables.isEmpty() || !newVariables.isEmpty()) {
+            Term find = rule.getFindClause().getTerm();
+            find.visit(v);
+            if(v.getResultingTerm() != null) {
+                result = tf.pattern(v.getResultingTerm(), result);
+            } 
+        }
+
         for (TypeVariable tyv : newTypeVariables) {
             result = tf.typeForall(tyv, result);
         }
@@ -196,7 +205,4 @@ public class RuleAxiomExtractor {
 
         return result;
     }
-
-
-
 }

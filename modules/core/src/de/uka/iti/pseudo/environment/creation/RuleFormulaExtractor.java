@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.environment.creation;
@@ -15,23 +15,23 @@ import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermFactory;
 
 /**
  * This class allows the transformation of a rule into its meaning formula.
- * 
- * The meaning formula is defined in this <a
- * href="http://www.cs.chalmers.se/~philipp/publications/lfm.pdf">paper</a> by
- * Bubel, Roth, and Ruemmer.
- * 
+ *
+ * The meaning formula is defined in the <a href="../doc/lfm.pdf">paper</a>
+ * "Ensuring the Correctness of Lightweight Tactics for JavaCard Dynamic Logic"
+ * by Bubel, Roth, and Ruemmer.
+ *
  * The result of this process still contains schema entities.
- * 
+ *
  * @see de.uka.iti.pseudo.justify.RuleProblemExtractor
  * @see RuleAxiomExtractor
  */
@@ -40,11 +40,11 @@ public class RuleFormulaExtractor {
     private static final Term FALSE = Environment.getFalse();
     private static final Term TRUE = Environment.getTrue();
 
-    private TermFactory tf;
+    private final TermFactory tf;
 
     /**
      * Instantiates a new rule formula extractor for an environment.
-     * 
+     *
      * @param env
      *            the environment to use
      */
@@ -54,12 +54,12 @@ public class RuleFormulaExtractor {
 
     /**
      * Extract meaning formula.
-     * 
+     *
      * @param rule
      *            the rule
-     * 
+     *
      * @return the term
-     * 
+     *
      * @throws TermException
      *             the term exception
      * @throws RuleException
@@ -75,10 +75,11 @@ public class RuleFormulaExtractor {
         // formulate rule as a term with schema vars.
         // incorporates the context.
         Term problem0;
-        if (isRewrite(rule))
+        if (isRewrite(rule)) {
             problem0 = extractRewriteProblem(rule, context);
-        else
+        } else {
             problem0 = extractLocatedProblem(rule, context);
+        }
 
         return problem0;
 
@@ -89,25 +90,25 @@ public class RuleFormulaExtractor {
      * condition from it. The resulting term will still contain all original
      * schema variables and type variables, which must be skolemised/substituted
      * later.
-     * 
+     *
      * <p>
      * The resulting term looks like:
-     * 
+     *
      * <pre>
      *     ( replace1 or OR(adds1))
      *   &amp; ...
      *   &amp; (  replacek or OR(addsk))
      *   -&gt;  ( find or context )
      * </pre>
-     * 
+     *
      * in which the context has already been precalculated.
-     * 
+     *
      * The find and replace terms may be negated if they appear on the
      * antecedent.
-     * 
+     *
      * @param context
      * @param rule
-     * 
+     *
      * @return the meaning formula of the rule, with schema variables
      */
     private Term extractLocatedProblem(Rule rule, Term context)
@@ -116,8 +117,9 @@ public class RuleFormulaExtractor {
         LocatedTerm findClause = rule.getFindClause();
 
         // having no find is not assuming anything --> empty sequence --> false
-        if (findClause == null)
+        if (findClause == null) {
             findClause = new LocatedTerm(FALSE, MatchingLocation.SUCCEDENT);
+        }
 
         boolean findInAntecedent = findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT;
         Term findTerm = findClause.getTerm();
@@ -126,23 +128,26 @@ public class RuleFormulaExtractor {
         List<GoalAction> actions = rule.getGoalActions();
         for (GoalAction action : actions) {
 
-            if (action.getKind() != Kind.COPY)
+            if (action.getKind() != Kind.COPY) {
                 throw new RuleException(
                         "ProblemExtraction works only for copy goals at the moment");
+            }
 
             Term add = FALSE;
             for (Term t : action.getAddAntecedent()) {
                 add = disj(add, tf.not(t));
             }
+
             for (Term t : action.getAddSuccedent()) {
                 add = disj(add, t);
-
             }
+
             Term replace = action.getReplaceWith();
 
             // copy original term if not remove
-            if (replace == null && !action.isRemoveOriginalTerm())
+            if (replace == null && !action.isRemoveOriginalTerm()) {
                 replace = findTerm;
+            }
 
             if (replace != null) {
                 if (findInAntecedent) {
@@ -170,26 +175,28 @@ public class RuleFormulaExtractor {
      * Given a rewrite rule, extract the verification condition from it. The
      * resulting term will still contain all original schema variables and type
      * variables, which must be skolemised/substituted later.
-     * 
+     *
      * <p>
      * The resulting term looks like:
-     * 
+     *
      * <pre>
      *     ( replace1 = find -&gt; OR(adds1))
      *   &amp; ...
      *   &amp; (  replacek = find -&gt; OR(addsk))
      *   -&gt;  context
      * </pre>
-     * 
+     *
      * in which the context has already been precalculated.
-     * 
+     *
      * @param context
      * @param rule
-     * 
+     *
      * @return the meaning formula of the rule, with schema variables
      */
     private Term extractRewriteProblem(@NonNull Rule rule, @NonNull Term context)
             throws TermException, RuleException {
+
+        assert rule.getFindClause().getMatchingLocation() == MatchingLocation.BOTH;
 
         Term find = rule.getFindClause().getTerm();
         Term result = TRUE;
@@ -197,9 +204,10 @@ public class RuleFormulaExtractor {
         List<GoalAction> actions = rule.getGoalActions();
         for (GoalAction action : actions) {
 
-            if (action.getKind() != Kind.COPY)
+            if (action.getKind() != Kind.COPY) {
                 throw new RuleException(
                         "FormulaExtraction works only for copy goals at the moment");
+            }
 
             Term add = FALSE;
             for (Term t : action.getAddAntecedent()) {
@@ -210,10 +218,11 @@ public class RuleFormulaExtractor {
             }
 
             Term replace = action.getReplaceWith();
-            if (replace == null)
+            if (replace == null) {
                 replace = find;
+            }
 
-            Term eq = eq(replace, find);
+            Term eq = eq(find, replace);
             Term imp = impl(eq, add);
             result = conj(result, imp);
         }
@@ -226,12 +235,12 @@ public class RuleFormulaExtractor {
     /**
      * Make the context term of a rule as a disjunction of all its assumptions (either
      * positive or negative).
-     * 
+     *
      * @param rule
      *            the rule to extract the context from
-     * 
+     *
      * @return the context. <code>false</code> if no assumptions are present
-     * 
+     *
      */
     private Term makeContext(Rule rule) throws TermException, RuleException {
 
@@ -252,16 +261,16 @@ public class RuleFormulaExtractor {
         }
         return context;
     }
-    
-    
+
+
     /**
      * Checks if a rule is a rewrite rule.
-     * 
+     *
      * That is the case if  the rule has a find clause which matches on both sides.
-     * 
+     *
      * @param rule
      *            the rule
-     * 
+     *
      * @return true, if the rule is rewrite
      */
     private boolean isRewrite(@NonNull Rule rule) {
@@ -272,10 +281,10 @@ public class RuleFormulaExtractor {
 
     /**
      * create a disjunction term.
-     * 
+     *
      * If at least one of the arguments is syntactically <code>false</code>, the
      * result is the other term.
-     * 
+     *
      * @param t1
      *            a boolean term.
      * @param t2
@@ -285,20 +294,21 @@ public class RuleFormulaExtractor {
      *             if the terms are not boolean
      */
     private Term disj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (t1 == FALSE)
+        if (t1 == FALSE) {
             return t2;
-        else if (t2 == FALSE)
+        } else if (t2 == FALSE) {
             return t1;
-        else
+        } else {
             return tf.or(t1, t2);
+        }
     }
 
     /**
      * create a conjunction term.
-     * 
+     *
      * If at least one of the arguments is syntactically <code>true</code>, the
      * result is the other term.
-     * 
+     *
      * @param t1
      *            a boolean term.
      * @param t2
@@ -308,21 +318,22 @@ public class RuleFormulaExtractor {
      *             if the terms are not boolean
      */
     private @NonNull Term conj(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (t1 == TRUE)
+        if (t1 == TRUE) {
             return t2;
-        else if (t2 == TRUE)
+        } else if (t2 == TRUE) {
             return t1;
-        else
+        } else {
             return tf.and(t1, t2);
+        }
     }
 
     /**
      * create am implication term.
-     * 
+     *
      * If the first argument is syntactically <code>true</code>, the result is
      * the other term, if the second is <code>false</code>, the result is the
      * first.
-     * 
+     *
      * @param t1
      *            a boolean term.
      * @param t2
@@ -332,35 +343,40 @@ public class RuleFormulaExtractor {
      *             if the terms are not boolean
      */
     private @NonNull Term impl(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (t1 == TRUE)
+        if (t1 == TRUE) {
             return t2;
-        else if (t2 == FALSE)
+        } else if (t2 == FALSE) {
             return t1;
-        else
+        } else {
             return tf.impl(t1, t2);
+        }
     }
 
     /**
      * create am equality term.
-     * 
+     *
      * This can also be an equivalence if applied to boolean terms.
-     * 
+     *
      * Hence, if one of the arguments is syntactically <code>true</code>, the
-     * result is the other term.
-     * 
+     * result is the other term. If both terms are syntactically equal,
+     * <code>true</code> is returned
+     *
      * @param t1
-     *            a boolean term.
+     *            a term.
      * @param t2
-     *            another boolean term
-     * @return t1 = t2 (or one of them)
+     *            another term
+     * @return t1 = t2 (or one of them), or <code>true</code>
      */
     private @NonNull Term eq(@NonNull Term t1, @NonNull Term t2) throws TermException {
-        if (TRUE.equals(t1))
+        if (TRUE.equals(t1)) {
             return t2;
-        else if (TRUE.equals(t2))
+        } else if (TRUE.equals(t2)) {
             return t1;
-        else
+        } else if(t2.equals(t1)) {
+            return TRUE;
+        } else {
             return tf.eq(t1, t2);
+        }
     }
 
 }

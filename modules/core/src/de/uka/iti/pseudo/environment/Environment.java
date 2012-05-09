@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.environment;
@@ -23,10 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import checkers.nullness.quals.LazyNonNull;
-
 import nonnull.NonNull;
 import nonnull.Nullable;
+import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Application;
@@ -49,10 +48,10 @@ import de.uka.iti.pseudo.util.Util;
  * <li>programs
  * <li>properties
  * </ul>
- * 
+ *
  * Every environment has a parent environment which it extends. Lookups that it
  * cannot resolve are delegated to that parent.
- * 
+ *
  * There is exactly one environment {@link #BUILT_IN_ENV} which does have
  */
 public class Environment {
@@ -75,7 +74,7 @@ public class Environment {
     /**
      * The resource from which this environment has been read from
      */
-    private String resourceName;
+    private final String resourceName;
 
     /**
      * The parent environment. Null only for the built in environment
@@ -90,15 +89,15 @@ public class Environment {
     /**
      * The mappings from names (strings) to the various elements
      */
-    private Map<String, String> propertiesMap = new HashMap<String, String>();
-    private Map<String, Sort> sortMap = new LinkedHashMap<String, Sort>();
-    private Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
-    private Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
-    private Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
-    private Map<String, Axiom> axiomMap = new LinkedHashMap<String, Axiom>();
-    private Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
-    private Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
-    private Map<String, Program> programMap = new LinkedHashMap<String, Program>();
+    private final Map<String, String> propertiesMap = new HashMap<String, String>();
+    private final Map<String, Sort> sortMap = new LinkedHashMap<String, Sort>();
+    private final Map<String, Function> functionMap = new LinkedHashMap<String, Function>();
+    private final Map<String, Binder> binderMap = new LinkedHashMap<String, Binder>();
+    private final Map<String, FixOperator> infixMap = new LinkedHashMap<String, FixOperator>();
+    private final Map<String, Axiom> axiomMap = new LinkedHashMap<String, Axiom>();
+    private final Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
+    private final Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
+    private final Map<String, Program> programMap = new LinkedHashMap<String, Program>();
     private @Nullable PluginManager pluginManager = null;
     // literal map is created lazily.
     private @Nullable Map<BigInteger, NumberLiteral> numberMap = null;
@@ -106,8 +105,8 @@ public class Environment {
     /**
      * The rules are kept as a sorted set and as a map
      */
-    private List<Rule> rules = new ArrayList<Rule>();
-    private Map<String, Rule> ruleMap = new HashMap<String, Rule>();
+    private final List<Rule> rules = new ArrayList<Rule>();
+    private final Map<String, Rule> ruleMap = new HashMap<String, Rule>();
 
     /**
      * Instantiates a new environment which only contains the built ins.
@@ -119,9 +118,9 @@ public class Environment {
 
     /**
      * Instantiates a new environment with a given name and parent.
-     * 
+     *
      * The second parameter must be a valid URL string.
-     * 
+     *
      * @param resourceName
      *            the url of the resource where we have elements from
      * @param parentEnvironment
@@ -142,15 +141,16 @@ public class Environment {
             throw new EnvironmentException("Resource must be a URL", e);
         }
 
-        if (!parentEnvironment.isFixed())
+        if (!parentEnvironment.isFixed()) {
             throw new EnvironmentException(
                     "An environment which is parent to another environment needs to be fixed");
+        }
     }
 
     /**
      * Adds the built ins. These are those entities that would raise exceptions
      * in the very core libraries if they were absent.
-     * 
+     *
      * They are:
      * <ul>
      * <li>Types int and bool
@@ -172,9 +172,9 @@ public class Environment {
 
     /**
      * registers all elements that have been defined through plugins.
-     * 
+     *
      * Currently this are only meta functions.
-     * 
+     *
      * @throws EnvironmentException
      *             if the addition of meta functions fails.
      */
@@ -192,25 +192,26 @@ public class Environment {
      * Gets the parent. This cannot return null. An exception is thrown if this
      * environment is the built-in environment which does not have a parent
      * environment.
-     * 
+     *
      * @return the parent environment
      * @throws EnvironmentException
      *             if <tt>this == {@link #BUILT_IN_ENV}</tt>
      */
     public @NonNull Environment getParent() throws EnvironmentException {
-        if(parentEnvironment == null)
+        if(parentEnvironment == null) {
             throw new EnvironmentException("This environment does not have a parent");
-        
+        }
+
         return parentEnvironment;
     }
 
     /**
      * Sets the parent environment. This must happen <b>before</b> any plugins,
      * sort, function, binder or rule has been added to the environment.
-     * 
+     *
      * @param environment
      *            the new parent environment
-     * 
+     *
      * @throws EnvironmentException
      *             if this environment has already been altered.
      */
@@ -229,7 +230,7 @@ public class Environment {
 
     /**
      * set this environment as fixed.
-     * 
+     *
      * After this, no new symbols may be added to it. A call to
      * {@link #addBinder(Binder)}, {@link #addFunction(Function)}, ... yields an
      * {@link EnvironmentException}.
@@ -241,7 +242,7 @@ public class Environment {
     /**
      * Has this environment already been fixed? Or may new symbols still be
      * declared?
-     * 
+     *
      * @return true if this environment has been fixed and does not allow to add
      *         new symbols
      */
@@ -251,22 +252,23 @@ public class Environment {
 
     /**
      * get a program by name
-     * 
+     *
      * <p>
      * If no program is defined by this name, the call is delegated to the
      * parent environment. Null is returned if no program has been defined
      * within all reachable environments.
-     * 
+     *
      * @param programName
      *            name of the searched program
-     * 
+     *
      * @return a program or null
      */
     public @Nullable Program getProgram(@NonNull String programName) {
         Program program = programMap.get(programName);
 
-        if (program == null && parentEnvironment != null)
+        if (program == null && parentEnvironment != null) {
             program = parentEnvironment.getProgram(programName);
+        }
 
         return program;
     }
@@ -274,18 +276,19 @@ public class Environment {
     /**
      * Gets a program name which starts with the given prefix and which has not
      * yet been bound in the environment.
-     * 
+     *
      * A number of 0 or more ticks (') are appended to make the name unique.
-     * 
+     *
      * @param prefix
      *            the prefix of the name to return.
-     * 
+     *
      * @return the fresh program name
      */
     public @NonNull
     String createNewProgramName(@NonNull String prefix) {
-        while (getProgram(prefix) != null)
+        while (getProgram(prefix) != null) {
             prefix += "'";
+        }
 
         return prefix;
     }
@@ -293,29 +296,30 @@ public class Environment {
     /**
      * gets a collection containing all programs of this environment and all
      * parenting environments.
-     * 
+     *
      * <p>
      * The result is a freshly created collection which you may modify.
-     * 
+     *
      * @return a freshly created list of all programs
      */
     public @NonNull
     List<Program> getAllPrograms() {
         List<Program> programs;
 
-        if (parentEnvironment == null)
+        if (parentEnvironment == null) {
             programs = new LinkedList<Program>();
-        else
+        } else {
             programs = parentEnvironment.getAllPrograms();
+        }
 
         programs.addAll(programMap.values());
         return programs;
     }
-    
+
     /**
      * gets a collection containing all programs defined in this environment.
      * Programs defined in parent environments are not included.
-     * 
+     *
      * @return an unmodifiable list of the local programs
      */
     public @NonNull
@@ -325,22 +329,23 @@ public class Environment {
 
     /**
      * add a program of the environment.
-     * 
+     *
      * <p>
      * No program by the same name may already exist in this (or a parent)
      * environment
-     * 
+     *
      * @param program
      *            the program to add to the environment
-     * 
+     *
      * @throws EnvironmentException
      *             if the environment has already been fixed.
      */
     public void addProgram(@NonNull Program program)
             throws EnvironmentException {
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "This environment has already been fixed, program cannot be set");
+        }
         String programName = program.getName();
         Program existing = getProgram(programName);
 
@@ -356,11 +361,11 @@ public class Environment {
 
     //
     // ---------- Handling properties ----------
-    // 
+    //
 
     /**
      * Add a property; older definitions will be overwritten.
-     * 
+     *
      * @param name
      *            The name of the property, which describes the location of a
      *            setter that takes value
@@ -373,29 +378,30 @@ public class Environment {
 
     /**
      * Checks if this environment or a parant has given property.
-     * 
+     *
      * @param name
      *            The name of the property to be searched
      * @return true if property was specified
      */
     public boolean hasProperty(String name) {
-        if(propertiesMap.containsKey(name))
+        if(propertiesMap.containsKey(name)) {
             return true;
-        else if(null != parentEnvironment)
+        } else if(null != parentEnvironment) {
             return parentEnvironment.hasProperty(name);
-        else
+        } else {
             return false;
+        }
     }
 
     /**
      * Retrieves one particular property from this environment.
-     * 
+     *
      * Delegate to the parent environment if there is one and the property is
      * not set in this environment
-     * 
+     *
      * @param name
      *            Name of the property to be retrieved
-     *            
+     *
      * @return <code>null</code> if property was not specified
      */
     public @Nullable String getProperty(@NonNull String name) {
@@ -403,13 +409,13 @@ public class Environment {
         if(rval == null && parentEnvironment != null) {
             rval = parentEnvironment.getProperty(name);
         }
-        
+
         return rval;
     }
-    
+
     /**
      * Retrieves a map of all locally defined properties.
-     * 
+     *
      * @return an unmodifiable map of properties.
      */
     public @NonNull Map<String, String> getLocalProperties() {
@@ -418,22 +424,23 @@ public class Environment {
 
     //
     // ---------- Handling sorts ----------
-    // 
+    //
     /**
      * Adds a sort.
-     * 
+     *
      * @param sort
      *            the sort
-     * 
+     *
      * @throws EnvironmentException
      *             a sort of this name already exists or the environment has
      *             been fixed.
      */
     public void addSort(@NonNull Sort sort) throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         String name = sort.getName();
         Sort existing = getSort(name);
@@ -451,46 +458,48 @@ public class Environment {
      * Gets a sort for a name. Delegates the lookup to the parent environment
      * (if present). Returns null if in no environment in the parent chain a
      * definition can be found.
-     * 
+     *
      * @param name
      *            the name to look up
-     * 
+     *
      * @return a sort with the name <code>name</code>, null if none found
      */
     public @Nullable
     Sort getSort(@NonNull String name) {
         Sort sort = sortMap.get(name);
-        if (sort == null && parentEnvironment != null)
+        if (sort == null && parentEnvironment != null) {
             sort = parentEnvironment.getSort(name);
+        }
         return sort;
     }
 
     /**
      * get the list of all sorts defined in this environment. Sorts visible in
      * this environment but defined in a parent environment are ignored.
-     * 
+     *
      * @return an unmodifiable collection of sorts
      */
     public Collection<Sort> getLocalSorts() {
         return sortMap.values();
     }
-    
+
     /**
      * gets a collection containing all sort symbols of this environment and
      * all parenting environments.
-     * 
+     *
      * <p>
      * The result is a freshly created collection which you may modify.
-     * 
+     *
      * @return a freshly created list of all sort symbols
      */
     public List<Sort> getAllSorts() {
         List<Sort> sorts;
 
-        if (parentEnvironment == null)
+        if (parentEnvironment == null) {
             sorts = new ArrayList<Sort>();
-        else
+        } else {
             sorts = parentEnvironment.getAllSorts();
+        }
 
         sorts.addAll(sortMap.values());
         return sorts;
@@ -500,28 +509,29 @@ public class Environment {
     /**
      * Gets a sort name which starts with the given prefix and which has not yet
      * been bound in the environment.
-     * 
+     *
      * If <code>prefix</code> is no longer available as name, the smallest
      * natural number (starting at 1) will be appended which results in a name
      * which is not used for sort.
-     * 
+     *
      * @param prefix
      *            the prefix of the name to return.
-     * 
+     *
      * @return the fresh sort name
      */
     public @NonNull
     String createNewSortName(@NonNull String prefix) {
         String newName = prefix;
-        for (int counter = 1; null != getSort(newName); counter++)
+        for (int counter = 1; null != getSort(newName); counter++) {
             newName = prefix + counter;
+        }
 
         return newName;
     }
 
     /**
      * Gets the int type which is always present.
-     * 
+     *
      * @return the type for integers
      */
     public static @NonNull
@@ -538,7 +548,7 @@ public class Environment {
 
     /**
      * Gets the bool type which is always present
-     * 
+     *
      * @return the type for booleans
      */
     public static @NonNull Type getBoolType() {
@@ -554,14 +564,14 @@ public class Environment {
 
     //
     // ---------- Handling functions ----------
-    // 
+    //
 
     /**
      * Adds the function if no function of that name is already present.
-     * 
+     *
      * @param function
      *            the function to add to the environment
-     * 
+     *
      * @throws EnvironmentException
      *             if a function by that name already exists or the environment
      *             has been fixed
@@ -569,9 +579,10 @@ public class Environment {
     public void addFunction(@NonNull Function function)
             throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         String name = function.getName();
         Function existing = getFunction(name);
@@ -589,37 +600,39 @@ public class Environment {
      * Gets a function for a name. Delegates the lookup to the parent
      * environment (if present). Returns null if in no environment in the parent
      * chain a definition can be found.
-     * 
+     *
      * @param name
      *            the name to look up
-     * 
+     *
      * @return a function with the name <code>name</code>, null if none found
      */
     public @Nullable
     Function getFunction(@NonNull String name) {
         Function function = functionMap.get(name);
-        if (function == null && parentEnvironment != null)
+        if (function == null && parentEnvironment != null) {
             function = parentEnvironment.getFunction(name);
+        }
         return function;
     }
 
     /**
      * gets a collection containing all function symbols of this environment and
      * all parenting environments.
-     * 
+     *
      * <p>
      * The result is a freshly created collection which you may modify.
-     * 
+     *
      * @return a freshly created list of all function symbols
      */
     public @NonNull
     List<Function> getAllFunctions() {
         List<Function> functions;
 
-        if (parentEnvironment == null)
+        if (parentEnvironment == null) {
             functions = new ArrayList<Function>();
-        else
+        } else {
             functions = parentEnvironment.getAllFunctions();
+        }
 
         functions.addAll(functionMap.values());
         return functions;
@@ -629,7 +642,7 @@ public class Environment {
      * get the list of all functions defined in this environment. Functions
      * visible in this environment but defined in a parent environment are
      * ignored.
-     * 
+     *
      * @return an unmodifiable collection of functions
      */
     public @NonNull
@@ -640,11 +653,11 @@ public class Environment {
     /**
      * Gets a number literal. It is dynamically added to the top level
      * environment if not already present.
-     * 
+     *
      * @param numberliteral
      *            the literal as string, must be a natural (>=0) number in
      *            decimal radix
-     * 
+     *
      * @return the number literal as a function
      */
     public @NonNull
@@ -660,18 +673,19 @@ public class Environment {
     /**
      * Gets a number literal. It is dynamically added to the top level
      * environment if not already present.
-     * 
+     *
      * @param value
      *            the literal, must be a positive number
-     * 
+     *
      * @return the number literal as a function
      */
     public @NonNull
     NumberLiteral getNumberLiteral(@NonNull BigInteger value) {
 
         // propagate up to toplevel
-        if (parentEnvironment != null)
+        if (parentEnvironment != null) {
             return parentEnvironment.getNumberLiteral(value);
+        }
 
         if (numberMap == null) {
             numberMap = new HashMap<BigInteger, NumberLiteral>();
@@ -694,7 +708,7 @@ public class Environment {
 
     /**
      * Gets a collection of all functions which are assignable.
-     * 
+     *
      * @return a freshly created collection of all assignables.
      */
     public @NonNull
@@ -703,8 +717,9 @@ public class Environment {
 
         for (Environment env = this; env != null; env = env.parentEnvironment) {
             for (Function f : env.functionMap.values()) {
-                if (f.isAssignable())
+                if (f.isAssignable()) {
                     result.add(f);
+                }
             }
         }
 
@@ -713,7 +728,7 @@ public class Environment {
 
     /**
      * Gets the $interaction symbol which is always present
-     * 
+     *
      * @return the unique $interaction function symbol.
      */
     // public static @NonNull Function getInteractionSymbol() {
@@ -722,11 +737,10 @@ public class Environment {
 
     /**
      * The constant true as a freshly created term
-     * 
+     *
      * @return a fresh application of the constant true
      */
-    public static @NonNull
-    Term getTrue() {
+    public static @NonNull Term getTrue() {
         try {
             Function cnstTrue = BUILT_IN_ENV.getFunction("true");
             assert cnstTrue != null : "nullness: existence guaranteed by construction";
@@ -738,7 +752,7 @@ public class Environment {
 
     /**
      * The constant false as a freshly created term
-     * 
+     *
      * @return a fresh application of the constant true
      */
     public static @NonNull
@@ -755,10 +769,10 @@ public class Environment {
     /**
      * Adds an infix operator to the environment. The argument must be a binary
      * operator.
-     * 
+     *
      * @param infixOperator
      *            the infix operator to add
-     * 
+     *
      * @throws EnvironmentException
      *             if an infix operator for this operation has already been
      *             defined or the environment has been fixed
@@ -766,9 +780,10 @@ public class Environment {
     public void addInfixOperator(@NonNull FixOperator infixOperator)
             throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         FixOperator existing = getInfixOperator(infixOperator.getOpIdentifier());
 
@@ -789,27 +804,28 @@ public class Environment {
      * Gets an infix operator. Delegates the lookup to the parent environment
      * (if present). Returns null if in no environment in the parent chain a
      * definition can be found.
-     * 
+     *
      * @param opSymb
      *            the operator symbolic name to retrieve a fix operator for
-     * 
+     *
      * @return the infix operator if found, null if not present in the
      *         repository.
      */
     public @Nullable
     FixOperator getInfixOperator(@NonNull String opSymb) {
         FixOperator fixOperator = infixMap.get(opSymb);
-        if (fixOperator == null && parentEnvironment != null)
+        if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getInfixOperator(opSymb);
+        }
         return fixOperator;
     }
 
     /**
      * Adds the prefix operator to the environment. The argument must be unary.
-     * 
+     *
      * @param prefixOperator
      *            the fix operator to add as prefix operator.
-     * 
+     *
      * @throws EnvironmentException
      *             iff the operator symbol has already been defined as a prefix
      *             operator or the environment has been fixed.
@@ -817,9 +833,10 @@ public class Environment {
     public void addPrefixOperator(@NonNull FixOperator prefixOperator)
             throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         FixOperator existing = getPrefixOperator(prefixOperator
                 .getOpIdentifier());
@@ -841,62 +858,65 @@ public class Environment {
      * Gets a prefix operator. Delegates the lookup to the parent environment
      * (if present). Returns null if in no environment in the parent chain a
      * definition can be found.
-     * 
+     *
      * @param opSymb
      *            the operator symbolic name to retrieve a fix operator for
-     * 
+     *
      * @return the prefix operator if found, null if not present in the
      *         repository.
      */
     public @Nullable
     FixOperator getPrefixOperator(@NonNull String opSymb) {
         FixOperator fixOperator = prefixMap.get(opSymb);
-        if (fixOperator == null && parentEnvironment != null)
+        if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getPrefixOperator(opSymb);
+        }
         return fixOperator;
     }
 
     /**
      * Gets a fix operator for a given function name.
-     * 
+     *
      * FixOperators must have function names also. We search for an operator for
      * a given function name.
-     * 
+     *
      * In case we do not find an operator, the call is delegated to the parent
      * environment, if there is one. This is a reverse look up, hence the name.
-     * 
+     *
      * @param fctname
      *            the function name
-     * 
+     *
      * @return the corresponding fix operator, null if none found.
      */
     public @Nullable
     FixOperator getReverseFixOperator(@NonNull String fctname) {
         FixOperator fixOperator = reverseFixityMap.get(fctname);
-        if (fixOperator == null && parentEnvironment != null)
+        if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getReverseFixOperator(fctname);
+        }
         return fixOperator;
     }
 
     //
     // ---------- Handling binders ----------
-    // 
+    //
 
     /**
      * Adds a binder to the environment
-     * 
+     *
      * @param binder
      *            the binder to add
-     * 
+     *
      * @throws EnvironmentException
      *             iff a binder has already been defined for that name or the
      *             environment has been fixed
      */
     public void addBinder(@NonNull Binder binder) throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         String name = binder.getName();
         Binder existing = getBinder(name);
@@ -920,31 +940,32 @@ public class Environment {
      * Gets a sort for a name. Delegates the lookup to the parent environment
      * (if present). Returns null if in no environment in the parent chain a
      * definition can be found.
-     * 
+     *
      * @param name
      *            the name to look up
-     * 
+     *
      * @return a sort with the name <code>name</code>, null if none found Gets
      *         the binder.
      */
     public @Nullable
     Binder getBinder(@NonNull String name) {
         Binder binder = binderMap.get(name);
-        if (binder == null && parentEnvironment != null)
+        if (binder == null && parentEnvironment != null) {
             binder = parentEnvironment.getBinder(name);
+        }
         return binder;
     }
 
     /**
      * Convenience method to produce type expressions.
-     * 
+     *
      * @param name
      *            name of the top level sort
      * @param domTy
      *            the arguments to the top level sort
-     * 
+     *
      * @return the generated type
-     * 
+     *
      * @throws EnvironmentException
      *             if no sort has been defined for the name.
      * @throws TermException
@@ -965,25 +986,26 @@ public class Environment {
 
     //
     // ---------- Handling rules ----------
-    // 
+    //
 
     /**
      * Adds a rule to the envoriment.
-     * 
+     *
      * There must not be a rule present under the same name.
-     * 
+     *
      * @param rule
      *            the rule to add
      * @throws EnvironmentException
      *             if there is already a rule by that name or if the environment
      *             has been fixed
-     * 
+     *
      */
     public void addRule(@NonNull Rule rule) throws EnvironmentException {
 
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         String name = rule.getName();
         Rule existing = getRule(name);
@@ -1001,26 +1023,27 @@ public class Environment {
      * Gets a rule for a name. Delegates the lookup to the parent environment
      * (if present). Returns null if in no environment in the parent chain a
      * definition can be found.
-     * 
+     *
      * @param name
      *            the name to look up
-     * 
+     *
      * @return a rule with the name <code>name</code>, null if none found
      */
     public @Nullable
     Rule getRule(@NonNull String name) {
         Rule rule = ruleMap.get(name);
-        if (rule == null && parentEnvironment != null)
+        if (rule == null && parentEnvironment != null) {
             rule = parentEnvironment.getRule(name);
+        }
         return rule;
     }
 
     /**
      * get a list of all defined rules including those defined in a parent
      * environment.
-     * 
+     *
      * The result is a freshly created list which can be modified if you wish.
-     * 
+     *
      * @return a freshly created list of rules.
      */
     public @NonNull
@@ -1038,7 +1061,7 @@ public class Environment {
     /**
      * get the list of all rules defined in this environment. Rules visible in
      * this environment but defined in a parent environment are ignored.
-     * 
+     *
      * @return an unmodifiable list of rules
      */
     public @NonNull
@@ -1052,21 +1075,22 @@ public class Environment {
 
     /**
      * Adds an axiom to the environment.
-     * 
+     *
      * <p>
      * No axiom by the same name must already exist in this (or a parent)
      * environment.
-     * 
+     *
      * @param axiom
      *            the axiom to add to the environment
-     * 
+     *
      * @throws EnvironmentException
      *             if the environment has already been fixed.
      */
     public void addAxiom(@NonNull Axiom axiom) throws EnvironmentException {
-        if (isFixed())
+        if (isFixed()) {
             throw new EnvironmentException(
                     "cannot add to this environment, it has been fixed already");
+        }
 
         String name = axiom.getName();
         Axiom existing = getAxiom(name);
@@ -1081,50 +1105,52 @@ public class Environment {
 
     /**
      * Gets an axiom by name.
-     * 
+     *
      * <p>
      * If no axiom is defined by this name, the call is delegated to the parent
      * environment. Null is returned if no axiom has been defined within all
      * reachable environments.
-     * 
+     *
      * @param name
      *            name of the requested axiom
-     * 
+     *
      * @return an axiom or null
      */
     public @Nullable Axiom getAxiom(@NonNull String name) {
         Axiom axiom = axiomMap.get(name);
-        
-        if (axiom == null && parentEnvironment != null)
+
+        if (axiom == null && parentEnvironment != null) {
             axiom = parentEnvironment.getAxiom(name);
-        
+        }
+
         assert axiom == null || name.equals(axiom.getName());
-        
+
         return axiom;
     }
 
     /**
      * gets a collection containing all axioms of this environment and
      * all parenting environments.
-     * 
+     *
      * <p>
      * The result is a freshly created collection which you may modify.
      * The axioms are in "order of appearance".
-     * 
+     *
      * @return a freshly created list of all defined axioms.
      */
     public List<Axiom> getAllAxioms() {
         List<Axiom> axioms;
 
-        if (parentEnvironment == null)
+        if (parentEnvironment == null) {
             axioms = new ArrayList<Axiom>();
-        else
+        } else {
             axioms = parentEnvironment.getAllAxioms();
+        }
 
         axioms.addAll(axiomMap.values());
         return axioms;
     }
-    
+
     // TODO DOC
     public Collection<Axiom> getLocalAxioms() {
         return axiomMap.values();
@@ -1138,7 +1164,7 @@ public class Environment {
      * Retrieve the plugin manager. If it has not yet been created, create it.
      * However, if this environment is already closed, do not create the manager
      * but throw an exception.
-     * 
+     *
      * @return the plugin manager for this environment.
      * @throws EnvironmentException
      *             if the environment has already been closed.
@@ -1148,14 +1174,15 @@ public class Environment {
 
         if (pluginManager == null) {
 
-            if (isFixed())
+            if (isFixed()) {
                 throw new EnvironmentException(
                         "cannot create the plugin manager for this environment, it has been fixed already");
+            }
 
-            PluginManager parentManger = 
-                parentEnvironment != null ? 
+            PluginManager parentManger =
+                parentEnvironment != null ?
                         parentEnvironment.pluginManager : null;
-            
+
             pluginManager = new PluginManager(parentManger);
         }
 
@@ -1211,7 +1238,7 @@ public class Environment {
         for (Rule rule : rules) {
             rule.dump();
         }
-        
+
         System.out.println("Axioms:");
         for (Axiom axiom : axiomMap.values()) {
             axiom.dump();
@@ -1232,13 +1259,13 @@ public class Environment {
 
     /**
      * create a new symbol name which is not yet used.
-     * 
+     *
      * We append natural numbers starting with 1. The first one which is not yet
      * used is the candidate to choose.
-     * 
+     *
      * @param prefix
      *            the resulting function name will start with this prefix
-     * 
+     *
      * @return an identifier that can be used as a function name for this
      *         environment
      */
@@ -1246,21 +1273,22 @@ public class Environment {
     String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;
 
-        for (int counter = 1; null != getFunction(newName); counter++)
+        for (int counter = 1; null != getFunction(newName); counter++) {
             newName = prefix + counter;
+        }
 
         return newName;
     }
 
     /**
      * create a new symbol name which is not yet used.
-     * 
+     *
      * We append natural numbers starting with 1. The first one which is not yet
      * used is the candidate to choose.
-     * 
+     *
      * @param prefix
      *            the resulting function name will start with this prefix
-     * 
+     *
      * @return an identifier that can be used as a axiom name for this
      *         environment
      */
@@ -1268,8 +1296,9 @@ public class Environment {
     String createNewAxiomName(@NonNull String prefix) {
         String newName = prefix;
 
-        for (int counter = 1; null != getAxiom(newName); counter++)
+        for (int counter = 1; null != getAxiom(newName); counter++) {
             newName = prefix + counter;
+        }
 
         return newName;
     }
@@ -1277,18 +1306,20 @@ public class Environment {
     /**
      * is there a direct or indirect parent which as the given string as
      * resource name
-     * 
+     *
      * @param path
      *            resource to look up
-     * 
+     *
      * @return if this or any parent has the resource set to path
      */
     public boolean hasParentResource(@NonNull String path) {
-        if (resourceName.equals(path))
+        if (resourceName.equals(path)) {
             return true;
+        }
 
-        if (parentEnvironment != null)
+        if (parentEnvironment != null) {
             return parentEnvironment.hasParentResource(path);
+        }
 
         return false;
     }
@@ -1296,7 +1327,7 @@ public class Environment {
     /**
      * get the stored name of this environment. This is either the filename or
      * some internal name.
-     * 
+     *
      * @return the resource name for this environment
      */
     public @NonNull String getResourceName() {
