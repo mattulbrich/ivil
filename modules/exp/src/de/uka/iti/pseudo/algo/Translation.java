@@ -1,55 +1,114 @@
 package de.uka.iti.pseudo.algo;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Set;
 
-import de.uka.iti.pseudo.util.Util;
+import nonnull.Nullable;
+import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.CommandLineException;
 
 public class Translation {
 
-    public static void main(String[] args) throws ParseException, FileNotFoundException {
+    public static final String ALGO_MARK_VARIABLE = "$algoMark";
+
+    private AlgoParser parser;
+
+    private final List<String> declarations = new ArrayList<String>();
+
+    private final String sourceFile;
+
+    private final Set<String> functionNames = new HashSet<String>();
+
+    private boolean refinementMode;
+
+    public static void main(String[] args) throws ParseException, IOException, CommandLineException {
         String source;
-        if(args.length > 0) {
-            source = args[0];
-            new AlgoParser(new FileReader(source));
+        CommandLine cl = createCommandLine();
+        cl.parse(args);
+
+        List<String> clArgs = cl.getArguments();
+        if(clArgs.size() > 0) {
+            source = clArgs.get(0);
         } else {
-            source = null; 
-            new AlgoParser(System.in);   
-        }
-        
-        ASTStart result = AlgoParser.Start();
-        TranslationVisitor visitor = new TranslationVisitor(source);
-        result.jjtAccept(visitor, null);
-        
-        for (String string : visitor.getHeader()) {
-            System.out.println(string);
-        }
-        
-        System.out.println();
-        
-        for (String string : visitor.getStatements()) {
-            System.out.println(string);
-        }
-        
-        // parentheses around ensures
-        List<String> guarantees = visitor.getGuarantees();
-        if(guarantees.isEmpty()) {
-            guarantees.add("true");
-        }
-        ListIterator<String> it = guarantees.listIterator();
-        while(it.hasNext()) {
-            it.set("(" + it.next() + ")");
+            source = null;
         }
 
-        System.out.println();
-        System.out.println("problem ");
-        String req = Util.commatize(visitor.getRequirements());
-        String ens = Util.join(guarantees, " & ");  
-        
-        System.out.println(req + " |- [[0;" + visitor.getProgramName() + "]](" + ens + ")");
-        
+        PrintWriter target;
+        if(clArgs.size() > 1) {
+            target = new PrintWriter(new FileWriter(clArgs.get(1)));
+        } else {
+            target = new PrintWriter(System.out);
+        }
+
+        Translation translation = new Translation(source);
+
+        if(cl.isSet("-ref")) {
+            translation.refinementMode = true;
+        }
+
+        translation.exportTo(target);
+    }
+
+    private static CommandLine createCommandLine() {
+        CommandLine cl = new CommandLine();
+        cl.addOption("-ref", null, "Extract the refinement from the algorithm");
+        return cl;
+    }
+
+    public Translation(String sourceFile) throws IOException, ParseException {
+        this.sourceFile = sourceFile;
+
+        if(sourceFile == null) {
+            parser = new AlgoParser(System.in);
+        } else {
+            parser = new AlgoParser(new FileInputStream(sourceFile));
+        }
+    }
+
+    public void exportTo(PrintWriter pw) throws ParseException {
+
+        ASTStart result = parser.Start();
+        TranslationVisitor visitor = new TranslationVisitor(this, refinementMode);
+        result.jjtAccept(visitor, null);
+
+        for (String string : declarations) {
+            pw.println(string);
+        }
+
+        pw.println();
+
+        for (String string : visitor.getPrograms()) {
+            pw.println(string);
+        }
+
+        pw.flush();
+
+    }
+
+    public @Nullable String getSourceFile() {
+        return sourceFile;
+    }
+
+    public void addFunctionSymbol(String name, String type) {
+        addFunctionSymbol(name, type, "");
+    }
+
+    public void addFunctionSymbol(String name, String type, String mode) {
+        if(functionNames.contains(name)) {
+            throw new RuntimeException(name + " is already used as function symbol!");
+        }
+        declarations.add("function " + type + " " + name + " " + mode);
+        functionNames .add(name);
+    }
+
+    public void addDeclaration(String string) {
+        declarations.add(string);
     }
 
 }

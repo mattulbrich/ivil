@@ -102,14 +102,15 @@ TOKEN : /* KEYWORDS */
 | < END : "end" >
 | < VAR : "var" >
 | < INV : "inv" >
-| < ELSE : "else" >
-| < THEN : "then" >
-| < SUCH : "such" >
-| < WITH : "with" >
 | < ALGO : "algo" >
-| < USES : "uses" >
-| < THAT : "that" >
+| < ELSE : "else" >
+| < MARK : "mark" >
 | < NOTE : "note" >
+| < SUCH : "such" >
+| < THAT : "that" >
+| < THEN : "then" >
+| < USES : "uses" >
+| < WITH : "with" >
 | < WHILE : "while" >
 | < INPUT : "input" >
 | < OUTPUT : "output" >
@@ -154,7 +155,8 @@ TOKEN : /* IDENTIFIERS */
 ASTStart Start() #Start : {}
 {
   ( Uses() )*
-  ( Algo() | Refinement() )+
+  ( Algo() )+
+  ( Refinement() )?
   { return jjtThis; }
 }
 
@@ -182,14 +184,14 @@ void Algo() #Algo :
 }
 {
   "algo" Identifier()
-     
+
   (  "input" Declarations()  #InputDecl 
    | "output" Declarations()  #OutputDecl
    | "var" Declarations()  #VarDecl
    | "requires" Expression() #RequiresDecl
    | "ensures" Expression() #EnsuresDecl
   )*
-  
+
   "do"
     StatementBlock()
   "end"
@@ -232,6 +234,7 @@ void Statement() : {}
   | AssertStatement()
   | AssumeStatement()
   | NoteStatement()
+  | MarkStatement()
   | InlineStatement()
 }
 
@@ -303,6 +306,13 @@ void NoteStatement() #NoteStatement :
     ( "with" t=<STRING_LITERAL> 
        { jjtThis.jjtSetValue(stripQuotes(t.image)); }
     )?
+}
+
+void MarkStatement() #MarkStatement :
+{ Token t = null; }
+{
+  "mark" t=<INTEGER_LITERAL>
+    { jjtThis.jjtSetValue(new Integer(t.image)); }
 }
 
 void InlineStatement() #InlineStatement : 
