@@ -49,7 +49,7 @@ ASTStatement Statement():
 	( kw="assert" term=Term() { result = new ASTAssertStatement(kw, term); }
 	| kw="assume" term=Term() { result = new ASTAssumeStatement(kw, term); }
 	| kw="end" { result = new ASTEndStatement(kw); }
-	| kw="skip_loopinv" termList=Statement_TermList()
+	| kw=<SKIP_ANNOTATED> termList=Statement_TermList()
 	            { result = new ASTSkipStatement(kw, termList); }
 	| kw="skip" { result = new ASTSkipStatement(kw); }
 	| kw="havoc" (term=Identifier() | term=InternalIdentifier() | term=SchemaVariable()) 
@@ -110,7 +110,7 @@ List<ASTTerm> Statement_TermList():
     ( "," 
       (t=Term())
         { terms.add(t); }
-    )?
+    )*
     { return terms; }
 }
 
