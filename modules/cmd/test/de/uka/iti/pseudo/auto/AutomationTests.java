@@ -11,13 +11,14 @@ import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import de.uka.iti.pseudo.cmd.AutomaticFileProver;
+import de.uka.iti.pseudo.cmd.AutomaticProblemProver;
+import de.uka.iti.pseudo.cmd.FileProblemProverBuilder;
 import de.uka.iti.pseudo.cmd.Result;
 
 public class AutomationTests extends TestCase {
-    
+
     private static final int TIMEOUT = 20;
-    
+
     private static class AutoCase extends TestCase {
         private final String fileName;
 
@@ -28,37 +29,41 @@ public class AutomationTests extends TestCase {
 
         @Override
         protected void runTest() throws Throwable {
-            AutomaticFileProver prover = new AutomaticFileProver(new File(fileName));
+            FileProblemProverBuilder fileBuilder =
+                    new FileProblemProverBuilder(new File(fileName));
 
-            if (!prover.hasProblem()) {
+            if (!fileBuilder.hasProblemDeclaration()) {
                 fail(fileName + " does not contain a problem declaration");
             }
 
-            prover.setTimeout(TIMEOUT);
-            prover.setRelayToSource(true);
-            Result result = prover.call();
+            fileBuilder.setTimeout(TIMEOUT);
+            fileBuilder.setRelayToSource(true);
+            for (AutomaticProblemProver app : fileBuilder.createProblemProvers()) {
+                Result result = app.call();
 
-            if(!result.getSuccess()) {
-                result.print(System.err);
+                if(!result.getSuccess()) {
+                    result.print(System.err);
+                }
+
+                assertTrue(result.getSuccess());
             }
-
-            assertTrue(result.getSuccess());
         }
     }
 
     public static Test suite() throws IOException {
         TestSuite suite = new TestSuite("Automation tests");
-        
+
         InputStream stream = AutomationTests.class.getResourceAsStream("testcases.txt");
-        if(stream == null)
+        if(stream == null) {
             throw new IOException("cannot read testcases.txt");
-        
+        }
+
         List<String> cases = readLines(stream);
-        
+
         for (String string : cases) {
             suite.addTest(new AutoCase(string));
         }
-        
+
         return suite;
     }
 

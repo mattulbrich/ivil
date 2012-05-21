@@ -13,14 +13,14 @@ import de.uka.iti.pseudo.proof.Proof;
 
 /**
  * This test will try to close all examples using the gui.
- * 
+ *
  * @author timm.felden@felden.com
  */
 public class TestExamples extends TestCaseWithEnv {
 
     /**
      * try to find proofs for simple examples, they should close automatically
-     * 
+     *
      * @throws Exception
      *             no exception shall be thrown
      */
@@ -35,7 +35,8 @@ public class TestExamples extends TestCaseWithEnv {
             EnvironmentMaker em = new EnvironmentMaker(fp, new File(path));
             Environment env = em.getEnvironment();
 
-            Proof proof = new Proof(em.getProblemSequent());
+            // FIXME We assume there is one and only one problem in the files
+            Proof proof = new Proof(em.getProblemSequents().get(""));
 
             ProofCenter proofCenter = new ProofCenter(proof, env);
             MainWindow main = proofCenter.getMainWindow();
@@ -46,6 +47,7 @@ public class TestExamples extends TestCaseWithEnv {
                 assertTrue("failed to load AutoProofAction", auto != null);
 
                 SwingUtilities.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         auto.actionPerformed(null);
                     }

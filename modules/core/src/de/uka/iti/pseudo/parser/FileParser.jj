@@ -26,11 +26,14 @@ ASTFile File():
         )   { blocks.add(block); }
        )*
        
-       ( problem=Problem() )?
+       // Problems in the end
+       ( block=Problem() 
+          { blocks.add(block); } 
+       )*
        
        <EOF>
        
-   { return new ASTFile(blocks, problem); }
+   { return new ASTFile(blocks); }
 }
 
 ASTProblemSequent Problem():
@@ -39,9 +42,13 @@ ASTProblemSequent Problem():
   List<ASTTerm> succedent = new ArrayList<ASTTerm>();
   boolean hasSeqSep = false;
   ASTTerm t;
+  Token first, id=null;
 }
 {
-        "problem"
+        first="problem"
+        
+        ( LOOKAHEAD(2) 
+          id = <IDENTIFIER> ":" )?
         
         ( t=Term() {antecedent.add(t);}
           ( "," t=Term() {antecedent.add(t);} )*
@@ -54,16 +61,16 @@ ASTProblemSequent Problem():
         )?
         
    {  if(antecedent.size() + succedent.size() == 0) {
-         throw new ParseException();
+         throw new ParseException(first, "No formula given in problem description");
       }
       if(!hasSeqSep && antecedent.size() > 1) {
-         throw new ParseException();
+         throw new ParseException(first, "If more than one formula given in problem, the separator |- must be used");
       }
       if(!hasSeqSep) {
          // if only a single term, take that as *suc*cendent.
-         return new ASTProblemSequent(Collections.<ASTTerm>emptyList(), antecedent);
+         return new ASTProblemSequent(first, id, Collections.<ASTTerm>emptyList(), antecedent);
       } else {
-         return new ASTProblemSequent(antecedent, succedent);
+         return new ASTProblemSequent(first, id, antecedent, succedent);
       }
    }
 }
@@ -307,7 +314,7 @@ ASTAxiomDeclaration AxiomDeclaration():
   List<Pair<Token, Token>> properties = new ArrayList<Pair<Token, Token>>();
 }
 {
-  first="axiom"   name=<IDENTIFIER>  term = Term()
+  first="axiom"  name=<IDENTIFIER> ( ":" )? term = Term()
     
   ( "tags" 
     ( 
@@ -377,10 +384,10 @@ ASTLocatedTerm LocatedTerm(boolean bothAllowed):
       rt=Term() 
         ( "|-" 
            { return new ASTLocatedTerm(rt, MatchingLocation.ANTECEDENT); } )?
-      { if(!bothAllowed) {
-          generateParserException(new int[] { SEP });
-        }
-        return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
+        { if(!bothAllowed) {
+              generateParserException(new int[] { SEP });
+          }
+          return new ASTLocatedTerm(rt, MatchingLocation.BOTH); }
 }
 
 List<ASTRuleElement> AddReplaces():

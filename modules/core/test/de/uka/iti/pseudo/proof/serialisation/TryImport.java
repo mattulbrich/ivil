@@ -12,13 +12,13 @@ public class TryImport {
 
     public static void main(String[] args) throws Exception {
         ProofImport pxml = new ProofXML();
-        
+
         EnvironmentMaker em = new EnvironmentMaker(new Parser(), new File("examples/simple/fakultaet.p"));
         Environment env = em.getEnvironment();
-        Proof proof = new Proof(em.getProblemSequent());
-        
+        Proof proof = new Proof(em.getProblemSequents().get(""));
+
         pxml.importProof(new FileInputStream("examples/simple/fakultaet.pxml"), proof, env);
-        
+
         System.out.println(pxml);
     }
 

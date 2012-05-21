@@ -21,9 +21,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import nonnull.NonNull;
-import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -34,13 +34,7 @@ import de.uka.iti.pseudo.parser.file.ASTFile;
 import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
-import de.uka.iti.pseudo.parser.file.ASTProblemSequent;
-import de.uka.iti.pseudo.parser.term.ASTTerm;
 import de.uka.iti.pseudo.term.Sequent;
-import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -54,8 +48,8 @@ public class EnvironmentMaker {
     /**
      * the directory where to search for system include files.
      */
-    private static final String SYS_DIR = Settings.getInstance().getExpandedProperty(Settings.SYSTEM_DIRECTORY_KEY,
-            "./sys");
+    private static final String SYS_DIR = Settings.getInstance().
+            getExpandedProperty(Settings.SYSTEM_DIRECTORY_KEY, "./sys");
 
     /**
      * The environment that is being built.
@@ -63,20 +57,17 @@ public class EnvironmentMaker {
     private Environment env;
 
     /**
-     * The problem sequent possibly found in the {@link ASTFile}
-     */
-    private @Nullable Sequent problemSequent;
-
-    /**
      * remember the list of included files. This is not stored in the
      * environment can only be retrieved here.
      */
-    private List<String> importedFilenames = new ArrayList<String>();
+    private final List<String> importedFilenames = new ArrayList<String>();
 
     /**
      * The parser to use to parse include files
      */
-    private Parser parser;
+    private final Parser parser;
+
+    private final Map<String, Sequent> problemSequents;
 
     /**
      * Instantiates a new environment maker.
@@ -132,16 +123,16 @@ public class EnvironmentMaker {
 
     /**
      * Instantiates a new environment maker.
-     * 
+     *
      * The file is parsed and the environment created automatically. The
      * environment has the builtin environment {@link Environment#BUILT_IN_ENV}
      * as parent.
-     * 
+     *
      * @param parser
      *            the parser to use for include instructions
      * @param resource
      *            the url to parse, its name is used as name for the environment
-     * 
+     *
      * @throws ParseException
      *             some parse error appeared
      * @throws ASTVisitException
@@ -152,8 +143,8 @@ public class EnvironmentMaker {
      */
     public EnvironmentMaker(Parser parser, InputStream stream, URL resource)
     throws ParseException, ASTVisitException, MalformedURLException, IOException {
-        this(parser, 
-                parser.parseFile(new InputStreamReader(stream), resource.toString()), 
+        this(parser,
+                parser.parseFile(new InputStreamReader(stream), resource.toString()),
                 resource.toExternalForm(),
                 Environment.BUILT_IN_ENV);
     }
@@ -219,10 +210,10 @@ public class EnvironmentMaker {
         astFile.visit(new EnvironmentTypingResolver(env));
         astFile.visit(new EnvironmentProgramMaker(env));
         astFile.visit(new EnvironmentRuleDefinitionVisitor(env));
+        // call this after the EnvironmentProgramMaker
+        problemSequents = new EnvironmentProblemExtractor(env).handle(astFile);
 
         new RuleAxiomExtractor(env).extractAxioms();
-
-        doProblem(astFile);
     }
 
     /**
@@ -246,40 +237,7 @@ public class EnvironmentMaker {
     /*
      * convert the AST term problem description to a real term object.
      */
-    private void doProblem(ASTFile astFile) throws ASTVisitException {
-        ASTProblemSequent seq = astFile.getProblemSequent();
-        if(seq != null) {
-            
-            List<Term> ante = new ArrayList<Term>();
-            List<Term> succ = new ArrayList<Term>();
-            
-            int i = 0;
-            for (ASTTerm ast : SelectList.select(ASTTerm.class, seq.getChildren())) {
-                Term term = TermMaker.makeTerm(ast, env);
-                
-                if(TermMatcher.containsSchematic(term))
-                    throw new ASTVisitException("Problem sequent contains schema type, " +
-                            "schema variable or schema update in " + term, seq);
-                
-                if(i < seq.getAntecedentCount()) {
-                    ante.add(term);
-                } else {
-                    succ.add(term);
-                }
-                
-                i++;
-            }
-            
-            try {
-                // constructor for sequent checks using ToplevelCheckVisitor
-                problemSequent = new Sequent(ante, succ);
-            } catch (TermException e) {
-                throw new ASTVisitException(seq, e);
-            }
-        }
-        
-    }
-    
+
 
     /*
      * register all defined plugins with the plugin manager.
@@ -354,14 +312,20 @@ public class EnvironmentMaker {
     }
 
     /**
-     * Gets the problem term if there is any in the environment.
+     * Gets the collection of problem terms as specified in the source file.
      *
-     * Returns null if the environment does not define a problem term.
+     * If the environment file does not specify any problems, the set of
+     * programs defined in the environment is inspected to create problems from
+     * them.
      *
-     * @return the problem term, possibly null
+     * Returns an empty map null if the environment does not define a problem
+     * term and has no program.
+     *
+     * @return an unmodifiable map from names to sequents.
+     * @see EnvironmentProblemExtractor
      */
-    public @Nullable Sequent getProblemSequent() {
-        return problemSequent;
+    public @NonNull Map<String, Sequent> getProblemSequents() {
+        return Collections.unmodifiableMap(problemSequents);
     }
 
     /*
@@ -385,10 +349,11 @@ public class EnvironmentMaker {
                 }
             }
 
-            // then as resource, particularly for webstart. 
+            // then as resource, particularly for webstart.
             URL resource = getClass().getResource("/sys/" + filename);
-            if(resource != null)
+            if(resource != null) {
                 return resource;
+            }
 
             // then fail
             throw new FileNotFoundException(filename + " not found in any system directory");

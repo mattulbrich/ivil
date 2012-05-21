@@ -4,43 +4,37 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.parser.file;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
+import de.uka.iti.pseudo.util.SelectList;
 
 public class ASTFile extends ASTElement {
-	
+
 	protected final static boolean DEBUG = false;
 
-	private List<ASTDeclarationBlock> declarationBlocks;
+	private final List<ASTDeclarationBlock> declarationBlocks;
 
-	// do not store program and problem here in persona
-	// problem may be replaced if it is a fix expression.
-	// -1 indicates not present
-	private int problemIndex = -1;
-
-	public ASTFile(List<ASTDeclarationBlock> blocks, ASTProblemSequent problem) {
+	public ASTFile(List<ASTDeclarationBlock> blocks) {
 
 		this.declarationBlocks = blocks;
 		addChildren(blocks);
-		
-		if(problem != null) {
-		    problemIndex = getChildren().size();
-			addChild(problem);
-		}
 	}
 
+	@Override
 	public void visit(ASTVisitor v) throws ASTVisitException {
 		v.visit(this);
 	}
@@ -53,11 +47,11 @@ public class ASTFile extends ASTElement {
 		return Collections.unmodifiableList(declarationBlocks);
 	}
 
-	public @Nullable ASTProblemSequent getProblemSequent() {
-	    return (ASTProblemSequent) (problemIndex > 0 ? getChildren().get(problemIndex) : null);
+	public @NonNull Collection<ASTProblemSequent> getProblemSequents() {
+	    return SelectList.select(ASTProblemSequent.class, getChildren());
 	}
-	
-	@Override 
+
+	@Override
 	public @Nullable Token getLocationToken() {
 		return null;
 	}

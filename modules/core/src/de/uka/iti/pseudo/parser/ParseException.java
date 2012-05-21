@@ -4,12 +4,14 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 /* JavaCCOptions:KEEP_LINE_COL=null */
 package de.uka.iti.pseudo.parser;
+
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This exception is thrown when parse errors are encountered.
@@ -55,17 +57,24 @@ public class ParseException extends Exception {
    * "expectedTokenSequences", and "tokenImage" do not contain
    * relevant information.  The JavaCC generated code does not use
    * these constructors.
+   *
+   * MU: Ooooh, yes, it does. They are never called hower, but the
+   * code contains them ...
    */
+   public ParseException() {
+       this(null, "Internal parser exception");
+       Log.stacktrace(Log.ERROR, this);
+       Log.log(Log.ERROR, "Internal parser exception, should not appear!");
+   }
 
-  public ParseException() {
-    super();
+  /**
+   * Constructor with message and error token.
+   * According fields are set
+   */
+  public ParseException(Token currentToken, String message) {
+      super(message);
+      this.currentToken = currentToken;
   }
-
-  /** Constructor with message. */
-  public ParseException(String message) {
-    super(message);
-  }
-
 
   /**
    * This is the last token that has been consumed successfully.  If
@@ -94,7 +103,7 @@ public class ParseException extends Exception {
    * due to a parse error, and you do not catch it (it gets thrown
    * from the parser) the correct error message
    * gets displayed.
-   * 
+   *
    * <p>Version modified/corrected by m.ulbrich.
    */
   private static String initialise(Token currentToken,

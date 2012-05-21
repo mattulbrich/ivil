@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.environment.creation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -18,17 +19,17 @@ import de.uka.iti.pseudo.util.Pair;
 public class PFileEnvironmentCreationService extends EnvironmentCreationService {
 
     @Override
-    public Pair<Environment, Sequent> createEnvironment(InputStream inputStream, URL url)
+    public Pair<Environment, Map<String,Sequent>> createEnvironment(InputStream inputStream, URL url)
             throws IOException, EnvironmentException {
         Parser fp = new Parser();
 
         try {
             EnvironmentMaker em = new EnvironmentMaker(fp, inputStream, url);
             Environment env = em.getEnvironment();
-            Sequent problemSequent = em.getProblemSequent();
-            
-            return Pair.make(env, problemSequent);
-            
+            Map<String, Sequent> problemSequents = em.getProblemSequents();
+
+            return Pair.make(env, problemSequents);
+
         } catch (ParseException e) {
             EnvironmentException resultEx = new EnvironmentException(e);
             Token problemtoken = e.currentToken.next;
@@ -38,11 +39,11 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
             resultEx.setEndColumn(problemtoken.endColumn);
             resultEx.setResource(url.toString());
             throw resultEx;
-            
+
         } catch (ASTVisitException e) {
             EnvironmentException resultEx = new EnvironmentException(e);
             ASTLocatedElement location = e.getLocation();
-            
+
             if (location instanceof ASTElement) {
                 ASTElement ast = (ASTElement)location;
                 Token token = ast.getLocationToken();
@@ -52,7 +53,7 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
                 resultEx.setEndColumn(token.endColumn);
                 resultEx.setResource(ast.getFileName());
             }
-            
+
             throw resultEx;
         }
     }
@@ -64,7 +65,7 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
 
     @Override
     public String getDescription() {
-        return "ivil's own fileformat";
+        return "ivil input file";
     }
 
 }
