@@ -2,20 +2,21 @@ package de.uka.iti.pseudo.parser.file;
 
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.ASTElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ASTVisitor;
 import de.uka.iti.pseudo.parser.Token;
 import de.uka.iti.pseudo.parser.term.ASTTerm;
 
-public class ASTProblemSequent extends ASTElement {
+public class ASTProblemSequent extends ASTDeclarationBlock {
 
-    private int countSuccedent;
-    private int countAntecedent;
+    private final int countAntecedent;
+    private final Token identifier;
 
-    public ASTProblemSequent(List<ASTTerm> antecedent, List<ASTTerm> succedent) {
+    public ASTProblemSequent(Token firstToken, Token identifier,
+            List<ASTTerm> antecedent, List<ASTTerm> succedent) {
+        super(firstToken);
+        this.identifier = identifier;
         this.countAntecedent = antecedent.size();
-        this.countSuccedent = succedent.size();
         addChildren(antecedent);
         addChildren(succedent);
     }
@@ -32,6 +33,10 @@ public class ASTProblemSequent extends ASTElement {
 
     public int getAntecedentCount() {
         return countAntecedent;
+    }
+
+    public Token getIdentifier() {
+        return identifier;
     }
 
 }

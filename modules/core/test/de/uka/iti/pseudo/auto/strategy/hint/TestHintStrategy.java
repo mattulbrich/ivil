@@ -24,10 +24,10 @@ public class TestHintStrategy extends TestCaseWithEnv {
         ASTFile ast = fp.parseFile(new InputStreamReader(getClass().getResourceAsStream("hinttest.p")), "*test*");
         EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
         env = em.getEnvironment();
-        problem = em.getProblemSequent();
+        problem = em.getProblemSequents().get("");
     }
-    
-    
+
+
     public void testHintStrategy() throws Exception {
         // make first rule application
         Proof proof = new Proof(problem);
@@ -47,10 +47,10 @@ public class TestHintStrategy extends TestCaseWithEnv {
         // now the mock rule app finder are installed
         RuleApplication ra = hs.findRuleApplication(root.getChildren().get(0));
         assertEquals("oops", ra.getRule().getName());
-        
+
         ra = hs.findRuleApplication(root.getChildren().get(1));
         assertEquals("oops", ra.getRule().getName());
-        
+
         ra = hs.findRuleApplication(root.getChildren().get(2));
         assertNull(ra);
     }

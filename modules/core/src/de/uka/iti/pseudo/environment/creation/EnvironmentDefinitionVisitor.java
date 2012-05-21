@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.environment.creation;
@@ -39,7 +39,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
     /**
      * The environment that is being built.
      */
-    private Environment env;
+    private final Environment env;
 
     private Type resultingTypeRef;
 
@@ -49,9 +49,10 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
 
     /*
      * default behaviour: depth visiting
-     * 
+     *
      * visit children
      */
+    @Override
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
@@ -65,6 +66,7 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
      * - no type vars in assignables
      * - arities of fixies
      */
+    @Override
     public void visit(ASTSortDeclaration arg) throws ASTVisitException {
 
         String name = arg.getName().image;
@@ -76,11 +78,12 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
             throw new ASTVisitException(arg, e);
         }
     }
-    
+
     /*
      * create a new Function in env
-     * rely upon results from children. 
+     * rely upon results from children.
      */
+    @Override
     public void visit(ASTFunctionDeclaration arg) throws ASTVisitException {
 
         String name = arg.getName().image;
@@ -97,16 +100,18 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         }
 
         if (arg.isAssignable()) {
-            if (arity != 0)
+            if (arity != 0) {
                 throw new ASTVisitException("Assignable operator " + name
                         + " is not nullary", arg);
+            }
 
             Set<TypeVariable> typVars = TypeVariableCollector.collect(resultTy);
 
-            if (!typVars.isEmpty())
+            if (!typVars.isEmpty()) {
                 throw new ASTVisitException("Type of assignable operator "
                         + name + " contains free type variables " + typVars,
                         arg);
+            }
         }
 
         try {
@@ -117,9 +122,10 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         }
 
         if (arg.isInfix()) {
-            if (arity != 2)
+            if (arity != 2) {
                 throw new ASTVisitException("Arity of infix operator " + name
                         + " is not 2", arg);
+            }
 
             String infix = arg.getOperatorIdentifier().image;
             int precedence = Integer.parseInt(arg.getPrecedence().image);
@@ -132,9 +138,10 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
         }
 
         if (arg.isPrefix()) {
-            if (arity != 1)
+            if (arity != 1) {
                 throw new ASTVisitException("Arity of prefix operator " + name
                         + " is not 1", arg);
+            }
 
             String prefix = arg.getOperatorIdentifier().image;
             int precedence = Integer.parseInt(arg.getPrecedence().image);
@@ -146,10 +153,11 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
             }
         }
     }
-    
+
     /*
-     * create a binder 
+     * create a binder
      */
+    @Override
     public void visit(ASTBinderDeclaration arg) throws ASTVisitException {
 
         String name = arg.getName().image;
@@ -174,18 +182,20 @@ public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
             throw new ASTVisitException(arg, e);
         }
     }
-    
+
     /*
      * Types
      */
+    @Override
     public void visitDefaultType(ASTType arg) throws ASTVisitException {
         resultingTypeRef = TermMaker.makeType(arg, env);
     }
 
     @Override
     public void visit(ASTProperties plugins) throws ASTVisitException {
-        for(ASTElement child : plugins.getChildren())
+        for(ASTElement child : plugins.getChildren()) {
             child.visit(this);
+        }
     }
 
     @Override

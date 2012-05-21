@@ -1,5 +1,22 @@
 <ivildoc>
   <category name="Environment property">
+    <entry name="termination">
+      <![CDATA[
+
+ If an environment does not contain a literal problem description, the
+ programs implicitly induce problem descriptions of the form
+ <tt>[0;P]</tt> for each program <tt>P</tt>.
+ <p>
+ The environment property <tt>ProofObligation.termination</tt> can be used
+ to specify whether these problems should include a termination proof
+ obligation (total correctness; using modality <tt>[[&middot;]]</tt>) or
+ should not consider termination (partial correctness; using modality
+ <tt>[&middot;]</tt>.
+
+ <p>
+ Set it to <code>"true"</code> for total correctness, <code>"false"</code>
+ for partial correctness.]]>
+    </entry>
     <entry name="strategies">
       <![CDATA[
  
@@ -243,6 +260,23 @@
  assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
  </pre>]]>
     </entry>
+    <entry name="focus">
+      <![CDATA[
+
+ <h2>Proof hint <code>focus</code></h2>
+
+ TODO
+
+ In order to perform a certain rule on a branch, this hint can be used.
+
+ <h3>Arguments</h3>
+ cut takes one argument which is the name of the rule to be applied.
+
+ <h3>Example</h3>
+ <pre>
+ assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
+ </pre>]]>
+    </entry>
     <entry name="pick">
       <![CDATA[
  
@@ -356,6 +390,25 @@
  <h3>Result:</h3> <code>true</code> if the find clause of the rule matches
  against a term which is not in the scope of an update or a program modality,
  <code>false</code> otherwise. Does not fail.]]>
+    </entry>
+    <entry name="unorderedTerms">
+      <![CDATA[
+
+ TODO
+
+ The where condition UnorderedTerms can be used to check whether two terms are
+ in a certain order.
+
+ It is used in the normalisation of equations
+ <pre>
+ rule equality_order
+   find %t = %u |-
+   where
+     unorderedTerms %t, %u
+   replace %u = %t
+ </pre>
+
+ It signals true iff the order value of %t is greater than the one of %u.]]>
     </entry>
     <entry name="freshVar">
       <![CDATA[

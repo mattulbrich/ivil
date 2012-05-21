@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.cmd;
@@ -80,7 +80,7 @@ public class Main {
 
     /**
      * Prepare the command line options object.
-     * 
+     *
      * @return the command line
      */
     private static @NonNull
@@ -101,12 +101,12 @@ public class Main {
 
     /**
      * The entry point of the command line tool.
-     * 
+     *
      * This method parses the command line and creates tasks for each file. The
      * tasks are then delegated to the executor which executes them in one of
      * its threads. After the execution the results of the tasks is printed to
      * stdout.
-     * 
+     *
      * The application is terminated by this method. The return value is the
      * number of errors found in the files, or -1 if an exception has been
      * raised.
@@ -138,8 +138,9 @@ public class Main {
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
             pipeMode = commandLine.isSet(CMDLINE_PIPE);
 
-            if (!pipeMode)
+            if (!pipeMode) {
                 printVersion();
+            }
 
             // if(verbose) {
             // Log.setMinLevel(Log.ALL);
@@ -160,29 +161,31 @@ public class Main {
                 Result result;
                 try {
                     result = futResult.get();
-                    if(pipeMode)
+                    if(pipeMode) {
                         System.out.println(result.getSuccess() ? "YES" : "NO");
-                    else if (!result.getSuccess()) {
+                    } else if (!result.getSuccess()) {
                         errorcount++;
                         result.print(System.err);
                     }
                 } catch (Exception e) {
-                    if(pipeMode)
+                    if(pipeMode) {
                         System.out.println("ERROR");
-                    else
+                    } else {
                         e.printStackTrace();
+                    }
                     errorcount++;
                 }
             }
-            
+
             if(!pipeMode && errorcount == 0) {
                 System.out.println("All proof obligations have been discharged.");
             }
 
             System.exit(errorcount);
         } catch (Exception ex) {
-            if (pipeMode)
+            if (pipeMode) {
                 System.out.println("ERROR");
+            }
 
             System.exit(-1);
         }
@@ -191,12 +194,12 @@ public class Main {
 
     /**
      * Handle file or directory according to the options.
-     * 
+     *
      * A directory is only descended to if {@link #recursive} is set to true.
-     * 
+     *
      * A particular file is only examined if its extension is ".p" or
      * {@link #allSuffix} is set to true.
-     * 
+     *
      * @param directory
      *            the directory under which the file lives
      * @param fileName
@@ -221,41 +224,43 @@ public class Main {
 
     /**
      * Handle single file - do actually something on it.
-     * 
-     * An {@link AutomaticFileProver} object is created for the file. This is a
+     *
+     * An {@link FileProblemProverBuilder} object is created for the file. This is a
      * {@link Callable} and is enqueued in the {@link #executor} which will
      * eventually do the task
-     * 
+     *
      * The result (a {@link Future} value) is added to the results lists.
-     * 
+     *
      * Parameters are set on the prover object.
      */
     private static void handleSingleFile(File file) throws ParseException, ASTVisitException, IOException,
             TermException {
 
-        AutomaticFileProver prover = new AutomaticFileProver(file);
+        FileProblemProverBuilder builder = new FileProblemProverBuilder(file);
 
-        if (!prover.hasProblem()) {
+        if (!builder.hasProblemDeclaration()) {
             if (verbose) {
                 System.err.println(file + " does not contain a problem ... ignored");
             }
             return;
         }
 
-        prover.setTimeout(timeout);
-        prover.setRuleLimit(ruleLimit);
-        prover.setRelayToSource(relayToSource);
+        builder.setTimeout(timeout);
+        builder.setRuleLimit(ruleLimit);
+        builder.setRelayToSource(relayToSource);
 
-        Future<Result> future = executor.submit(prover);
-        assert future != null;
-        results.add(future);
+        for (AutomaticProblemProver app : builder.createProblemProvers()) {
+            Future<Result> future = executor.submit(app);
+            assert future != null;
+            results.add(future);
+        }
 
     }
 
     /**
      * add all properties from the system and from a certain file to the
      * properties in {@link Settings}.
-     * 
+     *
      * Command line and system overwrite the file
      */
     private static void loadProperties() {
