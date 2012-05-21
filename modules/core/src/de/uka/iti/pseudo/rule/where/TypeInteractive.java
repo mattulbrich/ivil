@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.where;
@@ -27,26 +27,29 @@ public class TypeInteractive extends WhereCondition {
         super(INTERACTION);
     }
 
+    @Override
     public void checkSyntax(Term[] arguments) throws RuleException {
-        if(arguments.length != 1)
+        if(arguments.length != 1) {
             throw new RuleException("interact expects exactly 1 argument");
-        
+        }
+
         Type t = arguments[0].getType();
-        if(!(t instanceof TypeVariable))
+        if(!(t instanceof TypeVariable)) {
             throw new RuleException("interact expects type variable type for its argument");
+        }
     }
 
-    @Override 
+    @Override
     public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
         if(ruleApp.hasMutableProperties()) {
             TypeVariable tv = (TypeVariable) formalArguments[0].getType();
             Term actualTerm = actualArguments[0];
-            ruleApp.getProperties().put(INTERACTION + "(" + tv.getVariableName() + ")", 
+            ruleApp.getProperties().put(INTERACTION + "(" + tv.getVariableName() + ")",
                     actualTerm.getType().toString());
         }
         return true;
     }
-    
+
 }

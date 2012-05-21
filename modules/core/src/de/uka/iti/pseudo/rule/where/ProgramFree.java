@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.where;
@@ -28,31 +28,34 @@ public class ProgramFree extends WhereCondition {
         super("programFree");
     }
 
-    @Override 
+    @Override
     public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
-        
+
         return checkProgramFree(actualArguments[0]);
 
     }
 
-    @Override 
+    @Override
     public void checkSyntax(Term[] arguments) throws RuleException {
-        if(arguments.length != 1)
+        if(arguments.length != 1) {
             throw new RuleException("notFreeIn expects exactly 1 argument");
+        }
     }
 
     private boolean checkProgramFree(Term term) {
         TermVisitor tv = new DefaultTermVisitor.DepthTermVisitor() {
-          public void visit(SchemaProgramTerm programTerm) throws TermException {
+            @Override
+            public void visit(SchemaProgramTerm programTerm) throws TermException {
                 throw new TermException("Modality found!");
-          }
-          public void visit(LiteralProgramTerm programTerm) throws TermException {
-              throw new TermException("Modality found!");
-          }
+            }
+            @Override
+            public void visit(LiteralProgramTerm programTerm) throws TermException {
+                throw new TermException("Modality found!");
+            }
         };
-        
+
         try {
             term.visit(tv);
             return true;
@@ -61,6 +64,6 @@ public class ProgramFree extends WhereCondition {
         }
     }
 
-    
+
 
 }

@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.environment.creation;
 
 import java.util.ArrayList;
@@ -5,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -22,7 +32,19 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.settings.Settings;
 
-// TODO DOC
+/**
+ * The Class EnvironmentProblemExtractor is used to extract problem descriptions
+ * from an environment AST.
+ *
+ * It visits the {@link ASTProblemSequent} nodes and stores their valuation into
+ * a map.
+ *
+ * If no problem description(s) are present in the environment, they are
+ * generated from the programs of the environment, using the modality specified
+ * by the settings (see {@link #TERMINATION_PROPERTY}).
+ *
+ * @see Environment
+ */
 public class EnvironmentProblemExtractor {
 
     /**
@@ -44,15 +66,54 @@ public class EnvironmentProblemExtractor {
      */
     public static final String TERMINATION_PROPERTY = "ProofObligation.termination";
 
+    /**
+     * The Settings object stored locally
+     */
     private static final Settings SETTINGS = Settings.getInstance();
+
+    /**
+     * An empty array of terms.
+     */
     private static final Term[] NO_TERMS = new Term[0];
-    private final Map<String, Sequent> problemSequents = new LinkedHashMap<String, Sequent>();
+
+    /**
+     * The map from names to problem sequents.
+     *
+     * We use a linked hash map to preserve the original order.
+     */
+    private final Map<String, Sequent> problemSequents =
+            new LinkedHashMap<String, Sequent>();
+
+    /**
+     * The environment to work upon.
+     */
     private final Environment env;
 
-    public EnvironmentProblemExtractor(Environment env) {
+    /**
+     * Instantiates a new environment problem extractor.
+     *
+     * @param env
+     *            the environment to operate on
+     */
+    public EnvironmentProblemExtractor(@NonNull Environment env) {
         this.env = env;
     }
 
+    /**
+     * Handle the AST of a file.
+     *
+     * This method should only be called once per object! An additional call
+     * will probably result in a strange return value.
+     *
+     * All problem sequent declarations are visited, the remainder is ignored.
+     *
+     * @param arg
+     *            the AST of a file
+     * @return a map from problem description names to sequents. May be empty.
+     *
+     * @throws ASTVisitException
+     *             if some exception during conversion happens.
+     */
     public Map<String,Sequent> handle(ASTFile arg) throws ASTVisitException {
         for(ASTProblemSequent ast : arg.getProblemSequents()) {
             handleProblemSequent(ast);
@@ -69,6 +130,10 @@ public class EnvironmentProblemExtractor {
         return problemSequents;
     }
 
+    /**
+     * Creates the problems for the programs of the file, if no explicit problem
+     * description is given
+     */
     private void createProgramProblems() throws TermException {
 
         final Term trueTerm = Environment.getTrue();
@@ -84,6 +149,10 @@ public class EnvironmentProblemExtractor {
         }
     }
 
+    /**
+     * Checks if is termination is to be considered for the generation of
+     * implicit problems.
+     */
     private boolean isConsiderTermination() {
 
         String property = env.getProperty(TERMINATION_PROPERTY);
@@ -94,6 +163,21 @@ public class EnvironmentProblemExtractor {
         return SETTINGS.getBoolean("pseudo.programTermination", true);
     }
 
+    /**
+     * Handle a single problem sequent description.
+     *
+     * Create a sequent from the given ast terms.
+     *
+     * Check that
+     * <ol>
+     * <li>An unnamed problem is the only problem</li>
+     * <li>No two problems carry the same name</li>
+     * </ol>
+     *
+     * @param seq
+     *            the ast for the sequent decl
+     *
+     */
     private void handleProblemSequent(ASTProblemSequent seq) throws ASTVisitException {
         List<Term> ante = new ArrayList<Term>();
         List<Term> succ = new ArrayList<Term>();

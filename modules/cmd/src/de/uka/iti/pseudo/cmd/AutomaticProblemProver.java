@@ -1,3 +1,13 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
+
 package de.uka.iti.pseudo.cmd;
 
 import java.io.File;
@@ -5,7 +15,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.auto.strategy.StrategyManager;
@@ -28,6 +40,25 @@ import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.TimingOutTask;
 
+/**
+ * This class allows running ivil automatically over one particular ivil problem
+ * taken from a file (which contains the problem description).
+ *
+ * It is usually created by a {@link FileProblemProverBuilder}.
+ *
+ * It implements the {@link Callable} interface and, hence, can be used to
+ * delegate the task to run several files to a task queue (see
+ * {@link ExecutorService}).
+ *
+ * The result is returned in form of a Result object which contains a reference
+ * to the file, whether the run was successful and status messages. <b>Note:</b>
+ * This will change later when the requirements to the data in the results is
+ * clearer.
+ *
+ * @see FileProblemProverBuilder
+ * @see Result
+ * @author mattias ulbrich
+ */
 public class AutomaticProblemProver implements Callable<Result> {
 
     /**
@@ -238,24 +269,25 @@ public class AutomaticProblemProver implements Callable<Result> {
      * Instantiates a new automatic problem prover from the given parameters.
      *
      * @param file
-     *            the file
+     *            the file from which the problem comes
      * @param env
-     *            the env
+     *            the environment
      * @param prettyPrint
-     *            the pretty print
+     *            the pretty printer to use
      * @param name
-     *            the name
+     *            the name of the problem
      * @param problemSequent
      *            the problem sequent
      * @param relayToSource
-     *            the relay to source
+     *            should reporting relay to source code?
      * @param timeout
-     *            the timeout
+     *            the timeout in seconds
      * @param ruleApplicationLimit
      *            the rule application limit
      */
-    public AutomaticProblemProver(File file, Environment env,
-            PrettyPrint prettyPrint, String name, Sequent problemSequent,
+    public AutomaticProblemProver(@NonNull File file, @NonNull Environment env,
+            @NonNull PrettyPrint prettyPrint, @NonNull String name,
+            @NonNull Sequent problemSequent,
             boolean relayToSource, int timeout, int ruleApplicationLimit) {
         super();
         this.file = file;
@@ -298,11 +330,11 @@ public class AutomaticProblemProver implements Callable<Result> {
 
                 if (Thread.interrupted()
                         || (timingOut != null && timingOut.hasFinished())) {
-                    return new Result(false, file, "timed out");
+                    return new Result(false, file, name, "timed out");
                 }
 
                 if (ruleApplicationLimit != 0 && ruleApplicationLimit < count) {
-                    return new Result(false, file, "timed out");
+                    return new Result(false, file, name, "timed out");
                 }
 
                 RuleApplication ruleApp = strategy.findRuleApplication();
@@ -317,19 +349,21 @@ public class AutomaticProblemProver implements Callable<Result> {
 
             List<ProofNode> openGoals = proof.getOpenGoals();
 
+            // TODO incorporate name into the result
+
             if (openGoals.isEmpty()) {
                 // if(export) exportProof(proof);
-                return new Result(true, file);
+                return new Result(true, file, name);
             }
 
             if (!relayToSource) {
-                return new Result(false, file, openGoals.size()
+                return new Result(false, file, name, openGoals.size()
                         + " remaining open goal(s)");
             }
 
             ArrayList<String> messages = makeDetailedReport(openGoals);
 
-            return new Result(false, file, messages);
+            return new Result(false, file, name, messages);
         } finally {
             if (timingOut != null) {
                 timingOut.cancel();

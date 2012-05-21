@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
@@ -27,21 +25,14 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 
 /**
- * This class is used to create problem proofobligations from an environment.
+ * This class is used as builder to create problem proof obligations from an
+ * environment.
  *
- * This class allows to run ivil automatically over one particular ivil input
- * file (which contains a problem description).
+ * A file is parsed into an environment and its problem sequents. One
+ * {@link AutomaticProblemProver} is then created per problem in method
+ * {@link #createProblemProvers()}
  *
- * It implements the {@link Callable} interfance and, hence, can be used to
- * delegate the task to run several files to a task queue (see
- * {@link ExecutorService}).
- *
- * The result is returned in form of a Result object which contains a reference
- * to the file, whether the run was successful and status messages. <b>Note:</b>
- * This will change later when the requirements to the data in the results is
- * clearer.
- *
- * @see Result
+ * @see AutomaticProblemProver
  * @author mattias ulbrich
  */
 public class FileProblemProverBuilder {
