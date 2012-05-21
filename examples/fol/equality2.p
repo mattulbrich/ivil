@@ -2,7 +2,7 @@ include "$int.p" "$fol.p"
 
 properties 
   CompoundStrategy.strategies "SimplificationStrategy,BreakpointStrategy,KnowledgeStrategy"
-  order.f "100"
+  order.f "10"
 
 function
   int a
