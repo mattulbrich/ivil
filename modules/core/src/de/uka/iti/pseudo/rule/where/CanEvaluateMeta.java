@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.where;
@@ -33,13 +33,13 @@ public class CanEvaluateMeta extends WhereCondition {
         super("canEval");
     }
 
-    @Override 
+    @Override
     public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
-        
+
         MetaEvaluator metaEval = new MetaEvaluator(new ProtectedRuleApplication(ruleApp), env);
-        
+
         try {
             actualArguments[0].visit(metaEval);
             return true;
@@ -50,57 +50,67 @@ public class CanEvaluateMeta extends WhereCondition {
     }
 
     @Override public void checkSyntax(Term[] arguments) throws RuleException {
-        if(arguments.length != 1)
+        if(arguments.length != 1) {
             throw new RuleException("canEval expects exactly one argument");
+        }
     }
-    
+
     /**
-     * This class wraps a rule application and makes its properties immutable. 
+     * This class wraps a rule application and makes its properties immutable.
      */
     private static class ProtectedRuleApplication implements RuleApplication {
-        private RuleApplication wrappedApplication;
-        
+        private final RuleApplication wrappedApplication;
+
         public ProtectedRuleApplication(RuleApplication wrappedApplication) {
             this.wrappedApplication = wrappedApplication;
         }
 
+        @Override
         public List<TermSelector> getAssumeSelectors() {
             return wrappedApplication.getAssumeSelectors();
         }
 
+        @Override
         public TermSelector getFindSelector() {
             return wrappedApplication.getFindSelector();
         }
 
+        @Override
         public ProofNode getProofNode() {
             return wrappedApplication.getProofNode();
         }
 
+        @Override
         public Map<String, String> getProperties() {
             return wrappedApplication.getProperties();
         }
 
+        @Override
         public Rule getRule() {
             return wrappedApplication.getRule();
         }
 
+        @Override
         public Map<String, Term> getSchemaVariableMapping() {
             return wrappedApplication.getSchemaVariableMapping();
         }
-        
+
+        @Override
         public Map<String, Update> getSchemaUpdateMapping() {
             return wrappedApplication.getSchemaUpdateMapping();
         }
 
+        @Override
         public Map<String, Type> getTypeVariableMapping() {
             return wrappedApplication.getTypeVariableMapping();
         }
 
+        @Override
         public boolean hasMutableProperties() {
             return false;
         }
 
-        
-        
+
+
     }
 }

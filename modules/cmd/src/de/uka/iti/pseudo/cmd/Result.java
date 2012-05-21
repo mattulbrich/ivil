@@ -3,9 +3,9 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
- * See LICENSE.TXT (distributed with this file) for details. 
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.cmd;
 
@@ -15,64 +15,78 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import nonnull.NonNull;
+
 // TODO: Auto-generated Javadoc
 /**
- * The Class Result.
+ * This data class models the result of an automatic run if ivil.
+ *
+ * It contains the filename, problem name, messages and a boolean success flag.
+ *
  * @author mattias ulbrich
  */
 public class Result {
-    
+
     /**
-     * The file.
+     * The file which has been visited.
      */
-    private File file;
-    
+    private final File file;
+
+
     /**
-     * The messages.
+     * The name of the probilem which has been visited.
      */
-    private List<String> messages = new ArrayList<String>();
-    
+    private final String name;
+
     /**
-     * The success.
+     * The a non-null list of messages.
+     */
+    private final List<String> messages = new ArrayList<String>();
+
+    /**
+     * The success flag. <code>true</code> indicates success.
      */
     boolean success;
-    
+
     /**
      * Instantiates a new result.
-     * 
+     *
      * @param result
-     *            the result
+     *            the result flag (<code>true</code> is successful)
      * @param file
-     *            the file
+     *            the visited file
+     * @param name
+     *            Name of this proof obligation
      * @param messages
      *            the messages
      */
-    public Result(boolean result, File file, String... messages) {
-        this.success = result;
-        this.file = file;
-        this.messages.addAll(Arrays.asList(messages));
+    public Result(boolean result, File file, String name, String... messages) {
+       this(result, file, name, Arrays.<String>asList(messages));
     }
 
     /**
      * Instantiates a new result.
-     * 
+     *
      * @param result
-     *            the result
+     *            the result flag (<code>true</code> is successful)
      * @param file
-     *            the file
+     *            the visited file
+     * @param name
+     *            Name of this proof obligation
      * @param messages
      *            the messages
      */
-    public Result(boolean result, File file, ArrayList<String> messages) {
+    public Result(boolean result, File file, String name, List<String> messages) {
         this.success = result;
         this.file = file;
+        this.name = name;
         this.messages.addAll(messages);
     }
 
     /**
-     * Gets the success.
-     * 
-     * @return the success
+     * Gets the success flag.
+     *
+     * @return the success flag
      */
     public boolean getSuccess() {
         return success;
@@ -80,7 +94,7 @@ public class Result {
 
     /**
      * Gets the file.
-     * 
+     *
      * @return the file
      */
     public String getFile() {
@@ -88,16 +102,23 @@ public class Result {
     }
 
     /**
-     * Prints the.
-     * 
+     * Prints this object to a print stream.
+     *
+     * Prints the file name, followed by "#" and the name of the problem (if not ""), followed
+     * by the messages, each on a new line.
+     *
      * @param err
-     *            the err
+     *            the stream to print to.
      */
-    public void print(PrintStream err) {
-        err.println(file + " :");
+    public void print(@NonNull PrintStream err) {
+        err.print(file);
+        if(name.length() > 0) {
+            err.println("#" + name);
+        }
+        err.println(" :");
         for (String m : messages) {
             err.println(m);
         }
     }
-    
+
 }

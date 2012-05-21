@@ -93,7 +93,7 @@ public class PooledAutoProver {
     }
 
     // TODO get thread pool size from environment or something more useful
-    private static int POOL_SIZE = 16;
+    private static int POOL_SIZE = 4;
     // maybe change this to cachedThreadPool, but make strategies parallelize
     // first
     private static ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
