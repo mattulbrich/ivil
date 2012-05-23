@@ -103,6 +103,14 @@ rule divide_by_self
 (*
  * Rules concerning >, <, >=, <=
  *)
+
+(* $prec(a,b)  is a<b and a=>0 on integers *)
+rule prec_int
+  find %a as int &< %b
+  replace 0 <= %a & %a < %b 
+  tags 
+    rewrite "fol simp"
+    verbosity "8"
  
 # the goal of the automated inequality handling rules is to order all terms using <
 

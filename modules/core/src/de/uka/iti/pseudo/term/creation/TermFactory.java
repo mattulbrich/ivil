@@ -13,7 +13,6 @@ package de.uka.iti.pseudo.term.creation;
 import java.math.BigInteger;
 
 import nonnull.NonNull;
-
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
@@ -31,14 +30,14 @@ import de.uka.iti.pseudo.term.Variable;
  */
 public class TermFactory {
 
-    private Environment env;
+    private final Environment env;
 
     public TermFactory(Environment env) {
         this.env = env;
     }
 
     /*
-     * Retrieval for function symbols. Throws exception on fail-case. 
+     * Retrieval for function symbols. Throws exception on fail-case.
      */
     private Function getFunction(String name) throws TermException {
         Function f = env.getFunction(name);
@@ -54,7 +53,7 @@ public class TermFactory {
     }
 
     /*
-     * Retrieval for function symbols. Throws exception on fail-case. 
+     * Retrieval for function symbols. Throws exception on fail-case.
      */
     private Binder getBinder(String name) throws TermException {
         Binder b = env.getBinder(name);
@@ -65,7 +64,7 @@ public class TermFactory {
                             + " is not available for the term factory. "
                             + "Please ensure that it is present");
         }
-        
+
         return b;
     }
 
@@ -86,6 +85,11 @@ public class TermFactory {
 
     public @NonNull Term number(int i) throws TermException {
         return Application.getInst(env.getNumberLiteral(BigInteger.valueOf(i)), Environment.getIntType());
+    }
+
+    public Term prec(@NonNull Term t1, @NonNull Term t2) throws TermException {
+        Function f = getFunction("$prec");
+        return Application.getInst(f, Environment.getBoolType(), new Term[] { t1, t2 });
     }
 
     public @NonNull Term gt(@NonNull Term t1, @NonNull Term t2) throws TermException {
@@ -132,7 +136,7 @@ public class TermFactory {
 
     public @NonNull Term pattern(Term pattern, Term term) throws TermException {
         Function tr = getFunction("$pattern");
-        return Application.getInst(tr, term.getType(), new Term[] { pattern, term }); 
+        return Application.getInst(tr, term.getType(), new Term[] { pattern, term });
     }
 
 }

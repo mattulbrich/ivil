@@ -21,22 +21,29 @@
 
 include "$plugins.p"
 
+
+(* configure the categories for rewrite rules *)
+properties
+    rewrite.categories "close=1, updSimpl=2, concrete=3, prop simp=4, 
+                        fol simp=5, fol add=6"
+
 function
     'a cond(bool, 'a, 'a)
 
 function  # infixes
-    bool $eq('a, 'a)        infix =  50
-    bool $and(bool, bool)   infix &  40 
-    bool $or(bool, bool)    infix |  30 
+    bool $eq('a, 'a)        infix =   50
+    bool $and(bool, bool)   infix &   40 
+    bool $or(bool, bool)    infix |   30 
     bool $impl(bool, bool)  infix ->  20 
-    bool $equiv(bool, bool) infix <->  10 
+    bool $equiv(bool, bool) infix <-> 10 
+    bool $prec('a, 'a)      infix &<  50
         
 function  # prefixes
     bool $not(bool)         prefix ! 45
 
 function  # consts
     'a arb
-    'b retype('a)
+    'b retype('a)  (* TODO still needed? *)
 
 binder
     bool (\forall 'a; bool)
