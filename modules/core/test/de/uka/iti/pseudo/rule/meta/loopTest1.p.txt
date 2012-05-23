@@ -54,7 +54,7 @@ program Q_after
      assume true
      havoc d
      assert inv ; "Continuation preserves invariant"
-     assert var >= 0 & var < varAtPre ; "Continuation reduces variant"
+     assert var &< varAtPre ; "Continuation reduces variant"
      assume false
      #  C U T   H E R E
      havoc d

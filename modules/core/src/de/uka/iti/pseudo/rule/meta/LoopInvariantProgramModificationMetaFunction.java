@@ -131,7 +131,6 @@ import de.uka.iti.pseudo.util.settings.Settings;
 public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
-    private static final Type INT= Environment.getIntType();
 
     public LoopInvariantProgramModificationMetaFunction() throws EnvironmentException {
         super(BOOL, "$$loopInvPrgMod", BOOL, BOOL, TypeVariable.ALPHA);

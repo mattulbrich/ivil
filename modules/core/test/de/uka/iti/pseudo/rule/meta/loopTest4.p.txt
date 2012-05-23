@@ -1,0 +1,23 @@
+include 
+  "$base.p"
+  "$symbex.p"
+
+sort newSort
+
+function
+  bool inv
+  newSort var
+  newSort varAtPre
+ 
+
+(* variant of different type ! *)
+
+program P
+  skip_loopinv inv, var 
+
+program P_after
+  assert inv ; "Continuation preserves invariant"
+  assert var &< varAtPre ; "Continuation reduces variant"
+  assume false
+  assume varAtPre = var
+  assume inv
