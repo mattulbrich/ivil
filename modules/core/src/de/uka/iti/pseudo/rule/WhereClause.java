@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule;
@@ -27,7 +27,7 @@ import de.uka.iti.pseudo.util.Util;
  * A where clause is the composition of a {@link WhereCondition} and a number of
  * argument terms. It used within a rule to encode a condition under which the
  * rule is applicable.
- * 
+ *
  * @see WhereCondition
  * @see Rule
  */
@@ -36,32 +36,32 @@ public class WhereClause {
     /**
      * The where condition employed in this clause
      */
-    private WhereCondition whereCondition;
+    private final WhereCondition whereCondition;
 
     /**
      * A flag indicating whether the condition should check for success or failure.
      */
-    private boolean inverted;
-    
+    private final boolean inverted;
+
     /**
      * The arguments applied to the condition
      */
-    private @NonNull Term[] arguments;
+    private @NonNull final Term[] arguments;
 
     /**
      * Instantiates a new where clause.
-     * 
+     *
      * <p>
      * The terms array is referenced to directly and not copied beforehand!
-     * 
+     *
      * @param where
      *            the where condition
-     * @param inverted 
+     * @param inverted
      *            indicates whether the condition is to <b>fail</b> rather
-     *            than to succeed.  
+     *            than to succeed.
      * @param terms
      *            the terms on which the condition is applied
-     * 
+     *
      * @throws RuleException
      *             if the syntax check of the condition fails for the arguments
      *             terms.
@@ -70,13 +70,13 @@ public class WhereClause {
         this.arguments = terms;
         this.whereCondition = where;
         this.inverted =inverted;
-        
+
         where.checkSyntax(arguments);
     }
-    
+
     /**
      * Gets the arguments of the clause as a list.
-     * 
+     *
      * @return the arguments as unmodifiable list.
      */
     public List<Term> getArguments() {
@@ -85,18 +85,28 @@ public class WhereClause {
 
     /**
      * Gets the where condition of this clause.
-     * 
+     *
      * @return the where condition used in this clause.
      */
     public WhereCondition getWhereCondition() {
         return whereCondition;
     }
 
+    /**
+     * Returns whether this where clause inverts results computed by the where
+     * condition.
+     *
+     * @return <code>true</code> for inverted, <code>false</code> for straight.
+     */
+    public boolean isInverted() {
+        return inverted;
+    }
 
     /**
      * prints the where condition followed by a commatised list of the formal
      * arguments.
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(whereCondition.getName()).append(" ").append(
@@ -106,25 +116,25 @@ public class WhereClause {
 
     /**
      * Test this clause against a rule application context.
-     * 
+     *
      * <p>
      * If the test succeeds and the the clause allows the rule application, true
      * is returned. If the paramters disallow the application, false is
      * returned. The method may throw an exception if the arguments to the
      * condition do not correspond to the expected form.
-     * 
+     *
      * <p>
      * The instantiation and the rule application must be compatible.
-     * 
+     *
      * @param inst
      *            the instantiation of the schema entities
      * @param ruleApp
      *            the rule application under consideration
      * @param env
      *            the environment of this proof.
-     * 
+     *
      * @return true, if the instantiations render the clause successful
-     * 
+     *
      * @throws RuleException
      *             the arguments to the condition do not correspond to the
      *             expected form.
@@ -148,17 +158,17 @@ public class WhereClause {
 
     /**
      * Allow this clause to actively instantiate schema entities.
-     * 
+     *
      * <p>
      * This is an action and does not provide a possibilty to feedback
      * information. Failures are to be reported by
      * {@link #applyTo(TermInstantiator, RuleApplication, ProofNode, Environment)}.
-     * 
+     *
      * <p>
      * This is not called when applying a rule application to a node. Then the
      * instatiations need to have been done. It is called during finding of
      * applications, however.
-     * 
+     *
      * @param termMatcher
      *            the object on which the matchings and active instantiations
      *            can be performed.
@@ -169,9 +179,8 @@ public class WhereClause {
      */
     public void addInstantiations(TermMatcher termMatcher,
             RuleApplication ruleApp, Environment env) throws RuleException {
-        
+
         whereCondition.addInstantiations(termMatcher, arguments);
     }
-
 
 }

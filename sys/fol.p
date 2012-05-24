@@ -16,6 +16,13 @@
 include
    "$proposition.p"
 
+(*
+ * Quantifier rules:
+ *  - delta rules: forall_right, exists_left
+ *  - gamma rules: forall_left, exists_right
+ *  - removal rules: forall_remove, exists_remove
+ *)
+
 rule forall_right
   find  |-  (\forall %x; %b) 
   replace  $$subst(%x, $$skolem(%x), %b)
@@ -56,7 +63,22 @@ rule exists_left
   replace  $$subst(%x, $$skolem(%x), %b)
   tags rewrite "fol simp"
 
-(* universal type quantifications *)
+
+rule forall_remove
+  find (\forall %x; %b)
+  where freshVar %x, %b
+  replace %b
+  tags rewrite "fol simp"
+
+rule exists_remove
+  find (\exists %x; %b)
+  where freshVar %x, %b
+  replace %b
+  tags rewrite "fol simp"
+
+(* 
+ * universal type quantifications 
+ *)
 
 rule typed_forall_left
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
