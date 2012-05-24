@@ -25,6 +25,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import nonnull.NonNull;
@@ -430,7 +431,21 @@ public class Main {
         return false;
     }
 
-    public static JFileChooser makeFileChooser(int index) {
+    /**
+     * Return a file chooser for the given type of files.
+     *
+     * If no chooser has been created yet, it is created, otherwise the existing
+     * object is reused and returned (including the last set path).
+     *
+     * The different types are initialised differently. Problem file chooser
+     * have the available {@link EnvironmentCreationService}s as filters whereas
+     * proof choosers use the {@link ProofExport}s as filters.
+     *
+     * @param either
+     *            {@link #PROBLEM_FILE} or {@link #PROBLEM_FILE}
+     * @return the file chooser for the given index. Same on two calls.
+     */
+    public static @NonNull JFileChooser makeFileChooser(int index) {
 
         assert index == PROBLEM_FILE || index == PROOF_FILE;
 
@@ -439,13 +454,21 @@ public class Main {
 
             if (index == PROOF_FILE) {
                 for (ProofExport export : ServiceLoader.load(ProofExport.class)) {
-                    fileChooser[index].addChoosableFileFilter(new ExporterFileFilter(export));
+                    ExporterFileFilter filter = new ExporterFileFilter(export);
+                    fileChooser[index].addChoosableFileFilter(filter);
                 }
             } else {
+
                 for(EnvironmentCreationService service : EnvironmentCreationService.getServices()) {
-                    fileChooser[index].addChoosableFileFilter(new FileNameExtensionFilter(
-                        service.getDescription(), service.getDefaultExtension()));
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                        service.getDescription(), service.getDefaultExtension());
+                    fileChooser[index].addChoosableFileFilter(filter);
                 }
+            }
+
+            FileFilter[] filters = fileChooser[index].getChoosableFileFilters();
+            if(filters.length > 1) {
+                fileChooser[index].setFileFilter(filters[1]);
             }
         }
         return fileChooser[index];
