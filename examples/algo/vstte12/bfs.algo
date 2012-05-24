@@ -11,7 +11,6 @@ var
    Vo, Co, No : set(vertex)
    tovisit : set(vertex)
    v,w : vertex
-   done,done0 : set(vertex)
    
 requires 
    finite(fullset as set(vertex))
@@ -20,13 +19,10 @@ ensures
    d >= -1
    
 ensures
-   d < 0 -> (\forall m; m >= 0 -> not connect(src,dest,m))
+   d < 0 -> (\forall m; m >= 0 -> not minconnect(src,dest,m))
    
 ensures
-   d >= 0 -> connect(src, dest, d) 
-
-ensures
-   d >= 0 -> (\forall m; 0 <= m & m < d -> not connect(src,dest,m))
+   d >= 0 -> minconnect(src, dest, d) 
 
 do
    size := card(fullset as set(vertex));
@@ -39,11 +35,16 @@ do
    while !(C = {})
      inv 
        d >= 0 &
-       (\forall x; x in C -> connect(src, x, d)) &
-       (\forall y; y in N -> connect(src, y, d+1)) &
+       (\forall x; x in C -> minconnect(src, x, d)) &
+       (\forall y; y in N -> minconnect(src, y, d+1)) &
        (\forall z; z in V \ N <->
-           (\exists n; 0 <= n <= d & connect(src, z, n))) &
+           (\exists n; 0 <= n <= d & minconnect(src, z, n))) &
+       (\forall a; minconnect(src, a, d+1) ->
+           (\exists b; a in succ(b) & b in C) | a in N) &
+       (C = {} -> N = {}) &
+       C <: V &
        N <: V &
+       not dest in (V \ N) \ C &
        done /\ C = emptyset
      var ^done
    do
@@ -59,10 +60,8 @@ do
      No := N;
      iterate succ(v) with w as tovisit
        inv tovisit <: succ(v) &
-           Vo <: V &
-           No <: N &
-           N <: V &
-           (\forall y; y::N -> connect(src, y, d+1))
+           V = Vo \/ (succ(v) \ tovisit) &
+           N = No \/ (succ(v) \ (V \/ tovisit))
      do 
        if not w in V
        then
@@ -78,6 +77,13 @@ do
        d := d+1
      end
    end;
+
+   note (\forall a; not minconnect(src, a, d+1));
+      
    
+   
+   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i))) 
+      with "§(rule int_induction_match)";
+
    d := -1
-end
+end 

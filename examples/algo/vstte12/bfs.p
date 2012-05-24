@@ -1,4 +1,4 @@
-# Automatically created on Thu May 24 13:45:17 CEST 2012
+# Automatically created on Thu May 24 20:29:13 CEST 2012
 include "bfs.algo.p"
 function vertex src 
 function vertex dest 
@@ -19,52 +19,52 @@ function set(vertex) done0 assignable
 program bfs source "bfs.algo"
  sourceline 17
   assume finite(((fullset) as set(vertex))) ; "by requirement"
- sourceline 32
+ sourceline 29
   size := card(((fullset) as set(vertex)))
- sourceline 34
+ sourceline 31
   V := singleton(src)
- sourceline 35
+ sourceline 32
   C := singleton(src)
- sourceline 36
+ sourceline 33
   N := emptyset
- sourceline 37
+ sourceline 34
   d := 0
- sourceline 38
+ sourceline 35
   done := emptyset
  loop0:
- sourceline 48
-  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> connect(src, x, d))) & ((\forall y; ((y :: N) -> connect(src, y, (d + 1)))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & connect(src, z, n))))) & ((N <: V) & ((done /\ C) = emptyset)))))), ^(done)
- sourceline 39
+ sourceline 50
+  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) -> minconnect(src, y, (d + 1)))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists b; ((a :: succ(b)) & (b :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & ((!(dest) :: ((V \ N) \ C)) & ((done /\ C) = emptyset)))))))))), ^(done)
+ sourceline 36
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
- sourceline 50
+ sourceline 52
   assert (\exists v; (v :: C)) ; "assert before choose"
   havoc v
   assume (v :: C)
- sourceline 51
-  C := (C \ singleton(v))
- sourceline 52
-  done := (done \/ singleton(v))
  sourceline 53
+  C := (C \ singleton(v))
+ sourceline 54
+  done := (done \/ singleton(v))
+ sourceline 55
   goto then0, else0
  then0:
   assume (v = dest); "then"
- sourceline 55
+ sourceline 57
   goto endOfProgram ; "Return Statement"
   goto after1
  else0:
   assume $not((v = dest)); "else"
- sourceline 56
- after1:
  sourceline 58
-  Vo := V
- sourceline 59
-  No := N
+ after1:
  sourceline 60
+  Vo := V
+ sourceline 61
+  No := N
+ sourceline 62
   tovisit := succ(v)
  loop1:
-  skip_loopinv ((tovisit <: succ(v)) & ((Vo <: V) & ((No <: N) & ((N <: V) & (\forall y; ((y :: N) -> connect(src, y, (d + 1)))))))), tovisit
+  skip_loopinv ((tovisit <: succ(v)) & ((V = (Vo \/ (succ(v) \ tovisit))) & (N = (No \/ (succ(v) \ (V \/ tovisit)))))), tovisit
   goto body1, after2
  body1:
   assume !tovisit= emptyset; "assume condition "
@@ -103,18 +103,22 @@ program bfs source "bfs.algo"
  sourceline 79
  after4:
   goto loop0
- sourceline 39
+ sourceline 36
  after0:
   assume $not(!((C = emptyset)))
  sourceline 82
+  assert (\forall a; !(minconnect(src, a, (d + 1))))
+  assume (\forall a; !(minconnect(src, a, (d + 1)))) ; "use lemma"
+ sourceline 86
+  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; " lemma by §(rule int_induction_match)"
+  assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; "use lemma"
+ sourceline 89
   d := -(1)
  endOfProgram: 
  sourceline 20
   assert (d >= -(1)) ; "by ensures"
  sourceline 23
-  assert ((d < 0) -> (\forall m; ((m >= 0) -> !(connect(src, dest, m))))) ; "by ensures"
+  assert ((d < 0) -> (\forall m; ((m >= 0) -> !(minconnect(src, dest, m))))) ; "by ensures"
  sourceline 26
-  assert ((d >= 0) -> connect(src, dest, d)) ; "by ensures"
- sourceline 29
-  assert ((d >= 0) -> (\forall m; (((0 <= m) & (m < d)) -> !(connect(src, dest, m))))) ; "by ensures"
+  assert ((d >= 0) -> minconnect(src, dest, d)) ; "by ensures"
 
