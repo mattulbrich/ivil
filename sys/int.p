@@ -159,6 +159,17 @@ rule lt_remove_duplicat_information
   remove
   tags rewrite "fol simp"
        verbosity "7"
+
+(*
+ * Induction schemata
+ * - int_induction_match used by hint
+ *)
+rule int_induction_match
+  find |- { U ?}(\forall %n; %n >= 0 -> %b)
+  samegoal "base step"
+    replace {U}$$subst(%n, 0, %b)
+  samegoal "induction step"
+    replace {U}(\forall %n; %n >= 0 & %b -> $$subst(%n, %n+1, %b))
   
 
 (*
