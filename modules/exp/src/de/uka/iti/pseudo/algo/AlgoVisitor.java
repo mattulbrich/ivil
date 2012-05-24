@@ -265,9 +265,10 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
 
     @Override
     public String visit(ASTAssertStatement node, Object data) {
+        String condition = visitTermChild(node, 0);
         if(!refinementMode) {
             addSourceLineStatement(node);
-            statements.add("  assert " + visitTermChild(node, 0));
+            statements.add("  assert " + condition);
         }
         return null;
     }
@@ -281,9 +282,9 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
 
     @Override
     public String visit(ASTNoteStatement node, Object data) {
+        String expression = visitTermChild(node, 0);
         if(!refinementMode) {
             addSourceLineStatement(node);
-            String expression = visitTermChild(node, 0);
             Object extra = node.jjtGetValue();
             String annotation;
             if(extra != null) {
@@ -293,6 +294,7 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
             }
             statements.add("  assert " + expression + annotation);
         }
+        statements.add("  assume " + expression + " ; \"use lemma\"");
         return null;
     }
 
