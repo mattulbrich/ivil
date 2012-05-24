@@ -2,6 +2,7 @@ package de.uka.iti.pseudo.environment.boogie;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,9 +86,11 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
 import de.uka.iti.pseudo.term.Variable;
+import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.AssumeStatement;
+import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 
@@ -159,7 +162,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
     /**
      * Needed to store result variables of code expressions.
      */
-    private Variable codeexpressionResult = null;
+    private Term codeexpressionResult = null;
 
     public ProgramMaker(EnvironmentCreationState state) throws EnvironmentCreationException {
         this.state = state;
@@ -1924,6 +1927,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         // triggers are currently ignored
     }
     
+    // reviewed by m.u. No free variable in programs 
     @Override
     public void visit(CodeExpression node) throws ASTVisitException {
         // save statements of the current function or code expression to allow
@@ -1931,7 +1935,7 @@ public final class ProgramMaker extends DefaultASTVisitor {
         StatementTripel savedTripel = statements;
         statements = new StatementTripel();
 
-        Variable oldRval = codeexpressionResult;
+        Term oldRval = codeexpressionResult;
 
         Type result_t = state.typeMap.get(node);
 
@@ -1939,15 +1943,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
         try {
             String name = state.env.createNewFunctionName("rval");
             Function rval;
-            rval = new Function(name, result_t, NO_TYPE, false, false, node);
+            rval = new Function(name, result_t, NO_TYPE, false, true, node);
 
             state.env.addFunction(rval);
-            codeexpressionResult = Variable.getInst("rval", result_t);
+            codeexpressionResult = Application.getInst(rval, result_t);
 
         } catch (EnvironmentException e) {
             e.printStackTrace();
             throw new ASTVisitException(node.getLocation(), e);
-
+        }  catch (TermException e) {
+            e.printStackTrace();
+            throw new ASTVisitException(node.getLocation(), e);
         }
 
         // declare variables
@@ -1970,9 +1976,17 @@ public final class ProgramMaker extends DefaultASTVisitor {
 
         // create term '\some rval; [codeexpression;0]'
         try {
-            state.translation.terms.put(node, Binding.getInst(state.env.getBinder("\\some"), result_t,
-                    codeexpressionResult,
-                    new Term[] { LiteralProgramTerm.getInst(0, Modality.BOX, C, Environment.getTrue()) }));
+            // TODO: This might have a name clash. ... originally too.
+            TermFactory tf = new TermFactory(state.env);
+            Variable variable = Variable.getInst("v_" + codeexpressionResult.toString(false), result_t);
+            state.translation.terms.put(node,
+                    Binding.getInst(
+                    state.env.getBinder("\\some"), result_t,
+                    variable,
+                    new Term[] { 
+                        LiteralProgramTerm.getInst(0, Modality.BOX, C,
+                                tf.eq(variable, codeexpressionResult)
+                            ) }));
 
         } catch (TermException e) {
             e.printStackTrace();
@@ -1984,20 +1998,24 @@ public final class ProgramMaker extends DefaultASTVisitor {
         statements = savedTripel;
     }
 
+    // reviewed by m.u. No free variable in programs 
     @Override
     public void visit(CodeExpressionReturn node) throws ASTVisitException {
         // 'end rval = expr'
         node.getRval().visit(this);
 
         try {
-            statements.bodyStatements.add(new AssertStatement(node.getLocationToken().beginLine, Application.getInst(
-                    state.env
-                    .getFunction("$eq"), Environment.getBoolType(), new Term[] { codeexpressionResult,
-                    state.translation.terms.get(node.getRval()) })));
+            Assignment ass = new Assignment(codeexpressionResult,
+                    state.translation.terms.get(node.getRval()));
+
+            statements.bodyStatements.add(
+                    new de.uka.iti.pseudo.term.statement.AssignmentStatement(
+                            node.getLocationToken().beginLine,
+                            Collections.singletonList(ass)));
 
             statements.bodyAnnotations.add(null);
             statements.bodyStatements
-                    .add(new AssumeStatement(node.getLocationToken().beginLine, Environment.getFalse()));
+                    .add(new EndStatement(node.getLocationToken().beginLine));
 
             statements.bodyAnnotations.add(null);
 

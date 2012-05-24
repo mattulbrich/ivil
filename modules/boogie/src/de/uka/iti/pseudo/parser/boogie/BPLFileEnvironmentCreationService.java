@@ -65,7 +65,7 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
         final boolean termination =
                 Settings.getInstance().getBoolean("pseudo.boogie.programTermination", true);
         Modality modality = termination ? Modality.BOX_TERMINATION : Modality.BOX;
-        String suffix = termination ?"_total" : "_partial";
+        String suffix = termination ? "_total" : "_partial";
 
         Term trueTerm = Environment.getTrue();
         Map<String, Sequent> problemSequents = new HashMap<String, Sequent>();
