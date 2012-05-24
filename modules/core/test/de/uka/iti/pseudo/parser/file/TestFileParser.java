@@ -42,7 +42,9 @@ public class TestFileParser extends TestCase {
             fail("should fail");
         } catch(ASTVisitException e) {
             // this should happen
-            // System.out.println(e.getMessage());
+            if(TestCaseWithEnv.VERBOSE) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -139,6 +141,14 @@ public class TestFileParser extends TestCase {
         assertNotNull(e.getProgram("P"));
         assertNotNull(e.getProgram("Q"));
         assertNull(e.getProgram("Unknown"));
+    }
+
+    public void testProgramWithSchema() throws Exception {
+        assertEnvFail("program P assert [%a : skip]true");
+        assertEnvFail("program P assert (\\var b) as bool");
+        assertEnvFail("program P assert %b");
+        assertEnvFail("program P assert arb = arb");
+        assertEnvFail("program Q end program P assert [0;Q]%b");
     }
 
     public void testProgramTextAnnotation() throws Exception {

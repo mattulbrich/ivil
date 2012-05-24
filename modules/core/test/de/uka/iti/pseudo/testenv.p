@@ -79,6 +79,7 @@ program Q
     skip
     goto label
 
+(*
 program test_meta_functions_subst
     assert \var b
 
@@ -87,3 +88,4 @@ program test_meta_functions_subst2
     
 program test_meta_functions_subst3
     assert [0; test_meta_functions_subst](true)   
+*)

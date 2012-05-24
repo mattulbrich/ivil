@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.meta;
@@ -15,13 +15,9 @@ import static de.uka.iti.pseudo.term.TypeVariable.BETA;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.MetaFunction;
-import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.environment.creation.ProgramChanger;
-import de.uka.iti.pseudo.environment.creation.ReplacingCloneableTermVisitor;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Binding;
-import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Variable;
@@ -55,7 +51,7 @@ public class SubstMetaFunction extends MetaFunction {
         return tr.replace(toReplace, replaceWith, replaceIn);
     }
 
-    static class TermReplacer extends RebuildingTermVisitor implements ReplacingCloneableTermVisitor {
+    static class TermReplacer extends RebuildingTermVisitor  {
 
         private Term termToReplace;
         private Term replaceWith;
@@ -78,42 +74,22 @@ public class SubstMetaFunction extends MetaFunction {
          * In case that the variable to be replaced is quantified again, the
          * second binding is to be ignored. For instance: (\forall x; x > 0 &
          * (\forall x; x < 0))
-         * 
+         *
          * Here, instantiation is to not touch the second quantification.
          */
-        public void visit(Binding binding) throws TermException {
-            if (binding.getVariable().equals(termToReplace))
-                resultingTerm = null;
-            else
-                super.visit(binding);
-        }
-
         @Override
-        public void visit(LiteralProgramTerm node) throws TermException {
-            ProgramChanger changer = new ProgramChanger(node.getProgram(), env);
-            
-            // possibly replace occurrences in node.
-            // since only variables can be substituted, the result must be a
-            // program term again.
-            super.visit(node);
-            if(resultingTerm != null) {
-                node = (LiteralProgramTerm) resultingTerm;
-            }
-
-            try {
-                if (changer.replaceAll(this, termToReplace, replaceWith)) {
-                    Program p;
-                    env.addProgram(p = changer.makeProgram(env.createNewProgramName(node.getProgram().getName())));
-
-                    resultingTerm =
-                            LiteralProgramTerm.getInst(node.getProgramIndex(), node.getModality(), p,
-                            node.getSuffixTerm());
-                }
-            } catch (EnvironmentException e) {
-                e.printStackTrace();
-                throw new TermException(e);
+        public void visit(Binding binding) throws TermException {
+            if (binding.getVariable().equals(termToReplace)) {
+                resultingTerm = null;
+            } else {
+                super.visit(binding);
             }
         }
+
+        // a program can no longer contain free variables:
+        // no special treatment needed!
+        // @Override
+        // public void visit(LiteralProgramTerm node) throws TermException {
 
         public Term replace(Term termToReplace, Term replaceWith, Term replaceIn) throws TermException {
             this.termToReplace = termToReplace;
@@ -122,15 +98,15 @@ public class SubstMetaFunction extends MetaFunction {
             return resultingTerm == null ? replaceIn : resultingTerm;
         }
 
-        @Override
-        public ReplacingCloneableTermVisitor copy() {
-            try {
-                return (ReplacingCloneableTermVisitor) clone();
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
+//        @Override
+//        public ReplacingCloneableTermVisitor copy() {
+//            try {
+//                return (ReplacingCloneableTermVisitor) clone();
+//            } catch (CloneNotSupportedException e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+//        }
 
     }
 
