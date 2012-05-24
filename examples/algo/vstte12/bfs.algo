@@ -13,70 +13,71 @@ var
    v,w : vertex
    done,done0 : set(vertex)
    
+requires 
+   finite(fullset as set(vertex))
+
 ensures
    d >= -1
    
 ensures
-   d < 0 -> (\forall m; !connect(src,dest,m))
+   d < 0 -> (\forall m; m >= 0 -> not connect(src,dest,m))
    
 ensures
-   d >= 0 -> connect(src, dest, d) /* & 
-     (\forall m; 0<=m<d; !connect(src,dest,m))*/
+   d >= 0 -> connect(src, dest, d) 
+
+ensures
+   d >= 0 -> (\forall m; 0 <= m & m < d -> not connect(src,dest,m))
 
 do
-   assume finite(fullset as set(vertex)) ;;
-   size := card(fullset as set(vertex)) ;;
+   size := card(fullset as set(vertex));
    
-   V := {src} ;;
-   C := {src} ;;
-   N := {} ;;
-   d := 0 ;;
-   done := {} ;;
+   V := {src};
+   C := {src};
+   N := {};
+   d := 0;
+   done := {};
    while !(C = {})
      inv 
        d >= 0 &
-       (\forall x; x::C -> connect(src, x,d)) &
-       (\forall y; y::N -> connect(src, y, d+1)) &
+       (\forall x; x in C -> connect(src, x, d)) &
+       (\forall y; y in N -> connect(src, y, d+1)) &
+       (\forall z; z in V \ N <->
+           (\exists n; 0 <= n <= d & connect(src, z, n))) &
        N <: V &
        done /\ C = emptyset
-     var card(^done)
+     var ^done
    do
-     choose v such that v :: C ;;
-     C := C \ {v} ;;
-     done := done \/ {v} ;;
+     choose v such that v in C;
+     C := C \ {v};
+     done := done \/ {v};
      if v = dest 
      then 
        return
-     end ;;
+     end;
      
-     tovisit := succ(v) ;;
-     Vo := V ;;
-     No := N ;;
-     while !tovisit=emptyset
+     Vo := V;
+     No := N;
+     iterate succ(v) with w as tovisit
        inv tovisit <: succ(v) &
            Vo <: V &
            No <: N &
            N <: V &
            (\forall y; y::N -> connect(src, y, d+1))
-       var card(tovisit)
      do 
-       choose w such that w :: tovisit ;;
-       tovisit := tovisit \ {w} ;;
-       
-       if ! w :: V
+       if not w in V
        then
-         V := V \/ {w} ;;
+         V := V \/ {w};
          N := N \/ {w}
        end
-     end ;;
+     end;
      
      if C = {}
      then
-       C := N ;;
-       N := {} ;;
+       C := N;
+       N := {};
        d := d+1
      end
-   end ;;
+   end;
    
    d := -1
 end

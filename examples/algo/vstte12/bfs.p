@@ -1,7 +1,7 @@
-# Automatically created on Tue Dec 06 20:48:56 CET 2011
+# Automatically created on Thu May 24 13:45:17 CEST 2012
 include "bfs.algo.p"
-function vertex src assignable
-function vertex dest assignable
+function vertex src 
+function vertex dest 
 function int d assignable
 function int size assignable
 function set(vertex) V assignable
@@ -17,104 +17,104 @@ function set(vertex) done assignable
 function set(vertex) done0 assignable
 
 program bfs source "bfs.algo"
- sourceline 27
-  assume finite ( fullset as set ( vertex ) ) 
- sourceline 28
-  size := card ( fullset as set ( vertex ) ) 
- sourceline 30
-  V := singleton(src ) 
- sourceline 31
-  C := singleton(src ) 
+ sourceline 17
+  assume finite(((fullset) as set(vertex))) ; "by requirement"
  sourceline 32
-  N := emptyset 
- sourceline 33
-  d := 0 
+  size := card(((fullset) as set(vertex)))
  sourceline 34
-  done := emptyset 
- loop0:
- sourceline 37
-  skip_loopinv d >= 0 & ( \forall x ; x :: C -> connect ( src , x , d ) ) & ( \forall y ; y :: N -> connect ( src , y , d + 1 ) ) & N <: V & done /\ C = emptyset , card ( ^ done ) 
+  V := singleton(src)
  sourceline 35
+  C := singleton(src)
+ sourceline 36
+  N := emptyset
+ sourceline 37
+  d := 0
+ sourceline 38
+  done := emptyset
+ loop0:
+ sourceline 48
+  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> connect(src, x, d))) & ((\forall y; ((y :: N) -> connect(src, y, (d + 1)))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & connect(src, z, n))))) & ((N <: V) & ((done /\ C) = emptyset)))))), ^(done)
+ sourceline 39
   goto body0, after0
  body0:
-  assume ! ( C = emptyset ) ; "assume condition "
- sourceline 44
-  assert (\exists v; v :: C ) ; "assert before choose"
+  assume !((C = emptyset)); "assume condition "
+ sourceline 50
+  assert (\exists v; (v :: C)) ; "assert before choose"
   havoc v
-  assume v :: C 
- sourceline 45
-  C := C \ singleton(v ) 
- sourceline 46
-  done := done \/ singleton(v ) 
- sourceline 47
+  assume (v :: C)
+ sourceline 51
+  C := (C \ singleton(v))
+ sourceline 52
+  done := (done \/ singleton(v))
+ sourceline 53
   goto then0, else0
  then0:
-  assume v = dest ; "then"
- sourceline 49
-  end ; "Return Statement"
+  assume (v = dest); "then"
+ sourceline 55
+  goto endOfProgram ; "Return Statement"
   goto after1
  else0:
-  assume $not(v = dest ); "else"
- sourceline 50
- after1:
- sourceline 52
-  tovisit := succ ( v ) 
- sourceline 53
-  Vo := V 
- sourceline 54
-  No := N 
- loop1:
+  assume $not((v = dest)); "else"
  sourceline 56
-  skip_loopinv tovisit <: succ ( v ) & Vo <: V & No <: N & N <: V & ( \forall y ; y :: N -> connect ( src , y , d + 1 ) ) , card ( tovisit ) 
- sourceline 55
+ after1:
+ sourceline 58
+  Vo := V
+ sourceline 59
+  No := N
+ sourceline 60
+  tovisit := succ(v)
+ loop1:
+  skip_loopinv ((tovisit <: succ(v)) & ((Vo <: V) & ((No <: N) & ((N <: V) & (\forall y; ((y :: N) -> connect(src, y, (d + 1)))))))), tovisit
   goto body1, after2
  body1:
-  assume ! tovisit = emptyset ; "assume condition "
- sourceline 63
-  assert (\exists w; w :: tovisit ) ; "assert before choose"
+  assume !tovisit= emptyset; "assume condition "
   havoc w
-  assume w :: tovisit 
- sourceline 64
-  tovisit := tovisit \ singleton(w ) 
- sourceline 66
+  assume w :: tovisit ; "choose element in tovisit"
+  tovisit := tovisit \ singleton(w)
+ sourceline 67
   goto then1, else1
  then1:
-  assume ! w :: V ; "then"
- sourceline 68
-  V := V \/ singleton(w ) 
+  assume (!(w) :: V); "then"
  sourceline 69
-  N := N \/ singleton(w ) 
+  V := (V \/ singleton(w))
+ sourceline 70
+  N := (N \/ singleton(w))
   goto after3
  else1:
-  assume $not(! w :: V ); "else"
- sourceline 70
+  assume $not((!(w) :: V)); "else"
+ sourceline 71
  after3:
   goto loop1
- sourceline 55
  after2:
-  assume $not(! tovisit = emptyset )
- sourceline 73
+  assume tovisit= emptyset
+ sourceline 74
   goto then2, else2
  then2:
-  assume C = emptyset ; "then"
- sourceline 75
-  C := N 
+  assume (C = emptyset); "then"
  sourceline 76
-  N := emptyset 
+  C := N
  sourceline 77
-  d := d + 1 
+  N := emptyset
+ sourceline 78
+  d := (d + 1)
   goto after4
  else2:
-  assume $not(C = emptyset ); "else"
- sourceline 78
+  assume $not((C = emptyset)); "else"
+ sourceline 79
  after4:
   goto loop0
- sourceline 35
+ sourceline 39
  after0:
-  assume $not(! ( C = emptyset ) )
- sourceline 81
-  d := - 1 
+  assume $not(!((C = emptyset)))
+ sourceline 82
+  d := -(1)
+ endOfProgram: 
+ sourceline 20
+  assert (d >= -(1)) ; "by ensures"
+ sourceline 23
+  assert ((d < 0) -> (\forall m; ((m >= 0) -> !(connect(src, dest, m))))) ; "by ensures"
+ sourceline 26
+  assert ((d >= 0) -> connect(src, dest, d)) ; "by ensures"
+ sourceline 29
+  assert ((d >= 0) -> (\forall m; (((0 <= m) & (m < d)) -> !(connect(src, dest, m))))) ; "by ensures"
 
-
-problem 
- |- [[0;bfs]]((d >= - 1 ) & (d < 0 -> ( \forall m ; ! connect ( src , dest , m ) ) ) & (d >= 0 -> connect ( src , dest , d ) ))

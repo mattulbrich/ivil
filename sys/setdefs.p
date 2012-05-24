@@ -63,7 +63,7 @@ axiom intersect_definition
 
 axiom union_definition
   (\T_all 'a; (\forall x as 'a; (\forall a as set('a); (\forall b as set('a);
-    x :: a \/ b ~~> x :: a \/ b -> x::a | x::b))))
+    x :: a \/ b ~~> x :: a \/ b <-> x::a | x::b))))
 
 axiom subset_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);

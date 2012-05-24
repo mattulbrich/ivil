@@ -184,6 +184,11 @@ public abstract class DefaultAlgoVisitor implements AlgoParserVisitor {
     }
 
     @Override
+    public String visit(ASTSetComprehensionExpression node, Object data) {
+        return visitDefault(node, data);
+    }
+
+    @Override
     public String visit(ASTRefinement node, Object data) {
         return visitDefault(node, data);
     }

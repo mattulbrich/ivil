@@ -119,19 +119,7 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
 
     @Override
     public String visit(ASTType node, Object data) {
-        StringBuilder ret = new StringBuilder();
-        ret.append(visitChild(node, 0));
-        if(node.jjtGetNumChildren() > 1) {
-            ret.append("(");
-            for(int i=1; i < node.jjtGetNumChildren(); i++) {
-                if(i > 1) {
-                    ret.append(",");
-                }
-                ret.append(visitChild(node, i));
-            }
-            ret.append(")");
-        }
-        return ret.toString();
+       return node.jjtAccept(termVisitor, data);
     }
 
     @Override
@@ -206,37 +194,32 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
 
     @Override
     public String visit(ASTIterateStatement node, Object data) {
-        String type = visitChild(node, 0);
-        String expression = visitTermChild(node, 1);
-        String identifier = visitTermChild(node, 2);
+        String expression = visitTermChild(node, 0);
+        String with = visitTermChild(node, 1);
+        String as = visitTermChild(node, 2);
+        String inv = visitTermChild(node, 3);
 
         String loopLabel = idProducer.makeIdentifier("loop");
         String bodyLabel = idProducer.makeIdentifier("body");
         String afterLabel = idProducer.makeIdentifier("after");
-        String iter = idProducer.makeIdentifier("$it");
-        String iterBefore = idProducer.makeIdentifier("$itBefore");
-
-        translation.addFunctionSymbol(iter, type, "assignable");
-        translation.addFunctionSymbol(iterBefore, type, "assignable");
 
         addSourceLineStatement(node);
-        statements.add("  " + iterBefore + " := " + expression);
-        statements.add("  " + iter + " := " + iterBefore);
+        statements.add("  " + as + " := " + expression);
         statements.add(" " + loopLabel + ":");
         if(!refinementMode) {
-            statements.add("  skip_loopinv " + iter  + " <: " + iterBefore + "");
+            statements.add("  skip_loopinv " + inv + ", " + as);
         }
         statements.add("  goto " + bodyLabel + ", " + afterLabel);
         statements.add(" " + bodyLabel + ":");
-        statements.add("  assume !" + iter + "= emptyset; \"assume condition \"");
-        statements.add("  havoc " + identifier);
-        statements.add("  assume " + identifier + " :: " + iter);
-        statements.add("  " + iter + " := " + iter + " \\ singleton(" + identifier + ")");
-        visitChild(node, 3);
+        statements.add("  assume !" + as + "= emptyset; \"assume condition \"");
+        statements.add("  havoc " + with);
+        statements.add("  assume " + with + " :: " + as + " ; \"choose element in " + as + "\"");
+        statements.add("  " + as + " := " + as + " \\ singleton(" + with + ")");
+        visitChild(node, 4);
         statements.add("  goto " + loopLabel);
 
         statements.add(" " + afterLabel + ":");
-        statements.add("  assume " + iter + "= emptyset");
+        statements.add("  assume " + as + "= emptyset");
         return null;
     }
 
@@ -269,7 +252,7 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
     @Override
     public String visit(ASTReturnStatement node, Object data) {
         addSourceLineStatement(node);
-        statements.add("  goto endOfProg ; \"Return Statement\"");
+        statements.add("  goto endOfProgram ; \"Return Statement\"");
         return null;
     }
 

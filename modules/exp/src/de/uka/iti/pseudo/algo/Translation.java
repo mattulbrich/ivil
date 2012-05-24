@@ -74,6 +74,11 @@ public class Translation {
     public void exportTo(PrintWriter pw) throws ParseException {
 
         ASTStart result = parser.Start();
+
+        // preprocess by some visitors:
+        ChainedRelationVisitor crv = new ChainedRelationVisitor();
+        result.jjtAccept(crv, null);
+
         TranslationVisitor visitor = new TranslationVisitor(this, refinementMode);
         result.jjtAccept(visitor, null);
 

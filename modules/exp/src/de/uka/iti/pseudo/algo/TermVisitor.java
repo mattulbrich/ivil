@@ -17,6 +17,13 @@ public class TermVisitor extends DefaultAlgoVisitor {
     }
 
     @Override
+    public String visit(ASTSetComprehensionExpression node, Object data) {
+        String var = visitChild(node, 0);
+        String cond = visitChild(node, 1);
+        return "(\\set " + var + " ; " + cond + ")";
+    }
+
+    @Override
     public String visit(ASTMapAccessExpression node, Object data) {
         return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
     }
@@ -95,6 +102,23 @@ public class TermVisitor extends DefaultAlgoVisitor {
     public String visit(ASTAsExpression node, Object data) {
         return "((" + visitChild(node, 0) + ") as " +
                 visitChild(node, 1) + ")";
+    }
+
+    @Override
+    public String visit(ASTType node, Object data) {
+        StringBuilder ret = new StringBuilder();
+        ret.append(visitChild(node, 0));
+        if(node.jjtGetNumChildren() > 1) {
+            ret.append("(");
+            for(int i=1; i < node.jjtGetNumChildren(); i++) {
+                if(i > 1) {
+                    ret.append(",");
+                }
+                ret.append(visitChild(node, i));
+            }
+            ret.append(")");
+        }
+        return ret.toString();
     }
 
     @Override

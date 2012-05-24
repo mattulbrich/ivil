@@ -100,6 +100,7 @@ TOKEN : /* KEYWORDS */
 | < IN : "in" >
 | < DO : "do" >
 | < END : "end" >
+| < NOT : "not" >
 | < VAR : "var" >
 | < INV : "inv" >
 | < ALGO : "algo" >
@@ -274,8 +275,10 @@ void WhileStatement() #WhileStatement : {}
 
 void IterateStatement() #IterateStatement : {}
 {
-  "iterate" Type() ":" Expression()
+  "iterate" Expression() 
   "with" Identifier()
+  "as" Identifier()
+  "inv" Expression()
   "do"
     StatementBlock()
   "end"
@@ -395,8 +398,9 @@ void RelationExpression() :
   Token t=null;
 }
 { 
+   // "in" must be relayed as "::"
    AddExpression() 
-   ( (t="=" | t="<:" | t="::" | t="in" | t="<" | t="<=" | t=">" | t=">=") 
+   ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; }| t="<" | t="<=" | t=">" | t=">=") 
    RelationExpression() 
       { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
 }
@@ -424,7 +428,8 @@ void UnaryExpression() :
    Token t = null;
 }
 {
-     ( ( t="-" | t="!" ) UnaryExpression() { jjtThis.jjtSetValue(t); } ) #UnaryExpression(1)
+     // "not" is a synonym for "!"
+     ( ( t="-" | t="!" | t="not" { t.image="!"; } | t="^" ) UnaryExpression() { jjtThis.jjtSetValue(t); } ) #UnaryExpression(1)
    |
      PostFixExpression()
 }
@@ -463,12 +468,19 @@ void ExpressionCommaList() #ExpressionCommaList :
   EquivalenceExpression() ( "," EquivalenceExpression() )*
 }
 
-void SetExtensionExpression() #SetExtensionExpression : {}
+void SetExtensionExpression() : {}
 {
 // TODO do more than only singletons and empty set
     "{"
-       ( EquivalenceExpression() )?
-    "}"
+    ( LOOKAHEAD(2)
+      ( Identifier()
+        ":"
+        EquivalenceExpression() ) #SetComprehensionExpression
+    |
+      (
+       ( EquivalenceExpression() )? 
+       "}" ) #SetExtensionExpression
+    )
 }
 
 /*
