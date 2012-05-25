@@ -101,7 +101,7 @@
 	  description="run junit tests"
 	  if="ivil.testclass">
     <echo message="Testing in ${ant.file}"/>
-    <junit printsummary="yes" fork="yes" haltonfailure="yes">
+    <junit printsummary="yes" fork="yes" haltonfailure="no">
       <sysproperty key="pseudo.baseDir" value="${basedir}/../.." />
       <classpath>
         <pathelement path="classes"/>
