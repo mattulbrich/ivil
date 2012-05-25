@@ -1,7 +1,9 @@
 package de.uka.iti.pseudo.gui.actions;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,10 +19,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.VerticalLayout;
 import de.uka.iti.pseudo.gui.util.SwingWorker2;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -29,7 +33,6 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
-import de.uka.iti.pseudo.util.Pair;
 
 /**
  * A two-thread worker which acts when the action is performed.
@@ -192,22 +195,32 @@ import de.uka.iti.pseudo.util.Pair;
             dialog.getContentPane().add(panel);
             panel.setBorder(BorderFactory.createTitledBorder("Open goals"));
         }
-
-        int count = openGoals.size();
-        for (int i = 0; i < count; i++) {
-            ProofNode goal = openGoals.get(i);
-            String text = "Node " + goal.getNumber();
-            Boolean status = action.getStatus(goal.getSequent());
-            if(status != null) {
-                text += status ? " (cached VALID)" : " (cached open)";
+        {
+            JPanel goalLabels = new JPanel();
+            {
+                GridLayout gridLayout = new GridLayout(0,1);
+                goalLabels.setLayout(gridLayout);
+                JScrollPane scroll = new JScrollPane(goalLabels);
+                panel.add(scroll,
+                        new GridBagConstraints(0, 0, 1, 1, 0, 1,
+                                GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(
+                                        2, 2, 2, 2), 0, 0));
             }
-            JLabel label = new JLabel(text + ":");
-            label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
-            resultLabels.add(label);
-            panel.add(label,
-                    new GridBagConstraints(0, i, 1, 1, 0, 1,
-                            GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(
-                                    2, 2, 2, 2), 0, 0));
+            int count = openGoals.size();
+            for (int i = 0; i < count; i++) {
+                ProofNode goal = openGoals.get(i);
+                String text = "Node " + goal.getNumber();
+                Boolean status = action.getStatus(goal.getSequent());
+                if(status != null) {
+                    text += status ? " (cached VALID)" : " (cached open)";
+                }
+                JLabel label = new JLabel(text + ":");
+                label.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+                        BorderFactory.createEmptyBorder(5, 2, 5, 2)));
+                resultLabels.add(label);
+                goalLabels.add(label);
+            }
         }
         {
             JCheckBox keepOpen = new JCheckBox("Keep open after completion");
@@ -219,13 +232,13 @@ import de.uka.iti.pseudo.util.Pair;
                     proofCenter.firePropertyChange(SMTBackgroundAction.SMT_KEEPWINDOWOPEN_PROPERTY, selectionState);
                 }
             });
-            panel.add(keepOpen, new GridBagConstraints(0, count, 1, 1, 0, 0,
+            panel.add(keepOpen, new GridBagConstraints(0, 1, 1, 1, 0, 0,
                     GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
                             10, 2, 2, 2), 0, 0));
         }
 
         JPanel buttons = new JPanel();
-        panel.add(buttons, new GridBagConstraints(0, count+1, 1, 1, 0, 0,
+        panel.add(buttons, new GridBagConstraints(0, 2, 1, 1, 0, 0,
                 GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
                         5, 2, 2, 2), 0, 0));
         {
@@ -259,7 +272,9 @@ import de.uka.iti.pseudo.util.Pair;
             buttons.add(bg);
         }
 
-        dialog.pack();
+        Dimension d = dialog.getPreferredSize();
+        d.height = Math.min(400, d.height);
+        dialog.setSize(d);
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(action.getParentFrame());
         dialog.setVisible(true);
