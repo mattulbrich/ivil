@@ -25,7 +25,6 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
-import de.uka.iti.pseudo.util.TimingOutTask;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -67,9 +66,6 @@ public class Z3SMT implements DecisionProcedure {
     public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout)
             throws ProofException, IOException, InterruptedException {
 
-        Log.log(Log.VERBOSE, sequent);
-        Log.log(Log.VERBOSE, cache);
-
         boolean cached = cache.contains(sequent);
         if(cached) {
             Log.log(Log.DEBUG, "Cache hit for %s", sequent);
@@ -96,13 +92,12 @@ public class Z3SMT implements DecisionProcedure {
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
-        TimingOutTask timeoutTask = null;
         Process process = null;
 
         try {
             Runtime rt = Runtime.getRuntime();
 
-            process = rt.exec("z4 -in -smt2");
+            process = rt.exec("z3 SOFT_TIMEOUT=" + timeout + " -in -smt2");
 
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);
@@ -110,10 +105,6 @@ public class Z3SMT implements DecisionProcedure {
             w.close();
 
             // System.err.println("Wait for " + process);
-
-            // this task is automatically scheduled on some timer thread.
-            timeoutTask = new TimingOutTask(timeout);
-            timeoutTask.schedule();
 
             if(Thread.interrupted()) {
                 throw new InterruptedException();
@@ -154,10 +145,7 @@ public class Z3SMT implements DecisionProcedure {
             Log.log(Log.DEBUG, "Result for %s: %s", sequent, result);
             return result;
         } catch(InterruptedException ex) {
-            Log.log(Log.DEBUG, "Result for %s: UNKNOWN", sequent);
-            if(timeoutTask != null && timeoutTask.hasFinished()) {
-                return Pair.make(Result.UNKNOWN, "Z3 timed out");
-            }
+            Log.log(Log.DEBUG, "Result for %s: interrupted", sequent);
             throw ex;
 
         } catch(Exception ex) {
@@ -167,9 +155,6 @@ public class Z3SMT implements DecisionProcedure {
             throw new ProofException("Error while calling decision procedure Z3", ex);
 
         } finally {
-            if(timeoutTask != null) {
-                timeoutTask.cancel();
-            }
             if(process != null) {
                 // ensure the process is killed
                 process.destroy();
