@@ -170,8 +170,9 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
         closeRule = env.getRule(CLOSE_RULE_NAME);
         if (closeRule != null) {
             try {
-                String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
-                solver = (DecisionProcedure) Class.forName(className).newInstance();
+                String proc = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
+                solver = env.getPluginManager().getPlugin(DecisionProcedure.SERVICE_NAME,
+                        DecisionProcedure.class, proc);
                 timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
             } catch (Exception ex) {
                 Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
@@ -226,7 +227,8 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
         putValue(SHORT_DESCRIPTION, flashing ? TOOLTIP_FLASHING : TOOLTIP_NOT_FLASHING);
     }
 
-    public boolean isProvable(ProofNode pn) throws ProofException, IOException {
+    public boolean isProvable(ProofNode pn)
+            throws ProofException, IOException, InterruptedException {
         Sequent sequent = pn.getSequent();
         Boolean cached = sequentStatus.get(sequent);
         if (cached != null) {

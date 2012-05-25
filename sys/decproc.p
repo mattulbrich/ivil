@@ -17,16 +17,19 @@ plugin
   # ask a decision procedure.
   whereCondition : "de.uka.iti.pseudo.rule.where.AskDecisionProcedure"
 
+  # register "Z3"
+  decisionProcedure : "de.uka.iti.pseudo.auto.Z3SMT"
+
 (*
  * The rule auto_smt_close is special since it is the one used
  * for the background smt solver
  * The solver and the timeout are read from this rule
  *)
 rule auto_smt_close
-    where askDecisionProcedure
+  where askDecisionProcedure
   closegoal
   tags 
-    decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
+    decisionProcedure "Z3"
     timeout "2000"
     autoonly
   
@@ -39,6 +42,6 @@ rule patient_smt
   where askDecisionProcedure
   closegoal
   tags
-    decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
+    decisionProcedure "Z3"
     timeout "20000"
     autoonly

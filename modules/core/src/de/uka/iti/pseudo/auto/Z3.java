@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.auto;
@@ -32,31 +32,33 @@ import de.uka.iti.pseudo.util.Pair;
  */
 @Deprecated
 public class Z3 implements DecisionProcedure {
-    
+
     public Z3() {
     }
 
+    @Override
     public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException {
-        
+
         Callable<Pair<Result, String>> callable = new Callable<Pair<Result, String>>() {
+        @Override
         public Pair<Result, String> call() throws Exception {
             Runtime rt = Runtime.getRuntime();
             Process process = rt.exec("z3 -in -z3");
             BufferedReader r;
-            
+
             Writer w = new OutputStreamWriter(process.getOutputStream());
-            
+
             Z3Translator trans = new Z3Translator(env);
             trans.export(sequent, w);
 //            trans.export(sequent, new OutputStreamWriter(System.out));
             w.close();
-            
+
             process.waitFor();
-            
+
             r = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String answerLine = r.readLine();
             r.close();
-            
+
             r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             StringBuilder msg = new StringBuilder();
             String line = r.readLine();
@@ -65,7 +67,7 @@ public class Z3 implements DecisionProcedure {
                 line = r.readLine();
             }
             r.close();
-            
+
             Log.log(Log.VERBOSE, "Z3 answers: " + msg);
             if("unsat".equals(answerLine)) {
                 return Pair.make(Result.VALID, msg.toString());
@@ -76,14 +78,14 @@ public class Z3 implements DecisionProcedure {
             } else {
                 throw new ProofException("Z3 returned an error message: " + msg);
             }
-            
+
         }};
-        
-        
+
+
         FutureTask<Pair<Result, String>> ft = new FutureTask<Pair<Result, String>>(callable);
         Thread t = new Thread(ft, "Z3");
         t.start();
-        
+
         try {
             return ft.get(timeout, TimeUnit.MILLISECONDS);
         } catch (TimeoutException ex) {
@@ -96,6 +98,11 @@ public class Z3 implements DecisionProcedure {
                 t.interrupt();
             }
         }
+    }
+
+    @Override
+    public String getKey() {
+        return "Z3-outdated";
     }
 
 }

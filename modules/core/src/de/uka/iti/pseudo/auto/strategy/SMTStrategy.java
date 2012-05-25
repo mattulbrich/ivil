@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.auto.strategy;
@@ -24,7 +24,7 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
 
 public class SMTStrategy extends AbstractStrategy {
-    
+
     private static final String CLOSE_RULE_NAME = "auto_smt_close";
     private Rule closeRule;
     private DecisionProcedure solver;
@@ -37,15 +37,17 @@ public class SMTStrategy extends AbstractStrategy {
         super.init(proof, env, strategyManager);
         this.env = env;
         this.closeRule = env.getRule(CLOSE_RULE_NAME);
-        
+
         // bug BOOKEY-25
-        // decision procedure rule was not defined 
-        if(closeRule == null)
+        // decision procedure rule was not defined
+        if(closeRule == null) {
             return;
-        
+        }
+
         try {
-            String className = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
-            solver = (DecisionProcedure) Class.forName(className).newInstance();
+            String decprocName = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
+            solver = env.getPluginManager().getPlugin(DecisionProcedure.SERVICE_NAME,
+                    DecisionProcedure.class, decprocName);
             timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
         } catch(Exception ex) {
             Log.log(Log.ERROR, "Cannot instantiate background decision procedure");
@@ -54,23 +56,24 @@ public class SMTStrategy extends AbstractStrategy {
         }
     }
 
-    @Override 
+    @Override
     public RuleApplication findRuleApplication(ProofNode target)
             throws StrategyException {
-        
+
         // retire if no solver found
-        if(solver == null)
+        if(solver == null) {
             return null;
-        
+        }
+
         Sequent sequent = target.getSequent();
         Pair<Result, String> result;
-        
+
         try {
             result = solver.solve(sequent, env, timeout);
         } catch (Exception e) {
             throw new StrategyException("The SMT solver raised an exception. You may consider changing the strategy.");
         }
-        
+
         boolean proveable = result.fst() == Result.VALID;
         if(proveable) {
             MutableRuleApplication ra = new MutableRuleApplication();
@@ -78,10 +81,10 @@ public class SMTStrategy extends AbstractStrategy {
             ra.setRule(closeRule);
             return ra;
         }
-        
+
         return null;
     }
-    
+
     @Override public String toString() {
         return "SMT Strategy";
     }
