@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.Frame;
@@ -12,7 +21,6 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
-import de.uka.iti.pseudo.util.NotificationListener;
 
 public class SMTBackgroundThread extends Thread {
 
@@ -47,6 +55,7 @@ public class SMTBackgroundThread extends Thread {
      * perform a endless looping. Take one from the jobs and test for
      * closability. Add to provableNodes if so, cache the result.
      */
+    @Override
     public void run() {
         try {
             while (!Thread.interrupted()) {

@@ -22,6 +22,7 @@ import java.util.WeakHashMap;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
+import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
@@ -149,6 +150,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
      * retrieve the environment and read from it the necessary information, such
      * as the rule to apply, and the solver to use.
      */
+    @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
 
@@ -190,6 +192,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
      * switch the button off when in proof elsewhere according to the settings,
      * activate or deactivate the background thread
      */
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (ProofCenter.ONGOING_PROOF.equals(evt.getPropertyName())) {
             setEnabled(!(Boolean) evt.getNewValue() && solver != null);
@@ -242,9 +245,11 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
      * Delegate the actual proving to a SwingWorker.
      * Set into ongoing proof mode beforehand.
      */
+    @Override
     public void actionPerformed(ActionEvent actionEvt) {
         getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
-        new SMTBackgroundWorker(this, getProofCenter()).execute();
+        SMTBackgroundWorker worker = new SMTBackgroundWorker(this, getProofCenter());
+        worker.execute();
     }
 
     public boolean isBackgroundActive() {
@@ -287,7 +292,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
         return provableNodes;
     }
 
-    public Boolean getStatus(Sequent sequent) {
+    public @Nullable Boolean getStatus(Sequent sequent) {
         return sequentStatus.get(sequent);
     }
 

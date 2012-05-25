@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.Dimension;
@@ -5,6 +14,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -24,7 +34,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EtchedBorder;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
-import de.uka.iti.pseudo.gui.VerticalLayout;
 import de.uka.iti.pseudo.gui.util.SwingWorker2;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -33,6 +42,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
+import de.uka.iti.pseudo.util.Pair;
 
 /**
  * A two-thread worker which acts when the action is performed.
@@ -48,7 +58,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
  * </ol>
  *
  */
- class SMTBackgroundWorker extends SwingWorker2<Void, String>
+ class SMTBackgroundWorker extends SwingWorker2<Void, Pair<Integer, String>>
         implements NotificationListener {
 
     /**
@@ -76,9 +86,10 @@ import de.uka.iti.pseudo.util.NotificationListener;
         proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Void doInBackground() throws Exception {
-
+        Log.enter();
         assert (Boolean)proofCenter.getProperty(ProofCenter.ONGOING_PROOF);
 
         List<ProofNode> provableNodes = new ArrayList<ProofNode>(action.getProvableNodes());
@@ -111,11 +122,26 @@ import de.uka.iti.pseudo.util.NotificationListener;
             openGoals = new ArrayList<ProofNode>(proofCenter.getProof().getOpenGoals());
 
             // trigger the window;
-            publish((String)null);
+            int i = 0;
+            for (ProofNode proofNode : openGoals) {
+                Boolean status = action.getStatus(proofNode.getSequent());
+                if(status != null) {
+                    String text = status ? "(cached VALID)" : "(cached open)";
+                    publish(Pair.<Integer, String>make(i, text));
+                }
+                i++;
+            }
 
+            i = 0;
             for (ProofNode proofNode : openGoals) {
 
-                // check for cache hit
+                if(isCancelled()) {
+                    Log.log(Log.VERBOSE, "SMT background worker interrupted");
+                    return null;
+                }
+
+                publish(Pair.<Integer, String>make(i, "--- checking ---"));
+                // check for cache hit or solve it
                 boolean proveable = action.isProvable(proofNode);
 
                 if(proveable) {
@@ -125,18 +151,19 @@ import de.uka.iti.pseudo.util.NotificationListener;
 
                     try {
                         proofCenter.apply(ra);
-                        publish("CLOSED");
+                        publish(Pair.<Integer, String>make(i, "CLOSED"));
                     } catch (ProofException e) {
-                        publish("exception");
+                        publish(Pair.<Integer, String>make(i, "exception"));
                         throw e;
-                        }
-                    } else {
-                        publish("open");
                     }
-
+                } else {
+                    publish(Pair.<Integer, String>make(i, "open"));
                 }
+                i++;
             }
+        }
 
+        Log.leave();
         return null;
     }
 
@@ -167,25 +194,29 @@ import de.uka.iti.pseudo.util.NotificationListener;
      * boolean values: True if a goal is closable, false if not.
      */
     @Override
-    protected void process(List<String> chunks) {
-
-        if(dialog == null) {
-            makeProgressWindow();
-        }
-
-        for (String result : chunks) {
-            if(result == null) {
-                // a null is sent to trigger the window
-                continue;
+    protected void process(List<Pair<Integer, String>> chunks) {
+        try {
+            if(dialog == null) {
+                showProgressWindow();
             }
-            JLabel label = resultLabels.remove(0);
-            label.setText(label.getText() + " " + result);
+
+            for (Pair<Integer, String> result : chunks) {
+                Integer index = result.fst();
+                int nodeNo = openGoals.get(index).getNumber();
+                JLabel label = resultLabels.get(index);
+                String text = "Node " + nodeNo + ": " + result.snd();
+                label.setText(text);
+
+                // scroll the label visible
+                label.scrollRectToVisible(new Rectangle(label.getSize()));
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
-
-    protected void makeProgressWindow() {
-        dialog = new JDialog(action.getParentFrame(), "Applying the SMT solver", true);
+    public void showProgressWindow() {
+        dialog = new JDialog(action.getParentFrame(), "Applying the SMT solver", false);
 
         dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
@@ -202,7 +233,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
                 goalLabels.setLayout(gridLayout);
                 JScrollPane scroll = new JScrollPane(goalLabels);
                 panel.add(scroll,
-                        new GridBagConstraints(0, 0, 1, 1, 0, 1,
+                        new GridBagConstraints(0, 0, 1, 1, 1., 1.,
                                 GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(
                                         2, 2, 2, 2), 0, 0));
             }
@@ -210,11 +241,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
             for (int i = 0; i < count; i++) {
                 ProofNode goal = openGoals.get(i);
                 String text = "Node " + goal.getNumber();
-                Boolean status = action.getStatus(goal.getSequent());
-                if(status != null) {
-                    text += status ? " (cached VALID)" : " (cached open)";
-                }
-                JLabel label = new JLabel(text + ":");
+                JLabel label = new JLabel(text);
                 label.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
                         BorderFactory.createEmptyBorder(5, 2, 5, 2)));
@@ -249,6 +276,7 @@ import de.uka.iti.pseudo.util.NotificationListener;
                     if(isDone()) {
                         dialog.dispose();
                     } else {
+                        Log.log(Log.TRACE, "Requesting cancel");
                         cancel(true);
                     }
                 }
@@ -271,15 +299,16 @@ import de.uka.iti.pseudo.util.NotificationListener;
             });
             buttons.add(bg);
         }
-
-        Dimension d = dialog.getPreferredSize();
+        Dimension d = panel.getPreferredSize();
         d.height = Math.min(400, d.height);
-        dialog.setSize(d);
-        dialog.setResizable(false);
+        panel.setPreferredSize(d);
+        dialog.pack();
+        dialog.setResizable(true);
         dialog.setLocationRelativeTo(action.getParentFrame());
         dialog.setVisible(true);
     }
 
+    // act on STOP_REQUEST
     @Override
     public void handleNotification(NotificationEvent event) {
         Log.enter(event);
