@@ -25,6 +25,10 @@ import de.uka.iti.pseudo.term.TypeVariable;
 
 public class TestSMTLib2Translator extends TestCaseWithEnv {
 
+    public TestSMTLib2Translator() {
+        System.err.println("New constructor");
+    }
+
     public void testQuantifiers() throws Exception {
 
         SMTLib2Translator trans = new SMTLib2Translator(env);
@@ -34,8 +38,9 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
                 trans.translate(t, BOOL));
 
         t = makeTerm("(\\forall x as 'a; x = x)");
-        assertEquals("(forall ((?Universe.x Universe)) (implies (and (= (ty ?Universe.x) tyvar.a))" +
-        		" (= ?Universe.x ?Universe.x)))",
+        assertEquals("(forall ((?Universe.x Universe)) " +
+        		"(! (implies (and (ty ?Universe.x tyvar.a))" +
+        		" (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
                 trans.translate(t, BOOL));
 
         t = makeTerm("(\\exists y; 0 <= y)");
@@ -43,8 +48,9 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
                 trans.translate(t, BOOL));
 
         t = makeTerm("(\\exists x as 'a; x = x)");
-        assertEquals("(exists ((?Universe.x Universe)) (and (and (= (ty ?Universe.x) tyvar.a))" +
-        		" (= ?Universe.x ?Universe.x)))",
+        assertEquals("(exists ((?Universe.x Universe)) " +
+        		"(! (and (and (ty ?Universe.x tyvar.a))" +
+        		" (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
                 trans.translate(t, BOOL));
     }
 
@@ -66,16 +72,20 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
                 trans.translate(t, BOOL));
 
         env = makeEnv("sort S function bool p(S,S)");
-
+        trans = new SMTLib2Translator(env);
         // Universe quantifications
         t = makeTerm("(\\forall x; (\\forall y; p(x,y)))");
         assertEquals("(forall ((?Universe.x Universe) (?Universe.y Universe)) " +
-                "(implies (and (= (ty ?Universe.x) ty.S) (= (ty ?Universe.y) ty.S)) (fct.p ?Universe.x ?Universe.y)))",
+                "(! (implies (and (ty ?Universe.x ty.S) (ty ?Universe.y ty.S)) " +
+                "(fct.p ?Universe.x ?Universe.y)) " +
+                ":pattern ((ty ?Universe.x ty.S) (ty ?Universe.y ty.S))))",
                 trans.translate(t, BOOL));
 
         t = makeTerm("(\\exists x; (\\exists y; p(x,y)))");
         assertEquals("(exists ((?Universe.x Universe) (?Universe.y Universe)) " +
-                "(and (and (= (ty ?Universe.x) ty.S) (= (ty ?Universe.y) ty.S)) (fct.p ?Universe.x ?Universe.y)))",
+                "(! (and (and (ty ?Universe.x ty.S) (ty ?Universe.y ty.S)) " +
+                "(fct.p ?Universe.x ?Universe.y)) " +
+                ":pattern ((ty ?Universe.x ty.S) (ty ?Universe.y ty.S))))",
                 trans.translate(t, BOOL));
     }
 
@@ -154,7 +164,8 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         t = makeTerm("(\\T_all 'a; (\\forall x as 'a; (\\T_all 'b; (\\forall y as 'b; true))))");
         assertEquals("(forall " +
                 "((?Type.a Type) (?Universe.x Universe) (?Type.b Type) (?Universe.y Universe)) " +
-                "(implies (and (= (ty ?Universe.x) ?Type.a) (= (ty ?Universe.y) ?Type.b)) true))",
+                "(! (implies (and (ty ?Universe.x ?Type.a) (ty ?Universe.y ?Type.b)) true) " +
+                ":pattern ((ty ?Universe.x ?Type.a) (ty ?Universe.y ?Type.b))))",
                 trans.translate(t, BOOL));
     }
 
@@ -188,7 +199,6 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
 
         assertEquals("(fct.f ty.int (i2u 5))", trans.translate(makeTerm("f(5) as int"), INT));
         assertEquals("(fct.arb ty.bool)", trans.translate(makeTerm("arb as bool"), UNIVERSE));
-
     }
 
     public void testCond() throws Exception {
@@ -204,10 +214,22 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
     public void testPatterns() throws Exception {
         SMTLib2Translator trans = new SMTLib2Translator(env);
 
+        Term t = makeTerm("(\\forall x; (\\forall y; $pattern(x*y, x*y > 0)))");
+        String tt = trans.translate(t, BOOL);
         assertEquals("(forall ((?Int.x Int) (?Int.y Int)) " +
         		"(! (> (* ?Int.x ?Int.y) 0) :pattern ((* ?Int.x ?Int.y))))",
-                trans.translate(makeTerm("(\\forall x; (\\forall y; $pattern(x*y, x*y > 0)))"),
-                        BOOL));
+                tt);
+
+        // no default pattern like above
+        env = makeEnv("sort S function bool p(S,S)");
+        trans = new SMTLib2Translator(env);
+        t = makeTerm("(\\forall x; (\\forall y; $pattern(p(x,y), p(x,y))))");
+        tt = trans.translate(t, BOOL);
+        assertEquals("(forall ((?Universe.x Universe) (?Universe.y Universe)) " +
+                "(! (implies (and (ty ?Universe.x ty.S) (ty ?Universe.y ty.S)) " +
+                "(fct.p ?Universe.x ?Universe.y)) " +
+                ":pattern ((fct.p ?Universe.x ?Universe.y))))",
+        tt);
     }
 
     public void testTyping() throws Exception {
@@ -266,39 +288,39 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         assertEquals("no assumption for b1", assSize, trans.assumptions.size());
 
         trans.translate(makeTerm("bf(s)"), BOOL);
-        assertEquals("one assumption for b1", ++assSize, trans.assumptions.size());
+        assertEquals("one assumption for s", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.s\n" +
-        		"(= (ty fct.s) ty.S)", trans.assumptions.getLast());
+        		"(ty fct.s ty.S)", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(boolResult(0))"), BOOL);
-        assertEquals("no assumption for univResult", assSize, trans.assumptions.size());
+        assertEquals("no assumption for boolResult", assSize, trans.assumptions.size());
 
         trans.translate(makeTerm("bf(alphaResult(0))"), BOOL);
         assertEquals("one assumption for alphaResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.alphaResult\n" +
                 "(forall ((?Type.a Type) (?x0 Universe) ) " +
-                "(! (= (ty (fct.alphaResult ?Type.a ?x0)) ?Type.a) " +
+                "(! (ty (fct.alphaResult ?Type.a ?x0) ?Type.a) " +
                 ":pattern ((fct.alphaResult ?Type.a ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(betaResult(0) as int)"), BOOL);
         assertEquals("one assumption for betaResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.betaResult\n" +
                 "(forall ((?Type.a Type) (?Type.b Type) (?x0 Universe) ) " +
-                "(! (= (ty (fct.betaResult ?Type.a ?Type.b ?x0)) ?Type.b) " +
+                "(! (ty (fct.betaResult ?Type.a ?Type.b ?x0) ?Type.b) " +
                 ":pattern ((fct.betaResult ?Type.a ?Type.b ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(sResult(0))"), BOOL);
         assertEquals("one assumption for sResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.sResult\n" +
                 "(forall ((?Type.a Type) (?x0 Universe) ) " +
-                "(! (= (ty (fct.sResult ?Type.a ?x0)) ty.S) " +
+                "(! (ty (fct.sResult ?Type.a ?x0) ty.S) " +
                 ":pattern ((fct.sResult ?Type.a ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(tResult(0))"), BOOL);
         assertEquals("one assumption for tResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.tResult\n" +
                 "(forall ((?Type.a Type) (?x0 Universe) ) " +
-                "(! (= (ty (fct.tResult ?Type.a ?x0)) (ty.T ?Type.a)) " +
+                "(! (ty (fct.tResult ?Type.a ?x0) (ty.T ?Type.a)) " +
                 ":pattern ((fct.tResult ?Type.a ?x0))))", trans.assumptions.getLast());
     }
 
@@ -310,7 +332,8 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         env.addSort(new Sort("array", 1, ASTLocatedElement.CREATED));
         String t2 = trans.translate(makeTerm("(\\forall j as int; (\\forall v as 'ty_v; (\\T_all 'ty_v;true)))"), BOOL);
         assertEquals("(forall ((?Int.j Int) (?Universe.v Universe) (?Type.ty_v Type)) " +
-        		"(implies (and (= (ty ?Universe.v) tyvar.ty_v)) true))", t2);
+        		"(! (implies (and (ty ?Universe.v tyvar.ty_v)) true) " +
+        		":pattern ((ty ?Universe.v tyvar.ty_v))))", t2);
         assertTrue(trans.extrafuncs.contains("tyvar.ty_v () Type"));
 
     }

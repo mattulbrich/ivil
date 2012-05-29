@@ -1041,9 +1041,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         /**
          * If this visitor has not yet brought up a pattern (e.g. by $pattern),
          * use the typing guards as pattern. This is better than nothing.
+         *
+         * If the guards are empty, the pattern remains <code>null</code>.
          */
         public void ensurePattern() {
-            if(pattern == null) {
+            if(pattern == null && !guards.isEmpty()) {
                 pattern = Util.join(guards, " ");
             }
         }
