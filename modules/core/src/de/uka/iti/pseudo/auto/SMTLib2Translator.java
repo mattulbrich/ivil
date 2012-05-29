@@ -734,6 +734,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         QuantificationTranslator trans = new QuantificationTranslator(translation);
         binding.visit(trans);
+        trans.ensurePattern();
         result = trans.toString();
         resultingType = BOOL;
     }
@@ -758,6 +759,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         QuantificationTranslator trans = new QuantificationTranslator(translation);
         tBinding.visit(trans);
+        trans.ensurePattern();
         result = trans.toString();
         resultingType = BOOL;
     }
@@ -797,7 +799,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
                 // for a monomorphic constant symbols "bool c" add
                 // "(= (ty fct.c) ty.bool)"
-                sb.append("(= (ty ").append(name).append(") ").
+                sb.append("(ty ").append(name).append(" ").
                 append(fctResultType.accept(typeToTerm, false)).
                 append(")");
 
@@ -813,7 +815,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                     .append(") ");
                 }
 
-                sb.append(") (! (= (ty ");
+                sb.append(") (! (ty ");
 
                 StringBuilder fctcallsb = new StringBuilder();
                 {
@@ -827,7 +829,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
                     }
                     fctcallsb.append(")");
                 }
-                sb.append(fctcallsb).append(") ")
+                sb.append(fctcallsb).append(" ")
                         .append(fctResultType.accept(typeToTerm, true))
                         .append(") :pattern (")
                         .append(fctcallsb)
@@ -1030,13 +1032,20 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         private String pattern;
         private String result;
 
-        /**
-         * @param binderContext
-         */
         public QuantificationTranslator(String binderContext) {
             this.binderContext = binderContext;
             this.guards = new ArrayList<String>();
             this.innerVars = new ArrayList<String>();
+        }
+
+        /**
+         * If this visitor has not yet brought up a pattern (e.g. by $pattern),
+         * use the typing guards as pattern. This is better than nothing.
+         */
+        public void ensurePattern() {
+            if(pattern == null) {
+                pattern = Util.join(guards, " ");
+            }
         }
 
         @Override
@@ -1123,11 +1132,14 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             }
         }
 
+        /**
+         * Add to the list of type guards the check that "(ty var varType)".
+         */
         private void addTypeGuard(String var, Type varType) throws TermException {
             ExpressionType expType = typeToExpressionType(varType);
             if (expType == UNIVERSE) {
 
-                String guard = "(= (ty " + var + ") "
+                String guard = "(ty " + var + " "
                         + varType.accept(typeToTerm, false) +
                         ")";
                 guards.add(guard);
