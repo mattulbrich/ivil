@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.justify;
@@ -27,11 +27,11 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.rule.GoalAction;
+import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.WhereClause;
-import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.Statement;
@@ -39,7 +39,7 @@ import de.uka.iti.pseudo.util.Util;
 
 public class EnvironmentExporter {
 
-    private PrintWriter pw;
+    private final PrintWriter pw;
 
     public EnvironmentExporter(File out) throws IOException {
         pw = new PrintWriter(out);
@@ -69,8 +69,9 @@ public class EnvironmentExporter {
             // add only includes, which can be loaded again
             // note: the replace is a hack to create reloadable includes for
             // system files
-            if (p.getResourceName().endsWith(".p"))
+            if (p.getResourceName().endsWith(".p")) {
                 includes.add(p.getResourceName().replaceAll("/./", "/"));
+            }
         }
 
         exportIncludes(includes);
@@ -110,10 +111,11 @@ public class EnvironmentExporter {
             pw.print("(" + Util.join(fct.getArgumentTypes(), ", ") + ")");
         }
 
-        if(fct.isAssignable())
+        if(fct.isAssignable()) {
             pw.print(" assignable");
-        else if(fct.isUnique())
+        } else if(fct.isUnique()) {
             pw.print(" unique");
+        }
 
         pw.println();
     }
@@ -124,7 +126,7 @@ public class EnvironmentExporter {
             for (Sort sort : sorts) {
                 exportSort(sort);
             }
-        }	
+        }
 
         pw.println();
     }
@@ -160,7 +162,7 @@ public class EnvironmentExporter {
         if(!localProperties.isEmpty()) {
             pw.println("properties");
             for (Map.Entry<String, String> entry : localProperties.entrySet()) {
-                pw.println("  " + entry.getKey() + " : \"" + entry.getValue() + "\"");
+                pw.println("  " + entry.getKey() + " \"" + entry.getValue() + "\"");
             }
             pw.println();
         }
@@ -203,10 +205,11 @@ public class EnvironmentExporter {
             pw.println("sourceline " + statement.getSourceLineNumber());
             pw.print("  ");
             pw.print(statement.toString(true));
-            if (program.getTextAnnotation(i) != null)
+            if (program.getTextAnnotation(i) != null) {
                 pw.println("; \"" + program.getTextAnnotation(i) + "\"");
-            else
+            } else {
                 pw.print("\n");
+            }
         }
         pw.println();
     }
@@ -264,12 +267,14 @@ public class EnvironmentExporter {
             throw new Error("type distinction incomplete: Kind");
         }
 
-        if(ga.isRemoveOriginalTerm())
+        if(ga.isRemoveOriginalTerm()) {
             pw.println("    remove");
+        }
 
         Term replaceWith = ga.getReplaceWith();
-        if(replaceWith != null)
+        if(replaceWith != null) {
             pw.println("    replace " + replaceWith);
+        }
 
         for (Term t : ga.getAddAntecedent()) {
             pw.println("    add " + t + " |-");
@@ -281,8 +286,9 @@ public class EnvironmentExporter {
     }
 
     public void exportProblem(Term formula) throws TermException {
-        if(!Environment.getBoolType().equals(formula.getType()))
+        if(!Environment.getBoolType().equals(formula.getType())) {
             throw new TermException("Only boolean formulas can be exported as problems");
+        }
 
         pw.println("problem");
         pw.println("  " + formula);
