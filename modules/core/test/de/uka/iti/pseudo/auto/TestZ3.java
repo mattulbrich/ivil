@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.auto;
@@ -26,15 +26,6 @@ import de.uka.iti.pseudo.util.Pair;
 
 public class TestZ3 extends TestCaseWithEnv {
 
-//    public void testSolveUnsat() throws Exception {
-//        Term t = makeTerm("(\\forall x; x > 0 -> x >= 0)");
-//        Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
-//        Z3 z3 = new Z3();
-//
-//        Pair<Result, String> res = z3.solve(s, env, 1000);
-//        assertEquals(Result.VALID, res.fst());
-//    }
-    
     public void testSolveUnsatSMT() throws Exception {
         Term t = makeTerm("(\\forall x; x > 0 -> x >= 0)");
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
@@ -44,35 +35,16 @@ public class TestZ3 extends TestCaseWithEnv {
         assertEquals(Result.VALID, res.fst());
     }
 
-//    public void testSolveSat() throws Exception {
-//        Term t = makeTerm("(\\forall x; x >= 0 ->  x > 0)");
-//        Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
-//        Z3 z3 = new Z3();
-//
-//        Pair<Result, String> res = z3.solve(s, env, 1000);
-//        assertEquals(Result.NOT_VALID, res.fst());
-//    }
-    
     public void testSolveSatSMT() throws Exception {
         Term t = makeTerm("(\\forall x; x >= 0 ->  x > 0)");
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
         Pair<Result, String> res = z3.solve(s, env, 1000);
+        // NOT SAME
         assertNotSame(Result.VALID, res.fst());
     }
 
-//    public void testSolveExFalso() throws Exception {
-//        Term t1 = makeTerm("b1");
-//        Term t2 = makeTerm("!b1");
-//        Term t3 = makeTerm("b2");
-//        Z3 z3 = new Z3();
-//        Sequent s = new Sequent(new Term[] { t1, t2 }, new Term[] { t3 });
-//
-//        Pair<Result, String> res = z3.solve(s, env, 1000);
-//        assertEquals(Result.VALID, res.fst());
-//    }
-    
     public void testSolveExFalsoSMT() throws Exception {
         Term t1 = makeTerm("b1");
         Term t2 = makeTerm("!b1");
@@ -84,15 +56,6 @@ public class TestZ3 extends TestCaseWithEnv {
         assertSame(Result.VALID, res.fst());
     }
 
-//    public void testSolveGt0() throws Exception {
-//        Term t = makeTerm("(\\forall x; x>5)");
-//        Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
-//        Z3 z3 = new Z3();
-//
-//        Pair<Result, String> res = z3.solve(s, env, 1000);
-//        assertEquals(Result.NOT_VALID, res.fst());
-//    }
-    
     public void testSolveGt0SMT() throws Exception {
         Term t = makeTerm("(\\forall x; x>5)");
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
@@ -101,16 +64,19 @@ public class TestZ3 extends TestCaseWithEnv {
         Pair<Result, String> res = z3.solve(s, env, 1000);
         assertNotSame(Result.VALID, res.fst());
     }
-    
-//    public void TODO_testSolveExists() throws Exception {
-//        Term t = makeTerm("(\\exists x; x>5)");
-//        Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
-//        Z3 z3 = new Z3();
-//
-//        Pair<Result, String> res = z3.solve(s, env, 1000);
-//        assertEquals(Result.VALID, res.fst());
-//    }
-    
+
+    public void testSolveNoCacheUnsuccess() throws Exception {
+        Term t = makeTerm("(\\forall x as int; bf(x)) -> bf(id(42))");
+        Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
+        Z3SMT z3 = new Z3SMT();
+
+        Pair<Result, String> res = z3.solve(s, env, 1);
+        assertSame(Result.UNKNOWN, res.fst());
+
+        res = z3.solve(s, env, 2000);
+        assertSame(Result.VALID, res.fst());
+    }
+
     public void testSolveExistsSMT() throws Exception {
         Term t = makeTerm("(\\exists x; x>5)");
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));

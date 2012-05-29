@@ -3,8 +3,8 @@
  *    ivil - Interactive Verification on Intermediate Language
  *
  * Copyright (C) 2009-2011 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.auto;
@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -23,7 +25,6 @@ import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
-import de.uka.iti.pseudo.util.TimingOutTask;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -41,7 +42,7 @@ public class Z3SMT implements DecisionProcedure {
      * If this flag is set, the challenge is kept after solving and saved to a
      * file.
      */
-    private static boolean KEEP_CHALLENGES = 
+    private static boolean KEEP_CHALLENGES =
         settings.getBoolean("pseudo.z3.keepFile", false);
 
     /**
@@ -51,10 +52,25 @@ public class Z3SMT implements DecisionProcedure {
     private static boolean USE_SMT1 =
         settings.getBoolean("pseudo.z3.useSMT1", false);
 
+    private final Set<Sequent> cache = new HashSet<Sequent>();
+
+    @Override
+    public String getKey() {
+        return "Z3";
+    }
+
     /* (non-Javadoc)
      * @see de.uka.iti.pseudo.auto.DecisionProcedure#solve(de.uka.iti.pseudo.term.Sequent, de.uka.iti.pseudo.environment.Environment, int)
      */
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout) throws ProofException, IOException {
+    @Override
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout)
+            throws ProofException, IOException, InterruptedException {
+
+        boolean cached = cache.contains(sequent);
+        if(cached) {
+            Log.log(Log.DEBUG, "Cache hit for %s", sequent);
+            return Pair.make(DecisionProcedure.Result.VALID, "(cached)");
+        }
 
         // System.out.println("Z3 for " + sequent);
 
@@ -76,13 +92,12 @@ public class Z3SMT implements DecisionProcedure {
         final String challenge = builder.toString();
         // System.err.println(challenge);
 
-        TimingOutTask timeoutTask = null;
         Process process = null;
 
         try {
             Runtime rt = Runtime.getRuntime();
 
-            process = rt.exec("z3 -in -smt2");
+            process = rt.exec("z3 SOFT_TIMEOUT=" + timeout + " -in -smt2");
 
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);
@@ -90,10 +105,6 @@ public class Z3SMT implements DecisionProcedure {
             w.close();
 
             // System.err.println("Wait for " + process);
-
-            // this task is automatically scheduled on some timer thread.
-            timeoutTask = new TimingOutTask(timeout);
-            timeoutTask.schedule();
 
             if(Thread.interrupted()) {
                 throw new InterruptedException();
@@ -117,6 +128,7 @@ public class Z3SMT implements DecisionProcedure {
             Pair<Result, String> result;
             if("unsat".equals(answerLine)) {
                 result = Pair.make(Result.VALID, msg.toString());
+                cache.add(sequent);
             } else if("sat".equals(answerLine)) {
                 result = Pair.make(Result.NOT_VALID, msg.toString());
             } else if("unknown".equals(answerLine)){
@@ -126,17 +138,15 @@ public class Z3SMT implements DecisionProcedure {
             }
 
             if(KEEP_CHALLENGES) {
-              Log.log("Result: " + result);
-              dumpTmp(challenge);
+                Log.log("Result: " + result);
+                dumpTmp(challenge);
             }
 
+            Log.log(Log.DEBUG, "Result for %s: %s", sequent, result);
             return result;
         } catch(InterruptedException ex) {
-            if(timeoutTask != null && timeoutTask.hasFinished()) {
-                return Pair.make(Result.UNKNOWN, "Z3 timed out");
-            } else {
-                return Pair.make(Result.UNKNOWN, "Z3 has been interrupted");
-            }
+            Log.log(Log.DEBUG, "Result for %s: interrupted", sequent);
+            throw ex;
 
         } catch(Exception ex) {
             dumpTmp(challenge);
@@ -145,9 +155,6 @@ public class Z3SMT implements DecisionProcedure {
             throw new ProofException("Error while calling decision procedure Z3", ex);
 
         } finally {
-            if(timeoutTask != null) {
-                timeoutTask.cancel();
-            }
             if(process != null) {
                 // ensure the process is killed
                 process.destroy();
@@ -157,7 +164,7 @@ public class Z3SMT implements DecisionProcedure {
 
     /**
      * Dump the challenge into a text file in the temporary directory.
-     * 
+     *
      * @param challenge
      *            the translated challenge to dump.
      */
@@ -181,6 +188,6 @@ public class Z3SMT implements DecisionProcedure {
             }
         }
     }
-    
+
 
 }

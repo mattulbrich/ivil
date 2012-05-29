@@ -6,8 +6,9 @@
 #
 # The label double serves as duplication point.
 #
-# This example can be used to explore behaviour for large
-# and very large proof trees.
+# The assertions can only be discharged by an smt solver
+# or manually since the necessary axiom is not applied
+# in the automatic
 
 properties
   BreakpointStrategy.stopAtLoop "false"
@@ -15,7 +16,12 @@ properties
 
 include "$symbex.p" "$int.p" "$decproc.p"
 
-function int x assignable
+function 
+  int x assignable
+  bool phi
+
+axiom phi_holds :
+  phi
 
 program P
   x := 9
@@ -27,6 +33,6 @@ program P
   goto loop, after
 
  after:
-  assert (\forall x; x+1 = x+1)
+  assert phi
 
 problem [0;P]true

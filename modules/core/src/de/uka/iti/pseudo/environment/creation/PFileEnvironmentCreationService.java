@@ -65,7 +65,7 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
 
     @Override
     public String getDescription() {
-        return "ivil input file";
+        return "ivil's native format";
     }
 
 }
