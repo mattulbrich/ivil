@@ -5,6 +5,9 @@ de.uka.iti.pseudo.auto.strategy.SMTStrategy
 
 de.uka.iti.pseudo.auto.strategy.KnowledgeStrategy
 
+# debug phase!
+de.uka.iti.pseudo.auto.strategy.FastSimplificationStrategy
+
 # The strategy for hints on branches
 de.uka.iti.pseudo.auto.strategy.HintStrategy
 

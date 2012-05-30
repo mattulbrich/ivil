@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.util;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.auto.strategy.RuleMatchTree;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 
@@ -52,6 +53,25 @@ public class Dump {
         sb.append("\n Schema updates: " + ruleApp.getSchemaUpdateMapping());
         sb.append("\n Properties: " + ruleApp.getProperties());
         return sb.toString();
+    }
+
+    public static void dumpRuleMatchTree(RuleMatchTree tree) {
+        System.err.println(toString(tree, 0));
+    }
+
+    private static String toString(RuleMatchTree tree, int indent) {
+        String in = Util.duplicate(" ", indent);
+        StringBuilder sb = new StringBuilder();
+        sb.append(in + "* " + tree.getTerm() + "\n");
+        sb.append(in + tree.getMatchingRules() + "\n");
+        for (RuleMatchTree son : tree.getBranches()) {
+            sb.append(toString(son, indent+1));
+        }
+        return sb.toString();
+    }
+
+    public static String toString(RuleMatchTree tree) {
+       return toString(tree, 0);
     }
 
 }

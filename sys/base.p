@@ -25,7 +25,7 @@ include "$plugins.p"
 (* configure the categories for rewrite rules *)
 properties
     rewrite.categories "close=1, updSimpl=2, concrete=3, prop simp=4, 
-                        fol simp=5, fol add=6"
+                        fol simp=5, fol add=6, split=100, symbex=20"
 
 function
     'a cond(bool, 'a, 'a)

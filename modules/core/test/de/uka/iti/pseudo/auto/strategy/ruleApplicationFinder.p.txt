@@ -1,0 +1,12 @@
+
+function bool p(int, int)
+
+rule noFreeAssumption
+  assume p(%a, %b) |-
+  find |- p(%b, %a)
+  replace true
+  
+rule freeAssumption
+  assume p(%a, %c) |-
+  find |- p(%b, %a)
+  replace true

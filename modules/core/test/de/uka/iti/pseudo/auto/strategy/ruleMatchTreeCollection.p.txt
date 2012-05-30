@@ -1,0 +1,18 @@
+
+include "$int.p"
+
+rule A
+ find %a + %b
+ replace 0
+
+rule B
+ find %a > %b
+ replace true
+
+rule C1
+ find 5
+ replace 0
+ 
+rule C2
+ find 5
+ replace 1

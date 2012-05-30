@@ -1,0 +1,37 @@
+
+
+(* configure the categories for rewrite rules *)
+properties
+    rewrite.categories " A=1, B = 2 
+    
+    ,
+    
+    C = 3, XYZ, E=nonumber,    with spaces =4" 
+
+function 
+  int a1
+  int a2
+  int a3
+  int a4
+  int p(int, int)
+  bool q(int)
+
+rule R1
+  find a1
+  replace a1
+  tags rewrite "1"
+
+rule R2
+  find a2
+  replace a2
+  tags rewrite "B"
+
+rule R3
+  find a3
+  replace a3
+  tags rewrite "C"
+
+rule R4
+  find a4
+  replace a4
+  tags rewrite "with spaces"
