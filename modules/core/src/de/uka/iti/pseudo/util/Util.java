@@ -2,7 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
  *
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
@@ -30,10 +30,13 @@ import nonnull.Nullable;
 import de.uka.iti.pseudo.term.Term;
 
 /**
- * This is a collection of static methods
+ * This is a collection of static functions.
+ *
+ * <p>
+ * They are independent, do not share a common state and serve very different
+ * purposes.
  */
-public class Util {
-
+public final class Util {
 
     /**
      * the resource path to read the version information from.
@@ -41,14 +44,23 @@ public class Util {
     private static final String VERSION_PATH = "/META-INF/VERSION";
 
     /**
-     * Join a list of objects into a string, separated by ", "
+     * A hidden constructor ensures the class will never be instantiated.
+     */
+    private Util() {
+        throw new Error("This class must not be instantiated");
+    }
+
+    /**
+     * Join the string representation of a list of objects into one string,
+     * separated by ", ".
      *
      * @param list
      *            some list
      *
      * @return the concatenated string, separated by commas
      */
-    public static String commatize(@NonNull List<?> list) {
+    public static String commatize(@NonNull Collection<?> list) {
+        // Checkstyle: IGNORE MultipleStringLiterals
         return join(list, ", ");
     }
 
@@ -64,7 +76,7 @@ public class Util {
      *
      * @return the concatenated string, separated by commas
      */
-    public static String commatize(@DeepNonNull List<Term> list, boolean typed) {
+    public static String commatize(@DeepNonNull Collection<Term> list, boolean typed) {
         StringBuilder sb = new StringBuilder();
         Iterator<Term> it = list.iterator();
         while(it.hasNext()) {
@@ -151,35 +163,6 @@ public class Util {
         return join(readOnlyArrayList(array), sep, false);
     }
 
-
-    //    /**
-    //     * Join a list of objects separated by some string
-    //     *
-    //     * @param strings the strings
-    //     * @param sep the sep
-    //     *
-    //     * @return the string
-    //     */
-    //    public String join(String[] strings, String sep) {
-    //		StringBuffer sb = new StringBuffer();
-    //		for (int i = 0; i < strings.length; i++) {
-    //			sb.append(strings[i]);
-    //			if(i != strings.length-1)
-    //				sb.append(sep);
-    //		}
-    //		return sb.toString();
-    //	}
-
-    //    public static <E> boolean replaceInList(List<E> list,
-    //            E org, E replacement) {
-    //        int index = list.indexOf(org);
-    //        if(index != -1) {
-    //            list.set(index, replacement);
-    //            return true;
-    //        }
-    //        return false;
-    //    }
-
     /**
      * Duplicate a string a number of times.
      *
@@ -202,11 +185,15 @@ public class Util {
      * Wrap an immutable list object around an array. The elements in the array
      * can by no means be replaced.
      *
-     * <p>The result is closely related to {@link Arrays#asList(Object...)} but
-     * is unmodifiable.
+     * <p>
+     * The result is closely related to {@link Arrays#asList(Object...)} but is
+     * unmodifiable.
      *
      * @param array
      *            some array
+     *
+     * @param <E>
+     *            the element type of the array argument
      *
      * @return an immutable list wrapping the argument array.
      *
@@ -216,11 +203,17 @@ public class Util {
         return new ReadOnlyArrayList<E>(array);
     }
 
-    // TODO The list interface does not allow for null values, we do
-    @SuppressWarnings({"nullness"})
-    private static class ReadOnlyArrayList<E extends /*@Nullable*/ Object>
-    extends AbstractList<E> implements RandomAccess {
-        @Nullable E[] array;
+    /**
+     * A wrapper class for the collection framework. It renders an array into an
+     * immutable list.
+     *
+     * @param <E>
+     *            the element type of the list.
+     */
+    @SuppressWarnings({ "nullness" })
+    private static final class ReadOnlyArrayList<E extends /* @Nullable */Object>
+            extends AbstractList<E> implements RandomAccess {
+        private @Nullable final E[] array;
 
         private ReadOnlyArrayList(@Nullable E[] array) {
             if(array == null) {
@@ -275,6 +268,8 @@ public class Util {
      *
      * @param array
      *            some array
+     * @param <E>
+     *            the component type of the array
      *
      * @return an immutable set wrapping the argument array.
      */
@@ -282,11 +277,21 @@ public class Util {
         return new ReadOnlyArraySet<E>(array);
     }
 
-    // TODO The list interface does not allow for null values, we do
+    /**
+     * A wrapper class for the collection framework. It renders an array into an
+     * immutable set.
+     *
+     * TODO what if two elements of the array are
+     * {@linkplain Object#equals(Object) equal}?
+     *
+     * @param <E>
+     *            the element type of the set.
+     */
     @SuppressWarnings({"nullness"})
-    private static class ReadOnlyArraySet<E extends /*@Nullable*/ Object>
-    extends AbstractSet<E> implements RandomAccess {
-        @Nullable E[] array;
+    private static final class ReadOnlyArraySet<E extends /*@Nullable*/ Object>
+                    extends AbstractSet<E> implements RandomAccess {
+
+        private final @Nullable E[] array;
 
         private ReadOnlyArraySet(@Nullable E[] array) {
             if(array == null) {
@@ -294,7 +299,6 @@ public class Util {
             }
             this.array = array;
         }
-
 
         @Override
         public int size() {
@@ -331,7 +335,7 @@ public class Util {
         @Override
         public Iterator<E> iterator() {
             return new Iterator<E>() {
-                int cur = 0;
+                private int cur = 0;
 
                 @Override
                 public boolean hasNext() {
@@ -356,7 +360,7 @@ public class Util {
     }
 
     /**
-     * List terms of a list of terms on several lines
+     * List terms of a list of terms on several lines.
      *
      * @param terms the list of terms
      *
@@ -375,7 +379,7 @@ public class Util {
     }
 
     /**
-     * List the types of terms of a list of terms on several lines
+     * List the types of terms of a list of terms on several lines.
      *
      * @param subterms
      *            the list of terms
@@ -407,17 +411,22 @@ public class Util {
      *
      * @param clss
      *            the class of the array to create.
+     * @param <E>
+     *            the class type of the resulting array
      *
      * @return an array whose content type is the specified class, whose length
      *         is the size of the collection and whose contents is the one of
      *         the collection as if retrieved by
      *         {@link Collection#toArray(Object[])}.
      */
-    @SuppressWarnings({"unchecked", "nullness"})
-    public static <E extends /*@Nullable*/ Object> E[]
-            listToArray(@NonNull Collection<? extends E> collection, @NonNull Class</*@NonNull*/ E> clss) {
+    @SuppressWarnings({ "unchecked", "nullness" })
+    public static <E extends /* @Nullable */Object> E[] listToArray(
+            @NonNull Collection<? extends E> collection,
+            @NonNull Class</* @NonNull */E> clss) {
+
         E[] array = (E[]) java.lang.reflect.Array.newInstance(clss, collection.size());
         return collection.toArray(array);
+
     }
 
     /**
@@ -459,6 +468,7 @@ public class Util {
      * @return the string with first and last character removed
      */
     public static @NonNull String stripQuotes(@NonNull String s) {
+        // Checkstyle: IGNORE MultipleStringLiterals
         return s.substring(1, s.length() - 1).replace("\\\"", "\"").replace("\\\\", "\\");
     }
 
@@ -477,7 +487,7 @@ public class Util {
     }
 
     /**
-     * Check wether an array and all entries are not null.
+     * Check whether an array and all entries are not null.
      *
      * @param array
      *            an array to check

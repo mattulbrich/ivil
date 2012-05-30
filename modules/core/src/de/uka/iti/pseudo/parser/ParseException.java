@@ -2,8 +2,7 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
  *
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
@@ -12,6 +11,8 @@
 package de.uka.iti.pseudo.parser;
 
 import de.uka.iti.pseudo.util.Log;
+
+// Checkstyle: ALLOFF - This has been a generated file
 
 /**
  * This exception is thrown when parse errors are encountered.
@@ -206,3 +207,4 @@ public class ParseException extends Exception {
 
 }
 /* JavaCC - OriginalChecksum=ba009142ceee2abddf26a36fde2766e9 (do not edit this line) */
+// Checkstyle: ALLON
