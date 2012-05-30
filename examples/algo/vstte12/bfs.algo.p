@@ -1,4 +1,5 @@
 include "$set.p"
+include "$pair.p"
 include "$int.p"
 include "$symbex.p"
 include "$decproc.p"
@@ -18,7 +19,7 @@ function
 rule connect_def
   find connect(%a, %b, %n)
   where freshVar %x, %a, %b, %n
-  replace cond(%n=0,
+  replace cond(%n <= 0,
         %a = %b,
         (\exists %x; connect(%a,%x,%n-1) & %b::succ(%x)))
 
@@ -28,5 +29,25 @@ rule minconnect_def
   replace connect(%a, %b, %n) &
         (\forall %m; 0 <= %m & %m < %n -> !connect(%a, %b, %m))
 
+rule minconnect_plus1
+  find minconnect(%a, %b, %n) |-
+  where freshVar %q, %a, %b, %n
+  add %n > 0 -> (\exists %q; minconnect(%a, %q, %n-1) & %b :: succ(%q)) |-
+  tags derived
+
+(* this rule is not confluent *)
+rule minconnect_rec
+  find minconnect(%a, %b, %n)
+  where freshVar %q, %a, %b, %n
+  where freshVar %m, %a, %b, %n
+  replace cond(%n <= 0,
+        %a = %b,
+        (\exists %q; minconnect(%a,%q,%n-1) & %b::succ(%q))
+        & (\forall %q; (\forall %m; %b::succ(%q) & 0<=%m & %m<%n-1 -> 
+           !minconnect(%a, %q, %m))))
+  tags derived
+  
+
 rule oops
 closegoal
+  

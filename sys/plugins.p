@@ -100,6 +100,10 @@ plugin
 
     # proof hint to perform pick formulas like §(pick A.0 A.1 S.2)
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.PickProofHint"
+
+    # proof hint to perform focus on last formula like §(focus)
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.FocusProofHint"
+
     
 (*
  * This rule can -- in combination with the where condition axiom
@@ -142,3 +146,14 @@ rule unhide_right
   add |- %b
   tags autoonly
        display "Unhide formula from {property knownFormula}"
+
+(*
+ * "Focus" reduces the sequent to one single formula,
+ * usually used to remove context knowledge to concentrate
+ * on one aspect. There is an according hint.
+ *
+ * One of the few newgoal rules.
+ *)
+rule focus
+  find |- %b
+  newgoal add |- %b

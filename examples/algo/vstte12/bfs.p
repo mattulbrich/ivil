@@ -1,4 +1,4 @@
-# Automatically created on Thu May 24 20:29:13 CEST 2012
+# Automatically created on Tue May 29 20:22:52 CEST 2012
 include "bfs.algo.p"
 function vertex src 
 function vertex dest 
@@ -13,112 +13,81 @@ function set(vertex) No assignable
 function set(vertex) tovisit assignable
 function vertex v assignable
 function vertex w assignable
-function set(vertex) done assignable
-function set(vertex) done0 assignable
 
 program bfs source "bfs.algo"
- sourceline 17
+ sourceline 16
   assume finite(((fullset) as set(vertex))) ; "by requirement"
- sourceline 29
+ sourceline 28
   size := card(((fullset) as set(vertex)))
- sourceline 31
+ sourceline 30
   V := singleton(src)
- sourceline 32
+ sourceline 31
   C := singleton(src)
- sourceline 33
+ sourceline 32
   N := emptyset
- sourceline 34
+ sourceline 33
   d := 0
- sourceline 35
-  done := emptyset
  loop0:
- sourceline 50
-  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) -> minconnect(src, y, (d + 1)))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists b; ((a :: succ(b)) & (b :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & ((!(dest) :: ((V \ N) \ C)) & ((done /\ C) = emptyset)))))))))), ^(done)
- sourceline 36
+ sourceline 48
+  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (\exists q; (minconnect(src, q, d) & ((!(q) :: C) & (y :: succ(q))))))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists c; ((a :: succ(c)) & (c :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
+ sourceline 34
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
- sourceline 52
+ sourceline 50
   assert (\exists v; (v :: C)) ; "assert before choose"
   havoc v
   assume (v :: C)
- sourceline 53
+ sourceline 51
   C := (C \ singleton(v))
- sourceline 54
-  done := (done \/ singleton(v))
- sourceline 55
+ sourceline 52
   goto then0, else0
  then0:
   assume (v = dest); "then"
- sourceline 57
+ sourceline 54
   goto endOfProgram ; "Return Statement"
   goto after1
  else0:
   assume $not((v = dest)); "else"
- sourceline 58
+ sourceline 55
  after1:
- sourceline 60
+ sourceline 57
   Vo := V
- sourceline 61
+ sourceline 58
   No := N
- sourceline 62
-  tovisit := succ(v)
- loop1:
-  skip_loopinv ((tovisit <: succ(v)) & ((V = (Vo \/ (succ(v) \ tovisit))) & (N = (No \/ (succ(v) \ (V \/ tovisit)))))), tovisit
-  goto body1, after2
- body1:
-  assume !tovisit= emptyset; "assume condition "
-  havoc w
-  assume w :: tovisit ; "choose element in tovisit"
-  tovisit := tovisit \ singleton(w)
- sourceline 67
+ sourceline 70
+  V := (Vo \/ succ(v))
+ sourceline 71
+  N := (No \/ (succ(v) \ Vo))
+ sourceline 73
   goto then1, else1
  then1:
-  assume (!(w) :: V); "then"
- sourceline 69
-  V := (V \/ singleton(w))
- sourceline 70
-  N := (N \/ singleton(w))
-  goto after3
- else1:
-  assume $not((!(w) :: V)); "else"
- sourceline 71
- after3:
-  goto loop1
- after2:
-  assume tovisit= emptyset
- sourceline 74
-  goto then2, else2
- then2:
   assume (C = emptyset); "then"
- sourceline 76
+ sourceline 75
   C := N
- sourceline 77
+ sourceline 76
   N := emptyset
- sourceline 78
+ sourceline 77
   d := (d + 1)
-  goto after4
- else2:
+  goto after2
+ else1:
   assume $not((C = emptyset)); "else"
- sourceline 79
- after4:
+ sourceline 78
+ after2:
   goto loop0
- sourceline 36
+ sourceline 34
  after0:
   assume $not(!((C = emptyset)))
  sourceline 82
-  assert (\forall a; !(minconnect(src, a, (d + 1))))
-  assume (\forall a; !(minconnect(src, a, (d + 1)))) ; "use lemma"
- sourceline 86
   assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; " lemma by §(rule int_induction_match)"
   assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; "use lemma"
- sourceline 89
+ sourceline 85
   d := -(1)
  endOfProgram: 
- sourceline 20
+ sourceline 19
   assert (d >= -(1)) ; "by ensures"
- sourceline 23
+ sourceline 22
   assert ((d < 0) -> (\forall m; ((m >= 0) -> !(minconnect(src, dest, m))))) ; "by ensures"
- sourceline 26
+ sourceline 25
   assert ((d >= 0) -> minconnect(src, dest, d)) ; "by ensures"
 

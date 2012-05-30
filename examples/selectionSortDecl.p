@@ -9,8 +9,8 @@ include
 sort 
   array('type)
 
-plugin
-  prettyPrinter : "test.ArrayPrettyPrinter"
+#plugin
+#  prettyPrinter : "test.ArrayPrettyPrinter"
 
 function
   int length(array('a))

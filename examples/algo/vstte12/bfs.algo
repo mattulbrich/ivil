@@ -31,26 +31,24 @@ do
    C := {src};
    N := {};
    d := 0;
-   done := {};
    while !(C = {})
      inv 
        d >= 0 &
        (\forall x; x in C -> minconnect(src, x, d)) &
-       (\forall y; y in N -> minconnect(src, y, d+1)) &
+       (\forall y; y in N <-> 
+           (\exists q; minconnect(src, q, d) & not q in C & y in succ(q))) &
        (\forall z; z in V \ N <->
            (\exists n; 0 <= n <= d & minconnect(src, z, n))) &
        (\forall a; minconnect(src, a, d+1) ->
-           (\exists b; a in succ(b) & b in C) | a in N) &
+           (\exists c; a in succ(c) & c in C) | a in N) &
        (C = {} -> N = {}) &
        C <: V &
        N <: V &
-       not dest in (V \ N) \ C &
-       done /\ C = emptyset
-     var ^done
+       not dest in (V \ N) \ C
+     var ^(V \ (C \/ N))
    do
      choose v such that v in C;
      C := C \ {v};
-     done := done \/ {v};
      if v = dest 
      then 
        return
@@ -58,17 +56,19 @@ do
      
      Vo := V;
      No := N;
-     iterate succ(v) with w as tovisit
+     /*iterate succ(v) with w as tovisit
        inv tovisit <: succ(v) &
            V = Vo \/ (succ(v) \ tovisit) &
-           N = No \/ (succ(v) \ (V \/ tovisit))
+           N = No \/ (succ(v) \ (Vo \/ tovisit))
      do 
        if not w in V
        then
          V := V \/ {w};
          N := N \/ {w}
        end
-     end;
+     end;*/
+     V := Vo \/ succ(v);
+     N := No \/ (succ(v) \ Vo);
      
      if C = {}
      then
@@ -76,14 +76,21 @@ do
        N := {};
        d := d+1
      end
+
    end;
 
-   note (\forall a; not minconnect(src, a, d+1));
-      
-   
-   
-   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i))) 
+   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
       with "§(rule int_induction_match)";
 
    d := -1
 end 
+
+(*
+
+The original invariant for second loop
+           N = No \/ (succ(v) \ (V \/ tovisit))
+
+could (by proof obligation!) by identified as false: the 
+chosen value "w" could not fulfill this.
+
+*)
