@@ -15,29 +15,29 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 
 /**
  * A sort in the logic.
- * 
+ *
  * It has a name and a number of argument types.
  */
 public class Sort {
 
     /**
-     * The name of the sort
+     * The name of the sort.
      */
-    private String name;
+    private final String name;
 
     /**
      * The number of arguments to apply to the sort.
      */
-    private int arity;
+    private final int arity;
 
     /**
      * The declaration location of this sort.
      */
-    private ASTLocatedElement declaration;
+    private final ASTLocatedElement declaration;
 
     /**
      * Instantiates a new sort.
-     * 
+     *
      * @param name
      *            the name of the sort
      * @param arity
@@ -45,7 +45,7 @@ public class Sort {
      * @param declaration
      *            the location of the declaration
      */
-    public Sort(@NonNull String name, int arity, 
+    public Sort(@NonNull String name, int arity,
             @NonNull ASTLocatedElement declaration) {
         super();
         this.name = name;
@@ -55,7 +55,7 @@ public class Sort {
 
     /**
      * Gets the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -64,7 +64,7 @@ public class Sort {
 
     /**
      * Gets the number of expected type parameters.
-     * 
+     *
      * @return the arity
      */
     public int getArity() {
@@ -73,13 +73,14 @@ public class Sort {
 
     /**
      * Gets the location of the declaration.
-     * 
+     *
      * @return the declaration
      */
     public ASTLocatedElement getDeclaration() {
         return declaration;
     }
-    
+
+    @Override
     public String toString() {
         return "Sort[" + name + ";" + arity + "]";
     }

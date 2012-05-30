@@ -32,7 +32,7 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
-
+// TODO DOC
 public class EnvironmentDefinitionVisitor extends ASTDefaultVisitor {
 
     /**

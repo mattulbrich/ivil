@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
 // Introduce an extra class to match a single rule (??)
 
 /**
- * Objects of this class are used to find applicable rules for 
+ * Objects of this class are used to find applicable rules for
  * a given term within a sequent.
  */
 public class RuleApplicationFinder {
@@ -36,7 +36,7 @@ public class RuleApplicationFinder {
      * It is thrown from within the matching code and caught to stop further matching
      * search.
      */
-    @SuppressWarnings("serial") 
+    @SuppressWarnings("serial")
     private static class EnoughException extends Exception {};
 
     /**
@@ -47,12 +47,12 @@ public class RuleApplicationFinder {
     /**
      * The sequent under inspection (needed to find assumptions)
      */
-    private Sequent sequent;
+    private final Sequent sequent;
 
     /**
      * The environment - needed to check where clauses
      */
-    private Environment env;
+    private final Environment env;
 
     /**
      * Collect applications here.
@@ -63,12 +63,12 @@ public class RuleApplicationFinder {
      * The currently built rule application.
      */
     private RuleApplicationMaker ruleAppMaker;
-    
+
     /**
      * The goal that we work on.
      */
-    private ProofNode goal;
-    
+    private final ProofNode goal;
+
     /**
      * the number of hits after which the search should stop.
      */
@@ -83,7 +83,7 @@ public class RuleApplicationFinder {
 
     /**
      * Instantiates a new interactive rule application finder.
-     * 
+     *
      * @param proof
      *            the proof to inspect
      * @param node
@@ -102,18 +102,18 @@ public class RuleApplicationFinder {
     /**
      * Find one single rule application on a subterm in the sequent under
      * inspection.
-     * 
+     *
      * @param termSelector
      *            the term selector for the subterm to match with find
      * @param rules
      *            the set of rules to check
-     * 
+     *
      * @return the rule application containing the found match
-     * 
+     *
      * @throws ProofException
      *             may be thrown during the search of applicable rules
      */
-    public @Nullable RuleApplicationMaker findOne(TermSelector termSelector,  
+    public @Nullable RuleApplicationMaker findOne(TermSelector termSelector,
             List<Rule> rules) throws ProofException {
         stopAtSize = 1;
 
@@ -128,18 +128,18 @@ public class RuleApplicationFinder {
     /**
      * Find all applicable rule applications on a subterm in the sequent under
      * inspection.
-     * 
+     *
      * @param termSelector
      *            the term selector for the subterm to match with find
      * @param rules
      *            the set of rules to check
-     * 
+     *
      * @return a list of rule applications. may be empty if no applications could be found.
-     * 
+     *
      * @throws ProofException
      *             may be thrown during the search of applicable rules
      */
-    public List<RuleApplication> findAll(TermSelector termSelector,  
+    public List<RuleApplication> findAll(TermSelector termSelector,
             List<Rule> rules) throws ProofException {
         stopAtSize = MAX_NUMBER_APPLICATIONS;
 
@@ -155,7 +155,7 @@ public class RuleApplicationFinder {
 
     /**
      * Gets the currently installed application filter.
-     * 
+     *
      * @return the application filter or null
      */
     public RuleApplicationFilter getApplicationFilter() {
@@ -165,36 +165,37 @@ public class RuleApplicationFinder {
     /**
      * Sets the application filter to be used in the future.
      * Setting it to null turns filtering off.
-     * 
+     *
      * @param applicationFilter
      *            the new application filter or null
      */
     public void setApplicationFilter(RuleApplicationFilter applicationFilter) {
         this.applicationFilter = applicationFilter;
     }
-    
+
     /**
      * Does the actual searching. goes over all possibilities and stores
      * applicable ones in applications. When the number of desired items is
      * found, throw an {@link EnoughException}.
-     * 
+     *
      * @param termSelector
      *            the term to be selected from the sequent
      * @param sortedAllRules
      *            the set of rules to check
-     * 
+     *
      * @throws ProofException
      *             the proof fails
      * @throws EnoughException
      *             if enough applications have been found
      */
-    private void find(TermSelector termSelector,  
+    private void find(TermSelector termSelector,
             List<Rule> sortedAllRules) throws ProofException, EnoughException {
 
         applications = new ArrayList<RuleApplication>();
         ruleAppMaker = new RuleApplicationMaker(env);
         ruleAppMaker.setProofNode(goal);
-        
+        Term subterm = termSelector.selectSubterm(sequent);
+
         try {
             for (Rule rule : sortedAllRules) {
 
@@ -205,22 +206,23 @@ public class RuleApplicationFinder {
 
                 LocatedTerm findClause = rule.getFindClause();
                 TermMatcher termMatcher = ruleAppMaker.getTermMatcher();
-                
+
                 if(findClause != null) {
                     if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
                             && (termSelector.isSuccedent() || !termSelector
-                                    .isToplevel()))
+                                    .isToplevel())) {
                         continue;
+                    }
 
                     if (findClause.getMatchingLocation() == MatchingLocation.SUCCEDENT
                             && (termSelector.isAntecedent() || !termSelector
-                                    .isToplevel()))
+                                    .isToplevel())) {
                         continue;
+                    }
 
-
-                    if (!termMatcher.leftMatch(findClause.getTerm(), termSelector
-                            .selectSubterm(sequent)))
+                    if (!termMatcher.leftMatch(findClause.getTerm(), subterm)) {
                         continue;
+                    }
                 }
 
                 matchAssumptions(rule.getAssumptions(), 0);
@@ -228,25 +230,25 @@ public class RuleApplicationFinder {
             }
         } catch (RuleException e) {
             throw new ProofException("Error during finding applicable rules", e);
-        } 
-        
+        }
+
     }
 
     /**
      * Match assumptions recursively.
-     * 
+     *
      * Try all possible assumption instantiation. If no more assumptions are to
      * be matched and the where clauses can be checked add a copy of the current
      * {@link #ruleAppMaker} to the set {@link #applications}.
-     * 
+     *
      * Applications are only added if the optionally defined filter accepts
      * them.
-     * 
+     *
      * @param assumptions
      *            the list of assumptions
      * @param assIdx
      *            the index of the current assumption within assumptions
-     * 
+     *
      * @throws RuleException
      *             may appear when checking where clauses
      * @throws EnoughException if enough applications have been found
@@ -261,13 +263,14 @@ public class RuleApplicationFinder {
                 RuleApplication rap = ruleAppMaker.make();
                 if(applicationFilter == null || applicationFilter.accepts(rap)) {
                     applications.add(rap);
-                    if (applications.size() >= stopAtSize)
+                    if (applications.size() >= stopAtSize) {
                         throw new EnoughException();
+                    }
                 }
             }
             return;
         }
-        
+
         LocatedTerm assumption = assumptions.get(assIdx);
         List<Term> branch;
         boolean isAntecedent = assumption.getMatchingLocation() == MatchingLocation.ANTECEDENT;
@@ -276,8 +279,8 @@ public class RuleApplicationFinder {
         } else {
             branch = sequent.getSuccedent();
         }
-        
-        
+
+
         TermMatcher mcCopy = mc.clone();
         int termNo = 0;
         for (Term t : branch) {
@@ -294,31 +297,32 @@ public class RuleApplicationFinder {
 
     /**
      * Match where clauses one after the other. All of them have to return true.
-     * 
+     *
      * Before validating the clauses, the conditions are given a
      * chance to instantiate schema entities if needed. Active instantiation is
      * performed before starting checking, hence, an instantiation cannot
      * invalidate a check.
-     * 
+     *
      * @param mc
      *            the unification context.
-     * 
+     *
      * @return true, if successful
-     * 
+     *
      * @throws RuleException
      *             may be thrown by the where condition
      */
     private boolean matchWhereClauses(TermMatcher mc) throws RuleException {
-        
+
         List<WhereClause> whereClauses = ruleAppMaker.getRule().getWhereClauses();
-        
+
         for (WhereClause wc : whereClauses) {
             wc.addInstantiations(mc, ruleAppMaker, env);
         }
-        
+
         for (WhereClause wc : whereClauses) {
-            if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, env))
+            if (!wc.applyTo(mc.getTermInstantiator(), ruleAppMaker, env)) {
                 return false;
+            }
         }
         return true;
     }
