@@ -6,7 +6,14 @@ import junit.framework.TestCase;
 
 public class TestChainedRelationVisitor extends TestCase {
 
-    public static final TermVisitor TERMVISIT = new TermVisitor();
+    public TermVisitor termVisit;
+    private Translation translation;
+
+    @Override
+    protected void setUp() throws Exception {
+        translation = new Translation((String)null);
+        termVisit = new TermVisitor(translation);
+    }
 
     private void testChaining(String in, String out) throws Exception {
         AlgoParser p = new AlgoParser(new StringReader("algo x do assume " + in + " end"));
@@ -19,7 +26,7 @@ public class TestChainedRelationVisitor extends TestCase {
         ChainedRelationVisitor crv = new ChainedRelationVisitor();
         binex.jjtAccept(crv, null);
 
-        assertEquals(out, binex.jjtAccept(TERMVISIT, null));
+        assertEquals(out, binex.jjtAccept(termVisit, null));
     }
 
     public void testChainingLTE() throws Exception {

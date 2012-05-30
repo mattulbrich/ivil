@@ -1,6 +1,6 @@
 package de.uka.iti.pseudo.algo;
 
-public abstract class DefaultAlgoVisitor implements AlgoParserVisitor {
+public abstract class DefaultAlgoParserVisitor implements AlgoParserVisitor {
 
     public abstract String visitDefault(SimpleNode node, Object data);
 
@@ -35,6 +35,11 @@ public abstract class DefaultAlgoVisitor implements AlgoParserVisitor {
 
     @Override
     public String visit(ASTInputDecl node, Object data) {
+        return visitDefault(node, data);
+    }
+
+    @Override
+    public String visit(ASTAbbreviation node, Object data) {
         return visitDefault(node, data);
     }
 
@@ -139,6 +144,11 @@ public abstract class DefaultAlgoVisitor implements AlgoParserVisitor {
     }
 
     @Override
+    public String visit(ASTAbbrevIdentifier node, Object data) {
+        return visitDefault(node, data);
+    }
+
+    @Override
     public String visit(ASTBinaryExpression node, Object data) {
         return visitDefault(node, data);
     }
@@ -207,5 +217,4 @@ public abstract class DefaultAlgoVisitor implements AlgoParserVisitor {
     public String visit(ASTCouplingFormula node, Object data) {
         return visitDefault(node, data);
     }
-
 }

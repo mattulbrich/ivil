@@ -14,8 +14,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import nonnull.Nullable;
@@ -35,6 +37,8 @@ public class Translation {
     private final Set<String> functionNames = new HashSet<String>();
 
     private boolean refinementMode;
+
+    private final Map<String, String> abbreviations = new HashMap<String, String>();
 
     public static void main(String[] args) throws ParseException, IOException, CommandLineException {
         String source;
@@ -80,6 +84,11 @@ public class Translation {
         }
     }
 
+    public Translation(AlgoParser p) {
+        this.sourceFile = "<none>";
+        this.parser = p;
+    }
+
     public void exportTo(PrintWriter pw) throws ParseException {
 
         ASTStart result = parser.Start();
@@ -123,6 +132,21 @@ public class Translation {
 
     public void addDeclaration(String string) {
         declarations.add(string);
+    }
+
+    public String getAbbreviatedTerm(Object name) {
+        String result = abbreviations.get(name);
+        if(result == null) {
+            throw new IllegalStateException("Abbreviation " + name + " not defined");
+        }
+        return result;
+    }
+
+    public void putAbbreviation(String name, String term) {
+        if(abbreviations.containsKey(name)) {
+            throw new IllegalStateException("Abbreviation " + name + " already defined");
+        }
+        abbreviations.put(name, term);
     }
 
 }

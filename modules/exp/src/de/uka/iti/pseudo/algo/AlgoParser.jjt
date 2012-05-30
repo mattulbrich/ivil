@@ -123,6 +123,7 @@ TOKEN : /* KEYWORDS */
 | < ITERATE : "iterate" >
 | < ENSURES : "ensures" >
 | < REQUIRES : "requires" >
+| < ABBREVIATION: "abbreviation" >
 }
 
 MORE : /* INLINE MODE */
@@ -149,6 +150,8 @@ TOKEN : /* IDENTIFIERS */
 |
   < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
 |
+  < ABBREV_IDENTIFIER: "@" <IDENTIFIER> >
+|
   < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
 }
 
@@ -156,6 +159,7 @@ TOKEN : /* IDENTIFIERS */
 ASTStart Start() #Start : {}
 {
   ( Uses() )*
+  ( Abbreviation() )*
   ( Algo() )+
   ( Refinement() )?
   { return jjtThis; }
@@ -179,6 +183,17 @@ void Uses() :
   )
 }
 
+void Abbreviation() #Abbreviation :
+{
+  Token t;
+}
+{
+  "abbreviation" 
+  AbbrevIdentifier()
+  ":="
+  Expression()
+}
+
 void Algo() #Algo : 
 {
   Token t;
@@ -186,11 +201,11 @@ void Algo() #Algo :
 {
   "algo" Identifier()
 
-  (  "input" Declarations()  #InputDecl 
+  (  "input" Declarations()   #InputDecl 
    | "output" Declarations()  #OutputDecl
-   | "var" Declarations()  #VarDecl
-   | "requires" Expression() #RequiresDecl
-   | "ensures" Expression() #EnsuresDecl
+   | "var" Declarations()     #VarDecl
+   | "requires" Expression()  #RequiresDecl
+   | "ensures" Expression()   #EnsuresDecl
   )*
 
   "do"
@@ -277,7 +292,7 @@ void IterateStatement() #IterateStatement : {}
 {
   "iterate" Expression() 
   "with" Identifier()
-  "as" Identifier()
+  "in" Identifier()
   "inv" Expression()
   "do"
     StatementBlock()
@@ -360,6 +375,17 @@ void BinderIdentifier() #BinderIdentifier :
   }
 }
 
+void AbbrevIdentifier() #AbbrevIdentifier :
+{
+  Token t;
+}
+{
+  t=<ABBREV_IDENTIFIER>
+  {
+    jjtThis.jjtSetValue(t.image);
+  }
+}
+
 /** Expressions. */
 void Expression() : {}
 { 
@@ -400,7 +426,7 @@ void RelationExpression() :
 { 
    // "in" must be relayed as "::"
    AddExpression() 
-   ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; }| t="<" | t="<=" | t=">" | t=">=") 
+   ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; } | t="<" | t="<=" | t=">" | t=">=") 
    RelationExpression() 
       { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
 }
@@ -460,6 +486,8 @@ void PrimaryExpression() :
      "(" EquivalenceExpression() ")"
    |
      IntegerLiteral()
+   |
+     AbbrevIdentifier()
 }
 
 void ExpressionCommaList() #ExpressionCommaList :
@@ -475,7 +503,8 @@ void SetExtensionExpression() : {}
     ( LOOKAHEAD(2)
       ( Identifier()
         ":"
-        EquivalenceExpression() ) #SetComprehensionExpression
+        EquivalenceExpression() 
+        "}" ) #SetComprehensionExpression
     |
       (
        ( EquivalenceExpression() )? 

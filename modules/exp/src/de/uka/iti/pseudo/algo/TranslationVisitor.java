@@ -19,7 +19,7 @@ import java.util.List;
  * It delegates part of the translation to the TermVisitor, AlgoVisitor,
  * JavaVisitor, MethodRefVisitor.
  */
-public class TranslationVisitor extends DefaultAlgoVisitor {
+public class TranslationVisitor extends DefaultAlgoParserVisitor {
 
     private final List<String> programs = new ArrayList<String>();
 
@@ -27,9 +27,12 @@ public class TranslationVisitor extends DefaultAlgoVisitor {
 
     private final boolean refinementMode;
 
+    private final TermVisitor termVisitor;
+
     public TranslationVisitor(Translation translation, boolean refinementMode) {
         this.translation = translation;
         this.refinementMode = refinementMode;
+        this.termVisitor = new TermVisitor(translation);
     }
 
     public List<String> getPrograms() {
@@ -53,6 +56,19 @@ public class TranslationVisitor extends DefaultAlgoVisitor {
     public String visit(ASTUsesInlineDeclaration node, Object data) {
         translation.addDeclaration(node.jjtGetValue().toString());
         return null;
+    }
+
+    @Override
+    public String visit(ASTAbbreviation node, Object data) {
+        String name = visitChild(node, 0);
+        String term = node.jjtGetChild(1).jjtAccept(termVisitor, data);
+        translation.putAbbreviation(name, term);
+        return null;
+    }
+
+    @Override
+    public String visit(ASTAbbrevIdentifier node, Object data) {
+        return node.jjtGetValue().toString();
     }
 
     @Override

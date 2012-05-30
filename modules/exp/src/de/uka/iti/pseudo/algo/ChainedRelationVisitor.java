@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ChainedRelationVisitor extends DefaultAlgoVisitor {
+public class ChainedRelationVisitor extends DefaultAlgoParserVisitor {
 
     private static final Set<String> chainableRelations =
             new HashSet<String>(Arrays.asList("<", "<="));

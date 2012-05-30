@@ -1,10 +1,30 @@
 package de.uka.iti.pseudo.algo;
 
-public class TermVisitor extends DefaultAlgoVisitor {
+public class TermVisitor extends DefaultAlgoParserVisitor {
+
+    private final Translation translation;
+
+    /**
+     * @param translation
+     */
+    public TermVisitor(Translation translation) {
+        super();
+        this.translation = translation;
+    }
 
     @Override
     public String visit(ASTIdentifier node, Object data) {
         return node.jjtGetValue().toString();
+    }
+
+    @Override
+    public String visit(ASTBinderIdentifier node, Object data) {
+        return node.jjtGetValue().toString();
+    }
+
+    @Override
+    public String visit(ASTAbbrevIdentifier node, Object data) {
+        return translation.getAbbreviatedTerm(node.jjtGetValue());
     }
 
     @Override
@@ -26,11 +46,6 @@ public class TermVisitor extends DefaultAlgoVisitor {
     @Override
     public String visit(ASTMapAccessExpression node, Object data) {
         return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
-    }
-
-    @Override
-    public String visit(ASTBinderIdentifier node, Object data) {
-        return node.jjtGetValue().toString();
     }
 
     @Override

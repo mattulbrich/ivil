@@ -5,10 +5,10 @@ import java.util.List;
 
 import de.uka.iti.pseudo.util.Util;
 
-public class AlgoVisitor extends DefaultAlgoVisitor {
+public class AlgoVisitor extends DefaultAlgoParserVisitor {
 
     private String programName;
-    private final TermVisitor termVisitor = new TermVisitor();
+    private final TermVisitor termVisitor;
     private final Translation translation;
     private final List<String> statements = new ArrayList<String>();
     private final List<String> requirements = new ArrayList<String>();
@@ -20,6 +20,7 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
     public AlgoVisitor(Translation translation, boolean refinementMode) {
         this.translation = translation;
         this.refinementMode = refinementMode;
+        this.termVisitor = new TermVisitor(translation);
     }
 
     public List<String> extractProgram(ASTAlgo node) {
@@ -325,4 +326,5 @@ public class AlgoVisitor extends DefaultAlgoVisitor {
         throw new Error("AlgoVisitor must not visit a node of type "
                 + node.getClass().getSimpleName());
     }
+
 }

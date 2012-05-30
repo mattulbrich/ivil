@@ -8,17 +8,18 @@ import java.util.Map;
 import de.uka.iti.pseudo.util.Util;
 
 
-public class JavaVisitor extends DefaultAlgoVisitor {
+public class JavaVisitor extends DefaultAlgoParserVisitor {
 
     private String methodName;
     private String className;
     private String methodSignaure;
-    private final TermVisitor termVisitor = new TermVisitor();
+    private final TermVisitor termVisitor;
     private final Map<Object, String> couplingMap = new HashMap<Object, String>();
     private final Translation translation;
 
     public JavaVisitor(Translation translation) {
         this.translation = translation;
+        this.termVisitor = new TermVisitor(translation);
     }
 
     @Override
