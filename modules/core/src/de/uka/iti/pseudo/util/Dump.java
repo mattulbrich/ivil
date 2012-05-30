@@ -2,31 +2,44 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.util;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 
 /**
  * A collection of static methods that can be used to dump internal information
  * for debug purposes.
- * 
+ *
  * Output to be used for regular reasons should be implemented closer to the
  * information.
  */
 public class Dump {
 
-    public static void dumpRuleApplication(RuleApplication ruleApp) {
+    /**
+     * Dump a rule application to standard error.
+     *
+     * @param ruleApp
+     *            the rule application
+     */
+    public static void dumpRuleApplication(@NonNull RuleApplication ruleApp) {
         System.err.println(toString(ruleApp));
     }
-    
-    public static String toString(RuleApplication ruleApp) {
+
+    /**
+     * Render a Rule application into a multiline string.
+     *
+     * @param ruleApp
+     *            the rule app
+     * @return the multiline string representation of the argument.
+     */
+    public static String toString(@NonNull RuleApplication ruleApp) {
         StringBuilder sb = new StringBuilder();
         sb.append("Rule application : " + ruleApp);
         Rule rule = ruleApp.getRule();
@@ -40,5 +53,5 @@ public class Dump {
         sb.append("\n Properties: " + ruleApp.getProperties());
         return sb.toString();
     }
-    
+
 }

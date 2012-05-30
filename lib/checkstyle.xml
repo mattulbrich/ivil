@@ -38,16 +38,23 @@
 
         <property name="basedir" value="${basedir}"/>
     -->
+
     <module name="SuppressionCommentFilter">
-        <property name="offCommentFormat" value="CSOFF\: ?([\w\|]+)"/>
-        <property name="onCommentFormat" value="CSON\: ?([\w\|]+)"/>
-        <property name="checkFormat" value="$1"/>
+      <property name="offCommentFormat" value="Checkstyle\: *OFF +([\w\|]+)"/>
+      <property name="onCommentFormat" value="Checkstyle\: *ON +([\w\|]+)"/>
+      <property name="checkFormat" value="$1"/>
     </module>
 
     <module name="SuppressWithNearbyCommentFilter">
-        <property name="commentFormat" value="CSIGNORE\: ?([\w\|]+)"/>
-        <property name="checkFormat" value="$1"/>
-        <property name="influenceFormat" value="3"/>
+      <property name="commentFormat" value="Checkstyle\: *IGNORE +([\w\|]+)"/>
+      <property name="checkFormat" value="$1"/>
+      <property name="influenceFormat" value="3"/>
+    </module>
+
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="Checkstyle\: *ALLOFF"/>
+      <property name="onCommentFormat" value="Checkstyle\: *ALLON"/>
+      <property name="checkFormat" value=".*"/>
     </module>
 
     <!-- Checks that a package-info.java file exists for each package.     -->
@@ -97,11 +104,12 @@
     </module>
 
     <module name="TreeWalker">
+
       <!-- for the comment filter -->
-      <module name="FileContentsHolder"/>
+      <module name="FileContentsHolder" />
 
       <!--<module name="AnnotationUseStyle"/>-->
-      <module name="MutableException"/>
+      <module name="MutableException" />
 
       <!-- Checks for Javadoc comments.                     -->
       <!-- See http://checkstyle.sf.net/config_javadoc.html -->
@@ -112,7 +120,9 @@
         <property name="scope" value="package" />
       </module>
       <module name="JavadocType"/>
-      <module name="JavadocVariable"/>
+      <module name="JavadocVariable">
+        <property name="scope" value="package" />
+      </module>
       <module name="JavadocStyle"/>
 
 
@@ -157,40 +167,40 @@
       <!-- Checks for whitespace                               -->
       <!-- See http://checkstyle.sf.net/config_whitespace.html -->
       <module name="EmptyForIteratorPad">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="GenericWhitespace">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="MethodParamPad">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="NoWhitespaceAfter">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="NoWhitespaceBefore">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="OperatorWrap">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="ParenPad">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="TypecastParenPad">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="WhitespaceAfter">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="WhitespaceAround">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
 
       <!-- Modifier Checks                                    -->
       <!-- See http://checkstyle.sf.net/config_modifiers.html -->
       <module name="ModifierOrder">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="RedundantModifier">
         <property name="severity" value="info"/>
@@ -215,12 +225,16 @@
       </module>
       <module name="DefaultComesLast"/>
       <module name="FallThrough"/>
-      <module name="MultipleStringLiterals"/>
+      <module name="MultipleStringLiterals">
+        <property name="severity" value="info"/>
+      </module>
       <module name="MultipleVariableDeclarations"/>
       <module name="OneStatementPerLine"/>
       <module name="EmptyStatement"/>
       <module name="EqualsHashCode"/>
       <module name="HiddenField">
+        <property name="ignoreConstructorParameter" value="true" />
+        <property name="ignoreSetter" value="true" />
         <property name="severity" value="info"/>
       </module>
       <!--<module name="IllegalInstantiation"/>-->
@@ -247,7 +261,7 @@
       <!-- Checks for class design                         -->
       <!-- See http://checkstyle.sf.net/config_design.html -->
       <module name="DesignForExtension">
-        <property name="severity" value="warning"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="FinalClass"/>
       <module name="HideUtilityClassConstructor"/>
@@ -259,12 +273,15 @@
       <!-- Miscellaneous other checks.                   -->
       <!-- See http://checkstyle.sf.net/config_misc.html -->
       <module name="ArrayTypeStyle"/>
+
       <module name="FinalParameters">
-        <property name="severity" value="info"/>
+        <property name="severity" value="ignore"/>
       </module>
       <module name="TodoComment">
         <property name="format" value="TODO"/>
+	<property name="severity" value="warning"/>        
       </module>
+
       <module name="UpperEll"/>
 
       <module name="Indentation">

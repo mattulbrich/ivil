@@ -2,9 +2,9 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- * 
- * The system is protected by the GNU General Public License. 
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.proof;
@@ -27,14 +27,14 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
 // producer pattern?
 
 public class RuleApplicationMaker implements RuleApplication {
-    
+
     private Rule rule;
     private ProofNode proofNode;
     private TermSelector findSelector;
-    private Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
+    private final Stack<TermSelector> assumeSelectors = new Stack<TermSelector>();
     private TermMatcher termMatcher;
-    private Map<String, String> properties = new HashMap<String, String>();
-    
+    private final Map<String, String> properties = new HashMap<String, String>();
+
     public RuleApplicationMaker(Environment env) {
         // TODO Perhaps set this to null here?
         termMatcher = new TermMatcher();
@@ -53,7 +53,7 @@ public class RuleApplicationMaker implements RuleApplication {
     }
 
     public void pushAssumptionSelector(TermSelector termSelector) {
-       assumeSelectors.push(termSelector); 
+       assumeSelectors.push(termSelector);
     }
 
     public RuleApplication make() {
@@ -68,38 +68,47 @@ public class RuleApplicationMaker implements RuleApplication {
         termMatcher = mc;
     }
 
+    @Override
     public List<TermSelector> getAssumeSelectors() {
         return assumeSelectors;
     }
 
+    @Override
     public TermSelector getFindSelector() {
         return findSelector;
     }
 
+    @Override
     public ProofNode getProofNode() {
         return proofNode;
     }
 
+    @Override
     public Rule getRule() {
         return rule;
     }
 
+    @Override
     public Map<String, String> getProperties() {
         return properties;
     }
 
+    @Override
     public Map<String, Term> getSchemaVariableMapping() {
         return termMatcher.getTermInstantiation();
     }
-    
+
+    @Override
     public Map<String, Update> getSchemaUpdateMapping() {
         return termMatcher.getUpdateInstantiation();
     }
 
+    @Override
     public Map<String, Type> getTypeVariableMapping() {
         return termMatcher.getTypeInstantiation();
     }
 
+    @Override
     public boolean hasMutableProperties() {
         return true;
     }
@@ -115,39 +124,39 @@ public class RuleApplicationMaker implements RuleApplication {
     /**
      * Matches the clauses (find and assumptions) against their selected
      * counterparts of the proof node.
-     * 
+     *
      * We need to have set all assumption selectors, the find selector, the rule
      * and the proof node.
-     * 
+     *
      * This method may succeed even if the rule is not applicable afterwards:
      * This is because located terms are not checked.
      * @throws ProofException if the sequent does not match the rule entities.
      */
     public void matchInstantiations() throws ProofException {
 
-        if(rule == null)
+        if(rule == null) {
             throw new ProofException("Matching with null rule");
-        
-        if(proofNode == null)
+        }
+
+        if(proofNode == null) {
             throw new ProofException("Matching with null proof node");
-        
+        }
+
         Sequent sequent = proofNode.getSequent();
-        
+
         LocatedTerm findClause = rule.getFindClause();
         if(findClause != null && findSelector != null) {
             Term findRule = findClause.getTerm();
             Term findSeq = findSelector.selectSubterm(sequent);
             termMatcher.leftMatch(findRule, findSeq);
         }
-        
+
         int i=0;
         for (LocatedTerm assumption : rule.getAssumptions()) {
             Term assRule = assumption.getTerm();
             Term assSeq = assumeSelectors.get(i++).selectSubterm(sequent);
             termMatcher.leftMatch(assRule, assSeq);
         }
-        
-    }
 
-    
+    }
 }
