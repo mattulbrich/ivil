@@ -167,4 +167,15 @@
     </copyright>
   </target>
 
+  <target name="checkstyle">
+    <taskdef resource="checkstyletask.properties"
+         classpath="lib/checkstyle-5.5-all.jar"/>
+    <checkstyle config="lib/checkstyle.xml">
+        <property key="headerFile" file="LICENSE.header"/>
+        <fileset dir="modules/core/src" includes="**/*.java" />
+        <formatter type="plain" />
+        <formatter type="xml" toFile="checkstyle-results.xml" />
+    </checkstyle>
+  </target>
+
 </project>
