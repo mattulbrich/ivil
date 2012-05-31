@@ -252,3 +252,9 @@ rule equality_unique
 rule remove_pattern
   find %s ~~> %t
   replace %t
+
+rule insert_pattern
+  find %t
+  where
+    interact %s
+  replace %s ~~> %t

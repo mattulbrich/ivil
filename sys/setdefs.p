@@ -71,5 +71,5 @@ axiom subset_definition
 
 axiom set_equality_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
-    a = b ~~> a = b <-> (\forall x; x::a <-> x::b))))
+    a = b <-> (\forall x; x::a <-> x::b))))
     
