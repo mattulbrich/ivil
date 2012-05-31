@@ -1,5 +1,5 @@
-uses "bfs.algo.p"
-
+uses "bfs.decl.p"
+     
 algo bfs
 input
    src, dest : vertex
@@ -31,9 +31,9 @@ do
    C := {src};
    N := {};
    d := 0;
+
    while !(C = {})
-     inv 
-       d >= 0 &
+     inv d >= 0 &
        (\forall x; x in C -> minconnect(src, x, d)) &
        (\forall y; y in N <-> 
            (\exists q; minconnect(src, q, d) & not q in C & y in succ(q))) &
@@ -74,13 +74,17 @@ do
      then
        C := N;
        N := {};
-       d := d+1
+       d := d+1;
+       assume 1=2
      end
-
+         
    end;
 
    note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
-      with "§(rule int_induction_match)";
+     with "§(rule int_induction_match)";
+
+   note (\forall j; j>d -> !minconnect(src, dest, j))
+     with "§(rule deep_update_simplification nested_quant_z3)";
 
    d := -1
 end 

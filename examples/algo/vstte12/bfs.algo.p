@@ -1,53 +1,98 @@
-include "$set.p"
-include "$pair.p"
-include "$int.p"
-include "$symbex.p"
-include "$decproc.p"
+# Automatically created on Thu May 31 18:16:47 CEST 2012
+include "bfs.decl.p"
+function vertex src 
+function vertex dest 
+function int d assignable
+function int size assignable
+function set(vertex) V assignable
+function set(vertex) C assignable
+function set(vertex) N assignable
+function set(vertex) Vo assignable
+function set(vertex) Co assignable
+function set(vertex) No assignable
+function set(vertex) tovisit assignable
+function vertex v assignable
+function vertex w assignable
 
-properties
-  CompoundStrategy.strategies 
-    "HintStrategy,SimplificationStrategy,BreakpointStrategy,SMTStrategy"
+program bfs source "bfs.algo"
+ sourceline 16
+  assume finite(((fullset) as set(vertex))) ; "by requirement"
+ sourceline 28
+  size := card(((fullset) as set(vertex)))
+ sourceline 30
+  V := singleton(src)
+ sourceline 31
+  C := singleton(src)
+ sourceline 32
+  N := emptyset
+ sourceline 33
+  d := 0
+ loop0:
+ sourceline 48
+  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (\exists q; (minconnect(src, q, d) & ((!(q) :: C) & (y :: succ(q))))))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists c; ((a :: succ(c)) & (c :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
+ sourceline 35
+  goto body0, after0
+ body0:
+  assume !((C = emptyset)); "assume condition "
+ sourceline 50
+  assert (\exists v; (v :: C)) ; "assert before choose"
+  havoc v
+  assume (v :: C)
+ sourceline 51
+  C := (C \ singleton(v))
+ sourceline 52
+  goto then0, else0
+ then0:
+  assume (v = dest); "then"
+ sourceline 54
+  goto endOfProgram ; "Return Statement"
+  goto after1
+ else0:
+  assume $not((v = dest)); "else"
+ sourceline 55
+ after1:
+ sourceline 57
+  Vo := V
+ sourceline 58
+  No := N
+ sourceline 70
+  V := (Vo \/ succ(v))
+ sourceline 71
+  N := (No \/ (succ(v) \ Vo))
+ sourceline 73
+  goto then1, else1
+ then1:
+  assume (C = emptyset); "then"
+ sourceline 75
+  C := N
+ sourceline 76
+  N := emptyset
+ sourceline 77
+  d := (d + 1)
+ sourceline 78
+  assume (1 = 2)
+  goto after2
+ else1:
+  assume $not((C = emptyset)); "else"
+ sourceline 79
+ after2:
+  goto loop0
+ sourceline 35
+ after0:
+  assume $not(!((C = emptyset)))
+ sourceline 83
+  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; " lemma by §(rule int_induction_match)"
+  assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; "use lemma"
+ sourceline 86
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; " lemma by §(rule deep_update_simplification nested_quant_z3)"
+  assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
+ sourceline 89
+  d := -(1)
+ endOfProgram: 
+ sourceline 19
+  assert (d >= -(1)) ; "by ensures"
+ sourceline 22
+  assert ((d < 0) -> (\forall m; ((m >= 0) -> !(minconnect(src, dest, m))))) ; "by ensures"
+ sourceline 25
+  assert ((d >= 0) -> minconnect(src, dest, d)) ; "by ensures"
 
-sort vertex
-
-function set(vertex) succ(vertex)
-
-function 
-  bool connect(vertex, vertex, int)
-  bool minconnect(vertex, vertex, int)
-
-rule connect_def
-  find connect(%a, %b, %n)
-  where freshVar %x, %a, %b, %n
-  replace cond(%n <= 0,
-        %a = %b,
-        (\exists %x; connect(%a,%x,%n-1) & %b::succ(%x)))
-
-rule minconnect_def
-  find minconnect(%a, %b, %n)
-  where freshVar %m, %a, %b, %n
-  replace connect(%a, %b, %n) &
-        (\forall %m; 0 <= %m & %m < %n -> !connect(%a, %b, %m))
-
-rule minconnect_plus1
-  find minconnect(%a, %b, %n) |-
-  where freshVar %q, %a, %b, %n
-  add %n > 0 -> (\exists %q; minconnect(%a, %q, %n-1) & %b :: succ(%q)) |-
-  tags derived
-
-(* this rule is not confluent *)
-rule minconnect_rec
-  find minconnect(%a, %b, %n)
-  where freshVar %q, %a, %b, %n
-  where freshVar %m, %a, %b, %n
-  replace cond(%n <= 0,
-        %a = %b,
-        (\exists %q; minconnect(%a,%q,%n-1) & %b::succ(%q))
-        & (\forall %q; (\forall %m; %b::succ(%q) & 0<=%m & %m<%n-1 -> 
-           !minconnect(%a, %q, %m))))
-  tags derived
-  
-
-rule oops
-closegoal
-  

@@ -6,7 +6,8 @@ include "$decproc.p"
 
 properties
   CompoundStrategy.strategies 
-    "HintStrategy,SimplificationStrategy,BreakpointStrategy,SMTStrategy"
+    "HintStrategy,SimplificationStrategy,BreakpointStrategy"
+    #,SMTStrategy
 
 sort vertex
 
@@ -23,11 +24,23 @@ rule connect_def
         %a = %b,
         (\exists %x; connect(%a,%x,%n-1) & %b::succ(%x)))
 
+axiom connect_def
+  (\forall a; (\forall b; (\forall n;
+    connect(a,b,n) = 
+     cond(n <= 0,
+          a = b,
+          (\exists x; connect(a,x,n-1) & b::succ(x))))))
+
 rule minconnect_def
   find minconnect(%a, %b, %n)
   where freshVar %m, %a, %b, %n
   replace connect(%a, %b, %n) &
         (\forall %m; 0 <= %m & %m < %n -> !connect(%a, %b, %m))
+
+axiom minconnect_def
+  (\forall a; (\forall b; (\forall n;
+    minconnect(a,b,n) = connect(a,b,n) &
+                        (\forall m; 0<=m & m <n -> !connect(a,b,m)))))
 
 rule minconnect_plus1
   find minconnect(%a, %b, %n) |-
@@ -50,4 +63,12 @@ rule minconnect_rec
 
 rule oops
 closegoal
-  
+
+rule nested_quant_z3
+  where askDecisionProcedure
+  closegoal
+  tags
+    decisionProcedure "Z3"
+    timeout "2000"
+    additionalParams "PULL_NESTED_QUANTIFIERS=true"
+    autoonly
