@@ -33,23 +33,24 @@ import de.uka.iti.pseudo.term.creation.DefaultTypeVisitor;
 /**
  * The Class TypeVariableCollector provides the method {@link #collect(Type)} to
  * collect all appearing type variables into a set.
- * 
+ *
  * The method {@link #collect(Term)} applies collect to the types of all
  * subterms.
- * 
+ *
  * One can also collect schema types.
- * 
+ *
  * The collection can furthermore also be applied to types instead of terms.
- * 
+ *
  * The collections (sets) which contain the entities are lazily created.
  */
-public class TypeVariableCollector {
+public final class TypeVariableCollector {
 
     private Set<TypeVariable> typeVariables = null;
 
     private Set<SchemaType> schemaTypeVariables = null;
 
-    private TypeVisitor<Void, Void> typeVisitor = new DefaultTypeVisitor<Void>() {
+    private final TypeVisitor<Void, Void> typeVisitor = new DefaultTypeVisitor<Void>() {
+        @Override
         public Void visit(SchemaType schemaTypeVariable, Void argument) {
             if(schemaTypeVariables == null) {
                 schemaTypeVariables = new HashSet<SchemaType>();
@@ -58,6 +59,7 @@ public class TypeVariableCollector {
             return null;
         };
 
+        @Override
         public Void visit(TypeVariable typeVariable, Void argument) {
             if(typeVariables == null) {
                 typeVariables = new HashSet<TypeVariable>();
@@ -67,17 +69,20 @@ public class TypeVariableCollector {
         };
     };
 
-    private TermVisitor typeVariableTermVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+    private final TermVisitor typeVariableTermVisitor = new DefaultTermVisitor.DepthTermVisitor() {
+        @Override
         protected void defaultVisitTerm(Term term) throws TermException {
             super.defaultVisitTerm(term);
             term.getType().accept(typeVisitor, null);
         }
 
+        @Override
         public void visit(Binding binding) throws TermException {
             super.visit(binding);
             binding.getVariableType().accept(typeVisitor, null);
         }
-        
+
+        @Override
         public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
             typeVariableBinding.getBoundType().accept(typeVisitor, null);
         }
@@ -92,10 +97,10 @@ public class TypeVariableCollector {
     /**
      * Collect type variables in a term. All (indirect) subterms are visited and
      * all type variables are collected.
-     * 
+     *
      * @param term
      *            some term whose types are to be searched for type variables
-     * 
+     *
      * @return the set of type variable found in term.
      */
     public static @DeepNonNull Set<TypeVariable> collect(@NonNull Term term) {
@@ -108,14 +113,14 @@ public class TypeVariableCollector {
         }
         return makeSet(tvc.typeVariables);
     }
-    
+
     /**
      * Collect type variables in a list of terms. All (indirect) subterms are visited and
      * all type variables are collected.
-     * 
-     * @param list 
+     *
+     * @param terms
      *            a collection of terms
-     * 
+     *
      * @return the set of type variable found in term.
      */
     public static @DeepNonNull Set<TypeVariable> collectInTerms(@NonNull Collection<Term> terms) {
@@ -128,16 +133,16 @@ public class TypeVariableCollector {
             // never thrown in the code
             throw new Error(e);
         }
-        
+
         return makeSet(tvc.typeVariables);
     }
 
     /**
      * Collect type variables in a type.
-     * 
+     *
      * @param type
      *            some arbitrary type
-     * 
+     *
      * @return the set of type variable found in type.
      */
     public static @DeepNonNull Set<TypeVariable> collect(@NonNull Type type) {
@@ -150,15 +155,15 @@ public class TypeVariableCollector {
         }
         return  makeSet(tvc.typeVariables);
     }
-    
+
     /**
      * Collect type variables in a collection of types.
-     * 
+     *
      * The collection is iterated and all found type variables are accumulated.
-     * 
+     *
      * @param types
      *            a collection of types
-     * 
+     *
      * @return the set of type variable found types.
      */
     public static @DeepNonNull Set<TypeVariable> collect(@DeepNonNull Collection<Type> types) {
@@ -177,11 +182,11 @@ public class TypeVariableCollector {
     /**
      * Collect schema type variables in a term. All (indirect) subterms are
      * visited and all schmema type variables are collected.
-     * 
+     *
      * @param term
      *            some term whose types are to be searched for schema type
      *            variables
-     * 
+     *
      * @return the set of schema type variable found in term.
      */
     public static @DeepNonNull Set<SchemaType> collectSchema(@NonNull Term term) {
@@ -197,10 +202,10 @@ public class TypeVariableCollector {
 
     /**
      * Collect schema schema type variables in a type.
-     * 
+     *
      * @param type
      *            some arbitrary type
-     * 
+     *
      * @return the set of schema type variable found in type.
      */
     public static @DeepNonNull Set<SchemaType> collectSchema(@NonNull Type type) {
@@ -213,15 +218,15 @@ public class TypeVariableCollector {
         }
         return makeSet(tvc.schemaTypeVariables);
     }
-    
+
     /**
      * Collect schema type in a collection of types.
-     * 
+     *
      * The collection is iterated and all found schema type are accumulated.
-     * 
+     *
      * @param types
      *            a collection of types
-     * 
+     *
      * @return the set of schema type found types.
      */
     public static Set<SchemaType> collectSchema(@DeepNonNull Collection<Type> types) {
@@ -237,10 +242,10 @@ public class TypeVariableCollector {
         return makeSet(tvc.schemaTypeVariables);
     }
 
-    
+
     /**
      * Turns a <code>null</code> into an empty set.
-     * 
+     *
      * @param <E>
      *            elements in the set
      * @param set
@@ -249,10 +254,11 @@ public class TypeVariableCollector {
      *         set} otherwise.
      */
     private static @NonNull <E> Set<E> makeSet(@Nullable Set<E> set) {
-        if(set == null)
+        if(set == null) {
             return Collections.emptySet();
-        else
+        } else {
             return set;
+        }
     }
 
 }

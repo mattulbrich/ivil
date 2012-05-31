@@ -68,7 +68,8 @@ public class SMTStrategy extends AbstractStrategy {
         try {
             result = solver.solve(sequent, env, closeRule.getProperties());
         } catch (Exception e) {
-            throw new StrategyException("The SMT solver raised an exception. You may consider changing the strategy.");
+            throw new StrategyException(
+                 "The SMT solver raised an exception. You may consider changing the strategy.", e);
         }
 
         boolean proveable = result.fst() == Result.VALID;

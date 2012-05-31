@@ -11,17 +11,18 @@ package de.uka.iti.pseudo.environment;
 
 import java.math.BigInteger;
 
+import nonnull.NonNull;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.Type;
 
 /**
  * A NumberLiteral is a special kind of nullary function symbol
  * holding a natural number.
- * 
+ *
  * Operations on number literals are handled through this class.
  */
 public class NumberLiteral extends Function {
-    
+
     /**
      * The Constant NO_ARGS is kept for the
      * super constructor call.
@@ -31,29 +32,35 @@ public class NumberLiteral extends Function {
     /**
      * The value of the number literal.
      */
-    private BigInteger value;
-    
-    public BigInteger getValue() {
-        return value;
-    }
+    private final BigInteger value;
 
     /**
      * Instantiates a new number literal.
-     * 
+     *
      * @param value the value of the number
      * @param env the environment to rely upon
-     * 
+     *
      * @throws EnvironmentException if the the number is negative
      */
     public NumberLiteral(BigInteger value, Environment env)
             throws EnvironmentException {
         super(value.toString(), Environment.getIntType(), NO_ARGS, true, false,
                 ASTLocatedElement.BUILTIN);
-        
+
         this.value = value;
-        
-        if(value.signum() == -1)
+
+        if(value.signum() == -1) {
             throw new EnvironmentException("A number literal must not be negative: " + value);
+        }
     }
-    
+
+    /**
+     * Gets the numeric value of this literal.
+     *
+     * @return the numeric value of this literal
+     */
+    public @NonNull BigInteger getValue() {
+        return value;
+    }
+
 }

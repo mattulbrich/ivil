@@ -32,6 +32,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -71,7 +72,7 @@ public class Environment {
     }
 
     /**
-     * The resource from which this environment has been read from
+     * The resource from which this environment has been read from.
      */
     private final String resourceName;
 
@@ -86,7 +87,8 @@ public class Environment {
     private boolean fixed;
 
     /**
-     * The mappings from names (strings) to the various elements
+     * The mappings from names (strings) to the various elements.
+     * Checkstyle: OFF LineLength
      */
     private final Map<String, String> propertiesMap = new HashMap<String, String>();
     private final Map<String, Sort> sortMap = new LinkedHashMap<String, Sort>();
@@ -97,12 +99,15 @@ public class Environment {
     private final Map<String, FixOperator> prefixMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, FixOperator> reverseFixityMap = new LinkedHashMap<String, FixOperator>();
     private final Map<String, Program> programMap = new LinkedHashMap<String, Program>();
+    // plugin manager is created lazily
     private @Nullable PluginManager pluginManager = null;
     // literal map is created lazily.
     private @Nullable Map<BigInteger, NumberLiteral> numberMap = null;
 
+    // Checkstyle: ON LineLength
+
     /**
-     * The rules are kept as a sorted set and as a map
+     * The rules are kept as a sorted set and as a map.
      */
     private final List<Rule> rules = new ArrayList<Rule>();
     private final Map<String, Rule> ruleMap = new HashMap<String, Rule>();
@@ -463,8 +468,7 @@ public class Environment {
      *
      * @return a sort with the name <code>name</code>, null if none found
      */
-    public @Nullable
-    Sort getSort(@NonNull String name) {
+    public @Nullable Sort getSort(@NonNull String name) {
         Sort sort = sortMap.get(name);
         if (sort == null && parentEnvironment != null) {
             sort = parentEnvironment.getSort(name);
@@ -518,8 +522,7 @@ public class Environment {
      *
      * @return the fresh sort name
      */
-    public @NonNull
-    String createNewSortName(@NonNull String prefix) {
+    public @NonNull String createNewSortName(@NonNull String prefix) {
         String newName = prefix;
         for (int counter = 1; null != getSort(newName); counter++) {
             newName = prefix + counter;
@@ -533,8 +536,7 @@ public class Environment {
      *
      * @return the type for integers
      */
-    public static @NonNull
-    Type getIntType() {
+    public static @NonNull Type getIntType() {
         try {
             Sort intSort = BUILT_IN_ENV.getSort("int");
             assert intSort != null : "nullness: guaranteed by construction of BUILT_IN_ENV";
@@ -546,7 +548,7 @@ public class Environment {
     }
 
     /**
-     * Gets the bool type which is always present
+     * Gets the bool type which is always present.
      *
      * @return the type for booleans
      */
@@ -605,8 +607,7 @@ public class Environment {
      *
      * @return a function with the name <code>name</code>, null if none found
      */
-    public @Nullable
-    Function getFunction(@NonNull String name) {
+    public @Nullable Function getFunction(@NonNull String name) {
         Function function = functionMap.get(name);
         if (function == null && parentEnvironment != null) {
             function = parentEnvironment.getFunction(name);
@@ -623,8 +624,7 @@ public class Environment {
      *
      * @return a freshly created list of all function symbols
      */
-    public @NonNull
-    List<Function> getAllFunctions() {
+    public @NonNull List<Function> getAllFunctions() {
         List<Function> functions;
 
         if (parentEnvironment == null) {
@@ -644,8 +644,7 @@ public class Environment {
      *
      * @return an unmodifiable collection of functions
      */
-    public @NonNull
-    Collection<Function> getLocalFunctions() {
+    public @NonNull Collection<Function> getLocalFunctions() {
         return functionMap.values();
     }
 
@@ -659,13 +658,20 @@ public class Environment {
      *
      * @return the number literal as a function
      */
-    public @NonNull
-    NumberLiteral getNumberLiteral(@NonNull String numberliteral) {
+    public @NonNull NumberLiteral getNumberLiteral(@NonNull String numberliteral) {
         return getNumberLiteral(new BigInteger(numberliteral));
     }
 
-    public @NonNull
-    NumberLiteral getNumberLiteral(@NonNull int numberliteral) {
+    /**
+     * Gets a number literal. It is dynamically added to the top level
+     * environment if not already present.
+     *
+     * @param numberliteral
+     *            the number, a natural (>=0) number
+     *
+     * @return the number literal as a function
+     */
+    public @NonNull NumberLiteral getNumberLiteral(@NonNull int numberliteral) {
         return getNumberLiteral(BigInteger.valueOf(numberliteral));
     }
 
@@ -674,12 +680,11 @@ public class Environment {
      * environment if not already present.
      *
      * @param value
-     *            the literal, must be a positive number
+     *            the literal, must be a non-negative number
      *
      * @return the number literal as a function
      */
-    public @NonNull
-    NumberLiteral getNumberLiteral(@NonNull BigInteger value) {
+    public @NonNull NumberLiteral getNumberLiteral(@NonNull BigInteger value) {
 
         // propagate up to toplevel
         if (parentEnvironment != null) {
@@ -710,8 +715,7 @@ public class Environment {
      *
      * @return a freshly created collection of all assignables.
      */
-    public @NonNull
-    List<Function> getAllAssignables() {
+    public @NonNull List<Function> getAllAssignables() {
         List<Function> result = new ArrayList<Function>();
 
         for (Environment env = this; env != null; env = env.parentEnvironment) {
@@ -735,7 +739,7 @@ public class Environment {
     // }
 
     /**
-     * The constant true as a freshly created term
+     * The constant true as a freshly created term.
      *
      * @return a fresh application of the constant true
      */
@@ -750,12 +754,11 @@ public class Environment {
     }
 
     /**
-     * The constant false as a freshly created term
+     * The constant false as a freshly created term.
      *
      * @return a fresh application of the constant true
      */
-    public static @NonNull
-    Term getFalse() {
+    public static @NonNull Term getFalse() {
         try {
             Function cnstFalse= BUILT_IN_ENV.getFunction("false");
             assert cnstFalse != null : "nullness: existence guaranteed by construction";
@@ -810,8 +813,7 @@ public class Environment {
      * @return the infix operator if found, null if not present in the
      *         repository.
      */
-    public @Nullable
-    FixOperator getInfixOperator(@NonNull String opSymb) {
+    public @Nullable FixOperator getInfixOperator(@NonNull String opSymb) {
         FixOperator fixOperator = infixMap.get(opSymb);
         if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getInfixOperator(opSymb);
@@ -864,8 +866,7 @@ public class Environment {
      * @return the prefix operator if found, null if not present in the
      *         repository.
      */
-    public @Nullable
-    FixOperator getPrefixOperator(@NonNull String opSymb) {
+    public @Nullable FixOperator getPrefixOperator(@NonNull String opSymb) {
         FixOperator fixOperator = prefixMap.get(opSymb);
         if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getPrefixOperator(opSymb);
@@ -887,8 +888,7 @@ public class Environment {
      *
      * @return the corresponding fix operator, null if none found.
      */
-    public @Nullable
-    FixOperator getReverseFixOperator(@NonNull String fctname) {
+    public @Nullable FixOperator getReverseFixOperator(@NonNull String fctname) {
         FixOperator fixOperator = reverseFixityMap.get(fctname);
         if (fixOperator == null && parentEnvironment != null) {
             fixOperator = parentEnvironment.getReverseFixOperator(fctname);
@@ -901,7 +901,7 @@ public class Environment {
     //
 
     /**
-     * Adds a binder to the environment
+     * Adds a binder to the environment.
      *
      * @param binder
      *            the binder to add
@@ -946,8 +946,7 @@ public class Environment {
      * @return a sort with the name <code>name</code>, null if none found Gets
      *         the binder.
      */
-    public @Nullable
-    Binder getBinder(@NonNull String name) {
+    public @Nullable Binder getBinder(@NonNull String name) {
         Binder binder = binderMap.get(name);
         if (binder == null && parentEnvironment != null) {
             binder = parentEnvironment.getBinder(name);
@@ -970,8 +969,7 @@ public class Environment {
      * @throws TermException
      *             if the arity does not match the definition of the sort.
      */
-    public @NonNull
-    Type mkType(@NonNull String name, Type... domTy)
+    public @NonNull Type mkType(@NonNull String name, Type... domTy)
             throws EnvironmentException, TermException {
 
         Sort sort = getSort(name);
@@ -1028,8 +1026,7 @@ public class Environment {
      *
      * @return a rule with the name <code>name</code>, null if none found
      */
-    public @Nullable
-    Rule getRule(@NonNull String name) {
+    public @Nullable Rule getRule(@NonNull String name) {
         Rule rule = ruleMap.get(name);
         if (rule == null && parentEnvironment != null) {
             rule = parentEnvironment.getRule(name);
@@ -1045,8 +1042,7 @@ public class Environment {
      *
      * @return a freshly created list of rules.
      */
-    public @NonNull
-    List<Rule> getAllRules() {
+    public @NonNull List<Rule> getAllRules() {
         List<Rule> retval;
         if (parentEnvironment == null) {
             retval = new ArrayList<Rule>();
@@ -1063,8 +1059,7 @@ public class Environment {
      *
      * @return an unmodifiable list of rules
      */
-    public @NonNull
-    List<Rule> getLocalRules() {
+    public @NonNull List<Rule> getLocalRules() {
         return Collections.unmodifiableList(rules);
     }
 
@@ -1137,7 +1132,7 @@ public class Environment {
      *
      * @return a freshly created list of all defined axioms.
      */
-    public List<Axiom> getAllAxioms() {
+    public @NonNull List<Axiom> getAllAxioms() {
         List<Axiom> axioms;
 
         if (parentEnvironment == null) {
@@ -1150,8 +1145,13 @@ public class Environment {
         return axioms;
     }
 
-    // TODO DOC
-    public Collection<Axiom> getLocalAxioms() {
+    /**
+     * Gets the axioms which are defined in this environment. The axioms of the
+     * parent environments are not gathered.
+     *
+     * @return an immutable collection to the locally defined axioms
+     */
+    public @NonNull Collection<Axiom> getLocalAxioms() {
         return axiomMap.values();
     }
 
@@ -1168,14 +1168,14 @@ public class Environment {
      * @throws EnvironmentException
      *             if the environment has already been closed.
      */
-    public @NonNull
-    PluginManager getPluginManager() throws EnvironmentException {
+    public @NonNull PluginManager getPluginManager() throws EnvironmentException {
 
         if (pluginManager == null) {
 
             if (isFixed()) {
                 throw new EnvironmentException(
-                        "cannot create the plugin manager for this environment, it has been fixed already");
+                        "cannot create the plugin manager for this environment, "
+                                + "it has been fixed already");
             }
 
             PluginManager parentManger =
@@ -1203,6 +1203,7 @@ public class Environment {
 
     /**
      * Debug dump to stdout. TODO use EntrySet for iteration over Maps
+     * TODO move to class Dump
      */
     public void dump() {
 
@@ -1240,7 +1241,7 @@ public class Environment {
 
         System.out.println("Axioms:");
         for (Axiom axiom : axiomMap.values()) {
-            axiom.dump();
+            Dump.dumpAxiom(axiom);
         }
 
         System.out.println("Programs:");
@@ -1268,8 +1269,7 @@ public class Environment {
      * @return an identifier that can be used as a function name for this
      *         environment
      */
-    public @NonNull
-    String createNewFunctionName(@NonNull String prefix) {
+    public @NonNull String createNewFunctionName(@NonNull String prefix) {
         String newName = prefix;
 
         for (int counter = 1; null != getFunction(newName); counter++) {
@@ -1291,8 +1291,7 @@ public class Environment {
      * @return an identifier that can be used as a axiom name for this
      *         environment
      */
-    public @NonNull
-    String createNewAxiomName(@NonNull String prefix) {
+    public @NonNull String createNewAxiomName(@NonNull String prefix) {
         String newName = prefix;
 
         for (int counter = 1; null != getAxiom(newName); counter++) {
@@ -1304,7 +1303,7 @@ public class Environment {
 
     /**
      * is there a direct or indirect parent which as the given string as
-     * resource name
+     * resource name.
      *
      * @param path
      *            resource to look up

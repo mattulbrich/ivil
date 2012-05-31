@@ -16,13 +16,20 @@ import java.util.Map;
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.environment.MetaFunction;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.environment.creation.EnvironmentProblemExtractor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.Type;
 
 public class TestFileParser extends TestCase {
 
@@ -103,6 +110,25 @@ public class TestFileParser extends TestCase {
 
         assertEnvFail("axiom schemas %a");
         assertEnvFail("sort S function S const axiom notbool const");
+    }
+
+    public static class MockMeta extends MetaFunction {
+
+        public MockMeta() throws EnvironmentException {
+            super(Environment.getBoolType(), "$$mock", new Type[0]);
+        }
+
+        @Override
+        public Term evaluate(Application application, Environment env,
+                RuleApplication ruleApp) throws TermException {
+            return Environment.getTrue();
+        }
+
+    }
+
+    public void testMetaInAxiom() throws Exception {
+        assertEnvFail("plugin metaFunction : \"de.uka.iti.pseudo.parser.file.TestFileParser$MockMeta\"" +
+        		"axiom metaAxiom $$mock");
     }
 
     // assumed bug.

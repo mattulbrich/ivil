@@ -27,7 +27,7 @@ import de.uka.iti.pseudo.util.Util;
  *
  * @see de.uka.iti.pseudo.environment.creation.ProgramChanger
  */
-public class Program {
+public final class Program {
 
     /**
      * The Constant OUT_OF_BOUNDS_STATEMENT is used when an index ouside the

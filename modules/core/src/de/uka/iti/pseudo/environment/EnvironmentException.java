@@ -10,17 +10,20 @@
 
 package de.uka.iti.pseudo.environment;
 
-import checkers.nullness.quals.AssertNonNullIfTrue;
 import nonnull.Nullable;
+import checkers.nullness.quals.AssertNonNullIfTrue;
 
 /**
- * Exceptions of class EnvironmentException are mainly thrown 
- * by classes in the package de.uka.iti.pseudo.environment to 
+ * Exceptions of class EnvironmentException are mainly thrown
+ * by classes in the package de.uka.iti.pseudo.environment to
  * indicate that something related to environment creation or
  * usage has gone wrong.
  */
 @SuppressWarnings("serial")
 public class EnvironmentException extends Exception {
+
+    // Checkstyle: OFF MutableException
+    // - This exception is build poco a poco
 
     private @Nullable String resource;
     private int beginLine = -1;
@@ -28,19 +31,55 @@ public class EnvironmentException extends Exception {
     private int beginColumn = -1;
     private int endColumn = -1;
 
+    /**
+     * Instantiates a new environment exception with a message.
+     *
+     * <p> The location fields of this exception remain unassigned.
+     *
+     * @param message
+     *            the message
+     */
     public EnvironmentException(String message) {
         super(message);
     }
 
+    /**
+     * Instantiates a new environment exception.
+     *
+     * <p> The location fields of this exception remain unassigned.
+     */
     public EnvironmentException() {
         super();
     }
 
+    /**
+     * Instantiates a new environment exception.
+     *
+     * <p> The location fields of this exception remain unassigned.
+     *
+     * @param message
+     *            the message
+     * @param cause
+     *            the cause of this exception
+     */
     public EnvironmentException(String message, Throwable cause) {
         super(message, cause);
     }
 
     // do not include the cause's classname
+    /**
+     * Instantiates a new environment exception.
+     *
+     * <p>
+     * The location fields of this exception remain unassigned.
+     *
+     * <p>
+     * The message of the causing exception is used as message, dropping the
+     * classname
+     *
+     * @param cause
+     *            the cause
+     */
     public EnvironmentException(Throwable cause) {
         super(cause.getMessage(), cause);
     }
@@ -115,6 +154,14 @@ public class EnvironmentException extends Exception {
         this.endColumn = endColumn;
     }
 
+    /**
+     * Checks for error information.
+     *
+     * Information present means that there is detailled report on the location
+     * of the exception (all parameters set).
+     *
+     * @return true, if this exception has detailled information
+     */
     @AssertNonNullIfTrue("getResource()")
     public boolean hasErrorInformation() {
         return beginColumn != -1 && beginLine != -1 &&

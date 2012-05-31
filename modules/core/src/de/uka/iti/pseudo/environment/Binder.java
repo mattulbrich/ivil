@@ -15,11 +15,11 @@ import de.uka.iti.pseudo.term.Type;
 
 /**
  * A binder is a syntactical element that binds a single variable.
- * 
+ *
  * It has one or more subterms (apart from the variable which is not a subterm).
  * The name of a binder always starts with a backslash "\". It is closely
  * realted to a {@link Function}.
- * 
+ *
  * The involved types may contain type variables if the binder is polymorphic.
  * An example of a polymorphic binder is the choose binder
  * <pre>
@@ -27,40 +27,40 @@ import de.uka.iti.pseudo.term.Type;
  * </pre>
  * or something like
  * <pre>
- *   Func('a,'b) (\lambda 'a; 'b) 
+ *   Func('a,'b) (\lambda 'a; 'b)
  * </pre>
- * 
+ *
  */
 public class Binder {
 
     /**
-     * The name of the binder, starting with a backslash
+     * The name of the binder, starting with a backslash.
      */
-    private String name;
+    private final String name;
 
     /**
-     * The result type of this binder
+     * The result type of this binder.
      */
-    private Type resultType;
+    private final Type resultType;
 
     /**
      * The type of the bound variable.
      */
-    private Type varType;
+    private final Type varType;
 
     /**
-     * The types of the arguments to this binder
+     * The types of the arguments to this binder.
      */
-    private Type argumentTypes[];
+    private final Type[] argumentTypes;
 
     /**
-     * The declaration in the enviroment file
+     * The declaration in the enviroment file.
      */
-    private ASTLocatedElement declaration;
+    private final ASTLocatedElement declaration;
 
     /**
      * Instantiates a new binder.
-     * 
+     *
      * @param name
      *            the name of the binder, must begin with a backslash
      * @param resultType
@@ -83,8 +83,8 @@ public class Binder {
     }
 
     /**
-     * get the name of this binder
-     * 
+     * Get the name of this binder.
+     *
      * @return the name of the binder, a string beginning with a backslash
      */
     public @NonNull String getName() {
@@ -93,7 +93,7 @@ public class Binder {
 
     /**
      * the result type of this binder. This may contain type variables
-     * 
+     *
      * @return the type of the resulting term
      */
     public @NonNull Type getResultType() {
@@ -102,7 +102,7 @@ public class Binder {
 
     /**
      * the type that the bound variable has. may contain type variables
-     * 
+     *
      * @return a type, possible with type variables
      */
     public @NonNull Type getVarType() {
@@ -112,7 +112,7 @@ public class Binder {
     /**
      * the types of the arguments. the length of this array is the arity of the
      * binder. The types in this array may contain Type variables.
-     * 
+     *
      * @return the expected arguments as array
      */
     public @NonNull Type[] getArgumentTypes() {
@@ -120,25 +120,26 @@ public class Binder {
     }
 
     /**
-     * the declaration location
-     * 
+     * Get the declaration location.
+     *
      * @return the located element describing the definition location for this
-     *         object.
+     *         binder object.
      */
     public @NonNull ASTLocatedElement getDeclaration() {
         return declaration;
     }
 
     /**
-     * get the arity of this binder (excludes the variable)
-     * 
+     * Get the arity of this binder (excludes the variable).
+     *
      * @return the number of arguments the binder expects (excluding the
      *         variable position)
      */
     public int getArity() {
         return getArgumentTypes().length;
     }
-    
+
+    @Override
     public String toString() {
         String ret = "Binder[" + name + ";ret: " + resultType + ";var: "
                 + varType + ":args:";

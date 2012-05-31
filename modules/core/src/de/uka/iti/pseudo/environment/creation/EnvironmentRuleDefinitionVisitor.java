@@ -41,9 +41,7 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
@@ -59,26 +57,28 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     private MatchingLocation resultingMatchingLocation;
     private WhereClause resultingWhereclause;
     private GoalAction resultingGoalAction;
-    private Environment env;
-    
+    private final Environment env;
+
     public EnvironmentRuleDefinitionVisitor(Environment env) {
         this.env = env;
     }
 
     /*
      * default behaviour
-     * 
+     *
      * visit children - depth
      */
+    @Override
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
         }
     }
-    
+
     /*
      * Terms
      */
+    @Override
     protected void visitDefaultTerm(ASTTerm arg) throws ASTVisitException {
         resultingTerm = TermMaker.makeTerm(arg, env);
     }
@@ -86,11 +86,12 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * axioms are similar to rules ... so handle them here
      */
+    @Override
     public void visit(ASTAxiomDeclaration arg) throws ASTVisitException {
-        
-        
+
+
         String name = arg.getName().image;
-        
+
         super.visit(arg);
         Term term = resultingTerm;
         Map<String, String> properties = new HashMap<String, String>();
@@ -98,41 +99,38 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
             for (Pair<Token, Token> prop : arg.getProperties()) {
                 Token token = prop.snd();
                 String value;
-                if(token != null)
+                if(token != null) {
                     value = Util.stripQuotes(token.image);
-                else
+                } else {
                     value = "";
-                
+                }
+
                 properties.put(prop.fst().image, value);
             }
         }
-        
+
         try {
-            ToplevelCheckVisitor tcv = new ToplevelCheckVisitor();
-            term.visit(tcv);
             Axiom axiom = new Axiom(name, term, properties, arg);
             env.addAxiom(axiom);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);
-        } catch (TermException e) {
-            throw new ASTVisitException(arg, e);
         }
-        
-        
+
     }
-    
+
     /*
      * collect all information for a rule definition and define it in env.
-     * 
-     * The with parts are parsed first as they are local definitions. 
+     *
+     * The with parts are parsed first as they are local definitions.
      */
+    @Override
     public void visit(ASTRule arg) throws ASTVisitException {
 
         try {
 
             String name = arg.getName().image;
             List<ASTElement> children = arg.getChildren();
-            
+
             List<LocatedTerm> assumes = new ArrayList<LocatedTerm>();
             {
                 List<ASTRuleAssume> assumeASTs = SelectList.select(
@@ -151,8 +149,8 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
                 if (findASTs.size() > 1) {
                     throw new ASTVisitException(
                             "There is more than one find clause in this rule.", arg);
-                } 
-                
+                }
+
                 if (findASTs.size() == 1) {
                     ASTRuleFind astFind = findASTs.get(0);
                     astFind.visit(this);
@@ -181,23 +179,25 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
                     actions.add(resultingGoalAction);
                 }
             }
-            
+
             Map<String, String> properties = new HashMap<String, String>();
             {
                 for (Pair<Token, Token> prop : arg.getProperties()) {
                     Token token = prop.snd();
                     String value;
-                    if(token != null)
+                    if(token != null) {
                         value = Util.stripQuotes(token.image);
-                    else
+                    } else {
                         value = "";
-                    
+                    }
+
                     properties.put(prop.fst().image, value);
                 }
                 Token description = arg.getDescription();
-                if(description != null)
+                if(description != null) {
                     properties.put("description", Util.stripQuotes(description.image));
-                
+                }
+
             }
 
             try {
@@ -206,16 +206,17 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
             } catch (EnvironmentException e) {
                 throw new ASTVisitException(arg, e);
             }
-            
+
         } catch (RuleException e) {
             throw new ASTVisitException(arg, e);
         }
     }
-    
+
     /*
      * make a where clause
-     * report if where condition is unknown. 
+     * report if where condition is unknown.
      */
+    @Override
     public void visit(ASTWhereClause arg) throws ASTVisitException {
 
         String identifier = arg.getIdentifier().image;
@@ -226,10 +227,11 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);
         }
-        
-        if (where == null)
+
+        if (where == null) {
             throw new ASTVisitException("Unknown where condition: "
                     + identifier, arg);
+        }
 
         List<ASTTerm> raws = SelectList.select(ASTTerm.class, arg
                 .getChildren());
@@ -250,6 +252,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * collect children an make a new goal action
      */
+    @Override
     public void visit(ASTGoalAction arg) throws ASTVisitException {
         super.visit(arg);
 
@@ -263,28 +266,29 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
         }
         Token nameToken = arg.getName();
         String name = nameToken == null ? null : Util.stripQuotes(nameToken.image);
-        
+
         List<Term> addAntecendent = new ArrayList<Term>();
         List<Term> addSuccendent = new ArrayList<Term>();
         Term replaceWith = null;
 
         for(ASTRuleAdd add : SelectList.select(ASTRuleAdd.class, arg.getChildren())) {
             add.visit(this);
-            if(resultingMatchingLocation == MatchingLocation.ANTECEDENT)
+            if(resultingMatchingLocation == MatchingLocation.ANTECEDENT) {
                 addAntecendent.add(resultingTerm);
-            else
+            } else {
                 addSuccendent.add(resultingTerm);
+            }
         }
-        
+
         for(ASTRuleReplace replace : SelectList.select(ASTRuleReplace.class, arg.getChildren())) {
             if(replaceWith != null) {
-                throw new ASTVisitException("Goal actions must not contain more than one replace action", replace); 
+                throw new ASTVisitException("Goal actions must not contain more than one replace action", replace);
             }
             replace.visit(this);
             replaceWith = resultingTerm;
         }
-        
-        boolean hasRemove = !SelectList.select(ASTRuleRemove.class, 
+
+        boolean hasRemove = !SelectList.select(ASTRuleRemove.class,
                 arg.getChildren()).isEmpty();
 
         try {
@@ -311,6 +315,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * store the location for a located term.
      */
+    @Override
     public void visit(ASTLocatedTerm arg) throws ASTVisitException {
         super.visit(arg);
         resultingMatchingLocation = arg.getMatchingLocation();
@@ -319,6 +324,7 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
     /*
      * ignore the program definition because it may contain identifier labels and
      */
+    @Override
     public void visit(ASTProgramDeclaration arg) throws ASTVisitException {
         // do nothing
     }
@@ -331,5 +337,5 @@ public class EnvironmentRuleDefinitionVisitor extends ASTDefaultVisitor {
 //    @Override
 //    public void visit(ASTPropertiesDeclaration plugin) throws ASTVisitException {
 //    }
-    
+
 }

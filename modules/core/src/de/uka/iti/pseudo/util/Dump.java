@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.util;
 
 import nonnull.NonNull;
+import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
 
@@ -20,7 +21,12 @@ import de.uka.iti.pseudo.rule.Rule;
  * Output to be used for regular reasons should be implemented closer to the
  * information.
  */
-public class Dump {
+public final class Dump {
+
+
+    private Dump() {
+        throw new Error("Must not be instantiated");
+    }
 
     /**
      * Dump a rule application to standard error.
@@ -52,6 +58,17 @@ public class Dump {
         sb.append("\n Schema updates: " + ruleApp.getSchemaUpdateMapping());
         sb.append("\n Properties: " + ruleApp.getProperties());
         return sb.toString();
+    }
+
+    /**
+     * Dump this axiom to standard error. Used for debugging purposes.
+     *
+     * @param axiom
+     *            axiom to print out
+     */
+    public static void dumpAxiom(Axiom axiom) {
+        System.err.println("  Axiom " + axiom.getName());
+        System.err.println("        " + axiom.getTerm());
     }
 
 }

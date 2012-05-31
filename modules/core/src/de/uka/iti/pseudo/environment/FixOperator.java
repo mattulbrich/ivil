@@ -16,7 +16,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 /**
  * The Class FixOperator provides a connection between function symbols and
  * inifix (or prefix) written operator symbols.
- * 
+ *
  * The arity is stored redundantly to the {@link Function}
  */
 
@@ -25,35 +25,35 @@ public class FixOperator {
     /**
      * The name of the operator as a function symbol (e.g. $add)
      */
-    private String name;
+    private final String name;
 
     /**
      * The operator identifier (e.g. +)
      */
-    private String opIdentifier;
+    private final String opIdentifier;
 
     /**
-     * The precedence of the operator
+     * The precedence of the operator.
      */
-    private int precedence;
+    private final int precedence;
 
     /**
      * The declaration location in the sources.
      */
-    private ASTLocatedElement declaration;
+    private final ASTLocatedElement declaration;
 
     /**
-     * The arity of the operation (1 or 2)
+     * The arity of the operation (1 or 2).
      */
-    private int arity;
+    private final int arity;
 
     /**
      * Instantiates a new fix operator.
-     * 
+     *
      * @param name
      *            the name of the underlying function
      * @param opIdentifier
-     *            the symolic operator identifier 
+     *            the symolic operator identifier
      * @param precedence
      *            the precedence (>= 0)
      * @param arity
@@ -61,7 +61,7 @@ public class FixOperator {
      * @param declaration
      *            the declaration location
      */
-    public FixOperator(@NonNull String name, @NonNull String opIdentifier, 
+    public FixOperator(@NonNull String name, @NonNull String opIdentifier,
             @NonNull int precedence,
             @NonNull int arity, @NonNull ASTLocatedElement declaration) {
         super();
@@ -70,7 +70,7 @@ public class FixOperator {
         this.precedence = precedence;
         this.arity = arity;
         this.declaration = declaration;
-        
+
         assert arity == 1 || arity == 2;
         assert precedence >= 0;
     }
@@ -78,7 +78,7 @@ public class FixOperator {
     /**
      * Gets the function symbol name for the operator.
      * Often they are marked as internal names with a leading $.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -88,7 +88,7 @@ public class FixOperator {
     /**
      * Gets the operator identifier.
      * consisting of one or more special characters.
-     * 
+     *
      * @return the operator characters
      */
     public String getOpIdentifier() {
@@ -97,7 +97,7 @@ public class FixOperator {
 
     /**
      * Gets the precedence of the fixed symbol.
-     * 
+     *
      * @return a non-negative number
      */
     public int getPrecedence() {
@@ -105,8 +105,8 @@ public class FixOperator {
     }
 
     /**
-     * Gets the location of the declaration of this symbol
-     * 
+     * Gets the location of the declaration of this symbol.
+     *
      * @return the declaration
      */
     public ASTLocatedElement getDeclaration() {
@@ -115,7 +115,7 @@ public class FixOperator {
 
     /**
      * Checks if the fix operator is unary.
-     * 
+     *
      * @return true, iff the arity == 1
      */
     public boolean isUnary() {
@@ -123,15 +123,15 @@ public class FixOperator {
     }
 
     /**
-     * Gets the arity of the underlying operation
-     * 
+     * Gets the arity of the underlying operation.
+     *
      * @return the arity
      */
     public int getArity() {
         return arity;
     }
-    
-    @Override 
+
+    @Override
     public String toString() {
         return "FixOperator[op: " + opIdentifier + "; function: " + name
                 + "; precedence: " + precedence + "]";
