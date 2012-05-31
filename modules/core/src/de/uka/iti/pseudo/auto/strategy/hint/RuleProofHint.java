@@ -55,34 +55,44 @@ public class RuleProofHint implements ProofHint {
 
 class RuleHintAppFinder extends HintRuleAppFinder {
 
-    private final Rule rule;
+    private final Rule rules[];
     private final Environment env;
 
     public RuleHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
         super(arguments);
         this.env = env;
 
-        if(arguments.size() != 2) {
-            throw new StrategyException("The proofhint 'rule' expects exactly one argument");
+        if(arguments.size() < 2) {
+            throw new StrategyException("The proofhint 'rule' expects at least one argument");
         }
 
         assert "rule".equals(arguments.get(0));
-        String ruleName = arguments.get(1);
-        this.rule = env.getRule(ruleName);
 
-        if(rule == null) {
-            throw new StrategyException("Unknown rule in proof hint: " + ruleName);
+        rules = new Rule[arguments.size() - 1];
+        for (int i = 0; i < rules.length; i++) {
+            String ruleName = arguments.get(i + 1);
+            Rule rule = env.getRule(ruleName);
+            if(rule == null) {
+                throw new StrategyException("Unknown rule in proof hint: " + ruleName);
+            }
+            this.rules[i] = rule;
         }
+
+
     }
 
     @Override
     public RuleApplication findRuleApplication(ProofNode node,
             ProofNode reasonNode) throws StrategyException {
 
-        // Only applicable to the reasonNode, not later
-        if(node != reasonNode) {
+        // Only applicable to the reasonNode and direct successors if more than
+        // one rule, not later
+        int dist = distanceToReason(node, reasonNode);
+        if(dist >= rules.length) {
             return null;
         }
+
+        Rule rule = rules[dist];
 
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ram.setProofNode(node);
@@ -97,6 +107,16 @@ class RuleHintAppFinder extends HintRuleAppFinder {
         }
 
         return ram;
+    }
+
+    private int distanceToReason(ProofNode node, ProofNode reasonNode) {
+        int result = 0;
+        while(node != reasonNode) {
+            result ++;
+            node = node.getParent();
+            assert node != null : "The node is not a child of reasonNode!";
+        }
+        return result;
     }
 
 }

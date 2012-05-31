@@ -9,6 +9,8 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
+import java.util.Map;
+
 import de.uka.iti.pseudo.auto.DecisionProcedure;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
 import de.uka.iti.pseudo.environment.Environment;
@@ -18,7 +20,6 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.Util;
 
 public class AskDecisionProcedure extends WhereCondition {
 
@@ -34,8 +35,8 @@ public class AskDecisionProcedure extends WhereCondition {
             Environment env) throws RuleException {
 
         Sequent sequent = ruleApp.getProofNode().getSequent();
-        String decisionProcName = ruleApp.getRule().getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
-        String timeoutString = ruleApp.getRule().getProperty(RuleTagConstants.KEY_TIMEOUT);
+        Map<String, String> properties = ruleApp.getRule().getProperties();
+        String decisionProcName = properties.get(RuleTagConstants.KEY_DECISION_PROCEDURE);
 
         if(decisionProcName == null) {
             throw new RuleException("The rule does not define a propery 'decisionProcedure' which is must");
@@ -46,10 +47,12 @@ public class AskDecisionProcedure extends WhereCondition {
                     DecisionProcedure.SERVICE_NAME, DecisionProcedure.class,
                     decisionProcName);
 
-            int timeout = Util.parseUnsignedInt(timeoutString);
+            if(decisionProcedure == null) {
+                throw new RuleException("Unknown decision procedure " + decisionProcName);
+            }
 
             // System.out.println("Solve " + sequent);
-            Result res = decisionProcedure.solve(sequent, env, timeout).fst();
+            Result res = decisionProcedure.solve(sequent, env, properties).fst();
             return res == DecisionProcedure.Result.VALID;
 
         } catch (Exception e) {

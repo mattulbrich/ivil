@@ -17,14 +17,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
@@ -63,8 +66,18 @@ public class Z3SMT implements DecisionProcedure {
      * @see de.uka.iti.pseudo.auto.DecisionProcedure#solve(de.uka.iti.pseudo.term.Sequent, de.uka.iti.pseudo.environment.Environment, int)
      */
     @Override
-    public Pair<Result, String> solve(final Sequent sequent, final Environment env, int timeout)
+    public Pair<Result, String> solve(final Sequent sequent, final Environment env,
+            Map<String, String> properties)
             throws ProofException, IOException, InterruptedException {
+
+        // TODO Exception handling!!
+        int timeout = Util.parseUnsignedInt(properties.get(RuleTagConstants.KEY_TIMEOUT));
+
+        String additionalParams = properties.get(RuleTagConstants.KEY_DECPROC_PARAMETERS);
+        if(additionalParams == null) {
+            additionalParams = "";
+        }
+
 
         boolean cached = cache.contains(sequent);
         if(cached) {
@@ -97,7 +110,13 @@ public class Z3SMT implements DecisionProcedure {
         try {
             Runtime rt = Runtime.getRuntime();
 
-            process = rt.exec("z3 SOFT_TIMEOUT=" + timeout + " -in -smt2");
+            StringBuilder sb = new StringBuilder();
+            sb.append("z3 SOFT_TIMEOUT=").append(timeout).append(" ");
+            sb.append(additionalParams);
+            sb.append(" -in -smt2");
+            String command = sb.toString();
+
+            process = rt.exec(command);
 
             Writer w = new OutputStreamWriter(process.getOutputStream());
             w.write(challenge);

@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo;
@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.auto.TestZ3;
 import de.uka.iti.pseudo.auto.TestZ3Translator;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintParser;
 import de.uka.iti.pseudo.auto.strategy.hint.TestHintStrategy;
+import de.uka.iti.pseudo.auto.strategy.hint.TestHints;
 import de.uka.iti.pseudo.environment.TestProgramChanger;
 import de.uka.iti.pseudo.environment.TestRuleAxiomExtractor;
 import de.uka.iti.pseudo.environment.TestTypeVariableCollector;
@@ -59,7 +60,7 @@ import de.uka.iti.pseudo.util.TestTextInstantiator;
 import de.uka.iti.pseudo.util.TestUtil;
 
 public class AllCoreTests {
-    
+
     static {
         ClassLoader.getSystemClassLoader().setDefaultAssertionStatus(true);
     }
@@ -106,6 +107,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestRewindMap.class);
         suite.addTestSuite(TestHintParser.class);
         suite.addTestSuite(TestHintStrategy.class);
+        suite.addTestSuite(TestHints.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
         suite.addTestSuite(TestSMTLib2Translator.class);
         suite.addTestSuite(TestZ3.class);
