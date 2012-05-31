@@ -614,4 +614,25 @@ public final class Util {
                 "de.uka.iti.pseudo.util.protocol");
     }
 
+    /**
+     * Parses the given string as an unsigned integer.
+     *
+     * Throws a {@link NumberFormatException} if the number is smaller than zero.
+     *
+     * @param string
+     *            the string to parse
+     *
+     * @return a non-negative integer
+     *
+     * @throws NumberFormatException
+     *            if the parameter does not denote an unsigned integer value.
+     */
+    public static int parseUnsignedInt(@NonNull String string) throws NumberFormatException {
+        int result = Integer.parseInt(string);
+        if(result < 0) {
+            throw new NumberFormatException("Unsigned integer expected: " + string);
+        }
+        return result;
+    }
+
 }

@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Util;
 
 public class AskDecisionProcedure extends WhereCondition {
 
@@ -45,7 +46,7 @@ public class AskDecisionProcedure extends WhereCondition {
                     DecisionProcedure.SERVICE_NAME, DecisionProcedure.class,
                     decisionProcName);
 
-            int timeout = Integer.parseInt(timeoutString);
+            int timeout = Util.parseUnsignedInt(timeoutString);
 
             // System.out.println("Solve " + sequent);
             Result res = decisionProcedure.solve(sequent, env, timeout).fst();

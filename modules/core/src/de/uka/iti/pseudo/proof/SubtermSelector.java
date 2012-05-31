@@ -38,7 +38,7 @@ import de.uka.iti.pseudo.term.Term;
  *
  * @see TermSelector
  */
-public class SubtermSelector {
+public final class SubtermSelector implements Comparable<SubtermSelector> {
 
     /**
      * The Constant CLASS_EXC_INDICATOR is used in exception messages to
@@ -233,6 +233,33 @@ public class SubtermSelector {
             return true;
         }
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * The result for this implementation is the comparison of the string
+     * representations. That is, it is the same as if calling
+     * {@code toString().compareTo(ts.toString())}.
+     */
+    @Override
+    public int compareTo(SubtermSelector sts) {
+        int len = selectorInfo.length;
+        int len2 = sts.selectorInfo.length;
+        for (int i = 0; i < len; i++) {
+            if(i >= len2) {
+                // sts is prefix of this
+                return 1;
+            }
+
+            if(selectorInfo[i] != sts.selectorInfo[i]) {
+                return selectorInfo[i] - sts.selectorInfo[i];
+            }
+        }
+
+        // equal if same length, otherwise this is prefix to sts
+        return len == len2 ? 0 : -1;
     }
 
     /**

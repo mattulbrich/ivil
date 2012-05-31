@@ -43,7 +43,7 @@ import de.uka.iti.pseudo.term.Term;
  *
  * @see SubtermSelector
  */
-public class TermSelector {
+public final class TermSelector implements Comparable<TermSelector> {
 
     /**
      * The Constant ANTECEDENT is equivalent to true.
@@ -289,6 +289,30 @@ public class TermSelector {
             return subtermSelector.equals(ts.subtermSelector);
         }
         return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * The result for this implementation is the comparison of the string
+     * representations. That is, it is the same as if calling
+     * {@code toString().compareTo(ts.toString())}.
+     */
+    @Override
+    public int compareTo(TermSelector ts) {
+        if(inAntecedent != ts.inAntecedent) {
+            // return -1 if I am antecedent and ts is succedent
+            return inAntecedent ? -1 : 1;
+        }
+
+        // different term number
+        if(termNumber != ts.termNumber) {
+            return termNumber - ts.termNumber;
+        }
+
+        // delegate to subtermselector
+        return subtermSelector.compareTo(ts.subtermSelector);
     }
 
     /**

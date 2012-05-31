@@ -20,7 +20,6 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -30,10 +29,11 @@ import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.util.IntList;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.TextInstantiator;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * A proof component model is a specialised tree model for the ProofComponent
- * 
+ *
  * @see ProofComponent
  */
 class ProofComponentModel extends DefaultTreeModel {
@@ -60,12 +60,12 @@ class ProofComponentModel extends DefaultTreeModel {
     /**
      * The pretty printer used to instantiate schema vars in labels.
      */
-    private PrettyPrint prettyPrint;
+    private final PrettyPrint prettyPrint;
 
     /**
      * The proof center to which the ProofComponent belongs.
      */
-    private ProofCenter proofCenter;
+    private final ProofCenter proofCenter;
 
     /**
      * A TreeNode corresponding to one proof node of the proof.
@@ -76,7 +76,7 @@ class ProofComponentModel extends DefaultTreeModel {
          * the proofnode associated with this tree node. There may be 2 tree
          * nodes per ProofNode. (one leaf, one inner node)
          */
-        private ProofNode proofNode;
+        private final ProofNode proofNode;
 
         /**
          * my children in the tree. May be null if the tree node has not yet
@@ -89,6 +89,7 @@ class ProofComponentModel extends DefaultTreeModel {
          * The "uplink" in the tree. <code>null</code> for the root.
          */
         private @Nullable
+        final
         ProofTreeNode parent;
 
         /**
@@ -102,8 +103,9 @@ class ProofComponentModel extends DefaultTreeModel {
                 boolean leaf) {
             this.parent = parent;
             this.proofNode = proofNode;
-            if (leaf)
+            if (leaf) {
                 children = Collections.emptyList();
+            }
         }
 
         //
@@ -157,24 +159,25 @@ class ProofComponentModel extends DefaultTreeModel {
 
         /**
          * Expand the tree on demand.
-         * 
+         *
          * Do nothing, if the children have already been calculated. Otherwise,
          * calculate all children.
-         * 
+         *
          * @see #calculateChildren()
          */
         private void expand() {
-            if (children != null)
+            if (children != null) {
                 return;
+            }
 
             children = calculateChildren();
         }
 
         /**
          * Calculate children for an inner node.
-         * 
+         *
          * Must not be called on a leaf.
-         * 
+         *
          * @return a fresh list of proof tree nodes.
          */
         private List<ProofTreeNode> calculateChildren() {
@@ -183,8 +186,9 @@ class ProofComponentModel extends DefaultTreeModel {
 
             while (node != null) {
 
-                if (shouldShow(node))
+                if (shouldShow(node)) {
                     result.add(new ProofTreeNode(this, node, true));
+                }
 
                 List<ProofNode> nodeChildren = node.getChildren();
 
@@ -213,7 +217,7 @@ class ProofComponentModel extends DefaultTreeModel {
 
         /**
          * Recalculate the tree structure.
-         * 
+         *
          * The differences to the existing children list in analysed and
          * according events are fired. Revalidate also all children.
          */
@@ -225,12 +229,14 @@ class ProofComponentModel extends DefaultTreeModel {
             nodeChanged(this);
 
             // do nothing if not expanded
-            if (children == null)
+            if (children == null) {
                 return;
+            }
 
             // do nothing in case of a leaf
-            if (children.isEmpty())
+            if (children.isEmpty()) {
                 return;
+            }
 
             List<ProofTreeNode> newChildren = calculateChildren();
 
@@ -280,21 +286,24 @@ class ProofComponentModel extends DefaultTreeModel {
          */
         private boolean shouldShow(ProofNode node) {
             RuleApplication ruleApp = node.getAppliedRuleApp();
-            if (ruleApp == null)
+            if (ruleApp == null) {
                 return true;
+            }
 
-            if (node.getChildren() == null)
+            if (node.getChildren() == null) {
                 return true;
+            }
 
             // Always show the root formula
-            if (proofCenter.getProof().getRoot() == node)
+            if (proofCenter.getProof().getRoot() == node) {
                 return true;
+            }
 
             Rule rule = ruleApp.getRule();
             String string = rule.getProperty(RuleTagConstants.KEY_VERBOSITY);
             int value;
             try {
-                value = Integer.parseInt(string);
+                value = Util.parseUnsignedInt(string);
             } catch (NumberFormatException e) {
                 return true;
             }
@@ -308,7 +317,7 @@ class ProofComponentModel extends DefaultTreeModel {
 
         /**
          * Gets a {@link TreePath} which leads from the root to this.
-         * 
+         *
          * @return a freshly created {@link TreePath} object.
          */
         public TreePath getPath() {
@@ -333,19 +342,20 @@ class ProofComponentModel extends DefaultTreeModel {
 
         /**
          * Find a proof node carrying a certain proof node.
-         * 
+         *
          * @param pn
          *            proof node to find a tree node for.
          * @param expandOnDemand
          *            expand the tree during the search iff <code>true</code>.
-         * 
+         *
          * @return <code>null</code> if no node found, otherwise a treenode for
          *         <code>pn</code>.
          */
         public ProofTreeNode findProofNode(ProofNode pn, boolean expandOnDemand) {
             if (pn == getProofNode()
-                    && (children == null || children.isEmpty()))
+                    && (children == null || children.isEmpty())) {
                 return this;
+            }
 
             if (children == null) {
                 if (expandOnDemand) {
@@ -357,8 +367,9 @@ class ProofComponentModel extends DefaultTreeModel {
 
             for (ProofTreeNode child : children) {
                 ProofTreeNode res = child.findProofNode(pn, expandOnDemand);
-                if (res != null)
+                if (res != null) {
                     return res;
+                }
             }
 
             return null;
@@ -406,10 +417,11 @@ class ProofComponentModel extends DefaultTreeModel {
             Rule rule = appliedRuleApp.getRule();
             String displayString = rule
                     .getProperty(RuleTagConstants.KEY_DISPLAY);
-            if (displayString != null)
+            if (displayString != null) {
                 return instantiateString(appliedRuleApp, displayString);
-            else
+            } else {
                 return rule.getName();
+            }
 
         }
 
@@ -421,8 +433,9 @@ class ProofComponentModel extends DefaultTreeModel {
         private String getBranchLabel(ProofNode node) {
             ProofNode parent = node.getParent();
 
-            if (parent == null)
+            if (parent == null) {
                 return "";
+            }
 
             int index = parent.getChildren().indexOf(node);
             assert index != -1;
@@ -430,17 +443,19 @@ class ProofComponentModel extends DefaultTreeModel {
             RuleApplication appliedRuleApp = parent.getAppliedRuleApp();
 
             // just in case ...
-            if (appliedRuleApp == null)
+            if (appliedRuleApp == null) {
                 return "branch " + (index + 1);
+            }
 
             Rule rule = appliedRuleApp.getRule();
             GoalAction ga = rule.getGoalActions().get(index);
             String actionName = ga.getName();
 
-            if (actionName == null)
+            if (actionName == null) {
                 return "branch" + (index + 1);
-            else
+            } else {
                 return instantiateString(appliedRuleApp, actionName);
+            }
         }
 
         @Override
@@ -462,7 +477,7 @@ class ProofComponentModel extends DefaultTreeModel {
 
     /**
      * Retrieve the proof node from a tree path object.
-     * 
+     *
      * @param path
      *            a path into this model
      * @return the proof stored at this path
@@ -474,12 +489,12 @@ class ProofComponentModel extends DefaultTreeModel {
 
     /**
      * Publish changes that have been made to the model.
-     * 
+     *
      * This merely triggers a revalidation of the root node.
-     * 
+     *
      * Alternatively, the set of nodes to be reexamined could be calculated from
      * the argument. (If performance is poor).
-     * 
+     *
      * @param changesProofNodes
      *            the changes proof nodes
      */
@@ -487,10 +502,10 @@ class ProofComponentModel extends DefaultTreeModel {
         assert SwingUtilities.isEventDispatchThread();
         ((ProofTreeNode) root).revalidate();
     }
-    
+
     /**
      * Retrieve a tree node for a proof node
-     * 
+     *
      * @param node
      *            a proof node to find
      * @param allowExpansion
@@ -505,12 +520,12 @@ class ProofComponentModel extends DefaultTreeModel {
 
     /**
      * Gets a tree path for a proof node.
-     * 
+     *
      * @param node
      *            a node in the proof.
      * @param allowExpansion
      *            the allow expansion
-     * 
+     *
      * @return the freshly created path, <code>null</code> if none found.
      */
     public TreePath getPath(ProofNode node, boolean allowExpansion) {
@@ -525,9 +540,9 @@ class ProofComponentModel extends DefaultTreeModel {
 
     /**
      * Sets the verbosity of the display.
-     * 
+     *
      * The tree is revalidated afterwards.
-     * 
+     *
      * @param verbosity
      *            the new verbosity value.
      */
@@ -538,10 +553,10 @@ class ProofComponentModel extends DefaultTreeModel {
 
     /**
      * Sets whether node numbers are to be indicated in labels or not.
-     * 
+     *
      * It merely sets the flag. Triggering a repaint event has to be done
      * outside.
-     * 
+     *
      * @param b
      *            the new value.
      */

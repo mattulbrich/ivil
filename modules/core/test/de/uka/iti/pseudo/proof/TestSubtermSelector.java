@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.proof;
@@ -21,16 +21,16 @@ public class TestSubtermSelector extends TestCaseWithEnv {
         SubtermSelector t1 = new SubtermSelector(4,3,2,1,2);
         SubtermSelector t2 = new SubtermSelector(4,3,2,1,2);
         SubtermSelector t3 = new SubtermSelector(4,3,1,2,2);
-        
+
         assertEquals(t1.hashCode(), t2.hashCode());
         assertFalse(t1.hashCode() == t3.hashCode());
     }
 
     public void testSubtermSelectorIntArray() {
         SubtermSelector t1 = new SubtermSelector(4,3,2,1,2);
-        
+
         assertEquals(5, t1.getDepth());
-        
+
         int i = 0;
         assertEquals(4, t1.getSubtermNumber(i++));
         assertEquals(3, t1.getSubtermNumber(i++));
@@ -38,7 +38,7 @@ public class TestSubtermSelector extends TestCaseWithEnv {
         assertEquals(1, t1.getSubtermNumber(i++));
         assertEquals(2, t1.getSubtermNumber(i++));
     }
-    
+
     public void testSubtermSelectorEmpty() throws Exception {
         SubtermSelector t1 = new SubtermSelector();
         assertEquals(0, t1.getDepth());
@@ -48,7 +48,7 @@ public class TestSubtermSelector extends TestCaseWithEnv {
         SubtermSelector t1 = new SubtermSelector(4,3);
         SubtermSelector t2 = new SubtermSelector(t1, 5);
         SubtermSelector t3 = new SubtermSelector(4, 3, 5);
-        
+
         assertEquals(t3, t2);
     }
 
@@ -56,31 +56,31 @@ public class TestSubtermSelector extends TestCaseWithEnv {
         assertEquals(new SubtermSelector(), new SubtermSelector(""));
         assertEquals(new SubtermSelector(4), new SubtermSelector("4"));
         assertEquals(new SubtermSelector(4,3,2), new SubtermSelector("4.3.2"));
-        
+
         try {
             new SubtermSelector("4.");
             fail("Should fail");
         } catch (FormatException e) {
         }
-        
+
         try {
             new SubtermSelector(".4");
             fail("Should fail");
         } catch (FormatException e) {
         }
-        
+
         try {
             new SubtermSelector(".");
             fail("Should fail");
         } catch (FormatException e) {
         }
-        
+
         try {
             new SubtermSelector("4 . 4");
             fail("Should fail");
         } catch (FormatException e) {
         }
-        
+
         try {
             new SubtermSelector(" ");
             fail("Should fail");
@@ -105,7 +105,7 @@ public class TestSubtermSelector extends TestCaseWithEnv {
         SubtermSelector t1 = new SubtermSelector(4,3,2,1,2);
         SubtermSelector t2 = new SubtermSelector(4,3,2,1,2);
         SubtermSelector t3 = new SubtermSelector(4,3,1,2,2);
-        
+
         assertEquals(t1, t2);
         assertFalse(t1.equals(t3));
     }
@@ -117,16 +117,16 @@ public class TestSubtermSelector extends TestCaseWithEnv {
 
     public void testGetLinearIndex() throws Exception {
         Term t = makeTerm("g(g(i1,i2),f(i3))");
-        
+
         // t
         SubtermSelector t1 = new SubtermSelector();
-        
+
         // f(i3)
         SubtermSelector t2 = new SubtermSelector(1);
-        
+
         // i2
         SubtermSelector t3 = new SubtermSelector(0, 1);
-        
+
         assertEquals(0, t1.getLinearIndex(t));
         assertEquals(4, t2.getLinearIndex(t));
         assertEquals(3, t3.getLinearIndex(t));
@@ -134,19 +134,39 @@ public class TestSubtermSelector extends TestCaseWithEnv {
 
     public void testSelectSubtermTerm() throws Exception {
         Term t = makeTerm("g(g(i1,i2),f(i3))");
-        
+
         // t
         SubtermSelector t1 = new SubtermSelector();
-        
+
         // f(i3)
         SubtermSelector t2 = new SubtermSelector(1);
-        
+
         // i2
         SubtermSelector t3 = new SubtermSelector(0, 1);
-        
+
         assertEquals(t, t1.selectSubterm(t));
         assertEquals(t.getSubterm(1), t2.selectSubterm(t));
         assertEquals(t.getSubterm(0).getSubterm(1), t3.selectSubterm(t));
+    }
+
+    public void testComparison() throws Exception {
+
+        SubtermSelector[] selectors = {
+                new SubtermSelector(1,2,3),
+                new SubtermSelector(1,2),
+                new SubtermSelector(1,2),
+                new SubtermSelector(),
+                new SubtermSelector(2)};
+
+        for (SubtermSelector s1 : selectors) {
+            for (SubtermSelector s2 : selectors) {
+                // there is no int signum ... so what ...
+                int comp = (int)Math.signum(s1.compareTo(s2));
+                int strComp = (int)Math.signum(s1.toString().compareTo(s2.toString()));
+                assertEquals(s1 + " <=> " + s2, comp, strComp);
+            }
+        }
+
     }
 
 }

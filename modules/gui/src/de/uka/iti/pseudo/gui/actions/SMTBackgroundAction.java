@@ -40,6 +40,7 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 // Class is final because thread is started in constructor which is evil
 // for subclassing.
@@ -173,7 +174,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                 String proc = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
                 solver = env.getPluginManager().getPlugin(DecisionProcedure.SERVICE_NAME,
                         DecisionProcedure.class, proc);
-                timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
+                timeout = Util.parseUnsignedInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
             } catch (Exception ex) {
                 Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
                 ex.printStackTrace();
