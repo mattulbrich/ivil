@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import nonnull.Nullable;
@@ -21,7 +22,9 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
+import de.uka.iti.pseudo.util.Log;
 
 // Introduce an extra class to match a single rule (??)
 
@@ -90,13 +93,47 @@ public class RuleApplicationFinder {
      *            the inspected node in the proof
      * @param env
      *            the environment in the background
+     * @deprecated This will soon be removed, the constructor does not need the
+     *             proof object
      */
-    public RuleApplicationFinder(Proof proof, ProofNode node, Environment env) {
+    @Deprecated
+    public RuleApplicationFinder(@Nullable Proof proof, ProofNode node, Environment env) {
+        this(node, env);
+    }
+
+    /**
+     * Instantiates a new interactive rule application finder.
+     *
+     * @param node
+     *            the inspected node in the proof
+     * @param env
+     *            the environment in the background
+     */
+    public RuleApplicationFinder(ProofNode node, Environment env) {
         this.goal = node;
         assert goal != null;
         assert goal.getChildren() == null : "Must not have children";
         this.sequent = goal.getSequent();
         this.env = env;
+    }
+
+    /**
+     * Find one single rule application on a subterm in the sequent under
+     * inspection.
+     *
+     * @param termSelector
+     *            the term selector for the subterm to match with find
+     * @param rule
+     *            the single rule to check
+     *
+     * @return the rule application containing the found match
+     *
+     * @throws ProofException
+     *             may be thrown during the search of applicable rules
+     */
+    public RuleApplicationMaker findOne(TermSelector termSelector, Rule rule)
+            throws ProofException {
+        return findOne(termSelector, Collections.singletonList(rule));
     }
 
     /**
@@ -194,7 +231,6 @@ public class RuleApplicationFinder {
         applications = new ArrayList<RuleApplication>();
         ruleAppMaker = new RuleApplicationMaker(env);
         ruleAppMaker.setProofNode(goal);
-        Term subterm = termSelector.selectSubterm(sequent);
 
         try {
             for (Rule rule : sortedAllRules) {
@@ -206,6 +242,7 @@ public class RuleApplicationFinder {
 
                 LocatedTerm findClause = rule.getFindClause();
                 TermMatcher termMatcher = ruleAppMaker.getTermMatcher();
+                Term subterm = termSelector.selectSubterm(sequent);
 
                 if(findClause != null) {
                     if (findClause.getMatchingLocation() == MatchingLocation.ANTECEDENT
@@ -219,6 +256,7 @@ public class RuleApplicationFinder {
                                     .isToplevel())) {
                         continue;
                     }
+
 
                     if (!termMatcher.leftMatch(findClause.getTerm(), subterm)) {
                         continue;
@@ -254,8 +292,7 @@ public class RuleApplicationFinder {
      * @throws EnoughException if enough applications have been found
      */
     private void matchAssumptions(List<LocatedTerm> assumptions,
-            int assIdx) throws RuleException,
-            EnoughException {
+            int assIdx) throws RuleException, EnoughException {
 
         TermMatcher mc = ruleAppMaker.getTermMatcher();
         if (assIdx >= assumptions.size()) {
@@ -272,19 +309,67 @@ public class RuleApplicationFinder {
         }
 
         LocatedTerm assumption = assumptions.get(assIdx);
-        List<Term> branch;
+
         boolean isAntecedent = assumption.getMatchingLocation() == MatchingLocation.ANTECEDENT;
+
+
+        // try to instantiate the assumption; no need to continue if it fails,
+        // matching will fail either.
+        Term assTerm = assumption.getTerm();
+        try {
+            assTerm = mc.instantiate(assTerm);
+        } catch (TermException e) {
+            Log.log(Log.WARNING, "Cannot instantiate an assumption during matching: " + assTerm);
+            Log.stacktrace(e);
+            return;
+        }
+
+        // if there is a schematic entity not in the rest ... fallback to matching
+        if(TermMatcher.containsSchematic(assTerm)) {
+            fallbackMatchAssumptions(assumptions, assIdx, mc, isAntecedent);
+            return;
+        }
+
+        // otherwise (most of the time!) ... no need to clone matching condition
+        List<Term> branch;
+        if(isAntecedent) {
+            branch = sequent.getAntecedent();
+        } else {
+            branch = sequent.getSuccedent();
+        }
+        int termNo = 0;
+        for (Term t : branch) {
+            if(t.equals(assTerm)) {
+                ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
+                matchAssumptions(assumptions, assIdx+1);
+                ruleAppMaker.popAssumptionSelector();
+            }
+            termNo ++;
+        }
+    }
+
+    /*
+     * This is the fallback case. Only needed if an assumptions contains a
+     * schematic entitiy which is not present anywhere else on the rule. This is
+     * rarely the case.
+     */
+    private void fallbackMatchAssumptions(List<LocatedTerm> assumptions,
+            int assIdx, TermMatcher mc, boolean isAntecedent)
+            throws RuleException, EnoughException {
+        Log.log(Log.DEBUG, "Assumption must be matched slow way for " + ruleAppMaker.getRule());
+        Term assumption = assumptions.get(assIdx).getTerm();
+
+        List<Term> branch;
         if(isAntecedent) {
             branch = sequent.getAntecedent();
         } else {
             branch = sequent.getSuccedent();
         }
 
-
         TermMatcher mcCopy = mc.clone();
         int termNo = 0;
         for (Term t : branch) {
-            if(mc.leftMatch(assumption.getTerm(), t)) {
+            if(mc.leftMatch(assumption, t)) {
                 ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
                 matchAssumptions(assumptions, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();

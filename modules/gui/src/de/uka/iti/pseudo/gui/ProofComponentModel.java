@@ -301,9 +301,11 @@ class ProofComponentModel extends DefaultTreeModel {
 
             Rule rule = ruleApp.getRule();
             String string = rule.getProperty(RuleTagConstants.KEY_VERBOSITY);
-            int value;
+            int value = 0;
             try {
-                value = Util.parseUnsignedInt(string);
+                if(string != null) {
+                    value = Util.parseUnsignedInt(string);
+                }
             } catch (NumberFormatException e) {
                 return true;
             }

@@ -16,6 +16,9 @@
  *  - basic meta functions 
  *)
 
+(* Include also the outsourced hint plugins *)
+include "$hint.p"
+
 plugin
     (*
      * propsitional and general plugins

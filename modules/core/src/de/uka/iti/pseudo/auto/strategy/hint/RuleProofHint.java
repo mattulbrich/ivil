@@ -27,7 +27,7 @@ import de.uka.iti.pseudo.rule.Rule;
  *
  * @ivildoc "Proof hint/rule"
  *
- * <h2>Proof hint <code>cut</code></h2>
+ * <h2>Proof hint <code>rule</code></h2>
  *
  * In order to perform a certain rule on a branch, this hint can be used.
  *

@@ -237,7 +237,7 @@
   <category name="Proof hint">
     <entry name="">
       <![CDATA[ <h1>Proof hints</h1>
- 
+
  Proof hints allow the user to dynamically configure the strategy in use. They
  are usually added as annotations to <tt>assert</tt> statements. The branch
  handling the proof obligation for the asserted formula is then treated
@@ -247,55 +247,76 @@
     </entry>
     <entry name="rule">
       <![CDATA[
- 
- <h2>Proof hint <code>cut</code></h2>
- 
+
+ <h2>Proof hint <code>rule</code></h2>
+
  In order to perform a certain rule on a branch, this hint can be used.
- 
+
  <h3>Arguments</h3>
  cut takes one argument which is the name of the rule to be applied.
- 
+
  <h3>Example</h3>
  <pre>
  assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
  </pre>]]>
     </entry>
-    <entry name="focus">
+    <entry name="expand">
       <![CDATA[
 
- <h2>Proof hint <code>focus</code></h2>
+ <h2>Proof hint <code>expand</code></h2>
 
- TODO
+ In order to expand a recursive definition on a branch, this hint can be used.
+ You can specify how many times a definition is to be unrolled.
 
- In order to perform a certain rule on a branch, this hint can be used.
-
- <h3>Arguments</h3>
- cut takes one argument which is the name of the rule to be applied.
+ <h3>Arguments</h3> cut takes one argument which is the name of the rule to be
+ applied.
+ <p>
+ An optional second argument specifies the number of times the definition is
+ to be unrolled.
 
  <h3>Example</h3>
+
+ If there is a rule which defines the recursive function{@code int f(int)}:
+ <pre>
+ rule f_def
+   find f(%x)
+   replace 1+f(%x-1)
+ </pre>
+
+ A hint {@code §(expand f_def)} would render a formula {@code f(1)}
+
  <pre>
  assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
- </pre>]]>
+ </pre>
+
+ (We left the base case unconsidered here)]]>
     </entry>
     <entry name="pick">
       <![CDATA[
- 
+
  <h2>Proof hint <code>pick</code></h2>
- 
+
  This hint allows you to remove formulas from a sequent and to pick
  only some of them.
- 
+
  <h3>Arguments</h3>
  Takes one or more sequent formula locators which match the regular expression
  <tt>(S|A).[0-9]+</tt>. <tt>A</tt> denoting antecedent and <tt>S</tt> succedent.
- The number means the number of the formula on the sequent (0 is first). 
- 
+ The number means the number of the formula on the sequent (0 is first).
+
  <p> Formulas are removed using the <tt>hide_left</tt> and <tt>hide_right</tt>
  rules.
- 
+
  <h3>Example</h3>
+ Assume there is a larger complex sequent which looks like
+ <center>
+    {@code x >= 0, y >= 0, ... |- ...}
+ </center>
+ and that it helps the verification process to know that {@code x*y >= 0}.
+ The decision procedure, however, is distracted by the remainder of the sequent.
+ Hence we can guide it from within the program by adding
  <pre>
- assert x*x >= 0 ; "first two imply goal §(pick A0 A1 S1)"
+ {@code assert x*y >= 0 ; "first two imply goal §(pick A0 A1 S0)"}
  </pre>]]>
     </entry>
     <entry name="cut">
@@ -317,47 +338,47 @@
   <category name="Where condition">
     <entry name="">
       <![CDATA[
- 
+
           <h1>Where conditions</h1>
- 
+
           Where conditions are used to formulate constraints von schema
           instantiations in rule definitions. They describe conditions on the
           matched terms under which the rule may be applied.
- 
+
           <p>
           Where conditions can take arguments, but do not have to. For some
           conditions, <i>marker arguments</i> (schema variables with special
           names) can be used to specify a particular behaviour of a condition.
- 
+
           <h3>Example</h3>
- 
+
           The where condition<br/>
           <tt>&nbsp;&nbsp;&nbsp;where intLiteral %a</tt><br/>
- 
+
           in a rule makes the rule only applicable if the schema variable %a
           is instantiated with an integer literal.
- 
+
           <h2>Active where conditions</h2>
- 
+
           Where conditions cannot only check the instantiation context but
           also act and actively modify it.
- 
+
           <p>
           An active where condition can add new schema instantiations to the
           context. Existing schema instantiations will not be changed, only
           new entries added. Please note that active conditions can also fail
           and not accept an instantiation.
- 
+
           <p>
           The documentation will point out which parameters are active, and
           which are passive. Future syntax changes may make the distinction
           clearer.
- 
+
           <h3>Example</h3>
- 
+
           The where condition<br/>
           <tt>&nbsp;&nbsp;&nbsp;freshVar %z, %condition</tt><br/>
- 
+
           instantiates <code>%z</code> with a variable of the same type which
           does not appear (bound or unbound) in the instantiation of
           <code>%condition</code>.]]>
