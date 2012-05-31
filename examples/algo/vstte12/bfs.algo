@@ -56,7 +56,8 @@ do
      
      Vo := V;
      No := N;
-     /*iterate succ(v) with w as tovisit
+
+     iterate succ(v) with w in tovisit
        inv tovisit <: succ(v) &
            V = Vo \/ (succ(v) \ tovisit) &
            N = No \/ (succ(v) \ (Vo \/ tovisit))
@@ -66,9 +67,7 @@ do
          V := V \/ {w};
          N := N \/ {w}
        end
-     end;*/
-     V := Vo \/ succ(v);
-     N := No \/ (succ(v) \ Vo);
+     end;
      
      if C = {}
      then
