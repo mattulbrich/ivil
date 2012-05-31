@@ -239,12 +239,14 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         visitChild(node, 1);
         statements.add("  goto " + afterLabel);
         statements.add(" " + elseLabel + ":");
-        statements.add("  assume $not(" + condition + "); \"else\"");
         if (node.jjtGetNumChildren() > 2) {
+            addSourceLineStatement((SimpleNode) node.jjtGetChild(2));
+            statements.add("  assume $not(" + condition + "); \"else\"");
             visitChild(node, 2);
         } else {
             // no else: goto "end" as far as line number is concerned
             statements.add(" sourceline " + node.jjtGetLastToken().beginLine);
+            statements.add("  assume $not(" + condition + "); \"else\"");
         }
         statements.add(" " + afterLabel + ":");
         return null;

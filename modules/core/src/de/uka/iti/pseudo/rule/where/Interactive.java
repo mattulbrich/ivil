@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.term.Term;
 
 /**
  * @ivildoc "Where condition/interactive"
+ *
  * This where condition can be used in rules to indicate that a schema variable
  * should be instantiated interactively.
  *

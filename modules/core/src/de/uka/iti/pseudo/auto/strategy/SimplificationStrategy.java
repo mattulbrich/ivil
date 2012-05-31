@@ -11,8 +11,6 @@ package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.List;
 
-import checkers.nullness.quals.LazyNonNull;
-
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
@@ -36,6 +34,14 @@ public class SimplificationStrategy extends AbstractStrategy implements
         RuleApplicationFilter {
 
     /**
+     * @ivildoc "Environment property/splitMode"
+     *
+     * TODO
+     *
+     * SimplificationStrategy.splitMode
+     *
+     * <p>SPLIT; DONT_SPLIT; SPLIT_NO_PROGRAMS
+     *
      * SplitMode lists all possibilities to handle splitting:
      * <ol>
      * <li>Do it whenever a splitting rule application is found
@@ -62,7 +68,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
 
     /**
      * Use this {@link TermVisitor} to detect programs in an term.
-     * 
+     *
      * @see #accepts(RuleApplication)
      */
     private static TermVisitor PROGRAM_DETECTOR = new DefaultTermVisitor.DepthTermVisitor() {
@@ -134,8 +140,9 @@ public class SimplificationStrategy extends AbstractStrategy implements
             String value = env.getProperty(this.getClass().getSimpleName()
                     + ".splitMode");
             try {
-                if (null != value)
+                if (null != value) {
                     setSplitMode(SplitMode.valueOf(value));
+                }
             } catch (IllegalArgumentException e) {
                 throw new StrategyException(
                         "The problem environment specified a value \""
@@ -149,7 +156,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
     /**
      * Filter acceptable rule applications. This is only relevant for splitting
      * rules. Check the sequent for program terms if set so ...
-     * 
+     *
      * @return <code>true</code> if current mode is {@link SplitMode#SPLIT} or
      *         no programs on the sequent to be treated and current mode is
      *         {@link SplitMode#SPLIT_NO_PROGRAMS}, otherwise <code>false</code>
@@ -208,7 +215,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
 
     /**
      * Gets the split mode.
-     * 
+     *
      * @return the split mode
      */
     public SplitMode getSplitMode() {
@@ -217,7 +224,7 @@ public class SimplificationStrategy extends AbstractStrategy implements
 
     /**
      * Sets the split mode.
-     * 
+     *
      * @param splitMode
      *            the new split mode
      */
