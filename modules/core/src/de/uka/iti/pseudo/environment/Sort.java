@@ -18,7 +18,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
  *
  * It has a name and a number of argument types.
  */
-public class Sort {
+public final class Sort {
 
     /**
      * The name of the sort.

@@ -33,7 +33,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class StrategyListComponent extends JPanel implements PropertyChangeListener {
 
     private static final Icon ADD = GUIUtil.makeIcon(StrategyListComponent.class.getResource("add.png"));
@@ -41,16 +41,17 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
     private static final Icon ARROW_UP = GUIUtil.makeIcon(StrategyListComponent.class.getResource("arrow_up.png"));
     private static final Icon DELETE = GUIUtil.makeIcon(StrategyListComponent.class.getResource("delete.png"));
     private CompoundStrategy compoundStrategy;
-    
+
     public StrategyListComponent() {
         addPropertyChangeListener(ParameterSheet.PARAM_SETTER, this);
-    }  
-    
+    }
+
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         compoundStrategy = (CompoundStrategy) getClientProperty(ParameterSheet.PARAM_OBJECT);
         init();
     }
-    
+
     private void init() {
         setLayout(new BorderLayout());
         {
@@ -75,6 +76,7 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
         {
             JButton add = new JButton(ADD);
             add.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     Strategy s = (Strategy)JOptionPane.showInputDialog(null,
                             "Choose the strategy to add", "Add strategy",
@@ -92,6 +94,7 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
         {
             JButton delete = new JButton(DELETE);
             delete.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     int index = list.getSelectedIndex();
                     if(index >= 0) {
@@ -105,6 +108,7 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
         {
             JButton up = new JButton(ARROW_UP);
             up .addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     int index = list.getSelectedIndex();
                     if(index > 0) {
@@ -120,6 +124,7 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
         {
             JButton down = new JButton(ARROW_DOWN);
             down .addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     int index = list.getSelectedIndex();
                     if(index < model.size()-1) {
@@ -141,7 +146,7 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
     }
 
     private void writeBack(DefaultListModel model) {
-        Strategy[] array = new Strategy[model.size()]; 
+        Strategy[] array = new Strategy[model.size()];
         model.copyInto(array);
         try {
             compoundStrategy.setStrategies(Util.readOnlyArrayList(array));
@@ -150,5 +155,5 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
             Log.stacktrace(Log.ERROR, e);
         }
     }
-    
+
 }

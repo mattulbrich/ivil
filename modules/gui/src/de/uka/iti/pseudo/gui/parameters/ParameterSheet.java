@@ -43,7 +43,7 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * A component which can be used to set or change the parameters of an object.
  * The information on the possible parameters of the object are given by a
  * properties file which describes the parameters of a class.
- * 
+ *
  * <h2>Properties File format</h2>
  * The key <code>parameters</code> needs to be present. It enumerates as space
  * separated list all available parameters. The name of a parameter decides also
@@ -53,7 +53,7 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * setter is expected to be called <code>set</code> followed by the parameter
  * name with the first letter capitalised. <b>Please note</b> that also boolean
  * parameters need to have a getter with "get" instead of "is".
- * 
+ *
  * <p>
  * For parameters <code>p</code> the following keys may be present: <table
  * border=1 cellpadding=4>
@@ -94,9 +94,9 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * <td>defaults to null</td>
  * </tr>
  * </table>
- * 
+ *
  * <h3>Specifying a special component for a parameter</h3>
- * 
+ *
  * If you want/need a special {@link JComponent} to display/edit your parameter,
  * set this using the <code>p.component</code> syntax described above. The
  * component class needs a nullary constructor. The following properities are
@@ -138,7 +138,7 @@ import de.uka.iti.pseudo.gui.VerticalLayout;
  * <td>The corresponding setter method</td>
  * </tr>
  * </table>
- * 
+ *
  * A custom component can provide a {@link PropertyChangeListener} noticing
  * changes in these parameters. You can but do not have to use the provided
  * getter and setter methods.
@@ -157,40 +157,40 @@ public class ParameterSheet extends JPanel {
          * The name of a parameter decides on the name of the getter and setter
          * methods
          */
-        String name;
+        private String name;
 
         /**
          * The type of the parameter is retrieved as the result type of the
          * getter method
          */
-        Class<?> type;
+        private Class<?> type;
 
         /**
          * The short description is provided in properties. If not defaults to
          * name
          */
-        String shortDesc;
+        private String shortDesc;
 
         /**
          * The long description is provided in the properties. If not defaults
          * to null
          */
-        String longDesc;
+        private String longDesc;
 
         /**
          * The getter method is retrieved by reflection
          */
-        Method getterMethod;
+        private Method getterMethod;
 
         /**
          * The setter method is retrieved by reflection
          */
-        Method setterMethod;
+        private Method setterMethod;
 
         /**
          * If a custom component has been specified, this is not null
          */
-        JComponent customComponent;
+        private JComponent customComponent;
     }
 
     //
@@ -230,10 +230,10 @@ public class ParameterSheet extends JPanel {
     /**
      * Instantiates a new parameter sheet for a certain object using its dynamic
      * type to find properties on the parameters.
-     * 
+     *
      * @param object
      *            the object to inspect
-     * 
+     *
      * @throws SecurityException
      *             may be thrown by reflections
      * @throws IllegalArgumentException
@@ -268,12 +268,12 @@ public class ParameterSheet extends JPanel {
      * Instantiates a new parameter sheet for a certain object using the
      * information for a class which may be a super class of the actual class of
      * object.
-     * 
+     *
      * @param clss
      *            the Class to be used to gather parameter information
      * @param object
      *            the object to inspect
-     * 
+     *
      * @throws SecurityException
      *             may be thrown by reflections
      * @throws IllegalArgumentException
@@ -304,7 +304,7 @@ public class ParameterSheet extends JPanel {
      * Instantiates a new parameter sheet for a certain object using the
      * information for a class which may be a super class of the actual class of
      * object.
-     * 
+     *
      * @param clss
      *            the Class to be used to gather parameter information
      * @param propertyResource
@@ -312,7 +312,7 @@ public class ParameterSheet extends JPanel {
      *            object from.
      * @param object
      *            the object to inspect
-     * 
+     *
      * @throws SecurityException
      *             may be thrown by reflections
      * @throws IllegalArgumentException
@@ -340,7 +340,7 @@ public class ParameterSheet extends JPanel {
 
         this.objectClass = clss;
         this.object = object;
-        
+
         assert objectClass.isInstance(object);
 
         properties = loadProperties(propertyResource);
@@ -376,12 +376,14 @@ public class ParameterSheet extends JPanel {
         ArrayList<Parameter> result = new ArrayList<Parameter>();
 
         String parameterKey = properties.getProperty("parameters");
-        if (parameterKey == null)
+        if (parameterKey == null) {
             throw new IOException("Key parameters is not defined");
+        }
 
         for (String param : parameterKey.split(" +")) {
-            if (param.length() > 0)
+            if (param.length() > 0) {
                 result.add(readParameter(param));
+            }
         }
         return result;
     }
@@ -390,7 +392,7 @@ public class ParameterSheet extends JPanel {
      * Read a single parameter from the properties. The parameter has set its
      * name, shortDesc, longDesc, reader and setter fields. The user component
      * field is only created if set.
-     * 
+     *
      * If a method cannot be found or is of illegal type, an exception is
      * issued.
      */
@@ -410,7 +412,7 @@ public class ParameterSheet extends JPanel {
         p.getterMethod = objectClass.getMethod(getterMethodName);
         p.type = p.getterMethod.getReturnType();
         p.setterMethod = objectClass.getMethod(setterMethodName, p.type);
-        
+
         String userComponentClass = properties.getProperty(name
                 + SUFFIX_COMPONENT);
         if (userComponentClass != null) {
@@ -449,8 +451,9 @@ public class ParameterSheet extends JPanel {
                     + objectClass.getCanonicalName().replace('.', '/')
                     + "_parameters.properties";
             propertyResource = objectClass.getResource(resource);
-            if (propertyResource == null)
+            if (propertyResource == null) {
                 throw new FileNotFoundException("Cannot find resource " + resource);
+            }
         }
 
         InputStream instream = propertyResource.openStream();
@@ -523,6 +526,7 @@ public class ParameterSheet extends JPanel {
                     + o.name()));
             r.setSelected(o == value);
             r.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (r.isSelected()) {
                         callSetter(parameter, o);
@@ -557,6 +561,7 @@ public class ParameterSheet extends JPanel {
         slider.setPaintTicks(true);
         slider.setPaintLabels(true);
         slider.addChangeListener(new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent e) {
                 label.setText("Value: " + slider.getValue());
                 callSetter(parameter, (Integer) slider.getValue());
@@ -580,6 +585,7 @@ public class ParameterSheet extends JPanel {
         final JFormattedTextField text = new JFormattedTextField();
         text.setText(value == null ? "" : value.toString());
         text.addPropertyChangeListener("value", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 callSetter(parameter, text.getText());
             }
@@ -596,6 +602,7 @@ public class ParameterSheet extends JPanel {
         checkBox.setToolTipText(parameter.longDesc);
         checkBox.setSelected((Boolean) value);
         checkBox.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 callSetter(parameter, Boolean.valueOf(checkBox.isSelected()));
             }

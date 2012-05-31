@@ -38,7 +38,7 @@ import de.uka.iti.pseudo.util.Util;
  * Rules are immutable objects.
  *
  */
-public class Rule {
+public final class Rule {
 
 //    /**
 //     * new line character for pretty printing
