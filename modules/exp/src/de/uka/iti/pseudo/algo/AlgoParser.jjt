@@ -389,7 +389,17 @@ void AbbrevIdentifier() #AbbrevIdentifier :
 /** Expressions. */
 void Expression() : {}
 { 
-  EquivalenceExpression()
+  PatternExpression()
+}
+
+void PatternExpression() :
+{ 
+  Token t=null;
+}
+{ 
+// No double patterns!
+   EquivalenceExpression() ( t="~~>"  EquivalenceExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
 }
 
 void EquivalenceExpression() :
@@ -478,12 +488,12 @@ void PrimaryExpression() :
 {
      ( Identifier() ( "(" ExpressionCommaList() ")" )? ) #ApplicationExpression
    | LOOKAHEAD(2) 
-     ( "(" BinderIdentifier() EquivalenceExpression() 
-         ( ";" EquivalenceExpression() )* ")" ) #BinderExpression
+     ( "(" BinderIdentifier() Expression() 
+         ( ";" Expression() )* ")" ) #BinderExpression
    |
      SetExtensionExpression()
    | 
-     "(" EquivalenceExpression() ")"
+     "(" Expression() ")"
    |
      IntegerLiteral()
    |
@@ -493,7 +503,7 @@ void PrimaryExpression() :
 void ExpressionCommaList() #ExpressionCommaList :
 {}
 {
-  EquivalenceExpression() ( "," EquivalenceExpression() )*
+  Expression() ( "," Expression() )*
 }
 
 void SetExtensionExpression() : {}
@@ -503,11 +513,11 @@ void SetExtensionExpression() : {}
     ( LOOKAHEAD(2)
       ( Identifier()
         ":"
-        EquivalenceExpression() 
+        Expression() 
         "}" ) #SetComprehensionExpression
     |
       (
-       ( EquivalenceExpression() )? 
+       ( Expression() )? 
        "}" ) #SetExtensionExpression
     )
 }
@@ -552,7 +562,7 @@ void MethodParameterType() #MethodParameterType :
 void CouplingFormula(String number) #CouplingFormula :
 {}
 {
-    EquivalenceExpression()
+    Expression()
       { jjtThis.jjtSetValue(number); }
 }
  
