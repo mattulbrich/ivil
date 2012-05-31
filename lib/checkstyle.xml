@@ -119,7 +119,9 @@
         <property name="suppressLoadErrors" value="true" />
         <property name="scope" value="package" />
       </module>
-      <module name="JavadocType"/>
+      <module name="JavadocType">
+	<property name="allowUnknownTags" value="true" />
+      </module>
       <module name="JavadocVariable">
         <property name="scope" value="package" />
       </module>
@@ -226,7 +228,8 @@
       <module name="DefaultComesLast"/>
       <module name="FallThrough"/>
       <module name="MultipleStringLiterals">
-        <property name="severity" value="info"/>
+	<property name="ignoreStringsRegexp" value=".{0,8}" />
+        <property name="severity" value="warning"/>
       </module>
       <module name="MultipleVariableDeclarations"/>
       <module name="OneStatementPerLine"/>
@@ -239,7 +242,9 @@
       </module>
       <!--<module name="IllegalInstantiation"/>-->
       <module name="InnerAssignment"/>
-      <module name="MagicNumber"/>
+      <module name="MagicNumber">
+	<property name="ignoreNumbers" value="-1,0,1,2,3,4,5" />
+      </module>
       <module name="MissingSwitchDefault">
         <property name="severity" value="warning"/>
       </module>

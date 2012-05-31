@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
@@ -269,8 +270,7 @@ public class Main {
             settings.loadKeyAsFile(PROPERTIES_FILE_KEY);
             settings.putAll(System.getProperties());
         } catch (IOException e) {
-            System.err.println("Cannot read properties file, continuing anyway ...");
-            e.printStackTrace();
+            Log.log(Log.WARNING, "Cannot read properties file, continuing anyway ...");
         }
     }
 
