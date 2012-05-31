@@ -2,6 +2,7 @@
 *.hidden
 *.swp
 *~*
+.*/*
 
 # ignore distribution files
 dist/

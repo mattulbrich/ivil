@@ -127,6 +127,10 @@ import de.uka.iti.pseudo.util.settings.Settings;
  * evaluated even on different threads.
  *
  * This class is package readable to allow access for unit tests.
+ *
+ * TODO Add program name to ruleapps properties for replayability
+ * Proofs can not be saved if the name of the generated program
+ * is not deterministic
  */
 public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
 

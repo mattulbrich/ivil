@@ -72,6 +72,14 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(fresh.check(null, new Term[] { result, makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") }, null, env));
     }
 
+    // was a bug
+    public void testVarNested() throws Exception {
+        FreshVariable fresh = new FreshVariable();
+        assertTrue(fresh.check(null, new Term[] { makeTerm("\\var x as int"), makeTerm("(\\forall x as int; (\\forall x as int; true) & x>0)")}, null, env));
+
+        NoFreeVars nofree = new NoFreeVars();
+        assertTrue(nofree.check(null, new Term[] { makeTerm("(\\forall x as int; (\\forall x as int; true) & x>0)") }, null, env));
+    }
 
     public void testInteractive() throws Exception {
         Interactive inter = new Interactive();

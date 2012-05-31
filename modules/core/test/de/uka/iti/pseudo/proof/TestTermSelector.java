@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.proof;
@@ -24,10 +24,10 @@ public class TestTermSelector extends TestCaseWithEnv {
 
         TermSelector ts3 = new TermSelector(ts1, 3);
         assertEquals("A.0.1.2.3", ts3.toString());
-        
+
         TermSelector ts4 = new TermSelector(ts1, 3, 4, 5);
         assertEquals("A.0.1.2.3.4.5", ts4.toString());
-        
+
         TermSelector ts5 = new TermSelector(ts1, new SubtermSelector(3,4,5));
         assertEquals("A.0.1.2.3.4.5", ts5.toString());
     }
@@ -82,12 +82,12 @@ public class TestTermSelector extends TestCaseWithEnv {
         new TermSelector("A.127.126");
 
     }
-    
+
     public void testSubtermConstructor() throws Exception {
         SubtermSelector s1 = new SubtermSelector(1,2,3);
         SubtermSelector s2 = new SubtermSelector();
         SubtermSelector s3 = new SubtermSelector(4);
-        
+
         assertEquals("1.2.3", new SubtermSelector(s1, s2).toString());
         assertEquals("1.2.3.4", new SubtermSelector(s1, s3).toString());
         assertEquals("1.2.3.4.5.6", new SubtermSelector(s1, 4,5,6).toString());
@@ -108,41 +108,65 @@ public class TestTermSelector extends TestCaseWithEnv {
         assertTrue(t1.isToplevel());
         assertFalse(t2.isToplevel());
     }
-    
+
     // from a bug
     public void testEquality() throws Exception {
         TermSelector t1 = new TermSelector("S.0");
         TermSelector t2 = new TermSelector("S.0.1");
-        
+
         assertFalse(t1.equals(t2));
     }
-    
+
     // from a bug
     public void testEquality2() throws Exception {
         TermSelector t1 = new TermSelector("A.0");
         TermSelector t2 = new TermSelector("A.1");
-        
+
         assertFalse(t1.equals(t2));
     }
-    
+
     public void testGetToplevel() throws Exception {
         TermSelector t1 = new TermSelector("A.1.2.3.4");
         TermSelector t2 = new TermSelector("A.1");
         assertEquals(t1.getToplevelSelector(), t2);
     }
-    
+
     public void testPrefix() throws Exception {
         TermSelector t = new TermSelector("A.1.2.3.4");
         TermSelector t1 = new TermSelector("A.1");
         TermSelector t2 = new TermSelector("A.1.3");
         TermSelector t3 = new TermSelector("S.1.2.3.4");
-        
+
         assertTrue(t.hasPrefix(t1));
         assertTrue(t.hasPrefix(t));
         assertFalse(t.hasPrefix(t2));
         assertFalse(t.hasPrefix(t3));
-        
+
         assertFalse(t1.hasPrefix(t));
+    }
+
+    public void testComparison() throws Exception {
+
+        TermSelector[] selectors = {
+                new TermSelector(TermSelector.ANTECEDENT, 0, 1),
+                new TermSelector(TermSelector.ANTECEDENT, 0),
+                new TermSelector(TermSelector.ANTECEDENT, 0),
+                new TermSelector(TermSelector.ANTECEDENT, 4),
+                new TermSelector(TermSelector.SUCCEDENT, 0),
+                new TermSelector(TermSelector.SUCCEDENT, 0, 1, 3),
+                new TermSelector(TermSelector.SUCCEDENT, 0, 1),
+                new TermSelector(TermSelector.SUCCEDENT, 0, 2),
+        };
+
+        for (TermSelector s1 : selectors) {
+            for (TermSelector s2 : selectors) {
+                // there is no int signum ... so what ...
+                int comp = (int)Math.signum(s1.compareTo(s2));
+                int strComp = (int)Math.signum(s1.toString().compareTo(s2.toString()));
+                assertEquals(s1 + " <=> " + s2, comp, strComp);
+            }
+        }
+
     }
 
 }

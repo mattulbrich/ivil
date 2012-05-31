@@ -27,7 +27,6 @@ public class SMTStrategy extends AbstractStrategy {
     private static final String CLOSE_RULE_NAME = "auto_smt_close";
     private Rule closeRule;
     private DecisionProcedure solver;
-    private int timeout;
     private Environment env;
 
     @Override public void init(Proof proof, Environment env,
@@ -47,7 +46,6 @@ public class SMTStrategy extends AbstractStrategy {
             String decprocName = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
             solver = env.getPluginManager().getPlugin(DecisionProcedure.SERVICE_NAME,
                     DecisionProcedure.class, decprocName);
-            timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
         } catch(Exception ex) {
             Log.log(Log.ERROR, "Cannot instantiate background decision procedure");
             ex.printStackTrace();
@@ -68,7 +66,7 @@ public class SMTStrategy extends AbstractStrategy {
         Pair<Result, String> result;
 
         try {
-            result = solver.solve(sequent, env, timeout);
+            result = solver.solve(sequent, env, closeRule.getProperties());
         } catch (Exception e) {
             throw new StrategyException("The SMT solver raised an exception. You may consider changing the strategy.");
         }

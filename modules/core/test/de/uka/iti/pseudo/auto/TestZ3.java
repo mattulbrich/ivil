@@ -11,6 +11,7 @@
 package de.uka.iti.pseudo.auto;
 
 import java.util.Collections;
+import java.util.Map;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.auto.DecisionProcedure.Result;
@@ -26,12 +27,15 @@ import de.uka.iti.pseudo.util.Pair;
 
 public class TestZ3 extends TestCaseWithEnv {
 
+    private static Map<String, String> PROP1000 = Collections.singletonMap("timeout", "1000");
+    private static Map<String, String> PROP2000 = Collections.singletonMap("timeout", "2000");
+
     public void testSolveUnsatSMT() throws Exception {
         Term t = makeTerm("(\\forall x; x > 0 -> x >= 0)");
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
-        Pair<Result, String> res = z3.solve(s, env, 1000);
+        Pair<Result, String> res = z3.solve(s, env, PROP1000);
         assertEquals(Result.VALID, res.fst());
     }
 
@@ -40,7 +44,7 @@ public class TestZ3 extends TestCaseWithEnv {
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
-        Pair<Result, String> res = z3.solve(s, env, 1000);
+        Pair<Result, String> res = z3.solve(s, env, PROP1000);
         // NOT SAME
         assertNotSame(Result.VALID, res.fst());
     }
@@ -52,7 +56,7 @@ public class TestZ3 extends TestCaseWithEnv {
         Z3SMT z3 = new Z3SMT();
         Sequent s = new Sequent(new Term[] { t1, t2 }, new Term[] { t3 });
 
-        Pair<Result, String> res = z3.solve(s, env, 1000);
+        Pair<Result, String> res = z3.solve(s, env, PROP1000);
         assertSame(Result.VALID, res.fst());
     }
 
@@ -61,7 +65,7 @@ public class TestZ3 extends TestCaseWithEnv {
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
-        Pair<Result, String> res = z3.solve(s, env, 1000);
+        Pair<Result, String> res = z3.solve(s, env, PROP1000);
         assertNotSame(Result.VALID, res.fst());
     }
 
@@ -70,10 +74,11 @@ public class TestZ3 extends TestCaseWithEnv {
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
-        Pair<Result, String> res = z3.solve(s, env, 1);
+        Map<String, String> timeout1sec = Collections.singletonMap("timeout", "1");
+        Pair<Result, String> res = z3.solve(s, env, timeout1sec);
         assertSame(Result.UNKNOWN, res.fst());
 
-        res = z3.solve(s, env, 2000);
+        res = z3.solve(s, env, PROP2000);
         assertSame(Result.VALID, res.fst());
     }
 
@@ -82,7 +87,7 @@ public class TestZ3 extends TestCaseWithEnv {
         Sequent s = new Sequent(Collections.<Term>emptyList(), Collections.<Term>singletonList(t));
         Z3SMT z3 = new Z3SMT();
 
-        Pair<Result, String> res = z3.solve(s, env, 1000);
+        Pair<Result, String> res = z3.solve(s, env, PROP1000);
         assertEquals(Result.VALID, res.fst());
     }
 

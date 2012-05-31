@@ -195,7 +195,8 @@ SKIP : {  "(*" { commentNestingDepth = 1 ; } : COMMENT }
 | < HAVOC: "havoc" >
 | < END: "end" >
 | < _SKIP: "skip" >
-| < SKIP_LOOP_INV: "skip_loopinv" >
+// | < SKIP_LOOP_INV: "skip_loopinv" >
+| < SKIP_ANNOTATED: "skip_" ( ["a" - "z"] )+ >
 | < SOURCE: "source" >
 | < SOURCELINE: "sourceline" >
 | < ASSIGN: ":=" >

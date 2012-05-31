@@ -25,25 +25,32 @@ import de.uka.iti.pseudo.term.Sequent;
 
 /**
  * The Class PickProofHint implements a proof hint which applies the cut rule.
- * 
+ *
  * @ivildoc "Proof hint/pick"
- * 
+ *
  * <h2>Proof hint <code>pick</code></h2>
- * 
+ *
  * This hint allows you to remove formulas from a sequent and to pick
  * only some of them.
- * 
+ *
  * <h3>Arguments</h3>
  * Takes one or more sequent formula locators which match the regular expression
  * <tt>(S|A).[0-9]+</tt>. <tt>A</tt> denoting antecedent and <tt>S</tt> succedent.
- * The number means the number of the formula on the sequent (0 is first). 
- * 
+ * The number means the number of the formula on the sequent (0 is first).
+ *
  * <p> Formulas are removed using the <tt>hide_left</tt> and <tt>hide_right</tt>
  * rules.
- * 
+ *
  * <h3>Example</h3>
+ * Assume there is a larger complex sequent which looks like
+ * <center>
+ *    {@code x >= 0, y >= 0, ... |- ...}
+ * </center>
+ * and that it helps the verification process to know that {@code x*y >= 0}.
+ * The decision procedure, however, is distracted by the remainder of the sequent.
+ * Hence we can guide it from within the program by adding
  * <pre>
- * assert x*x >= 0 ; "first two imply goal §(pick A0 A1 S1)"
+ * {@code assert x*y >= 0 ; "first two imply goal §(pick A0 A1 S0)"}
  * </pre>
  */
 public class PickProofHint implements ProofHint {
@@ -61,14 +68,17 @@ public class PickProofHint implements ProofHint {
 }
 
 /**
- * This implementation applies the cut rule.
+ * This class is used to implement the {@link PickProofHint}.
+ *
+ * This implementation applies the hide_left and hide_right rules to hide
+ * unwished formulas of the sequent. It picks the remaining formulas.
  */
 class PickHintAppFinder extends HintRuleAppFinder {
 
     private final Environment env;
-    private LinkedList<TermSelector> toRemoveList = new LinkedList<TermSelector>();
-    private Rule hideLeftRule;
-    private Rule hideRightRule;
+    private final LinkedList<TermSelector> toRemoveList = new LinkedList<TermSelector>();
+    private final Rule hideLeftRule;
+    private final Rule hideRightRule;
 
     public PickHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
         super(arguments);
@@ -77,7 +87,7 @@ class PickHintAppFinder extends HintRuleAppFinder {
         if(arguments.size() < 2) {
             throw new StrategyException("The proofhint 'pick' expects at least one argument");
         }
-        
+
         // TODO null checks
         hideLeftRule = env.getRule("hide_left");
         hideRightRule = env.getRule("hide_right");
@@ -85,8 +95,10 @@ class PickHintAppFinder extends HintRuleAppFinder {
 
     /**
      * {@inheritDoc}
-     * 
-     * TODO DOC
+     *
+     * <p>
+     * This is only applied on the reasonNode itself. It looks up all formulas
+     * to be removed and does so.
      */
     @Override
     public RuleApplication findRuleApplication(ProofNode node,
@@ -96,7 +108,7 @@ class PickHintAppFinder extends HintRuleAppFinder {
             // First call. Make the list of nodes to hide.
             if(node == reasonNode) {
                 prepareRemoveList(node);
-            } 
+            }
 
             if(!toRemoveList.isEmpty()) {
                 // take last so no renumbering needed
@@ -110,10 +122,11 @@ class PickHintAppFinder extends HintRuleAppFinder {
         }
     }
 
-    private RuleApplication makeRuleApp(TermSelector toRemove, ProofNode node) throws ProofException {
-        
+    private RuleApplication makeRuleApp(TermSelector toRemove, ProofNode node)
+            throws ProofException {
+
         Rule rule = toRemove.isAntecedent() ? hideLeftRule : hideRightRule;
-        
+
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ram.setRule(rule);
         ram.setProofNode(node);
@@ -135,17 +148,17 @@ class PickHintAppFinder extends HintRuleAppFinder {
 
     private void makeAll(ProofNode node, List<TermSelector> list) {
         Sequent seq = node.getSequent();
-        
+
         int anteSize = seq.getAntecedent().size();
         for (int i = 0; i < anteSize; i++) {
             list.add(new TermSelector(TermSelector.ANTECEDENT, i));
         }
-        
+
         int succSize = seq.getSuccedent().size();
         for (int i = 0; i < succSize; i++) {
             list.add(new TermSelector(TermSelector.SUCCEDENT, i));
         }
     }
 
-    
+
 }

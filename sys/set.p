@@ -195,6 +195,15 @@ rule subset_of_union
     derived
     verbosity "6"
 
+(* $prec is real subset on finite sets *)
+rule prec_set
+  find %a &< (%b as set(%'x))
+  where freshVar %x, %a, %b
+  replace %a <: %b & (\exists %x; %x :: %b \ %a) & finite(%b)
+  tags
+    rewrite "fol simp"
+    verbosity "8"
+
 (*
  * rules with union
  *)
@@ -416,7 +425,6 @@ axiom card_non_negative
   
 rule card_non_negative
   find card(%s)
-  where not presentInAntecedent card(%s) >= 0
   add card(%s) >= 0 |-
 
 rule card_minus
@@ -424,9 +432,3 @@ rule card_minus
   assume finite(%t) |-
   find |- card(%s) - card(%t) >= 0
   replace %t <: %s
-
-rule card_lessthan
-  assume finite(%s) |-
-  assume finite(%t) |-
-  find |- card(%s) < card(%t)
-  replace %s <: %t & !%s=%t

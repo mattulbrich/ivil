@@ -15,20 +15,20 @@ import nonnull.NonNull;
 
 /**
  * Log provides static methods for a <b>very basic</b> logging mechanism.
- * 
+ *
  * <p>
  * This interface can be implemented using various back-ends. A simple console
  * output implementation ({@link SimpleLog}) is included.
- * 
+ *
  * <p>
  * log4j or java.util.logging can be used if more comfort is desired. An
  * implementation should be easily done.
  * <small>(Look at Log4JLogImplementation in lib)</small>
- * 
+ *
  * @author mattias ulbrich
  */
 public class Log {
-    
+
     /**
      * ERROR is a message level indicating a serious failure.
      * <p>
@@ -49,18 +49,18 @@ public class Log {
      * This level is initialized to <CODE>40</CODE>.
      */
     public static final int WARNING = 40;
-    
+
     /**
      * DEBUG is a message level for informational messages.
      * <p>
      * Typically DEBUG messages will be written to the console
-     * or its equivalent.  So the INFO level should only be 
+     * or its equivalent.  So the INFO level should only be
      * used for reasonably significant messages that will
      * make sense to developers and system admins.
      * This level is initialized to <CODE>30</CODE>.
      */
     public static final int DEBUG = 30;
-    
+
     /**
      * VERBOSE is a message level providing more deep information.
      * <p>
@@ -74,13 +74,13 @@ public class Log {
      * This level is initialized to <CODE>20</CODE>.
      */
     public static final int VERBOSE = 20;
-    
+
     /**
      * TRACE indicates a highly detailed tracing message.
-     * This level is initialized to <CODE>10</CODE>. 
+     * This level is initialized to <CODE>10</CODE>.
      */
     public static final int TRACE = 10;
-    
+
     /**
      * ALL indicates all messages.
      * This level is initialized to <code>0</code>.
@@ -88,13 +88,13 @@ public class Log {
     public static final int ALL = 0;
 
     /**
-     * All actual logging is delegated to an instance of this interface. 
+     * All actual logging is delegated to an instance of this interface.
      */
     public static interface LogImplementation {
 
         /**
          * do the actual logging.
-         * 
+         *
          * @param level
          *            the level of the message
          * @param message
@@ -104,7 +104,7 @@ public class Log {
 
         /**
          * do the actual logging for a throwable object.
-         * 
+         *
          * @param level
          *            the level of the message
          * @param e
@@ -114,20 +114,20 @@ public class Log {
 
         /**
          * test whether a log level is being log by the system.
-         * 
+         *
          * @param level
          *            the level to test
          * @return true if this level is under surveillance.
          */
         boolean isLogging(int level);
-        
+
     }
-    
+
     /**
      * the implementing object to which we delegate our log commands.
      */
     private static LogImplementation logImplementation;
-    
+
     /**
      * Set up the implementation by system property.
      */
@@ -145,7 +145,7 @@ public class Log {
 
     /**
      * Set the {@link LogImplementation} to use for future log output.
-     * 
+     *
      * @param logImplementation
      *            the logImplementation to set
      */
@@ -156,15 +156,15 @@ public class Log {
     private Log() {
         // only static methods
     }
-    
+
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
      * A line break is automatically amended.
-     * 
+     *
      * Logging level {@link #DEBUG} is used.
-     * 
+     *
      * Deprecated: Use the log methods instead.
-     * 
+     *
      * @see PrintStream#printf(String, Object...)
      * @param format the <code>printf</code> format string
      * @param args arguments to be formatted
@@ -173,13 +173,13 @@ public class Log {
     public static void printf(String format, Object... args) {
         dbgPrint(DEBUG, String.format(format, args));
     }
-    
+
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
      * A line break is automatically amended.
-     * 
+     *
      * Logging level {@link #DEBUG} is used.
-     * 
+     *
      * @see PrintStream#printf(String, Object...)
      * @param format the <code>printf</code> format string
      * @param args arguments to be formatted
@@ -187,13 +187,13 @@ public class Log {
     public static void log(String format, Object... args) {
         dbgPrint(DEBUG, String.format(format, args));
     }
-    
+
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
      * A line break is automatically amended.
-     * 
+     *
      * Logging level <code>level</code> ist used.
-     * 
+     *
      * @see PrintStream#printf(String, Object...)
      * @param level the level of the log message.
      * @param format the <code>printf</code> format string
@@ -203,47 +203,47 @@ public class Log {
         assert level >= 0;
         dbgPrint(level, String.format(format, args));
     }
-    
+
     /**
      * Log an message (using {@link Object#toString()}) to {@link System#err}.
      * A line break is automatically amended.
-     * 
+     *
      * Logging level <code>level</code> ist used.
-     * 
+     *
      * @param message the message to log
      */
     public static void log(int level, Object message) {
         assert level >= 0;
         dbgPrint(level, message.toString());
     }
-    
+
     /**
      * Log a method entry to {@link System#err}.
-     * 
+     *
      * Logging level {@link #TRACE} is used.
-     * 
+     *
      * @param args arguments to the method should be supplied
      */
     public static void enter(Object... args) {
         dbgPrint(TRACE, "enter method \n Arguments: " + Util.join(args, ", "));
     }
-    
+
     /**
      * Log a method leave to {@link System#err}.
-     * 
+     *
      * Logging level {@link #TRACE} is used.
      */
     public static void leave() {
         dbgPrint(TRACE, "leave method");
     }
-    
+
     /**
      * print a string to stdout, prefixed by the execution context of the caller
      * of the calling function.
-     * 
+     *
      * If {@link #showOnlyPrefixes} is defined, the output is only written, if
      * the caller prefix begins with one of the specified strings
-     * 
+     *
      * @param string
      *            string to be printed out
      */
@@ -251,43 +251,42 @@ public class Log {
         if(logImplementation != null) {
             logImplementation.doLog(level, string);
         }
-        
     }
 
 
     /**
      * Log the stack trace of an exception.
-     * 
+     *
      * The used level is <code>DEBUG</code>.
-     * 
+     *
      * @param e
      *            the throwable object whose trace is to be logged.
      */
     public static void stacktrace(Throwable e) {
-        if(logImplementation != null) {
-            logImplementation.doStackTrace(DEBUG, e);
-        }
-        
+        stacktrace(DEBUG, e);
+
     }
-    
+
     /**
      * Log the stack trace of an exception.
-     * 
+     *
      * The used level is determined by the argument.
-     * 
+     *
      * @param level
      *            the level to use for the logging.
-     * 
+     *
      * @param e
      *            the throwable object whose trace is to be logged.
      */
     public static void stacktrace(int level, Throwable e) {
-        logImplementation.doStackTrace(level, e);
+        if(logImplementation != null) {
+            logImplementation.doStackTrace(level, e);
+        }
     }
 
     /**
      * Check if a log level is being traced at the moment.
-     * 
+     *
      * @param level
      *            level to check
      * @return true iff a message of this level would be published.
@@ -296,5 +295,5 @@ public class Log {
         return logImplementation.isLogging(level);
     }
 
-    
+
 }

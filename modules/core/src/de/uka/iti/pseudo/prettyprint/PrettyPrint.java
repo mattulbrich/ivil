@@ -15,7 +15,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
@@ -50,8 +49,8 @@ public class PrettyPrint {
     /**
      * The environment to lookup infix and prefix operators, plugins
      */
-    private Environment env;
-    
+    private final Environment env;
+
     /**
      * the list of installed pretty print plugins (extracted from env)
      */
@@ -67,17 +66,17 @@ public class PrettyPrint {
      * whether or not fix operators are printed as such.
      */
     private boolean printFix = true;
-    
+
     /**
      * whether or not the pretty printer plugins are to be used.
      */
     private boolean printPlugins = true;
-    
+
     /**
      * whether or not updates should appear on separate lines
      */
     private boolean breakUpdates = false;
-    
+
     /**
      * the style (attribute string) to be set in the beginning.
      * may be null if no special attributes are to be set.
@@ -86,7 +85,7 @@ public class PrettyPrint {
 
     /**
      * create a new pretty printer with the default properties preset.
-     * 
+     *
      * @param env
      *            the environment to lookup infix and prefix operators
      */
@@ -96,7 +95,7 @@ public class PrettyPrint {
 
     /**
      * create a new pretty printer with the typing property explicitly set.
-     * 
+     *
      * @param typed
      *            whether or not typing information is to be printed.
      * @param env
@@ -105,7 +104,7 @@ public class PrettyPrint {
     public PrettyPrint(@NonNull Environment env, boolean typed) {
         this.env = env;
         this.typed = typed;
-        
+
         try {
             List<PrettyPrintPlugin> list = env.getPluginManager().getPlugins(
                     SERVICE_NAME, PrettyPrintPlugin.class);
@@ -116,13 +115,13 @@ public class PrettyPrint {
             this.pluginPrettyPrinters = Collections.emptyList();
         }
     }
-    
+
     /**
      * pretty print a term using the currently set properties on this object.
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param term
      *            the term to pretty print
      * @return a freshly created annotated string object
@@ -130,13 +129,13 @@ public class PrettyPrint {
     public AnnotatedStringWithStyles<TermTag> print(Term term) {
         return print(term, new AnnotatedStringWithStyles<TermTag>());
     }
-    
+
     /**
      * pretty print a term using the currently set properties on this object.
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param term
      *            the term to pretty print
      * @param printer
@@ -145,33 +144,35 @@ public class PrettyPrint {
      */
     public AnnotatedStringWithStyles<TermTag> print(Term term, AnnotatedStringWithStyles<TermTag> printer) {
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
-        
+
         try {
-            if(initialStyle != null)
+            if(initialStyle != null) {
                 printer.setStyle(initialStyle);
-            
+            }
+
             term.visit(visitor);
-            
-            if(initialStyle != null)
+
+            if(initialStyle != null) {
                 printer.resetPreviousStyle();
+            }
         } catch (TermException e) {
             // not thrown in this code
             // FIXME ... I did receive a call however!
             e.printStackTrace();
             throw new Error(e);
         }
-    
+
         assert printer.hasEmptyStack();
-        
+
         return printer;
     }
 
     /** TODO DOC
      * pretty print a term using the currently set properties on this object.
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param statement
      *            the term to pretty print
      * @return a freshly created annotated string object
@@ -179,41 +180,43 @@ public class PrettyPrint {
     public AnnotatedStringWithStyles<TermTag> print(Statement statement) {
         return print(statement, new AnnotatedStringWithStyles<TermTag>());
     }
-    
+
     /** TODO DOC */
     private AnnotatedStringWithStyles<TermTag> print(Statement statement,
             AnnotatedStringWithStyles<TermTag> printer) {
-        
+
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
-            if(initialStyle != null)
+            if(initialStyle != null) {
                 printer.setStyle(initialStyle);
-            
+            }
+
             statement.visit(visitor);
-            
-            if(initialStyle != null)
+
+            if(initialStyle != null) {
                 printer.resetPreviousStyle();
+            }
         } catch (TermException e) {
             // not thrown in this code
             throw new Error(e);
         }
 
         assert printer.hasEmptyStack();
-        
+
         return printer;
     }
 
     /**
      * pretty print a list of assignments using the currently set properties on
      * this object. The format is as follows:
-     * 
+     *
      * <pre>
      *  v1 := exp1 || v2 := exp2 || ... || vn := expn
      * </pre>
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param assignments
      *            the list to pretty print
      * @return a freshly created annotated string object.
@@ -221,57 +224,59 @@ public class PrettyPrint {
     public AnnotatedStringWithStyles<TermTag> print(@DeepNonNull List<Assignment> assignments) {
         return print(assignments, new AnnotatedStringWithStyles<TermTag>());
     }
-    
+
     /**
      * pretty print a list of assignments using the currently set properties on
      * this object. The format is as follows:
      * <pre>
      *  v1 := exp1 || v2 := exp2 || ... || vn := expn
      * </pre>
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param assignmentList
      *            the list to pretty print
      * @param printer
      *            the annotated string to append the term to
      * @return the argument printer
      */
-    public AnnotatedStringWithStyles<TermTag> print(List<Assignment> assignmentList, 
+    public AnnotatedStringWithStyles<TermTag> print(List<Assignment> assignmentList,
             AnnotatedStringWithStyles<TermTag> printer) {
-        
+
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
-            if(initialStyle != null)
+            if(initialStyle != null) {
                 printer.setStyle(initialStyle);
-            
+            }
+
             visitor.visit(assignmentList);
-            
-            if(initialStyle != null)
+
+            if(initialStyle != null) {
                 printer.resetPreviousStyle();
-            
+            }
+
         } catch (TermException e) {
             // not thrown in this code
             throw new Error(e);
         }
         return printer;
     }
-    
+
     /**
      * Prints a term without explicit typing, but fix operators in prefix or
      * infix notation.
-     * 
+     *
      * A temporary pretty printer is created for printing.
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param env
      *            the env to resolve fix operators
      * @param term
      *            the term to pretty print
-     * 
+     *
      * @return the annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<TermTag> print(
@@ -281,12 +286,12 @@ public class PrettyPrint {
 
     /**
      * Prints a term.
-     * 
+     *
      * A temporary pretty printer object is created for printing.
-     * 
+     *
      * The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * @param env
      *            the env to resolve fix operators
      * @param term
@@ -294,59 +299,59 @@ public class PrettyPrint {
      * @param typed
      *            if true, all subterms are amended with an explicit typing via
      *            "as type"
-     * 
+     *
      * @return the annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull Term term, boolean typed) {
         PrettyPrint pp = new PrettyPrint(env, typed);
 
-        return pp.print(term);        
+        return pp.print(term);
     }
 
     /**
      * Prints a located term without explicit typing.
-     * 
+     *
      * A temporary pretty printer is created for printing.
-     * 
+     *
      * <p>The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * If the matching location of the located term is not
      * {@link MatchingLocation#BOTH} the sequent separator "|-" is added
      * to the string on the appropriate side.
-     * 
+     *
      * @param env
      *            the environment to use
      * @param lterm
      *            the located term to print
-     * 
+     *
      * @return an annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<TermTag> print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false);
     }
-    
+
     /**
      * Prints a located term.
-     * 
+     *
      * A temporary pretty printer is created for printing.
-     * 
+     *
      * <p>The result is an annotated String in which to every character the
      * innermost containing subterm can be obtained.
-     * 
+     *
      * If the matching location of the located term is not
      * {@link MatchingLocation#BOTH} the sequent separator "|-" is added
      * to the string on the appropriate side.
-     * 
+     *
      * @param env
      *            the environment to use
      * @param lterm
      *            the located term to print
      * @param typed
      *            if true, the string will be printed typed
-     * 
+     *
      * @return an annotated string
      */
     public static @NonNull AnnotatedStringWithStyles<TermTag> print(
@@ -377,28 +382,33 @@ public class PrettyPrint {
         // unreachable
         throw new Error();
     }
-    
+
     /**
      * Pretty print the rule using the term pretty printer into a string
-     * 
+     *
      * @param env
      *            the environment to lookup infix etc.
-     * 
+     *
      * @return the rule as pretty printed string.
      */
     public String print(Rule rule) {
         StringBuilder sb = new StringBuilder();
         sb.append("rule ").append(rule.getName()).append("\n");
-        
+
         LocatedTerm findClause = rule.getFindClause();
-        if(findClause != null)
+        if(findClause != null) {
             sb.append("  find ").append(PrettyPrint.print(env, findClause)).append("\n");
-        
+        }
+
         for (LocatedTerm ass : rule.getAssumptions()) {
             sb.append("  assume ").append(PrettyPrint.print(env, ass)).append("\n");
         }
         for (WhereClause where : rule.getWhereClauses()) {
-            sb.append("  where ").append(where.getWhereCondition().getName());
+            sb.append("  where ");
+            if(where.isInverted()) {
+                sb.append("not ");
+            }
+            sb.append(where.getWhereCondition().getName());
             for (Term arg : where.getArguments()) {
                 sb.append(" ").append(PrettyPrint.print(env, arg));
             }
@@ -426,7 +436,7 @@ public class PrettyPrint {
                 sb.append("    add |-").append(PrettyPrint.print(env, t)).append("\n");
             }
         }
-        
+
         Collection<String> definedProperties = rule.getDefinedProperties();
         if(!definedProperties.isEmpty()) {
             sb.append("    tags\n");
@@ -440,22 +450,22 @@ public class PrettyPrint {
 
     /**
      * Sets the typed.
-     * 
+     *
      * All registered {@link PropertyChangeListener} are informed of this
      * change if the current value differs from the set value.
-     * 
+     *
      * @param typed the new typed
      */
     public void setTyped(boolean typed) {
         boolean old = this.typed;
         this.typed = typed;
         firePropertyChanged(TYPED_PROPERTY, old, typed);
-    }        
+    }
 
 
     /**
      * Checks if is typed.
-     * 
+     *
      * @return true, if is typed
      */
     public boolean isTyped() {
@@ -464,22 +474,22 @@ public class PrettyPrint {
 
     /**
      * Checks if is printing fix.
-     * 
+     *
      * @return true, if is printing fix
      */
     public boolean isPrintingFix() {
         return printFix;
     }
-    
+
     /**
      * Checks if is printing using the pretty printer plugins.
-     * 
+     *
      * @return true, if is printing fix
      */
     public boolean isPrintingPlugins() {
         return printPlugins;
     }
-    
+
     /**
      * retrieve all registered pretty printer plugins.
      * @return an unmodifiable list
@@ -490,10 +500,10 @@ public class PrettyPrint {
 
     /**
      * Sets the printing fix.
-     * 
+     *
      * All registered {@link PropertyChangeListener} are informed of this
      * change if the current value differs from the set value.
-     * 
+     *
      * @param printFix the new printing fix
      */
     public void setPrintingFix(boolean printFix) {
@@ -501,13 +511,13 @@ public class PrettyPrint {
         this.printFix = printFix;
         firePropertyChanged(PRINT_FIX_PROPERTY, old, printFix);
     }
-    
+
     /**
      * Sets the printing plugins.
-     * 
+     *
      * All registered {@link PropertyChangeListener} are informed of this
      * change if the current value differs from the set value.
-     * 
+     *
      * @param selected
      *            the new printing plugins value
      */
@@ -528,8 +538,8 @@ public class PrettyPrint {
 
     /**
      * get the style (attribute string) that is to be set in the beginning
-     * 
-     * @return a string or possibly null 
+     *
+     * @return a string or possibly null
      */
     public @Nullable String getInitialStyle() {
         return initialStyle;
@@ -537,10 +547,10 @@ public class PrettyPrint {
 
     /**
      * set the style (attribute string) that is to be set in the beginning.
-     * 
+     *
      * All registered {@link PropertyChangeListener} are informed of this
      * change if the current value differs from the set value.
-     * 
+     *
      * @param initialStyle
      *   the style to be set at top level, or null if none is to be set
      */
@@ -549,7 +559,7 @@ public class PrettyPrint {
         this.initialStyle = initialStyle;
         firePropertyChanged(INITIALSTYLE_PROPERTY, old, initialStyle);
     }
-    
+
     // TODO DOC
     public boolean isPrintingProgramModifications() {
         return breakUpdates;
@@ -564,51 +574,55 @@ public class PrettyPrint {
 
     /**
      * get the environment upon which the pretty printer relies.
-     * 
+     *
      * @return the underlying environment
      */
     public Environment getEnvironment() {
         return env;
     }
-    
+
     /**
      * Adds the property change listener.
-     * 
+     *
      * @param listener the listener
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        if(propertiesSupport == null)
+        if(propertiesSupport == null) {
             propertiesSupport = new PropertyChangeSupport(this);
+        }
         propertiesSupport.addPropertyChangeListener(listener);
     }
-    
+
     public void addPropertyChangeListener(String property,
             PropertyChangeListener listener) {
-        if(propertiesSupport == null)
+        if(propertiesSupport == null) {
             propertiesSupport = new PropertyChangeSupport(this);
+        }
         propertiesSupport.addPropertyChangeListener(property, listener);
     }
-    
+
     /**
      * Removes the property change listener.
-     * 
+     *
      * @param listener the listener
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        if(propertiesSupport != null)
+        if(propertiesSupport != null) {
             propertiesSupport.removePropertyChangeListener(listener);
+        }
     }
 
     /**
      * Fire property changed.
-     * 
+     *
      * @param property the property
      * @param oldVal the old val
      * @param newVal the new val
      */
     private <E> void firePropertyChanged(String property, E oldVal, E newVal) {
-        if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal))
+        if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal)) {
             propertiesSupport.firePropertyChange(property, oldVal, newVal);
+        }
     }
 
 }

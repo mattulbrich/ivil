@@ -5,6 +5,8 @@
 
   <import file="../build.common.xml" />
   
+  <property name="ivil.testclass" value="de.uka.iti.pseudo.AllExpTests"/>
+
   <path id="ivil.classpath.compile">
     <pathelement path="../core/classes"/>
     <pathelement path="../gui/classes"/>

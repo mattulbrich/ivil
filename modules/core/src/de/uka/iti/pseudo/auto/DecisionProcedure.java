@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.auto;
 
 import java.io.IOException;
+import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Mappable;
@@ -22,7 +23,7 @@ public interface DecisionProcedure extends Mappable<String> {
 
     public static final String SERVICE_NAME = "decisionProcedure";
 
-    public Pair<Result, String> solve(Sequent sequent, Environment env, int timeout)
+    public Pair<Result, String> solve(Sequent sequent, Environment env, Map<String, String> properties)
        throws ProofException, IOException, InterruptedException;
 
     enum Result { VALID, NOT_VALID, UNKNOWN };

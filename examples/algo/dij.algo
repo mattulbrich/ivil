@@ -14,6 +14,11 @@ var
    visited : set(node)
    nbors0, nbors : set(node)
 do
+   /* 
+    * We may safely assume that there are only finite many nodes
+    * and that weights are non-negative
+    */
+   assume finit(fullset as set(node)) ;;
    assume (\forall x; (\forall y; weight(x,y) >= 0)) ;;
    
    dom_distance := emptyset ;;
@@ -47,7 +52,7 @@ do
        (\forall p; (\forall q; p::visited & 
             pair(p,q)::dom_weight -> q::dom_distance)) 
 
-     var count(dom_distance \ visited)
+     var card(dom_distance \ visited)
    do
 
      choose n such that 
@@ -59,7 +64,7 @@ do
      visited := visited \/ singleton(n) ;;     
 
      /* festzustellen: */
-     note visited <: dom_distance ;;
+     note visited <: dom_distance with "§(pick A.2 A.11 S.0)" ;;
      
      /* foreach node m with (n,m) in edges which is not visited 
       * iterate {n} <| weight |>> visited using S and s */
@@ -104,7 +109,7 @@ do
            (\forall p; (\forall q; p::visited & !q::nbors &
               pair(p,q)::dom_weight -> q::dom_distance))
               
-       var count(nbors)
+       var card(nbors)
      do
        choose o such that o :: nbors ;;
        nbors := nbors \ singleton(o) ;;
@@ -113,7 +118,7 @@ do
        assert pair(n,o) :: dom_weight ;;
        
        /* d := distance[n] + weigth(n,m); */
-       d := read(distance, n) + weight(n,o) ;;
+       d := distance[n] + weight(n,o) ;;
 
        if !o::dom_distance | d < distance[o]
        then

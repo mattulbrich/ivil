@@ -51,11 +51,12 @@ import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * This action shows a menu which allows to reintroduce terms that were
  * explicitly hidden.
- * 
+ *
  * @author timm.felden@felden.com
  */
 public class ReintroduceHiddenTermAction extends BarAction implements InitialisingAction, PropertyChangeListener,
@@ -157,22 +158,25 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
             // the search ends, if this node was not created by a copy action
             for (int i = 0; i < node.getChildren().size(); i++) {
-                if (child != node.getChildren().get(i))
+                if (child != node.getChildren().get(i)) {
                     continue;
+                }
 
-                if (GoalAction.Kind.COPY != ra.getRule().getGoalActions().get(i).getKind())
+                if (GoalAction.Kind.COPY != ra.getRule().getGoalActions().get(i).getKind()) {
                     return rval;
+                }
 
                 break;
             }
 
             // TODO explain that property in RuleTags
-            // ACTUALLY, only find clauses can be altered, an assumption cannot be 
+            // ACTUALLY, only find clauses can be altered, an assumption cannot be
             // changed. Hence: Perhaps remove the location code though it looks good! (MU)
             final String hidingTag = ra.getRule().getProperty("hiding");
             // skip rules that did not hide anything
-            if (null == hidingTag)
+            if (null == hidingTag) {
                 continue;
+            }
 
             try {
                 // hiding can be a list of "find" and schema variable names
@@ -186,14 +190,16 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
 
                     } else if (location.startsWith("a")) {
                         // an assumption was hidden
-                        int index = Integer.parseInt(location.substring(1));
+                        int index = Util.parseUnsignedInt(location.substring(1));
                         target = ra.getAssumeSelectors().get(index);
 
-                    } else
+                    } else {
                         throw new IllegalArgumentException("The location '" + location + "' is illegal.");
+                    }
 
-                    if (!target.isToplevel())
+                    if (!target.isToplevel()) {
                         throw new IllegalArgumentException("The target from " + location + " is not a toplevel term.");
+                    }
 
                     Term term = target.selectSubterm(node.getSequent());
                     rval.add(new DataRecord(new Pair<Integer, TermSelector>(node.getNumber(), target), term, node
@@ -226,10 +232,11 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
             this.location = location;
             this.term = term;
 
-            if (textualRepresentation.length() > 40)
+            if (textualRepresentation.length() > 40) {
                 shortRepresentation = textualRepresentation.subSequence(0, 36) + "...";
-            else
+            } else {
                 this.shortRepresentation = textualRepresentation;
+            }
         }
 
         @Override
@@ -272,8 +279,9 @@ public class ReintroduceHiddenTermAction extends BarAction implements Initialisi
                         @Override
                         public void valueChanged(ListSelectionEvent e) {
                             Log.enter(e);
-                            if (e.getValueIsAdjusting())
+                            if (e.getValueIsAdjusting()) {
                                 return;
+                            }
                             if (termList.isSelectionEmpty()) {
                                 termFormula.setText("");
                             } else {

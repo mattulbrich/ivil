@@ -1,0 +1,40 @@
+/*
+ * This is a test case for the algo parser
+ */
+
+// Testing Comments
+
+abbreviation @abbrev := true
+
+algo Name_of_the_algorithm
+
+input a : int
+      b : int
+
+var a0 : int
+    b0 : int
+
+requires a > 0
+
+requires @abbrev
+
+do
+   a0 := a ;;
+   b0 := b ;
+   while a > 0
+     inv a >= 0
+     var a
+   do
+      a := a + 1;
+      b := b - 1
+   end
+end
+
+refine Name_of_the_algrithm as package.package.class.method(Type, package.Type[], int)
+requires
+   a = this.a &
+   b = this.b[5]
+inv 1:
+   true
+ensures
+   a = this.a & true

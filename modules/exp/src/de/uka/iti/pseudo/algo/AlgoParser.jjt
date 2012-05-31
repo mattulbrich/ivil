@@ -1,5 +1,6 @@
 options {
   MULTI=true;
+  STATIC=false;
   VISITOR=true;
   VISITOR_RETURN_TYPE="String";
   NODE_DEFAULT_VOID=true;
@@ -10,6 +11,7 @@ PARSER_BEGIN(AlgoParser)
 
 package de.uka.iti.pseudo.algo;
 
+import java.io.*;
 import de.uka.iti.pseudo.util.Pair;
 
 /** An Arithmetic Grammar. */
@@ -26,18 +28,39 @@ public class AlgoParser {
   }
 
   /** Main debug entry point. */
-  public static void main(String args[]) {
-    System.out.println("Reading from standard input...");
-    AlgoParser t = new AlgoParser(System.in);
+  public static void main(String args[]) throws IOException {
+    String filename;
+    AlgoParser t;
+    if(args.length == 0) {
+       filename = "<stdin>";
+       t = new AlgoParser(System.in);
+    } else {
+       filename = args[0];
+       t = new AlgoParser(new FileInputStream(filename));
+    } 
+
+    System.out.println("Reading from " + filename);
+
     try {
       ASTStart n = t.Start();
       n.dump("");
       System.out.println("Thank you.");
+    } catch(ParseException e) {
+      System.out.println("Parser failed.");
+      System.out.println(filename + getErrorLocation(e));
+      e.printStackTrace();
     } catch (Exception e) {
       System.out.println("Oops.");
       e.printStackTrace();
     }
   }
+
+  public static String getErrorLocation(ParseException parseEx) {
+      return ":" + 
+             parseEx.currentToken.beginLine + ":" + 
+             parseEx.currentToken.beginColumn;
+  }
+
 }
 
 PARSER_END(AlgoParser)
@@ -77,26 +100,30 @@ TOKEN : /* KEYWORDS */
 | < IN : "in" >
 | < DO : "do" >
 | < END : "end" >
+| < NOT : "not" >
 | < VAR : "var" >
 | < INV : "inv" >
-| < ELSE : "else" >
-| < THEN : "then" >
-| < SUCH : "such" >
-| < WITH : "with" >
 | < ALGO : "algo" >
-| < USES : "uses" >
-| < THAT : "that" >
+| < ELSE : "else" >
+| < MARK : "mark" >
 | < NOTE : "note" >
+| < SUCH : "such" >
+| < THAT : "that" >
+| < THEN : "then" >
+| < USES : "uses" >
+| < WITH : "with" >
 | < WHILE : "while" >
 | < INPUT : "input" >
 | < OUTPUT : "output" >
 | < CHOOSE : "choose" >
 | < ASSERT : "assert" >
 | < ASSUME : "assume" >
+| < REFINE : "refine" >
 | < RETURN : "return" >
 | < ITERATE : "iterate" >
 | < ENSURES : "ensures" >
 | < REQUIRES : "requires" >
+| < ABBREVIATION: "abbreviation" >
 }
 
 MORE : /* INLINE MODE */
@@ -123,6 +150,8 @@ TOKEN : /* IDENTIFIERS */
 |
   < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
 |
+  < ABBREV_IDENTIFIER: "@" <IDENTIFIER> >
+|
   < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
 }
 
@@ -130,7 +159,9 @@ TOKEN : /* IDENTIFIERS */
 ASTStart Start() #Start : {}
 {
   ( Uses() )*
+  ( Abbreviation() )*
   ( Algo() )+
+  ( Refinement() )?
   { return jjtThis; }
 }
 
@@ -152,20 +183,31 @@ void Uses() :
   )
 }
 
+void Abbreviation() #Abbreviation :
+{
+  Token t;
+}
+{
+  "abbreviation" 
+  AbbrevIdentifier()
+  ":="
+  Expression()
+}
+
 void Algo() #Algo : 
 {
   Token t;
 }
 {
   "algo" Identifier()
-     
-  (  "input" Declarations()  #InputDecl 
+
+  (  "input" Declarations()   #InputDecl 
    | "output" Declarations()  #OutputDecl
-   | "var" Declarations()  #VarDecl
-   | "requires" Expression() #RequiresDecl
-   | "ensures" Expression() #EnsuresDecl
+   | "var" Declarations()     #VarDecl
+   | "requires" Expression()  #RequiresDecl
+   | "ensures" Expression()   #EnsuresDecl
   )*
-  
+
   "do"
     StatementBlock()
   "end"
@@ -173,7 +215,8 @@ void Algo() #Algo :
 
 void StatementBlock() #StatementBlock : {}
 {
-  Statement() ( ";;" Statement() )*
+  // ;; is a relict of ancient days
+  Statement() ( ( ";;" | ";" ) Statement() )*
 }
 
 /** Declarations */
@@ -207,6 +250,7 @@ void Statement() : {}
   | AssertStatement()
   | AssumeStatement()
   | NoteStatement()
+  | MarkStatement()
   | InlineStatement()
 }
 
@@ -246,8 +290,10 @@ void WhileStatement() #WhileStatement : {}
 
 void IterateStatement() #IterateStatement : {}
 {
-  "iterate" Type() ":" Expression()
+  "iterate" Expression() 
   "with" Identifier()
+  "in" Identifier()
+  "inv" Expression()
   "do"
     StatementBlock()
   "end"
@@ -278,6 +324,13 @@ void NoteStatement() #NoteStatement :
     ( "with" t=<STRING_LITERAL> 
        { jjtThis.jjtSetValue(stripQuotes(t.image)); }
     )?
+}
+
+void MarkStatement() #MarkStatement :
+{ Token t = null; }
+{
+  "mark" t=<INTEGER_LITERAL>
+    { jjtThis.jjtSetValue(new Integer(t.image)); }
 }
 
 void InlineStatement() #InlineStatement : 
@@ -322,10 +375,31 @@ void BinderIdentifier() #BinderIdentifier :
   }
 }
 
+void AbbrevIdentifier() #AbbrevIdentifier :
+{
+  Token t;
+}
+{
+  t=<ABBREV_IDENTIFIER>
+  {
+    jjtThis.jjtSetValue(t.image);
+  }
+}
+
 /** Expressions. */
 void Expression() : {}
 { 
-  EquivalenceExpression()
+  PatternExpression()
+}
+
+void PatternExpression() :
+{ 
+  Token t=null;
+}
+{ 
+// No double patterns!
+   EquivalenceExpression() ( t="~~>"  EquivalenceExpression() 
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
 }
 
 void EquivalenceExpression() :
@@ -360,8 +434,9 @@ void RelationExpression() :
   Token t=null;
 }
 { 
+   // "in" must be relayed as "::"
    AddExpression() 
-   ( (t="=" | t="<:" | t="::" | t="in" | t="<" | t="<=" | t=">" | t=">=") 
+   ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; } | t="<" | t="<=" | t=">" | t=">=") 
    RelationExpression() 
       { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
 }
@@ -389,21 +464,23 @@ void UnaryExpression() :
    Token t = null;
 }
 {
-     ( ( t="-" | t="!" ) UnaryExpression() { jjtThis.jjtSetValue(t); } ) #UnaryExpression(1)
+     // "not" is a synonym for "!"
+     ( ( t="-" | t="!" | t="not" { t.image="!"; } | t="^" ) UnaryExpression() { jjtThis.jjtSetValue(t); } ) #UnaryExpression(1)
    |
-     MapAccessExpression()
+     PostFixExpression()
 }
 
-void MapAccessExpression() :
+void PostFixExpression() :
 {}
 {
-   AsExpression() ( "[" ExpressionCommaList() "]"  #MapAccessExpression(2) )*
-}
-
-void AsExpression() :
-{}
-{
-   PrimaryExpression() ( "as" Type() #AsExpression(2) )?
+   PrimaryExpression() 
+   ( 
+      "[" ExpressionCommaList() "]" #MapAccessExpression(2) 
+   |
+      "as" Type() #AsExpression(2)
+   |
+      "." Identifier() #FieldAccessExpression(2)
+   )*
 }
 
 void PrimaryExpression() :
@@ -411,13 +488,16 @@ void PrimaryExpression() :
 {
      ( Identifier() ( "(" ExpressionCommaList() ")" )? ) #ApplicationExpression
    | LOOKAHEAD(2) 
-     ( "(" BinderIdentifier() Expression() ( ";" Expression() )* ")" ) #BinderExpression
+     ( "(" BinderIdentifier() Expression() 
+         ( ";" Expression() )* ")" ) #BinderExpression
    |
      SetExtensionExpression()
    | 
      "(" Expression() ")"
    |
      IntegerLiteral()
+   |
+     AbbrevIdentifier()
 }
 
 void ExpressionCommaList() #ExpressionCommaList :
@@ -426,10 +506,63 @@ void ExpressionCommaList() #ExpressionCommaList :
   Expression() ( "," Expression() )*
 }
 
-void SetExtensionExpression() #SetExtensionExpression : {}
+void SetExtensionExpression() : {}
 {
 // TODO do more than only singletons and empty set
     "{"
-       ( Expression() )?
-    "}"
+    ( LOOKAHEAD(2)
+      ( Identifier()
+        ":"
+        Expression() 
+        "}" ) #SetComprehensionExpression
+    |
+      (
+       ( Expression() )? 
+       "}" ) #SetExtensionExpression
+    )
 }
+
+/*
+ * Refinements
+ */
+
+void Refinement() #Refinement :
+{
+  Token t;
+}
+{
+    "refine" ( "algo" )? 
+    <IDENTIFIER> "as" MethodReference()
+    "requires" CouplingFormula("-1")
+    ( "inv" t=<INTEGER_LITERAL> ":" CouplingFormula(t.image) )*
+    "ensures" CouplingFormula("0")
+}
+
+void MethodReference() #MethodReference :
+{}
+{
+  // package + classname + methodname (at least 2)
+  Identifier() ( "." Identifier() )+
+
+  "(" MethodParameterType() ( "," MethodParameterType() )* ")"
+}
+
+void MethodParameterType() #MethodParameterType :
+{ 
+  int arrayDim = 0;
+}
+{
+  // package + classname (at least 1)
+  Identifier() ( "." Identifier() )*
+
+  ( "[" "]" { arrayDim ++; } )*
+  { jjtThis.jjtSetValue(arrayDim); }
+}
+
+void CouplingFormula(String number) #CouplingFormula :
+{}
+{
+    Expression()
+      { jjtThis.jjtSetValue(number); }
+}
+ 

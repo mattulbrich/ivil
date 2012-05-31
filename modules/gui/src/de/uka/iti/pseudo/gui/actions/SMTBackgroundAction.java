@@ -73,11 +73,11 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
     private DecisionProcedure solver;
 
     /**
-     * The timeout to be used by the solver. Retrieved from the rule named
-     * {@value #CLOSE_RULE_NAME} using the key
-     * {@link AskDecisionProcedure#KEY_TIMEOUT}
+     * The timeout and other information to be used by the solver.
+     *
+     * Retrieved from the rule named {@value #CLOSE_RULE_NAME}
      */
-    private int timeout;
+    private Map<String, String> ruleProperties;
 
     /**
      * Cache to remember solvability of sequents.
@@ -173,7 +173,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
                 String proc = closeRule.getProperty(RuleTagConstants.KEY_DECISION_PROCEDURE);
                 solver = env.getPluginManager().getPlugin(DecisionProcedure.SERVICE_NAME,
                         DecisionProcedure.class, proc);
-                timeout = Integer.parseInt(closeRule.getProperty(RuleTagConstants.KEY_TIMEOUT));
+                ruleProperties = closeRule.getProperties();
             } catch (Exception ex) {
                 Log.log(Log.WARNING, "Cannot instantiate background decision procedure");
                 ex.printStackTrace();
@@ -235,7 +235,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
             Log.log(Log.VERBOSE, "Provability cache hit for " + pn + ": " + cached);
             return cached.booleanValue();
         } else {
-            Pair<Result, String> result = solver.solve(sequent, env, timeout);
+            Pair<Result, String> result = solver.solve(sequent, env, ruleProperties);
             boolean proveable = result.fst() == Result.VALID;
             sequentStatus.put(sequent, proveable);
             Log.log(Log.VERBOSE, "Provability result for " + pn + ": " + result);

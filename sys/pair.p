@@ -36,7 +36,6 @@ axiom dom_restrict_definition
     (\forall s; (\forall x; (\forall y; 
       pair(x,y) :: s<|r <-> pair(x,y)::r & x :: s))))))
 
-
 axiom rng_restrict_definition
   (\T_all 'a; (\T_all 'b; (\forall r as set(prod('a,'b)); 
     (\forall s; (\forall x; (\forall y; 
@@ -73,3 +72,9 @@ rule snd_concrete
   find snd(pair(%a,%b))
   replace %b
   tags rewrite "concrete"
+
+rule prec_pair
+  find %p &< %q
+  replace fst(%p) &< fst(%q) | fst(%p) = fst(%q) & snd(%p) < snd(%q)
+  tags 
+    rewrite "fol simp"

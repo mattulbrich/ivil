@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.rule;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,62 +34,69 @@ import de.uka.iti.pseudo.util.Util;
  * <li>one or more goal actions
  * <li>zero or more named properties (in a string to string map)
  * </li>
- * 
+ *
  * Rules are immutable objects.
- * 
+ *
  */
 public class Rule {
-    
+
 //    /**
 //     * new line character for pretty printing
 //     */
 //    private static final String NEWLINE = "\n";
-    
+
     /**
      * The name of this rule
      */
-    private @NonNull String name;
-    
+    private @NonNull
+    final String name;
+
     /**
      * The set of assumptions. no null in here.
      */
-    private @DeepNonNull LocatedTerm assumptions[];
-    
+    private @DeepNonNull
+    final LocatedTerm assumptions[];
+
     /**
      * The find clause.
      */
-    private @Nullable LocatedTerm findClause;
-    
+    private @Nullable
+    final LocatedTerm findClause;
+
     /**
      * The where clauses.
      */
-    private @DeepNonNull WhereClause whereClauses[];
-    
+    private @DeepNonNull
+    final WhereClause whereClauses[];
+
     /**
      * The goal actions. a non-empty array.
      */
-    private @DeepNonNull GoalAction goalActions[];
-    
+    private @DeepNonNull
+    final GoalAction goalActions[];
+
     /**
      * The properties.
      */
-    private @NonNull Map<String, String> properties;
+    private @NonNull
+    final Map<String, String> properties;
 
     /**
      * The location
      */
-    private @NonNull ASTLocatedElement location;
-    
+    private @NonNull
+    final ASTLocatedElement location;
+
     /**
      * gets a property. Properties are specified using the "tag" keyword in
      * environments. If the property is not set, null is returned. If the
      * property has been defined without a value, an empty string "" is returned
-     * 
+     *
      * <p>Please use a constant defined in {@link RuleTagConstants} as argument
      * to keep all sensible tags at one place.
-     * 
+     *
      * @see RuleTagConstants
-     * 
+     *
      * @param string
      *            name of the property to retrieve
      * @return the property if it is defined, null otherwise
@@ -98,10 +106,21 @@ public class Rule {
     }
 
     /**
+     * gets an umodifiable view of the properties defined in this rule.
+     *
+     * Properties are specified using the "tag" keyword in
+     *
+     * @return an unmodifiable view of this rule's properties
+     */
+    public @DeepNonNull Map<String, String> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    /**
      * Gets a collection which contains the names of all defined properties for this
      * rule. The entries to this collections are different from null and can be used
      * as keys to {@link #getProperty(String)}.
-     *  
+     *
      * @return an unmodifiable collection of strings.
      */
     public Collection<String> getDefinedProperties() {
@@ -110,16 +129,16 @@ public class Rule {
 
     /**
      * Gets the name of this rule.
-     * 
+     *
      * @return the name
      */
     public String getName() {
         return name;
     }
-    
+
     /**
      * Gets the location of the declaration of this rule.
-     * 
+     *
      * @return the source location of this declaration.
      */
     public ASTLocatedElement getDeclaration() {
@@ -128,7 +147,7 @@ public class Rule {
 
     /**
      * Gets an immutable list of all assumptions.
-     * 
+     *
      * @return the assumptions as list
      */
     public @NonNull List<LocatedTerm> getAssumptions() {
@@ -137,7 +156,7 @@ public class Rule {
 
     /**
      * Gets the find clause.
-     * 
+     *
      * @return the find clause, may be null
      */
     public @Nullable LocatedTerm getFindClause() {
@@ -146,7 +165,7 @@ public class Rule {
 
     /**
      * Gets an immutable list of all where clauses.
-     * 
+     *
      * @return the where clauses as list
      */
     public @NonNull List<WhereClause> getWhereClauses() {
@@ -155,7 +174,7 @@ public class Rule {
 
     /**
      * Gets an immutable list of all goal actions.
-     * 
+     *
      * @return the goal actions as list
      */
     public List<GoalAction> getGoalActions() {
@@ -164,7 +183,7 @@ public class Rule {
 
     /**
      * Instantiates a new rule.
-     * 
+     *
      * @param name
      *            rule's name
      * @param assumes
@@ -179,14 +198,14 @@ public class Rule {
      *            the properties
      * @param location
      *            the location of the declaration in the sources
-     * 
+     *
      * @throws RuleException
      *             if the elements do not compose a valid rule.
      */
-    public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes, 
+    public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes,
             @Nullable LocatedTerm find, @NonNull List<WhereClause> wheres,
-            @NonNull List<GoalAction> actions, 
-            @NonNull Map<String, String> properties, 
+            @NonNull List<GoalAction> actions,
+            @NonNull Map<String, String> properties,
             @NonNull ASTLocatedElement location)
             throws RuleException {
         this.name = name;
@@ -196,7 +215,7 @@ public class Rule {
         this.goalActions = Util.listToArray(actions, GoalAction.class);
         this.properties = properties;
         this.location = location;
-        
+
         checkRule();
     }
 
@@ -204,60 +223,64 @@ public class Rule {
      * Check rule. raise an exception if the elements are not valid for a rule.
      */
     private void checkRule() throws RuleException {
-        if(getGoalActions().size() == 0)
+        if(getGoalActions().size() == 0) {
             throw new RuleException("Rule has no goal action");
+        }
 
         // XXX rule checking!!
         // closegoal is empty, newgoal has no replace : checked in GoalAction
         // remove only if find is top level
         for (GoalAction goalAction : getGoalActions()) {
-            if(goalAction.isRemoveOriginalTerm() && 
+            if(goalAction.isRemoveOriginalTerm() &&
                     (findClause == null ||
                             findClause.getMatchingLocation() == MatchingLocation.BOTH)) {
                 throw new RuleException("Goal action contains remove element where find is not present or not top level");
             }
-            
+
             Term replaceWith = goalAction.getReplaceWith();
             if(replaceWith != null) {
-                if(findClause == null)
+                if(findClause == null) {
                     throw new RuleException("Find-less rules must not have a replace clause");
-                if(!findClause.getTerm().getType().equals(replaceWith.getType()))
+                }
+                if(!findClause.getTerm().getType().equals(replaceWith.getType())) {
                     throw new RuleException("Find clause and replace clause must have the same type");
+                }
             }
         }
-        
+
         // schema variables to always have same type:
         RuleSchemaConsistencyChecker.check(this);
     }
-    
+
     /**
      * Dump the rule to Stdout.
      */
     public void dump() {
 
         System.out.println("  Rule " + name);
-        
+
         if(findClause != null) {
             System.out.print("    Find: ");
             System.out.println(findClause);
         }
-        
+
         System.out.println("    Assumptions:");
         for (LocatedTerm lt : assumptions) {
             System.out.println("      " + lt);
         }
-        
+
         System.out.println("    Where clauses:");
         for (WhereClause wc : whereClauses) {
             System.out.println("      " + wc);
         }
-        
+
         System.out.println("    Actions:");
         for (GoalAction ga : goalActions) {
             ga.dump();
         }
     }
-    
+
+    @Override
     public String toString() {
         return "Rule[" + name + "]";
     }

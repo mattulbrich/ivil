@@ -34,10 +34,10 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.Highlighter.HighlightPainter;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -46,23 +46,24 @@ import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
-import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.AnnotatedString.Element;
 import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TextInstantiator;
-import de.uka.iti.pseudo.util.AnnotatedString.Element;
+import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * The Class TermComponent is used to show terms, it allows highlighting.
- * 
+ *
  * To the user, objects of this class will appear as a single term in the
  * sequent view.
  */
@@ -77,40 +78,40 @@ public class TermComponent extends JTextPane {
     public static final String HIGHEST_PRIORITY_DRAG_AND_DROP = "pseudo.termcomponent.autoDnD";
 
     private static Settings S = Settings.getInstance();
-    
+
     private static final long serialVersionUID = -4415736579829917335L;
 
     /**
      * some UI constants
      */
     private static final Font FONT = S.getFont("pseudo.termcomponent.font", null);
-    
+
     // the highlight color should be bright
-    private static final Color HIGHLIGHT_COLOR = 
+    private static final Color HIGHLIGHT_COLOR =
         S.getColor("pseudo.termcomponent.highlightcolor", Color.ORANGE);
 
     // the modality background should be rather unnoticed
-    private static final Color MODALITY_BACKGROUND = 
+    private static final Color MODALITY_BACKGROUND =
         S.getColor("pseudo.termcomponent.modalitybackground", Color.CYAN.brighter());
-    
+
     // border color needs to match background of sequent view
     private static final Color BORDER_COLOR =
         S.getColor("pseudo.termcomponent.bordercolor", Color.DARK_GRAY);
-    
+
     // variables should be noticed
     private static final Color VARIABLE_FOREGROUND =
         S.getColor("pseudo.termcomponent.variableforeground", Color.MAGENTA);
-    
+
     // types should be painted less noticeable
-    private static final Color TYPE_FOREGROUND = 
+    private static final Color TYPE_FOREGROUND =
         S.getColor("pseudo.termcomponent.typeforeground", Color.LIGHT_GRAY);
-    
+
     // marking for an assumption
-    private static final Color LIGHT_MARKING_COLOR = 
+    private static final Color LIGHT_MARKING_COLOR =
         S.getColor("pseudo.termcomponent.assumptionforeground", Color.LIGHT_GRAY);
 
     // marking for a find clause
-    private static final Color DARK_MARKING_COLOR = 
+    private static final Color DARK_MARKING_COLOR =
         S.getColor("pseudo.termcomponent.findforeground", Color.LIGHT_GRAY);
 
     // empty border
@@ -122,35 +123,35 @@ public class TermComponent extends JTextPane {
     private static final String POPUP_PROPERTY = "termComponent.popup";
 
     // darker and a lighter color for marking
-    private HighlightPainter[] MARKINGS = {
+    private final HighlightPainter[] MARKINGS = {
             new DefaultHighlighter.DefaultHighlightPainter(DARK_MARKING_COLOR),
             new DefaultHighlighter.DefaultHighlightPainter(LIGHT_MARKING_COLOR) };
 
     /**
      * The term displayed
      */
-    private Term term;
-    
+    private final Term term;
+
     /**
      * the tag of the term which is currently highlighted by the mouse
      * can be null
      */
     private TermTag mouseSelection;
-    
+
     /**
      * the position of term within its sequent
      */
-    private TermSelector termSelector;
+    private final TermSelector termSelector;
 
     /**
      * The proofCenter to which this term belongs
      */
-    private ProofCenter proofCenter;
+    private final ProofCenter proofCenter;
 
     /**
      * The annotated string containing the pretty printed term.
      */
-    private AnnotatedStringWithStyles<TermTag> annotatedString;
+    private final AnnotatedStringWithStyles<TermTag> annotatedString;
 
     /**
      * The highlight object as returned by the highlighter.
@@ -162,31 +163,32 @@ public class TermComponent extends JTextPane {
      * the collection of highlighting objects. Used to mark find and assume
      * instances.
      */
-    private List<Object> marks = new ArrayList<Object>();
+    private final List<Object> marks = new ArrayList<Object>();
 
     /**
      * true if the currently presented proof node to which the component belongs
      * is open. It is used for creating the styles. Closed nodes are italic.
      */
-    private boolean open;
+    private final boolean open;
 
     /**
      * The history for the presented term
      */
-    private @NonNull Annotation history;
+    private @NonNull
+    final Annotation history;
 
     /**
      * pretty printing instance needed for tooltips
      */
-    private PrettyPrint prettyPrinter;
+    private final PrettyPrint prettyPrinter;
 
     // not needed in the future
-    private int verbosityLevel;
-    
+    private final int verbosityLevel;
+
     /**
      * the popup menu to do things locally
      */
-    private PopupMenuListener popupMenuListener = new PopupMenuListener() {
+    private final PopupMenuListener popupMenuListener = new PopupMenuListener() {
 
         @Override public void popupMenuCanceled(PopupMenuEvent e) {
         }
@@ -206,7 +208,7 @@ public class TermComponent extends JTextPane {
 
     /**
      * Instantiates a new term component.
-     * 
+     *
      * @param t
      *                the term to display
      * @param history
@@ -229,7 +231,7 @@ public class TermComponent extends JTextPane {
         assert history != null;
         // must be toplevel
         assert termSelector.getSubtermSelector().getDepth() == 0;
-        
+
         //
         // Set display properties
         setEditable(false);
@@ -242,22 +244,26 @@ public class TermComponent extends JTextPane {
         DefaultHighlighter highlight = new DefaultHighlighter();
         setHighlighter(highlight);
         addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseExited(MouseEvent e) {
                 TermComponent.this.mouseExited();
             }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
             public void mouseMoved(MouseEvent e) {
                 TermComponent.this.mouseMoved(e.getPoint());
             }
         });
         addPropertyChangeListener("dropLocation", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 DropLocation loc = (DropLocation) evt.getNewValue();
-                if(loc != null)
+                if(loc != null) {
                     TermComponent.this.mouseMoved(loc.getDropPoint());
-                else
+                } else {
                     TermComponent.this.mouseExited();
+                }
             }
         });
 
@@ -269,7 +275,7 @@ public class TermComponent extends JTextPane {
             // may not happen even if document is empty
             throw new Error(e);
         }
-        
+
         //
         // add popup
         try {
@@ -285,51 +291,61 @@ public class TermComponent extends JTextPane {
     /*
      * store created attribute sets in a cache.
      */
-    private static Map<String, AttributeSet> attributeCache = 
+    private static Map<String, AttributeSet> attributeCache =
         new HashMap<String, AttributeSet>();
-    
+
     /*
-     * This is used by AnnotatedStringWithStyles to construct styles. 
+     * This is used by AnnotatedStringWithStyles to construct styles.
      */
-    private AnnotatedStringWithStyles.AttributeSetFactory attributeFactory = 
+    private final AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
         new AnnotatedStringWithStyles.AttributeSetFactory() {
+        @Override
         public AttributeSet makeStyle(String descr) {
 
-            if (!open)
+            if (!open) {
                 descr += " closed";
+            }
 
             AttributeSet cached = attributeCache.get(descr);
 
-            if (cached != null)
+            if (cached != null) {
                 return cached;
+            }
 
             MutableAttributeSet retval = new SimpleAttributeSet();
             if(FONT != null) {
                 StyleConstants.setFontFamily(retval, FONT.getFamily());
                 StyleConstants.setFontSize(retval, FONT.getSize());
             }
-                
 
-            if (descr.contains("closed"))
-//                StyleConstants.setForeground(retval, BORDER_COLOR);
+
+            if (descr.contains("closed")) {
+                //                StyleConstants.setForeground(retval, BORDER_COLOR);
                 StyleConstants.setItalic(retval, true);
+            }
 
-            if (descr.contains("program"))
+            if (descr.contains("program")) {
                 StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+            }
 
-            if (descr.contains("update"))
+            if (descr.contains("update")) {
                 StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+            }
 
-            if (descr.contains("keyword"))
+            if (descr.contains("keyword")) {
                 StyleConstants.setBold(retval, true);
-            
+            }
+
             if (descr.contains("variable"))
+             {
                 StyleConstants.setForeground(retval, VARIABLE_FOREGROUND);
             // StyleConstants.setItalic(retval, true);
+            }
 
-            if (descr.contains("type"))
+            if (descr.contains("type")) {
                 StyleConstants.setForeground(retval, TYPE_FOREGROUND);
-            
+            }
+
             attributeCache.put(descr, retval);
 
             return retval;
@@ -364,15 +380,16 @@ public class TermComponent extends JTextPane {
                 getHighlighter().changeHighlight(theHighlight, begin, end);
                 setSelectionStart(begin);
                 setSelectionEnd(end);
-                
+
                 mouseSelection = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(mouseSelection));
 
                 Log.enter(p);
                 proofCenter.fireNotification(TERM_COMPONENT_SELECTED_TAG, TermComponent.this);
 
-                if (null != mouseSelection)
+                if (null != mouseSelection) {
                     Log.log(Log.VERBOSE, mouseSelection);
+                }
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
                 setSelectionStart(0);
@@ -390,24 +407,25 @@ public class TermComponent extends JTextPane {
      */
     private String makeTermToolTip(TermTag termTag) {
         String rval = termTag.getTerm().toString();
-        if (rval.length() > 128)
+        if (rval.length() > 128) {
             rval = rval.substring(0, 125) + "...";
+        }
         return rval;
     }
 
     /**
      * calculate the text to display in "information for this formula" for a
      * term. This is a rather complex document:
-     * 
+     *
      * <ol>
      * <li>the type
      * <li>For programs, print the current statement
      * <li>The history, at least the first 60 elements
      * </ol>
-     * 
+     *
      * @param termTag
      *            tag to print info on
-     * 
+     *
      */
     public String makeFormatedTermHistory(TermTag termTag) {
         Term term = termTag.getTerm();
@@ -448,47 +466,51 @@ public class TermComponent extends JTextPane {
             h = h.getParentAnnotation();
         }
         sb.append("</ol>\n");
-        if (len == 60)
+        if (len == 60) {
             sb.append("... truncated history");
+        }
 
         sb.append("</dl>");
 
         // System.out.println(sb);
         return sb.toString();
     }
-    
+
     /**
      * check whether verbosity makes us show this node:
      * - verbosity of node <= set verbosity
-     * 
+     *
      * @see ProofComponentModel#shouldShow(ProofNode)
      */
     private boolean shouldShow(ProofNode node) {
         RuleApplication ruleApp = node.getAppliedRuleApp();
-        
-        if(ruleApp == null)
+
+        if(ruleApp == null) {
             return true;
-        
+        }
+
         // not here
         // if(node.getChildren() == null)
         //     return true;
-        
+
         Rule rule = ruleApp.getRule();
         String string = rule.getProperty(RuleTagConstants.KEY_VERBOSITY);
-        int value;
+        int value = 0;
         try {
-            value = Integer.parseInt(string);
+            if(string != null) {
+                value = Util.parseUnsignedInt(string);
+            }
         } catch (NumberFormatException e) {
             return true;
         }
-        
+
         return value <= verbosityLevel;
     }
-    
+
     /*
      * instantiate the schema variables in a string.
      * @see ProofComponentModel
-     * 
+     *
      */
     private String instantiateString(RuleApplication ruleApp, String string) {
         TextInstantiator textInst = new TextInstantiator(ruleApp);
@@ -497,28 +519,31 @@ public class TermComponent extends JTextPane {
 
     /**
      * Gets the termselector for a subterm at a certain point in the component
-     * 
+     *
      * @param point
      *            the point within the component
-     * 
+     *
      * @return the selector for the subterm at this point or null if there is none
      */
     public TermSelector getTermAt(Point point) {
         int charIndex = viewToModel(point);
         TermTag termTag = annotatedString.getAttributeAt(charIndex);
-        if(termTag == null)
+        if(termTag == null) {
             return null;
-        
+        }
+
         return termTag.getTermSelector(termSelector);
     }
 
     // stolen from KeY
+    @Override
     public int viewToModel(Point p) {
         String seqText = getText();
 
         // bugfix for empty strings
-        if (seqText.length() == 0)
+        if (seqText.length() == 0) {
             return 0;
+        }
 
         int cursorPosition = super.viewToModel(p);
 
@@ -535,7 +560,7 @@ public class TermComponent extends JTextPane {
                 - (previousCharacterWidth / 2), (int) p.getY()));
 
         characterIndex = Math.max(0, characterIndex);
-        
+
         return characterIndex;
     }
 
@@ -543,7 +568,7 @@ public class TermComponent extends JTextPane {
         if (type < 0 || type >= MARKINGS.length) {
             throw new IndexOutOfBoundsException();
         }
-        
+
         int termNo = selector.getLinearIndex(term);
 
         int begin = -1;
@@ -556,7 +581,7 @@ public class TermComponent extends JTextPane {
                 break;
             }
         }
-        
+
         if(begin == -1) {
             Log.log(Log.DEBUG, "cannot mark subterm number " + termNo + " in " + annotatedString);
             return;
@@ -586,9 +611,10 @@ public class TermComponent extends JTextPane {
      * the selected formula
      */
     public Transferable createTransferable() {
-        if(mouseSelection == null)
+        if(mouseSelection == null) {
             return null;
-        
+        }
+
         return new TermSelectionTransferable(this, mouseSelection.getTermSelector(termSelector), mouseSelection
                 .getTerm().toString(true));
     }
@@ -613,9 +639,10 @@ public class TermComponent extends JTextPane {
      *             see {@link ProofCenter#getApplicableRules(TermSelector)}
      */
     List<RuleApplication> getApplicableRules() throws ProofException {
-        if (null == mouseSelection)
+        if (null == mouseSelection) {
             return new ArrayList<RuleApplication>(0);
-        else
+        } else {
             return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
+        }
     }
 }

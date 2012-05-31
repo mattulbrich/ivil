@@ -55,6 +55,16 @@ rule false_right
   tags rewrite "concrete"
        verbosity "8"
 
+(*
+ * precedes - relation for boolean
+ *  b1 &< b2 
+ * holds only if
+ *  b1=false and b2=true
+ *)
+rule prec_boolean
+  find %b &< %c
+  replace !%b & %c
+  tags rewrite "fol simp"
 
 (*
  * application rules / cut

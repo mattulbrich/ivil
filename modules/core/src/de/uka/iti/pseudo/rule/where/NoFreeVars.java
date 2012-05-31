@@ -9,8 +9,7 @@
  */
 package de.uka.iti.pseudo.rule.where;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Stack;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -104,7 +103,7 @@ public class NoFreeVars extends WhereCondition {
         /**
          * The bound variables.
          */
-        private final Set<Variable> boundVariables = new HashSet<Variable>();
+        private final Stack<Variable> boundVariables = new Stack<Variable>();
 
         /*
          * (non-Javadoc)
@@ -114,9 +113,9 @@ public class NoFreeVars extends WhereCondition {
         @Override public void visit(Binding binding) throws TermException {
             if (binding.getVariable() instanceof Variable) {
                 Variable variable = (Variable) binding.getVariable();
-                boundVariables.add(variable);
+                boundVariables.push(variable);
                 super.visit(binding);
-                boundVariables.remove(variable);
+                boundVariables.pop();
             } else {
                 // if schema variable bound
                 // LOG if we use logging once

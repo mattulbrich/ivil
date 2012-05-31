@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.rule.where;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
@@ -31,46 +32,60 @@ import de.uka.iti.pseudo.util.Log;
 /**
  * The where condition FreshVariable can be used to create a fresh variable
  * which does not occur in the condition's other arguments.
- * 
+ *
  * @ivildoc "Where condition/freshVar"
- * 
+ *
  * <h2>Where condition <tt>freshVar</tt></h2>
- * 
+ *
  * This condition can be used to ensure that a variable does not occur free nor
  * bound in terms.
- * 
+ *
  * <p>
  * This is an example of an <em>active</em> condition since it may add variable
  * instantiations. If the first formal parameter is a schema variable, it
  * becomes instantiated with a new variable of the same type which does not
  * occur in the arguments.
- * 
+ *
  * <p>
  * The resulting variable is named after the first parameter to the condition,
  * possibly with an added number as suffix.
- * 
+ *
+ * <p>
+ * This condition can also be used to check whether a variable does not appear
+ * freely in a term. See second Example
+ *
  * <h3>Syntax</h3> The where condition expects a first parameter which can
  * either be a variable or a schema variable. Any number of arbitrary terms may
  * follow.
- * 
+ *
  * <h3>Example:</h3>
- * 
+ *
  * <pre>
  *   sort S
- *   function bool p(S, S) 
+ *   function bool p(S, S)
  *   function bool allP(S)
- *   
+ *
  *   rule quant_definition
- *   find allP(%s1, %s2)
- *   where freshVar %x, %s2
- *   replace (\forall %x; p(%x, %s2))
+ *    find allP(%s1, %s2)
+ *    where freshVar %x, %s2
+ *    replace (\forall %x; p(%x, %s2))
  * </pre>
- * 
+ *
+ * and (to check that a variable does not appear)
+ *
+ *  <pre>
+ *   rule forall_remove
+ *    find (\forall %x; %b)
+ *    where freshVar %x, %b
+ *    replace %b
+ * </pre>
+ *
  * <h3>See also:</h3>
- * 
+ * <a href="ivil:/Meta function/moFreeVars">noFreeVars</a>
+ *
  * <h3>Result:</h3>
  * <code>true</code> if the first argument (or its instantiation) is (or has
- * been chosen by this condition) a variable which does not occur in the
+ * been chosen by this condition) a variable which does not occur unbound in the
  * remaining arguments. It fails if the first argument is not matched by a
  * variable.
  */
@@ -173,7 +188,7 @@ public class FreshVariable extends WhereCondition {
     /**
      * This visitor is used to traverse the term. It calculates the set of free
      * variables.
-     * 
+     *
      * @see NoFreeVars.FreeVarChecker
      */
     private static class FreeVarFinder extends
@@ -182,7 +197,7 @@ public class FreshVariable extends WhereCondition {
         /**
          * The bound variables.
          */
-        private Set<Variable> boundVariables = new HashSet<Variable>();
+        private final Stack<Variable> boundVariables = new Stack<Variable>();
 
         /**
          * The free variables.
@@ -199,9 +214,9 @@ public class FreshVariable extends WhereCondition {
             if (binding.getVariable() instanceof Variable) {
                 Variable variable = (Variable) binding.getVariable();
                 allVariableNames.add(variable.getName());
-                boundVariables.add(variable);
+                boundVariables.push(variable);
                 super.visit(binding);
-                boundVariables.remove(variable);
+                boundVariables.pop();
             } else {
                 // if schema variable bound
                 // LOG if we use logging once
