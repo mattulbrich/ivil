@@ -49,17 +49,17 @@ public class RuleAxiomExtractor {
 
     private static final String AXIOM_EXTRACT_KEY = RuleTagConstants.KEY_AS_AXIOM;
 
-    private static final Map<String, String> GENERATED = 
+    private static final Map<String, String> GENERATED =
             Collections.singletonMap(RuleTagConstants.KEY_GENERATED_AXIOM, "");
 
-    private Environment env;
-    private TermFactory tf;
+    private final Environment env;
+    private final TermFactory tf;
 
-    private RuleFormulaExtractor formulaExtractor;
+    private final RuleFormulaExtractor formulaExtractor;
 
     private Set<TypeVariable> usedTypeVariables;
-    private Set<TypeVariable> newTypeVariables = new HashSet<TypeVariable>();
-    private Set<Variable> newVariables = new HashSet<Variable>();
+    private final Set<TypeVariable> newTypeVariables = new HashSet<TypeVariable>();
+    private final Set<Variable> newVariables = new HashSet<Variable>();
 
     public RuleAxiomExtractor(Environment env) {
         this.env = env;
@@ -89,7 +89,7 @@ public class RuleAxiomExtractor {
 
     private class TermVisitor extends RebuildingTermVisitor {
 
-        private TypeVisitor tyv = new TypeVisitor();
+        private final TypeVisitor tyv = new TypeVisitor();
 
         @Override
         protected Type modifyType(Type type) throws TermException {
@@ -201,15 +201,15 @@ public class RuleAxiomExtractor {
             find.visit(v);
             if(v.getResultingTerm() != null) {
                 result = tf.pattern(v.getResultingTerm(), result);
-            } 
-        }
-
-        for (TypeVariable tyv : newTypeVariables) {
-            result = tf.typeForall(tyv, result);
+            }
         }
 
         for (Variable var : newVariables) {
             result = tf.forall(var, result);
+        }
+
+        for (TypeVariable tyv : newTypeVariables) {
+            result = tf.typeForall(tyv, result);
         }
 
         return result;

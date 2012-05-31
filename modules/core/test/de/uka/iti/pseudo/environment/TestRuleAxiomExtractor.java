@@ -8,7 +8,6 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
-import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 
 public class TestRuleAxiomExtractor extends TestCaseWithEnv {
@@ -100,8 +99,20 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
 
         Axiom ax = env.getAxiom("R");
 
-        Term.SHOW_TYPES = true;
         assertEquals(makeTerm("(\\T_all 'ty_a1; $pattern(p(arb as 'ty_a1)," +
                 "p(arb as 'ty_a1) = p(arb as 'ty_a)))").toString(true), ax.getTerm().toString(true));
+    }
+
+    // was a bug in selection sort algo example!
+    // very nasty. Z3 could close EVERYTHING!
+    // !@*#! gggrrr.
+    public void testSchemaTypeAndVar() throws Exception {
+        env = testEnv("rule R find %a = %b replace %b = %a " +
+                "tags asAxiom");
+
+        Axiom ax = env.getAxiom("R");
+
+        assertEquals(makeTerm("(\\T_all 'ty_b; (\\forall a as 'ty_b; (\\forall b as 'ty_b;" +
+        		"$pattern(a = b, (a=b)=(b=a)))))").toString(true), ax.getTerm().toString(true));
     }
 }
