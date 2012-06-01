@@ -1,0 +1,74 @@
+ /**
+ * JavaCC template file created by SF JavaCC plugin 1.5.17+ wizard for JavaCC 1.5.0+
+ */options{  JDK_VERSION = "1.5";  static = false;}
+////////////////////////////////////////
+//
+// CAUTION
+//
+// JavaCC is not called automatically by the ant 
+// script if you modify this file. You need to
+// invoke it by hand.
+/////////////////////////////////////// 
+
+
+/**
+the () is made optional, so fields can be parsed as well; rename the parser!
+*/PARSER_BEGIN(MethodDescriptorParser)
+package de.uka.iti.ivil.jbc.util.parsers;
+import de.uka.iti.ivil.jbc.util.*;
+import java.util.List;import java.util.LinkedList;
+
+@SuppressWarnings("all")public class MethodDescriptorParser{}PARSER_END(MethodDescriptorParser)TOKEN : /* OPERATORS */{  < BYTE : "B" >| < CHAR : "C" >| < DOUBLE : "D" >| < FLOAT : "F" >| < INT : "I" >| < LONG : "J" >| < REF : "L" (~[ ";" ])* ";" >| < SHORT : "S" >
+| < VOID : "V" >
+| < BOOL : "Z" >| < ARRAY : "[" >| "("| ")"}
+
+TOKEN :
+{
+  < BADTOKEN : ~[] >}List < String > parse() :{
+  List < String > result = new LinkedList<String >();  String s;}{
+  [  "("  (    s = type()    {      result.add(s);    }  )*  ")"
+  ]   s = type()  {    result.add(0, s);
+    return result;  }}String type() :{
+  Token t;
+  String s;
+}{  (    "B"    {      return "byte";    }
+  | "C"
+    {
+      return "char";
+    }
+  | "D"
+    {
+      return "double";
+    }
+  | "F"
+    {
+      return "float";
+    }
+  | "I"
+    {
+      return "int";
+    }
+  | "J"
+    {
+      return "long";
+    }
+  | t=< REF >
+    {
+      return EscapeName.build(t.image.substring(1, t.image.length() - 1));
+    }
+  | "S"
+    {
+      return "short";
+    }
+  | "V"
+    {
+      return "void";
+    }
+  | "Z"
+    {
+      return "boolean";
+    }
+  | "[" s=type()
+    {
+      return s+"Z005bZ005d"; //EscapeName.build("[]");
+    }  )}
