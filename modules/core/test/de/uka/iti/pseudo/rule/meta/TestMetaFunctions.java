@@ -150,7 +150,7 @@ public class TestMetaFunctions extends TestCaseWithEnv {
                 "$$polymorphicSpec(arb as 'a, arb as int, (\\T_all 'a; id(arb as 'a) = arb as 'a), false)",
                 "(\\T_all 'a; id(arb as 'a) = arb as 'a)");
 
-        Term.SHOW_TYPES = true;
+//        Term.SHOW_TYPES = true;
         // see visit(Binder) in SpecialiseMetaFunction!
         Term t = makeTerm("(\\bind x as 'a; $$polymorphicSpec(x, 0, (bf(x) & (\\forall x as 'a; bf(x))), true))");
         assertEvalsTo(t.getSubterm(0),

@@ -13,22 +13,22 @@ import nonnull.NonNull;
 import nonnull.Nullable;
 
 /**
- * The Class Variable captures a bound variable in a term
+ * The Class Variable captures a bound variable as a term.
  */
 public final class Variable extends BindableIdentifier {
 
     /**
-     * The name of the bound variable
+     * The name of the bound variable.
      */
-    private String name;
+    private final String name;
 
     /**
      * Instantiates a new variable.
-     * 
+     *
      * <p>
      * The constructor is not visible. Use the {@code getInst} methods to
      * get/create an object of this Class.
-     * 
+     *
      * @param name
      *            the name of the variable
      * @param type
@@ -40,12 +40,12 @@ public final class Variable extends BindableIdentifier {
     }
 
     /**
-     * Gets a variable term.
-     * 
+     * Gets a variable term instance.
+     *
      * If a term with the given parameters already exists in the system, a
      * reference to it is returned instead of a freshly created one. If not, a
      * new instance is created.
-     * 
+     *
      * @param name
      *            the name of the variable
      * @param type
@@ -60,8 +60,9 @@ public final class Variable extends BindableIdentifier {
     @Override
     public String toString(boolean typed) {
         String retval = "\\var " + name;
-        if (typed)
+        if (typed) {
             retval += " as " + getType();
+        }
         return retval;
     }
 
@@ -71,14 +72,16 @@ public final class Variable extends BindableIdentifier {
     }
 
     /**
-     * Gets the name of the variable
-     * 
+     * Gets the name of the variable.
+     *
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }
 
+    // Checkstyle: IGNORE EqualsHashCode - defined in Term.java
     @Override
     public boolean equals(@Nullable Object object) {
         if (object instanceof Variable) {
@@ -88,7 +91,7 @@ public final class Variable extends BindableIdentifier {
         }
         return false;
     }
-    
+
     /*
      * This implementation takes the hash code from the identifier
      */

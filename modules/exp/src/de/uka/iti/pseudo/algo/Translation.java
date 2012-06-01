@@ -55,6 +55,8 @@ public class Translation {
         PrintWriter target;
         if(clArgs.size() > 1) {
             target = new PrintWriter(new FileWriter(clArgs.get(1)));
+        } else if(clArgs.size() > 0) {
+            target = new PrintWriter(new FileWriter(clArgs.get(0) + ".p"));
         } else {
             target = new PrintWriter(System.out);
         }

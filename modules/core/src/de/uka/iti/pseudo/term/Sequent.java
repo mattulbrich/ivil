@@ -18,20 +18,21 @@ import de.uka.iti.pseudo.term.creation.ToplevelCheckVisitor;
 import de.uka.iti.pseudo.util.Util;
 
 /**
- * The Class Sequent is used to model immutable logic sequents. A sequent consists of lists of terms. Any term
- * in these lists needs to be of boolean type.
+ * The Class Sequent is used to model immutable logic sequents. A sequent
+ * consists of lists of terms. Any term in these lists needs to be of boolean
+ * type.
  */
 public class Sequent {
 
     /**
      * The antecedent.
      */
-    private Term[] antecedent;
+    private final Term[] antecedent;
 
     /**
      * The succedent.
      */
-    private Term[] succedent;
+    private final Term[] succedent;
 
     /**
      * Instantiates a new sequent.
@@ -55,8 +56,9 @@ public class Sequent {
     /**
      * Instantiates a new sequent.
      *
-     * The given lists are not stored in the sequent themselves but are (shallow-) copied first. You can savely change them
-     * after the constructor call.
+     * The given lists are not stored in the sequent themselves but are
+     * (shallow-) copied first. You can savely change them after the constructor
+     * call.
      *
      * @param antecedent
      *            the terms in the antecedent
@@ -66,12 +68,13 @@ public class Sequent {
      * @throws TermException
      *             if a term is not suitable for toplevel usage.
      */
-    public Sequent(List<? extends Term> antecedent, List<? extends Term> succedent) throws TermException {
+    public Sequent(List<? extends Term> antecedent,
+            List<? extends Term> succedent) throws TermException {
         this.antecedent = Util.listToArray(antecedent, Term.class);
         this.succedent = Util.listToArray(succedent, Term.class);
         check();
     }
-    
+
     /*
      * Check whether all terms are usable as formulas: No schema variables, boolean type, etc.
      * See TopLevelVisitor for details.
@@ -105,6 +108,9 @@ public class Sequent {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * A sequent is represented as a string as two comma separated lists of term
      * strings separated by <code>|-</code>. The antecedent appears on the
      * left of the separator and the succedent on the right, like in
@@ -126,6 +132,9 @@ public class Sequent {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * A sequent is equal to another object if it is a sequent, too, and the
      * terms in antecedent and succedent are pairwise equal.
      */
@@ -141,6 +150,9 @@ public class Sequent {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * The hash code of a sequent is calculated by the hash code of
      * the terms in antecedent and succedent.
      */

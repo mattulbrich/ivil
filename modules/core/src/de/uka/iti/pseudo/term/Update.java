@@ -14,7 +14,6 @@ import java.util.List;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.util.Util;
 
@@ -27,17 +26,17 @@ public class Update {
      * An empty update. It has no assignments.
      */
     public static final Update EMPTY_UPDATE = new Update();
-    
+
     /**
      * The assignments are stored in an array which is not changed.
      */
-    private Assignment[] assignments;
+    private final Assignment[] assignments;
 
 
     /**
      * Instantiates a new update using an array of assignments.
      * The array is cloned before using it internally.
-     * 
+     *
      * @param assignments
      *            a non-empty array of assignments
      */
@@ -45,7 +44,7 @@ public class Update {
         assert assignments.length > 0;
         this.assignments = assignments.clone();
     }
-    
+
     /**
      * Instantiates a new empty update.
      */
@@ -56,7 +55,7 @@ public class Update {
     /**
      * Instantiates a new update using a list of assignments.
      * The list is copied before it is used internally.
-     * 
+     *
      * @param assignments
      *            a non-empty list of assignments
      */
@@ -68,10 +67,10 @@ public class Update {
     /**
      * Put the update into a string. We do not print our typing, the typing of
      * the assigned terms suffices.
-     * 
+     *
      * @param typed
      *            whether or not the assigned values are to be printed typed.
-     * 
+     *
      * @return string representation of this update in enclosed in "{", "||" and
      *         "}"
      */
@@ -80,32 +79,37 @@ public class Update {
 
         sb.append("{ ");
         for (int i = 0; i < assignments.length; i++) {
-            if (i != 0)
+            if (i != 0) {
                 sb.append(" || ");
+            }
             sb.append(assignments[i].toString(typed));
         }
         sb.append(" }");
 
         return sb.toString();
     }
-    
+
     @Override public String toString() {
         return toString(Term.SHOW_TYPES);
     }
-    
+
     /**
      * Gets the assignments of the update of this update term.
-     * 
+     *
      * @return an immutable list of assignments
      */
     public List<Assignment> getAssignments() {
         return Util.readOnlyArrayList(assignments);
     }
-    
+
     /**
-     * This is equal to another Update if the assignments coincide verbatim
-     * (including their order!)
+     * {@inheritDoc}
+     *
+     * <p>
+     * This is equal to another Update if the assignments coincide verbatim.
+     * This include their order.
      */
+    @Override
     public boolean equals(@Nullable Object obj) {
         if (obj instanceof Update) {
             Update up = (Update) obj;
@@ -113,10 +117,10 @@ public class Update {
         }
         return false;
     }
-    
+
     /**
      * Checks if this update is empty, hence contains no assignments.
-     * 
+     *
      * @return true, iff this is empty
      */
     public boolean isEmpty() {
@@ -124,10 +128,14 @@ public class Update {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * The hash code of an update is the hash code of the assignments array.
      */
+    @Override
     public int hashCode() {
         return Arrays.hashCode(assignments);
     }
-    
+
 }

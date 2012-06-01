@@ -26,6 +26,7 @@ import de.uka.iti.pseudo.parser.TestProgramParser;
 import de.uka.iti.pseudo.parser.TestTermParser;
 import de.uka.iti.pseudo.parser.file.TestFileParser;
 import de.uka.iti.pseudo.parser.file.TestRuleParsing;
+import de.uka.iti.pseudo.prettyprint.TestTermTag;
 import de.uka.iti.pseudo.proof.TestProofNode;
 import de.uka.iti.pseudo.proof.TestRuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TestSubtermSelector;
@@ -44,7 +45,7 @@ import de.uka.iti.pseudo.term.TestMapTypes;
 import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
 import de.uka.iti.pseudo.term.TestTermComparator;
-import de.uka.iti.pseudo.term.TestTypeVariableBinder;
+import de.uka.iti.pseudo.term.TestTypeVariableBinding;
 import de.uka.iti.pseudo.term.TestUpdates;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
@@ -67,11 +68,13 @@ public class AllCoreTests {
 
     public static Test suite() {
         TestSuite suite = new TestSuite("Test for de.uka.iti.pseudo - core");
+
         //$JUnit-BEGIN$
         suite.addTestSuite(TestValidXSD.class);
         suite.addTestSuite(TestFileParser.class);
         suite.addTestSuite(TestRuleAxiomExtractor.class);
         suite.addTestSuite(TestTermParser.class);
+        suite.addTestSuite(TestTermTag.class);
         suite.addTestSuite(TestProgramParser.class);
         suite.addTestSuite(TestProgramChanger.class);
         suite.addTestSuite(TestRuleParsing.class);
@@ -88,7 +91,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestTermUnification.class);
         suite.addTestSuite(TestTypeUnification.class);
         suite.addTestSuite(TestApplication.class);
-        suite.addTestSuite(TestTypeVariableBinder.class);
+        suite.addTestSuite(TestTypeVariableBinding.class);
         suite.addTestSuite(TestStatements.class);
         suite.addTestSuite(TestProofNode.class);
         suite.addTestSuite(TestRule.class);

@@ -18,7 +18,7 @@ import de.uka.iti.pseudo.term.statement.Assignment;
 /**
  * The Class UpdateTerm encapsulates the application of an update (a list of
  * assignments) to a term.
- * 
+ *
  * Subterms are the updated terms and the update values (in this order). Please
  * note that the update targets are not subterms!
  * <p>The subterms of an update term are:
@@ -29,17 +29,17 @@ import de.uka.iti.pseudo.term.statement.Assignment;
  * The updated <em>targets</em> are <b>not</b> subterms of an update term.
  */
 public final class UpdateTerm extends Term {
-    
-    private Update update;
+
+    private final Update update;
 
     /**
      * Instantiates a new update term with the given update and the updated
      * term.
-     * 
+     *
      * <p>
      * The constructor is not visible. Use the {@code getInst} methods to
      * get/create an object of this Class.
-     * 
+     *
      * @param update
      *            the update to apply
      * @param term
@@ -49,34 +49,34 @@ public final class UpdateTerm extends Term {
         super(prepareSubterms(term, update), term.getType());
         this.update = update;
     }
-    
+
     /**
      * Gets an updated term from the given update and the updated term.
-     * 
+     *
      * If a term with the given parameters already exists in the system, a
      * reference to it is returned instead of a freshly created one. If not, a
      * new instance is created.
-     * 
+     *
      * @param update
      *            the update to apply
      * @param term
      *            the term to be updated
-     * 
+     *
      * @return a term with the given parameters. Not necessarily freshly
      *         created.
      */
     public static @NonNull UpdateTerm getInst(@NonNull Update update, @NonNull Term term) {
         return (UpdateTerm) new UpdateTerm(update, term).intern();
     }
-    
+
     /*
      * prepare the subterms for the super class constructor.
-     * First the updated term then all update values in order. 
+     * First the updated term then all update values in order.
      */
     private static Term[] prepareSubterms(Term term, Update update) {
         List<Assignment> assignments = update.getAssignments();
         Term[] result = new Term[assignments.size() + 1];
-        
+
         result[0] = term;
         for (int i = 1; i < result.length; i++) {
             result[i] = assignments.get(i-1).getValue();
@@ -87,6 +87,7 @@ public final class UpdateTerm extends Term {
     /*
      * equal to another update term if they have equal assignment sets
      * and equal subterms
+     * Checkstyle: IGNORE EqualsHashCode - defined in Term.java
      */
     @Override
     public boolean equals(@Nullable Object object) {
@@ -103,12 +104,13 @@ public final class UpdateTerm extends Term {
      */
     @Override
     protected int calculateHashCode() {
+        // Checkstyle: IGNORE MagicNumber
         return super.calculateHashCode() * 31 + update.hashCode();
     }
 
 
     /*
-     * we do not print our own typing. the typing of 
+     * we do not print our own typing. the typing of
      * the inner term suffices.
      */
     @Override
@@ -117,10 +119,11 @@ public final class UpdateTerm extends Term {
 
         sb.append(update.toString(typed));
 
-        if (typed)
+        if (typed) {
             sb.append("(").append(getSubterm(0).toString(true)).append(")");
-        else
+        } else {
             sb.append(getSubterm(0).toString(false));
+        }
 
         return sb.toString();
     }
@@ -132,9 +135,9 @@ public final class UpdateTerm extends Term {
 
     /**
      * Gets the assignments of the update of this update term.
-     * 
+     *
      * the call is delegated to the update
-     * 
+     *
      * @return an immutable list of assignments
      */
     public List<Assignment> getAssignments() {
@@ -142,8 +145,8 @@ public final class UpdateTerm extends Term {
     }
 
     /**
-     * Gets the immutable update object for this updated term
-     * 
+     * Gets the immutable update object for this updated term.
+     *
      * @return the update object
      */
     public Update getUpdate() {
