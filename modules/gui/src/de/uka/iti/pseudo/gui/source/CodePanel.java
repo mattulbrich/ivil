@@ -26,7 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import nonnull.Nullable;
-
 import de.uka.iti.pseudo.auto.strategy.BreakpointManager;
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.gui.ProofCenter;
@@ -41,20 +40,20 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
     private int numberOfKnownPrograms = 0;
     private JComboBox selectionBox;
     protected final ProofCenter proofCenter;
-    private BreakpointManager breakpointManager;
+    private final BreakpointManager breakpointManager;
     private Object displayedResource;
 
-    private Map<ProofNode, Collection<? extends CodeLocation<?>>> cache =
+    private final Map<ProofNode, Collection<? extends CodeLocation<?>>> cache =
             new HashMap<ProofNode, Collection<? extends CodeLocation<?>>>();
-    
-    public CodePanel(ProofCenter proofCenter, boolean showLinenumbers, 
+
+    public CodePanel(ProofCenter proofCenter, boolean showLinenumbers,
             Color foregroundColor) throws IOException, StrategyException {
         this.proofCenter = proofCenter;
         this.breakpointManager = proofCenter.getBreakpointManager();
         proofCenter.addPropertyChangeListener(ProofCenter.CODE_PANE_SHOW_TRACE, this);
-        init(showLinenumbers, foregroundColor); 
+        init(showLinenumbers, foregroundColor);
     }
-    
+
     private void init(boolean showLinenumbers, Color foregroundColor) throws IOException {
         setLayout(new BorderLayout());
         {
@@ -65,7 +64,11 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         }
         {
             selectionBox = new JComboBox();
+            // this set the preferred size to something smaller than the maximum display
+            // size ... the panel can be resized smaller than that width ... (was a feature req)
+            selectionBox.setPrototypeDisplayValue("minimalWidthDisplay");
             selectionBox.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     selectSource();
                 }
@@ -73,10 +76,10 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             add(selectionBox, BorderLayout.NORTH);
             selectionBox.setModel(getAllResources());
             selectSource();
-            numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size(); 
+            numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }
     }
-    
+
     protected void selectSource() {
         displayedResource = selectionBox.getSelectedItem();
         sourceComponent.setText(makeContent(displayedResource));
@@ -86,37 +89,40 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
 
         // create highlights for selected source
         sourceComponent.removeHighlights();
-        if (null == proofCenter.getCurrentProofNode())
+        if (null == proofCenter.getCurrentProofNode()) {
             return;
+        }
         addHighlights();
     }
-    
-    @Override 
+
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if(ProofCenter.SELECTED_PROOFNODE.equals(evt.getPropertyName())) {
             ProofNode node = (ProofNode) evt.getNewValue();
             // null can be sent if the selected node changed
-            if (null == node)
+            if (null == node) {
                 return;
+            }
             proofNodeSelected(node);
         } else if (ProofCenter.CODE_PANE_SHOW_TRACE.equals(evt.getPropertyName())) {
             BreakpointPane.showTrace = (Boolean) evt.getNewValue();
 
             getSourceComponent().removeHighlights();
-            if (null == proofCenter.getCurrentProofNode())
+            if (null == proofCenter.getCurrentProofNode()) {
                 return;
+            }
             addHighlights();
         }
-        
+
     }
-    
+
     private void proofNodeSelected(ProofNode node) {
         int now = proofCenter.getEnvironment().getAllPrograms().size();
         if(now != numberOfKnownPrograms) {
             selectionBox.setModel(getAllResources());
             numberOfKnownPrograms = proofCenter.getEnvironment().getAllPrograms().size();
         }
-        
+
         Object resource = chooseResource();
         if (resource != null && !resource.equals(displayedResource)) {
             selectionBox.setSelectedItem(resource);
@@ -124,11 +130,11 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
             // this assertion ensures that the resource was in the list
             assert resource.equals(displayedResource) : resource + " vs. " + getDisplayedResource();
         }
-        
+
         getSourceComponent().removeHighlights();
         addHighlights();
     }
-    
+
     protected Collection<? extends CodeLocation<?>> getCodeLocations(ProofNode node) {
         Collection<? extends CodeLocation<?>> result =
                 cache.get(node);
@@ -138,24 +144,24 @@ public abstract class CodePanel extends JPanel implements PropertyChangeListener
         }
         return result;
     }
-    
+
     protected @Nullable Object chooseResource() {
-        Collection<? extends CodeLocation<?>> locations = 
+        Collection<? extends CodeLocation<?>> locations =
                 getCodeLocations(proofCenter.getCurrentProofNode());
-        
+
         if (locations.size() == 0) {
             return null;
         }
-        
+
         return locations.iterator().next().getProgram();
     }
 
     abstract protected String makeContent(Object reference);
 
     abstract protected ComboBoxModel getAllResources();
-    
+
     abstract protected void addHighlights();
-    
+
     abstract protected Collection<? extends CodeLocation<?>> calculateCodeLocationsOfNode(ProofNode node);
 
     protected ProofCenter getProofCenter() {
