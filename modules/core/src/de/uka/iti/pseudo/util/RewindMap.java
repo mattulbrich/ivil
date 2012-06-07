@@ -9,247 +9,385 @@
  */
 package de.uka.iti.pseudo.util;
 
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
-public class RewindMap<K, V> extends AbstractMap<K,V> {
+import nonnull.NonNull;
+import nonnull.Nullable;
 
-    private static class Entry<K,V> implements Map.Entry<K,V> {
-        static enum Type { CLEAR, PUT, REMOVE };
-        private K key;
-        private V value;
-        private boolean hidden;
-        public Entry<K, V> hidesEntry;
-        private Entry<K,V> next;
-        private Type type;
-        
-        @Override
-        public K getKey() {
-            return key;
-        }
-        
-        @Override
-        public V getValue() {
-            return value;
-        }
-        
-        @Override
-        public V setValue(V value) {
-            V oldVal = this.value;
+/**
+ * A map implementation providing a transactional rewind operation.
+ *
+ * <p>
+ * This implementation wraps another map implementation and delegates all calls
+ * to the wrapped object. For all modifying operations, information is stored to
+ * be able undo the operation afterwards. (cf. Command Design Pattern). The
+ * implementation is not thread-safe.
+ *
+ * <p>
+ * The current position on the transaction timeline can be queried using
+ * {@link #getRewindPosition()}. A transactional rollback can be performed using
+ * {@link #rewindTo(int)} with a rewind position as argument.
+ *
+ * <h2>Example</h2>
+ * The following code sniplet
+ *
+ * <pre>
+ * RewindMap&lt;String, String&gt; map = new RewindMap&lt;String, String&gt;();
+ * map.put(&quot;Hello&quot;, &quot;World&quot;);
+ * int rewindPos = map.getRewindPosition();
+ * map.put(&quot;Hello&quot;, &quot;New World&quot;);
+ *
+ * System.out.println(map.get(&quot;Hello&quot;));
+ * map.rewindTo(rewindPos);
+ * System.out.println(map.get(&quot;Hello&quot;));
+ * map.rewindTo(0);
+ * System.out.println(map.get(&quot;Hello&quot;));
+ * </pre>
+ *
+ * will have the following output:
+ *
+ * <pre>
+ *   New World
+ *   World
+ *   null
+ * </pre>
+ *
+ * @param <K>
+ *            the type of the keys in the map
+ * @param <V>
+ *            the type of the values in the map
+ */
+public class RewindMap<K, V> implements Map<K, V> {
+
+    /**
+     * Helper class to implement a linked list of rewind transaction command.
+     *
+     * @param <K>
+     *            the type of the key
+     * @param <V>
+     *            the type of the value
+     */
+    private static class RewindTransaction<K, V> {
+
+        /**
+         * The key to operate with.
+         */
+        private final K key;
+
+        /**
+         * The value to reset.
+         */
+        private final V value;
+
+        /**
+         * A pointer to the next record. <code>null</code> if this is the earliest
+         * in the history.
+         */
+        private final RewindTransaction<K, V> next;
+
+        /**
+         * Presence state of the key.
+         *
+         * <code>true</code> if the key is present in the map (requires a put),
+         * <code>false</code> if the key is absent (requires a remove)
+         */
+        private final boolean present;
+
+        /**
+         * Instantiates a new rewind transaction.
+         *
+         * @param key
+         *            the key
+         * @param present
+         *            is the key present
+         * @param value
+         *            the value
+         * @param next
+         *            the next record, may be null
+         */
+        public RewindTransaction(K key, boolean present, V value,
+                @Nullable RewindTransaction<K, V> next) {
+            super();
+            this.key = key;
+            this.present = present;
             this.value = value;
-            return oldVal;
-        }
-        
-        @Override
-        public String toString() {
-            return type + " " + getKey() + (hidden ? "(H)" : "") + "=" + getValue()
-                    + (next != null ? ", " + next.toString() : ""); 
+            this.next = next;
         }
     }
-    
-    private Entry<K,V> head = null;
-    
-    private int pos = 0;
-    
-    private int size = 0;
-    
-    private Entry<K,V> getEntry(Object key) {
-        
-        for(Entry<K,V> e = head; e != null; e = e.next) {
-            if(e.type == Entry.Type.CLEAR)
-                return null;
-            
-            if(e.key.equals(key)) {
-                return e;
+
+    /**
+     * The wrapped map.
+     */
+    private final @NonNull Map<K, V> wrappedMap;
+
+    /**
+     * The rewind history, used to restore old states of the map.
+     */
+    private @Nullable RewindTransaction<K, V> rewindHistory;
+
+    /**
+     * Number of elements in the rewindHistory.
+     */
+    private int rewindSize;
+
+    /**
+     * Instantiates a new rewind.
+     *
+     * The given argument is used as wrapped map to which method calls are
+     * delegated.
+     *
+     * @param wrappedMap an arbitrary map.
+     */
+    public RewindMap(Map<K, V> wrappedMap) {
+        this.wrappedMap = wrappedMap;
+    }
+
+    /**
+     * Instantiates a new rewind map.
+     *
+     * <p>
+     * A freshly created {@link HashMap} is used as map to which method calls
+     * are delegated.
+     */
+    public RewindMap() {
+        this(new HashMap<K, V>());
+    }
+
+    /**
+     * Gets the current rewind position.
+     *
+     * <p>
+     * The result can be used to a later call to {@link #rewindTo(int)}.
+     *
+     * @return a non-negative integer
+     */
+    public int getRewindPosition() {
+        return rewindSize;
+    }
+
+    /**
+     * Rewind to a former state of the map.
+     *
+     * <p>
+     * The argument must not be negative or greater than the
+     * {@link #getRewindPosition() current rewind position}.
+     *
+     * <p>
+     * Usually, you will use the return value of an earlier call to
+     * {@link #getRewindPosition()} here.
+     *
+     * @param position
+     *            a non-negative integer, at most the current rewind position
+     */
+    public void rewindTo(int position) {
+        if (position < 0) {
+            throw new IllegalArgumentException("Should be non-negative: "
+                    + position);
+        }
+
+        if (position > rewindSize) {
+            throw new IllegalArgumentException("Rewind request " + position
+                    + " beyond transaction position " + rewindSize);
+        }
+
+        while (rewindSize > position) {
+            if (rewindHistory.present) {
+                wrappedMap.put(rewindHistory.key, rewindHistory.value);
+            } else {
+                wrappedMap.remove(rewindHistory.key);
             }
+            rewindSize--;
+            rewindHistory = rewindHistory.next;
         }
-        
-        return null;
-    }
-    
-    public int getPosition() {
-        return pos;
-    }
-    
-    public void rewindTo(int p) {
-        if(p < 0 || p > pos)
-            throw new IndexOutOfBoundsException("position " + p + " not within 0.." + pos);
-        
-        if(p == 0) {
-            head = null;
-            pos = 0;
-            size = 0;
-        } else {
-            while(pos > p) {
-                if(head.hidesEntry != null)
-                    head.hidesEntry.hidden = false;
-                head = head.next;
-                pos --;
-            }
-            size = recalcSize();
-        }
-        
-        assert head == null || !head.hidden;
-    }
-    
-    private int recalcSize() {
-        int res = 0;
-        
-        for (Entry<K, V> e = head; e != null; e = e.next) {
-            switch (e.type) {
-            case CLEAR:
-                return res;
-            case PUT:
-                if (!e.hidden) {
-                    res++;
-                }
-                break;
-            }
-        }
-
-        return res;
     }
 
-    public boolean containsKey(Object key) {
-        Entry<K, V> entry = getEntry(key);
-        return entry != null;
+    /**
+     * Adds an entry to the history.
+     *
+     * The current state of the key is stored so that it can be restored later.
+     *
+     * @param key
+     *            the key to store
+     */
+    private void addHistory(K key) {
+        rewindHistory = new RewindTransaction<K, V>(key, containsKey(key),
+                get(key), rewindHistory);
+        rewindSize++;
     }
 
-    public V get(Object key) {
-        Entry<K, V> entry = getEntry(key);
-        if(entry != null) {
-            return entry.value;
-        } else {
-            return null;
-        }
-    }
-    
-    public void clear() {
-        Entry<K,V> newEntry = new Entry<K, V>();
-        newEntry.key = null;
-        newEntry.hidden = false;
-        newEntry.type = Entry.Type.CLEAR;
-        newEntry.next = head;
-        
-        head = newEntry;
-        pos ++;
-        size = 0;
-    }
-
-    public V remove(Object key) {
-        Entry<K, V> oldEntry = getEntry(key);
-        
-        if(oldEntry == null) {
-            return null;
-        }
-        
-        K kkey = oldEntry.getKey();
-        
-        Entry<K,V> newEntry = new Entry<K, V>();
-        newEntry.key = kkey;
-        newEntry.value = null;
-        newEntry.hidden = false;
-        newEntry.hidesEntry = oldEntry;
-        newEntry.type = Entry.Type.REMOVE;
-        newEntry.next = head;
-        
-        oldEntry.hidden = true;
-        
-        head = newEntry;
-        pos ++;
-        if(oldEntry.type != Entry.Type.REMOVE)
-            size --;
-        
-        return oldEntry.getValue();
-    }
-    
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * This implementation can raise the rewind position by 1.
+     */
+    @Override
     public V put(K key, V value) {
-        Entry<K, V> oldEntry = getEntry(key);
-        
-        Entry<K,V> newEntry = new Entry<K, V>();
-        newEntry.key = key;
-        newEntry.value = value;
-        newEntry.hidden = false;
-        newEntry.hidesEntry = oldEntry;
-        newEntry.type = Entry.Type.PUT;
-        newEntry.next = head;
-        
-        head = newEntry;
-        pos ++;
-        
-        if(oldEntry != null) {
-            oldEntry.hidden = true;
-            if(oldEntry.type == Entry.Type.REMOVE)
-                size ++;
-            return oldEntry.getValue();
-        } else {
-            size ++;
-            return null;
+        addHistory(key);
+        return wrappedMap.put(key, value);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * This implementation will raise the rewind position by 1 if
+     * the key is present in the map.
+     */
+    @Override
+    public V remove(Object key) {
+        if (containsKey(key)) {
+            addHistory((K) key);
+        }
+        return wrappedMap.remove(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * This implementation will raise the rewind position by the number of
+     * entries in <code>m</code>.
+     */
+    @Override
+    public void putAll(Map<? extends K, ? extends V> m) {
+        for (Map.Entry<? extends K, ? extends V> e : m.entrySet()) {
+            put(e.getKey(), e.getValue());
         }
     }
 
-    private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
-
-        @Override
-        public Iterator<Map.Entry<K,V>> iterator() {
-            return new Iterator<Map.Entry<K, V>>() {
-                Entry<K,V> nextEntry = calcNext(head);
-                
-                @Override
-                public boolean hasNext() {
-                    return nextEntry != null;
-                }
-                
-                private Entry<K,V> calcNext(Entry<K,V> entry) {
-                    while(entry != null && (entry.hidden || entry.type == Entry.Type.REMOVE)) {
-                        entry = entry.next;
-                    }
-                    
-                    if(entry != null && entry.type == Entry.Type.CLEAR) {
-                        return null;
-                    } else {
-                        return entry;
-                    }
-                }
-
-                @Override
-                public Entry<K, V> next() {
-                    Entry<K, V> ret = nextEntry;
-                    
-                    if(ret == null)
-                        throw new NoSuchElementException();
-
-                    nextEntry = calcNext(nextEntry.next);
-
-                    return ret;
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }};
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * This implementation will raise the rewind position by the number of
+     * entries in the map.
+     */
+    @Override
+    public void clear() {
+        for (K key : keySet()) {
+            addHistory(key);
         }
-
-        @Override
-        public int size() {
-            return size;
-        }
-        
+        wrappedMap.clear();
     }
-    
+
+    //
+    // - the remainder is only delegating methods
+    //
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#size()
+     */
     @Override
     public int size() {
-        return size;
+        return wrappedMap.size();
     }
-    
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#isEmpty()
+     */
+    @Override
+    public boolean isEmpty() {
+        return wrappedMap.isEmpty();
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#containsKey(java.lang.Object)
+     */
+    @Override
+    public boolean containsKey(Object key) {
+        return wrappedMap.containsKey(key);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#containsValue(java.lang.Object)
+     */
+    @Override
+    public boolean containsValue(Object value) {
+        return wrappedMap.containsValue(value);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#get(java.lang.Object)
+     */
+    @Override
+    public V get(Object key) {
+        return wrappedMap.get(key);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#keySet()
+     */
+    @Override
+    public Set<K> keySet() {
+        return Collections.unmodifiableSet(wrappedMap.keySet());
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#values()
+     */
+    @Override
+    public Collection<V> values() {
+        return Collections.unmodifiableCollection(wrappedMap.values());
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.util.Map#entrySet()
+     */
     @Override
     public Set<java.util.Map.Entry<K, V>> entrySet() {
-        return new EntrySet();
+        return Collections.unmodifiableSet(wrappedMap.entrySet());
     }
-   
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object o) {
+        return wrappedMap.equals(o);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return wrappedMap.hashCode();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * This implementation returns the {@link Object#toString()} result of the
+     * wrapped map and appends (after a slash) the length of the rewind history.
+     */
+    @Override
+    public String toString() {
+        return wrappedMap.toString() + "/" + rewindSize;
+    }
 }

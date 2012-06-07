@@ -3,22 +3,18 @@ package de.uka.iti.pseudo.util;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-
-import de.uka.iti.pseudo.TestCaseWithEnv;
 
 import junit.framework.TestCase;
+import de.uka.iti.pseudo.TestCaseWithEnv;
 
 public class TestRewindMap extends TestCase {
 
     public void testPutGet() throws Exception {
 
-        RewindMap<Integer, Integer> m = new RewindMap<Integer, Integer>();
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
 
         Integer r1 = m.put(0, 0);
         Integer r2 = m.put(1, 2);
@@ -37,7 +33,8 @@ public class TestRewindMap extends TestCase {
     }
 
     public void testPutRemove() throws Exception {
-        RewindMap<Integer, Integer> m = new RewindMap<Integer, Integer>();
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
 
         m.put(0, 0);
         m.put(1, 2);
@@ -52,16 +49,45 @@ public class TestRewindMap extends TestCase {
         assertEquals(null, r4);
     }
 
-    public void testM1() throws Exception {
-        LinkedHashMap<String, String> lhm = new LinkedHashMap<String, String>();
-        lhm.put("hello", "world");
-        lhm.put("haa", "hba");
+    public void testRewind() throws Exception {
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
+
+        m.put(0, 0);
+        m.put(1, 2);
+        m.put(1, 3);
+        m.remove(1);
+
+        assertFalse(m.containsKey(1));
+        assertEquals(4, m.getRewindPosition());
+        m.rewindTo(3);
+        assertEquals((Integer)3, m.get(1));
+        assertEquals(3, m.getRewindPosition());
+        m.rewindTo(2);
+        assertEquals((Integer)2, m.get(1));
+        assertEquals(2, m.getRewindPosition());
+        m.rewindTo(1);
+        assertFalse(m.containsKey(1));
+        assertEquals(1, m.getRewindPosition());
+    }
+
+    public void testRewindNull() throws Exception {
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
+
+        m.put(0, null);
+        assertTrue(m.containsKey(0));
+        assertEquals(null, m.get(0));
+        m.rewindTo(0);
+        assertFalse(m.containsKey(0));
+        assertEquals(null, m.get(0));
     }
 
     public void testRandom() throws Exception {
         Random r = new Random(0x10003);
 
-        RewindMap<Integer, Integer> m = new RewindMap<Integer, Integer>();
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
         LinkedHashMap<Integer, Integer> n = new LinkedHashMap<Integer, Integer>();
 
         int x, y;
@@ -69,6 +95,7 @@ public class TestRewindMap extends TestCase {
 
         for (int i = 0; i < 10000; i++) {
             TestCaseWithEnv.out(i + ": ");
+            assertEquals(n, m);
             switch (r.nextInt(13)) {
             case 0:
             case 1:
@@ -131,10 +158,10 @@ public class TestRewindMap extends TestCase {
 
     //
     // private <K,V> void assertIteratorEquals(Map<K, V> n, Map<K, V> m) {
-    //        
+    //
     // Iterator<Entry<K, V>> it1 = n.entrySet().iterator();
     // Iterator<Entry<K, V>> it2 = m.entrySet().iterator();
-    //        
+    //
     // while(it1.hasNext()) {
     // assertTrue("has also next", it2.hasNext());
     // Entry<K, V> e1 = it1.next();
@@ -142,13 +169,14 @@ public class TestRewindMap extends TestCase {
     // assertEquals("both keys equal", e2.getKey(), e1.getKey());
     // assertEquals("both elements equal", e2.getValue(), e1.getValue());
     // }
-    //        
+    //
     // assertFalse("has not more elements", it2.hasNext());
     // }
 
     // was a bug!
     public void testIterator() throws Exception {
-        RewindMap<Integer, Integer> m = new RewindMap<Integer, Integer>();
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
         m.put(0, 0);
         m.put(1, 1);
         m.remove(0);
@@ -159,7 +187,8 @@ public class TestRewindMap extends TestCase {
 
         Random r = new Random(0x10001);
 
-        RewindMap<Integer, Integer> m = new RewindMap<Integer, Integer>();
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>(new HashMap<Integer, Integer>());
 
         int x, y;
 
@@ -177,9 +206,10 @@ public class TestRewindMap extends TestCase {
                 break;
 
             case 2:
-                if(m.getPosition() == 0)
+                if(m.getRewindPosition() == 0) {
                     break;
-                x = r.nextInt(m.getPosition());
+                }
+                x = r.nextInt(m.getRewindPosition());
                 m.rewindTo(x);
                 TestCaseWithEnv.out("rewind " + x);
                 break;
@@ -195,5 +225,12 @@ public class TestRewindMap extends TestCase {
             TestCaseWithEnv.out(m.size());
             iteratorFaithful(m.entrySet());
         }
+    }
+
+    public void testNoHistory() throws Exception {
+        RewindMap<Integer, Integer> m =
+                new RewindMap<Integer, Integer>();
+
+        m.rewindTo(0);
     }
 }
