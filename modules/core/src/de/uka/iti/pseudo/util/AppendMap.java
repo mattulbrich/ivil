@@ -19,19 +19,20 @@ import java.util.HashMap;
  * <li>The values for keys are seldom changed.
  * <li>Snapshooting (i.e. calls to clone()) should be cheap
  * </ol>
- * 
+ *
  * AppendMap keeps data as a singly-linked list of {@link LinkedEntry} objects.
  * Putting a new key into the map is achieved by <b>prepending</b> a new entry
  * to the list of entries. Overwriting the value for a key is performed by
  * partially copying the list and changing the entry in the copied list, always
  * leaving the original list untouched. Deletion is not supported.
- * 
+ *
  * <p>
  * These procedures ensure that an existing linked list is never changed.
  * Cloning can therefore be performed by referencing to the <b>same</b> (i.e.
  * identical) entry list.
- * 
- * FIXME delete this class
+ *
+ * TODO delete this class (Apparently removed now)
+ *
  */
 @Deprecated
 public class AppendMap<K, V> extends HashMap<K, V> implements Cloneable {
@@ -43,6 +44,7 @@ public class AppendMap<K, V> extends HashMap<K, V> implements Cloneable {
         super();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public AppendMap<K, V> clone() {
         return new AppendMap<K, V>(this);

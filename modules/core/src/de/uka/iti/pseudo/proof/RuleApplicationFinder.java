@@ -366,14 +366,14 @@ public class RuleApplicationFinder {
             branch = sequent.getSuccedent();
         }
 
-        TermMatcher mcCopy = mc.clone();
+        Object rewindPos = mc.getRewindPosition();
         int termNo = 0;
         for (Term t : branch) {
             if(mc.leftMatch(assumption, t)) {
                 ruleAppMaker.pushAssumptionSelector(new TermSelector(isAntecedent, termNo)); //ok
                 matchAssumptions(assumptions, assIdx+1);
                 ruleAppMaker.popAssumptionSelector();
-                mc = mcCopy.clone();
+                mc.rewindTo(rewindPos);
                 ruleAppMaker.setTermMatcher(mc);
             }
             termNo++;

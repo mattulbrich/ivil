@@ -27,9 +27,9 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.Assignment;
-import de.uka.iti.pseudo.util.AppendMap;
-import de.uka.iti.pseudo.util.AppendSet;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.RewindMap;
+import de.uka.iti.pseudo.util.RewindSet;
 
 /**
  * The Class TermMatcher is the recording instance of a term matching.
@@ -42,40 +42,7 @@ import de.uka.iti.pseudo.util.Log;
  *
  * @see TermMatchVisitor
  */
-public class TermMatcher implements Cloneable {
-
-    /**
-     * The mapping from schema type variables to types.
-     * <p>
-     * We use {@link AppendMap} here because we often need to clone for
-     * unification attempts.
-     */
-    private AppendMap<String, Type> typeInstantiation = new AppendMap<String, Type>();
-
-    /**
-     * The mapping from schema variables to their term instantiations.
-     * <p> We use {@link AppendMap} here because we often need to clone
-     * for unification attempts.
-     */
-    private AppendMap<String, Term> instantiation = new AppendMap<String, Term>();
-
-    /**
-     * The mapping from schema updates to their instantiations.
-     * <p> We use {@link AppendMap} here because we often need to clone
-     * for unification attempts.
-     */
-    private AppendMap<String, Update> updateInst = new AppendMap<String, Update>();
-
-    /**
-     * The term matcher visitor performs the actual matching comparisons.
-     */
-    private TermMatchVisitor termMatcherVisitor;
-
-    /**
-     * remember those types which are bound in type quantifications.
-     * They must not be instantiated with TypeApplications.
-     */
-    private AppendSet<SchemaType> boundSchemaTypes = new AppendSet<SchemaType>();
+public final class TermMatcher {
 
     /**
      * A simple visitor which detects schema variables.
@@ -83,7 +50,7 @@ public class TermMatcher implements Cloneable {
      *
      * @see SchemaCollectorVisitor
      */
-    private static final DepthTermVisitor schemaFinder = new DepthTermVisitor() {
+    private static final DepthTermVisitor SCHEMA_FINDER = new DepthTermVisitor() {
         @Override
         protected void defaultVisitTerm(Term term) throws TermException {
             if (term.getType() instanceof SchemaType) {
@@ -123,6 +90,48 @@ public class TermMatcher implements Cloneable {
     };
 
     /**
+     * The mapping from schema type variables to types.
+     * <p>
+     * We use {@link RewindMap} here because we often need to clone for
+     * unification attempts.
+     */
+    private final RewindMap<String, Type> typeInstantiation =
+            new RewindMap<String, Type>();
+
+    /**
+     * The mapping from schema variables to their term instantiations.
+     * <p> We use {@link RewindMap} here because we often need to clone
+     * for unification attempts.
+     */
+    private final RewindMap<String, Term> instantiation = new RewindMap<String, Term>();
+
+    /**
+     * The mapping from schema updates to their instantiations.
+     * <p> We use {@link RewindMap} here because we often need to clone
+     * for unification attempts.
+     */
+    private final RewindMap<String, Update> updateInst = new RewindMap<String, Update>();
+
+    /**
+     * The term matcher visitor performs the actual matching comparisons.
+     */
+    private final TermMatchVisitor termMatcherVisitor;
+
+    /**
+     * remember those types which are bound in type quantifications.
+     * They must not be instantiated with TypeApplications.
+     */
+    private final RewindSet<SchemaType> boundSchemaTypes = new RewindSet<SchemaType>();
+
+
+    /**
+     * Instantiates a new term unification.
+     */
+    public TermMatcher() {
+        termMatcherVisitor = new TermMatchVisitor(this);
+    }
+
+    /**
      * Checks whether a term contains schema variables, schema updates or schema
      * types.
      *
@@ -133,20 +142,13 @@ public class TermMatcher implements Cloneable {
      */
     public static boolean containsSchematic(Term term) {
         try {
-            term.visit(schemaFinder);
+            term.visit(SCHEMA_FINDER);
             return false;
         } catch (TermException e) {
             Log.log(Log.DEBUG, "Term contains schema entity: %s", term);
             Log.stacktrace(Log.DEBUG, e);
             return true;
         }
-    }
-
-    /**
-     * Instantiates a new term unification.
-     */
-    public TermMatcher() {
-        termMatcherVisitor = new TermMatchVisitor(this);
     }
 
     /**
@@ -169,10 +171,8 @@ public class TermMatcher implements Cloneable {
      */
     public boolean leftMatch(Term adaptingTerm, Term fixTerm) {
 
-        AppendMap<String, Term> copyTermInst = instantiation.clone();
-        AppendMap<String, Type> copyTypeInst = typeInstantiation.clone();
-        AppendMap<String, Update> copyUpdateInst = updateInst.clone();
-        AppendSet<SchemaType> copySchemaBoundTypes = boundSchemaTypes.clone();
+        Object rewindPos = getRewindPosition();
+
         try {
 
             termMatcherVisitor.compare(adaptingTerm, fixTerm);
@@ -180,13 +180,59 @@ public class TermMatcher implements Cloneable {
             return true;
 
         } catch (TermException e) {
-            instantiation = copyTermInst;
-            typeInstantiation = copyTypeInst;
-            updateInst = copyUpdateInst;
-            boundSchemaTypes = copySchemaBoundTypes;
+            rewindTo(rewindPos);
             return false;
         }
 
+    }
+
+    /**
+     * Get the current internal state of this term matcher.
+     *
+     * <p>
+     * The type and format of this object is subject to change. Currently, a
+     * integer-array is used to store the transaction positions of the
+     * RewindMaps.
+     *
+     * @return an object which can be used to reset the current state of the
+     *         term matcher.
+     */
+    public Object getRewindPosition() {
+        return new int[] {
+                instantiation.getRewindPosition(),
+                typeInstantiation.getRewindPosition(),
+                updateInst.getRewindPosition(),
+                boundSchemaTypes.getRewindPosition() };
+    }
+
+    /**
+     * Rewind to a previous state of this term matcher.
+     *
+     * <p>
+     * The argument must be an object which has been previously returned by
+     * {@link #getRewindPosition()}.
+     *
+     * @param rewindPos
+     *            the position to rewind to.
+     *
+     * @throws IllegalArgumentException
+     *             if the provided argument is not suited as a rewind position
+     *             for this object
+     */
+    public void rewindTo(Object rewindPos) {
+        if (!(rewindPos instanceof int[])) {
+            throw new IllegalArgumentException("Rewind objects must be int[]");
+        }
+
+        int[] positions = (int[]) rewindPos;
+        if(positions.length != 4) {
+            throw new IllegalArgumentException("Rewind objects need 4 indices");
+        }
+
+        instantiation.rewindTo(positions[0]);
+        typeInstantiation.rewindTo(positions[1]);
+        updateInst.rewindTo(positions[2]);
+        boundSchemaTypes.rewindTo(positions[3]);
     }
 
     /*
@@ -224,7 +270,8 @@ public class TermMatcher implements Cloneable {
      *             if sv is already instantiated or term contains schema
      *             variables.
      */
-    public void addInstantiation(@NonNull SchemaVariable sv, @NonNull Term term) throws TermException {
+    public void addInstantiation(@NonNull SchemaVariable sv,
+            @NonNull Term term) throws TermException {
         if(instantiation.get(sv.getName()) != null) {
             throw new TermException("SchemaVariable " + sv + " already instantiated");
         }
@@ -256,7 +303,8 @@ public class TermMatcher implements Cloneable {
     public void addUpdateInstantiation(@NonNull String schemaIdentifier,
             @NonNull Update update) throws TermException {
         if(instantiation.get(schemaIdentifier) != null) {
-            throw new TermException("SchemaUpdate " + schemaIdentifier + " already instantiated");
+            throw new TermException("SchemaUpdate " + schemaIdentifier +
+                    " already instantiated");
         }
 
         updateInst.put(schemaIdentifier, update);
@@ -339,35 +387,13 @@ public class TermMatcher implements Cloneable {
     }
 
     /**
-     * Create a deep copy of this object.
-     *
-     * The return object is equal to this matcher. However, all maps and sets
-     * are are cloned copies of this object. The returned object therefore
-     * represents a snapshot of the current state of this object.
-     */
-    @Override
-    public TermMatcher clone() {
-        try {
-            TermMatcher retval = (TermMatcher) super.clone();
-            retval.instantiation = instantiation.clone();
-            retval.typeInstantiation = typeInstantiation.clone();
-            retval.updateInst = updateInst.clone();
-            retval.boundSchemaTypes = boundSchemaTypes.clone();
-            retval.termMatcherVisitor = new TermMatchVisitor(retval);
-            return retval;
-        } catch (CloneNotSupportedException e) {
-            throw new Error(e);
-        }
-    }
-
-    /**
      * Clear and set all maps and sets to empty.
      */
     public void clear() {
         instantiation.clear();
         typeInstantiation.clear();
         updateInst.clear();
-        boundSchemaTypes = new AppendSet<SchemaType>();
+        boundSchemaTypes.clear();
     }
 
     /**
@@ -417,6 +443,9 @@ public class TermMatcher implements Cloneable {
      *            the term to instantiantiate
      *
      * @return the instantiated term
+     *
+     * @throws TermException
+     *    if
      */
     public @NonNull Term instantiate(Term toInst) throws TermException {
         return getTermInstantiator().instantiate(toInst);
