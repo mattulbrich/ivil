@@ -40,6 +40,9 @@ public class Translation {
 
     private final Map<String, String> abbreviations = new HashMap<String, String>();
 
+    private final Map<String, String> couplingInvariantMap = new HashMap<String, String>();
+    private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
+
     public static void main(String[] args) throws ParseException, IOException, CommandLineException {
         String source;
         CommandLine cl = createCommandLine();
@@ -149,6 +152,20 @@ public class Translation {
             throw new IllegalStateException("Abbreviation " + name + " already defined");
         }
         abbreviations.put(name, term);
+    }
+
+    public void addCouplingInvariant(String key, String value) {
+        if(couplingInvariantMap.containsKey(key)) {
+            throw new IllegalStateException("Coupling for " + key + " already defined");
+        }
+        couplingInvariantMap.put(key, value);
+    }
+
+    public void addCouplingVariant(String key, String value) {
+        if(couplingVariantMap.containsKey(key)) {
+            throw new IllegalStateException("Coupling for " + key + " already defined");
+        }
+        couplingVariantMap.put(key, value);
     }
 
 }

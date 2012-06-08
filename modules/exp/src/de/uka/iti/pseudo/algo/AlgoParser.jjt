@@ -446,8 +446,9 @@ void AddExpression() :
   Token t=null;
 }
 { 
-   MultExpression() ( (t="+" | t="-" | t="\\/" ) AddExpression()  
-      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+   // Left assoc!
+   MultExpression() ( (t="+" | t="-" | t="\\/" ) MultExpression()  
+      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )*
 }
 
 void MultExpression() :
@@ -532,37 +533,25 @@ void Refinement() #Refinement :
 }
 {
     "refine" ( "algo" )? 
-    <IDENTIFIER> "as" MethodReference()
-    "requires" CouplingFormula("-1")
-    ( "inv" t=<INTEGER_LITERAL> ":" CouplingFormula(t.image) )*
-    "ensures" CouplingFormula("0")
+    <IDENTIFIER> "as" <IDENTIFIER>
+    ( CouplingFormula() )+
 }
 
-void MethodReference() #MethodReference :
-{}
+void CouplingFormula() #CouplingFormula :
 {
-  // package + classname + methodname (at least 2)
-  Identifier() ( "." Identifier() )+
-
-  "(" MethodParameterType() ( "," MethodParameterType() )* ")"
-}
-
-void MethodParameterType() #MethodParameterType :
-{ 
-  int arrayDim = 0;
+  Token t;
+  String no;
 }
 {
-  // package + classname (at least 1)
-  Identifier() ( "." Identifier() )*
-
-  ( "[" "]" { arrayDim ++; } )*
-  { jjtThis.jjtSetValue(arrayDim); }
-}
-
-void CouplingFormula(String number) #CouplingFormula :
-{}
-{
-    Expression()
-      { jjtThis.jjtSetValue(number); }
+    (
+      "mark" t=<INTEGER_LITERAL> { no = t.image; }
+      "inv" Expression()
+      "var" Expression()
+    |
+      "requires" { no = "-1"; } Expression()
+    | 
+      "ensures" { no = "0"; } Expression()
+    )
+    { jjtThis.jjtSetValue(no); }
 }
  

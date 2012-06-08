@@ -11,6 +11,7 @@ public class TestParser extends TestCase {
         AlgoParser parser = new AlgoParser(is);
         ASTStart n = parser.Start();
         n.dump("");
+        n.jjtAccept(new TranslationVisitor(new Translation(parser), false), null);
     }
 
 }

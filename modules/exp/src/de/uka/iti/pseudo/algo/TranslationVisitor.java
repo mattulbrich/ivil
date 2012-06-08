@@ -84,7 +84,7 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTRefinement node, Object data) {
         if(refinementMode) {
-            JavaVisitor javaVisitor = new JavaVisitor(translation);
+            RefinementVisitor javaVisitor = new RefinementVisitor(translation);
             node.jjtAccept(javaVisitor, data);
         }
         return "";

@@ -243,7 +243,8 @@
       <!--<module name="IllegalInstantiation"/>-->
       <module name="InnerAssignment"/>
       <module name="MagicNumber">
-	<property name="ignoreNumbers" value="-1,0,1,2,3,4,5" />
+        <!-- 31 is used in many hash classes ... -->
+	<property name="ignoreNumbers" value="-1,0,1,2,3,4,5,31" />
       </module>
       <module name="MissingSwitchDefault">
         <property name="severity" value="warning"/>

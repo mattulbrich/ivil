@@ -57,6 +57,7 @@ import de.uka.iti.pseudo.util.TestAnnotatedString;
 import de.uka.iti.pseudo.util.TestConcurrentSoftHashCache;
 import de.uka.iti.pseudo.util.TestLinearLookupMap;
 import de.uka.iti.pseudo.util.TestRewindMap;
+import de.uka.iti.pseudo.util.TestRewindSet;
 import de.uka.iti.pseudo.util.TestTextInstantiator;
 import de.uka.iti.pseudo.util.TestUtil;
 
@@ -107,8 +108,9 @@ public class AllCoreTests {
         suite.addTestSuite(TestTermReplacer.class);
         suite.addTestSuite(TestUtil.class);
         //suite.addTestSuite(TestAppendMap.class);
+        suite.addTestSuite(TestRewindSet.class);
         suite.addTestSuite(TestRewindMap.class);
-        suite.addTestSuite(TestHintParser.class);
+            suite.addTestSuite(TestHintParser.class);
         suite.addTestSuite(TestHintStrategy.class);
         suite.addTestSuite(TestHints.class);
         suite.addTestSuite(TestSMTLibTranslator.class);

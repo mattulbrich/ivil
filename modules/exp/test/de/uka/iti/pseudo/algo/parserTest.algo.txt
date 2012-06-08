@@ -27,6 +27,11 @@ do
    do
       a := a + 1;
       b := b - 1
+   end;
+   
+   if a < b
+   then 
+     a := b
    end
 end
 
@@ -34,7 +39,8 @@ refine Name_of_the_algrithm as package.package.class.method(Type, package.Type[]
 requires
    a = this.a &
    b = this.b[5]
-inv 1:
-   true
+mark 1
+   inv true
+   var 0
 ensures
    a = this.a & true

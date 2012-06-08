@@ -2,8 +2,9 @@ package de.uka.iti.pseudo.util;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 
+@Deprecated
 public class TestAppendSet extends TestCaseWithEnv {
-    
+
     public void testAdd() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);
@@ -15,7 +16,7 @@ public class TestAppendSet extends TestCaseWithEnv {
         assertTrue(map.contains(null));
         assertFalse(map.contains(55));
     }
-    
+
     public void testSize() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);
@@ -25,7 +26,7 @@ public class TestAppendSet extends TestCaseWithEnv {
 
         assertEquals(3, map.size());
     }
-    
+
     public void testRemove() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);
@@ -33,21 +34,22 @@ public class TestAppendSet extends TestCaseWithEnv {
             map.remove(22);
             fail("Remove not implemented");
         } catch (Exception e) {
-            if(VERBOSE)
+            if(VERBOSE) {
                 e.printStackTrace();
+            }
         }
     }
-    
+
     public void testClear() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);
         map.add(44);
         map.add(22);
         map.clear();
-        
+
         assertEquals(0, map.size());
     }
-    
+
     public void testClone() throws Exception {
         AppendSet<Integer> map = new AppendSet<Integer>();
         map.add(22);
@@ -61,7 +63,7 @@ public class TestAppendSet extends TestCaseWithEnv {
         assertFalse(map2.contains(44));
         assertFalse(map.contains(55));
         assertTrue(map2.contains(55));
-        
+
         assertEquals(2, map.size());
         assertEquals(2, map2.size());
     }

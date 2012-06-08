@@ -1,4 +1,4 @@
-all: selectionSort.algo.p
+all: first.algo.p jbc/First.first(I)I-1.p
 
 #remove pascal rules ...
 %.o : %.p
@@ -6,6 +6,9 @@ all: selectionSort.algo.p
 
 %.algo.p : %.algo
 	algoc $< $@
+
+jbc/First.first(I)I-1.p : java/First.java
+	jbc java jbc
 
 %.class : %.java
 	javac $<
