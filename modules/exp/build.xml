@@ -18,7 +18,7 @@
     <pathelement path="genSrc"/>
   </path>
 
-  <target name="build" depends="javacc, compile, nonnull" />
+  <target name="build" depends="javacc, compile" />
 
   <target name="initJavaCC">
     <mkdir dir="genSrc"/>

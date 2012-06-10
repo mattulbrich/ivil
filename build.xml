@@ -16,15 +16,10 @@
   <!-- YOU MAY CHANGE THIS -->
   
   <property name="ivil.debug" value="true" />
-  <property name="ivil.nonnullChecks" value="true" />
   <property name="ivil.version" value="0.10" />
   <property name="ivil.keystoreAlias" value="mu2010" />
   <property name="ivil.keystorePassword" value="keystore" />
   <!-- UP TO HERE -->
-
-  <condition property="ivil.active.nonnull">
-    <equals arg1="${ivil.nonnullChecks}" arg2="true" />
-  </condition>
 
   <target name="init">
     <tstamp> 
@@ -39,13 +34,21 @@
       <filelist refid="modules" />
     </subant>
   </target>
-  
+     
   <target name="test" depends="init"
           description="run the tests in all modules">
     <subant target="test" verbose="true">
       <propertyset> <propertyref prefix="ivil."/> </propertyset>
       <filelist refid="modules" />
     </subant>
+    <concat>
+      <fileset dir="modules"><include name="**/TEST*.txt"/></fileset>
+      <filterchain>    
+	<linecontainsregexp>
+	  <regexp pattern="^(Testsuite: |Tests run: )"/>
+	</linecontainsregexp>
+      </filterchain>
+    </concat>
   </target>
    
   <target name="jar" depends="build" description="creates the jar file">
