@@ -31,6 +31,7 @@ fi
 #
 
 verbose=false
+nonnull=true
 
 while [ "${1:0:2}" == "-D" ]
 do
@@ -46,6 +47,7 @@ do
        echo "-Ds    debugging with suspend (waiting for debugger)"
        echo "-Dc    debugging w/o suspend (continuing)"
        echo "-Dj    enable profiling"
+       echo "-Dn-   disable nonnull assertion checking"
        echo "-DX<Y> pass option <Y> through to the virtual machine"
        exit 0
        ;;
@@ -63,6 +65,13 @@ do
     -Ds)
        OPTIONS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1234 $OPTIONS"
        shift 
+       ;;
+
+    #
+    # switch off nonnull access runtime checking
+    -Dn-)
+       nonnull=false
+       shift
        ;;
 
     #
@@ -95,10 +104,11 @@ do
   esac
 done
 
+$nonnull && OPTIONS="-javaagent:lib/nonnull.jar=de.uka.iti $OPTIONS"
+
 $verbose && echo "Options: $OPTIONS"
+$verbose && $JAVA_CMD -version
 
-
-$JAVA_CMD -version
 $JAVA_CMD -ea $OPTIONS \
   -Dpseudo.baseDir=$BASE \
   -Dpseudo.sysDir=$SYS_DIR \
