@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.auto.strategy.HintStrategy;
+import de.uka.iti.pseudo.auto.strategy.StrategyManager;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
@@ -41,7 +42,8 @@ public class TestHintStrategy extends TestCaseWithEnv {
 
         // create HintStrategy and inform it
         HintStrategy hs = new HintStrategy();
-        hs.init(proof, env, null);
+        StrategyManager sm = new StrategyManager(proof, env);
+        hs.init(proof, env, sm);
         hs.notifyRuleApplication(ram);
 
         // now the mock rule app finder are installed

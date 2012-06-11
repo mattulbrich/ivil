@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -23,64 +24,64 @@ import de.uka.iti.pseudo.util.Log;
 /**
  * The Class TermComparator allows for comparison of terms. It implements a
  * total order on all terms.
- * 
+ *
  * The method {@link #compare(Term, Term)} returns a positive value if the order
  * of the second argument is larger than of the first; a negative value if the
  * first is larger than the second. It returns 0 iff the terms are equal.
- * 
+ *
  * <h4>Order properties</h4>
- * 
+ *
  * For a function symbol <code>f</code> one can specify in a ivil-input-file a
  * property like
- * 
+ *
  * <pre>
  * properties
  *   order.f "30"
  * </pre>
- * 
+ *
  * in which a natural number is assigned to the function symbol. Accordingly for
  * binder symbols.
- * 
+ *
  * <h4>Defaults</h4>
- * 
+ *
  * Symbols created through the system have special values. Skolem symbols and
  * other created temporary symbols have the order {@link #CREATED_ORDER} =
  * {@value #CREATED_ORDER}.
- * 
+ *
  * Constant symbols (true, 0, 1, 2, ...) have the order {@link #BUILTIN_ORDER} =
  * {@value #BUILTIN_ORDER}.
- * 
+ *
  * Other symbols which have not been assigned a value via a property get the
  * order {@link #DEFAULT_ORDER} = {@value #DEFAULT_ORDER}.
- * 
+ *
  * <h4>Comparison</h4>
- * 
+ *
  * If two terms are compared, first their toplevel symbols are compared. If they
  * differ, decision is made then.
- * 
+ *
  * If the two level symbols have equal order, the arity of the symbol comes in,
  * with <b>the term with less subterms having a higher order</b>.
- * 
+ *
  * If arities coincide, the comparison goes down to the subterms until one pair
  * of terms differs.
- * 
+ *
  * If no difference can be found, the string representations are compared to
  * differentiate as best as possible
- * 
+ *
  * @ivildoc "Environment property/order"
- * 
- * Use the property <tt>order.<i>fct</i></tt> to specify the order ... 
+ *
+ * Use the property <tt>order.<i>fct</i></tt> to specify the order ...
  * TODO IVILDOC
  */
 public class TermComparator implements Comparator<Term>, TermVisitor {
 
     /**
-     * The default order value for all builtin symbols (true, 0, ...)
+     * The default order value for all builtin symbols (true, 0, ...).
      */
     private static final int BUILTIN_ORDER = 100;
 
     /**
-     * The default order value for all created smybols (skolems) 
+     * The default order value for all created smybols (skolems).
      */
     private static final int CREATED_ORDER = 0;
 
@@ -90,33 +91,33 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
     private static final int DEFAULT_ORDER = 50;
 
     /**
-     * The order value for literal program terms (rather low)
+     * The order value for literal program terms (rather low).
      */
     private static final int PROGRAMTERM_ORDER = 10;
 
     /**
-     * The order value for update terms (rather high)
+     * The order value for update terms (rather high).
      */
     private static final int UPDATE_ORDER = 80;
 
     /**
-     * The environment used for information lookup
+     * The environment used for information lookup.
      */
-    private Environment env;
+    private final @NonNull Environment env;
 
     /**
      * The order mapping cache.
      */
-    private Map<String, Integer> orderCache = new HashMap<String, Integer>();
+    private final @DeepNonNull Map<String, Integer> orderCache = new HashMap<String, Integer>();
 
     /**
-     * Used as result register for the term visitor part of the class 
+     * Used as result register for the term visitor part of the class.
      */
     private int result;
 
     /**
      * Instantiates a new term comparator.
-     * 
+     *
      * @param env
      *            environment to use for information lookup.
      */
@@ -127,11 +128,11 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     @Override
-    public int compare(Term t1, Term t2) {
+    public int compare(@NonNull Term t1, @NonNull Term t2) {
 
         // determine order value from the toplevel symbol
         int order1 = DEFAULT_ORDER;
@@ -150,7 +151,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
             Log.stacktrace(e);
         }
 
-        // 
+        //
         // if they are different, return.
         if (order1 != order2) {
             return order1 - order2;
@@ -160,8 +161,9 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
         // terms with many subterms are smaller than those with few
         // (on same order level!)
         int subtermDiff = t2.countSubterms() - t1.countSubterms();
-        if (subtermDiff != 0)
+        if (subtermDiff != 0) {
             return subtermDiff;
+        }
 
         //
         // compare subterm by subterm.
@@ -180,24 +182,23 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
     /**
      * Retrieves the environment that has been associated with this comparator
      * at construction time.
-     * 
+     *
      * @return the associated environment
      */
-    public @NonNull
-    Environment getEnvironment() {
+    public @NonNull Environment getEnvironment() {
         return env;
     }
 
     /**
      * Gets the order for a certain symbol.
-     * 
+     *
      * Results are cached.
-     * 
+     *
      * @param symbol
      *            the token for the symbol
      * @param location
      *            the location for the symbol
-     * 
+     *
      * @return the order for this symbol.
      */
     private int getOrder(String symbol, ASTLocatedElement location) {
@@ -228,7 +229,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
         } else {
             value = DEFAULT_ORDER;
         }
-        
+
         orderCache.put(symbol, value);
         return value;
     }
@@ -288,7 +289,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seede.uka.iti.pseudo.term.TermVisitor#visit(de.uka.iti.pseudo.term.
      * SchemaProgramTerm)
      */
@@ -300,7 +301,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seede.uka.iti.pseudo.term.TermVisitor#visit(de.uka.iti.pseudo.term.
      * SchemaUpdateTerm)
      */
@@ -312,7 +313,7 @@ public class TermComparator implements Comparator<Term>, TermVisitor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @seede.uka.iti.pseudo.term.TermVisitor#visit(de.uka.iti.pseudo.term.
      * SchemaVariable)
      */

@@ -15,6 +15,7 @@ package de.uka.iti.pseudo.term;
  * <p>
  * It is there to provide the visitor pattern.
  */
+// Checkstyle: OFF JavadocMethod
 public interface TermVisitor {
 
     void visit(Variable variable) throws TermException;

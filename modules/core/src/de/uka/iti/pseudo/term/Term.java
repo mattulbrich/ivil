@@ -50,12 +50,12 @@ public abstract class Term {
     /**
      * The array of sub terms.
      */
-    private final Term[] subterms;
+    private final @DeepNonNull Term[] subterms;
 
     /**
      * The type of this term.
      */
-    private final Type type;
+    private final @NonNull Type type;
 
     /**
      * The hashcode is stored in here once it has been calculated.

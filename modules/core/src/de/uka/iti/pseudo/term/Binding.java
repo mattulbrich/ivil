@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.term;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Binder;
@@ -20,31 +21,31 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * The Class Binding encapsulates a term with a toplevel one variable binder
  * symbol. There is at least one argument (i.e. child) term.
- * 
+ *
  * The arguments are stored as subterms in the superclass, the variable name and
  * type is stored locally. The variable name may also be a schema variable.
  */
 public final class Binding extends Term {
 
     /**
-     * The binder toplevel symbol
+     * The binder symbol for this binding.
      */
-    private Binder binder;
+    private final @NonNull Binder binder;
 
     /**
-     * The bound variable. It is either an instance of {@link Variable} or 
+     * The bound variable. It is either an instance of {@link Variable} or
      * {@link SchemaVariable}.
      */
-    private BindableIdentifier variable;
+    private final @NonNull BindableIdentifier variable;
 
     /**
      * Instantiates a Binding.getInst in which the bound variable is represented
      * by a schema variable.
-     * 
+     *
      * <p>
      * The constructor is not visible. Use the {@code getInst} methods to
      * get/create an object of this Class.
-     * 
+     *
      * @param binder
      *            the binder symbol
      * @param type
@@ -53,27 +54,27 @@ public final class Binding extends Term {
      *            the bound variable as schema variable
      * @param subterms
      *            the argument subterms
-     * 
+     *
      * @throws TermException
      *             if the type check fails
      */
     private Binding(@NonNull Binder binder, @NonNull Type type,
             @NonNull BindableIdentifier variable,
-            @NonNull Term[] subterms) throws TermException {
+            @DeepNonNull Term[] subterms) throws TermException {
         super(subterms, type);
         this.binder = binder;
         this.variable = variable;
 
         typeCheck();
     }
-    
+
     /**
      * Gets an application term.
-     * 
+     *
      * If a term with the given parameters already exists in the system, a
      * reference to it is returned instead of a freshly created one. If not, a
      * new instance is created.
-     * 
+     *
      * @param binder
      *            the binder symbol
      * @param type
@@ -82,22 +83,24 @@ public final class Binding extends Term {
      *            the bound variable as schema variable
      * @param subterms
      *            the argument subterms
-     * 
+     *
+     * @return a term with the given parameters. Not necessarily freshly
+     *         created.
      * @throws TermException
      *             if the type check fails
      */
     public static @NonNull Binding getInst(@NonNull Binder binder, @NonNull Type type,
             @NonNull BindableIdentifier variable,
-            @NonNull Term[] subterms) throws TermException {
+            @DeepNonNull Term[] subterms) throws TermException {
         return (Binding) new Binding(binder, type, variable, subterms).intern();
     }
 
     /**
      * Gets the name of the bound variable.
-     * 
+     *
      * The name is retrieved by calling <code>toString(false)</code> which returns the
      * name for variables and for schema variables.
-     * 
+     *
      * @return the variable name
      */
     public @NonNull String getVariableName() {
@@ -105,8 +108,8 @@ public final class Binding extends Term {
     }
 
     /**
-     * Gets the type of the bound variable
-     * 
+     * Gets the type of the bound variable.
+     *
      * @return the variable type
      */
     public @NonNull Type getVariableType() {
@@ -114,8 +117,8 @@ public final class Binding extends Term {
     }
 
     /**
-     * Gets the bound indentifier which is either a variable or a schema variable
-     * 
+     * Gets the bound indentifier which is either a variable or a schema variable.
+     *
      * @return the bound identifier
      */
     public @NonNull BindableIdentifier getVariable() {
@@ -124,20 +127,26 @@ public final class Binding extends Term {
 
 
     /**
-     * Gets the binder symbol
-     * 
+     * Gets the binder symbol.
+     *
      * @return the binder
      */
-    public Binder getBinder() {
+    public @NonNull Binder getBinder() {
         return binder;
     }
 
+    /**
+     * Check whether this binding binds a {@link SchemaVariable} instead of a
+     * variable.
+     *
+     * @return <code>true</code> if the bound variable's name begins with '%'.
+     */
     public boolean hasSchemaVariable() {
         return getVariableName().startsWith("%");
     }
 
     /**
-     * Type check this term. 
+     * Type check this term.
      * Check typing against all subterms and the bound variable:
      * <ol>
      * <li>check arity
@@ -145,7 +154,7 @@ public final class Binding extends Term {
      * <li>and the variable can be typed
      * <li>and that the result type is compatible with the typing result
      * </ol>
-     * 
+     *
      * @throws TermException
      *             if typing fails at some point
      */
@@ -161,13 +170,16 @@ public final class Binding extends Term {
         Type[] argumentTypes = binder.getArgumentTypes();
 
         try {
-            for (int i = 0; i < countSubterms(); i++)
-                TypeUnification.makeSchemaVariant(argumentTypes[i]).accept(matcher, getSubterm(i).getType());
+            for (int i = 0; i < countSubterms(); i++) {
+                TypeUnification.makeSchemaVariant(argumentTypes[i]).
+                    accept(matcher, getSubterm(i).getType());
+            }
 
-            TypeUnification.makeSchemaVariant(binder.getVarType()).accept(matcher, getVariableType());
+            TypeUnification.makeSchemaVariant(binder.getVarType()).
+                accept(matcher, getVariableType());
 
             TypeUnification.makeSchemaVariant(binder.getResultType()).accept(matcher, getType());
-            
+
         } catch (UnificationException e) {
             throw new TermException("Term " + toString()
                     + " cannot be typed.\nFunction symbol: " + binder
@@ -179,19 +191,20 @@ public final class Binding extends Term {
     @Override public @NonNull String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(binder.getName()).append(" ").append(variable.getName());
-        
+
         if(typed) {
             sb.append(" as ").append(variable.getType());
         }
-            
+
         sb.append(";");
         for (int i = 0; i < countSubterms(); i++) {
             sb.append(getSubterm(i).toString(typed));
-            if (i != countSubterms() - 1)
+            if (i != countSubterms() - 1) {
                 sb.append(";");
+            }
         }
         sb.append(")");
-        
+
         if (typed) {
             sb.append(" as ").append(getType());
         }
@@ -205,38 +218,45 @@ public final class Binding extends Term {
     /*
      * This term is equal to another term if it is a Binding and has the same
      * binder symbol and same arguments.
-     * 
+     *
      * This method is not invariant to alpha renaming.
-     * 
+     *
      * TODO implement alpha-invariance?
+     * Checkstyle: IGNORE EqualsHashCode - defined in Term.java
      */
-    @Override public boolean equals(@Nullable Object object) {
+    @Override
+    public boolean equals(@Nullable Object object) {
         if (object instanceof Binding) {
             Binding bind = (Binding) object;
-            if (bind.getBinder() != getBinder())
+            if (bind.getBinder() != getBinder()) {
                 return false;
+            }
 
-            if (!bind.getType().equals(getType()))
+            if (!bind.getType().equals(getType())) {
                 return false;
+            }
 
-            if (!bind.getVariableName().equals(getVariableName()))
+            if (!bind.getVariableName().equals(getVariableName())) {
                 return false;
+            }
 
-            if (!bind.getVariableType().equals(getVariableType()))
+            if (!bind.getVariableType().equals(getVariableType())) {
                 return false;
+            }
 
             assert bind.countSubterms() == countSubterms();
 
             for (int i = 0; i < countSubterms(); i++) {
-                if (!bind.getSubterm(i).equals(getSubterm(i)))
+                if (!bind.getSubterm(i).equals(getSubterm(i))) {
                     return false;
+                }
             }
 
             return true;
         }
         return false;
     }
-    
+
     /*
      * This implementation incorporates the binder and variable symbol into the
      * calculation.

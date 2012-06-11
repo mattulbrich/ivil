@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import nonnull.NonNull;
 import nonnull.Nullable;
 import checkers.nullness.quals.AssertNonNullIfFalse;
 import checkers.nullness.quals.AssertNonNullIfTrue;
@@ -28,20 +27,20 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * Captures a parallel assignments <code>v_1:=t_1 || ... || v_k := t_k</code> as
  * it can appear in assignment statements in programs.
- * 
+ *
  * <p>
  * The parts of the parallel assignments are stored as a list of
  * {@link Assignment} objects.
- * 
+ *
  * @see Update
  * @see Assignment
  */
 public class AssignmentStatement extends Statement {
-    
-    private @NonNull Assignment /*@Nullable*/[] assignments;
-    private @Nullable String schemaIdentifier; 
-    
-    //@ invariant assignments == null <==> schemaIdentifier != null 
+
+    private final @Nullable Assignment[] assignments;
+    private @Nullable final String schemaIdentifier;
+
+    //@ invariant assignments == null <==> schemaIdentifier != null
 
     // TODO DOC
     public AssignmentStatement(int sourceLineNumber, List<Assignment> assignments) throws TermException {
@@ -60,7 +59,7 @@ public class AssignmentStatement extends Statement {
 
     /**
      * Convenience constructor for a single assignment.
-     * 
+     *
      * @param sourceLineNumber
      *            the line in the sources at which the statement appears.
      * @param target
@@ -80,26 +79,30 @@ public class AssignmentStatement extends Statement {
     public boolean isSchematic() {
         return schemaIdentifier != null;
     }
-    
+
+    @Override
     public String toString(boolean typed) {
         if(isSchematic()) {
             return schemaIdentifier;
         } else {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < assignments.length; i++)
-                if (i != 0)
+            for (int i = 0; i < assignments.length; i++) {
+                if (i != 0) {
                     sb.append(" || ").append(assignments[i].toString(typed));
-                else
+                } else {
                     sb.append(assignments[i].toString(typed));
+                }
+            }
 
             return sb.toString();
         }
     }
-    
+
+    @Override
     public void visit(StatementVisitor visitor) throws TermException {
         visitor.visit(this);
     }
-    
+
     public List<Assignment> getAssignments() {
         assert !isSchematic();
         return Util.readOnlyArrayList(assignments);
@@ -120,16 +123,17 @@ public class AssignmentStatement extends Statement {
 
         ArrayList<Assignment> result = new ArrayList<Assignment>(assignments.length / 2);
 
-        for (int i = 0; i < assignments.length; i += 2)
+        for (int i = 0; i < assignments.length; i += 2) {
             result.add(new Assignment(assignments[i], assignments[i + 1]));
+        }
 
         return result;
     }
 
     public List<Function> getAssignedVars() {
-        
+
         assert !isSchematic() : "nullness: This method must not be called on schematic assignment statements";
-        
+
         List<Function> result = new ArrayList<Function>();
         for (Assignment ass : assignments) {
             Term target = ass.getTarget();
@@ -150,17 +154,19 @@ public class AssignmentStatement extends Statement {
 
     @Override
     public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
-        if (newSubterms.length != getSubterms().size())
+        if (newSubterms.length != getSubterms().size()) {
             throw new TermException("It is required to supply the same amount of subterms; was: "+getSubterms().size() + " is: "+newSubterms.length);
-        
+        }
+
         int i = 0;
         while (newSubterms[i].equals(getSubterms().get(i))) {
             i++;
-            if (i == newSubterms.length)
+            if (i == newSubterms.length) {
                 return this;
+            }
         }
 
         return new AssignmentStatement(getSourceLineNumber(), fromTermArray(newSubterms));
     }
-    
+
 }

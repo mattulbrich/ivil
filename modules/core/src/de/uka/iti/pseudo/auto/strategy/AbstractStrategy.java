@@ -14,9 +14,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import checkers.nullness.quals.LazyNonNull;
-
+import nonnull.NonNull;
 import nonnull.Nullable;
+import checkers.nullness.quals.LazyNonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
@@ -25,20 +25,20 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 /**
  * This abstract class keeps a list of proof nodes to which this strategy cannot
  * be applied.
- * 
+ *
  * It implements the findRuleApplication by querying only those proof nodes
  * which are not tagged as "not matching" using
- * 
+ *
  */
 public abstract class AbstractStrategy implements Strategy {
 
     /**
      * in this set store the proof nodes for which this strategy was not able to
      * find a rule application. Later calls will then not search again.
-     * 
+     *
      * TODO Is this caching sensible at all?
      */
-    private Set<ProofNode> notMatching = new HashSet<ProofNode>();
+    private final Set<ProofNode> notMatching = new HashSet<ProofNode>();
 
     /**
      * The proof object to which the strategy belongs.
@@ -64,19 +64,19 @@ public abstract class AbstractStrategy implements Strategy {
 
     /**
      * Find an applicable rule application.
-     * 
+     *
      * The proof upon which the strategy has to work has been set using
      * {@link #init(Proof, Environment, StrategyManager), StrategyManager)}.
-     * 
+     *
      * This implementation will call {@link #findRuleApplication(ProofNode)} on
      * all open goals and return the first hit. If this strategy cannot find a
      * rule application for a proof node, that fact will be cached ensuring that
      * the search is not conducted a second time.
-     * 
+     *
      * If no rule application can be found, <code>null</code> is returned.
-     * 
+     *
      * @return the rule application to apply or null
-     * 
+     *
      * @throws StrategyException
      *             if the strategy has run into difficulties.
      */
@@ -100,17 +100,17 @@ public abstract class AbstractStrategy implements Strategy {
     }
 
     @Override
-    public void notifyRuleApplication(RuleApplication ruleApp)
+    public void notifyRuleApplication(@NonNull RuleApplication ruleApp)
             throws StrategyException {
         // nothing done in this class. Subclasses may choose to do things
     }
 
     /**
      * Gets the proof associated with this strategy.
-     * 
+     *
      * @return the proof associated with this strategy.
      */
-    public final Proof getProof() {
+    public final @NonNull Proof getProof() {
         return proof;
     }
 

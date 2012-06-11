@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import nonnull.NonNull;
-
+import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.hint.HintParser;
 import de.uka.iti.pseudo.auto.strategy.hint.HintRuleAppFinder;
 import de.uka.iti.pseudo.environment.Environment;
@@ -32,23 +32,23 @@ import de.uka.iti.pseudo.util.Log;
 /**
  * The Class HintStrategy implements a {@link Strategy} which is configured by
  * annotation in the program.
- * 
+ *
  * <P>
  * Annotations (called 'hints') are added to the program code in the
  * annotiations to the statements, like assert phi ; "Annotation with §hint".
  * Parsing is done by class {@link HintParser}. See there for a description of
  * the format.
- * 
+ *
  * <p>
  * When such a statement is symbolically executed, this strategy registers this,
  * parses the hints and stores the applicable {@link HintRuleAppFinder} for the
  * new branches in a map.
- * 
+ *
  * <p>
  * When queried later for a rule application, the strategy checks the hints of
  * all parent nodes of a proof node and queries the according
  * {@link HintRuleAppFinder}.
- * 
+ *
  * @see HintParser
  */
 public final class HintStrategy extends AbstractStrategy {
@@ -58,18 +58,20 @@ public final class HintStrategy extends AbstractStrategy {
      * mentioned in file PluginManager.properties.
      */
     public static final String PROOF_HINT_SERVICE_NAME = "proofHint";
-    
+
     /**
      * The hint map stores the rule finder per proof node.
      */
-    private Map<ProofNode, List<HintRuleAppFinder>> hintMap = 
+    private final Map<ProofNode, List<HintRuleAppFinder>> hintMap =
             new HashMap<ProofNode, List<HintRuleAppFinder>>();
 
     /**
      * The hint parser is used to parse annotations.
+     *
+     * <p> Can be <code>null</code> until initialised.
      */
-    private HintParser hintParser;
-    
+    private @Nullable HintParser hintParser;
+
     /**
      * A boolean flag how to handle errors: <code>true</code> means report them
      * as exceptions, <code>false</code> means log them only and then drop them.
@@ -80,15 +82,15 @@ public final class HintStrategy extends AbstractStrategy {
      * @see de.uka.iti.pseudo.auto.strategy.AbstractStrategy#init(de.uka.iti.pseudo.proof.Proof, de.uka.iti.pseudo.environment.Environment, de.uka.iti.pseudo.auto.strategy.StrategyManager)
      */
     @Override
-    public void init(Proof proof, Environment env,
-            StrategyManager strategyManager) throws StrategyException {
+    public void init(@NonNull Proof proof, @NonNull Environment env,
+            @NonNull StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
         this.hintParser = new HintParser(env);
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>Here we clear the map of hints.
      */
     @Override
@@ -98,7 +100,7 @@ public final class HintStrategy extends AbstractStrategy {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>
      * A rule application is found by searching the parent nodes of the given
      * node. If any of them is attributed with hits, the according
@@ -106,7 +108,7 @@ public final class HintStrategy extends AbstractStrategy {
      * found application is returned.
      */
     @Override
-    public RuleApplication findRuleApplication(ProofNode node)
+    public @Nullable RuleApplication findRuleApplication(ProofNode node)
             throws StrategyException {
         ProofNode reasonNode = node;
         while(reasonNode != null) {
@@ -129,7 +131,7 @@ public final class HintStrategy extends AbstractStrategy {
      * ask the rule finder to find a rule. Errors are handled according to
      * settings.
      */
-    private RuleApplication followHint(HintRuleAppFinder hint, 
+    private @Nullable RuleApplication followHint(HintRuleAppFinder hint,
             ProofNode node,
             ProofNode reasonNode) throws StrategyException {
         try {
@@ -142,7 +144,7 @@ public final class HintStrategy extends AbstractStrategy {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>
      * This implementation ...
      * <ol>
@@ -163,10 +165,10 @@ public final class HintStrategy extends AbstractStrategy {
             if(hintOn == null) {
                 return;
             }
-            
+
             TermSelector findSel = ruleApp.getFindSelector();
             Term findTerm = findSel.selectSubterm(node.getSequent());
-            
+
             // find may have an update ... strip that away ...
             if (findTerm instanceof UpdateTerm) {
                 findTerm = findTerm.getSubterm(0);
@@ -183,7 +185,7 @@ public final class HintStrategy extends AbstractStrategy {
                     int branchNo = Integer.parseInt(string);
                     ProofNode branch = node.getChildren().get(branchNo);
                     hintMap.put(branch, hints);
-                } 
+                }
             }
         } catch (Exception e) {
             handleException(e);
@@ -192,10 +194,10 @@ public final class HintStrategy extends AbstractStrategy {
 
     /**
      * Handle occurring exceptions.
-     * 
+     *
      * According to the flag {@link #raiseErrors}, exceptions are either wrapped
      * into a {@link StrategyException} or logged and ignored.
-     * 
+     *
      * @param e
      *            the exception to handle
      * @throws StrategyException
@@ -216,8 +218,9 @@ public final class HintStrategy extends AbstractStrategy {
     }
 
     /**
-     * Get the value of {@link #raiseErrors}. For the {@link ParameterSheet}.
-     * 
+     * Get the value of {@link #raiseErrors}.
+     * For the {@link de.uka.iti.pseudo.gui.parameters.ParameterSheet}.
+     *
      * @return raiseErrors
      */
     public boolean getRaiseErrors() {
@@ -225,8 +228,9 @@ public final class HintStrategy extends AbstractStrategy {
     }
 
     /**
-     * Set the value of {@link #raiseErrors}. For the {@link ParameterSheet}.
-     * 
+     * Set the value of {@link #raiseErrors}.
+     * For the {@link de.uka.iti.pseudo.gui.parameters.ParameterSheet}.
+     *
      * @param raiseErrors the value to set
      */
     public void setRaiseErrors(boolean raiseErrors) {

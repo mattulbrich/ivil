@@ -9,27 +9,27 @@
  */
 package de.uka.iti.pseudo.term;
 
-import de.uka.iti.pseudo.term.creation.TypeUnification;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.term.creation.TypeUnification;
 
 /**
  * This class encapsulates a named instantiatable type placeholder.
- * 
+ *
  * <p>
  * All schema types are printed prefixed with a percent and a prime
  * symbol (<code>%'</code>). <b>Their name, however, does not include that prefix.</b>
- * 
+ *
  * <p>
  * Like schema variables and schema updates, these types are not meant to appear
  * at toplevel but should be instantiated at that time.
- * 
+ *
  * @see TypeApplication
  * @see SchemaType
  */
 
-public class SchemaType extends Type {
-    
+public final class SchemaType extends Type {
+
     /**
      * The prefix used to distinguish a type variable from its variant.
      * @see TypeUnification
@@ -37,13 +37,13 @@ public class SchemaType extends Type {
     public static final String VARIANT_PREFIX = "#";
 
     /**
-     * The name (w/o leading %')
+     * The name (w/o leading %').
      */
-    private String name;
+    private final @NonNull String name;
 
     /**
      * Instantiates a new schema type variable.
-     * 
+     *
      * @param typeVar
      *            the name of the schema type (without leading %')
      */
@@ -53,11 +53,11 @@ public class SchemaType extends Type {
 
     /**
      * Gets a schema type instance for a name.
-     * 
+     *
      * If a type with the given arguments already exists in the system, a
      * reference to the existing object is returned instead of a freshly created
      * one. If not, a new instance is created.
-     * 
+     *
      * @param typeVar
      *            the name of the schema type (without leading %')
      * @return a schema type with the given name. Not necessarily freshly
@@ -69,6 +69,9 @@ public class SchemaType extends Type {
 
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * A type variable is rendered to a string by prepending a prime ' to its
      * name.
      */
@@ -79,7 +82,7 @@ public class SchemaType extends Type {
 
     /**
      * Gets the variable name w/o the leading prefix %'.
-     * 
+     *
      * @return the variable name
      */
     public @NonNull String getVariableName() {
@@ -88,7 +91,7 @@ public class SchemaType extends Type {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * de.uka.iti.pseudo.term.Type#visit(de.uka.iti.pseudo.term.TypeVisitor)
      */
@@ -98,8 +101,12 @@ public class SchemaType extends Type {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * <p>
      * Two type variables are equal iff their names are equal.
      */
+    // Checkstyle: IGNORE EqualsHashCode - done in Type.java
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj instanceof SchemaType) {

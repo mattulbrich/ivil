@@ -11,6 +11,7 @@ package de.uka.iti.pseudo.term;
 
 import java.util.List;
 
+import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.term.statement.Assignment;
@@ -30,7 +31,7 @@ import de.uka.iti.pseudo.term.statement.Assignment;
  */
 public final class UpdateTerm extends Term {
 
-    private final Update update;
+    private final @NonNull Update update;
 
     /**
      * Instantiates a new update term with the given update and the updated
@@ -45,7 +46,7 @@ public final class UpdateTerm extends Term {
      * @param term
      *            the term to be updated
      */
-    private UpdateTerm(Update update, Term term) {
+    private UpdateTerm(@NonNull Update update, @NonNull Term term) {
         super(prepareSubterms(term, update), term.getType());
         this.update = update;
     }
@@ -140,7 +141,7 @@ public final class UpdateTerm extends Term {
      *
      * @return an immutable list of assignments
      */
-    public List<Assignment> getAssignments() {
+    public @DeepNonNull List<Assignment> getAssignments() {
         return update.getAssignments();
     }
 
@@ -149,7 +150,7 @@ public final class UpdateTerm extends Term {
      *
      * @return the update object
      */
-    public Update getUpdate() {
+    public @NonNull Update getUpdate() {
         return update;
     }
 
