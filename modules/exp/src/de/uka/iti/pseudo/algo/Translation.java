@@ -132,7 +132,7 @@ public class Translation {
             throw new RuntimeException(name + " is already used as function symbol!");
         }
         declarations.add("function " + type + " " + name + " " + mode);
-        functionNames .add(name);
+        functionNames.add(name);
     }
 
     public void addDeclaration(String string) {
@@ -154,18 +154,19 @@ public class Translation {
         abbreviations.put(name, term);
     }
 
-    public void addCouplingInvariant(String key, String value) {
+    public void putCouplingInvariant(String key, String value) {
         if(couplingInvariantMap.containsKey(key)) {
             throw new IllegalStateException("Coupling for " + key + " already defined");
         }
         couplingInvariantMap.put(key, value);
     }
 
-    public void addCouplingVariant(String key, String value) {
-        if(couplingVariantMap.containsKey(key)) {
-            throw new IllegalStateException("Coupling for " + key + " already defined");
+    public String getCouplingInvariant(String name) {
+        String result = couplingInvariantMap.get(name);
+        if(result == null) {
+            throw new IllegalStateException("Coupling invariant " + name + " not defined");
         }
-        couplingVariantMap.put(key, value);
+        return result;
     }
 
 }

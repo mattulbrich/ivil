@@ -42,7 +42,24 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTStart node, Object data) {
         translation.addDeclaration("# Automatically created on " + new Date());
-        node.childrenAccept(this, data);
+        String problem = null;
+        Node refinementChild = (Node) node.jjtGetValue();
+        if(refinementChild != null) {
+            problem = refinementChild.jjtAccept(this, data);
+        }
+
+        for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+            Node child = node.jjtGetChild(i);
+            if(refinementChild != child) {
+                child.jjtAccept(this, data);
+            }
+        }
+
+        if(problem != null) {
+            programs.add("");
+            programs.add("problem " + problem);
+        }
+
         return null;
     }
 
@@ -85,9 +102,9 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
     public String visit(ASTRefinement node, Object data) {
         if(refinementMode) {
             RefinementVisitor javaVisitor = new RefinementVisitor(translation);
-            node.jjtAccept(javaVisitor, data);
+            return node.jjtAccept(javaVisitor, data);
         }
-        return "";
+        return null;
     }
 
     @Override

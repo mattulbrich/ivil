@@ -305,10 +305,11 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     public String visit(ASTMarkStatement node, Object data) {
         if(refinementMode) {
             addSourceLineStatement(node);
-            Object markPoint = node.jjtGetValue();
+            String markPoint = (String) node.jjtGetValue();
+            String markInvariant = translation.getCouplingInvariant(markPoint);
             statements.add("  " + Translation.ALGO_MARK_VARIABLE + " := " + markPoint
                     + " ; \"marking stone " + markPoint + "\"");
-            statements.add("  skip_mark ; \"marking stone\"");
+            statements.add("  skip_mark " + markInvariant + " ; \"marking stone\"");
         }
         return null;
     }

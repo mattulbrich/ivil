@@ -24,12 +24,12 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
     public String visit(ASTCouplingFormula node, Object data) {
         String key = (String) node.jjtGetValue();
         String value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
-        translation.addCouplingInvariant(key, value);
-        if(node.jjtGetNumChildren() > 1) {
-            // there is a variant too!
-            value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
-            translation.addCouplingVariant(key, value);
-        }
+        translation.putCouplingInvariant(key, value);
+//        if(node.jjtGetNumChildren() > 1) {
+//            // there is a variant too!
+//            value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
+//            translation.addCouplingVariant(key, value);
+//        }
         return null;
     }
 
@@ -47,7 +47,9 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
 
         node.childrenAccept(this, data);
 
-        return null;
+        translation.addFunctionSymbol("$algoMark", "int", "assignable");
+
+        return "true |- [0; " + abstrProg + "][<0;" + concrProg + ">]true";
     }
 
 }

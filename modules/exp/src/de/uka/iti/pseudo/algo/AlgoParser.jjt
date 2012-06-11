@@ -146,13 +146,11 @@ TOKEN : /* IDENTIFIERS */
 {
   < BINDER_IDENTIFIER: "\\" <IDENTIFIER> >
 |
-  < INTERNAL_IDENTIFIER: "$" <IDENTIFIER> >  
-|
   < TYVAR_IDENTIFIER: "'" <IDENTIFIER> >
 |
   < ABBREV_IDENTIFIER: "@" <IDENTIFIER> >
 |
-  < IDENTIFIER: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
+  < IDENTIFIER: ["a"-"z","A"-"Z","_","$"] ( ["a"-"z","A"-"Z","0"-"9","_"] )* >
 }
 
 /** Main production. */
@@ -161,7 +159,8 @@ ASTStart Start() #Start : {}
   ( Uses() )*
   ( Abbreviation() )*
   ( Algo() )+
-  ( Refinement() )?
+  ( Refinement() { jjtThis.jjtSetValue(jjtree.peekNode()); } )?
+  <EOF>
   { return jjtThis; }
 }
 
@@ -330,7 +329,7 @@ void MarkStatement() #MarkStatement :
 { Token t = null; }
 {
   "mark" t=<INTEGER_LITERAL>
-    { jjtThis.jjtSetValue(new Integer(t.image)); }
+    { jjtThis.jjtSetValue(t.image); }
 }
 
 void InlineStatement() #InlineStatement : 
@@ -533,7 +532,7 @@ void Refinement() #Refinement :
 }
 {
     "refine" ( "algo" )? 
-    <IDENTIFIER> "as" <IDENTIFIER>
+    Identifier() "as" Identifier()
     ( CouplingFormula() )+
 }
 

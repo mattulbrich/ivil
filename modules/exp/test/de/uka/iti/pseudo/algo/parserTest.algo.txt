@@ -4,6 +4,12 @@
 
 // Testing Comments
 
+uses "filename"
+
+uses inline
+  arbitrary text!
+end
+
 abbreviation @abbrev := true
 
 algo Name_of_the_algorithm
@@ -32,10 +38,14 @@ do
    if a < b
    then 
      a := b
+   end;
+
+   inline
+      again, arbitrary text
    end
 end
 
-refine Name_of_the_algrithm as package.package.class.method(Type, package.Type[], int)
+refine Name_of_the_algrithm as Name_of_Implementation
 requires
    a = this.a &
    b = this.b[5]
