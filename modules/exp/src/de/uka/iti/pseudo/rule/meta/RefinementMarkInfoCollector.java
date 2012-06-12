@@ -1,15 +1,14 @@
 package de.uka.iti.pseudo.rule.meta;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
@@ -20,8 +19,8 @@ import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
-import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
+import de.uka.iti.pseudo.util.TermUtil;
 
 class RefinementMarkInfoCollector implements StatementVisitor {
 
@@ -49,12 +48,9 @@ class RefinementMarkInfoCollector implements StatementVisitor {
         this.markProgvar = progVar;
     }
 
-    public static List<MarkInfo> collectMarkAssignments(Program program, Function progVar) throws TermException {
+    public static Map<Integer, MarkInfo> collectMarkAssignments(Program program, Function progVar) throws TermException {
         RefinementMarkInfoCollector collector = new RefinementMarkInfoCollector(progVar);
-        for (Statement stm : program.getStatements()) {
-            stm.visit(collector);
-        }
-
+        program.visitStatements(collector);
         return collector.collectInfo();
     }
 
@@ -70,12 +66,11 @@ class RefinementMarkInfoCollector implements StatementVisitor {
 
         Assignment ass = assignmentStatement.getAssignments().get(0);
         Term target = ass.getTarget();
-        if (target instanceof Application &&
-                ((Application) target).getFunction() == markProgvar) {
+        Function function = TermUtil.getFunction(target);
+        if (function == markProgvar) {
             indices.add(cur);
-
             Term value = ass.getValue();
-            int intValue = getIntLiteral(value);
+            int intValue = TermUtil.getIntLiteral(value);
             literals.add(intValue);
             lastMarkAssignment = cur;
         }
@@ -101,8 +96,8 @@ class RefinementMarkInfoCollector implements StatementVisitor {
     @Override
     public void visit(HavocStatement havocStatement) throws TermException {
         Term target = havocStatement.getTarget();
-        if(target instanceof Application &&
-                ((Application)target).getFunction() == markProgvar) {
+        Function function = TermUtil.getFunction(target);
+        if(function == markProgvar) {
             throw new TermException("mark progvar must not be used in havoc statements");
         }
         cur ++;
@@ -145,34 +140,18 @@ class RefinementMarkInfoCollector implements StatementVisitor {
         // ensure that no goto statement leads to the after-mark-skip
         // statements. They may lead to the marks however
         for (Term t : gotoStatement.getSubterms()) {
-            gotoTargets.add(getIntLiteral(t));
+            gotoTargets.add(TermUtil.getIntLiteral(t));
         }
         cur++;
     }
 
-    private static int getIntLiteral(Term value) throws TermException {
-        if(!(value instanceof Application)) {
-            throw new TermException("expected a number literal, not " + value);
-        }
 
-        Function func = ((Application)value).getFunction();
-        if(!(func instanceof NumberLiteral)) {
-            throw new TermException("expected a number literal, not " + value);
-        }
-
-        // silently assuming it is in integer range ...
-        int intValue = ((NumberLiteral)func).getValue().intValue();
-        return intValue;
-    }
-
-
-    private List<MarkInfo> collectInfo() throws TermException {
+    private Map<Integer, MarkInfo> collectInfo() throws TermException {
         if(couplingInvariants.size() != indices.size()) {
             throw new TermException("Missing skip after last mark assignment");
         }
 
-        BitSet literalsSeen = new BitSet();
-        ArrayList<MarkInfo> result = new ArrayList<MarkInfo>();
+        Map<Integer, MarkInfo> result = new LinkedHashMap<Integer, MarkInfo>();
         for (int i = 0; i < indices.size(); i++) {
             Integer index = indices.get(i);
             Integer literal = literals.get(i);
@@ -181,11 +160,11 @@ class RefinementMarkInfoCollector implements StatementVisitor {
                 throw new TermException("Jumping into a post-mark skip!");
             }
 
-            if(literalsSeen.get(literal)) {
+            if(result.containsKey(literal)) {
                 throw new TermException("Literal has already been assigned: " + literal);
             }
 
-            result.add(new MarkInfo(index,literal,couplingInvariants.get(i)));
+            result.put(literal, new MarkInfo(index,literal,couplingInvariants.get(i)));
         }
 
         return result;

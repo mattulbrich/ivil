@@ -21,6 +21,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVariableBinding;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.Variable;
 
 /**
@@ -136,6 +138,10 @@ public class TermFactory {
     public @NonNull Term pattern(Term pattern, Term term) throws TermException {
         Function tr = getFunction("$pattern");
         return Application.getInst(tr, term.getType(), new Term[] { pattern, term });
+    }
+
+    public @NonNull Term upd(@NonNull Update update, @NonNull Term term) {
+        return UpdateTerm.getInst(update, term);
     }
 
 }

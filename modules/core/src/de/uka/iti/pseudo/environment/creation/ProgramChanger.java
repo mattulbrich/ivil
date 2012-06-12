@@ -295,6 +295,10 @@ public class ProgramChanger {
     /**
      * Given the modified statement list and annotations, create a new program.
      *
+     * <p>
+     * The program has not yet been inserted into the environment. If you intend
+     * to use it, call {@link Environment#addProgram(Program)}
+     *
      * @param name
      *            the name to give to the new program.
      *

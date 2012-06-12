@@ -11,15 +11,18 @@ package de.uka.iti.pseudo;
 
 import java.io.StringReader;
 import java.net.URL;
+import java.util.Map;
 
 import junit.framework.TestCase;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.creation.EnvironmentMaker;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.parser.file.ASTFile;
+import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermMaker;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -148,10 +151,27 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected static Environment makeEnv(URL url) throws Exception {
+        return makeEnvAndProblems(url).fst();
+    }
+
+    /**
+     * Parse a URL to produce an environment.
+     *
+     * @param url
+     *            the url to parse
+     *
+     * @return the environment which was represented by the argument
+     *
+     * @throws Exception
+     *             various things can fail during the translation.
+     */
+    protected static Pair<Environment, Map<String, Sequent>>
+            makeEnvAndProblems(URL url) throws Exception {
         Parser fp = new Parser();
         EnvironmentMaker em = new EnvironmentMaker(fp, url);
         Environment env = em.getEnvironment();
-        return env;
+        Map<String, Sequent> problems = em.getProblemSequents();
+        return Pair.make(env, problems);
     }
 
     /**

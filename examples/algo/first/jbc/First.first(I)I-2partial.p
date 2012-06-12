@@ -1,4 +1,4 @@
-(* created by JBC - Fri Jun 08 16:12:49 CEST 2012 *)
+(* created by JBC - Mon Jun 11 13:46:17 CEST 2012 *)
 
 include "jbc_preamble.p"
 (* the proof obligation starts here: *)
@@ -114,4 +114,4 @@ function set(prod(ref, field)) $SPEC_frame
 function ref SPEC_pre_R_this_ref assignable
 function int SPEC_pre_R_n_int assignable
 
-problem R_this_ref = SPEC_pre_R_this_ref & R_n_int = SPEC_pre_R_n_int & (\forall o; (\forall f; (pair(o, f) :: $SPEC_frame) = (false))) & $invariant($heap, R_this_ref, T_java_lang_Object) & $invariant($heap, R_this_ref, T_First) &  $SPEC_diverges = (true) & true -> $SPEC_diverges | { R_this_ref := SPEC_pre_R_this_ref || R_n_int := SPEC_pre_R_n_int}[[0;Java]](true & $invariant($heap, R_this_ref, T_java_lang_Object) & $invariant($heap, R_this_ref, T_First) & ( \forall o as ref; ( \forall f as field; pair(o, f) :: $SPEC_frame | !$old_heap[o, $created] | ($heap[o,f] = $old_heap[o,f] as int & ($heap[o,f] = $old_heap[o,f] as bool) & $heap[o,f] = $old_heap[o,f] as ref & $heap[o,f] = $old_heap[o,f] as float))))
+problem R_this_ref = SPEC_pre_R_this_ref & R_n_int = SPEC_pre_R_n_int & (\forall o; (\forall f; (pair(o, f) :: $SPEC_frame) = (false))) & $invariant($heap, R_this_ref, T_java_lang_Object) & $invariant($heap, R_this_ref, T_First) &  $SPEC_diverges = (true) & true & $SPEC_diverges -> { R_this_ref := SPEC_pre_R_this_ref || R_n_int := SPEC_pre_R_n_int}[0;Java](true & $invariant($heap, R_this_ref, T_java_lang_Object) & $invariant($heap, R_this_ref, T_First) & ( \forall o as ref; ( \forall f as field; pair(o, f) :: $SPEC_frame | !$old_heap[o, $created] | ($heap[o,f] = $old_heap[o,f] as int & ($heap[o,f] = $old_heap[o,f] as bool) & $heap[o,f] = $old_heap[o,f] as ref & $heap[o,f] = $old_heap[o,f] as float))))

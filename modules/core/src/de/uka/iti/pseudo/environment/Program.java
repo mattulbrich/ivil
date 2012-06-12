@@ -19,6 +19,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.EndStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.term.statement.StatementVisitor;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -117,32 +118,6 @@ public final class Program {
     }
 
     /**
-     * Gets the statement at an index. The first statement carries index 0.
-     *
-     * If the index is negative, an index-out-of-bounds exception is thrown. If
-     * the index is above or equal to the number of statements, the constant
-     * {@link #OUT_OF_BOUNDS_STATEMENT} is returned.
-     *
-     * @param i
-     *            index to retrieve statement for.
-     *
-     * @return the statement at position i.
-     * @throws IndexOutOfBoundsException
-     *             if <code>i &lt; 0 </code>
-     */
-    public @NonNull Statement getStatement(int i) {
-        if(i < 0) {
-            throw new IndexOutOfBoundsException();
-        }
-
-        if(i >= statements.length) {
-            return OUT_OF_BOUNDS_STATEMENT;
-        }
-
-        return statements[i];
-    }
-
-    /**
      * Gets the text annotation for a statement at an index. The first statement
      * carries index 0.
      *
@@ -170,17 +145,6 @@ public final class Program {
         return statementAnnotations[i];
     }
 
-
-    /**
-     * Count the statements in this program.
-     *
-     * This query method always returns the same number for this object.
-     *
-     * @return the number of statements (greater or equal 0)
-     */
-    public int countStatements() {
-        return statements.length;
-    }
 
     /**
      * Gets the reference to the AST declaration.
@@ -217,6 +181,59 @@ public final class Program {
      */
     public List<Statement> getStatements() {
         return Util.readOnlyArrayList(statements);
+    }
+
+    /**
+     * Visit all statements in this program by a statement visitor.
+     *
+     * The order is the natural order in the program
+     *
+     * @param visitor
+     *            visitor to apply to statements
+     * @throws TermException
+     *             can be thrown by the visitor
+     */
+    public void visitStatements(@NonNull StatementVisitor visitor) throws TermException {
+        for (Statement statement : statements) {
+            statement.visit(visitor);
+        }
+    }
+
+    /**
+     * Count the statements in this program.
+     *
+     * This query method always returns the same number for this object.
+     *
+     * @return the number of statements (greater or equal 0)
+     */
+    public int countStatements() {
+        return statements.length;
+    }
+
+    /**
+     * Gets the statement at an index. The first statement carries index 0.
+     *
+     * If the index is negative, an index-out-of-bounds exception is thrown. If
+     * the index is above or equal to the number of statements, the constant
+     * {@link #OUT_OF_BOUNDS_STATEMENT} is returned.
+     *
+     * @param i
+     *            index to retrieve statement for.
+     *
+     * @return the statement at position i.
+     * @throws IndexOutOfBoundsException
+     *             if <code>i &lt; 0 </code>
+     */
+    public @NonNull Statement getStatement(int i) {
+        if(i < 0) {
+            throw new IndexOutOfBoundsException();
+        }
+
+        if(i >= statements.length) {
+            return OUT_OF_BOUNDS_STATEMENT;
+        }
+
+        return statements[i];
     }
 
     /**

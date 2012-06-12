@@ -5,7 +5,7 @@ all: first.algo.p jbc/First.first(I)I-1.p
 % : %.p
 
 %.algo.p : %.algo
-	algoc $< $@
+	algoc -ref $< $@
 
 jbc/First.first(I)I-1.p : java/First.java
 	jbc java jbc

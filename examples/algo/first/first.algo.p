@@ -1,7 +1,9 @@
-# Automatically created on Fri Jun 08 14:05:49 CEST 2012
+# Automatically created on Tue Jun 12 18:12:30 CEST 2012
+function int $algoMark assignable
 include "$int.p"
 include "$symbex.p"
 include "$decproc.p"
+include "jbc/First.first(I)I-1.p"
 
   function int isum(int)
   axiom isum_def
@@ -12,29 +14,31 @@ function int n
 function int sum assignable
 function int i assignable
 
-program first source "first.algo"
- sourceline 19
+program first source "examples/algo/first/first.algo"
+ sourceline 20
   assume (n >= 0) ; "by requirement"
- sourceline 24
-  i := 1
  sourceline 25
+  i := 1
+ sourceline 26
   sum := 0
  loop0:
- sourceline 28
-  skip_loopinv ((sum = isum((i - 1))) & ((1 <= i) & (i <= (n + 1)))), ((n - i) + 1)
- sourceline 26
+ sourceline 29
+ sourceline 27
   goto body0, after0
  body0:
   assume (i <= n); "assume condition "
- sourceline 30
-  sum := (sum + i)
  sourceline 31
+  $algoMark := 1 ; "marking stone 1"
+  skip_mark ((i + 1) = (i + 1)) ; "marking stone"
+ sourceline 32
+  sum := (sum + i)
+ sourceline 33
   i := (i + 1)
   goto loop0
- sourceline 26
+ sourceline 27
  after0:
   assume $not((i <= n))
  endOfProgram: 
- sourceline 21
-  assert (sum = isum(n)) ; "by ensures"
 
+
+problem true |- [0; first][<0;Java>]true
