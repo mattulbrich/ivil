@@ -208,7 +208,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         statements.add("  " + as + " := " + expression);
         statements.add(" " + loopLabel + ":");
         if(!refinementMode) {
-            statements.add("  skip_loopinv " + inv + ", " + as);
+            statements.add("  skip LOOPINV, " + inv + ", " + as);
         }
         statements.add("  goto " + bodyLabel + ", " + afterLabel);
         statements.add(" " + bodyLabel + ":");
@@ -309,7 +309,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
             String markInvariant = translation.getCouplingInvariant(markPoint);
             statements.add("  " + Translation.ALGO_MARK_VARIABLE + " := " + markPoint
                     + " ; \"marking stone " + markPoint + "\"");
-            statements.add("  skip_mark " + markInvariant + " ; \"marking stone\"");
+            statements.add("  skip MARK, " + markInvariant + " ; \"marking stone\"");
         }
         return null;
     }

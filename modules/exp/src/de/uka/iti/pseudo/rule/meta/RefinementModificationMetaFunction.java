@@ -26,7 +26,7 @@ public class RefinementModificationMetaFunction extends MetaFunction {
         LiteralProgramTerm programTerm;
 
         Function markConcrete = getMarkSymbol(env, "refinement.markConcrete");
-        Function markAbstract = getMarkSymbol(env, "refinement.markConcrete");
+        Function markAbstract = getMarkSymbol(env, "refinement.markAbstract");
 
         RefinementModifier modifier =
                 new RefinementModifier(env, application.getSubterm(0),

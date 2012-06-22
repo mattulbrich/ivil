@@ -91,6 +91,10 @@ final class RefinementModifier {
             throw new TermException("Outer modality needs to be [<.>]");
         }
 
+        if(markConcrete == markAbstract) {
+            throw new TermException("Abstract and concrete marker are identical: " + markConcrete);
+        }
+
         this.postcondition = innerProgramTerm.getSubterm(0);
         this.markAbstractProgvar = markAbstract;
         this.markConcreteProgvar = markConcrete;
@@ -104,8 +108,8 @@ final class RefinementModifier {
 
         if(!markInfoAbstract.keySet().equals(markInfoConcrete.keySet())) {
             String msg = "The sets of used marker literals differ:\n" +
-                    "Abstract: " + markInfoAbstract.keySet() +
-                    "\nRefined:  " + markInfoConcrete.keySet();
+                    "Abstract (" + markAbstractProgvar + "): " + markInfoAbstract.keySet() +
+                    "\nRefined (" + markConcreteProgvar + "): " + markInfoConcrete.keySet();
             throw new TermException(msg);
         }
 
@@ -130,7 +134,9 @@ final class RefinementModifier {
         LiteralProgramTerm c = LiteralProgramTerm.getInst(indexConcr,
                 programTerm.getModality(), concrPrime, a);
 
-        Term result = tf.upd(anonUpd, c);
+        // no update for 0
+        // Term result = tf.upd(anonUpd, c);
+        Term result = c;
 
         for (Integer literal : markInfoAbstract.keySet()) {
             indexAbs = markInfoAbstract.get(literal).index;

@@ -128,6 +128,5 @@ public class TestRefinementModifier extends TestCaseWithEnv {
                 e.printStackTrace();
             }
         }
-
     }
 }
