@@ -49,7 +49,9 @@ plugin
  *)
 
 function 
-  int $enumerateAssignables('a, 'b)  infix // 50
+#  int $enumerateAssignables('a, 'b)  infix // 50
+(* Marker to indiciate loop invariants *)
+  int LOOPINV unique
 
 rule prg_skip
   find [? %a : skip ?]%phi
@@ -307,7 +309,7 @@ rule loop_invariant_update_t
     dragdrop "5"
 
 rule auto_loop_invariant
-  find |- [%a : skip_loopinv %inv]%phi
+  find |- [%a : skip LOOPINV, %inv]%phi
   samegoal "inv initially valid" 
     replace %inv
   samegoal "run with cut program" 
@@ -316,7 +318,7 @@ rule auto_loop_invariant
        display "invariant in {%a}: {explain %a}"
 
 rule auto_loop_invariant_update
-  find |- {U}[%a : skip_loopinv %inv]%phi
+  find |- {U}[%a : skip LOOPINV, %inv]%phi
   samegoal "inv initially valid"
     replace {U}%inv
   samegoal "run with cut program" 
@@ -325,7 +327,7 @@ rule auto_loop_invariant_update
        display "invariant in {%a}: {explain %a}"
 
 rule auto_loop_invariant_variant
-  find |- [%a : skip_loopinv %inv, %var]%phi
+  find |- [%a : skip LOOPINV, %inv, %var]%phi
   samegoal "inv initially valid" 
     replace %inv
   samegoal "run with cut program" 
@@ -334,7 +336,7 @@ rule auto_loop_invariant_variant
        display "invariant in {%a}: {explain %a}"
 
 rule auto_loop_invariant_variant_update
-  find |- {U}[%a : skip_loopinv %inv, %var]%phi
+  find |- {U}[%a : skip LOOPINV, %inv, %var]%phi
   samegoal "inv initially valid" 
     replace {U}%inv
   samegoal "run with cut program" 
@@ -343,7 +345,7 @@ rule auto_loop_invariant_variant_update
        display "invariant in {%a}: {explain %a}"
 
 rule autot_loop_invariant
-  find |- [[%a : skip_loopinv %inv, %var]]%phi
+  find |- [[%a : skip LOOPINV, %inv, %var]]%phi
   samegoal "inv initially valid" 
     replace %inv
   samegoal "run with cut program" 
@@ -352,7 +354,7 @@ rule autot_loop_invariant
        display "invariant in {%a}: {explain %a}"
 
 rule autot_loop_invariant_update
-  find |- {U}[[%a : skip_loopinv %inv, %var]]%phi
+  find |- {U}[[%a : skip LOOPINV, %inv, %var]]%phi
   samegoal "inv initially valid" 
     replace {U}%inv
   samegoal "run with cut program" 

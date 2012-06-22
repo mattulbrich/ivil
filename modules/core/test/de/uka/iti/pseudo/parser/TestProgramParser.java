@@ -59,11 +59,14 @@ public class TestProgramParser extends TestCaseWithEnv {
     }
 
     // found a bug
+    // annotations are now only extra arguments
     public void testAnnotatedSkips() throws Exception {
-        testEnv("program P\n" +
+        testEnv("include \"$symbex.p\"\n" +
+                "function int SOMEANNOTATIONS unique\n" +
+                "program P\n" +
                 "skip\n" +
-                "skip_someannitations 1, 2, 3\n" +
-                "skip_loopinv true, 2");
+                "skip SOMEANNOTATIONS, 1, 2, 3\n" +
+                "skip LOOPINV, true, 2");
     }
 
     // from a bug : typing not checked on assignments
@@ -78,7 +81,18 @@ public class TestProgramParser extends TestCaseWithEnv {
     public void testSchemaInPrograms() throws Exception {
         failEnv("program P   assume %b");
         failEnv("program P   goto 4, %b");
-        failEnv("program P   skip_loopvar %b, 4");
+        failEnv("program P   skip LOOPINV, %b, 4");
+    }
+
+    public void testSkipArguments() throws Exception {
+        testEnv("function int a assignable\n" +
+                "program P skip skip a\n" +
+                "  skip a, a\n" +
+                "  skip a := a\n" +
+                "  skip a a:= a\n" +
+                "  skip a a:\n" +
+                "  skip a");
+            // last token is "a" (parser uses getToken(2))
     }
 
     public void testParallelAssignment() throws Exception {

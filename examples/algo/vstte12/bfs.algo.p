@@ -29,7 +29,7 @@ program bfs source "bfs.algo"
   d := 0
  loop0:
  sourceline 48
-  skip_loopinv ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (\exists q; (minconnect(src, q, d) & ((!(q) :: C) & (y :: succ(q))))))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists c; ((a :: succ(c)) & (c :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
+  skip LOOPINV, ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (\exists q; (minconnect(src, q, d) & ((!(q) :: C) & (y :: succ(q))))))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists c; ((a :: succ(c)) & (c :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
  sourceline 35
   goto body0, after0
  body0:
@@ -58,7 +58,7 @@ program bfs source "bfs.algo"
  sourceline 60
   tovisit := succ(v)
  loop1:
-  skip_loopinv ((tovisit <: succ(v)) & ((V = (Vo \/ (succ(v) \ tovisit))) & (N = (No \/ (succ(v) \ (Vo \/ tovisit)))))), tovisit
+  skip LOOPINV, ((tovisit <: succ(v)) & ((V = (Vo \/ (succ(v) \ tovisit))) & (N = (No \/ (succ(v) \ (Vo \/ tovisit)))))), tovisit
   goto body1, after2
  body1:
   assume !tovisit= emptyset; "assume condition "

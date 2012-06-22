@@ -15,7 +15,7 @@ program arrayMin source "arrayMin.algo"
   i := 1 
  loop0:
  sourceline 33
-  skip_loopinv ( \forall j ; 0 <= j & j < i -> array ( j ) <= max ) & ( \exists j ; 0 <= j & j < i & array ( j ) = max ) & 0 <= i & i <= len , len - i 
+  skip LOOPINV, ( \forall j ; 0 <= j & j < i -> array ( j ) <= max ) & ( \exists j ; 0 <= j & j < i & array ( j ) = max ) & 0 <= i & i <= len , len - i 
  sourceline 32
   goto body0, after0
  body0:

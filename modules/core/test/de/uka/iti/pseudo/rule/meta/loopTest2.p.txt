@@ -15,14 +15,14 @@ function
 
 program P
   loop1:
-    skip_loopinv true
+    skip LOOPINV, true
     goto body1, after1
   body1:
     assume c = 5
     a := a+1
     
   loop2:
-    skip_loopinv true
+    skip LOOPINV, true
     goto body2, after2
   body2:
     assume b<0
@@ -51,7 +51,7 @@ program Q
     a := a+1
     
   loop2:
-    skip_loopinv true
+    skip LOOPINV, true
     goto body2, after2
   body2:
     assume b<0

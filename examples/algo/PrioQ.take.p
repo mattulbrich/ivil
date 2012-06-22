@@ -130,7 +130,7 @@ program P source "PrioQ.java"
     st := pop(st)
   stmt52: sourceline 27   (*   52: ldc[18](2) 7 *)
   stmt57:
-    skip_loopinv sel(h, _this, field_PrioQ_size) = sel(pre_h, _this, field_PrioQ_size) - 1 & sel(h, _this, field_PrioQ_h) = sel(pre_h, _this, field_PrioQ_h) & 0<=_i  ; "inlined loopinvariant"
+    skip LOOPINV, sel(h, _this, field_PrioQ_size) = sel(pre_h, _this, field_PrioQ_size) - 1 & sel(h, _this, field_PrioQ_h) = sel(pre_h, _this, field_PrioQ_h) & 0<=_i  ; "inlined loopinvariant"
    sourceline 30   (*   57: iload_3[29](1) *)
     st := push(st, _i)
   stmt58: sourceline 30   (*   58: aload_0[42](1) *)

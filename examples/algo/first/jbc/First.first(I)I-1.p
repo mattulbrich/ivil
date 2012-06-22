@@ -57,7 +57,7 @@ sourceline 12  PC8:
   
 sourceline 12  PC9:
   assume $wellformed($heap)
-  skip_loopinv $heap = (\merge_heap p; p :: $SPEC_loop_frame | !$SPEC_loop_heap[fst(p), $created]; $heap; $SPEC_loop_heap) & (\forall o; $SPEC_loop_heap[o,$created] -> $heap[o,$created]) & $wellformed($heap) & true
+  skip LOOPINV, $heap = (\merge_heap p; p :: $SPEC_loop_frame | !$SPEC_loop_heap[fst(p), $created]; $heap; $SPEC_loop_heap) & (\forall o; $SPEC_loop_heap[o,$created] -> $heap[o,$created]) & $wellformed($heap) & true
   assume $wellformed($heap)
   # iload_3
   $stack_1_int := R_i_int

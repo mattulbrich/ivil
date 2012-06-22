@@ -46,7 +46,7 @@ program PrioQueueTake source "prioq.algo"
   i := 0 
  sourceline 50
  loop0:
-  skip_loopinv len ( h ) = len ( h0 ) - 1 & i >= 0 & ( \forall j ; 1 <= j & j < len ( h ) -> cond ( i = ( j - 1 ) / 2 , ! i = 0 -> read(h, j ) >= read(h, ( i - 1 ) / 2 ) , read(h, j ) >= read(h, ( j - 1 ) / 2 ) ) ) & isPerm ( h , removeNo ( h0 , 0 ) ) 
+  skip LOOPINV, len ( h ) = len ( h0 ) - 1 & i >= 0 & ( \forall j ; 1 <= j & j < len ( h ) -> cond ( i = ( j - 1 ) / 2 , ! i = 0 -> read(h, j ) >= read(h, ( i - 1 ) / 2 ) , read(h, j ) >= read(h, ( j - 1 ) / 2 ) ) ) & isPerm ( h , removeNo ( h0 , 0 ) ) 
   goto body0, after1
  body0:
   assume i < len ( h ) / 2 ; "assume condition "

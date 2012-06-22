@@ -31,7 +31,7 @@ program partition source "quickSort.algo"
   array := swap(array, pivotIndex, right)
   storeIndex := left
   i := left 
- loop:skip_loopinv isPerm(array, old_array)
+ loop:skip LOOPINV, isPerm(array, old_array)
   goto body, after
   
  body:

@@ -118,7 +118,7 @@ public class TestTermUnification extends TestCaseWithEnv {
      *  5: i1 := i2 + i3
      *  6: end
      *  7: end
-     *  8: skip_loopinv i1>0, i2
+     *  8: skip LOOPINV, i1>0, i2
      *  9: i1:=1 || b1 := true
      */
     public void testModalities() throws Exception {
@@ -161,8 +161,8 @@ public class TestTermUnification extends TestCaseWithEnv {
         assertFalse(mc.leftMatch(mt("[%g : skip]true"), mt("[8;P]true")));
         assertTrue(mc.leftMatch(mt("[%g : skip]true"), mt("[2;P]true")));
 
-        assertFalse(mc.leftMatch(mt("[%h : skip_loopinv %inv]true"), mt("[8;P]true")));
-        assertTrue(mc.leftMatch(mt("[%h : skip_loopinv %inv, %var]true"), mt("[8;P]true")));;
+        assertFalse(mc.leftMatch(mt("[%h : skip LOOPINV, %inv]true"), mt("[8;P]true")));
+        assertTrue(mc.leftMatch(mt("[%h : skip LOOPINV, %inv, %var]true"), mt("[8;P]true")));;
         assertEquals(mt("i1 > 0"), mc.instantiate(SchemaVariable.getInst("%inv", bool)));
         assertEquals(mt("i2"), mc.instantiate(SchemaVariable.getInst("%var", intTy)));
 

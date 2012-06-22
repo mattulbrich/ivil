@@ -36,7 +36,7 @@ program P source "selectionSort.algo"
 
   sourceline 14
 loop1:
-  skip_loopinv
+  skip LOOPINV,
      (\forall k; (\forall l; 
         1<=k & k<=l & l<=i -> read(a, k) <= read(a, l)))
     & (\forall k; (\forall l;
@@ -57,7 +57,7 @@ body1:
   sourceline 20
 
 loop2:
-  skip_loopinv
+  skip LOOPINV,
      (\forall k; i<=k & k<j -> read(a, t) <= read(a, k))
     & (\forall k; (\forall l; 
         1<=k & k<=l & l<=i -> read(a, k) <= read(a, l)))

@@ -31,7 +31,7 @@ program factorial source "factorial.algo"
   c := 1 
  loop0:
  sourceline 46
-  skip_loopinv fac ( n ) = c * fac ( i ) & i >= 0 , i 
+  skip LOOPINV, fac ( n ) = c * fac ( i ) & i >= 0 , i 
  sourceline 45
   goto body0, after0
  body0:

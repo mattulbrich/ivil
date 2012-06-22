@@ -69,7 +69,7 @@ program P (* tested in TerstTermUnification *)
     i1 := i2 + i3
     end
     end
-    skip_loopinv i1 > 0, i2
+    skip LOOPINV, i1 > 0, i2
     i1:=1 || b1 := true
 
 program Q

@@ -14,7 +14,7 @@ function
 (* Splitting the invariant! *)
 
 program P
-  skip_loopinv (a=1 & b=2) & (c=3 & d=4) 
+  skip LOOPINV, (a=1 & b=2) & (c=3 & d=4) 
 
 program Q
   assert a=1 ; "Continuation preserves invariant"

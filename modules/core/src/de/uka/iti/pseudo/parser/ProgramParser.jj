@@ -36,12 +36,19 @@ ASTLabelStatement LabelStatement():
 	  )
 }
 
+JAVACODE
+boolean isAssignmentOrLabel() {
+   int kind2 = getToken(2).kind;
+   boolean result = (kind2 == ASSIGN || kind2 == COLON);
+   return result;
+}
+
 ASTStatement Statement():
 {
 	ASTTerm term;
 	Token kw;
 	ASTStatement result;
-	List<ASTTerm> termList;
+	List<ASTTerm> termList = null;
 	List<ASTAssignment> asList;
 	Token textAnnotation = null;
 }
@@ -49,12 +56,12 @@ ASTStatement Statement():
 	( kw="assert" term=Term() { result = new ASTAssertStatement(kw, term); }
 	| kw="assume" term=Term() { result = new ASTAssumeStatement(kw, term); }
 	| kw="end" { result = new ASTEndStatement(kw); }
-	| kw=<SKIP_ANNOTATED> termList=Statement_TermList()
-	            { result = new ASTSkipStatement(kw, termList); }
-	| kw="skip" { result = new ASTSkipStatement(kw); }
+	// "skip a := b". "skip a: skip" The a is not a parameter here!
+	| kw="skip" ( LOOKAHEAD(1, Term(), { !isAssignmentOrLabel() })
+	                termList=Statement_TermList() )?
+                { result = new ASTSkipStatement(kw, termList); }
 	| kw="havoc" (term=Identifier() | term=InternalIdentifier() | term=SchemaVariable()) 
 	            { result = new ASTHavocStatement(kw, term); }
-	          
 	| asList=ParallelAssignment() /* --> TermParser.jj */
 	     { result = new ASTAssignmentStatement(asList); }
 	| kw="goto" termList=Statement_TermList()
@@ -71,7 +78,7 @@ ASTStatement Statement():
 
 /*
 // In case we want to distinguish between goto labels and identifiers use this
-// with goto statements and lables
+// with goto statements and labels
 List<ASTTerm> GotoTargetList():
 {
     List<ASTTerm> targets = new LinkedList<ASTTerm>();

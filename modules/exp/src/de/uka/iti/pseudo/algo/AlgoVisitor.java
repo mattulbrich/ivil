@@ -178,7 +178,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         statements.add(" " + loopLabel + ":");
         addSourceLineStatement((SimpleNode) node.jjtGetChild(1));
         if(!refinementMode) {
-            statements.add("  skip_loopinv " + invariant + ", " + variant);
+            statements.add("  skip LOOPINV, " + invariant + ", " + variant);
         }
         addSourceLineStatement(node);
         statements.add("  goto " + bodyLabel + ", " + afterLabel);

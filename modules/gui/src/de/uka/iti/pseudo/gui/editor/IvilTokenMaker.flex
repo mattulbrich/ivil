@@ -321,7 +321,6 @@ Natural               = {Digit}+
 |  "havoc"
 |  "end"
 |  "skip"
-|  "skip_loopinv"
 |  "source"
 |  "sourceline"	
 	                                        { addToken(Token.RESERVED_WORD); }

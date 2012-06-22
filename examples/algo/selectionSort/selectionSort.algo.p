@@ -27,7 +27,7 @@ program selectionSort source "selectionSort.algo"
  after0:
  loop0:
  sourceline 42
-  skip_loopinv ((i >= 1) & ((i <= n) & ((\forall k; (\forall l; (((1 <= k) & ((k <= l) & (l <= i))) -> (read(b, k) <= read(b, l))))) & ((\forall k; (\forall l; (((1 <= k) & ((k < i) & ((i <= l) & (l <= n)))) -> (read(b, k) <= read(b, l))))) & (isPerm(a, b) & (length(b) = n)))))), (n - i)
+  skip LOOPINV, ((i >= 1) & ((i <= n) & ((\forall k; (\forall l; (((1 <= k) & ((k <= l) & (l <= i))) -> (read(b, k) <= read(b, l))))) & ((\forall k; (\forall l; (((1 <= k) & ((k < i) & ((i <= l) & (l <= n)))) -> (read(b, k) <= read(b, l))))) & (isPerm(a, b) & (length(b) = n)))))), (n - i)
  sourceline 34
   goto body0, after1
  body0:
@@ -38,7 +38,7 @@ program selectionSort source "selectionSort.algo"
   j := (i + 1)
  loop1:
  sourceline 57
-  skip_loopinv ((\forall k; (((i <= k) & (k < j)) -> (read(b, t) <= read(b, k)))) & ((\forall k; (\forall l; (((1 <= k) & ((k <= l) & (l <= i))) -> (read(b, k) <= read(b, l))))) & ((\forall k; (\forall l; (((1 <= k) & ((k < i) & ((i <= l) & (l <= n)))) -> (read(b, k) <= read(b, l))))) & ((1 <= i) & ((i < n) & (((i + 1) <= j) & ((j <= (n + 1)) & ((i <= t) & ((t <= n) & (isPerm(a, b) & (length(b) = n))))))))))), ((n - j) + 1)
+  skip LOOPINV, ((\forall k; (((i <= k) & (k < j)) -> (read(b, t) <= read(b, k)))) & ((\forall k; (\forall l; (((1 <= k) & ((k <= l) & (l <= i))) -> (read(b, k) <= read(b, l))))) & ((\forall k; (\forall l; (((1 <= k) & ((k < i) & ((i <= l) & (l <= n)))) -> (read(b, k) <= read(b, l))))) & ((1 <= i) & ((i < n) & (((i + 1) <= j) & ((j <= (n + 1)) & ((i <= t) & ((t <= n) & (isPerm(a, b) & (length(b) = n))))))))))), ((n - j) + 1)
  sourceline 46
   goto body1, after2
  body1:

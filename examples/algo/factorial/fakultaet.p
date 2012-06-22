@@ -54,7 +54,7 @@ program P source "fakultaet.pseudo"
       c := 1
 
     sourceline 11
-  L1: skip_loopinv fak(n_pre) = c * fak(n) & n >= 0
+  L1: skip LOOPINV, fak(n_pre) = c * fak(n) & n >= 0
       goto L2, L6
   L2: assume n > 0
     sourceline 12
