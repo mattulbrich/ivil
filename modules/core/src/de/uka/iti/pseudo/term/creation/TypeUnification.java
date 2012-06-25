@@ -24,7 +24,6 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 import de.uka.iti.pseudo.term.UnificationException;
-import de.uka.iti.pseudo.util.AppendMap;
 import de.uka.iti.pseudo.util.RewindMap;
 
 /**

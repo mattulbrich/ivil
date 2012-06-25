@@ -51,6 +51,11 @@ public class TestToplevelCheckVisitor extends TestCaseWithEnv {
         assertTrue(check(makeTerm("(\\T_all 'a; true)")));
     }
 
+    public void testModalities() throws Exception {
+        assertFalse(check(makeTerm("[? %a ?]true")));
+        assertFalse(check(makeTerm("[ %a ]true")));
+    }
+
     // from a bug
     public void testTestHiddenSchema() throws Exception {
         assertFalse(check(makeTerm("(\\forall i; i > %a)")));
