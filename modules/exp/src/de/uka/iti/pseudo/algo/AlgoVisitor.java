@@ -307,9 +307,9 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
             addSourceLineStatement(node);
             String markPoint = (String) node.jjtGetValue();
             String markInvariant = translation.getCouplingInvariant(markPoint);
-            statements.add("  " + Translation.ALGO_MARK_VARIABLE + " := " + markPoint
-                    + " ; \"marking stone " + markPoint + "\"");
-            statements.add("  skip MARK, " + markInvariant + " ; \"marking stone\"");
+            String markVariant = translation.getCouplingInvariant(markPoint);
+            statements.add(String.format("  skip MARK, %d, %s, %s ; \"marking stone\"",
+                    markPoint, markInvariant, markVariant));
         }
         return null;
     }

@@ -104,7 +104,7 @@ do
   esac
 done
 
-$nonnull && OPTIONS="-javaagent:lib/nonnull.jar=de.uka.iti $OPTIONS"
+$nonnull && OPTIONS="-javaagent:$BASE/lib/nonnull.jar=de.uka.iti $OPTIONS"
 
 $verbose && echo "Options: $OPTIONS"
 $verbose && $JAVA_CMD -version

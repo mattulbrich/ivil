@@ -25,11 +25,11 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
         String key = (String) node.jjtGetValue();
         String value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
         translation.putCouplingInvariant(key, value);
-//        if(node.jjtGetNumChildren() > 1) {
-//            // there is a variant too!
-//            value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
-//            translation.addCouplingVariant(key, value);
-//        }
+        if(node.jjtGetNumChildren() > 1) {
+            // there is a variant too!
+            value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
+            translation.putCouplingVariant(key, value);
+        }
         return null;
     }
 
@@ -46,8 +46,6 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
         String concrProg = visitChild(node, 1);
 
         node.childrenAccept(this, data);
-
-        translation.addFunctionSymbol("$algoMark", "int", "assignable");
 
         return "true |- [0; " + abstrProg + "][<0;" + concrProg + ">]true";
     }

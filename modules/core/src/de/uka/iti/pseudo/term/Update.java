@@ -40,7 +40,7 @@ public class Update {
      * @param assignments
      *            a non-empty array of assignments
      */
-    public Update(@NonNull Assignment[] assignments) {
+    public Update(@NonNull Assignment[] assignments) throws TermException {
         assert assignments.length > 0;
         this.assignments = assignments.clone();
     }

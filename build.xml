@@ -167,6 +167,7 @@
     <taskdef name="copyright" classname="CopyrightTask" classpath="lib" />
     <copyright file="LICENSE.header">
       <fileset dir="modules" includes="*/src/**/*.java"/>
+      <fileset dir="modules" includes="*/test/**/*.java"/>
     </copyright>
   </target>
 

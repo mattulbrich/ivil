@@ -1,103 +1,101 @@
-include "$int.p"
+include
+  "$int.p"
+  "$refinement.p"
 
 function 
-  int $a assignable
-  int $c assignable
-
   int x assignable
   int y assignable
   int readonly assignable
+
+  int $markA assignable
+  int $markC assignable
+
+(* *** dummy program *)
+program SKIP
+  skip
+
 
 (* *** testRefinementMod *)
 
 program A
   x := 2
   y := 2
-  $a := 1
-  skip_mark x = 1
-  skip (* spurious skip to check that *)
+  skip MARK, 1, x = 1, 11
+  skip ; "spurious skip to check that"
   x := 3
-  $a := 2
-  skip_mark x = 2
+  skip MARK, 2, x = 2, 22
   y := 4
+  goto 2
+  goto 3
 
 program C
   x := 2
   y := 2
-  $c := 2
-  skip
+  skip MARK, 2
   x := 3
-  $c := 1
-  skip
+  skip MARK, 1
   y := 4
 
 program A_expected
   x := 2
   y := 2
-  $a := 1
-  end
-  skip
+  $markA := 1 ; "Marker for refinement"
+  end ; "Marker for refinement"
+  skip ; "spurious skip to check that"
   x := 3
-  $a := 2
-  end
+  $markA := 2 ; "Marker for refinement"
+  end ; "Marker for refinement"
   y := 4
-
+  goto 2
+  goto 4
 
 program C_expected
   x := 2
   y := 2
-  $c := 2
+  $markC := 2
   end
   x := 3
-  $c := 1
+  $markC := 1
   end
   y := 4
 
 
 (* *** testUsingTheMarks:
- * reading from the marks
+ * Missing literal
  *)
 
-program CUsing
-  x := $a
-  y := $c
-
-program AUsing
-  skip
-
+program C_0
+  skip MARK
 
 (* *** testUsingTheMarks2:
- * modifying wrong mark
+ * Missing invariant => true assumed
+ * Tests also empty modification set
  *)
 
-program CUsing2
-  $a := 1
+program A_1
+  skip MARK, 1
 
-program AUsing2
-  skip
+program C_1
+  skip MARK, 1
 
-
-(* *** testAsymmetricMarks:
- * only marks in 1 program
+(* *** wrongly typed marks
+ * Missing invariant
  *)
 
-program CAsymm
-  $c := 1
-  skip
+program A_2
+  skip MARK, 1, 42
 
-program AAsymm
-  $a := 2
-  skip
-  
+program C_2
+  skip MARK, 1, 42
 
 problem refineMod:
   [0;C][<1;A>](x=0)
 
 problem using:
-  [0;CUsing][<0;AUsing>]true
+  [0;C_0][<0;SKIP>]true
 
 problem using2:
-  [0;CUsing][<0;AUsing>]true
+  [0;C_1][<0;A_1>](x=0)
 
-problem asymm:
-  [0;CAsymm][<0;AAsymm>]true
+problem using3:
+  [0;C_2][<0;A_2>]true

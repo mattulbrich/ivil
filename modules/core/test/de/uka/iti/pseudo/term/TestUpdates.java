@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.term;
@@ -27,24 +27,51 @@ public class TestUpdates extends TestCaseWithEnv {
     public void testCreation() throws Exception {
         assertEquals(makeTerm("{i1 := 3}3"), makeTerm("{i1 := 3}3"));
     }
-    
+
+//    // do we want this behaviour ?!
+//    public void testEmptyUpdate() throws Exception {
+//        try {
+//            Term t = makeTerm("{ }true");
+//            System.out.println(t);
+//            fail("Should have failed: empty update");
+//        } catch (ASTVisitException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            new Update(new Assignment[0]);
+//        } catch (TermException e) {
+//            if(VERBOSE) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        try {
+//            new Update(Collections.<Assignment>emptyList());
+//        } catch (Exception e) {
+//            if(VERBOSE) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
+
     public void testOptionalMatching() throws Exception {
-        
+
         TermMatcher tm = new TermMatcher();
-        
+
         assertTrue(tm.leftMatch(makeTerm("{ U ?}%a"), makeTerm("true")));
         assertEquals(makeTerm("true"), tm.instantiate(makeTerm("{ U ?}%a")));
-        
+
         assertTrue(tm.leftMatch(makeTerm("{ V ?}%b"), makeTerm("{i1:=1}i1")));
         assertEquals(makeTerm("{i1:=1}i1"), tm.instantiate(makeTerm("{ V ?}%b")));
     }
-    
+
     public void testRules() throws Exception {
         env = makeEnv("function int i1 assignable\n" +
         		"function int i2\n" +
         		"rule i1_i2 find {U?}i1 replace {U}i2\n" +
         		"tags rewrite \"r\" axiomName \"a2\" ");
-        
+
         List<Rule> ruleList = Collections.singletonList(env.getRule("i1_i2"));
         {
             Proof proof = new Proof(makeTerm("{i1:=1}i1"));
@@ -53,11 +80,11 @@ public class TestUpdates extends TestCaseWithEnv {
             assertEquals(1, apps.size());
             RuleApplication app = apps.get(0);
             assertEquals("S.0", app.getFindSelector().toString());
-            assertEquals(new Update(new Assignment[] { new Assignment(makeTerm("i1"), makeTerm("1"))}), 
+            assertEquals(new Update(new Assignment[] { new Assignment(makeTerm("i1"), makeTerm("1"))}),
                     app.getSchemaUpdateMapping().get("U"));
-            
+
             proof.apply(app, env);
-            assertEquals(makeTerm("{i1:=1}i2"), 
+            assertEquals(makeTerm("{i1:=1}i2"),
                     proof.getOpenGoals().get(0).getSequent().getSuccedent().get(0));
         }
         {
@@ -67,13 +94,13 @@ public class TestUpdates extends TestCaseWithEnv {
             assertEquals(1, apps.size());
             RuleApplication app = apps.get(0);
             assertEquals("S.0", app.getFindSelector().toString());
-            assertEquals(Update.EMPTY_UPDATE, 
+            assertEquals(Update.EMPTY_UPDATE,
                     app.getSchemaUpdateMapping().get("U"));
-            
+
             proof.apply(app, env);
-            assertEquals(makeTerm("i2"), 
+            assertEquals(makeTerm("i2"),
                     proof.getOpenGoals().get(0).getSequent().getSuccedent().get(0));
         }
     }
-    
+
 }

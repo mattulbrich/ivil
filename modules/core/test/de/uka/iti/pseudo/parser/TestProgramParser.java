@@ -91,7 +91,8 @@ public class TestProgramParser extends TestCaseWithEnv {
                 "  skip a := a\n" +
                 "  skip a a:= a\n" +
                 "  skip a a:\n" +
-                "  skip a");
+                "  skip a, a=a\n" +
+                "  skip a\n");
             // last token is "a" (parser uses getToken(2))
     }
 

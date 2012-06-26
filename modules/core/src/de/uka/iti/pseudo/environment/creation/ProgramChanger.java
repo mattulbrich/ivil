@@ -114,7 +114,7 @@ public class ProgramChanger {
      * Insert a statement.
      *
      * The statement is inserted <i>before</i> the statement at
-     * <code>index</code>. All existing gotos targeting to index or above are
+     * <code>index</code>. All existing gotos targeting <b>above</b> index are
      * incremented.
      *
      * <p>
@@ -224,6 +224,70 @@ public class ProgramChanger {
 
         statements.set(index, statement);
         statementAnnotations.set(index, annotation);
+    }
+
+    /**
+     * Insert a statement.
+     *
+     * The statement is inserted <i>after</i> the statement at
+     * <code>index</code>. All existing gotos targeting <b>above</b> index are
+     * incremented.
+     *
+     * <p>
+     * Appends a statement to the statement list if index is equal to the length
+     * of the list of statements.
+     *
+     * @param index
+     *            a non-negative index into the list of statements.
+     * @param statement
+     *            the statement to be inserted
+     *
+     * @throws TermException
+     *             if adding integer literals to the environment fails
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or beyond the end of the statement
+     *             list.
+     */
+    public void insertAfter(int index, Statement statement) throws TermException {
+        insertAt(index, statement, null);
+    }
+
+    /**
+     * Insert a statement.
+     *
+     * The statement is inserted <i>before</i> the statement at
+     * <code>index</code>. All existing gotos targeting <b>above</b> index are
+     * incremented.
+     *
+     * @param index
+     *            a non-negative index into the list of statements.
+     * @param statement
+     *            the statement to be inserted
+     * @param annotation
+     *            the annotation to be used for that statement
+     *
+     * @throws TermException
+     *             if adding integer literals to the environment fails
+     * @throws IndexOutOfBoundsException
+     *             if the index is negative or beyond the end of the statement
+     *             list.
+     * @throws NullPointerException
+     *             if statement is null
+     */
+    public void insertAfter(int index, Statement statement,
+            @Nullable String annotation) throws TermException {
+        // statements.size() is ok here!
+        if (index < 0 || index > statements.size()) {
+            throw new IndexOutOfBoundsException("Index outside the program boundaries");
+        }
+
+        if (statement == null) {
+            throw new NullPointerException();
+        }
+
+        updateGotoStatements(index + 1, +1);
+        statements.add(index + 1 , statement);
+        statementAnnotations.add(index + 1, annotation);
     }
 
     /**

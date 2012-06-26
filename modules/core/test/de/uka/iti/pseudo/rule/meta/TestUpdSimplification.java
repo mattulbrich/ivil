@@ -2,10 +2,9 @@
  * This file is part of
  *    ivil - Interactive Verification on Intermediate Language
  *
- * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
- *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.rule.meta;
@@ -24,7 +23,7 @@ public class TestUpdSimplification extends TestCaseWithEnv {
         Term t = makeTerm(t1);
         Term evaluation = eval.evalutate(t);
         Term expected = makeTerm(t2);
-        
+
         assertEquals(expected.toString(), evaluation.toString());
         assertEquals(expected, evaluation);
     }
@@ -48,12 +47,18 @@ public class TestUpdSimplification extends TestCaseWithEnv {
             eval.evalutate(makeTerm("$$updSimpl({i1:=1}[0;P]true)"));
             fail("updated program term should not evaluate");
         } catch (TermException ex) {
-            if (VERBOSE)
+            if (VERBOSE) {
                 ex.printStackTrace();
+            }
         }
 
     }
-    
+
+    public void testEmptyUpdateSimplification() throws Exception {
+        assertEvalsTo("$$deepUpdSimpl({}i1)", "i1");
+        assertEvalsTo("$$updSimpl({}i1)", "i1");
+    }
+
     public void testDeepUpdateSimplification() throws Exception {
         assertEvalsTo("$$deepUpdSimpl({i1 := 1}i1)", "1");
         assertEvalsTo("$$deepUpdSimpl({i1 := 1}b1)", "b1");
@@ -68,27 +73,29 @@ public class TestUpdSimplification extends TestCaseWithEnv {
 
         assertEvalsTo("$$deepUpdSimpl({i1 := 1}{b1:=i1>0}b1)",
                 "1>0");
-        
+
         // also embedded
         assertEvalsTo("$$deepUpdSimpl(1+{i1:=1}i1)", "1+1");
-        
+
         // fail if no update
         try {
             eval.evalutate(makeTerm("$$deepUpdSimpl(1)"));
             fail("no updated term should not evaluate (Update Simplifier only applicable to update terms)");
         } catch (TermException ex) {
-            if (VERBOSE)
+            if (VERBOSE) {
                 ex.printStackTrace();
+            }
         }
 
-        
+
         // fail if updated program
         try {
             eval.evalutate(makeTerm("$$deepUpdSimpl({i1:=1}[0;P]true)"));
             fail("updated program term should not evaluate (nothing to update)");
         } catch (TermException ex) {
-            if (VERBOSE)
+            if (VERBOSE) {
                 ex.printStackTrace();
+            }
         }
 
     }

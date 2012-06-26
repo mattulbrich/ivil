@@ -548,6 +548,7 @@ void CouplingFormula() #CouplingFormula :
       "var" Expression()
     |
       "requires" { no = "-1"; } Expression()
+      "var" Expression()
     | 
       "ensures" { no = "0"; } Expression()
     )

@@ -26,8 +26,6 @@ import de.uka.iti.pseudo.util.CommandLineException;
 
 public class Translation {
 
-    public static final String ALGO_MARK_VARIABLE = "$algoMark";
-
     private AlgoParser parser;
 
     private final List<String> declarations = new ArrayList<String>();
@@ -39,7 +37,6 @@ public class Translation {
     private boolean refinementMode;
 
     private final Map<String, String> abbreviations = new HashMap<String, String>();
-
     private final Map<String, String> couplingInvariantMap = new HashMap<String, String>();
     private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
 
@@ -156,15 +153,30 @@ public class Translation {
 
     public void putCouplingInvariant(String key, String value) {
         if(couplingInvariantMap.containsKey(key)) {
-            throw new IllegalStateException("Coupling for " + key + " already defined");
+            throw new IllegalStateException("Coupling invariant for " + key + " already defined");
         }
         couplingInvariantMap.put(key, value);
+    }
+
+    public void putCouplingVariant(String key, String value) {
+        if(couplingVariantMap.containsKey(key)) {
+            throw new IllegalStateException("Coupling variant for " + key + " already defined");
+        }
+        couplingVariantMap.put(key, value);
     }
 
     public String getCouplingInvariant(String name) {
         String result = couplingInvariantMap.get(name);
         if(result == null) {
             throw new IllegalStateException("Coupling invariant " + name + " not defined");
+        }
+        return result;
+    }
+
+    public String getCouplingVariant(String name) {
+        String result = couplingVariantMap.get(name);
+        if(result == null) {
+            throw new IllegalStateException("Coupling variant " + name + " not defined");
         }
         return result;
     }

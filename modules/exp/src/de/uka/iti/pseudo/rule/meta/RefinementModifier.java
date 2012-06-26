@@ -1,12 +1,24 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.rule.meta;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
@@ -31,20 +43,43 @@ import de.uka.iti.pseudo.term.statement.HavocStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.term.statement.StatementVisitor;
 import de.uka.iti.pseudo.util.TermUtil;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 final class RefinementModifier {
+
+    private static final Settings S = Settings.getInstance();
+    public static final String ABSTRACT_MARK_NAME =
+            S.getProperty("pseudo.refinement.markAbstract", "$markA");
+    public static final String CONCRETE_MARK_NAME =
+            S.getProperty("pseudo.refinement.markConcrete", "$markC");
+
+    private static final Comparator<MarkInfo> INDEX_REVERSE_ORDER =
+            new Comparator<MarkInfo>() {
+        @Override
+        public int compare(MarkInfo o1, MarkInfo o2) {
+            return o2.index - o1.index;
+        }
+    };
 
     private final @NonNull LiteralProgramTerm programTerm;
     private final @NonNull LiteralProgramTerm innerProgramTerm;
     private final @NonNull Term postcondition;
 
-    private final @NonNull Function markConcreteProgvar;
-    private final @NonNull Function markAbstractProgvar;
+    private @NonNull Function markConcreteProgvar;
+    private @NonNull Function markAbstractProgvar;
+    private final @NonNull Function variantProgvar;
+    private final String skipMarkIndidicator;
     private Map<Integer, MarkInfo> markInfoConcrete;
     private Map<Integer, MarkInfo> markInfoAbstract;
     private final Environment env;
     private final TermFactory tf;
     private final Set<Function> modifiedProgramVars = new HashSet<Function>();
+
+    /**
+     * This visitor collects program variables written within a program. They
+     * are "written" to by assignments and havocs. This is needed to construct
+     * the anonymising update.
+     */
     private final StatementVisitor writtenProgramVariableFinder = new DefaultStatementVisitor() {
 
         @Override
@@ -65,8 +100,7 @@ final class RefinementModifier {
         }
     };
 
-    public RefinementModifier(Environment env, Term term, Function markAbstract,
-            Function markConcrete) throws TermException {
+    public RefinementModifier(Environment env, Term term) throws TermException {
 
         this.env = env;
         this.tf = new TermFactory(env);
@@ -91,13 +125,29 @@ final class RefinementModifier {
             throw new TermException("Outer modality needs to be [<.>]");
         }
 
-        if(markConcrete == markAbstract) {
-            throw new TermException("Abstract and concrete marker are identical: " + markConcrete);
-        }
+        this.markConcreteProgvar = addFreshProgVar(CONCRETE_MARK_NAME, Environment.getIntType());
+        this.markAbstractProgvar = addFreshProgVar(ABSTRACT_MARK_NAME, Environment.getIntType());
+        // TODO This is not the type we want ... perhaps create it lazily
+        this.variantProgvar = addFreshProgVar("var", Environment.getIntType());
 
         this.postcondition = innerProgramTerm.getSubterm(0);
-        this.markAbstractProgvar = markAbstract;
-        this.markConcreteProgvar = markConcrete;
+
+        this.skipMarkIndidicator = env.getProperty("skip.refinement");
+        if(this.skipMarkIndidicator == null) {
+            throw new TermException("The property 'skip.refinement' has not been set");
+        }
+    }
+
+    private Function addFreshProgVar(String pattern, Type type) throws TermException {
+        try {
+            String name = env.createNewFunctionName(pattern);
+            Function result = new Function(name, type,
+                    new Type[0], false, true, ASTLocatedElement.CREATED);
+            env.addFunction(result);
+            return result;
+        } catch (EnvironmentException e) {
+            throw new TermException("Cannot create function symbol " + pattern, e);
+        }
     }
 
     public Term apply() throws TermException {
@@ -117,43 +167,88 @@ final class RefinementModifier {
 
         Term glueInv = prepareGlue();
         Update anonUpd = prepareAnonUpdate();
-        Program concrPrime = modifyProgram(programTerm.getProgram(), markInfoConcrete.values());
-        Program abstrPrime = modifyProgram(innerProgramTerm.getProgram(), markInfoAbstract.values());
+        Update markUpdate = prepareMarkUpdate();
+        Program concrPrime = modifyProgram(programTerm.getProgram(),
+                markInfoConcrete, markConcreteProgvar);
+        Program abstrPrime = modifyProgram(innerProgramTerm.getProgram(),
+                markInfoAbstract, markAbstractProgvar);
 
-        Term result = makeProofObligations(concrPrime, abstrPrime, anonUpd, glueInv);
+        Term result = makeProofObligations(concrPrime, abstrPrime, anonUpd, markUpdate, glueInv);
 
         return result;
     }
 
-    private Term makeProofObligations(Program concrPrime, Program abstrPrime, Update anonUpd, Term glue) throws TermException {
+    public void setMarkFunctions(Function markAbstractProgvar, Function markConcreteProgvar) {
+        this.markAbstractProgvar = markAbstractProgvar;
+        this.markConcreteProgvar = markConcreteProgvar;
+    }
+
+    private Term makeProofObligations(Program concrPrime, Program abstrPrime,
+            Update anonUpd, Update markUpdate, Term glue) throws TermException {
+
         int indexAbs = innerProgramTerm.getProgramIndex();
-        LiteralProgramTerm a = LiteralProgramTerm.getInst(indexAbs,
+        Term a = LiteralProgramTerm.getInst(indexAbs,
                 innerProgramTerm.getModality(), abstrPrime, glue);
 
         int indexConcr = programTerm.getProgramIndex();
-        LiteralProgramTerm c = LiteralProgramTerm.getInst(indexConcr,
+        Term c = LiteralProgramTerm.getInst(indexConcr,
                 programTerm.getModality(), concrPrime, a);
 
-        // no update for 0
-        // Term result = tf.upd(anonUpd, c);
-        Term result = c;
+        Term result = tf.upd(markUpdate, c);
 
         for (Integer literal : markInfoAbstract.keySet()) {
             indexAbs = markInfoAbstract.get(literal).index;
-            a = LiteralProgramTerm.getInst(indexAbs + 2,
+            a = LiteralProgramTerm.getInst(getTargetIndex(markInfoAbstract, indexAbs),
                     innerProgramTerm.getModality(), abstrPrime, glue);
 
             indexConcr = markInfoConcrete.get(literal).index;
-            c = LiteralProgramTerm.getInst(indexConcr + 2,
+            c = LiteralProgramTerm.getInst(getTargetIndex(markInfoConcrete, indexConcr),
                     programTerm.getModality(), concrPrime, a);
 
+            Term variant = markInfoAbstract.get(literal).couplingVar;
+            if(variant != null) {
+                Update varUpd = makeVariantUpdate(variant);
+                c = tf.upd(varUpd, c);
+            }
 
-            Term term = tf.upd(anonUpd, c);
+            Term term = tf.upd(anonUpd, tf.upd(markUpdate, c));
+
             result = tf.and(result, term);
         }
         return result;
     }
 
+    private int getTargetIndex(Map<Integer, MarkInfo> infos, int index) {
+        int result = index + 2;
+        for (MarkInfo info : infos.values()) {
+            if(info.index < index) {
+                result ++;
+            }
+        }
+        return result;
+    }
+
+    private Update prepareMarkUpdate() throws TermException {
+        Term zero = tf.number(0);
+        return new Update(Arrays.asList(new Assignment(tf.cons(markAbstractProgvar), zero),
+                new Assignment(tf.cons(markConcreteProgvar), zero)));
+    }
+
+    private Update makeVariantUpdate(Term variant) throws TermException {
+        Term target = tf.cons(variantProgvar);
+        return new Update(Collections.singletonList(new Assignment(target, variant)));
+    }
+
+    /**
+     * Identify modified programvariables using the
+     * {@link #writtenProgramVariableFinder}.
+     *
+     * The result is added to
+     * This list explicitly excludes the marking variables.
+     *
+     * @throws TermException
+     *             never thrown, only declared
+     */
     private void identifyModifiedProgVars() throws TermException {
         programTerm.getProgram().visitStatements(writtenProgramVariableFinder);
         innerProgramTerm.getProgram().visitStatements(writtenProgramVariableFinder);
@@ -162,21 +257,47 @@ final class RefinementModifier {
     }
 
     private void collectMarkInfo() throws TermException {
-        this.markInfoConcrete =
-                RefinementMarkInfoCollector.collectMarkAssignments(programTerm.getProgram(),
-                        markConcreteProgvar);
+        try {
+            this.markInfoConcrete =
+                    RefinementMarkInfoCollector.collectMarkAssignments(programTerm.getProgram(),
+                            skipMarkIndidicator);
+        } catch (TermException e) {
+            throw new TermException("Cannot collect mark info in " +
+                    programTerm.getProgram().getName() + ": " +
+                    e.getMessage(), e);
+        }
 
-        this.markInfoAbstract =
-                RefinementMarkInfoCollector.collectMarkAssignments(innerProgramTerm.getProgram(),
-                        markAbstractProgvar);
+        try {
+            this.markInfoAbstract =
+                    RefinementMarkInfoCollector.collectMarkAssignments(innerProgramTerm.getProgram(),
+                            skipMarkIndidicator);
+        } catch (TermException e) {
+            throw new TermException("Cannot collect mark info in " +
+                    innerProgramTerm.getProgram().getName() + ": " +
+                    e.getMessage(), e);
+        }
     }
 
-    private Program modifyProgram(Program program, Collection<MarkInfo> infos) throws TermException {
+    private Program modifyProgram(Program program,
+            Map<Integer, MarkInfo> infos,
+            Function markFunction) throws TermException {
+
+        SortedSet<MarkInfo> infoList = new TreeSet<MarkInfo>(INDEX_REVERSE_ORDER);
+        infoList.addAll(infos.values());
+
         ProgramChanger pc = new ProgramChanger(program, env);
-        for (MarkInfo markInfo : infos) {
-            int index = markInfo.index;
-            int line = pc.getStatementAt(index).getSourceLineNumber();
-            pc.replaceAt(index + 1, new EndStatement(line));
+        for (MarkInfo info : infoList) {
+            int line = pc.getStatementAt(info.index).getSourceLineNumber();
+            {
+                // "mark := literal"
+                pc.replaceAt(info.index, new AssignmentStatement(line,
+                        tf.cons(markFunction), tf.number(info.literal)),
+                        "Marker for refinement");
+            }
+            {
+                // end
+                pc.insertAfter(info.index, new EndStatement(line), "End for refinement");
+            }
         }
 
         Program result;
@@ -204,9 +325,6 @@ final class RefinementModifier {
                 throw new TermException("Exception while preparing anonymising update", e);
             }
         }
-
-        assignments.add(new Assignment(tf.cons(markConcreteProgvar), tf.number(0)));
-        assignments.add(new Assignment(tf.cons(markAbstractProgvar), tf.number(0)));
 
         return new Update(assignments);
     }

@@ -60,7 +60,7 @@ public class SkipStatement extends Statement {
      */
     @Override
     public String toString(boolean typed) {
-        return "skip" + Util.commatize(getSubterms(), typed);
+        return "skip " + Util.commatize(getSubterms(), typed);
     }
 
     @Override
