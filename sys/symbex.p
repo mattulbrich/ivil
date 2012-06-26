@@ -42,6 +42,7 @@ plugin
   # check whether a term is a Program at an updateAssignment position
 #  whereCondition : "de.uka.iti.pseudo.rule.where.IsUpdateStatement"
 
+
 (*
  * First the theoretical rules
  * They are not applied automatically
