@@ -320,6 +320,7 @@ public class TypeUnification {
      *
      * @param tv the schema type variable.
      * @param type the type to instantiate for it.
+     * @throws UnificationException apparently not thrown
      */
     protected void addMapping(final @NonNull SchemaType tv,
             final @NonNull Type type) throws UnificationException {

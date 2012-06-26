@@ -195,7 +195,7 @@ public final class Program {
      */
     public void visitStatements(@NonNull StatementVisitor visitor) throws TermException {
         for (Statement statement : statements) {
-            statement.visit(visitor);
+            statement.accept(visitor);
         }
     }
 

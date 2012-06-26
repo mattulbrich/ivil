@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.util.Util;
  * A <tt>skip</tt> statement can take zero or more arbitrary arguments which may
  * be used as "hints" to the symbolic execution strategy.
  */
-public class SkipStatement extends Statement {
+public final class SkipStatement extends Statement {
 
     /**
      * Instantiates a new skip statement with a number of arguments.
@@ -64,26 +64,26 @@ public class SkipStatement extends Statement {
     }
 
     @Override
-    public void visit(StatementVisitor visitor) throws TermException {
+    public void accept(StatementVisitor visitor) throws TermException {
         visitor.visit(this);
     }
 
-    @Override
-    public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
-        if (newSubterms.length == getSubterms().size()) {
-            throw new TermException("It is required to supply the same amount of subterms; was: "
-                    + getSubterms().size() + " is: " + newSubterms.length);
-        }
-
-        int i = 0;
-        while (newSubterms[i].equals(getSubterms().get(i))) {
-            i++;
-            if (i == newSubterms.length) {
-                return this;
-            }
-        }
-
-        return new SkipStatement(getSourceLineNumber(), newSubterms);
-    }
+//    @Override
+//    public Statement getWithReplacedSubterms(Term[] newSubterms) throws TermException {
+//        if (newSubterms.length == getSubterms().size()) {
+//            throw new TermException("It is required to supply the same amount of subterms; was: "
+//                    + getSubterms().size() + " is: " + newSubterms.length);
+//        }
+//
+//        int i = 0;
+//        while (newSubterms[i].equals(getSubterms().get(i))) {
+//            i++;
+//            if (i == newSubterms.length) {
+//                return this;
+//            }
+//        }
+//
+//        return new SkipStatement(getSourceLineNumber(), newSubterms);
+//    }
 
 }

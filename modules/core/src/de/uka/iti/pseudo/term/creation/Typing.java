@@ -9,24 +9,24 @@
  */
 package de.uka.iti.pseudo.term.creation;
 
-import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.Type;
 import nonnull.NonNull;
+import de.uka.iti.pseudo.term.Type;
 
 /**
  * The Class Typing is used during the process of type inference.
  *
- * <p>An instance is assigned to every {@link Term} object during the parsing
- * process. Every instance holds a raw type and a reference to a {@link TypingContext}
- * which allows to make the raw type concrete if needed using the mthod
- * {@link #getType()}.
+ * <p>
+ * An instance is assigned to every {@link de.uka.iti.pseudo.term.Term} object
+ * during the parsing process. Every instance holds a raw type and a reference
+ * to a {@link TypingContext} which allows to make the raw type concrete if
+ * needed using the method {@link #getType()}.
  *
  */
 @NonNull
 public final class Typing {
 
     /**
-     * The raw type holds the originally set type
+     * The raw type holds the originally set type.
      */
     private final Type rawType;
 
@@ -68,7 +68,7 @@ public final class Typing {
     }
 
     /**
-     * the string representation is the raw type
+     * the string representation is the raw type.
      *
      * @return rawtype as string
      */

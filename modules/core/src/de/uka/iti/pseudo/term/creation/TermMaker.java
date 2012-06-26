@@ -108,6 +108,16 @@ import de.uka.iti.pseudo.util.SelectList;
 @SuppressWarnings("nullness")
 public class TermMaker extends ASTDefaultVisitor {
 
+    /**
+     * create a new TermMaker for an environment.
+     *
+     * @param env
+     *            the environment to look up functions, sorts, ...
+     */
+    public TermMaker(@NonNull Environment env) {
+        this.env = env;
+    }
+
     //
     // --- Static translation nature
     //
@@ -298,7 +308,8 @@ public class TermMaker extends ASTDefaultVisitor {
      * @throws ParseException
      *             thrown by the parser
      */
-    public static Type makeType(String typeString, Environment env) throws ASTVisitException, ParseException {
+    public static Type makeType(String typeString, Environment env)
+            throws ASTVisitException, ParseException {
 
         Parser parser = new Parser(new StringReader(typeString));
 
@@ -331,6 +342,21 @@ public class TermMaker extends ASTDefaultVisitor {
         return termMaker.resultType;
     }
 
+    /**
+     * Make and type an update from a string.
+     *
+     * @param updString
+     *            the string to parse for an update
+     * @param env
+     *            the environment to used
+     *
+     * @return the parsed update
+     *
+     * @throws ASTVisitException
+     *             if the resolution raises an exception
+     * @throws ParseException
+     *             if the parser finds a syntax error
+     */
     public static Update makeAndTypeUpdate(String updString, Environment env)
             throws ASTVisitException, ParseException {
 
@@ -415,18 +441,8 @@ public class TermMaker extends ASTDefaultVisitor {
      * For the resolution of identifiers it is crucial to keep track of all
      * bound variable names.
      */
-	private final Stack<String> boundIdentifiers =
-		new Stack<String>();
+    private final Stack<String> boundIdentifiers = new Stack<String>();
 
-    /**
-     * create a new TermMaker
-     *
-     * @param env
-     *            the environment to look up functions, sorts, ...
-     */
-    public TermMaker(@NonNull Environment env) {
-        this.env = env;
-    }
 
     /*
      * Visit all subterms of a node and collect the results as an array of
@@ -468,11 +484,11 @@ public class TermMaker extends ASTDefaultVisitor {
     @Override
     public void visit(ASTMapOperationTerm term) throws ASTVisitException {
 
-        Type map_t = term.getMapTerm().getTyping().getType();
-        assert map_t instanceof TypeApplication;
+        Type mapTy = term.getMapTerm().getTyping().getType();
+        assert mapTy instanceof TypeApplication;
 
         final String operationName = (term.isLoad() ? "$load_" : "$store_")
-                + ((TypeApplication) map_t).getSort().getName();
+                + ((TypeApplication) mapTy).getSort().getName();
 
         Function operation = env.getFunction(operationName);
 
@@ -500,7 +516,8 @@ public class TermMaker extends ASTDefaultVisitor {
 
             if(binderTerm.countBoundVariables() != 1 &&
                     binder.getArity() != 1) {
-                throw new ASTVisitException("Binding more than one variable to a multi-ary binder", binderTerm);
+                throw new ASTVisitException(
+                        "Binding more than one variable to a multi-ary binder", binderTerm);
             }
 
             int oldStackSize = boundIdentifiers.size();
@@ -602,16 +619,16 @@ public class TermMaker extends ASTDefaultVisitor {
         Type type = identifierTerm.getTyping().getType();
 
         try {
-        	if(boundIdentifiers.contains(name)) {
-        		resultTerm = Variable.getInst(name, type);
-        	} else {
-        		Function funcSymbol = env.getFunction(name);
-        		if (funcSymbol != null) {
-        			resultTerm = Application.getInst(funcSymbol, type);
-        		} else {
-        			throw new TermException("Unknown symbol: " + identifierTerm);
-        		}
-        	}
+            if(boundIdentifiers.contains(name)) {
+                resultTerm = Variable.getInst(name, type);
+            } else {
+                Function funcSymbol = env.getFunction(name);
+                if (funcSymbol != null) {
+                    resultTerm = Application.getInst(funcSymbol, type);
+                } else {
+                    throw new TermException("Unknown symbol: " + identifierTerm);
+                }
+            }
         } catch (TermException e) {
             throw new ASTVisitException(identifierTerm, e);
         }
@@ -675,11 +692,7 @@ public class TermMaker extends ASTDefaultVisitor {
         if(assignments.length == 0) {
             update = Update.EMPTY_UPDATE;
         } else {
-            try {
-                update = new Update(assignments);
-            } catch (TermException e) {
-                throw new ASTVisitException(arg, e);
-            }
+            update = new Update(assignments);
         }
 
         resultTerm = UpdateTerm.getInst(update, term);
@@ -731,8 +744,10 @@ public class TermMaker extends ASTDefaultVisitor {
             programTerm.getSuffixFormula().visit(this);
             Term suffixFormula = resultTerm;
             if (programTerm.isSchema()) {
-                SchemaVariable sv = SchemaVariable.getInst(position.image, Environment.getBoolType());
-                resultTerm = SchemaProgramTerm.getInst(sv, modality, matchingStatement, suffixFormula);
+                SchemaVariable sv = SchemaVariable.getInst(position.image,
+                        Environment.getBoolType());
+                resultTerm = SchemaProgramTerm.getInst(sv, modality,
+                        matchingStatement, suffixFormula);
             } else {
                 Token programReference = programTerm.getProgramReferenceToken();
                 Program program = env.getProgram(programReference.image);
@@ -740,7 +755,8 @@ public class TermMaker extends ASTDefaultVisitor {
                     throw new TermException("Unknown program '" +programReference + "'");
                 }
                 int programIndex = Integer.parseInt(position.image);
-                resultTerm = LiteralProgramTerm.getInst(programIndex, modality, program, suffixFormula);
+                resultTerm = LiteralProgramTerm.getInst(programIndex, modality,
+                        program, suffixFormula);
             }
         } catch (TermException e) {
             throw new ASTVisitException(programTerm, e);

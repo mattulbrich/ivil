@@ -18,7 +18,7 @@
 //public final class UpdateStatement extends Statement {
 //
 //    private final Update update;
-//    
+//
 //    public UpdateStatement(Update update, int sourceLineNumber) {
 //        super(sourceLineNumber);
 //

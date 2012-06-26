@@ -16,44 +16,43 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.Update;
 
 /**
  * Captures an assignment <code>v:=t</code> as it can appear in assignment
  * statements in programs or as it may appear as a basic assignment in an
  * update.
- * 
+ *
  * <p>
  * Both the entity to which a value is assigned and the value term which is
  * assigned are considered subterms of the statement. Their terms must
  * conincide.
- * 
+ *
  * <p>
  * Updates and assignment statements keep a list of {@link Assignment} objects.
- * 
- * @see Update
+ *
+ * @see de.uka.iti.pseudo.term.Update
  * @see AssignmentStatement
  */
 public class Assignment {
-    
+
     /**
      * The <b>right</b> hand side of the assignment.
      */
-    private Term value;
-    
+    private final Term value;
+
     /**
      * The <b>left</b> hand side of the assignment.
      */
-    private Term target;
+    private final Term target;
 
     /**
      * Instantiates a new assignment.
-     * 
+     *
      * @param target
      *            the target to assign to
      * @param value
      *            the value to be assigned
-     * 
+     *
      * @throws TermException
      *             if types of target and value are not compatible or if target
      *             is not assignable.
@@ -73,28 +72,44 @@ public class Assignment {
         if (getTarget() instanceof Application) {
             Application appl = (Application) getTarget();
             Function func = appl.getFunction();
-            if(!func.isAssignable())
+            if(!func.isAssignable()) {
                 throw new TermException("Target in an assignment needs to be 'assignable'");
+            }
         } else if (!(getTarget() instanceof SchemaVariable)) {
             throw new TermException(
-                    "Target in an assignment needs to be assignable constant or schema variable, received: " + getTarget());
+                    "Target in an assignment needs to be assignable " +
+                            "constant or schema variable, received: " + getTarget());
         }
 
         // TODO In case of polymorphic symbols, this must be different: modulo renaming
-        if(!getTarget().getType().equals(getValue().getType()))
-            throw new TermException("target and value need to have identical types: " + getTarget().getType() + ","
+        if(!getTarget().getType().equals(getValue().getType())) {
+            throw new TermException("target and value need to have " +
+                    "identical types: " + getTarget().getType() + ","
                     + getValue().getType());
+        }
     }
 
     @Override
     public String toString() {
         return toString(Term.SHOW_TYPES);
     }
-    
+
+    /**
+     * Depending on the argument give a string representation of this assignment
+     * with or without typing information. If typing is switched on, the
+     * assigned term (and every subterm) will be annotated as in
+     * <code>"t as T"</code>.
+     *
+     * @param typed
+     *            should the result contain typing information
+     *
+     * @return the string for this assignment, with typing information iff
+     *         <code>typed</code> is <code>true</code>.
+     */
     public String toString(boolean typed) {
         return getTarget().toString(false) + " := " + getValue().toString(typed);
     }
-    
+
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj instanceof Assignment) {
@@ -103,10 +118,15 @@ public class Assignment {
         }
         return false;
     }
-    
+
+    @Override
+    public int hashCode() {
+        return target.hashCode() + 31 * value.hashCode();
+    }
+
     /**
      * Gets the target (left hand side) of this assignment.
-     * 
+     *
      * @return the target
      */
     public @NonNull Term getTarget() {
@@ -115,7 +135,7 @@ public class Assignment {
 
     /**
      * Gets the value (right hand side) of this assignment.
-     * 
+     *
      * @return the value
      */
     public @NonNull Term getValue() {

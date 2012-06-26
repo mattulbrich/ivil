@@ -14,9 +14,11 @@ import de.uka.iti.pseudo.term.TermException;
 /**
  * An interface which allows to implement the visitor pattern on
  * {@link Statement}s.
- * 
- * @see Statement#visit(StatementVisitor)
+ *
+ * @see Statement#accept(StatementVisitor)
  */
+
+// Checkstyle: OFF JavadocMethod
 public interface StatementVisitor {
 
     void visit(AssertStatement assertStatement) throws TermException;

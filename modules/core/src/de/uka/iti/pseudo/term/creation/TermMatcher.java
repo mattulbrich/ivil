@@ -452,7 +452,9 @@ public final class TermMatcher {
     }
 
     /**
-     * The string representation shows all used maps and sets
+     * {@inheritDoc}
+     *
+     * The string representation shows all used maps and sets.
      */
     @Override
     public String toString() {

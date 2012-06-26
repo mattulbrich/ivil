@@ -280,7 +280,7 @@ class LoopModifier {
 
         for (int i = 0; i < progSize; i++) {
             StatementAnalyser analyser = new StatementAnalyser(i);
-            originalProgram.getStatement(i).visit(analyser);
+            originalProgram.getStatement(i).accept(analyser);
             for (int target : analyser.successorIndices) {
                 // new target within bounds?
                 if(target < progSize) {
@@ -359,7 +359,7 @@ class LoopModifier {
         }
 
         StatementAnalyser analyser = new StatementAnalyser(index);
-        originalProgram.getStatement(index).visit(analyser);
+        originalProgram.getStatement(index).accept(analyser);
         modifiedAssignables.addAll(analyser.assignedVars);
 
         // no need to come here again!

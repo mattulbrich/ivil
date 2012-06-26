@@ -21,17 +21,17 @@ import de.uka.iti.pseudo.term.UnificationException;
 
 /**
  * The Class TypingContext is used when type inference happens.
- * 
+ *
  * It wraps an instance of {@link TypeUnification} to which it delegates and
  * allows to create new distinct schema type variables and to make types
  * distinct.
- * 
+ *
  * Type inference is done by solving "constraints" via
  * {@link #solveConstraint(Type, Type)} which are bidirectional unification
  * problems.
- * 
+ *
  * @author mattias ulbrich
- * 
+ *
  * @see TypingResolver
  * @see TypeUnification
  */
@@ -39,16 +39,18 @@ import de.uka.iti.pseudo.term.UnificationException;
 public class TypingContext extends TypeUnification {
 
     /**
-     * This visitor replaces every <b>type variable</b> with a fresh <b>schena
-     * type variable</b>. Occurences of the same type variable are replaces by
+     * This visitor replaces every <b>type variable</b> with a fresh <b>schema
+     * type variable</b>. Occurrences of the same type variable are replaced by
      * the same fresh symbol.
      */
     private class SignatureVisitor extends RebuildingTypeVisitor<Void> {
 
-        /** replacement map */
-        private Map<TypeVariable, SchemaType> varMap = 
+        /**
+         * replacement map from type variables to schema types.
+         */
+        private final Map<TypeVariable, SchemaType> varMap =
             new HashMap<TypeVariable, SchemaType>();
-        
+
         @Override
         public @NonNull Type visit(@NonNull TypeVariable typeVariable, Void arg) {
             SchemaType tv = varMap.get(typeVariable);
@@ -58,7 +60,7 @@ public class TypingContext extends TypeUnification {
             }
             return tv;
         }
-        
+
         @Override
         public Type visit(SchemaType schemaTypeVariable, Void arg)
                 throws TermException {
@@ -66,7 +68,7 @@ public class TypingContext extends TypeUnification {
             return schemaTypeVariable;
         }
     }
-    
+
     /**
      * This counter is used to create distinct type variables.
      */
@@ -74,32 +76,30 @@ public class TypingContext extends TypeUnification {
 
     /**
      * Solve a constraint.
-     * 
+     *
      * <p>
      * This is a try to unify two type expressions.
-     * 
+     *
      * <p>
      * <b>Note:</b> This implementation is identical to
      * {@link #unify(Type, Type)}
-     * 
+     *
      * @param formal
      *            the formal type
      * @param actual
      *            the actual type
-     * 
+     *
      * @throws UnificationException
      *             if the unification fails.
      */
     public void solveConstraint(Type formal, Type actual) throws UnificationException {
-    	
-    	unify(formal, actual);
-    	
+        unify(formal, actual);
     }
 
     /**
      * create a new schema type. Every call to this method results in a distinct
      * schema type. These temporary types have integers as names.
-     * 
+     *
      * @return a fresh schema type object
      */
     public SchemaType newSchemaType() {
@@ -109,27 +109,33 @@ public class TypingContext extends TypeUnification {
 
     /**
      * Make new distinct signature clone.
-     * 
+     *
      * Given the signature (result and argument types) use
-     * {@link SignatureVisitor} to replace all type variables by fresh schema type
-     * variables.
-     * 
-     * If you have one function
-     * <code>'a f('b,'a)<code> and constants <code>'a a</code> and <code>'b b</code>, then 
-     * successive calls to makeNewSignature create the new variants:
+     * {@link SignatureVisitor} to replace all type variables by fresh schema
+     * type variables.
+     *
+     * If you have one function <code>'a f('b,'a)</code> and constants
+     * <code>'a a</code> and <code>'b b</code>, then successive calls to
+     * makeNewSignature create the new variants:
+     *
      * <pre>
      *  %'1 f(%'2,%'1)
      *  %'3 a
      *  %'4 b
      * </pre>
+     *
      * and <code>f(a,b)</code> can be unified, as well as <code>f(b,a)</code>.
-     * 
-     * <p>The result is presented in one array, in which the first element is the result of
-     * the translation of resultType and the remainder of argumentTypes. 
-     * 
-     * @param resultType the result type of an expression
-     * @param argumentTypes the argument types
-     * 
+     *
+     * <p>
+     * The result is presented in one array, in which the first element is the
+     * result of the translation of resultType and the remainder of
+     * argumentTypes.
+     *
+     * @param resultType
+     *            the result type of an expression
+     * @param argumentTypes
+     *            the argument types
+     *
      * @return an array containg variants of resulttype and argument types.
      */
     public Type[] makeNewSignature(Type resultType, Type[] argumentTypes) {
@@ -138,7 +144,7 @@ public class TypingContext extends TypeUnification {
             SignatureVisitor sv = new SignatureVisitor();
             retval[0] = resultType.accept(sv, null);
             for (int i = 0; i < argumentTypes.length; i++) {
-                retval[i+1] = argumentTypes[i].accept(sv, null); 
+                retval[i+1] = argumentTypes[i].accept(sv, null);
             }
             return retval;
         } catch (TermException e) {
@@ -146,34 +152,34 @@ public class TypingContext extends TypeUnification {
             throw new Error(e);
         }
     }
-    
+
     /**
      * Make new distinct signature clone.
-     * 
+     *
      * Given the signature (result and argument types) use
      * {@link SignatureVisitor} to replace all type variables by fresh schema type
      * variables.
-     * 
+     *
      * If you have one binder
      * {@code 'a (\b 'a; 'b)} and a variable <code>'a a</code> and a constant
      * <code>'b b</code>, then successive calls to makeNewSignature
      * create the new variants:
-     * 
+     *
      * <pre>
      *  %'1 (\b %'2; %'1)
      *  %'3 a
      *  %'4 b
      * </pre>
      * and <code>(\b a; b)</code> can be unified.
-     * 
+     *
      * <p>The result is presented in one array, in which the first element is the result of
      * the translation of resultType, the second the type of the quantified variable
-     * and the remainder of argumentTypes. 
-     * 
+     * and the remainder of argumentTypes.
+     *
      * @param resultType the result type of an expression
      * @param varType the type of the quantified variable
      * @param argumentTypes the argument types
-     * 
+     *
      * @return an array containing variants of result type, variable type and argument types.
      * Make new distinct signature clone.
      */
@@ -195,13 +201,13 @@ public class TypingContext extends TypeUnification {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * In typing resolution, if two type variables are to be compared, we prefer
      * that the temporary variable be instantiated rather than the usual one.
      */
     @Override
     protected void addMapping(SchemaType tv, Type type) throws UnificationException {
-        
+
         if (type instanceof SchemaType) {
             SchemaType tv2 = (SchemaType) type;
             if(isTemporaryVariable(tv2)) {
@@ -217,5 +223,5 @@ public class TypingContext extends TypeUnification {
         char c = tv2.getVariableName().charAt(0);
         return c >= '0' && c <= '9';
     }
-    
+
 }

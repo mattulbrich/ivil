@@ -91,6 +91,16 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
         }
     };
 
+    /**
+     * Check that the argument is a valid toplevel term.
+     *
+     * The conditions are listed above.
+     *
+     * @param term
+     *            the term to be checked.
+     * @throws TermException
+     *             if the term is not a toplevel term
+     */
     public void check(Term term) throws TermException {
         term.visit(this);
         if(!term.getType().equals(Environment.getBoolType())) {

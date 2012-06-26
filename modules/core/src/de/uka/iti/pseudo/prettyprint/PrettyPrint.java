@@ -191,7 +191,7 @@ public class PrettyPrint {
                 printer.setStyle(initialStyle);
             }
 
-            statement.visit(visitor);
+            statement.accept(visitor);
 
             if(initialStyle != null) {
                 printer.resetPreviousStyle();
