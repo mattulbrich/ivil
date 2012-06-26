@@ -132,9 +132,9 @@ final class RefinementModifier {
 
         this.postcondition = innerProgramTerm.getSubterm(0);
 
-        this.skipMarkIndidicator = env.getProperty("skip.refinement");
+        this.skipMarkIndidicator = env.getProperty("skipmark.refinement");
         if(this.skipMarkIndidicator == null) {
-            throw new TermException("The property 'skip.refinement' has not been set");
+            throw new TermException("The property 'skipmark.refinement' has not been set");
         }
     }
 

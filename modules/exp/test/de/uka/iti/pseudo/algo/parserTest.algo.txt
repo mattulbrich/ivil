@@ -47,8 +47,9 @@ end
 
 refine Name_of_the_algrithm as Name_of_Implementation
 requires
-   a = this.a &
-   b = this.b[5]
+     a = this.a &
+     b = this.b[5]
+   var 0
 mark 1
    inv true
    var 0
