@@ -20,10 +20,10 @@ import nonnull.NonNull;
 /**
  * This is a very simple XML writer which keeps track of open elements and
  * allows automatic indention.
- * 
+ *
  * It does not check whether the content is correctly formatted. It does not
  * support namespaces, uri or similiar more advanced xml stuff.
- * 
+ *
  * To encode special characters as xml-entities use the method
  * {@link #appendEncoded(String)} which ensures quotation marks, less-than and
  * greater-than symbols to be correctly escaped.
@@ -33,7 +33,7 @@ public class XMLWriter extends FilterWriter {
     /**
      * the stack of open elements
      */
-    private Stack<String> elements = new Stack<String>();
+    private final Stack<String> elements = new Stack<String>();
 
     /**
      * true if a line has just been broken using {@link #newline()}
@@ -42,7 +42,7 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * Instantiates a new XMLWriter wrapping another writer
-     * 
+     *
      * @param out
      *            the writer to which all output is sent
      */
@@ -52,19 +52,19 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * Start a new element.
-     * 
+     *
      * Attributes included into the openening tag can be added. They are
      * presented as pairs of strings. First the attribute name then the
      * attribute value. The attribute parameters must therefore appear in an
      * even number
-     * 
+     *
      * @param element
      *            the element name to be started
      * @param attributes
      *            an even number as name/value pairs
-     * 
+     *
      * @return this
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the length of attributes is not even
      * @throws IOException
@@ -72,9 +72,10 @@ public class XMLWriter extends FilterWriter {
      */
     public XMLWriter start(String element, String... attributes)
             throws IOException {
-        if (attributes.length % 2 != 0)
+        if (attributes.length % 2 != 0) {
             throw new IllegalArgumentException(
                     "attributes and values must come in pairs");
+        }
 
         possiblyIndent();
 
@@ -95,12 +96,12 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * End the element on top of the stack.
-     * 
+     *
      * If first thing on a line, a number of whitespaces may be inserted to
      * indent the line.
-     * 
+     *
      * @return this
-     * 
+     *
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      * @throws NoSuchElementException
@@ -117,12 +118,12 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * write a new line character.
-     * 
+     *
      * If the next line begins with a opening or closing tag, the line will be
      * correctly indented. It will not if "data" is sent.
-     * 
+     *
      * @return this
-     * 
+     *
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
@@ -142,13 +143,14 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * {@inheritDoc}
-     * 
-     * This method returns an XMLWriter, however
-     * 
+     *
+     * This method returns an XMLWriter, however.
+     *
      * @return this
      * @throws IOException
      *             Signals that an I/O exception has occurred.
      */
+    @Override
     public XMLWriter append(CharSequence csq) throws IOException {
         super.append(csq);
         return this;
@@ -156,7 +158,7 @@ public class XMLWriter extends FilterWriter {
 
     /**
      * Append some text with XML-sensitive charaters encoded.
-     * 
+     *
      * This methods add text to the output stream, but escapes the following
      * characters:
      * <ul>
@@ -165,13 +167,13 @@ public class XMLWriter extends FilterWriter {
      * <li>the greater-than &gt; to <code>&amp;gt;</code>
      * <li>the quotation mark &quot; to <code>&amp;quot;</code>
      * </ul>
-     * 
+     *
      * Other characters are taken as they are.
-     * 
+     *
      * @param value the string to escape and append
-     * 
+     *
      * @return this
-     * 
+     *
      * @throws IOException Signals that an I/O exception has occurred.
      */
     public XMLWriter appendEncoded(String value) throws IOException {

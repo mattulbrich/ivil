@@ -27,12 +27,12 @@ import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.util.Util;
 
 public class XMLOutput {
-    
-    private XMLWriter out;
-    private int idCounter = 0; 
-    
+
+    private final XMLWriter out;
+    private int idCounter = 0;
+
     public XMLOutput(Writer writer) {
-        this.out = new XMLWriter(writer); 
+        this.out = new XMLWriter(writer);
     }
 
     public void export(Proof proof) throws IOException {
@@ -56,7 +56,7 @@ public class XMLOutput {
     }
 
     private void exportProofNode(ProofNode node) throws IOException {
-        
+
         while(node != null) {
             RuleApplication ruleApp = node.getAppliedRuleApp();
 
@@ -75,7 +75,7 @@ public class XMLOutput {
             for (int i = 0; i < children.size() - 1; i++) {
                 exportProofNode(children.get(i));
             }
-            
+
             if(children.size() > 0) {
                 node = children.get(children.size()-1);
             } else {
@@ -86,47 +86,47 @@ public class XMLOutput {
 
     private void exportRuleApplication(RuleApplication ruleApp)
             throws IOException {
-        
+
         String ruleName = ruleApp.getRule().getName();
         // String nodeReference = Integer.toString(ruleApp.getProofNode().getNumber());
         String nodePath = getPath(ruleApp.getProofNode());
-        out.start("ruleApplication", 
-                "rule", ruleName, 
-                "path", nodePath, 
+        out.start("ruleApplication",
+                "rule", ruleName,
+                "path", nodePath,
                 "id", Integer.toString(idCounter)).newline();
         idCounter++;
-        
+
         // find
         TermSelector findSelector = ruleApp.getFindSelector();
         if(findSelector != null) {
-            out.start("find").append(findSelector.toString()).end().newline();
+            out.start("find").appendEncoded(findSelector.toString()).end().newline();
         }
-        
+
         // assumes
         for(TermSelector sel : ruleApp.getAssumeSelectors()) {
-            out.start("assume").append(sel.toString()).end().newline();
+            out.start("assume").appendEncoded(sel.toString()).end().newline();
         }
 
         // schema variables
         for(Entry<String, Term> entry : ruleApp.getSchemaVariableMapping().entrySet()) {
             // if(isInteractive(entry.getKey(), ruleApp)) {
             out.start("schemavariable", "name", entry.getKey());
-            out.append(entry.getValue().toString(true)).end().newline();
+            out.appendEncoded(entry.getValue().toString(true)).end().newline();
             // }
         }
-        
+
         // type variables
         for(Entry<String, Type> entry : ruleApp.getTypeVariableMapping().entrySet()) {
             out.start("typevariable", "name", entry.getKey());
-            out.append(entry.getValue().toString()).end().newline();
+            out.appendEncoded(entry.getValue().toString()).end().newline();
         }
-        
+
         // schema updates
         for(Entry<String, Update> entry : ruleApp.getSchemaUpdateMapping().entrySet()) {
             out.start("schemaupdate", "name", entry.getKey());
-            out.append(entry.getValue().toString(true)).end().newline();
+            out.appendEncoded(entry.getValue().toString(true)).end().newline();
         }
-        
+
         // properties
         for (Entry<String, String> entry : ruleApp.getProperties().entrySet()) {
             out.start("property", "name", entry.getKey()).
@@ -142,23 +142,23 @@ public class XMLOutput {
      */
     // package visible for testing
     static String getPath(@NonNull ProofNode node) {
-        
+
         LinkedList<Integer> path = new LinkedList<Integer>();
-        
+
         ProofNode parent = node.getParent();
         while(parent != null) {
             List<ProofNode> children = parent.getChildren();
-            assert children != null : "A parent must not have null children"; 
+            assert children != null : "A parent must not have null children";
             if(children.size() > 1) {
                 int index = children.indexOf(node);
                 assert index != -1;
                 path.addFirst(index);
             }
-            
+
             node = parent;
             parent = node.getParent();
         }
-        
+
         return Util.join(path, ",");
     }
 
