@@ -35,24 +35,24 @@ import de.uka.iti.pseudo.util.Log;
 
 // TODO DOC ! !
 class SAXHandler extends DefaultHandler {
-    
-    private Environment env;
-    private Proof proof;
-    
-    private StringBuilder content = new StringBuilder();
+
+    private final Environment env;
+    private final Proof proof;
+
+    private final StringBuilder content = new StringBuilder();
     private String currentId = "";
     private Attributes attributes;
     private MutableRuleApplication ram;
     private int goalNo = 0;
 //	private boolean ignoreExceptions;
-    
+
     public SAXHandler(Environment env, Proof proof, boolean ignoreExceptions) {
         super();
         this.env = env;
         this.proof = proof;
 //        this.ignoreExceptions = ignoreExceptions;
     }
-    
+
 //    private void handleException(String message) throws SAXException {
 //    	if(ignoreExceptions) {
 //    		Log.log(Log.WARNING, "Ignored exception: " + message);
@@ -61,44 +61,50 @@ class SAXHandler extends DefaultHandler {
 //    	}
 //    }
 
+    @Override
     public void startElement(String uri, String localName,
             String name, Attributes attributes) throws SAXException {
-        
+
         Log.enter(uri, localName, name, attributes);
-        
+
         this.attributes = attributes;
         if(name.equals("ruleApplication")) {
             ram = new MutableRuleApplication();
-            
+
             // optional id
             currentId = attributes.getValue("id");
-            if(currentId == null)
+            if(currentId == null) {
                 currentId = "?";
-            
+            }
+
             // rule
             String ruleName = attributes.getValue("rule");
             assert ruleName != null : "No rule referenced! (forbidden by schema)";
-            
+
             Rule rule = env.getRule(ruleName);
-            if(rule == null)
+            if(rule == null) {
                 throw new SAXException("No rule by the name " + ruleName + "; id=" + currentId);
-            
+            }
+
             ram.setRule(rule);
-            
+
             // node (format guaranteed by schema)
             String pathStr = attributes.getValue("path");
             assert pathStr != null : "No path referenced! (forbidden by schema)";
-            
+
             ProofNode proofNode = parsePath(pathStr);
-            if(proofNode == null)
+            if(proofNode == null) {
                 throw new SAXException("No proof node for path " + pathStr + "; id=" + currentId);
-            
-            ram.setProofNode(proofNode); 
+            }
+
+            ram.setProofNode(proofNode);
         }
-        
+
+        content.setLength(0);
         Log.leave();
     }
-    
+
+    @Override
     public void endElement(String uri, String localName, String name)
             throws SAXException {
         Log.enter(uri, localName, name);
@@ -112,8 +118,9 @@ class SAXHandler extends DefaultHandler {
 
             } else if (name.equals("property")) {
                 String propname = attributes.getValue("name");
-                if (propname == null)
+                if (propname == null) {
                     throw new SAXException("No property referenced!");
+                }
                 ram.getProperties().put(propname, content.toString());
 
             } else if (name.equals("skip")) {
@@ -128,9 +135,10 @@ class SAXHandler extends DefaultHandler {
 
                 Map<String, Term> schemaVariableMapping = ram
                         .getSchemaVariableMapping();
-                if (schemaVariableMapping.containsKey(varname))
+                if (schemaVariableMapping.containsKey(varname)) {
                     throw new SAXException("schema variable " + varname
                             + " already set");
+                }
                 schemaVariableMapping.put(varname, term);
 
             } else if (name.equals("typevariable")) {
@@ -142,9 +150,10 @@ class SAXHandler extends DefaultHandler {
 
                 Map<String, Type> typeVariableMapping = ram
                         .getTypeVariableMapping();
-                if (typeVariableMapping.containsKey(varname))
+                if (typeVariableMapping.containsKey(varname)) {
                     throw new SAXException("type variable " + varname
                             + " already set");
+                }
 
                 typeVariableMapping.put(varname, type);
 
@@ -156,9 +165,10 @@ class SAXHandler extends DefaultHandler {
                 upd = TermMaker.makeAndTypeUpdate(content.toString(), env);
 
                 Map<String, Update> updMap = ram.getSchemaUpdateMapping();
-                if (updMap.containsKey(varname))
+                if (updMap.containsKey(varname)) {
                     throw new SAXException("schema update " + varname
                             + " already set");
+                }
 
                 updMap.put(varname, upd);
 
@@ -180,10 +190,9 @@ class SAXHandler extends DefaultHandler {
             throwSAXException(content, e);
         }
 
-        content.setLength(0);
         Log.leave();
     }
-    
+
     private void throwSAXException(CharSequence content, Exception e) throws SAXException {
         StringBuilder msg = new StringBuilder();
         msg.append("RuleApp on id ").append(currentId).append(": ");
@@ -198,35 +207,37 @@ class SAXHandler extends DefaultHandler {
 //        ProofNode goal = ram.getProofNode();
 //        Sequent seq = goal.getSequent();
 //        List<TermSelector> assumeSelectors = ram.getAssumeSelectors();
-//        
+//
 //        LocatedTerm ruleFindClause = ram.getRule().getFindClause();
 //        if(ruleFindClause != null) {
 //            Term t1 = ram.getFindSelector().selectSubterm(seq);
 //            Term t2 = ruleFindClause.getTerm();
 //            ram.getTermUnification().leftUnify(t2, t1);
 //        }
-//        
+//
 //        for(int i = 0; i < assumeSelectors.size(); i++) {
 //            Term t1 = assumeSelectors.get(i).selectSubterm(seq);
 //            Term t2 = ram.getRule().getAssumptions().get(i).getTerm();
 //            ram.getTermUnification().leftUnify(t2, t1);
 //        }
 //    }
-    
-    
-    // FIXME Can this be invoked more than once for one element?!?!?!
+
+
+    // FIXME Can this be invoked more than once for one element?!?!?! YES!!!
+    @Override
     public void characters(char[] ch, int start, int length)
             throws SAXException {
+        Log.enter("'" + new String(ch, start, length) + "'");
+        Log.log(Log.TRACE, "old content='" + content + "'");
         content.append(ch, start, length);
-        Log.enter();
         Log.log(Log.TRACE, "new content='" + content + "'");
     }
-    
+
     private ProofNode parsePath(String pathStr) throws SAXException {
         String[] parts = pathStr.split(",");
         ProofNode node = proof.getRoot();
         int index = 0;
-        
+
         try {
             List<ProofNode> children = node.getChildren();
             while(children != null) {
@@ -236,10 +247,10 @@ class SAXHandler extends DefaultHandler {
                         throw new IndexOutOfBoundsException("Path too short, node=" + node.getNumber());
                     }
                     int childIdx = Integer.parseInt(parts[index]);
-                    
+
                     if (childIdx < 0 || childIdx >= size) {
                         throw new IndexOutOfBoundsException("Illegal child "
-                                + childIdx + "; size=" + size); 
+                                + childIdx + "; size=" + size);
                     }
                     node = children.get(childIdx);
                     index ++;
@@ -250,15 +261,15 @@ class SAXHandler extends DefaultHandler {
                 } else {
                     node = children.get(0);
                 }
-                
+
                 children = node.getChildren();
             }
-            
+
             return node;
         } catch (RuntimeException e) {
             throw new SAXException("Illegal path '" + pathStr + "' id=" + currentId, e);
         }
-        
+
     }
-    
+
 }
