@@ -56,6 +56,7 @@ public class EnvironmentExporter {
         exportAllIncludes(env);
         exportSortsFrom(env);
         exportFunctionsFrom(env);
+        exportBindersFrom(env);
         exportAxiomsFrom(env);
         exportRulesFrom(env);
         exportProgramsFrom(env);
@@ -320,6 +321,10 @@ public class EnvironmentExporter {
 
     public void close() {
         pw.close();
+    }
+
+    public void exportComment(String string) {
+        pw.println("(* " + string + " *)");
     }
 
 }

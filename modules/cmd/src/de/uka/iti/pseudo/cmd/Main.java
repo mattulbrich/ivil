@@ -37,14 +37,15 @@ public class Main {
      */
     private static final String CMDLINE_RECURSIVE = "-r";
     private static final String CMDLINE_HELP = "-help";
-    private static final String CMDLINE_CHECKONLY = "-c";
+    private static final String CMDLINE_CHECKPROOFS = "-c";
+    private static final String CMDLINE_PROOFFILE = "-p";
     private static final String CMDLINE_VERBOSE = "-v";
     private static final String CMDLINE_ALLSUFFIX = "-all";
     private static final String CMDLINE_TIMEOUT = "-t";
     private static final String CMDLINE_RULELIMIT = "-n";
     private static final String CMDLINE_THREADS = "-threads";
     private static final String CMDLINE_SOURCE = "-s";
-    private static final String CMDLINE_PIPE = "-pipe";
+//    private static final String CMDLINE_PIPE = "-pipe";
 
     /**
      * The key to the settings to read the properties file name from
@@ -59,7 +60,7 @@ public class Main {
     /*
      * Local fields that hold the values of the command line
      */
-    private static boolean pipeMode;
+//    private static boolean pipeMode;
     private static boolean recursive;
     private static boolean checkOnly;
     private static boolean allSuffix;
@@ -68,6 +69,7 @@ public class Main {
     private static int ruleLimit;
     private static int numberThreads;
     private static boolean relayToSource;
+    private static String proofFile;
 
     /**
      * The thread pool in which the tasks will be executed.
@@ -89,14 +91,15 @@ public class Main {
         CommandLine cl = new CommandLine();
         cl.addOption(CMDLINE_HELP, null, "Print usage");
         cl.addOption(CMDLINE_VERBOSE, null, "Be verbose in messages");
-        cl.addOption(CMDLINE_CHECKONLY, null, "Only read and check proofs,  do not try proving yourself");
+        cl.addOption(CMDLINE_CHECKPROOFS, null, "Check proofs. Proof file names end in '.pxml'");
+        cl.addOption(CMDLINE_PROOFFILE, "<file>", "Proof file to load");
         cl.addOption(CMDLINE_RECURSIVE, null, "Apply recursively.");
         cl.addOption(CMDLINE_ALLSUFFIX, null, "Read all files (not only *.p)");
         cl.addOption(CMDLINE_TIMEOUT, "[secs]", "time to run before interrupting (-1 for no timeout)");
         cl.addOption(CMDLINE_RULELIMIT, "[no]", "number of rule applications before interrupting (0 for no timeout)");
         cl.addOption(CMDLINE_THREADS, "[no]", "number of simultaneously running threads");
         cl.addOption(CMDLINE_SOURCE, null, "relay error messages to sources");
-        cl.addOption(CMDLINE_PIPE, null, "only YES, NO or ERROR will be printed to stdout");
+//        cl.addOption(CMDLINE_PIPE, null, "only YES, NO or ERROR will be printed to stdout");
         return cl;
     }
 
@@ -130,18 +133,16 @@ public class Main {
             }
 
             recursive = commandLine.isSet(CMDLINE_RECURSIVE);
-            checkOnly = commandLine.isSet(CMDLINE_CHECKONLY);
+            checkOnly = commandLine.isSet(CMDLINE_CHECKPROOFS);
             allSuffix = commandLine.isSet(CMDLINE_ALLSUFFIX);
             verbose = commandLine.isSet(CMDLINE_VERBOSE);
             timeout = commandLine.getInteger(CMDLINE_TIMEOUT, 5);
             ruleLimit = commandLine.getInteger(CMDLINE_RULELIMIT, 0);
             numberThreads = commandLine.getInteger(CMDLINE_THREADS, 4);
             relayToSource = commandLine.isSet(CMDLINE_SOURCE);
-            pipeMode = commandLine.isSet(CMDLINE_PIPE);
+            proofFile = commandLine.getString(CMDLINE_PROOFFILE, null);
 
-            if (!pipeMode) {
-                printVersion();
-            }
+            printVersion();
 
             // if(verbose) {
             // Log.setMinLevel(Log.ALL);
@@ -162,32 +163,21 @@ public class Main {
                 Result result;
                 try {
                     result = futResult.get();
-                    if(pipeMode) {
-                        System.out.println(result.getSuccess() ? "YES" : "NO");
-                    } else if (!result.getSuccess()) {
-                        errorcount++;
-                        result.print(System.err);
-                    }
+                    result.print(System.err);
                 } catch (Exception e) {
-                    if(pipeMode) {
-                        System.out.println("ERROR");
-                    } else {
-                        e.printStackTrace();
-                    }
+                    e.printStackTrace();
                     errorcount++;
                 }
             }
 
-            if(!pipeMode && errorcount == 0) {
+            if(errorcount == 0) {
                 System.out.println("All proof obligations have been discharged.");
             }
 
             System.exit(errorcount);
-        } catch (Exception ex) {
-            if (pipeMode) {
-                System.out.println("ERROR");
-            }
 
+        } catch (Exception ex) {
+            Log.stacktrace(Log.ERROR, ex);
             System.exit(-1);
         }
 
@@ -218,7 +208,11 @@ public class Main {
             }
         } else {
             if (allSuffix || file.getName().endsWith(".p")) {
-                handleSingleFile(file);
+                if(checkOnly) {
+                    checkSingleFile(file);
+                } else {
+                    handleSingleFile(file);
+                }
             }
         }
     }
@@ -255,7 +249,12 @@ public class Main {
             assert future != null;
             results.add(future);
         }
+    }
 
+    private static void checkSingleFile(File file) {
+        AutomaticProblemChecker checker = new AutomaticProblemChecker(file, proofFile);
+        Future<Result> future = executor.submit(checker);
+        results.add(future);
     }
 
     /**
