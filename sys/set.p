@@ -21,6 +21,16 @@ plugin
   prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SetPrettyPrinter"
 
 (*
+ * rules with equality
+ *)
+rule set_equality
+  find %a = %b
+  where freshVar %e, %a, %b
+  replace (\forall %e; %e::%a <-> %e::%b)
+  tags
+    derived
+
+(*
  * rules with emptyset
  *)
 
@@ -306,16 +316,6 @@ rule complement_equality
     rewrite "fol simp"
     derived
     verbosity "6"
-
-(*
- * rules with equality
- *)
-rule set_equality
-  find %a = %b
-  where freshVar %e, %a, %b
-  replace (\forall %e; %e::%a <-> %e::%b)
-  tags
-    derived
 
 (*
  * rules with \set

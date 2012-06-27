@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jun 27 20:51:05 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq($complement($intersect(s,t)),$union($complement(s),$complement(t)))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="auto_smt_close" path="" id="0">
+    </ruleApplication>
+  </steps>
+</proof>

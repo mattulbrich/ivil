@@ -77,7 +77,7 @@ rule seqConcatDef
 rule seqReverseDef
   find seqReverse(%a)
   where freshVar %x, %a
-  replace (\seqDef %x; 0; seqLen(%a); seqGet(%a, seqLen(%a)-%x))
+  replace (\seqDef %x; 0; seqLen(%a); seqGet(%a, seqLen(%a) - 1 - %x))
 
 rule seqAsSetDef
   find seqAsSet(%s)
@@ -89,16 +89,31 @@ rule seqAsSetDef
 (*
  * Lemmata and general rules
  *)
+
 rule lenOfSeqEmpty
   find seqLen(seqEmpty)
   replace 0        
   tags
     derived
-    rewrite "fol simp"
+    rewrite "concrete"
+
+rule getOfSeqEmpty
+  find seqGet(seqEmpty, %i)
+  replace seqError
+  tags
+    derived
+    rewrite "concrete"
 
 rule lenOfSeqSingleton
   find seqLen(seqSingleton(%x))
   replace 1
+  tags
+    derived
+    rewrite "fol simp"
+
+rule getOfSeqSingleton
+  find seqGet(seqSingleton(%x), %i)
+  replace cond(%i = 0, %x, seqError)
   tags
     derived
     rewrite "fol simp"
@@ -117,6 +132,14 @@ rule seqLenOfSub
     derived
     rewrite "fol simp"
 
+rule seqGetOfSub
+  find seqGet(seqSub(%a, %from, %to), %i)
+  replace cond(%from <= %i & %i < %to, 
+            seqGet(%a, %i+%from), seqError)
+  tags 
+    derived 
+    rewrite "fol simp"
+
 rule lenOfSeqReverse
   find seqLen(seqReverse(%seq))
   replace seqLen(%seq)
@@ -124,12 +147,11 @@ rule lenOfSeqReverse
     derived
     rewrite "fol simp"
 
-rule seqGetOfSub
-  find seqGet(seqSub(%a, %from, %to), %i)
-  replace cond(%from <= %i & %i < %to, 
-            seqGet(%a, %i+%from), seqError)
-  tags 
-    derived 
+rule getOfSeqReverse
+  find seqGet(seqReverse(%seq), %i)
+  replace seqGet(%seq, seqLen(%seq) - 1 - %i)
+  tags
+    derived
     rewrite "fol simp"
 
 rule inSeqAsSet
@@ -176,9 +198,24 @@ rule seqAsSetEmpty
 (*
  * other lemmata
  *)
+ 
 rule subSeqComplete
   find seqSub(%seq, 0, seqLen(%seq))
   replace(%seq)
+  tags
+    derived
+    rewrite "fol simp"
+
+rule finiteSeqAsSet
+  find finite(seqAsSet(%s))
+  replace true
+  tags
+    derived
+    rewrite "concrete"
+
+rule cardSeqAsSet
+  find card(seqAsSet(%s))
+  replace seqLen(%s)
   tags
     derived
     rewrite "fol simp"
