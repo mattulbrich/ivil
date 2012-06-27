@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jun 27 19:09:41 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq($mem(x,seqAsSet(s)),(\exists i;$and($and($lte(0,\var i),$lt(\var i,seqLen(s))),$eq(seqGet(s,\var i),x))))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqAsSetDef" path="" id="0">
+      <find>S.0.0.1</find>
+      <schemavariable name="%i">\var i as int</schemavariable>
+      <schemavariable name="%x">\var x as 'x</schemavariable>
+      <schemavariable name="%s">s as seq('x)</schemavariable>
+      <typevariable name="s">seq('x)</typevariable>
+      <typevariable name="x">'x</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="in_setext" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%x">\var x as 'x</schemavariable>
+      <schemavariable name="%a">x as 'x</schemavariable>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(s as seq('x)) as int) as bool) as bool,$eq(seqGet(s as seq('x),\var i as int) as 'x,\var x as 'x) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">'x</typevariable>
+      <typevariable name="x">'x</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%t">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(s as seq('x)) as int) as bool) as bool,$eq(seqGet(s as seq('x),\var i as int) as 'x,x as 'x) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="" id="3">
+      <find>S.0</find>
+    </ruleApplication>
+  </steps>
+</proof>

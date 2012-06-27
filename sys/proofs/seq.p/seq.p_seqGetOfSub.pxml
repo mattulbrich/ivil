@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jun 27 20:31:51 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqGet(seqSub(a,from,to),i),cond($and($lte(from,i),$lt(i,to)),seqGet(a,$plus(i,from)),seqError))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="cut_cond" path="" id="0">
+      <find>S.0.1</find>
+      <schemavariable name="%a">seqGet(a as seq('v5),$plus(i as int,from as int) as int) as 'v5</schemavariable>
+      <schemavariable name="%b">seqError as 'v5</schemavariable>
+      <schemavariable name="%c">$and($lte(from as int,i as int) as bool,$lt(i as int,to as int) as bool) as bool</schemavariable>
+      <typevariable name="b">'v5</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">'v5</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="0" id="1">
+      <find>A.0</find>
+      <schemavariable name="%a">$lte(from as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,to as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqSubDef" path="0" id="2">
+      <find>S.0.0.0</find>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%a">a as seq('v5)</schemavariable>
+      <schemavariable name="%from">from as int</schemavariable>
+      <schemavariable name="%to">to as int</schemavariable>
+      <typevariable name="to">int</typevariable>
+      <typevariable name="v3">'v5</typevariable>
+      <typevariable name="a">seq('v5)</typevariable>
+      <typevariable name="from">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="0" id="3">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">from as int</schemavariable>
+      <schemavariable name="%t">seqGet(a as seq('v5),\var x as int) as 'v5</schemavariable>
+      <schemavariable name="%b">to as int</schemavariable>
+      <typevariable name="t">'v5</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0" id="4">
+    </ruleApplication>
+    <ruleApplication rule="and_right" path="1" id="5">
+      <find>S.1</find>
+      <schemavariable name="%a">$lte(from as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,to as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqSubDef" path="1,0" id="6">
+      <find>S.0.0.0</find>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%a">a as seq('v5)</schemavariable>
+      <schemavariable name="%from">from as int</schemavariable>
+      <schemavariable name="%to">to as int</schemavariable>
+      <typevariable name="to">int</typevariable>
+      <typevariable name="v3">'v5</typevariable>
+      <typevariable name="a">seq('v5)</typevariable>
+      <typevariable name="from">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="1,0" id="7">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">from as int</schemavariable>
+      <schemavariable name="%t">seqGet(a as seq('v5),\var x as int) as 'v5</schemavariable>
+      <schemavariable name="%b">to as int</schemavariable>
+      <typevariable name="t">'v5</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0" id="8">
+    </ruleApplication>
+    <ruleApplication rule="seqSubDef" path="1,1" id="9">
+      <find>S.0.0.0</find>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%a">a as seq('v5)</schemavariable>
+      <schemavariable name="%from">from as int</schemavariable>
+      <schemavariable name="%to">to as int</schemavariable>
+      <typevariable name="to">int</typevariable>
+      <typevariable name="v3">'v5</typevariable>
+      <typevariable name="a">seq('v5)</typevariable>
+      <typevariable name="from">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="1,1" id="10">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">from as int</schemavariable>
+      <schemavariable name="%t">seqGet(a as seq('v5),\var x as int) as 'v5</schemavariable>
+      <schemavariable name="%b">to as int</schemavariable>
+      <typevariable name="t">'v5</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,1" id="11">
+    </ruleApplication>
+  </steps>
+</proof>

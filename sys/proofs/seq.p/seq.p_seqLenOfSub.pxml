@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jun 27 20:32:21 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqLen(seqSub(a,from,to)),cond($lte(from,to),$minus(to,from),0))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqSubDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%a">a as seq('v2)</schemavariable>
+      <schemavariable name="%from">from as int</schemavariable>
+      <schemavariable name="%to">to as int</schemavariable>
+      <typevariable name="to">int</typevariable>
+      <typevariable name="v3">'v2</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="from">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqLenDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">from as int</schemavariable>
+      <schemavariable name="%t">seqGet(a as seq('v2),\var x as int) as 'v2</schemavariable>
+      <schemavariable name="%b">to as int</schemavariable>
+      <typevariable name="t">'v2</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%t">cond($lte(from as int,to as int) as bool,$minus(to as int,from as int) as int,0 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="" id="3">
+      <find>S.0</find>
+    </ruleApplication>
+  </steps>
+</proof>
