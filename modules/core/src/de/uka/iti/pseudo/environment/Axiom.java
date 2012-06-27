@@ -76,7 +76,7 @@ public final class Axiom {
         try {
             term.visit(tcv);
         } catch (TermException e) {
-            throw new EnvironmentException("Axiom is not top level term", e);
+            throw new EnvironmentException("Axiom '" + name + "' is not top a level term", e);
         }
     }
 

@@ -955,6 +955,39 @@ public class Environment {
     }
 
     /**
+     * gets a collection containing all binder symbols of this environment and
+     * all parenting environments.
+     *
+     * <p>
+     * The result is a freshly created collection which you may modify.
+     *
+     * @return a freshly created list of all binder symbols
+     */
+    public @NonNull List<Binder> getAllBinders() {
+        List<Binder> binders;
+    
+        if (parentEnvironment == null) {
+            binders = new ArrayList<Binder>();
+        } else {
+            binders = parentEnvironment.getAllBinders();
+        }
+    
+        binders.addAll(binderMap.values());
+        return binders;
+    }
+
+    /**
+     * get the list of all binders defined in this environment. Binders
+     * visible in this environment but defined in a parent environment are
+     * ignored.
+     *
+     * @return an unmodifiable collection of binders
+     */
+    public @NonNull Collection<Binder> getLocalBinders() {
+        return binderMap.values();
+    }
+
+    /**
      * Convenience method to produce type expressions.
      *
      * @param name

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Axiom;
+import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Function;
@@ -91,6 +92,7 @@ public class EnvironmentExporter {
     public void exportDefinitionsFrom(Environment env) {
         exportSortsFrom(env);
         exportFunctionsFrom(env);
+        exportBindersFrom(env);
     }
 
     private void exportFunctionsFrom(Environment env) {
@@ -116,6 +118,27 @@ public class EnvironmentExporter {
             pw.print(" unique");
         }
 
+        pw.println();
+    }
+
+    private void exportBindersFrom(Environment env) {
+        Collection<Binder> binders = env.getLocalBinders();
+        if(!binders.isEmpty()) {
+            for (Binder fct : binders) {
+                exportBinder(fct);
+            }
+        }
+
+        pw.println();
+    }
+
+    private void exportBinder(Binder bnd) {
+        pw.print("binder " + bnd.getResultType() + " (" +
+                bnd.getName() + " " + bnd.getVarType());
+        if(bnd.getArity() > 0) {
+            pw.print("; " + Util.join(bnd.getArgumentTypes(), "; "));
+        }
+        pw.print(")");
         pw.println();
     }
 
@@ -174,15 +197,13 @@ public class EnvironmentExporter {
         }
     }
 
-
-
     private void exportAxiom(Axiom axiom) {
         if(axiom.getDefinedProperties().contains(RuleTagConstants.KEY_GENERATED_AXIOM)) {
             return;
         }
 
-        pw.println("axiom " + axiom.getName());
-        pw.println("  " + axiom.getTerm());
+        pw.println("axiom " + mapSchematicTypes(axiom.getName()));
+        pw.println("  " + axiom.getTerm().toString(true));
         if(!axiom.getDefinedProperties().isEmpty()) {
             pw.println("tags");
             for (String property : axiom.getDefinedProperties()) {
@@ -203,7 +224,7 @@ public class EnvironmentExporter {
 
             pw.println("sourceline " + statement.getSourceLineNumber());
             pw.print("  ");
-            pw.print(statement.toString(true));
+            pw.print(mapSchematicTypes(statement.toString(true)));
             if (program.getTextAnnotation(i) != null) {
                 pw.println("; \"" + program.getTextAnnotation(i) + "\"");
             } else {
@@ -218,12 +239,12 @@ public class EnvironmentExporter {
 
         LocatedTerm findClause = r.getFindClause();
         if(findClause != null) {
-            pw.println("  find " + findClause.toString());
+            pw.println("  find " + mapSchematicTypes(findClause.toString(true)));
         }
 
         List<LocatedTerm> assumptions = r.getAssumptions();
         for (LocatedTerm lt : assumptions) {
-            pw.println("  assume " + lt.toString());
+            pw.println("  assume " + mapSchematicTypes(lt.toString()));
         }
 
         List<WhereClause> whereClauses = r.getWhereClauses();
@@ -272,15 +293,15 @@ public class EnvironmentExporter {
 
         Term replaceWith = ga.getReplaceWith();
         if(replaceWith != null) {
-            pw.println("    replace " + replaceWith);
+            pw.println("    replace " + mapSchematicTypes(replaceWith.toString(true)));
         }
 
         for (Term t : ga.getAddAntecedent()) {
-            pw.println("    add " + t + " |-");
+            pw.println("    add " + mapSchematicTypes(t.toString(true)) + " |-");
         }
 
         for (Term t : ga.getAddSuccedent()) {
-            pw.println("    add |- " + t);
+            pw.println("    add |- " + mapSchematicTypes(t.toString(true)));
         }
     }
 
@@ -290,7 +311,11 @@ public class EnvironmentExporter {
         }
 
         pw.println("problem");
-        pw.println("  " + formula);
+        pw.println("  " + mapSchematicTypes(formula.toString(true)));
+    }
+
+    private String mapSchematicTypes(String string) {
+        return string.replaceAll("%'([0-9]+)", "%'v$1");
     }
 
     public void close() {

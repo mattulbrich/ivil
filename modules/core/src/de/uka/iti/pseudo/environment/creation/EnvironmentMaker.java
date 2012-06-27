@@ -34,6 +34,7 @@ import de.uka.iti.pseudo.parser.file.ASTIncludeDeclarationBlock;
 import de.uka.iti.pseudo.parser.file.ASTPluginDeclaration;
 import de.uka.iti.pseudo.parser.file.ASTPlugins;
 import de.uka.iti.pseudo.term.Sequent;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.SelectList;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -266,7 +267,8 @@ public class EnvironmentMaker {
 
     private void doIncludes(ASTFile astFile) throws ASTVisitException  {
         // TODO method documentation
-        SelectList<ASTIncludeDeclarationBlock> includes = SelectList.select(ASTIncludeDeclarationBlock.class, astFile.getChildren());
+        SelectList<ASTIncludeDeclarationBlock> includes =
+                SelectList.select(ASTIncludeDeclarationBlock.class, astFile.getChildren());
         for (ASTIncludeDeclarationBlock block : includes) {
             for (Token token : block.getIncludeStrings()) {
                 String filename = Util.stripQuotes(token.image);
@@ -355,6 +357,7 @@ public class EnvironmentMaker {
             }
 
             // then fail
+            Log.log(Log.DEBUG, filename + " not found in system directories: " + SYS_DIR);
             throw new FileNotFoundException(filename + " not found in any system directory");
         } else {
             URL topURL = new URL(toplevel);
