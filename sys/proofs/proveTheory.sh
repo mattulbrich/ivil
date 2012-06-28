@@ -26,6 +26,7 @@ java -cp "$BASE/ivil.jar" \
 
 for po in "$PROOFSDIR/$1"/*.p
 do
+   echo "!WORKON: Proving $po"
    if [ -r "$po"xml ]
    then
       java -cp "$BASE/ivil.jar" \
@@ -34,7 +35,13 @@ do
         -Dpseudo.baseDir="$BASEDIR" \
         de.uka.iti.pseudo.cmd.Main \
         -c -p "$po"xml "$po"
+      if [ $? ]
+      then
+         echo "!OK: $po"
+      else
+         echo "!ERROR: $po"
+      fi
    else
-      echo "No proof for $po"
+      echo "!WARNING: $po - No proof"
    fi
 done
