@@ -13,12 +13,14 @@ import java.util.List;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.rule.GoalAction;
 import de.uka.iti.pseudo.rule.GoalAction.Kind;
 import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleException;
+import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.creation.TermFactory;
@@ -41,6 +43,7 @@ public class RuleFormulaExtractor {
     private static final Term TRUE = Environment.getTrue();
 
     private final TermFactory tf;
+    private final Function negFunction;
 
     /**
      * Instantiates a new rule formula extractor for an environment.
@@ -50,6 +53,7 @@ public class RuleFormulaExtractor {
      */
     public RuleFormulaExtractor(@NonNull Environment env) {
         this.tf = new TermFactory(env);
+        this.negFunction = env.getFunction("$not");
     }
 
     /**
@@ -137,7 +141,7 @@ public class RuleFormulaExtractor {
 
             Term add = FALSE;
             for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
+                add = disj(add, not(t));
             }
 
             for (Term t : action.getAddSuccedent()) {
@@ -213,7 +217,7 @@ public class RuleFormulaExtractor {
 
             Term add = FALSE;
             for (Term t : action.getAddAntecedent()) {
-                add = disj(add, tf.not(t));
+                add = disj(add, not(t));
             }
             for (Term t : action.getAddSuccedent()) {
                 add = disj(add, t);
@@ -252,7 +256,7 @@ public class RuleFormulaExtractor {
         for (LocatedTerm assume : assumptions) {
             switch (assume.getMatchingLocation()) {
             case ANTECEDENT:
-                context = disj(context, tf.not(assume.getTerm()));
+                context = disj(context, not(assume.getTerm()));
                 break;
             case SUCCEDENT:
                 context = disj(context, assume.getTerm());
@@ -306,6 +310,32 @@ public class RuleFormulaExtractor {
     }
 
     /**
+     * create a negation term.
+     *
+     * If the argument is a negation, return the term itself, otherwise return
+     * the negation. If the argument is a constant, then the opposite constant
+     * is returned.
+     *
+     * @param t
+     *            a boolean term.
+     * @return &not; t (or s if t=&not; s)
+     * @throws TermException
+     *             if the term is not boolean
+     */
+    private Term not(Term t) throws TermException {
+        if (t == TRUE) {
+            return FALSE;
+        } else if (t == FALSE) {
+            return TRUE;
+        } else if(t instanceof Application &&
+                ((Application)t).getFunction() == negFunction) {
+            return t.getSubterm(0);
+        } else {
+            return tf.not(t);
+        }
+    }
+
+    /**
      * create a conjunction term.
      *
      * If at least one of the arguments is syntactically <code>true</code>, the
@@ -348,7 +378,7 @@ public class RuleFormulaExtractor {
         if (t1 == TRUE) {
             return t2;
         } else if (t2 == FALSE) {
-            return tf.not(t1);
+            return not(t1);
         } else {
             return tf.impl(t1, t2);
         }

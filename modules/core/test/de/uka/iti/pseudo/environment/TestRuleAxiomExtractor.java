@@ -36,14 +36,14 @@ public class TestRuleAxiomExtractor extends TestCaseWithEnv {
     public void testAddAxiomExtraction() throws Exception {
         env = testEnv("include \"$int.p\" " +
                 "rule R find %a" +
-                "  samegoal replace 2" +
-                "  samegoal add %a=2 |-" +
+                "  samegoal   replace 2" +
+                "  samegoal   add |- %a=2" +
                 "  tags asAxiom");
 
         Axiom ax = env.getAxiom("R");
 
         assertEquals(makeTerm("(\\forall a; $pattern(a," +
-                " (a=2 & !a=2)))"), ax.getTerm());
+                " !(!a=2 & a=2)))").toString(true), ax.getTerm().toString(true));
     }
 
     public void testLocatedAxiom() throws Exception {

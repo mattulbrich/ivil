@@ -164,6 +164,9 @@ public class Main {
                 try {
                     result = futResult.get();
                     result.print(System.err);
+                    if(!result.success) {
+                        errorcount++;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     errorcount++;

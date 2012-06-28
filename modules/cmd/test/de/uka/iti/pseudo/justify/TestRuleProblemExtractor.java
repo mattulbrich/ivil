@@ -4,8 +4,8 @@
  *
  * Copyright (C) 2009-2010 Universitaet Karlsruhe, Germany
  *    written by Mattias Ulbrich
- * 
- * The system is protected by the GNU General Public License. 
+ *
+ * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
 package de.uka.iti.pseudo.justify;
@@ -35,10 +35,10 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         }
     }
 
-    private Environment startEnv;
+    private final Environment startEnv;
 
     public TestRuleProblemExtractor() {
-        startEnv = loadEnv(); 
+        startEnv = loadEnv();
     }
 
     public void test_extract_both() throws Exception {
@@ -105,11 +105,18 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
         testRule("skolemize3");
     }
 
+    // from a case from set theory:
+    // uncovered a bug!
+    public void test_assume_no_add() throws Exception {
+        testRule("assume_no_add");
+    }
+
     public void test_type_quant_fails() throws Exception {
         String name = "type_quant_fails";
         Rule rule = startEnv.getRule(name);
-        if(rule == null)
+        if(rule == null) {
             fail("Unknown rule " + name);
+        }
 
         env = new Environment("none:wrap", startEnv);
         RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);
@@ -119,20 +126,23 @@ public class TestRuleProblemExtractor extends TestCaseWithEnv {
             System.out.println(result);
             fail("Should have failed: Type quant not allowed");
         } catch (Exception e) {
-            if(VERBOSE)
+            if(VERBOSE) {
                 e.printStackTrace();
+            }
         }
     }
 
     private void testRule(String name) throws Exception {
 
         Rule rule = startEnv.getRule(name);
-        if(rule == null)
+        if(rule == null) {
             fail("Unknown rule " + name);
+        }
 
         String expected = rule.getProperty("expectedTranslation");
-        if(expected == null)
+        if(expected == null) {
             fail("Rule " + name + " has no expectedTranslation");
+        }
 
         env = new Environment("none:wrap", startEnv);
         RuleProblemExtractor rpe = new RuleProblemExtractor(rule, env);

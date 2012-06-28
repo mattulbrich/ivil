@@ -1,29 +1,40 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 15:30:44 CEST 2012</date>
+    <date>Thu Jun 28 16:55:10 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $not($not($eq(seqLen(seqReverse(seq)),seqLen(seq))))</problem>
+    <problem> |- $eq(seqLen(seqReverse(seq)),seqLen(seq))</problem>
     <hash>to be done</hash>
   </info>
   <steps>
     <ruleApplication rule="seqReverseDef" path="" id="0">
-      <find>S.0.0.0.0.0</find>
+      <find>S.0.0.0</find>
       <schemavariable name="%x">\var x as int</schemavariable>
       <schemavariable name="%a">seq as seq('v2)</schemavariable>
       <typevariable name="5">'v2</typevariable>
       <typevariable name="a">seq('v2)</typevariable>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
-      <find>S.0.0.0.0</find>
+      <find>S.0.0</find>
       <schemavariable name="%i">\var x as int</schemavariable>
-      <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%t">seqGet(seq as seq('v2),$minus($minus(seqLen(seq as seq('v2)) as int,1 as int) as int,\var x as int) as int) as 'v2</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%b">seqLen(seq as seq('v2)) as int</schemavariable>
       <typevariable name="t">'v2</typevariable>
       <typevariable name="b">int</typevariable>
       <typevariable name="a">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="" id="2">
+    <ruleApplication rule="cut_cond" path="" id="2">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$minus(seqLen(seq as seq('v2)) as int,0 as int) as int</schemavariable>
+      <schemavariable name="%b">0 as int</schemavariable>
+      <schemavariable name="%c">$lte(0 as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0" id="3">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1" id="4">
     </ruleApplication>
   </steps>
 </proof>

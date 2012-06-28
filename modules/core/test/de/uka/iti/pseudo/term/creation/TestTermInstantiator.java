@@ -241,4 +241,13 @@ public class TestTermInstantiator extends TestCaseWithEnv {
         assertEquals(makeTerm("arb as poly(int, 'b)"), t);
 
     }
+
+//    public void test1() throws Exception {
+//        termmap.put("%i", makeTerm("\\var i as int"));
+//        termmap.put("%s1", makeTerm("arb as set('v2)"));
+//        termmap.put("%s2", makeTerm("arb as set('v2)"));
+//        typemap.put("s1", makeTerm("arb set('v2')").getType());
+//        typemap.put("s2", makeTerm("arb set('v2')").getType());
+//        typemap.put("v8", makeTerm("arb 'v2'").getType());
+//    }
 }

@@ -1,33 +1,28 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 13:37:03 CEST 2012</date>
+    <date>Thu Jun 28 16:51:08 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $not($not($eq(seqGet(seqEmpty,i),seqError)))</problem>
+    <problem> |- $eq(seqGet(seqEmpty,i),seqError)</problem>
     <hash>to be done</hash>
   </info>
   <steps>
     <ruleApplication rule="seqEmptyDef" path="" id="0">
-      <find>S.0.0.0.0.0</find>
+      <find>S.0.0.0</find>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
     <ruleApplication rule="seqGetDef" path="" id="1">
-      <find>S.0.0.0.0</find>
+      <find>S.0.0</find>
       <schemavariable name="%j">i as int</schemavariable>
       <schemavariable name="%i">\var x as int</schemavariable>
-      <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%b">0 as int</schemavariable>
       <typevariable name="t">'v2</typevariable>
       <typevariable name="b">int</typevariable>
       <typevariable name="a">int</typevariable>
       <typevariable name="j">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="not_not" path="" id="2">
-      <find>S.0</find>
-      <schemavariable name="%b">$eq(cond($and($lte(0 as int,i as int) as bool,$lt(i as int,0 as int) as bool) as bool,seqError as 'v2,seqError as 'v2) as 'v2,seqError as 'v2) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="cut_cond" path="" id="3">
+    <ruleApplication rule="cut_cond" path="" id="2">
       <find>S.0.0</find>
       <schemavariable name="%a">seqError as 'v2</schemavariable>
       <schemavariable name="%b">seqError as 'v2</schemavariable>
@@ -36,20 +31,20 @@
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="equality_refl" path="0" id="4">
+    <ruleApplication rule="equality_refl" path="0" id="3">
       <find>S.0</find>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
       <typevariable name="t">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="close_true_right" path="0" id="5">
+    <ruleApplication rule="close_true_right" path="0" id="4">
       <find>S.0</find>
     </ruleApplication>
-    <ruleApplication rule="equality_refl" path="1" id="6">
+    <ruleApplication rule="equality_refl" path="1" id="5">
       <find>S.0</find>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
       <typevariable name="t">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="close_true_right" path="1" id="7">
+    <ruleApplication rule="close_true_right" path="1" id="6">
       <find>S.0</find>
     </ruleApplication>
   </steps>

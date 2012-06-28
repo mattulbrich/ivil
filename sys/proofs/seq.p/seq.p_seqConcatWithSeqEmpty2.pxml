@@ -1,18 +1,88 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 15:33:34 CEST 2012</date>
+    <date>Thu Jun 28 16:56:32 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $not($not($eq(seqConcat(seqEmpty,seq),seq)))</problem>
+    <problem> |- $eq(seqConcat(seqEmpty,seq),seq)</problem>
     <hash>to be done</hash>
   </info>
   <steps>
-    <ruleApplication rule="not_not" path="" id="0">
+    <ruleApplication rule="seqExtensionality" path="" id="0">
       <find>S.0</find>
-      <schemavariable name="%b">$eq(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2),seq as seq('v2)) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
+      <schemavariable name="%i">\var i as int</schemavariable>
+      <schemavariable name="%s1">seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2)</schemavariable>
+      <schemavariable name="%s2">seq as seq('v2)</schemavariable>
+      <typevariable name="s2">seq('v2)</typevariable>
+      <typevariable name="s1">seq('v2)</typevariable>
+      <typevariable name="8">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="seqConcatDef" path="" id="1">
+    <ruleApplication rule="lenOfSeqConcat" path="" id="1">
+      <find>S.0.0.0</find>
+      <schemavariable name="%seq2">seq as seq('v2)</schemavariable>
+      <schemavariable name="%seq">seqEmpty as seq('v2)</schemavariable>
+      <typevariable name="v2">'v2</typevariable>
+      <typevariable name="seq">seq('v2)</typevariable>
+      <typevariable name="seq2">seq('v2)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="2">
+      <find>S.0.0.0.0</find>
+      <typevariable name="v2">'v2</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="zero_plus" path="" id="3">
+      <find>S.0.0.0</find>
+      <schemavariable name="%a">seqLen(seq as seq('v2)) as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="" id="4">
       <find>S.0.0</find>
+      <schemavariable name="%t">seqLen(seq as seq('v2)) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_true_l" path="" id="5">
+      <find>S.0</find>
+      <schemavariable name="%a">(\forall i as int;$impl($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2)) as int) as bool) as bool,$eq(seqGet(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2),\var i as int) as 'v2,seqGet(seq as seq('v2),\var i as int) as 'v2) as bool) as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="forall_right" path="" id="6">
+      <find>S.0</find>
+      <schemavariable name="%x">\var i as int</schemavariable>
+      <schemavariable name="%b">$impl($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2)) as int) as bool) as bool,$eq(seqGet(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2),\var i as int) as 'v2,seqGet(seq as seq('v2),\var i as int) as 'v2) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="skolemName(\var i as int)">i</property>
+    </ruleApplication>
+    <ruleApplication rule="impl_right" path="" id="7">
+      <find>S.0</find>
+      <schemavariable name="%a">$and($lte(0 as int,i as int) as bool,$lt(i as int,seqLen(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2)) as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">$eq(seqGet(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2),i as int) as 'v2,seqGet(seq as seq('v2),i as int) as 'v2) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="8">
+      <find>A.0</find>
+      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,seqLen(seqConcat(seqEmpty as seq('v2),seq as seq('v2)) as seq('v2)) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="lenOfSeqConcat" path="" id="9">
+      <find>A.1.1</find>
+      <schemavariable name="%seq2">seq as seq('v2)</schemavariable>
+      <schemavariable name="%seq">seqEmpty as seq('v2)</schemavariable>
+      <typevariable name="v2">'v2</typevariable>
+      <typevariable name="seq">seq('v2)</typevariable>
+      <typevariable name="seq2">seq('v2)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="10">
+      <find>A.1.1.0</find>
+      <typevariable name="v2">'v2</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="zero_plus" path="" id="11">
+      <find>A.1.1</find>
+      <schemavariable name="%a">seqLen(seq as seq('v2)) as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqConcatDef" path="" id="12">
+      <find>S.0.0.0</find>
       <schemavariable name="%x">\var x as int</schemavariable>
       <schemavariable name="%a">seqEmpty as seq('v2)</schemavariable>
       <schemavariable name="%b">seq as seq('v2)</schemavariable>
@@ -20,132 +90,52 @@
       <typevariable name="a">seq('v2)</typevariable>
       <typevariable name="9">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="lenOfSeqEmpty" path="" id="2">
-      <find>S.0.0.1.0</find>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="13">
+      <find>S.0.0.0.1.0</find>
       <typevariable name="v2">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="lenOfSeqEmpty" path="" id="3">
-      <find>S.0.0.2.0.1</find>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="14">
+      <find>S.0.0.0.2.0.1</find>
       <typevariable name="v2">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="getOfSeqEmpty" path="" id="4">
-      <find>S.0.0.2.1</find>
+    <ruleApplication rule="getOfSeqEmpty" path="" id="15">
+      <find>S.0.0.0.2.1</find>
       <schemavariable name="%i">\var x as int</schemavariable>
       <typevariable name="v2">'v2</typevariable>
       <typevariable name="i">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="lenOfSeqEmpty" path="" id="5">
-      <find>S.0.0.2.2.1.1</find>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="16">
+      <find>S.0.0.0.2.2.1.1</find>
       <typevariable name="v2">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="zero_plus" path="" id="6">
-      <find>S.0.0.1</find>
-      <schemavariable name="%a">seqLen(seq as seq('v2)) as int</schemavariable>
-      <typevariable name="a">int</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="seqExtensionality" path="" id="7">
-      <find>S.0</find>
-      <schemavariable name="%i">\var i as int</schemavariable>
-      <schemavariable name="%s1">(\seqDef x as int;0 as int;seqLen(seq as seq('v2)) as int;cond($lt(\var x as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var x as int,0 as int) as int) as 'v2) as 'v2) as seq('v2)</schemavariable>
-      <schemavariable name="%s2">seq as seq('v2)</schemavariable>
-      <typevariable name="s2">seq('v2)</typevariable>
-      <typevariable name="s1">seq('v2)</typevariable>
-      <typevariable name="8">'v2</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="seqLenDef" path="" id="8">
-      <find>S.0.0.0</find>
+    <ruleApplication rule="seqGetDef" path="" id="17">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
       <schemavariable name="%i">\var x as int</schemavariable>
       <schemavariable name="%t">cond($lt(\var x as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var x as int,0 as int) as int) as 'v2) as 'v2</schemavariable>
       <schemavariable name="%a">0 as int</schemavariable>
-      <schemavariable name="%b">seqLen(seq as seq('v2)) as int</schemavariable>
-      <typevariable name="t">'v2</typevariable>
-      <typevariable name="b">int</typevariable>
-      <typevariable name="a">int</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="seqLenDef" path="" id="9">
-      <find>S.0.1.0.0.1.1</find>
-      <schemavariable name="%i">\var x as int</schemavariable>
-      <schemavariable name="%t">cond($lt(\var x as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var x as int,0 as int) as int) as 'v2) as 'v2</schemavariable>
-      <schemavariable name="%a">0 as int</schemavariable>
-      <schemavariable name="%b">seqLen(seq as seq('v2)) as int</schemavariable>
-      <typevariable name="t">'v2</typevariable>
-      <typevariable name="b">int</typevariable>
-      <typevariable name="a">int</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="seqGetDef" path="" id="10">
-      <find>S.0.1.0.1.0</find>
-      <schemavariable name="%j">\var i as int</schemavariable>
-      <schemavariable name="%i">\var x as int</schemavariable>
-      <schemavariable name="%t">cond($lt(\var x as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var x as int,0 as int) as int) as 'v2) as 'v2</schemavariable>
-      <schemavariable name="%a">0 as int</schemavariable>
-      <schemavariable name="%b">seqLen(seq as seq('v2)) as int</schemavariable>
+      <schemavariable name="%b">$plus(0 as int,seqLen(seq as seq('v2)) as int) as int</schemavariable>
       <typevariable name="t">'v2</typevariable>
       <typevariable name="b">int</typevariable>
       <typevariable name="a">int</typevariable>
       <typevariable name="j">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="plus_zero" path="" id="11">
-      <find>S.0.1.0.1.0.1.0.0</find>
-      <schemavariable name="%a">\var i as int</schemavariable>
+    <ruleApplication rule="zero_plus" path="" id="18">
+      <find>S.0.0.0.1.1</find>
+      <schemavariable name="%a">seqLen(seq as seq('v2)) as int</schemavariable>
       <typevariable name="a">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="plus_zero" path="" id="12">
-      <find>S.0.1.0.1.0.1.2.1.0</find>
-      <schemavariable name="%a">\var i as int</schemavariable>
+    <ruleApplication rule="plus_zero" path="" id="19">
+      <find>S.0.0.1.0.0</find>
+      <schemavariable name="%a">i as int</schemavariable>
       <typevariable name="a">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="and_right" path="" id="13">
-      <find>S.0</find>
-      <schemavariable name="%a">$eq(cond($lte(0 as int,seqLen(seq as seq('v2)) as int) as bool,$minus(seqLen(seq as seq('v2)) as int,0 as int) as int,0 as int) as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
-      <schemavariable name="%b">(\forall i as int;$impl($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,cond($lte(0 as int,seqLen(seq as seq('v2)) as int) as bool,$minus(seqLen(seq as seq('v2)) as int,0 as int) as int,0 as int) as int) as bool) as bool,$eq(cond($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seq as seq('v2)) as int) as bool) as bool,cond($lt(\var i as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var i as int,0 as int) as int) as 'v2) as 'v2,seqError as 'v2) as 'v2,seqGet(seq as seq('v2),\var i as int) as 'v2) as bool) as bool) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-      <typevariable name="a">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="cut_cond" path="0" id="14">
-      <find>S.0.0</find>
-      <schemavariable name="%a">$minus(seqLen(seq as seq('v2)) as int,0 as int) as int</schemavariable>
-      <schemavariable name="%b">0 as int</schemavariable>
-      <schemavariable name="%c">$lte(0 as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
-      <typevariable name="b">int</typevariable>
-      <typevariable name="c">bool</typevariable>
+    <ruleApplication rule="plus_zero" path="" id="20">
+      <find>S.0.0.1.2.1.0</find>
+      <schemavariable name="%a">i as int</schemavariable>
       <typevariable name="a">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="0,0" id="15">
-    </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="0,1" id="16">
-    </ruleApplication>
-    <ruleApplication rule="forall_right" path="1" id="17">
-      <find>S.0</find>
-      <schemavariable name="%x">\var i as int</schemavariable>
-      <schemavariable name="%b">$impl($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,cond($lte(0 as int,seqLen(seq as seq('v2)) as int) as bool,$minus(seqLen(seq as seq('v2)) as int,0 as int) as int,0 as int) as int) as bool) as bool,$eq(cond($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seq as seq('v2)) as int) as bool) as bool,cond($lt(\var i as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(\var i as int,0 as int) as int) as 'v2) as 'v2,seqError as 'v2) as 'v2,seqGet(seq as seq('v2),\var i as int) as 'v2) as bool) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-      <typevariable name="x">int</typevariable>
-      <property name="skolemName(\var i as int)">i</property>
-    </ruleApplication>
-    <ruleApplication rule="impl_right" path="1" id="18">
-      <find>S.0</find>
-      <schemavariable name="%a">$and($lte(0 as int,i as int) as bool,$lt(i as int,cond($lte(0 as int,seqLen(seq as seq('v2)) as int) as bool,$minus(seqLen(seq as seq('v2)) as int,0 as int) as int,0 as int) as int) as bool) as bool</schemavariable>
-      <schemavariable name="%b">$eq(cond($and($lte(0 as int,i as int) as bool,$lt(i as int,seqLen(seq as seq('v2)) as int) as bool) as bool,cond($lt(i as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(i as int,0 as int) as int) as 'v2) as 'v2,seqError as 'v2) as 'v2,seqGet(seq as seq('v2),i as int) as 'v2) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-      <typevariable name="a">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="and_left" path="1" id="19">
-      <find>A.0</find>
-      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
-      <schemavariable name="%b">$lt(i as int,cond($lte(0 as int,seqLen(seq as seq('v2)) as int) as bool,$minus(seqLen(seq as seq('v2)) as int,0 as int) as int,0 as int) as int) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-      <typevariable name="a">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="cut_cond" path="1" id="20">
-      <find>A.1.1</find>
-      <schemavariable name="%a">$minus(seqLen(seq as seq('v2)) as int,0 as int) as int</schemavariable>
-      <schemavariable name="%b">0 as int</schemavariable>
-      <schemavariable name="%c">$lte(0 as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
-      <typevariable name="b">int</typevariable>
-      <typevariable name="c">bool</typevariable>
-      <typevariable name="a">int</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="cut_cond" path="1,0" id="21">
+    <ruleApplication rule="cut_cond" path="" id="21">
       <find>S.0.0</find>
       <schemavariable name="%a">cond($lt(i as int,0 as int) as bool,seqError as 'v2,seqGet(seq as seq('v2),$minus(i as int,0 as int) as int) as 'v2) as 'v2</schemavariable>
       <schemavariable name="%b">seqError as 'v2</schemavariable>
@@ -154,7 +144,14 @@
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="cut_cond" path="1,0,0" id="22">
+    <ruleApplication rule="and_left" path="0" id="22">
+      <find>A.2</find>
+      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="0" id="23">
       <find>S.0.0</find>
       <schemavariable name="%a">seqError as 'v2</schemavariable>
       <schemavariable name="%b">seqGet(seq as seq('v2),$minus(i as int,0 as int) as int) as 'v2</schemavariable>
@@ -163,60 +160,28 @@
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="1,0,0,0" id="23">
+    <ruleApplication rule="auto_smt_close" path="0,0" id="24">
     </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="1,0,0,1" id="24">
+    <ruleApplication rule="auto_smt_close" path="0,1" id="25">
     </ruleApplication>
-    <ruleApplication rule="and_right" path="1,0,1" id="25">
+    <ruleApplication rule="and_right" path="1" id="26">
       <find>S.1</find>
       <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
       <schemavariable name="%b">$lt(i as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
       <typevariable name="b">bool</typevariable>
       <typevariable name="a">bool</typevariable>
     </ruleApplication>
-    <ruleApplication rule="close_antecedent" path="1,0,1,0" id="26">
+    <ruleApplication rule="close_antecedent" path="1,0" id="27">
       <find>S.1</find>
       <assume>A.0</assume>
       <schemavariable name="%b">$lte(0 as int,i as int) as bool</schemavariable>
       <typevariable name="b">bool</typevariable>
     </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="1,0,1,1" id="27">
-    </ruleApplication>
-    <ruleApplication rule="cond_known_left" path="1,1" id="28">
-      <find>S.0.0.1</find>
+    <ruleApplication rule="close_antecedent" path="1,1" id="28">
+      <find>S.1</find>
       <assume>A.1</assume>
-      <schemavariable name="%a">seqError as 'v2</schemavariable>
-      <schemavariable name="%b">seqGet(seq as seq('v2),$minus(i as int,0 as int) as int) as 'v2</schemavariable>
-      <schemavariable name="%c">$lt(i as int,0 as int) as bool</schemavariable>
-      <typevariable name="b">'v2</typevariable>
-      <typevariable name="c">bool</typevariable>
-      <typevariable name="a">'v2</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="cut_cond" path="1,1" id="29">
-      <find>S.0.0</find>
-      <schemavariable name="%a">seqError as 'v2</schemavariable>
-      <schemavariable name="%b">seqError as 'v2</schemavariable>
-      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,seqLen(seq as seq('v2)) as int) as bool) as bool</schemavariable>
-      <typevariable name="b">'v2</typevariable>
-      <typevariable name="c">bool</typevariable>
-      <typevariable name="a">'v2</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="1,1,0" id="30">
-    </ruleApplication>
-    <ruleApplication rule="and_right" path="1,1,1" id="31">
-      <find>S.2</find>
-      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
       <schemavariable name="%b">$lt(i as int,seqLen(seq as seq('v2)) as int) as bool</schemavariable>
       <typevariable name="b">bool</typevariable>
-      <typevariable name="a">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="close_antecedent" path="1,1,1,0" id="32">
-      <find>S.2</find>
-      <assume>A.0</assume>
-      <schemavariable name="%b">$lte(0 as int,i as int) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="1,1,1,1" id="33">
     </ruleApplication>
   </steps>
 </proof>

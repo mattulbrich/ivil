@@ -115,8 +115,8 @@ rule extract_findless_assume_less
   samegoal
     add |- add_right
 
-  tags expectedTranslation "  (!add_left)
-                & (add_right)"
+  tags expectedTranslation "  !(!add_left
+                & add_right)"
 
 rule rename_schemas
   find (\forall x; (\forall %x; x=%x))
