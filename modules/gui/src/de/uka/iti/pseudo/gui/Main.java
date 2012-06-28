@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.gui;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
@@ -40,6 +41,8 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.serialisation.ProofExport;
+import de.uka.iti.pseudo.proof.serialisation.ProofImport;
+import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Sequent;
@@ -68,6 +71,7 @@ public class Main {
     private static final String CMDLINE_HELP = "-help";
     private static final String CMDLINE_EDIT = "-edit";
     private static final String CMDLINE_PROG = "-prog";
+    private static final String CMDLINE_PROOF = "-proof";
 
     private static Settings settings;
 
@@ -134,12 +138,21 @@ public class Main {
                         File file = new File(fileArguments.get(0));
                         if (commandLine.isSet(CMDLINE_EDIT)) {
                             openEditor(file);
-                        } else if(commandLine.isSet(CMDLINE_PROG)) {
-                            String program = commandLine.getString(CMDLINE_PROG, "");
-                            URL url = new URL("file", null, file.getAbsolutePath() + "#" + program);
-                            openProverFromURL(url);
                         } else {
-                            openProver(file);
+                            ProofCenter center;
+                            if(commandLine.isSet(CMDLINE_PROG)) {
+                                String program = commandLine.getString(CMDLINE_PROG, "");
+                                URL url = new URL("file", null, file.getAbsolutePath() + "#" + program);
+                                center = openProverFromURL(url);
+                            } else {
+                                center = openProver(file);
+                            }
+                            if(commandLine.isSet(CMDLINE_PROOF)) {
+                                String proofFile = commandLine.getString(CMDLINE_PROOF, "");
+                                ProofImport proofImport = new ProofXML();
+                                proofImport.importProof(new FileInputStream(proofFile),
+                                        center.getProof(), center.getEnvironment());
+                            }
                         }
                     }
                 } catch (Throwable ex) {
@@ -170,6 +183,7 @@ public class Main {
         cl.addOption(CMDLINE_EDIT, null, "Edit the file instead of opening a prover frame");
         cl.addOption(CMDLINE_CONFIG, "file", "Read configuration from a file overwriting defaults.");
         cl.addOption(CMDLINE_PROG, "program", "Specify the program to use as problem.");
+        cl.addOption(CMDLINE_PROOF, "file", "Load proof from this file.");
         return cl;
     }
 
