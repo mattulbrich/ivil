@@ -71,13 +71,13 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This class describes the component which is in the rule application popup.
- * 
+ *
  * <p>In addition to a normal RuleApplicationComponent, it possesses also a list
- * of rule application from which one can choose. The instantiations may 
+ * of rule application from which one can choose. The instantiations may
  * also contain input fields for interactive instantiation.
- * 
- * <p>Once a rule application has been chosen it is sent to the attached 
- * ProofCenter to be applied via {@link ProofCenter#apply(RuleApplication)}. 
+ *
+ * <p>Once a rule application has been chosen it is sent to the attached
+ * ProofCenter to be applied via {@link ProofCenter#apply(RuleApplication)}.
  */
 public class InteractiveRuleApplicationComponent extends
         RuleApplicationComponent implements ActionListener, ListSelectionListener {
@@ -86,6 +86,11 @@ public class InteractiveRuleApplicationComponent extends
 
     private static final String SHOW_EXCEPTION_DIALOG = "pseudo.interactiveRuleApplication.showExceptionDialog";
 
+    /**
+     * The property key to mark a rule application as manual.
+     */
+    public static final String MANUAL_RULEAPP = "ivil.manualRuleapp";
+
     public InteractiveRuleApplicationComponent(ProofCenter proofCenter, List<RuleApplication> ruleApps) {
         super(proofCenter);
         this.interactiveApplications = ruleApps;
@@ -93,11 +98,11 @@ public class InteractiveRuleApplicationComponent extends
     }
 
     // the applications to choose from
-    private List<RuleApplication> interactiveApplications;
-    
+    private final List<RuleApplication> interactiveApplications;
+
     // the panel that holds the list of applicable rules
     private JPanel applicableListPanel;
-    
+
     // the list of applicable rules
     private JList applicableList;
 
@@ -117,10 +122,12 @@ public class InteractiveRuleApplicationComponent extends
                 new Insets(0, 0, 0, 0), 0, 0));
 
         // action listener for the poor
-        applicableList.addMouseListener(new MouseAdapter() { 
+        applicableList.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2)
+                if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                     actionPerformed(null);
+                }
             }
         });
     }
@@ -134,16 +141,18 @@ public class InteractiveRuleApplicationComponent extends
         }
         return applications;
     }
-    
+
     /*
      * This method is called when a new value in the rule application
      * list is selected.
      */
+    @Override
     public void valueChanged(ListSelectionEvent e) {
         // ignore those "adjusting" events
-        if(e.getValueIsAdjusting())
+        if(e.getValueIsAdjusting()) {
             return;
-        
+        }
+
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
             RuleApplication ruleApp = (RuleApplication) selected;
@@ -151,8 +160,9 @@ public class InteractiveRuleApplicationComponent extends
             Log.log(Log.DEBUG, Dump.toString(ruleApp));
         }
     }
-    
+
     // chosen ruleappl
+    @Override
     public void actionPerformed(ActionEvent e) {
         Object selected = applicableList.getSelectedValue();
         if (selected instanceof ImmutableRuleApplication) {
@@ -162,27 +172,27 @@ public class InteractiveRuleApplicationComponent extends
                 pair.textComponent.setBackground(getBackground());
                 pair.textComponent.setToolTipText(null);
             }
-            
+
             JTextComponent component = null;
             try {
-                
+
                 MutableRuleApplication app = new MutableRuleApplication((RuleApplication) selected);
-                
+
                 // collect the user instantiations
                 for (InteractionEntry pair : interactionList) {
                     String varname = pair.schemaVariableName;
                     Type type = pair.schemaVariableType;
                     component = pair.textComponent;
                     String content = component.getText();
-                    
+
                     // if in typeInstantiationMode then set no type here
                     Type typeConstraint = pair.typeMode ? null : type;
-                    
-                    Term term = TermMaker.makeAndTypeTerm(content, env, 
+
+                    Term term = TermMaker.makeAndTypeTerm(content, env,
                             "User input for " + varname, typeConstraint);
 
                     assert typeConstraint == null || type.equals(term.getType());
-                    
+
                     app.getSchemaVariableMapping().put(varname, term);
                     if(pair.typeMode) {
                         assert type instanceof SchemaType : type + " MUST be a schema type by construction";
@@ -190,12 +200,13 @@ public class InteractiveRuleApplicationComponent extends
                         app.getTypeVariableMapping().put(tyvarName, term.getType());
                     }
                 }
-                
+
+                app.getProperties().put(MANUAL_RULEAPP, "true");
                 proofCenter.apply(app);
-                
+
                 putClientProperty("finished", true);
                 proofCenter.fireProoftreeChangedNotification(true);
-                
+
             } catch (ASTVisitException ex) {
                 // this kind of exception is expectable, because it indicates
                 // wrong input
@@ -210,9 +221,10 @@ public class InteractiveRuleApplicationComponent extends
                     // easier to understand what is going on; this dialog can be
                     // annoying to experienced users, so it can be turned of
                     // using settings
-                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
+                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false)) {
                         JOptionPane.showMessageDialog(component, component.getToolTipText(), "Errors occured:"
                                 + ex.getClass().getSimpleName(), JOptionPane.ERROR_MESSAGE);
+                    }
 
                 } else {
                     ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
@@ -227,14 +239,15 @@ public class InteractiveRuleApplicationComponent extends
                 if (component != null) {
                     component.setBackground(ColorResolver.getInstance().resolve("orange red"));
                     component.setToolTipText(htmlize(ex.getMessage()));
-                    
+
                     // show the error message in an error dialog, so it is
                     // easier to understand what is going on; this dialog can be
                     // annoying to experienced users, so it can be turned of
                     // using settings
-                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false))
+                    if (Settings.getInstance().getBoolean(SHOW_EXCEPTION_DIALOG, false)) {
                         ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
                                 "Error during the application of a rule", ex);
+                    }
 
                 } else {
                     ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(),
@@ -248,30 +261,31 @@ public class InteractiveRuleApplicationComponent extends
         message = GUIUtil.htmlentities(message).replace("\n", "<br>");
         return "<html><pre>" + message + "</pre>";
     }
-    
+
     /*
-     * Super class reacts only to proof node selections, we react to 
-     * rule application selection also. 
+     * Super class reacts only to proof node selections, we react to
+     * rule application selection also.
      */
-    @Override 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         super.propertyChange(evt);
-        
+
         if(ProofCenter.SELECTED_RULEAPPLICATION.equals(evt.getPropertyName())) {
             RuleApplication ruleApp = (RuleApplication) evt.getNewValue();
             this.setRuleApplication(ruleApp);
             invalidate();
         }
     }
-    
-    @Override 
+
+    @Override
     protected void setInstantiations(RuleApplication app) {
         super.setInstantiations(app);
         interactionList.clear();
         for (Map.Entry<String, String> entry : app.getProperties().entrySet()) {
             String key = entry.getKey();
-            if (!key.startsWith(Interactive.INTERACTION + "("))
+            if (!key.startsWith(Interactive.INTERACTION + "(")) {
                 continue;
+            }
 
             String value = entry.getValue();
             boolean typeMode = false;
@@ -338,7 +352,7 @@ class InteractionEntry {
     Type schemaVariableType;
     JTextComponent textComponent;
     boolean typeMode;
-    
+
     public InteractionEntry(String schemaVariableName, Type schemaVariableType,
             JTextComponent textComponent, boolean instantiateType) {
         this.schemaVariableName = schemaVariableName;
@@ -346,12 +360,12 @@ class InteractionEntry {
         this.textComponent = textComponent;
         this.typeMode = instantiateType;
     }
-    
+
 }
 
 /**
- * A little helper class which embeds a {@link InteractiveRuleApplicationComponent} 
- * into a {@link JWindow} which can then be shown as a popup.  
+ * A little helper class which embeds a {@link InteractiveRuleApplicationComponent}
+ * into a {@link JWindow} which can then be shown as a popup.
  */
 
 class InteractiveRuleApplicationPopup extends JWindow implements NotificationListener {
@@ -361,13 +375,13 @@ class InteractiveRuleApplicationPopup extends JWindow implements NotificationLis
     public InteractiveRuleApplicationPopup(final ProofCenter proofCenter,
             List<RuleApplication> ruleApps, Point location) {
         super(proofCenter.getMainWindow());
-        
+
         RuleApplicationComponent rac = new InteractiveRuleApplicationComponent(proofCenter, ruleApps);
         // proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, rac);
         proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, rac);
-        
+
         JScrollPane sp = new JScrollPane(rac);
-        
+
         // setAlwaysOnTop(true);
         getContentPane().add(sp);
         setSize(300,500);
@@ -379,7 +393,7 @@ class InteractiveRuleApplicationPopup extends JWindow implements NotificationLis
         Border bevelBorder = BorderFactory.createBevelBorder(BevelBorder.RAISED);
         sp.setBorder(BorderFactory.createCompoundBorder(bevelBorder, windowMover));
         new PopupDisappearListener(rac, this);
-        
+
         // bugfix 1042
         addComponentListener(new ComponentAdapter() {
             @Override

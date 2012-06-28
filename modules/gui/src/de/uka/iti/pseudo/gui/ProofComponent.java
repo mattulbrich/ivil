@@ -26,6 +26,8 @@ import javax.swing.tree.TreePath;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.gui.ProofComponentModel.ProofTreeNode;
+import de.uka.iti.pseudo.gui.sequent.InteractiveRuleApplicationComponent;
+import de.uka.iti.pseudo.gui.util.OverlayIcon;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -38,15 +40,15 @@ import de.uka.iti.pseudo.util.settings.Settings;
 /**
  * A proof component is a specialised JTree which is used to visualise proof
  * trees.
- * 
+ *
  * <p>
  * There is a specialised {@link Renderer} which is an extension to the
  * {@link DefaultTreeCellRenderer} and marks open leafs bold and branching
  * points in italics.
- * 
+ *
  * <p>
  * The model of the tree is a {@link ProofComponentModel} which maps a proof to a tree.
- * 
+ *
  * @see ProofComponentModel
  */
 public class ProofComponent extends JTree {
@@ -67,6 +69,7 @@ public class ProofComponent extends JTree {
      */
     private static final Icon GREEN_ICON = mkIcon("img/green.png");
     private static final Icon GREY_ICON = mkIcon("img/grey.png");
+    private static final Icon MANUAL_ICON = mkIcon("img/bullet_star.png");
 
     private final Font italicFont = getFont().deriveFont(Font.ITALIC);
     private final Font boldFont = getFont().deriveFont(Font.BOLD);
@@ -76,10 +79,12 @@ public class ProofComponent extends JTree {
     /**
      * the model which maps the proofTree to swing elements.
      */
-    private ProofComponentModel proofModel;
+    private final ProofComponentModel proofModel;
 
     @SuppressWarnings("serial")
     private class Renderer extends DefaultTreeCellRenderer {
+
+        @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value,
                 boolean sel, boolean expanded, boolean leaf, int row,
                 boolean hasFocus) {
@@ -99,24 +104,45 @@ public class ProofComponent extends JTree {
                     setFont(boldFont);
                 }
 
+
                 if (treenode.getParent() == null) {
                     setIcon(null);
-                } else if (proofNode.isClosed()) {
-                    setIcon(GREEN_ICON);
                 } else {
-                    setIcon(GREY_ICON);
+                    Icon icon;
+                    if (proofNode.isClosed()) {
+                        icon = GREEN_ICON;
+                    } else {
+                        icon = GREY_ICON;
+                    }
+
+                    icon = possibleOverlayManualIcon(treenode, icon);
+
+                    setIcon(icon);
                 }
-                
+
                 setSize(200, getHeight());
             }
             return this;
+        }
+
+        private Icon possibleOverlayManualIcon(ProofTreeNode treenode, Icon icon) {
+            RuleApplication ra = treenode.getProofNode().getAppliedRuleApp();
+            if(ra != null) {
+                boolean manual = ra.getProperties().containsKey(
+                        InteractiveRuleApplicationComponent.MANUAL_RULEAPP);
+
+                if(manual) {
+                    return new OverlayIcon(icon, MANUAL_ICON);
+                }
+            }
+            return icon;
         }
 
     }
 
     /**
      * create a new proof component which shows the given proof.
-     * 
+     *
      * @param proofCenter
      *            to be displayed
      * @throws IOException
@@ -148,9 +174,10 @@ public class ProofComponent extends JTree {
                     public void propertyChange(PropertyChangeEvent evt) {
                         ProofNode currentProofNode = getSelectedProofNode();
                         proofModel.setVerbosity((Integer) evt.getNewValue());
-                        if (currentProofNode != null)
+                        if (currentProofNode != null) {
                             setSelectionPath(proofModel.getPath(
                                     currentProofNode, true));
+                        }
                         repaint();
                     }
                 });
@@ -234,16 +261,17 @@ public class ProofComponent extends JTree {
      * returns the proof node to which the currently selected item refers. The
      * result may be null if nothing is selected or the selection does not
      * belong to a proof node
-     * 
+     *
      * @return the currently selected proof node
      */
     public @Nullable
     ProofNode getSelectedProofNode() {
         TreePath selectionPath = getSelectionPath();
-        if (selectionPath != null)
+        if (selectionPath != null) {
             return proofModel.getProofNode(selectionPath);
-        else
+        } else {
             return null;
+        }
     }
 
 }
