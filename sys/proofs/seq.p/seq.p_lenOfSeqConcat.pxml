@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 13:53:10 CEST 2012</date>
+    <date>Thu Jun 28 15:30:19 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $not($not($eq(seqLen(seqConcat(seq,seq2)),$plus(seqLen(seq),seqLen(seq2)))))</problem>
     <hash>to be done</hash>
@@ -12,8 +12,8 @@
       <schemavariable name="%a">seq as seq('v2)</schemavariable>
       <schemavariable name="%b">seq2 as seq('v2)</schemavariable>
       <typevariable name="b">seq('v2)</typevariable>
-      <typevariable name="v9">'v2</typevariable>
       <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="9">'v2</typevariable>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
       <find>S.0.0.0.0</find>

@@ -324,6 +324,47 @@ rule in_setext
   find %a :: (\set %x; %b)
   replace $$subst(%x, %a, %b)
 
+(*
+ * rules for seqAsSet
+ *)
+rule seqAsSetDef
+  find seqAsSet(%s)
+  where freshVar %x, %s
+  where freshVar %i, %s
+  replace (\set %x; (\exists %i; 0<=%i & %i<seqLen(%s) & 
+                          seqGet(%s,%i)=%x))
+
+rule inSeqAsSet
+  find %x :: seqAsSet(%s)
+  where freshVar %i, %s
+  replace
+    (\exists %i; 0<=%i & %i < seqLen(%s) & seqGet(%s, %i) = %x)
+  tags
+    derived
+    rewrite "fol simp"
+
+rule seqAsSetEmpty
+  find seqAsSet(seqEmpty)
+  replace emptyset
+  tags 
+    derived
+    rewrite "concrete"
+
+rule finiteSeqAsSet
+  find finite(seqAsSet(%s))
+  replace true
+  tags
+    derived
+    rewrite "concrete"
+
+# TODO This cannot yet be proved
+# cardinality is not defined
+rule cardSeqAsSet
+  find card(seqAsSet(%s))
+  replace seqLen(%s)
+  tags
+    # derived
+    rewrite "fol simp"
 
 (*
  * rules for finiteness

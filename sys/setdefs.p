@@ -12,10 +12,11 @@
 (*
  * This files contains the definitions for the set datatype
  *
- * You find optimised rules in set.p .
+ * You find optimised rules in set.p.
  *)
 
 include "$fol.p"
+        "$seqdefs.p"
 
 sort
   set('a)
@@ -30,6 +31,7 @@ function
   set('a)   $complement(set('a))         prefix ^  80
   set('a)   emptyset
   set('a)   singleton('a)
+  set('a)   seqAsSet(seq('a))
   
 function    (* Finiteness and cardinality *)
   set('a)   fullset
@@ -72,4 +74,16 @@ axiom subset_definition
 axiom set_equality_definition
   (\T_all 'a; (\forall a as set('a); (\forall b as set('a);
     a = b <-> (\forall x; x::a <-> x::b))))
+
+axiom seqAsSet_definition
+  (\T_all 'a; (\forall seq as seq('a); (\forall x as 'a;
+    x :: seqAsSet(seq) ~~>
+    x :: seqAsSet(seq) <-> 
+      (\exists i; 0 <= i & i < seqLen(seq) & seqGet(seq,i)=x))))
+
+axiom finite_definition
+  (\T_all 'a; (\forall set as set('a);
+    finite(set) <-> (\exists seq; set = seqAsSet(seq))))
+tags
+  excludeFromSMT
     

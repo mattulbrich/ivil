@@ -53,12 +53,14 @@ public class RuleFormulaExtractor {
     }
 
     /**
-     * Extract meaning formula.
+     * Extract meaning formula from a rule.
+     *
+     * The result has still all schematic entities from the rule.
      *
      * @param rule
-     *            the rule
+     *            the rule to extract from.
      *
-     * @return the term
+     * @return the extracted formula
      *
      * @throws TermException
      *             the term exception
@@ -346,7 +348,7 @@ public class RuleFormulaExtractor {
         if (t1 == TRUE) {
             return t2;
         } else if (t2 == FALSE) {
-            return t1;
+            return tf.not(t1);
         } else {
             return tf.impl(t1, t2);
         }

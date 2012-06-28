@@ -201,3 +201,11 @@ rule skolemize3
 rule type_quant_fails
   find (\T_all 'a; %c)
   replace true
+
+# from a strange case with sets:
+rule assume_no_add
+  assume assume_left |-
+  find _find as bool
+  replace _replace
+  tags expectedTranslation
+        "!(_find as bool = _replace) -> !assume_left"
