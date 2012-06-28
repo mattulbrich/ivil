@@ -35,13 +35,25 @@ do
         -Dpseudo.baseDir="$BASEDIR" \
         de.uka.iti.pseudo.cmd.Main \
         -c -p "$po"xml "$po"
-      if [ $? ]
+      if [ $? -eq 0 ]
       then
-         echo "!OK: $po"
+         echo "!OK: $po (reload)"
       else
-         echo "!ERROR: $po"
+         echo "!ERROR: $po (reload)"
       fi
    else
-      echo "!WARNING: $po - No proof"
+      echo "No proof for $po - try automatic"
+      java -cp "$BASE/ivil.jar" \
+        -Dpseudo.log=100 \
+        -Dpseudo.sysDir="$SYSDIR" \
+        -Dpseudo.baseDir="$BASEDIR" \
+        de.uka.iti.pseudo.cmd.Main \
+        "$po"
+      if [ $? -eq 0 ]
+      then
+         echo "!OK: $po (auto)"
+      else
+         echo "!ERROR: $po (auto)"
+      fi
    fi
 done
