@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Thu Jun 28 13:31:05 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $impl($not($eq(seqGet(a as seq('v1),i as int) as 'v1,seqError as 'v1) as bool) as bool,$not($gte(i as int,seqLen(a as seq('v1)) as int) as bool) as bool) as bool</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="impl_right" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%a">$not($eq(seqGet(a as seq('v1),i as int) as 'v1,seqError as 'v1) as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not($gte(i as int,seqLen(a as seq('v1)) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="" id="1">
+      <find>A.0</find>
+      <schemavariable name="%b">$eq(seqGet(a as seq('v1),i as int) as 'v1,seqError as 'v1) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="not_right" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%b">$gte(i as int,seqLen(a as seq('v1)) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut" path="" id="3">
+      <schemavariable name="%inst">$eq(a as seq('v1),seqSub(a as seq('v1),0 as int,seqLen(a as seq('v1)) as int) as seq('v1)) as bool</schemavariable>
+      <property name="interact(%inst)">bool</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_apply" path="0" id="4">
+      <find>S.0.0.0</find>
+      <assume>A.1</assume>
+      <schemavariable name="%u">seqSub(a as seq('v1),0 as int,seqLen(a as seq('v1)) as int) as seq('v1)</schemavariable>
+      <schemavariable name="%t">a as seq('v1)</schemavariable>
+      <typevariable name="u">seq('v1)</typevariable>
+      <typevariable name="t">seq('v1)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqSubDef" path="0" id="5">
+      <find>S.0.0.0</find>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%a">a as seq('v1)</schemavariable>
+      <schemavariable name="%from">0 as int</schemavariable>
+      <schemavariable name="%to">seqLen(a as seq('v1)) as int</schemavariable>
+      <typevariable name="to">int</typevariable>
+      <typevariable name="v3">'v1</typevariable>
+      <typevariable name="a">seq('v1)</typevariable>
+      <typevariable name="from">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="0" id="6">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%t">seqGet(a as seq('v1),\var x as int) as 'v1</schemavariable>
+      <schemavariable name="%b">seqLen(a as seq('v1)) as int</schemavariable>
+      <typevariable name="t">'v1</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="seqSubSelf" path="0" id="7">
+      <find>A.1.1</find>
+      <schemavariable name="%a">a as seq('v1)</schemavariable>
+      <typevariable name="v1">'v1</typevariable>
+      <typevariable name="a">seq('v1)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0" id="8">
+      <find>A.1</find>
+      <schemavariable name="%t">a as seq('v1)</schemavariable>
+      <typevariable name="t">seq('v1)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="true_left" path="0" id="9">
+      <find>A.1</find>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="0" id="10">
+      <find>S.0.0.1.1</find>
+      <schemavariable name="%a">i as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="0" id="11">
+      <find>S.0.0</find>
+      <schemavariable name="%a">seqGet(a as seq('v1),i as int) as 'v1</schemavariable>
+      <schemavariable name="%b">seqError as 'v1</schemavariable>
+      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,seqLen(a as seq('v1)) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">'v1</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">'v1</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="0,0" id="12">
+      <find>A.1</find>
+      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,seqLen(a as seq('v1)) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0,0" id="13">
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0,1" id="14">
+      <find>S.0</find>
+      <schemavariable name="%t">seqError as 'v1</schemavariable>
+      <typevariable name="t">'v1</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0,1" id="15">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="seqSubSelf" path="1" id="16">
+      <find>S.1.1</find>
+      <schemavariable name="%a">a as seq('v1)</schemavariable>
+      <typevariable name="v1">'v1</typevariable>
+      <typevariable name="a">seq('v1)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="1" id="17">
+      <find>S.1</find>
+      <schemavariable name="%t">a as seq('v1)</schemavariable>
+      <typevariable name="t">seq('v1)</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1" id="18">
+      <find>S.1</find>
+    </ruleApplication>
+  </steps>
+</proof>

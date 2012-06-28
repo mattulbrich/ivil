@@ -90,6 +90,27 @@ rule seqAsSetDef
  * Lemmata and general rules
  *)
 
+rule seqSubSelf
+  find seqSub(%a, 0, seqLen(%a))
+  replace %a
+  tags
+    derived
+    rewrite "concrete"
+
+rule seqOutside1
+  assume %i < 0 |-
+  find seqGet(%a, %i)
+  replace seqError
+  tags
+    derived
+
+rule seqOutside2
+  assume %i >= seqLen(%a) |-
+  find seqGet(%a, %i)
+  replace seqError
+  tags
+    derived
+
 rule lenOfSeqEmpty
   find seqLen(seqEmpty)
   replace 0        
@@ -184,6 +205,13 @@ rule seqConcatWithSeqEmpty2
 rule seqReverseOfSeqEmpty
   find seqReverse(seqEmpty)
   replace seqEmpty
+  tags
+    rewrite "concrete"
+    derived
+
+rule seqReverseOfReverse
+  find seqReverse(seqReverse(%s))
+  replace %s
   tags
     rewrite "concrete"
     derived

@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Wed Jun 27 20:25:23 CEST 2012</date>
+    <date>Thu Jun 28 13:55:07 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $eq(seqAsSet(seqEmpty),emptyset)</problem>
+    <problem> |- $not($not($eq(seqAsSet(seqEmpty),emptyset)))</problem>
     <hash>to be done</hash>
   </info>
   <steps>
     <ruleApplication rule="seqAsSetDef" path="" id="0">
-      <find>S.0.0</find>
+      <find>S.0.0.0.0</find>
       <schemavariable name="%i">\var i as int</schemavariable>
       <schemavariable name="%x">\var x as 'v2</schemavariable>
       <schemavariable name="%s">seqEmpty as seq('v2)</schemavariable>
@@ -15,7 +15,7 @@
       <typevariable name="x">'v2</typevariable>
     </ruleApplication>
     <ruleApplication rule="set_equality" path="" id="1">
-      <find>S.0</find>
+      <find>S.0.0.0</find>
       <schemavariable name="%e">\var e as 'v2</schemavariable>
       <schemavariable name="%a">(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seqEmpty as seq('v2)) as int) as bool) as bool,$eq(seqGet(seqEmpty as seq('v2),\var i as int) as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)</schemavariable>
       <schemavariable name="%b">emptyset as set('v2)</schemavariable>
@@ -23,30 +23,61 @@
       <typevariable name="b">set('v2)</typevariable>
       <typevariable name="a">set('v2)</typevariable>
     </ruleApplication>
-    <ruleApplication rule="in_setext" path="" id="2">
-      <find>S.0.0.0</find>
+    <ruleApplication rule="nothing_in_emptyset" path="" id="2">
+      <find>S.0.0.0.0.1</find>
+      <schemavariable name="%x">\var e as 'v2</schemavariable>
+      <typevariable name="x">'v2</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="not_not" path="" id="3">
+      <find>S.0</find>
+      <schemavariable name="%b">(\forall e as 'v2;$equiv($mem(\var e as 'v2,(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seqEmpty as seq('v2)) as int) as bool) as bool,$eq(seqGet(seqEmpty as seq('v2),\var i as int) as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)) as bool,false as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="lenOfSeqEmpty" path="" id="4">
+      <find>S.0.0.0.1.0.0.0.1.1</find>
+      <typevariable name="v2">'v2</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="getOfSeqEmpty" path="" id="5">
+      <find>S.0.0.0.1.0.0.1.0</find>
+      <schemavariable name="%i">\var i as int</schemavariable>
+      <typevariable name="v2">'v2</typevariable>
+      <typevariable name="i">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equiv_to_eq" path="" id="6">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$mem(\var e as 'v2,(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,0 as int) as bool) as bool,$eq(seqError as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)) as bool</schemavariable>
+      <schemavariable name="%b">false as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="false_eq2" path="" id="7">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$mem(\var e as 'v2,(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,0 as int) as bool) as bool,$eq(seqError as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="forall_right" path="" id="8">
+      <find>S.0</find>
+      <schemavariable name="%x">\var e as 'v2</schemavariable>
+      <schemavariable name="%b">$not($mem(\var e as 'v2,(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,0 as int) as bool) as bool,$eq(seqError as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">'v2</typevariable>
+      <property name="skolemName(\var e as 'v2)">e</property>
+    </ruleApplication>
+    <ruleApplication rule="not_right" path="" id="9">
+      <find>S.0</find>
+      <schemavariable name="%b">$mem(e as 'v2,(\set x as 'v2;(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,0 as int) as bool) as bool,$eq(seqError as 'v2,\var x as 'v2) as bool) as bool) as bool) as set('v2)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="in_setext" path="" id="10">
+      <find>A.0</find>
       <schemavariable name="%x">\var x as 'v2</schemavariable>
-      <schemavariable name="%a">\var e as 'v2</schemavariable>
-      <schemavariable name="%b">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,seqLen(seqEmpty as seq('v2)) as int) as bool) as bool,$eq(seqGet(seqEmpty as seq('v2),\var i as int) as 'v2,\var x as 'v2) as bool) as bool) as bool</schemavariable>
+      <schemavariable name="%a">e as 'v2</schemavariable>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,0 as int) as bool) as bool,$eq(seqError as 'v2,\var x as 'v2) as bool) as bool) as bool</schemavariable>
       <typevariable name="b">bool</typevariable>
       <typevariable name="a">'v2</typevariable>
       <typevariable name="x">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="seqEmptyDef" path="" id="3">
-      <find>S.0.0.0.0.0.1.1.0</find>
-      <typevariable name="a">'v2</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="seqLenDef" path="" id="4">
-      <find>S.0.0.0.0.0.1.1</find>
-      <schemavariable name="%i">\var x as int</schemavariable>
-      <schemavariable name="%a">0 as int</schemavariable>
-      <schemavariable name="%t">seqError as 'v2</schemavariable>
-      <schemavariable name="%b">0 as int</schemavariable>
-      <typevariable name="t">'v2</typevariable>
-      <typevariable name="b">int</typevariable>
-      <typevariable name="a">int</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="auto_smt_close" path="" id="5">
+    <ruleApplication rule="auto_smt_close" path="" id="11">
     </ruleApplication>
   </steps>
 </proof>

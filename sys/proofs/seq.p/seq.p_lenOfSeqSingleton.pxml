@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Wed Jun 27 20:24:34 CEST 2012</date>
+    <date>Thu Jun 28 13:54:05 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $eq(seqLen(seqSingleton(x)),1)</problem>
+    <problem> |- $not($not($eq(seqLen(seqSingleton(x)),1)))</problem>
     <hash>to be done</hash>
   </info>
   <steps>
     <ruleApplication rule="seqSingletonDef" path="" id="0">
-      <find>S.0.0.0</find>
+      <find>S.0.0.0.0.0</find>
       <schemavariable name="%i">\var i as int</schemavariable>
       <schemavariable name="%val">x as 'x</schemavariable>
       <typevariable name="val">'x</typevariable>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
-      <find>S.0.0</find>
+      <find>S.0.0.0.0</find>
       <schemavariable name="%i">\var i as int</schemavariable>
       <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%t">x as 'x</schemavariable>

@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Wed Jun 27 20:23:32 CEST 2012</date>
+    <date>Thu Jun 28 13:53:37 CEST 2012</date>
     <version>0.0</version>
-    <problem> |- $eq(seqLen(seqEmpty),0)</problem>
+    <problem> |- $not($not($eq(seqLen(seqEmpty),0)))</problem>
     <hash>to be done</hash>
   </info>
   <steps>
     <ruleApplication rule="seqEmptyDef" path="" id="0">
-      <find>S.0.0.0</find>
+      <find>S.0.0.0.0.0</find>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
-      <find>S.0.0</find>
+      <find>S.0.0.0.0</find>
       <schemavariable name="%i">\var x as int</schemavariable>
       <schemavariable name="%a">0 as int</schemavariable>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
