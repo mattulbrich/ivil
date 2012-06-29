@@ -6,6 +6,7 @@ import de.uka.iti.pseudo.algo.TestAlgoVisitor;
 import de.uka.iti.pseudo.algo.TestChainedRelationVisitor;
 import de.uka.iti.pseudo.algo.TestParser;
 import de.uka.iti.pseudo.algo.TestTermVisitor;
+import de.uka.iti.pseudo.auto.strategy.TestInstantiationStrategy;
 import de.uka.iti.pseudo.rule.meta.TestRefinementModifier;
 
 public class AllExpTests {
@@ -18,6 +19,7 @@ public class AllExpTests {
         suite.addTestSuite(TestParser.class);
         suite.addTestSuite(TestTermVisitor.class);
         suite.addTestSuite(TestRefinementModifier.class);
+        suite.addTestSuite(TestInstantiationStrategy.class);
         //$JUnit-END$
         return suite;
     }
