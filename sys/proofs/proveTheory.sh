@@ -3,30 +3,50 @@
 PROOFSDIR=`dirname "$0"`
 SYSDIR="$PROOFSDIR/.."
 BASE="$SYSDIR/.."
+DATE=`date +%F-%T`
 
 #echo "proofs : $PROOFSDIR"
 #echo "sys : $SYSDIR"
 #echo "base : $BASE"
 
+if [ -z $1 ]
+then
+  echo "Needs argument!"
+  exit 1
+fi
+
+
 #
 # Generate proof obligation files
 
-mkdir -p "$PROOFSDIR/$1"
+target="$PROOFSDIR/$1"
+report="$target/report.xml"
+
+mkdir -p "$target"
+rm -f "$target"/*.p
+rm -f "$report"
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" >> "$report"
+echo "<testsuite name=\"$1\" timestamp=\"$DATE\">" >> "$report"
+
 java -cp "$BASE/ivil.jar" \
    -Dpseudo.log=0 \
    -Dpseudo.sysDir="$SYSDIR" \
    -Dpseudo.baseDir="$BASEDIR" \
    de.uka.iti.pseudo.justify.RuleJustification \
-   -d "$PROOFSDIR/$1" \
+   -d "$target" \
    -include "../proveHelper.p" \
    "$SYSDIR/$1"
 
 #
 # Try to load proofs
 
-for po in "$PROOFSDIR/$1"/*.p
+for po in "$target"/*.p
 do
-   echo "!WORKON: Proving $po"
+   name=${po##*/$1_}
+   name=${name%.p}
+
+   echo "[Proving $name]"
    if [ -r "$po"xml ]
    then
       java -cp "$BASE/ivil.jar" \
@@ -37,9 +57,11 @@ do
         -c -p "$po"xml "$po"
       if [ $? -eq 0 ]
       then
-         echo "!OK: $po (reload)"
+         echo "Reload proof for $po successful"
+         echo "  <testcase classname=\"RuleJustification\" name=\"$name\" />" >> "$report"
       else
-         echo "!ERROR: $po (reload)"
+         echo "ERROR reloading proof for $po"
+         echo "  <testcase classname=\"RuleJustification\" name=\"$name\" ><error message=\"Reload failed!\"/></testcase>" >> "$report"
       fi
    else
       echo "No proof for $po - try automatic"
@@ -51,9 +73,12 @@ do
         "$po"
       if [ $? -eq 0 ]
       then
-         echo "!OK: $po (auto)"
+         echo "Auto proof for $po successful"
+         echo "  <testcase classname=\"RuleJustification\" name=\"$name\" />" >> "$report"
       else
-         echo "!ERROR: $po (auto)"
+         echo "ERROR auto proving $po"
+         echo "  <testcase classname=\"RuleJustification\" name=\"$name\" ><error message=\"Cannot autoprove!\"/></testcase>" >> "$report"
       fi
    fi
 done
+echo "</testsuite>" >> "$report"

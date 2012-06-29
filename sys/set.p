@@ -155,6 +155,13 @@ replace %s <: %t
 tags
   derived
 
+rule diff_same
+find %s \ %s
+replace emptyset
+tags
+  derived
+  rewrite "concrete"
+
 (*
  * rules with subset
  *)
