@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:57:00 CEST 2012</date>
+    <date>Sat Jun 30 00:33:18 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqLen(seqSub(a,from,to)),cond($lte(from,to),$minus(to,from),0))</problem>
     <hash>to be done</hash>
@@ -16,6 +16,7 @@
       <typevariable name="to">int</typevariable>
       <typevariable name="a">seq('v2)</typevariable>
       <typevariable name="from">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
       <find>S.0.0</find>

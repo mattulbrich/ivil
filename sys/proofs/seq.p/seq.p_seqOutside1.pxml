@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:58:32 CEST 2012</date>
+    <date>Sat Jun 30 00:34:07 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $impl($not($eq(seqGet(a,i),seqError)),$not($lt(i,0)))</problem>
     <hash>to be done</hash>
@@ -17,6 +17,7 @@
       <schemavariable name="%t">a as seq('v1)</schemavariable>
       <typevariable name="u">seq('v1)</typevariable>
       <typevariable name="t">seq('v1)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqSubDef" path="0" id="2">
       <find>S.0.0.0.0.0</find>
@@ -28,6 +29,7 @@
       <typevariable name="to">int</typevariable>
       <typevariable name="a">seq('v1)</typevariable>
       <typevariable name="from">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqSubSelf" path="0" id="3">
       <find>A.0.1</find>
@@ -81,7 +83,7 @@
       <find>S.0.0</find>
       <schemavariable name="%a">seqGet(a as seq('v1),i as int) as 'v1</schemavariable>
       <schemavariable name="%b">seqError as 'v1</schemavariable>
-      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,seqLen(a as seq('v1)) as int) as bool) as bool</schemavariable>
+      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,$minus(seqLen(a as seq('v1)) as int,0 as int) as int) as bool) as bool</schemavariable>
       <typevariable name="b">'v1</typevariable>
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'v1</typevariable>
@@ -89,7 +91,7 @@
     <ruleApplication rule="and_left" path="0,0" id="12">
       <find>A.1</find>
       <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
-      <schemavariable name="%b">$lt(i as int,seqLen(a as seq('v1)) as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,$minus(seqLen(a as seq('v1)) as int,0 as int) as int) as bool</schemavariable>
       <typevariable name="b">bool</typevariable>
       <typevariable name="a">bool</typevariable>
     </ruleApplication>

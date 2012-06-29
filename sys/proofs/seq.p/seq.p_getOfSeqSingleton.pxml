@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:54:30 CEST 2012</date>
+    <date>Sat Jun 30 00:23:20 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqGet(seqSingleton(x),i),cond($eq(i,0),x,seqError))</problem>
     <hash>to be done</hash>
@@ -11,6 +11,7 @@
       <schemavariable name="%i">\var i as int</schemavariable>
       <schemavariable name="%val">x as 'x</schemavariable>
       <typevariable name="val">'x</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqGetDef" path="" id="1">
       <find>S.0.0</find>
@@ -24,7 +25,12 @@
       <typevariable name="a">int</typevariable>
       <typevariable name="j">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="cut_cond" path="" id="2">
+    <ruleApplication rule="resolve_int_literals" path="" id="2">
+      <find>S.0.0.0.1.1</find>
+      <schemavariable name="%t">$minus(1 as int,0 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="" id="3">
       <find>S.0.0</find>
       <schemavariable name="%a">x as 'x</schemavariable>
       <schemavariable name="%b">seqError as 'x</schemavariable>
@@ -32,13 +38,6 @@
       <typevariable name="b">'x</typevariable>
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'x</typevariable>
-    </ruleApplication>
-    <ruleApplication rule="and_left" path="0" id="3">
-      <find>A.0</find>
-      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
-      <schemavariable name="%b">$lt(i as int,1 as int) as bool</schemavariable>
-      <typevariable name="b">bool</typevariable>
-      <typevariable name="a">bool</typevariable>
     </ruleApplication>
     <ruleApplication rule="cut_cond" path="0" id="4">
       <find>S.0.1</find>

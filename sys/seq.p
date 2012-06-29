@@ -72,7 +72,7 @@ rule seqLenOfSub
 
 rule seqGetOfSub
   find seqGet(seqSub(%a, %from, %to), %i)
-  replace cond(%from <= %i & %i < %to, 
+  replace cond(0 <= %i & %i < %to-%from, 
             seqGet(%a, %i+%from), seqError)
   tags 
     derived 

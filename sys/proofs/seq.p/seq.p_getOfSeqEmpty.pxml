@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:51:08 CEST 2012</date>
+    <date>Sat Jun 30 00:20:59 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqGet(seqEmpty,i),seqError)</problem>
     <hash>to be done</hash>
@@ -9,6 +9,7 @@
     <ruleApplication rule="seqEmptyDef" path="" id="0">
       <find>S.0.0.0</find>
       <typevariable name="a">'v2</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqGetDef" path="" id="1">
       <find>S.0.0</find>
@@ -22,7 +23,12 @@
       <typevariable name="a">int</typevariable>
       <typevariable name="j">int</typevariable>
     </ruleApplication>
-    <ruleApplication rule="cut_cond" path="" id="2">
+    <ruleApplication rule="resolve_int_literals" path="" id="2">
+      <find>S.0.0.0.1.1</find>
+      <schemavariable name="%t">$minus(0 as int,0 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="" id="3">
       <find>S.0.0</find>
       <schemavariable name="%a">seqError as 'v2</schemavariable>
       <schemavariable name="%b">seqError as 'v2</schemavariable>
@@ -31,20 +37,20 @@
       <typevariable name="c">bool</typevariable>
       <typevariable name="a">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="equality_refl" path="0" id="3">
+    <ruleApplication rule="equality_refl" path="0" id="4">
       <find>S.0</find>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
       <typevariable name="t">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="close_true_right" path="0" id="4">
+    <ruleApplication rule="close_true_right" path="0" id="5">
       <find>S.0</find>
     </ruleApplication>
-    <ruleApplication rule="equality_refl" path="1" id="5">
+    <ruleApplication rule="equality_refl" path="1" id="6">
       <find>S.0</find>
       <schemavariable name="%t">seqError as 'v2</schemavariable>
       <typevariable name="t">'v2</typevariable>
     </ruleApplication>
-    <ruleApplication rule="close_true_right" path="1" id="6">
+    <ruleApplication rule="close_true_right" path="1" id="7">
       <find>S.0</find>
     </ruleApplication>
   </steps>

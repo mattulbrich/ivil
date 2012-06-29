@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:54:58 CEST 2012</date>
+    <date>Sat Jun 30 00:24:07 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqLen(seqEmpty),0)</problem>
     <hash>to be done</hash>
@@ -9,6 +9,7 @@
     <ruleApplication rule="seqEmptyDef" path="" id="0">
       <find>S.0.0.0</find>
       <typevariable name="a">'v2</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
       <find>S.0.0</find>

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 17:01:49 CEST 2012</date>
+    <date>Sat Jun 30 00:24:43 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqLen(seqSingleton(x)),1)</problem>
     <hash>to be done</hash>
@@ -11,6 +11,7 @@
       <schemavariable name="%i">\var i as int</schemavariable>
       <schemavariable name="%val">x as 'x</schemavariable>
       <typevariable name="val">'x</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
       <find>S.0.0</find>

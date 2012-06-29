@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <proof format="1"><info>
-    <date>Thu Jun 28 16:54:44 CEST 2012</date>
+    <date>Sat Jun 30 00:37:11 CEST 2012</date>
     <version>0.0</version>
     <problem> |- $eq(seqLen(seqConcat(seq,seq2)),$plus(seqLen(seq),seqLen(seq2)))</problem>
     <hash>to be done</hash>
@@ -14,6 +14,7 @@
       <typevariable name="b">seq('v2)</typevariable>
       <typevariable name="a">seq('v2)</typevariable>
       <typevariable name="9">'v2</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
     </ruleApplication>
     <ruleApplication rule="seqLenDef" path="" id="1">
       <find>S.0.0</find>
