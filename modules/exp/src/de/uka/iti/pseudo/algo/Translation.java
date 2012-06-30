@@ -36,7 +36,7 @@ public class Translation {
 
     private boolean refinementMode;
 
-    private final Map<String, String> abbreviations = new HashMap<String, String>();
+    final Map<String, String> abbreviations = new HashMap<String, String>();
     private final Map<String, String> couplingInvariantMap = new HashMap<String, String>();
     private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
 
@@ -139,6 +139,7 @@ public class Translation {
     public String getAbbreviatedTerm(Object name) {
         String result = abbreviations.get(name);
         if(result == null) {
+            System.out.println(abbreviations);
             throw new IllegalStateException("Abbreviation " + name + " not defined");
         }
         return result;

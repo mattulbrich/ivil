@@ -25,6 +25,8 @@ import nonnull.NonNull;
  * implementation should be easily done.
  * <small>(Look at Log4JLogImplementation in lib)</small>
  *
+ * TODO Do the vararg expansion only if the log message is really output.
+ *
  * @author mattias ulbrich
  */
 public class Log {

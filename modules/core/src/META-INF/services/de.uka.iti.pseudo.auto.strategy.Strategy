@@ -8,5 +8,8 @@ de.uka.iti.pseudo.auto.strategy.KnowledgeStrategy
 # The strategy for hints on branches
 de.uka.iti.pseudo.auto.strategy.HintStrategy
 
+# still under experiment
+de.uka.iti.pseudo.auto.strategy.InstantiationStrategy
+
 # !!! must be the last
 de.uka.iti.pseudo.auto.strategy.CompoundStrategy
