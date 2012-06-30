@@ -1,0 +1,74 @@
+uses "$refinement.p"
+uses "$int.p"
+uses  "$symbex.p"
+uses  "$decproc.p"
+uses  "$set.p"
+uses  "$seq.p"
+
+abbreviation
+  @seqC_injective :=
+   (\forall a; 0 <= a < seqLen(seqC) -> 
+     (\forall b; 0 <= b < seqLen(seqC) -> 
+       seqGet(seqC, a) = seqGet(seqC, b) -> a=b))
+
+algo A
+
+input 
+  setA : set(int)
+
+output
+  sumA : int
+
+var
+  sA : set(int)
+  xA : int
+
+do
+  sumA := 0;
+  sA := setA;
+  while !sA = {} 
+    inv true
+    var sA
+  do
+    choose xA such that xA :: sA;
+    sumA := sumA + xA;
+    sA := sA \ {xA};
+    mark 1
+  end
+end
+
+algo C
+
+input
+  seqC : seq(int)
+
+output
+  sumC : int
+
+var
+  i : int
+
+requires
+  @seqC_injective
+
+do
+  i := 0;
+  sumC := 0;
+  while i < seqLen(seqC)
+    inv true
+    var seqLen(seqC)-i
+  do
+    sumC := sumC + seqGet(seqC, i);
+    i := i+1;
+    mark 1
+  end
+end
+
+refine A as C
+  requires setA = seqAsSet(seqC)
+    var setA
+  ensures sumA = sumC
+  mark 1
+    inv sA = seqAsSet(seqSub(seqC, i, seqLen(seqC))) & sumC=sumA &
+         @seqC_injective
+    var setA
