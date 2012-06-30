@@ -17,6 +17,8 @@ import de.uka.iti.pseudo.util.TermUtil;
 
 public class InstantiationStrategy extends AbstractStrategy {
 
+    private static final String INSTANTIATION_MARKER = "ivil.instantiation";
+
     private Environment env;
     private Rule forallLeft;
     private Rule existsRight;
@@ -87,6 +89,9 @@ public class InstantiationStrategy extends AbstractStrategy {
                 result.setRule(existsRight);
             }
 
+            result.getProperties().put(INSTANTIATION_MARKER,
+                    makeInstantiationMarker(termSelector.selectTopterm(node.getSequent()), inst));
+
             result.matchInstantiations();
             return result;
         } catch (Exception e) {
@@ -97,13 +102,17 @@ public class InstantiationStrategy extends AbstractStrategy {
         }
     }
 
+    private String makeInstantiationMarker(Term formula, Term inst) {
+        return inst  + " INTO " + formula;
+    }
+
     private Term findLeftInstantiation(Term formula, ProofNode node) {
         // TODO implement all_left implementation
         return null;
     }
 
     private Term findRightInstantiation(Term formula, ProofNode node) {
-        Term result = findExistentialEqualityMatch(formula);
+        Term result = findExistentialEqualityMatch(formula, node);
         if(result != null) {
             return result;
         }
@@ -112,36 +121,61 @@ public class InstantiationStrategy extends AbstractStrategy {
         return null;
     }
 
-    private Term findExistentialEqualityMatch(Term formula) {
+    private Term findExistentialEqualityMatch(Term formula, ProofNode node) {
         assert TermUtil.isExists(formula) : "This must be an existential quant";
         Binding quant = (Binding)formula;
 
         assert quant.getVariable() instanceof Variable;
         Variable boundVar = (Variable) quant.getVariable();
 
-        return findExEqualityMatch0(boundVar, quant.getSubterm(0));
+        return findExEqualityMatch0(formula, node, boundVar, quant.getSubterm(0));
     }
 
-    private Term findExEqualityMatch0(Variable var, Term term) {
+    private Term findExEqualityMatch0(Term formula, ProofNode node, Variable var, Term term) {
         if (TermUtil.isEquality(term)) {
 
             // TODO make this with matching
             if(var.equals(term.getSubterm(0))) {
-                return term.getSubterm(1);
-            } else if(var.equals(term.getSubterm(1))) {
-                return term.getSubterm(0);
+                Term candidate = term.getSubterm(1);
+                if(checkNotYetInstantiated(formula, candidate, node)) {
+                    return candidate;
+                }
+            }
+
+            if(var.equals(term.getSubterm(1))) {
+                Term candidate = term.getSubterm(0);
+                if(checkNotYetInstantiated(formula, candidate, node)) {
+                    return candidate;
+                }
             }
         } else
 
         if (TermUtil.isConjunction(term)) {
-            Term result = findExEqualityMatch0(var, term.getSubterm(0));
+            Term result = findExEqualityMatch0(formula, node, var, term.getSubterm(0));
             if (result == null) {
-                result = findExEqualityMatch0(var, term.getSubterm(1));
+                result = findExEqualityMatch0(formula, node, var, term.getSubterm(1));
             }
             return result;
         }
 
         return null;
+    }
+
+    private boolean checkNotYetInstantiated(Term formula, Term candidate, ProofNode node) {
+        String marker = makeInstantiationMarker(formula, candidate);
+        ProofNode n = node.getParent();
+        while(n != null) {
+            if(marker.equals(n.getAppliedRuleApp().getProperties().get(INSTANTIATION_MARKER))) {
+                return false;
+            }
+            n = n.getParent();
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Instantiation Strategy";
     }
 
 }

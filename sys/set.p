@@ -62,6 +62,16 @@ tags
   derived
   verbosity "6"
 
+rule emptyset_equals2
+find %s = emptyset
+where freshVar %x, %s
+replace (\forall %x; !%x::%s)
+tags
+  rewrite "concrete"
+  #asAxiom
+  derived
+  verbosity "6"
+
 (*
  * rules with fullset
  *)

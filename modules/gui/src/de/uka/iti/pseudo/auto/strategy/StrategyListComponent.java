@@ -82,8 +82,8 @@ public class StrategyListComponent extends JPanel implements PropertyChangeListe
                             "Choose the strategy to add", "Add strategy",
                             JOptionPane.QUESTION_MESSAGE, null, compoundStrategy
                                     .getAllStrategies().toArray(), null);
-                    Log.log(Log.DEBUG, s);
                     if(s != null) {
+                        Log.log(Log.DEBUG, s);
                         model.addElement(s);
                         writeBack(model);
                     }

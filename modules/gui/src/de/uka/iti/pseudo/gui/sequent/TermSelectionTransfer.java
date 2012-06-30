@@ -52,7 +52,7 @@ import de.uka.iti.pseudo.util.Util;
  * allows for fast interactive rule applications by dropping terms from
  * TermComponents or unformatted text from other applications such as text
  * editors.
- * 
+ *
  * @author timm.felden@felden.com
  */
 public class TermSelectionTransfer extends TransferHandler {
@@ -67,18 +67,21 @@ public class TermSelectionTransfer extends TransferHandler {
     private TermSelectionTransfer() {
     }
 
+    @Override
     public int getSourceActions(JComponent c) {
         Log.enter(c);
         return COPY;
     }
 
+    @Override
     protected Transferable createTransferable(JComponent c) {
         Log.enter(c);
         if (c instanceof TermComponent) {
             TermComponent tc = (TermComponent) c;
             return tc.createTransferable();
-        } else if (c instanceof JTextComponent)
+        } else if (c instanceof JTextComponent) {
             return new StringSelection(((JTextComponent) c).getText());
+        }
 
         return null;
     }
@@ -93,8 +96,9 @@ public class TermSelectionTransfer extends TransferHandler {
                 TermComponent tc = (TermComponent) c;
 
                 // disable drops on closed proof nodes
-                if (null != tc.getProofCenter().getCurrentProofNode().getChildren())
+                if (null != tc.getProofCenter().getCurrentProofNode().getChildren()) {
                     return false;
+                }
 
                 return dropOnTermComponent(tc, support);
             } else if (c instanceof JTextComponent) {
@@ -113,8 +117,9 @@ public class TermSelectionTransfer extends TransferHandler {
     @Override
     public boolean canImport(TransferSupport support) {
 
-        if (support.getTransferable() instanceof TermSelectionTransferable)
+        if (support.getTransferable() instanceof TermSelectionTransferable) {
             return true;
+        }
 
         return support.isDataFlavorSupported(DataFlavor.stringFlavor);
     }
@@ -123,10 +128,10 @@ public class TermSelectionTransfer extends TransferHandler {
         return instance;
     }
 
-    
+
     // /////////// RULE APPLICATION CODE /////////////////// //
 
-    
+
     /**
      * try to drop the term in support on target
      */
@@ -149,8 +154,9 @@ public class TermSelectionTransfer extends TransferHandler {
 
                 // the location can only be used if both terms belong to the
                 // same proof
-                if (target.getProofCenter() == ts.getSource().getProofCenter())
+                if (target.getProofCenter() == ts.getSource().getProofCenter()) {
                     location = ts.getSelector();
+                }
             }
         } catch (Exception e) {
             // if an exception occurs here, the dropped text is not a term
@@ -176,7 +182,7 @@ public class TermSelectionTransfer extends TransferHandler {
 
     /**
      * Try to find all applicable rules with a dragdrop tag.
-     * 
+     *
      * <p>
      * If the Term is not located on the ProofNode(iff location == null), try to
      * find only rules that can be used with drag and drop and are
@@ -188,7 +194,7 @@ public class TermSelectionTransfer extends TransferHandler {
      */
     private List<List<RuleApplication>> findRulesApplicable(final Term transferedTerm, final TermSelector location,
             TermComponent target, final ProofCenter proofCenter) throws ProofException {
-        
+
         final Environment env = proofCenter.getEnvironment();
 
         // if we can apply a rule using drap and drop, we can also apply the
@@ -198,14 +204,16 @@ public class TermSelectionTransfer extends TransferHandler {
 
         // buckets for priority 0 - 9
         List<List<RuleApplication>> bucket = new ArrayList<List<RuleApplication>>(10);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++) {
             bucket.add(new ArrayList<RuleApplication>(3));
+        }
 
         // filter rules
         for (RuleApplication ra : rulesApplicable) {
             final String level = ra.getRule().getProperty("dragdrop");
-            if (null == level)
+            if (null == level) {
                 continue;
+            }
 
 
             int lvl = Integer.parseInt(level);
@@ -214,8 +222,9 @@ public class TermSelectionTransfer extends TransferHandler {
             // set the interactive field to match instantiation
             for (Map.Entry<String, String> entry : ra.getProperties().entrySet()) {
                 String key = entry.getKey();
-                if (!key.startsWith(Interactive.INTERACTION + "("))
+                if (!key.startsWith(Interactive.INTERACTION + "(")) {
                     continue;
+                }
 
                 String value = entry.getValue();
                 boolean typeMode = false;
@@ -240,8 +249,9 @@ public class TermSelectionTransfer extends TransferHandler {
                 ra = new MutableRuleApplication(ra);
 
                 ra.getSchemaVariableMapping().put(svName, transferedTerm);
-                if (typeMode)
+                if (typeMode) {
                     ra.getTypeVariableMapping().put(((SchemaType) svType).getVariableName(), transferedTerm.getType());
+                }
 
                 // only allow rules with one interaction
                 isInteractive = true;
@@ -251,8 +261,9 @@ public class TermSelectionTransfer extends TransferHandler {
             // we have to replace this clause
             if (!isInteractive){
                 // the drag originated not from our proof
-                if (null == location)
+                if (null == location) {
                     continue;
+                }
 
                 if (ra.getRule().getAssumptions().size() != 1) {
                     Log.log(Log.ERROR, "The rule " + ra.getRule() + " is illformed respective to the 'dragdrop' tag!");
@@ -260,19 +271,21 @@ public class TermSelectionTransfer extends TransferHandler {
                 }
                 // the assumption has to be the one we dragged, or the
                 // application is not interesting
-                if (!ra.getAssumeSelectors().get(0).equals(location))
+                if (!ra.getAssumeSelectors().get(0).equals(location)) {
                     continue;
+                }
             }
 
             // check if ra is still applicable
-            if (!ra.getProofNode().applicable(ra, env))
+            if (!ra.getProofNode().applicable(ra, env)) {
                 continue;
+            }
 
             // adjust level; if level is invalid, map it to 0
             lvl = lvl > 0 && lvl < 10 ? lvl : 0;
             bucket.get(lvl).add(ra);
         }
-        
+
         return bucket;
     }
 
@@ -291,14 +304,16 @@ public class TermSelectionTransfer extends TransferHandler {
             for (int i = 9; i >= 0; i--) {
                 ruleApps.addAll(buckets.get(i));
 
-                if (highestOnly && !ruleApps.isEmpty())
+                if (highestOnly && !ruleApps.isEmpty()) {
                     break;
+                }
             }
         }
 
         // if no rules are applicable, the drop failed
-        if (ruleApps.size() == 0)
+        if (ruleApps.size() == 0) {
             return false;
+        }
 
         // only one rule is applicable, so apply it
         if (ruleApps.size() == 1) {
@@ -335,8 +350,9 @@ public class TermSelectionTransfer extends TransferHandler {
                 }
             };
 
-            for (RuleApplication ra : ruleApps)
+            for (RuleApplication ra : ruleApps) {
                 popup.add(ra.getRule().getName()).addActionListener(listener);
+            }
 
             Point p = MouseInfo.getPointerInfo().getLocation();
             SwingUtilities.convertPointFromScreen(p, tc);
@@ -349,7 +365,7 @@ public class TermSelectionTransfer extends TransferHandler {
 
     /**
      * select the most interesting node
-     * 
+     *
      * @param target
      *            node which was used to apply the drop action
      * @param pc
@@ -357,15 +373,18 @@ public class TermSelectionTransfer extends TransferHandler {
      */
     private void finishApplication(RuleApplication ra, ProofCenter pc) throws ProofException {
 
+        ra = new MutableRuleApplication(ra);
+        ra.getProperties().put(InteractiveRuleApplicationComponent.MANUAL_RULEAPP, "true");
         pc.apply(ra);
 
         final ProofNode target = pc.getCurrentProofNode();
 
-        if (target.getChildren().size() > 0)
+        if (target.getChildren().size() > 0) {
             pc.fireSelectedProofNode(target.getChildren().get(0));
-        else if (pc.getProof().hasOpenGoals())
+        } else if (pc.getProof().hasOpenGoals()) {
             pc.fireSelectedProofNode(pc.getProof().getGoalByNumber(0));
-        else
+        } else {
             pc.fireSelectedProofNode(pc.getProof().getRoot());
+        }
     }
 }

@@ -197,21 +197,24 @@ final class RefinementModifier {
         Term result = tf.upd(markUpdate, c);
 
         for (Integer literal : markInfoAbstract.keySet()) {
-            indexAbs = markInfoAbstract.get(literal).index;
-            a = LiteralProgramTerm.getInst(getTargetIndex(markInfoAbstract, indexAbs),
+            MarkInfo absInfo = markInfoAbstract.get(literal);
+            a = LiteralProgramTerm.getInst(getTargetIndex(markInfoAbstract, absInfo.index),
                     innerProgramTerm.getModality(), abstrPrime, glue);
 
             indexConcr = markInfoConcrete.get(literal).index;
             c = LiteralProgramTerm.getInst(getTargetIndex(markInfoConcrete, indexConcr),
                     programTerm.getModality(), concrPrime, a);
 
-            Term variant = markInfoAbstract.get(literal).couplingVar;
+            Term inv = absInfo.couplingInvariant;
+            Term t = tf.impl(inv, c);
+
+            Term variant = absInfo.couplingVar;
             if(variant != null) {
                 Update varUpd = makeVariantUpdate(variant);
-                c = tf.upd(varUpd, c);
+                t = tf.upd(varUpd, t);
             }
 
-            Term term = tf.upd(anonUpd, tf.upd(markUpdate, c));
+            Term term = tf.upd(anonUpd, tf.upd(markUpdate, t));
 
             result = tf.and(result, term);
         }

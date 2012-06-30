@@ -44,7 +44,7 @@ function
 
 rule seqGetDef
   find seqGet((\seqDef %i; %a; %b; %t), %j)
-  replace cond(%a <= %j & %j < %b, 
+  replace cond(0 <= %j & %j < %b-%a, 
            $$subst(%i, %j+%a, %t),
            seqError)
   tags
