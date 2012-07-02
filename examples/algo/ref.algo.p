@@ -1,4 +1,4 @@
-# Automatically created on Sat Jun 30 23:35:24 CEST 2012
+# Automatically created on Mon Jul 02 17:41:57 CEST 2012
 include "$refinement.p"
 include "$int.p"
 include "$symbex.p"
@@ -32,7 +32,7 @@ program A source "ref.algo"
  sourceline 35
   sA := (sA \ singleton(xA))
  sourceline 36
-  skip MARK, 1, ((sA = seqAsSet(seqSub(seqC, i, seqLen(seqC)))) & ((sumC = sumA) & (\forall a; (((0 <= a) & (a < seqLen(seqC))) -> (\forall b; (((0 <= b) & (b < seqLen(seqC))) -> ((seqGet(seqC, a) = seqGet(seqC, b)) -> (a = b)))))))), 42 ; "marking stone"
+  skip MARK, 1, ((sA = seqAsSet(seqSub(seqC, i, seqLen(seqC)))) & ((sumC = sumA) & ((\forall a; (((0 <= a) & (a < seqLen(seqC))) -> (\forall b; (((0 <= b) & (b < seqLen(seqC))) -> ((seqGet(seqC, a) = seqGet(seqC, b)) -> (a = b)))))) & (i >= 0)))), 42 ; "marking stone"
   goto loop0
  sourceline 29
  after0:
@@ -57,7 +57,7 @@ program C source "ref.algo"
  sourceline 62
   i := (i + 1)
  sourceline 63
-  skip MARK, 1, ((sA = seqAsSet(seqSub(seqC, i, seqLen(seqC)))) & ((sumC = sumA) & (\forall a; (((0 <= a) & (a < seqLen(seqC))) -> (\forall b; (((0 <= b) & (b < seqLen(seqC))) -> ((seqGet(seqC, a) = seqGet(seqC, b)) -> (a = b)))))))), 42 ; "marking stone"
+  skip MARK, 1, ((sA = seqAsSet(seqSub(seqC, i, seqLen(seqC)))) & ((sumC = sumA) & ((\forall a; (((0 <= a) & (a < seqLen(seqC))) -> (\forall b; (((0 <= b) & (b < seqLen(seqC))) -> ((seqGet(seqC, a) = seqGet(seqC, b)) -> (a = b)))))) & (i >= 0)))), 42 ; "marking stone"
   goto loop0
  sourceline 57
  after0:

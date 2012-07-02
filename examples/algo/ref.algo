@@ -66,9 +66,9 @@ end
 
 refine A as C
   requires setA = seqAsSet(seqC)
-    var setA
+    var 42 // setA
   ensures sumA = sumC
   mark 1
     inv sA = seqAsSet(seqSub(seqC, i, seqLen(seqC))) & sumC=sumA &
-         @seqC_injective
-    var setA
+         @seqC_injective & i>=0
+    var 42 // setA
