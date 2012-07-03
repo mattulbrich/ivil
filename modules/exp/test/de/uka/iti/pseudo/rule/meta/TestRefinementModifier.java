@@ -72,17 +72,18 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 //        PrettyPrint pp = new PrettyPrint(env);
 //        System.out.println(pp.print(result));
 
-        assertEqualTerms(makeTerm(makeResultTerm(0, 1, false, null) + " & " +
-                makeResultTerm(7, 4, true, "11") + " & " +
-                makeResultTerm(4, 8, true, "22") + ""), result);
+        assertEqualTerms(makeTerm(makeResultTerm(0, 1, false, null, null) + " & "
+                 + makeResultTerm(7, 4, true, "11", "x=1") + " & "
+                 + makeResultTerm(4, 8, true, "22", "x=2") + ""), result);
     }
 
-    private String makeResultTerm(int concr, int abs, boolean anon, String var) {
+    private String makeResultTerm(int concr, int abs, boolean anon, String var, String pre) {
         String glue = "($markA = $markC & ($markA = 1 -> x=1) & ($markA = 2 -> x=2) & ($markA = 0 -> x =0))";
         String update =  anon ? "{ y := y1 || x := x1 }" :"";
         String anUpd = "{ $markA := 0 || $markC := 0}";
         String varUpd = var != null ? "{ var := " + var + "}" :"";
-        return update + anUpd + varUpd + "[" + concr + ";C'][<" + abs + ";A'>]" + glue;
+        String assum = pre != null ? pre + " -> " : "";
+        return update + anUpd + varUpd + "(" + assum + "[" + concr + ";C'][<" + abs + ";A'>]" + glue + ")";
     }
 
     public void testUsingTheMarks() throws Exception {
@@ -112,6 +113,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
         String glue = "($markA = $markC & ($markA = 0 -> x=0))";
         Term exp = makeTerm("{ $markA := 0 || $markC := 0 }[0;C_1'][<0;A_1'>]" + glue +
                 "&\n {}{ $markA := 0 || $markC := 0 }[2;C_1'][<2;A_1'>]" + glue);
+
         assertEquals(2, env.getProgram("C_1'").countStatements());
         assertEquals(2, env.getProgram("A_1'").countStatements());
         assertEqualTerms(exp, result);

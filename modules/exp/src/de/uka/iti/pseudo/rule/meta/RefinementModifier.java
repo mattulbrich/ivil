@@ -206,7 +206,10 @@ final class RefinementModifier {
                     programTerm.getModality(), concrPrime, a);
 
             Term inv = absInfo.couplingInvariant;
-            Term t = tf.impl(inv, c);
+            Term t = c;
+            if(inv != null) {
+                t = tf.impl(inv, t);
+            }
 
             Term variant = absInfo.couplingVar;
             if(variant != null) {
