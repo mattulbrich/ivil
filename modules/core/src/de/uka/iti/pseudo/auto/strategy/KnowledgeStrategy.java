@@ -26,8 +26,10 @@ import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.UpdateTerm;
 
 /**
  * The Knowledge Strategy can be used as a specialised simplification strategy
@@ -93,8 +95,6 @@ public class KnowledgeStrategy extends AbstractStrategy {
         return result;
     }
 
-
-
     /**
      * Tests if the argument is an equality.
      * (An application of the function "$eq").
@@ -103,6 +103,8 @@ public class KnowledgeStrategy extends AbstractStrategy {
      *            the term
      *
      * @return true, iff term is an equality
+     *
+     * TODO move this to TermUtil once it is available
      */
     private static boolean isEquality(Term term) {
         if (term instanceof Application) {
@@ -274,8 +276,14 @@ public class KnowledgeStrategy extends AbstractStrategy {
                 }
             }
 
+            // the first subterm of updates and program terms must not be visited!
+            int startSubterm = 0;
+            if(term instanceof ProgramTerm || term instanceof UpdateTerm) {
+                startSubterm ++;
+            }
+
             List<Term> subterms = term.getSubterms();
-            for(int i = 0; i < subterms.size(); i++) {
+            for(int i = startSubterm; i < subterms.size(); i++) {
                 path.add(i);
                 RuleApplication result = findRA(toplevelSelector, subterms.get(i));
                 if(result != null) {

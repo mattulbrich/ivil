@@ -12,6 +12,7 @@ package de.uka.iti.pseudo.auto.strategy;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import nonnull.NonNull;
@@ -21,6 +22,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This abstract class keeps a list of proof nodes to which this strategy cannot
@@ -31,6 +33,13 @@ import de.uka.iti.pseudo.proof.RuleApplication;
  *
  */
 public abstract class AbstractStrategy implements Strategy {
+
+    /**
+     * The setting can be triggered to mark every rule application found with
+     * the strategy which found it.
+     */
+    private static final boolean MARK_RULES =
+            Settings.getInstance().getBoolean("pseudo.markRuleApps", false);
 
     /**
      * in this set store the proof nodes for which this strategy was not able to
@@ -88,6 +97,7 @@ public abstract class AbstractStrategy implements Strategy {
         for (ProofNode goal : openGoals) {
             if (!notMatching.contains(goal)) {
                 RuleApplication ra = findRuleApplication(goal);
+                markRuleApp(ra);
                 if (ra != null) {
                     return ra;
                 } else {
@@ -97,6 +107,22 @@ public abstract class AbstractStrategy implements Strategy {
         }
 
         return null;
+    }
+
+    /**
+     * set a property on the rule application to identify the strategy which has
+     * found it. The method {@link #toString()} is used to create the mark
+     * string. Mainly for debugging purposes.
+     *
+     * @param ra a modifyable rule application
+     */
+    protected void markRuleApp(@NonNull RuleApplication ra) {
+        if(MARK_RULES) {
+            Map<String, String> properties = ra.getProperties();
+            if(!properties.containsKey(STRATEGY_PROPERTY)) {
+                properties.put(STRATEGY_PROPERTY, this.toString());
+            }
+        }
     }
 
     @Override

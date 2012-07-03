@@ -26,7 +26,7 @@ import de.uka.iti.pseudo.proof.RuleApplication;
 /**
  * This class allows for pooled automatic proofing of problems. A global thread
  * pool is used to solve problems as fast as possible.
- * 
+ *
  * @author felden@ira.uka.de
  */
 
@@ -34,7 +34,7 @@ public class PooledAutoProver {
 
     /**
      * Internal representation of a prover job. Jobs will try to recursively
-     * solve all problems in parent.todo
+     * solve all problems in parent.todo ????
      */
     private class Job implements Runnable {
         final ProofNode node;
@@ -45,19 +45,22 @@ public class PooledAutoProver {
             synchronized (monitor) {
                 workCounter ++;
             }
-            
+
         }
 
         /**
          * Try to solve node. On success, create new jobs for all children. If
          * exceptions occur here, add them to the exceptions list.
          */
+        @Override
         public void run() {
             RuleApplication ra = null;
             try {
-                if (shouldStop)
+
+                if (shouldStop) {
                     return;
-                
+                }
+
                 try {
                     ra = strategy.findRuleApplication(node);
                 } catch (StrategyException e) {
@@ -70,6 +73,8 @@ public class PooledAutoProver {
                         node.getProof().apply(ra, env);
                         strategy.notifyRuleApplication(ra);
                     } catch (ProofException e) {
+                        Log.log(Log.ERROR, Dump.toString(ra));
+                        Log.stacktrace(Log.ERROR, e);
                         exceptions.add(e);
                         return;
                     } catch (StrategyException e) {
@@ -82,7 +87,7 @@ public class PooledAutoProver {
                     }
                 } else {
                     Log.log(Log.TRACE, "could not find a rule application for " + node);
-                   
+
                 }
 
             } finally {
@@ -103,6 +108,7 @@ public class PooledAutoProver {
 
     // TODO get thread pool size from environment or something more useful
     private static int POOL_SIZE = 4;
+
     // maybe change this to cachedThreadPool, but make strategies parallelize
     // first
     private static ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
@@ -141,17 +147,18 @@ public class PooledAutoProver {
      * This object is used to notify waiting threads and to ensure consistency
      * of workCount.
      */
-    private Object monitor = new Object();
+    private final Object monitor = new Object();
 
     /**
      * This list is used to keep track of exceptions.
      */
-    private List<Exception> exceptions = Collections.synchronizedList(new LinkedList<Exception>());
+    private final List<Exception> exceptions =
+            Collections.synchronizedList(new LinkedList<Exception>());
 
     /**
      * <b>Note</b>: it's up to the caller, to call strategy.begindSearch() and
      * strategy.endSearch()
-     * 
+     *
      * @param strategy
      *            Strategy to be used by autoProof calls
      * @param environment
@@ -166,7 +173,7 @@ public class PooledAutoProver {
      * Starts auto proving on the target node. Does nothing if node has
      * children. You may invoke this while other nodes are processed, what will
      * cause the new node to be enqueued on the todo list.
-     * 
+     *
      * @param node
      *            node to be enqueued
      */
@@ -178,7 +185,7 @@ public class PooledAutoProver {
 
     /**
      * Only usable after all initial nodes have been submitted via autoProve
-     * 
+     *
      * @return true iff no more nodes are to be processed
      */
     public boolean done() {
@@ -187,11 +194,11 @@ public class PooledAutoProver {
 
     /**
      * Waits for current automatic proving to finish.
-     * 
+     *
      * @throws CompoundException
      *             thrown to indicate exceptions were thrown by jobs. The
      *             created exceptions can be retrieved with getException()
-     * 
+     *
      * @throws InterruptedException
      *             rethrown, when interrupted, while waiting
      */
@@ -201,16 +208,17 @@ public class PooledAutoProver {
                 monitor.wait();
             }
         }
-        
-        if (!exceptions.isEmpty())
+
+        if (!exceptions.isEmpty()) {
             throw new CompoundException(exceptions);
+        }
     }
 
     /**
      * Asynchronously tells the current automatic proving to stop. This method
      * does not block.
      */
-    public void stopAutoProve() { 
+    public void stopAutoProve() {
         // code duplication from #stopAutoProve(boolean) to get rid of declared
         // exceptions.
         shouldStop = true;
@@ -219,20 +227,21 @@ public class PooledAutoProver {
     /**
      * Asynchronously tells the current automatic proving to stop. This method
      * may block if you set {@code waitForJobs}.
-     * 
+     *
      * @param waitForJobs
      *            set to true if you want to block till all jobs have finished.
-     * 
+     *
      * @throws CompoundException
      *             thrown if some jobs got exceptions
-     * 
+     *
      * @throws InterruptedException
      *             rethrown, when interrupted, while waiting
      */
     public void stopAutoProve(boolean waitForJobs) throws CompoundException, InterruptedException {
         shouldStop = true;
-        if (waitForJobs)
+        if (waitForJobs) {
             waitAutoProve();
+        }
     }
 
     /**
