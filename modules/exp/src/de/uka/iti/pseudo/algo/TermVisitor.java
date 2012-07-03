@@ -45,7 +45,8 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visit(ASTMapAccessExpression node, Object data) {
-        return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
+        // return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
+        return visitChild(node, 0) + "[" + visitChild(node, 1) + "]";
     }
 
     @Override

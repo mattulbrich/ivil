@@ -27,6 +27,7 @@ include
     "$plugins.p"
     "$proposition.p"
     "$symbex.p"
+    "$refinement.p"
     "$pair.p"
     "$set.p"
     "order.p"

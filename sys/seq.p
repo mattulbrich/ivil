@@ -124,6 +124,13 @@ rule seqReverseOfReverse
     rewrite "concrete"
     derived
 
+rule seqSubEmpty
+  find seqSub(%s, %a, %a)
+  replace seqEmpty
+  tags
+    rewrite "concrete"
+    derived
+
 (*
  * other lemmata
  *)

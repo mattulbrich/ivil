@@ -9,7 +9,7 @@ de.uka.iti.pseudo.auto.strategy.KnowledgeStrategy
 de.uka.iti.pseudo.auto.strategy.HintStrategy
 
 # still under experiment
-de.uka.iti.pseudo.auto.strategy.InstantiationStrategy
+# de.uka.iti.pseudo.auto.strategy.InstantiationStrategy
 
 # !!! must be the last
 de.uka.iti.pseudo.auto.strategy.CompoundStrategy

@@ -1,0 +1,52 @@
+uses "$refinement.p"
+uses "$int.p"
+uses "$symbex.p"
+uses "$decproc.p"
+uses "$set.p"
+uses "$seq.p"
+
+uses "sum.decl.p"
+uses "java-out/Sum.sum([I)I-1.p"
+
+abbreviation
+  @injective :=
+   (\forall a; 0 <= a < $heap[R_array_ref, $array_length] -> 
+     (\forall b; 0 <= b < $heap[R_array_ref, $array_length] -> 
+         $heap[R_array_ref, $array_index(a)] as int = 
+         $heap[R_array_ref, $array_index(a)] -> a=b ))
+
+algo Sum
+
+input 
+  setA : set(int)
+
+output
+  sumA : int
+
+var
+  sA : set(int)
+  xA : int
+
+do
+  sumA := 0;
+  sA := setA;
+  while !sA = {} 
+    inv true
+    var sA
+  do
+    mark 1;
+    choose xA such that xA :: sA;
+    sumA := sumA + xA;
+    sA := sA \ {xA}
+  end
+end
+
+refine Sum as Java
+  requires setA = seqAsSet(arrayAsIntSeq($heap, R_array_ref)) &
+           !R_array_ref = $null & @injective
+    var 42 // setA
+  ensures sumA = $result
+
+  mark 1
+    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, R_array_ref), 0, R_i_int))
+    var 42 // setA
