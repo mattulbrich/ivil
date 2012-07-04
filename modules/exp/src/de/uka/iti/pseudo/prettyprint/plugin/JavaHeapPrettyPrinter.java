@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.term.Binding;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeApplication;
+import de.uka.iti.pseudo.util.TermUtil;
 
 // TODO DOC
 // TODO Move this to pseudo.bytecode
@@ -27,52 +28,29 @@ public class JavaHeapPrettyPrinter extends PrettyPrintPlugin {
         Function function = application.getFunction();
         String name = function.getName();
 
-        if ("sel".equals(name)) {
+        if ("$load_heap".equals(name)) {
 
-            // obj
             printSubterm(application, 1);
-            append(".");
+
+            // check special case of array access - drop dot then
+            if(!TermUtil.isFunctionApplication(application.getSubterm(2), "$array_index")) {
+                append(".");
+            }
+
             // field
             printSubterm(application, 2);
 
-            if(!"h".equals(application.getSubterm(0).toString(false))) {
+            if(!TermUtil.isFunctionApplication(application.getSubterm(0), "$heap")) {
                 append("@");
-                // heap
                 printSubterm(application, 0);
             }
         } else
 
-        if ("stor".equals(name)) {
-            append("{");
-            // obj
-            printSubterm(application, 1);
-            append(".");
-            // field
-            printSubterm(application, 2);
-            append(" := ");
-            // value
-            printSubterm(application, 3);
-            append("}@");
-            // heap
-            printSubterm(application, 0);
-        } else
-
-        if(isFieldType(function.getResultType()) && function.getArity() == 0 &&
-                name.startsWith("field_")) {
-            int last_ = name.lastIndexOf('_');
-            append(name.substring(last_+1));
-        }
-
-        // TODO how can be drop the dot?
-        if(isFieldType(function.getResultType()) && function.getArity() == 1 &&
-                name.length() > 3 &&
-                name.substring(name.length() - 3).equals("Idx")) {
+        if("$array_index".equals(function.getName())) {
             append("[");
             printSubterm(application, 0);
             append("]");
         }
-
-
     }
 
     /*
@@ -94,12 +72,21 @@ public class JavaHeapPrettyPrinter extends PrettyPrintPlugin {
 
     @Override
     public String getReplacementName(String name) {
-        if(name.startsWith("R_")) {
+        if (name.startsWith("R_")) {
             int last_ = name.lastIndexOf('_');
-            if(last_ > 2) {
+            if (last_ > 2) {
                 return name.substring(2, last_);
             }
+        } else
+
+        if (name.equals("$array_length")) {
+            return "length";
+        } else
+
+        if (name.equals("$array_index")) {
+
         }
+
         return null;
     }
 

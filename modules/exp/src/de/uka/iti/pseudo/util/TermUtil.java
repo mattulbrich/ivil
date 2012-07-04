@@ -54,17 +54,17 @@ public final class TermUtil {
     }
 
     public static boolean isEquality(Term term) {
-        if (term instanceof Application) {
-            Application app = (Application) term;
-            return "$eq".equals(app.getFunction().getName());
-        }
-        return false;
+        return isFunctionApplication(term, "$eq");
     }
 
     public static boolean isConjunction(Term term) {
+        return isFunctionApplication(term, "$and");
+    }
+
+    public static boolean isFunctionApplication(Term term, String functionName) {
         if (term instanceof Application) {
             Application app = (Application) term;
-            return "$and".equals(app.getFunction().getName());
+            return functionName.equals(app.getFunction().getName());
         }
         return false;
     }
