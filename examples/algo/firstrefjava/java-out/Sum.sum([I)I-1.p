@@ -1,4 +1,4 @@
-(* created by JBC - Tue Jul 03 17:45:51 CEST 2012 *)
+(* created by JBC - Wed Jul 04 17:47:55 CEST 2012 *)
 
 include "jbc_preamble.p"
 (* the proof obligation starts here: *)
@@ -16,10 +16,10 @@ rule type_invariant_T_Sum
   find $invariant(%h, %o, T_Sum)
   replace true
   tags rewrite "fol simp"
-function ref R_this_ref assignable
-function ref R_array_ref assignable
-function int R_result_int assignable
-function int R_i_int assignable
+function ref this assignable
+function ref array assignable
+function int result assignable
+function int i assignable
 function int $stack_1_int assignable
 function ref $stack_2_ref assignable
 function int $stack_2_int assignable
@@ -31,10 +31,10 @@ program Java
   assume $wellformed($heap)
   $exception := $null
   $old_heap := $heap
-  assume !R_this_ref = $null & $heap[R_this_ref, $created]
-  assume instanceof(R_this_ref, T_Sum)
-  assume $heap[R_array_ref, $created]
-  assume instanceof(R_array_ref, TF_INT_ARRAY)
+  assume !this = $null & $heap[this, $created]
+  assume instanceof(this, T_Sum)
+  assume $heap[array, $created]
+  assume instanceof(array, TF_INT_ARRAY)
   
 sourceline 7  PC0:
   # iconst_0
@@ -42,7 +42,7 @@ sourceline 7  PC0:
   
 sourceline 7  PC1:
   # istore_2
-  R_result_int := $stack_1_int
+  result := $stack_1_int
   
 sourceline 8  PC2:
   # iconst_0
@@ -50,16 +50,16 @@ sourceline 8  PC2:
   
 sourceline 8  PC3:
   # istore_3
-  R_i_int := $stack_1_int
+  i := $stack_1_int
   
 sourceline 9  PC4:
   assume $wellformed($heap)
   # iload_3
-  $stack_1_int := R_i_int
+  $stack_1_int := i
   
 sourceline 9  PC5:
   # aload_1
-  $stack_2_ref := R_array_ref
+  $stack_2_ref := array
   
 sourceline 9  PC6:
   # arraylength
@@ -70,7 +70,7 @@ sourceline 9  PC7:
   # if_icmpge
   goto PC7branch, PC7cont
   PC7branch: assume $gte($stack_1_int, $stack_2_int)
-  goto PC27
+  goto PC32
   PC7cont: assume !$gte($stack_1_int, $stack_2_int)
   goto PC10
   
@@ -79,15 +79,15 @@ sourceline 10  PC10:
   
 sourceline 11  PC15:
   # iload_2
-  $stack_1_int := R_result_int
+  $stack_1_int := result
   
 sourceline 11  PC16:
   # aload_1
-  $stack_2_ref := R_array_ref
+  $stack_2_ref := array
   
 sourceline 11  PC17:
   # iload_3
-  $stack_3_int := R_i_int
+  $stack_3_int := i
   
 sourceline 11  PC18:
   # iaload
@@ -101,27 +101,30 @@ sourceline 11  PC19:
   
 sourceline 11  PC20:
   # istore_2
-  R_result_int := $stack_1_int
+  result := $stack_1_int
   
 sourceline 12  PC21:
   # iinc
-  R_i_int := $iadd(R_i_int, 1)
+  i := $iadd(i, 1)
   
-sourceline 12  PC24:
+sourceline 13  PC24:
+  skip MARK, 2
+  
+sourceline 13  PC29:
   # goto
   goto PC4
   
-sourceline 14  PC27:
+sourceline 15  PC32:
   # iload_2
-  $stack_1_int := R_result_int
+  $stack_1_int := result
   
-sourceline 14  PC28:
+sourceline 15  PC33:
   # ireturn
   assume $result = $stack_1_int
   end
 function bool $SPEC_diverges assignable
 function set(prod(ref, field)) $SPEC_frame
-function ref SPEC_pre_R_this_ref assignable
-function ref SPEC_pre_R_array_ref assignable
+function ref SPEC_pre_this assignable
+function ref SPEC_pre_array assignable
 
-problem R_this_ref = SPEC_pre_R_this_ref & R_array_ref = SPEC_pre_R_array_ref & (\forall o; (\forall f; (pair(o, f) :: $SPEC_frame) = (false))) & $invariant($heap, R_this_ref, T_Sum) & $invariant($heap, R_this_ref, T_java_lang_Object) & !$eq(SPEC_pre_R_array_ref, $null) & !$eq(SPEC_pre_R_array_ref, $null) -> $SPEC_diverges | { R_this_ref := SPEC_pre_R_this_ref || R_array_ref := SPEC_pre_R_array_ref}[[0;Java]](true & $invariant($heap, R_this_ref, T_Sum) & $invariant($heap, R_this_ref, T_java_lang_Object) & ( \forall o as ref; ( \forall f as field; pair(o, f) :: $SPEC_frame | !$old_heap[o, $created] | ($heap[o,f] = $old_heap[o,f] as int & ($heap[o,f] = $old_heap[o,f] as bool) & $heap[o,f] = $old_heap[o,f] as ref & $heap[o,f] = $old_heap[o,f] as float))))
+problem this = SPEC_pre_this & array = SPEC_pre_array & (\forall o; (\forall f; (pair(o, f) :: $SPEC_frame) = (false))) & $invariant($heap, this, T_Sum) & $invariant($heap, this, T_java_lang_Object) & !$eq(SPEC_pre_array, $null) & !$eq(SPEC_pre_array, $null) -> $SPEC_diverges | { this := SPEC_pre_this || array := SPEC_pre_array}[[0;Java]](true & $invariant($heap, this, T_Sum) & $invariant($heap, this, T_java_lang_Object) & ( \forall o as ref; ( \forall f as field; pair(o, f) :: $SPEC_frame | !$old_heap[o, $created] | ($heap[o,f] = $old_heap[o,f] as int & ($heap[o,f] = $old_heap[o,f] as bool) & $heap[o,f] = $old_heap[o,f] as ref & $heap[o,f] = $old_heap[o,f] as float))))

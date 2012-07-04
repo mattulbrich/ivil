@@ -10,6 +10,7 @@ class Sum {
 	    de.uka.iti.ivil.jbc.Spec.special("/*@ mark 1; */");
 	    result += array[i];
 	    i++;
+	    de.uka.iti.ivil.jbc.Spec.special("/*@ mark 2; */");
 	}
 	return result;
     }

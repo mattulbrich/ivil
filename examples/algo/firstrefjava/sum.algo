@@ -10,10 +10,10 @@ uses "java-out/Sum.sum([I)I-1.p"
 
 abbreviation
   @injective :=
-   (\forall a; 0 <= a < $heap[R_array_ref, $array_length] -> 
-     (\forall b; 0 <= b < $heap[R_array_ref, $array_length] -> 
-         $heap[R_array_ref, $array_index(a)] as int = 
-         $heap[R_array_ref, $array_index(a)] -> a=b ))
+   (\forall a; 0 <= a < $heap[array, $array_length] -> 
+     (\forall b; 0 <= b < $heap[array, $array_length] -> 
+         $heap[array, $array_index(a)] as int = 
+         $heap[array, $array_index(b)] -> a=b ))
 
 algo Sum
 
@@ -37,16 +37,27 @@ do
     mark 1;
     choose xA such that xA :: sA;
     sumA := sumA + xA;
-    sA := sA \ {xA}
+    sA := sA \ {xA};
+    mark 2
   end
 end
 
 refine Sum as Java
-  requires setA = seqAsSet(arrayAsIntSeq($heap, R_array_ref)) &
-           !R_array_ref = $null & @injective
+  requires setA = seqAsSet(arrayAsIntSeq($heap, array)) &
+           !array = $null & @injective
     var 42 // setA
   ensures sumA = $result
 
   mark 1
-    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, R_array_ref), 0, R_i_int))
+    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), 
+                        i, $heap[array, $array_length]))
+        & i >= 0 & i < $heap[array, $array_length]
+        & sumA = result
+    var 42 // setA
+
+  mark 2
+    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), 
+                        i, $heap[array, $array_length]))
+        & i >= 0
+        & sumA = result
     var 42 // setA

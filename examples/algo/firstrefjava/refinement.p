@@ -1,4 +1,4 @@
-# Automatically created on Tue Jul 03 17:45:51 CEST 2012
+# Automatically created on Wed Jul 04 18:06:38 CEST 2012
 include "$refinement.p"
 include "$int.p"
 include "$symbex.p"
@@ -24,7 +24,7 @@ program Sum source "sum.algo"
  body0:
   assume (!(sA) = emptyset); "assume condition "
  sourceline 37
-  skip MARK, 1, (sA = seqAsSet(seqSub(arrayAsIntSeq($heap, R_array_ref), 0, R_i_int))), 42 ; "marking stone"
+  skip MARK, 1, ((sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), i, $heap[array, $array_length]))) & ((i >= 0) & ((i < $heap[array, $array_length]) & (sumA = result)))), 42 ; "marking stone"
  sourceline 38
   havoc xA
   assume (xA :: sA)
@@ -32,6 +32,8 @@ program Sum source "sum.algo"
   sumA := (sumA + xA)
  sourceline 40
   sA := (sA \ singleton(xA))
+ sourceline 41
+  skip MARK, 2, ((sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), i, $heap[array, $array_length]))) & ((i >= 0) & (sumA = result))), 42 ; "marking stone"
   goto loop0
  sourceline 33
  after0:
@@ -39,4 +41,4 @@ program Sum source "sum.algo"
  endOfProgram: 
 
 
-problem ((setA = seqAsSet(arrayAsIntSeq($heap, R_array_ref))) & ((!(R_array_ref) = $null) & (\forall a; (((0 <= a) & (a < $heap[R_array_ref, $array_length])) -> (\forall b; (((0 <= b) & (b < $heap[R_array_ref, $array_length])) -> (((($heap[R_array_ref, $array_index(a)]) as int) = $heap[R_array_ref, $array_index(a)]) -> (a = b)))))))) |- [0; Java][<0;Sum>]((sumA = $result))
+problem ((setA = seqAsSet(arrayAsIntSeq($heap, array))) & ((!(array) = $null) & (\forall a; (((0 <= a) & (a < $heap[array, $array_length])) -> (\forall b; (((0 <= b) & (b < $heap[array, $array_length])) -> (((($heap[array, $array_index(a)]) as int) = $heap[array, $array_index(b)]) -> (a = b)))))))) |- [0; Java][<0;Sum>]((sumA = $result))

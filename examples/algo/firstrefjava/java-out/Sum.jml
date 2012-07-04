@@ -10,6 +10,7 @@ class Sum {
 	    /*@ mark 1; */
 	    result += array[i];
 	    i++;
+	    /*@ mark 2; */
 	}
 	return result;
     }
