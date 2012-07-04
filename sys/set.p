@@ -129,7 +129,7 @@ find singleton(%x) = singleton(%y)
 replace %x=%y
 tags
   rewrite "fol simp"
-  asAxiom
+  # asAxiom # this slows Z3 down SIGNIFICANTLY!
   derived
   verbosity "8"
 
@@ -462,8 +462,8 @@ rule card_setminus_singleton
   replace card(%s) - cond(%x :: %s, 1, 0)
 
 
-axiom cut_finiteness
-  (\T_all 'a; (\forall s as set('a); 
+axiom full_finiteness
+  (\T_all 'a; (\forall s as set('a); finite(s) ~~>
      finite(fullset as set('a)) -> finite(s)))
 
 rule cut_finiteness
