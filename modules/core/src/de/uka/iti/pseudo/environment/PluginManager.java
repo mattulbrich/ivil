@@ -78,14 +78,43 @@ import nonnull.Nullable;
  *   pm.register("prettyPrinter", pp);
  * </pre>
  *
+ * @ivildoc "Plugin Configuration"
+ * <h2>Configurating the Plugin Manager</h2>
+ * <dl>
+ * <dt>Meta function</dt>
+ * <dd>
+ * Meta functions are functions which are translated to terms during rule
+ * application. The instances of class
+ * <tt>de.uka.iti.pseudo.environment.MetaFunction</tt> are registered under the
+ * key <tt>metaFunction</tt>.</dd>
+ * <dt>Where condition</dt>
+ * <dd>Where conditions decide when rules are applicable. The instances of class
+ * <tt>de.uka.iti.pseudo.environment.WhereCondition</tt> are registered under
+ * the key <tt>whereCondition</tt>.</dd>
+ * <dt>Pretty printer</dt>
+ * <dd>Pretty printer plugins allow the configuration of presentation of the
+ * logic. The instances of class
+ * <tt>de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin</tt> are registered under
+ * the key <tt>prettyPrinter</tt>.</dd>
+ * <dt>Proof hints</dt>
+ * <dd>
+ * Hints to the proof are given in statement annotations. The instances of
+ * interface <tt>de.uka.iti.pseudo.auto.strategy.hint.ProofHint</tt> are
+ * registered under the key <tt>proofHint</tt>.</dd>
+ * <dt>Decision procedures</dt>
+ * <dd>
+ * Decision procedures can be used to discharge proof obligations by external
+ * solver programs. The instances of interface
+ * <tt>de.uka.iti.pseudo.auto.DecisionProcedure</tt> are registered under the
+ * key <tt>decisionProcedure</tt>.</dd>
+ * </dl>
  */
 public final class PluginManager {
 
     /**
      * The parent plugin manager upon which this manager relies. May be null.
      */
-    private @Nullable
-    final PluginManager parentManager;
+    private @Nullable final PluginManager parentManager;
 
     /**
      * Mapping names of services to service structure instances.

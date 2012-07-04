@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.List;
 
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -24,10 +24,10 @@ import javax.swing.JTree;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -44,19 +44,19 @@ import de.uka.iti.pseudo.util.Log;
 
 @SuppressWarnings("serial")
 public class ReferenceManualWindow extends JFrame {
-    
+
     private static final String IVIL_PROTOCOL_PREFIX = "ivil:/";
-    
+
     private RMTreeNode rootNode;
     private JEditorPane contentPane;
     private JTree categoryTree;
-    
+
     public ReferenceManualWindow() throws ParserConfigurationException, SAXException, IOException {
         super("ivil - Reference Manual");
         xmlInit();
         guiInit();
     }
-    
+
     private void guiInit() {
         JSplitPane splitPane = new JSplitPane();
         getContentPane().add(splitPane);
@@ -71,7 +71,7 @@ public class ReferenceManualWindow extends JFrame {
                 }
             });
             categoryTree.setBorder(new EmptyBorder(5, 10, 5, 0));
-            JScrollPane scrollPane = new JScrollPane(categoryTree); 
+            JScrollPane scrollPane = new JScrollPane(categoryTree);
             splitPane.setLeftComponent(scrollPane);
         }
         {
@@ -79,7 +79,7 @@ public class ReferenceManualWindow extends JFrame {
             contentPane.setEditable(false);
             contentPane.setContentType("text/html");
             contentPane.addHyperlinkListener(hyperlinkListener);
-            JScrollPane scrollPane = new JScrollPane(contentPane); 
+            JScrollPane scrollPane = new JScrollPane(contentPane);
             splitPane.setRightComponent(scrollPane);
         }
         setSize(1000, 400);
@@ -105,7 +105,7 @@ public class ReferenceManualWindow extends JFrame {
             }
         }
     };
-    
+
     protected void setSelection(TreePath path) {
         Object lastComp = path.getLastPathComponent();
         if (lastComp instanceof RMTreeNode) {
@@ -122,13 +122,13 @@ public class ReferenceManualWindow extends JFrame {
         if(is == null) {
             throw new FileNotFoundException("referenceManual.xml not at its place");
         }
-        
+
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.parse(is);
-        
+
         rootNode = new RMTreeNode("","");
-        
+
         NodeList nodeLst = doc.getElementsByTagName("category");
         for (int s = 0; s < nodeLst.getLength(); s++) {
             Element catElement = (Element) nodeLst.item(s);
@@ -147,15 +147,15 @@ public class ReferenceManualWindow extends JFrame {
                 }
             }
         }
-        
+
         for (RMTreeNode node : rootNode.getChildren()) {
             Collections.sort(node.getChildren());
         }
-        
+
     }
 
-    private static class RMTreeNode 
-            extends DefaultMutableTreeNode 
+    private static class RMTreeNode
+            extends DefaultMutableTreeNode
             implements Comparable<RMTreeNode> {
 
         private String content;
@@ -172,32 +172,36 @@ public class ReferenceManualWindow extends JFrame {
         public String getContent() {
             return content;
         }
-        
+
         public String getName() {
             return (String)getUserObject();
         }
-        
+
         @SuppressWarnings("unchecked")
-        public Vector<RMTreeNode> getChildren() {
-            return children;
+        public List<RMTreeNode> getChildren() {
+            if(children == null) {
+                return Collections.emptyList();
+            } else {
+                return children;
+            }
         }
 
         @Override
         public int compareTo(RMTreeNode o) {
             return getName().compareToIgnoreCase(o.getName());
         }
-        
+
         public TreePath selectPath(String path) {
             String[] comps = path.split("/");
             return selectPath0(comps, new TreePath(this));
         }
-        
+
         private TreePath selectPath0(String[] comps, TreePath path) {
             int no = path.getPathCount() - 1;
             if(no == comps.length) {
                 return path;
             }
-            
+
             for (RMTreeNode child : getChildren()) {
                 if(comps[no].equals(child.getName())) {
                     return child.selectPath0(comps, path.pathByAddingChild(child));
@@ -206,11 +210,11 @@ public class ReferenceManualWindow extends JFrame {
             return null;
         }
     }
-    
+
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
         JFrame f = new ReferenceManualWindow();
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setVisible(true);
     }
-    
+
 }

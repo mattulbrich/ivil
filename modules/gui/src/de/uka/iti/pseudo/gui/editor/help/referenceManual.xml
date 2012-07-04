@@ -36,10 +36,27 @@
    CompoundStrategy.strategies
       "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"]]>
     </entry>
+    <entry name="splitMode">
+      <![CDATA[
+
+ TODO
+
+ SimplificationStrategy.splitMode
+
+ <p>SPLIT; DONT_SPLIT; SPLIT_NO_PROGRAMS
+
+ SplitMode lists all possibilities to handle splitting:
+ <ol>
+ <li>Do it whenever a splitting rule application is found
+ <li>Never do it
+ <li>Do it only if no program terms are anywhere on the sequent (symbolic
+ execution first)
+ </ol>]]>
+    </entry>
     <entry name="order">
       <![CDATA[
- 
- Use the property <tt>order.<i>fct</i></tt> to specify the order ... 
+
+ Use the property <tt>order.<i>fct</i></tt> to specify the order ...
  TODO IVILDOC]]>
     </entry>
     <entry name="stopAtSkip">
@@ -80,12 +97,12 @@
   </category>
   <category name="Rule tag">
     <entry name="rewrite">
-      <![CDATA[ 
- 
+      <![CDATA[
+
  <h2>Rule tag <tt>rewrite</tt></h2>
- 
+
  "rewrite" expects a string argument.
- 
+
  <p>
  It declares the set of rewrite rules to which a rule belongs. They list
  of known rule sets include the following:
@@ -103,63 +120,72 @@
     </entry>
     <entry name="autoonly">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>autoonly</tt></h2>
- 
+
  "autoonly" does not take an argument.
- 
+
  <p>It makes a rule invisible for manual application.]]>
     </entry>
     <entry name="decisionProcedure">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>decisionProcedure</tt></h2>
- 
+
  "decisionProcedure" expects a classname as argument.
- 
+
  <p>It denotes the decision procedure plugin to instantiate.]]>
+    </entry>
+    <entry name="additionalParam">
+      <![CDATA[
+ <h2>Rule tag <tt>additionalParam</tt></h2>
+
+ "additionalParam" expects a string as argument.
+
+ <p>The format of the string depends on the DP to be used.
+ It is given to the DP on the command line.]]>
     </entry>
     <entry name="hintsOnBranches">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>hintsOnBranches</tt></h2>
- 
+
  "hintsOnBranches" takes a comma separated list of integer numbers as
  argument. It is used by the proof hint strategy to decide on which child
  branches hints are to be applied. The first child branch has number "0".]]>
     </entry>
     <entry name="asAxiom">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>asAxiom</tt></h2>
- 
+
  "asAxiom" does not take an argument.
- 
+
  <p>It marks a rule to be translated into an axiom which allows it to
  be translated to SMT. This is not possible for all rules.]]>
     </entry>
     <entry name="derived">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>derived</tt></h2>
- 
+
  "derived" does not an need argument.
- 
+
  <p>It marks a rule to be inferrable by the rules preceeding it (plus
  includes)]]>
     </entry>
     <entry name="display">
-      <![CDATA[ 
- 
+      <![CDATA[
+
  <h2>Rule tag <tt>display</tt></h2>
- 
+
  "display" expects a string as argument,
  possibly with embedded schema variables.
- 
+
  <p>
  This string is used to annotate history entries and proof tree component
  labels.
- 
+
  <p>The format is the following:
  <table>
  <tr>
@@ -195,17 +221,17 @@
     </entry>
     <entry name="fromRule">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>fromRule</tt></h2>
- 
+
  "fromRule" takes a rule name as argument.
- 
+
  <p>It is added automatically to axioms which are generated automatically
  from rules. The argument is set to the name of the originating rule.]]>
     </entry>
     <entry name="prio">
       <![CDATA[ "prio" expects an integer as argument.
- 
+
  <h2>Rule tag <tt>prio</tt></h2>
           <p>
           When sorting rules, the priority is used as comparison
@@ -217,21 +243,55 @@
     <entry name="timeout">
       <![CDATA[
  <h2>Rule tag <tt>timeout</tt></h2>
- 
+
  "timeout" expects an integer as argument.
- 
+
  <p>For decision procedure rules. The time to wait before shutting down the
  DP.]]>
     </entry>
     <entry name="verbosity">
       <![CDATA[
- 
+
  <h2>Rule tag <tt>verbosity</tt></h2>
- 
+
  "verbosity" expects an integer as argument.
- 
+
  <p>It defines from which verbosity level on the rule is printed in the proof
  component.]]>
+    </entry>
+  </category>
+  <category name="Plugin Configuration">
+    <entry name="">
+      <![CDATA[
+ <h2>Configurating the Plugin Manager</h2>
+ <dl>
+ <dt>Meta function</dt>
+ <dd>
+ Meta functions are functions which are translated to terms during rule
+ application. The instances of class
+ <tt>de.uka.iti.pseudo.environment.MetaFunction</tt> are registered under the
+ key <tt>metaFunction</tt>.</dd>
+ <dt>Where condition</dt>
+ <dd>Where conditions decide when rules are applicable. The instances of class
+ <tt>de.uka.iti.pseudo.environment.WhereCondition</tt> are registered under
+ the key <tt>whereCondition</tt>.</dd>
+ <dt>Pretty printer</dt>
+ <dd>Pretty printer plugins allow the configuration of presentation of the
+ logic. The instances of class
+ <tt>de.uka.iti.pseudo.prettyprint.PrettyPrintPlugin</tt> are registered under
+ the key <tt>prettyPrinter</tt>.</dd>
+ <dt>Proof hints</dt>
+ <dd>
+ Hints to the proof are given in statement annotations. The instances of
+ interface <tt>de.uka.iti.pseudo.auto.strategy.hint.ProofHint</tt> are
+ registered under the key <tt>proofHint</tt>.</dd>
+ <dt>Decision procedures</dt>
+ <dd>
+ Decision procedures can be used to discharge proof obligations by external
+ solver programs. The instances of interface
+ <tt>de.uka.iti.pseudo.auto.DecisionProcedure</tt> are registered under the
+ key <tt>decisionProcedure</tt>.</dd>
+ </dl>]]>
     </entry>
   </category>
   <category name="Proof hint">
@@ -276,20 +336,20 @@
 
  <h3>Example</h3>
 
- If there is a rule which defines the recursive function{@code int f(int)}:
+ If there is a rule which defines the recursive function <tt>int f(int)</tt>:
  <pre>
  rule f_def
    find f(%x)
    replace 1+f(%x-1)
  </pre>
 
- A hint {@code §(expand f_def)} would render a formula {@code f(1)}
+ A hint <tt>§(expand f_def)</tt> would render a formula <tt>f(2)</tt> to
+ <tt>1+f(2-1)</tt>.
 
- <pre>
- assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
- </pre>
+ <p>A hint <tt>§(expand f_def 2)</tt> would go a step further and expand to
+ <tt>1 + (1 + f(2-1-1))</tt>.
 
- (We left the base case unconsidered here)]]>
+ <p>(We left the base case unconsidered here.)]]>
     </entry>
     <entry name="pick">
       <![CDATA[
@@ -339,49 +399,47 @@
     <entry name="">
       <![CDATA[
 
-          <h1>Where conditions</h1>
+ <h1>Where conditions</h1>
 
-          Where conditions are used to formulate constraints von schema
-          instantiations in rule definitions. They describe conditions on the
-          matched terms under which the rule may be applied.
+ Where conditions are used to formulate constraints von schema instantiations
+ in rule definitions. They describe conditions on the matched terms under
+ which the rule may be applied.
 
-          <p>
-          Where conditions can take arguments, but do not have to. For some
-          conditions, <i>marker arguments</i> (schema variables with special
-          names) can be used to specify a particular behaviour of a condition.
+ <p>
+ Where conditions can take arguments, but do not have to. For some conditions,
+ <i>marker arguments</i> (schema variables with special names) can be used to
+ specify a particular behaviour of a condition.
 
-          <h3>Example</h3>
+ <h3>Example</h3>
 
-          The where condition<br/>
-          <tt>&nbsp;&nbsp;&nbsp;where intLiteral %a</tt><br/>
+ The where condition<br/>
+ <tt>&nbsp;&nbsp;&nbsp;where intLiteral %a</tt><br/>
 
-          in a rule makes the rule only applicable if the schema variable %a
-          is instantiated with an integer literal.
+ in a rule makes the rule only applicable if the schema variable %a is
+ instantiated with an integer literal.
 
-          <h2>Active where conditions</h2>
+ <h2>Active where conditions</h2>
 
-          Where conditions cannot only check the instantiation context but
-          also act and actively modify it.
+ Where conditions cannot only check the instantiation context but also act and
+ actively modify it.
 
-          <p>
-          An active where condition can add new schema instantiations to the
-          context. Existing schema instantiations will not be changed, only
-          new entries added. Please note that active conditions can also fail
-          and not accept an instantiation.
+ <p>
+ An active where condition can add new schema instantiations to the context.
+ Existing schema instantiations will not be changed, only new entries added.
+ Please note that active conditions can also fail and not accept an
+ instantiation.
 
-          <p>
-          The documentation will point out which parameters are active, and
-          which are passive. Future syntax changes may make the distinction
-          clearer.
+ <p>
+ The documentation will point out which parameters are active, and which are
+ passive. Future syntax changes may make the distinction clearer.
 
-          <h3>Example</h3>
+ <h3>Example</h3>
 
-          The where condition<br/>
-          <tt>&nbsp;&nbsp;&nbsp;freshVar %z, %condition</tt><br/>
+ The where condition<br/>
+ <tt>&nbsp;&nbsp;&nbsp;freshVar %z, %condition</tt><br/>
 
-          instantiates <code>%z</code> with a variable of the same type which
-          does not appear (bound or unbound) in the instantiation of
-          <code>%condition</code>.]]>
+ instantiates <code>%z</code> with a variable of the same type which does not
+ appear (bound or unbound) in the instantiation of <code>%condition</code>.]]>
     </entry>
     <entry name="toplevel">
       <![CDATA[
@@ -487,6 +545,29 @@
  been chosen by this condition) a variable which does not occur unbound in the
  remaining arguments. It fails if the first argument is not matched by a
  variable.]]>
+    </entry>
+    <entry name="interactive">
+      <![CDATA[
+
+ This where condition can be used in rules to indicate that a schema variable
+ should be instantiated interactively.
+
+ <h4>One parameter</h4> The where condition places a property into the rule
+ application indicating that the schema variable <code>%v</code> of type
+ <code>T</code> is to be interactively instantiated. It is of the form
+
+ <pre>
+   interact(%v) : T
+ </pre>
+
+ It is then the task of the interaction to process these properties and to
+ amend the schema variable mapping of the rule application.
+
+ <h4>Two parameters (type mode)</h4> The where condition can also carry a second parameter
+ which must either be <code>true</code> or <code>false</code> (literally).
+ <code>false</code> indicates the usual behaviour while <code>true</code> also
+ allows to instantiate the type of the schema variable (<i>which <b>must</b> be
+ schema type then). This is convenient for type instantiations.]]>
     </entry>
     <entry name="noFreeVars">
       <![CDATA[

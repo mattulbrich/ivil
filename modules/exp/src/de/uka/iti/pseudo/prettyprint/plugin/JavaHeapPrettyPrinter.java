@@ -20,13 +20,13 @@ import de.uka.iti.pseudo.term.TypeApplication;
 // TODO DOC
 // TODO Move this to pseudo.bytecode
 
-public class HeapPrettyPrinter extends PrettyPrintPlugin {
+public class JavaHeapPrettyPrinter extends PrettyPrintPlugin {
 
     @Override public void prettyPrintTerm(Application application) throws TermException {
-        
+
         Function function = application.getFunction();
         String name = function.getName();
-        
+
         if ("sel".equals(name)) {
 
             // obj
@@ -56,7 +56,7 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
             // heap
             printSubterm(application, 0);
         } else
-        
+
         if(isFieldType(function.getResultType()) && function.getArity() == 0 &&
                 name.startsWith("field_")) {
             int last_ = name.lastIndexOf('_');
@@ -71,8 +71,8 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
             printSubterm(application, 0);
             append("]");
         }
-                
-        
+
+
     }
 
     /*
@@ -81,8 +81,9 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
     private boolean isFieldType(Type type) {
         if (type instanceof TypeApplication) {
             TypeApplication tyApp = (TypeApplication) type;
-            if("field".equals(tyApp.getSort().getName()))
+            if("field".equals(tyApp.getSort().getName())) {
                 return true;
+            }
         }
         return false;
     }
@@ -93,7 +94,12 @@ public class HeapPrettyPrinter extends PrettyPrintPlugin {
 
     @Override
     public String getReplacementName(String name) {
-		// nothing to do
+        if(name.startsWith("R_")) {
+            int last_ = name.lastIndexOf('_');
+            if(last_ > 2) {
+                return name.substring(2, last_);
+            }
+        }
         return null;
     }
 
