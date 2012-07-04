@@ -55,6 +55,7 @@ rule getOfSeqSingleton
   tags
     derived
     rewrite "fol simp"
+    asAxiom
 
 rule lenOfSeqConcat
   find seqLen(seqConcat(%seq, %seq2))
@@ -62,6 +63,7 @@ rule lenOfSeqConcat
   tags
     derived
     rewrite "fol simp"
+    asAxiom
 
 rule seqLenOfSub
   find seqLen(seqSub(%a, %from, %to))
@@ -69,6 +71,7 @@ rule seqLenOfSub
   tags 
     derived
     rewrite "fol simp"
+    asAxiom
 
 rule seqGetOfSub
   find seqGet(seqSub(%a, %from, %to), %i)
@@ -77,6 +80,7 @@ rule seqGetOfSub
   tags 
     derived 
     rewrite "fol simp"
+    asAxiom
 
 rule lenOfSeqReverse
   find seqLen(seqReverse(%seq))
@@ -84,6 +88,7 @@ rule lenOfSeqReverse
   tags 
     derived
     rewrite "fol simp"
+    asAxiom
 
 rule getOfSeqReverse
   find seqGet(seqReverse(%seq), %i)
@@ -91,6 +96,7 @@ rule getOfSeqReverse
   tags
     derived
     rewrite "fol simp"
+    asAxiom
 
 (*
  * lemmata for seqEmpty
