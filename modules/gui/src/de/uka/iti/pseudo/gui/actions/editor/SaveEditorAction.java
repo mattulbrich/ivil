@@ -15,18 +15,19 @@ import java.io.File;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 
 // TODO Documentation needed
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class SaveEditorAction extends SaveAsEditorAction {
-    
+
     public SaveEditorAction() {
         putValue(ACTION_COMMAND_KEY, "save");
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         PFileEditor editor = (PFileEditor) getValue(PARENT_FRAME);
         File selectedFile = editor.getFile();
-        
+
         if(selectedFile != null) {
             saveUnder(editor, selectedFile);
         } else {
