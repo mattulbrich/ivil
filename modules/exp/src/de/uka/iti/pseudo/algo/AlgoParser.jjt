@@ -114,8 +114,9 @@ TOKEN : /* KEYWORDS */
 | < WITH : "with" >
 | < WHILE : "while" >
 | < INPUT : "input" >
-| < OUTPUT : "output" >
 | < CHOOSE : "choose" >
+| < OPTION : "option" >
+| < OUTPUT : "output" >
 | < ASSERT : "assert" >
 | < ASSUME : "assume" >
 | < REFINE : "refine" >
@@ -156,7 +157,7 @@ TOKEN : /* IDENTIFIERS */
 /** Main production. */
 ASTStart Start() #Start : {}
 {
-  ( Uses() )*
+  ( Uses() | Option() )*
   ( Abbreviation() )*
   ( Algo() )+
   ( Refinement() { jjtThis.jjtSetValue(jjtree.peekNode()); } )?
@@ -180,6 +181,16 @@ void Uses() :
         jjtThis.jjtSetValue(stripInline(t.image));
      } #UsesInlineDeclaration
   )
+}
+
+void Option() #Option :
+{
+  Token t1, t2;
+}
+{
+  "option"
+  t1 = <IDENTIFIER> "=" t2 = <STRING_LITERAL>
+  { jjtThis.jjtSetValue(Pair.make(t1,t2)); }
 }
 
 void Abbreviation() #Abbreviation :
@@ -435,9 +446,18 @@ void RelationExpression() :
 { 
    // "in" must be relayed as "::"
    AddExpression() 
-   ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; } | t="<" | t="<=" | t=">" | t=">=") 
-   RelationExpression() 
-      { jjtThis.jjtSetValue(t); } #BinaryExpression(2) )?
+   ( 
+    ( (t="=" | t="<:" | t="::" | t="in" { t.image="::"; } | t="<" | t="<=" | t=">" | t=">=") 
+       RelationExpression() 
+         { jjtThis.jjtSetValue(t); } #BinaryExpression(2)
+    |
+      (t="!=" | t="!::")
+       RelationExpression()
+         { t.image = t.image.substring(1);
+           jjtThis.jjtSetValue(t); } #BinaryExpression(2) 
+         { jjtThis.jjtSetValue(new Token(0, "!")); } #UnaryExpression(1)
+    ) 
+   )?
 }
 
 void AddExpression() :

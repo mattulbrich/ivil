@@ -3,6 +3,7 @@ package de.uka.iti.pseudo.algo;
 public class TermVisitor extends DefaultAlgoParserVisitor {
 
     private final Translation translation;
+    private final String mapFunction;
 
     /**
      * @param translation
@@ -10,6 +11,7 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
     public TermVisitor(Translation translation) {
         super();
         this.translation = translation;
+        this.mapFunction = translation.getOption("mapFunction");
     }
 
     @Override
@@ -45,8 +47,11 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visit(ASTMapAccessExpression node, Object data) {
-        // return "$load(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
-        return visitChild(node, 0) + "[" + visitChild(node, 1) + "]";
+        if(mapFunction == null) {
+            return visitChild(node, 0) + "[" + visitChild(node, 1) + "]";
+        } else {
+            return mapFunction + "(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
+        }
     }
 
     @Override

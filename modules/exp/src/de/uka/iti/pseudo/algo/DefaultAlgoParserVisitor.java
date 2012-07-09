@@ -24,6 +24,11 @@ public abstract class DefaultAlgoParserVisitor implements AlgoParserVisitor {
     }
 
     @Override
+    public String visit(ASTOption node, Object data) {
+        return visitDefault(node, data);
+    }
+
+    @Override
     public String visit(ASTUsesInlineDeclaration node, Object data) {
         return visitDefault(node, data);
     }

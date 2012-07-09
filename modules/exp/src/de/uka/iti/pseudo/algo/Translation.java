@@ -39,6 +39,7 @@ public class Translation {
     final Map<String, String> abbreviations = new HashMap<String, String>();
     private final Map<String, String> couplingInvariantMap = new HashMap<String, String>();
     private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
+    private final Map<String, String> options = new HashMap<String, String>();
 
     public static void main(String[] args) throws ParseException, IOException, CommandLineException {
         String source;
@@ -180,6 +181,14 @@ public class Translation {
             throw new IllegalStateException("Coupling variant " + name + " not defined");
         }
         return result;
+    }
+
+    public void setOption(String option, String value) {
+        options.put(option, value);
+    }
+
+    public String getOption(String option) {
+        return options.get(option);
     }
 
 }

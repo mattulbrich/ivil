@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.uka.iti.pseudo.parser.file.ASTDeclarationBlock;
+import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 /**
  * The TranslationVisitor does the toplevel translation work.
@@ -48,22 +49,22 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
         translation.addDeclaration("# Automatically created on " + new Date());
 
         // Order of execution:
-        // 1. declarations, abbrevs
+        // 1. declarations, abbrevs, ...
         // 2. refinement
-        // 3. algo and everyhing else
+        // 3. algos
 
         List<Node> decls = new ArrayList<Node>();
         List<Node> ref = new ArrayList<Node>();
-        List<Node> remain = new ArrayList<Node>();
+        List<Node> algos = new ArrayList<Node>();
 
         for (int i = 0; i < node.jjtGetNumChildren(); i++) {
             Node child = node.jjtGetChild(i);
-            if (child instanceof ASTDeclarationBlock || child instanceof ASTAbbreviation) {
-                decls.add(child);
-            } else if(child instanceof ASTRefinement) {
+            if(child instanceof ASTRefinement) {
                 ref.add(child);
+            } else if(child instanceof ASTAlgo) {
+                algos.add(child);
             } else {
-                remain.add(child);
+                decls.add(child);
             }
         }
 
@@ -75,7 +76,7 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
             n.jjtAccept(this, data);
         }
 
-        for (Node n : remain) {
+        for (Node n : algos) {
             n.jjtAccept(this, data);
         }
 
@@ -96,6 +97,13 @@ public class TranslationVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTUsesInlineDeclaration node, Object data) {
         translation.addDeclaration(node.jjtGetValue().toString());
+        return null;
+    }
+
+    @Override
+    public String visit(ASTOption node, Object data) {
+        Pair<Token, Token> setup = (Pair<Token, Token>) node.jjtGetValue();
+        translation.setOption(setup.fst().image, Util.stripQuotes(setup.snd().image));
         return null;
     }
 
