@@ -91,8 +91,12 @@ public class TermComponent extends JTextPane {
         S.getColor("pseudo.termcomponent.highlightcolor", Color.ORANGE);
 
     // the modality background should be rather unnoticed
-    private static final Color MODALITY_BACKGROUND =
-        S.getColor("pseudo.termcomponent.modalitybackground", Color.CYAN.brighter());
+    private static final Color UPDATE_BACKGROUND =
+        S.getColor("pseudo.termcomponent.updatebackground", Color.CYAN.brighter().brighter());
+
+    // the modality background should be rather unnoticed
+    private static final Color PROGRAM_BACKGROUND =
+        S.getColor("pseudo.termcomponent.programbackground", Color.CYAN.brighter());
 
     // border color needs to match background of sequent view
     private static final Color BORDER_COLOR =
@@ -325,11 +329,11 @@ public class TermComponent extends JTextPane {
             }
 
             if (descr.contains("program")) {
-                StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+                StyleConstants.setBackground(retval, PROGRAM_BACKGROUND);
             }
 
             if (descr.contains("update")) {
-                StyleConstants.setBackground(retval, MODALITY_BACKGROUND);
+                StyleConstants.setBackground(retval, UPDATE_BACKGROUND);
             }
 
             if (descr.contains("keyword")) {

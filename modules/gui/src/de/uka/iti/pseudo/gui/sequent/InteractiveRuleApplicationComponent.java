@@ -191,7 +191,8 @@ public class InteractiveRuleApplicationComponent extends
                     Term term = TermMaker.makeAndTypeTerm(content, env,
                             "User input for " + varname, typeConstraint);
 
-                    assert typeConstraint == null || type.equals(term.getType());
+                    assert typeConstraint == null || type.equals(term.getType()) :
+                        "Types must not differ: " + type + " and " + term.getType();
 
                     app.getSchemaVariableMapping().put(varname, term);
                     if(pair.typeMode) {
