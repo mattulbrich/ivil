@@ -213,8 +213,8 @@ rule auto_dia_assert
 rule auto_box_assume
   find |- { U ?} [%a : assume %b]%phi
   samegoal
-    replace {U} $$incPrg(%a)
     add {U} %b |-
+    replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
 
@@ -233,7 +233,7 @@ rule auto_dia_assume
   samegoal "..."
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
-       display "|> assert {%b}: {explain %a}"
+       display "|> assume {%b}: {explain %a}"
 
 
 rule auto_box_havoc

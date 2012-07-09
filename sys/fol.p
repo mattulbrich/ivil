@@ -224,7 +224,19 @@ rule equality_apply
   where
     toplevel
   replace   %u
-  tags dragdrop "8"
+  tags 
+    verbosity "6"
+    dragdrop "8"
+
+rule equality_apply_reverse
+  find %t
+  assume %u = %t |-
+  where
+    toplevel
+  replace %u
+  tags 
+   verbosity "6"
+   dragdrop "8"
 
 rule auto_equality_apply
   find %t 
@@ -236,7 +248,7 @@ rule auto_equality_apply
   tags
     autoonly
     # rewrite "fol simp"
-    verbosity "3"
+    verbosity "6"
 
 rule equality_unique
   find %t = %u
@@ -258,3 +270,12 @@ rule insert_pattern
   where
     interact %s
   replace %s ~~> %t
+
+(*
+ * Hilbert operator, epsilon, \some
+ *)
+
+rule some
+  find (\some %x; %b)
+  add (\exists %x; %b) -> $$subst(%x, (\some %x; %b), %b) |-
+  
