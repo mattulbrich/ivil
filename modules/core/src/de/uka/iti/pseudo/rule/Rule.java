@@ -46,7 +46,7 @@ public final class Rule {
 //    private static final String NEWLINE = "\n";
 
     /**
-     * The name of this rule
+     * The name of this rule.
      */
     private @NonNull
     final String name;

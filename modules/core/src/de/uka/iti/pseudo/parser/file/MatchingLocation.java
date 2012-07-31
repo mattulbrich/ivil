@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.parser.file;
 /**
  * The Enum MatchingLocation allows to specify the location of a term with
  * respect to the "infers" sign "|-".
+ *
+ * TODO Move this to package rule.
  */
 public enum MatchingLocation {
 
@@ -19,12 +21,12 @@ public enum MatchingLocation {
      * <b>LEFT</b> of the <code>|-</code>
      */
     ANTECEDENT,
-    
+
     /**
      * <b>RIGHT</b> of the <code>|-</code>
      */
     SUCCEDENT,
-    
+
     /**
      * Either left or right. Often this implies that the term may also be
      * subterm of another term.

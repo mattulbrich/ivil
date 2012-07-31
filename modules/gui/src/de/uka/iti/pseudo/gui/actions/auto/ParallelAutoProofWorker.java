@@ -28,6 +28,7 @@ import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
+import nonnull.NoNullnessChecks;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.util.CircleProgressIndicator;
@@ -42,22 +43,23 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 // TODO DOC
 
+@NoNullnessChecks
 public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements ActionListener, NotificationListener {
-    
-    private final static int REFRESH_DELAY = 
+
+    private final static int REFRESH_DELAY =
         Settings.getInstance().getInteger("pseudo.auto.popup.refreshDelay", 100);
-    
-    private final List<ProofNode> nodes;
-    private final PooledAutoProver pool;
-    private final Strategy strategy;
-    private final ProofCenter pc;
-    private final Frame parentFrame;
-    private final JDialog dialog;
-    private final JLabel raCount, workCount, unclosableCount, timeElapsed;
+
+    private final  List<ProofNode> nodes;
+    private final  PooledAutoProver pool;
+    private final  Strategy strategy;
+    private final  ProofCenter pc;
+    private final  Frame parentFrame;
+    private final  JDialog dialog;
+    private final  JLabel raCount, workCount, unclosableCount, timeElapsed;
     // start time; subtract 500ms for proper rounding
-    private final long startTime = System.currentTimeMillis() - 500;
-    
-    private Timer timer = new Timer(REFRESH_DELAY, this);
+    private final  long startTime = System.currentTimeMillis() - 500;
+
+    private final  Timer timer = new Timer(REFRESH_DELAY, this);
 
 //    private final int initialyClosableGoals;
 
@@ -67,7 +69,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         this.pool = new PooledAutoProver(strategy, pc.getEnvironment());
         this.pc = pc;
         this.parentFrame = frame;
-        
+
         pc.addNotificationListener(ProofCenter.STOP_REQUEST, this);
 
 //        this.initialyClosableGoals = pc.getProof().getOpenGoals().size() - this.nodes.size();
@@ -97,7 +99,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         cp.add(timeElapsed, new GridBagConstraints(1, 3, 1, 1, 0, 0,
                 GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(
                         2, 2, 5, 2), 0, 0));
-        
+
         JPanel buttons = new JPanel();
         cp.add(buttons, new GridBagConstraints(0, 4, 2, 1, 0, 0,
                 GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
@@ -130,7 +132,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
             });
             buttons.add(bg);
         }
-        
+
         dialog.pack();
         dialog.setResizable(false);
         dialog.setLocationRelativeTo(frame);
@@ -147,16 +149,18 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         }
     }
 
+    @Override
     public Void doInBackground() {
         // get exceptions
         try {
             strategy.beginSearch();
-            
-            for (ProofNode node : nodes)
+
+            for (ProofNode node : nodes) {
                 pool.autoProve(node);
-            
+            }
+
             pool.waitAutoProve();
-            
+
             strategy.endSearch();
         } catch (Exception e) {
             Log.stacktrace(e);
@@ -167,8 +171,9 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
         // a problem, caused by closing a proof to fast
         try {
             synchronized (this) {
-                if (!dialog.isValid())
+                if (!dialog.isValid()) {
                     wait(100);
+                }
             }
         } catch (InterruptedException e) {
             // really doesnt matter; if we got interrupted just continue
@@ -176,8 +181,8 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
 
         return null;
     }
-    
-    
+//
+//
     /**
      * update the labels describing the state of the auto prove
      */
@@ -190,6 +195,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
                 + (((System.currentTimeMillis() - startTime) / 1000) == 1 ? "" : "s"));
     }
 
+    @Override
     public void done() {
 
         // close the dialog, as it is not interesting for the user any more
@@ -203,7 +209,7 @@ public class ParallelAutoProofWorker extends SwingWorker<Void, Void> implements 
 
     /**
      * tell the worker to finish as soon as possible
-     * 
+     *
      * @throws InterruptedException
      *             thrown from pool.stopAutoProve
      * @throws CompoundException

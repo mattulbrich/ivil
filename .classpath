@@ -13,9 +13,11 @@
 	<classpathentry kind="src" path="modules/gui/src"/>
 	<classpathentry kind="src" path="modules/gui/test"/>
 	<classpathentry kind="lib" path="lib/javadocking.jar"/>
+	<classpathentry kind="lib" path="lib/jclasslib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea.jar" sourcepath="/home/mattias/tmp/10-09-29_rsyntax/src"/>
 	<classpathentry kind="lib" path="lib/checkers-quals.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/MixFix"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
