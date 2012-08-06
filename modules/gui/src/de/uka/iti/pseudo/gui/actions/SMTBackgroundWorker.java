@@ -84,6 +84,7 @@ import de.uka.iti.pseudo.util.Pair;
         this.action = action;
         this.proofCenter = proofCenter;
         proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
+        proofCenter.addNotificationListener(ProofCenter.TERMINATION, this);
     }
 
     @SuppressWarnings("unchecked")

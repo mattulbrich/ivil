@@ -418,6 +418,7 @@ public class Main {
         assert PROOF_CENTERS.contains(proofCenter);
 
         MainWindow main = proofCenter.getMainWindow();
+        proofCenter.fireNotification(ProofCenter.TERMINATION);
         main.dispose();
         PROOF_CENTERS.remove(proofCenter);
 

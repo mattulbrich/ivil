@@ -160,6 +160,7 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
         proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
         proofCenter.addPropertyChangeListener(SMTBackgroundThread.SMT_BACKGROUND_PROPERTY, this);
         proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
+        proofCenter.addNotificationListener(ProofCenter.TERMINATION, this);
 
         // Start bg process
         this.thread = new SMTBackgroundThread(this, proofCenter);
@@ -287,6 +288,12 @@ public final class SMTBackgroundAction extends BarAction implements Initialising
             setFlashing(!provableNodes.isEmpty());
 
             thread.notifyContinue(openGoals);
+        } else
+
+        if (event.isSignal(ProofCenter.TERMINATION)) {
+            if(thread != null) {
+                this.thread.interrupt();
+            }
         }
     }
 

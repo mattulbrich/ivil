@@ -29,6 +29,7 @@ import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.DefaultDockable;
 import com.javadocking.dockable.Dockable;
+import com.javadocking.model.DockModel;
 import com.javadocking.model.FloatDockModel;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
@@ -43,34 +44,37 @@ import de.uka.iti.pseudo.proof.ProofNode;
 
 /**
  * The class MainWindow describes the proof window for one single proof.
- * 
+ *
  * The different views are layout using javadocking dockables allowing a very
  * flexible way to look at things.
  */
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class MainWindow extends JFrame {
-    
+
     /**
-     * indicator for property changes on mainwindow that 
+     * indicator for property changes on mainwindow that
      * window is initialised now.
      */
     // public static final String INITIALISED = "pseudo.initialised";
-    
-    private ProofCenter proofCenter;
+
+    private final ProofCenter proofCenter;
 
     private SequentComponent sequentComponent;
 
     private GoalList goalList;
-    
+
     private ProofComponent proofComponent;
 
     private RuleApplicationComponent ruleApplicationComponent;
 
     private BarManager barManager;
-    
+
+    private final int number;
+    private static int counter = 0;
+
     /**
      * Instantiates a new main window.
-     * 
+     *
      * @param proofCenter the underlying proof center
      * @param resourceName the resource name to be used as title
      * @throws IOException if the barmanager fails to find needed resources
@@ -78,24 +82,26 @@ public class MainWindow extends JFrame {
     public MainWindow(ProofCenter proofCenter, String resourceName) throws IOException {
         super("ivil - " + resourceName);
         this.proofCenter = proofCenter;
+        this.number = ++counter;
     }
 
     void makeGUI() throws IOException, StrategyException {
 
         // setup the bar manager
         URL resource = getClass().getResource("actions/menu.xml");
-        if(resource == null)
+        if(resource == null) {
             throw new IOException("resource actions/menu.properties not found");
+        }
         barManager = new BarManager(null, resource);
         barManager.putProperty(BarAction.CENTER, proofCenter);
         barManager.putProperty(BarAction.PARENT_FRAME, this);
-        
+
         // Create the split dock.
         SplitDock topDock = new SplitDock();
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(topDock, BorderLayout.CENTER);
-        
-        
+
+
         // Create the dockings
         TabDock leftTabDock = new TabDock();
         TabDock rightTabDock = new TabDock();
@@ -103,23 +109,27 @@ public class MainWindow extends JFrame {
         TabDock programTabDock = new TabDock();
         {
             // Create the dock model for the docks.
-            FloatDockModel dockModel = new FloatDockModel();
-            dockModel.addOwner("mainFrame", this);
-            
-            // Give the dock model to the docking manager.
-            DockingManager.setDockModel(dockModel);
-            
+            // Give the dock model to the docking manager if not yet set.
+            if(DockingManager.getDockModel() == null) {
+                FloatDockModel dockModel = new FloatDockModel();
+                DockingManager.setDockModel(dockModel);
+            }
+
+            // register this frame with the dock model
+            DockModel dockModel = DockingManager.getDockModel();
+            dockModel.addOwner("mainFrame" + number, this);
+
             // create compound dock for right and bottom
             SplitDock rbSplitDock = new SplitDock();
 
             // create compound dock for source and program
             SplitDock psSplitDock = new SplitDock();
-            
+
             // Add the child docks to the split dock at the left and right.
             rbSplitDock.addChildDock(rightTabDock, new Position(Position.CENTER));
             rbSplitDock.addChildDock(psSplitDock, new Position(Position.BOTTOM));
             rbSplitDock.setDividerLocation(300);
-            
+
             psSplitDock.addChildDock(programTabDock, new Position(Position.LEFT));
             psSplitDock.addChildDock(sourceTabDock, new Position(Position.RIGHT));
             psSplitDock.setDividerLocation(350);
@@ -127,11 +137,11 @@ public class MainWindow extends JFrame {
             topDock.addDockingListener(new ResizeWeightAdaptation(0));
             topDock.addChildDock(leftTabDock, new Position(Position.LEFT));
             topDock.addChildDock(rbSplitDock, new Position(Position.CENTER));
-            topDock.setDividerLocation(200);            
+            topDock.setDividerLocation(200);
             // topDock.addComponentListener(new TopDockResizeListener());
-            
+
             // Add the root dock to the dock model.
-            dockModel.addRootDock("splitDock", topDock, this);
+            dockModel.addRootDock("splitDock" + number, topDock, this);
         }
         {
             sequentComponent = new SequentComponent(proofCenter);
@@ -139,7 +149,7 @@ public class MainWindow extends JFrame {
             JScrollPane scroll = new JScrollPane(sequentComponent);
             // make the background seamless
             scroll.getViewport().setBackground(sequentComponent.getBackground());
-            Dockable dock = new DefaultDockable("sequentview", scroll, "Sequent");
+            Dockable dock = new DefaultDockable("sequentview" + number, scroll, "Sequent");
             rightTabDock.addDockable(dock, new Position(0));
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, sequentComponent);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_RULEAPPLICATION, sequentComponent);
@@ -148,6 +158,7 @@ public class MainWindow extends JFrame {
         {
             goalList = new GoalList(proofCenter);
             goalList.addListSelectionListener(new ListSelectionListener() {
+                @Override
                 public void valueChanged(ListSelectionEvent e) {
                     if(!e.getValueIsAdjusting()) {
                         ProofNode proofNode = goalList.getSelectedProofNode();
@@ -157,37 +168,39 @@ public class MainWindow extends JFrame {
                     }
                 }});
             JScrollPane scroll = new JScrollPane(goalList);
-            Dockable dock = new DefaultDockable("goallist", scroll, "Goal list");
+            Dockable dock = new DefaultDockable("goallist" + number, scroll, "Goal list");
             leftTabDock.addDockable(dock, new Position(0));
         }
         {
             proofComponent = new ProofComponent(proofCenter);
             proofComponent.addTreeSelectionListener(new TreeSelectionListener() {
+                @Override
                 public void valueChanged(TreeSelectionEvent e) {
                     ProofNode selectedProofNode = proofComponent.getSelectedProofNode();
-                    if (selectedProofNode != null && selectedProofNode != proofCenter.getCurrentProofNode())
+                    if (selectedProofNode != null && selectedProofNode != proofCenter.getCurrentProofNode()) {
                         proofCenter.fireSelectedProofNode(selectedProofNode);
+                    }
                 }
             });
             JScrollPane scroll = new JScrollPane(proofComponent);
-            Dockable dock = new DefaultDockable("proof", scroll, "Proof tree");
+            Dockable dock = new DefaultDockable("proof" + number, scroll, "Proof tree");
             leftTabDock.addDockable(dock, new Position(1));
         }
         {
             ruleApplicationComponent = new RuleApplicationComponent(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, ruleApplicationComponent);
             JScrollPane scroll = new JScrollPane(ruleApplicationComponent);
-            Dockable dock = new DefaultDockable("ruleApp", scroll, "Rule Application");
+            Dockable dock = new DefaultDockable("ruleApp" + number, scroll, "Rule Application");
             leftTabDock.addDockable(dock, new Position(2));
         }
         {
             RuleBrowserComponent ruleBrowserComponent = new RuleBrowserComponent(proofCenter);
-            Dockable dock = new DefaultDockable("ruleApp", ruleBrowserComponent, "Rule Browser");
+            Dockable dock = new DefaultDockable("ruleBrowser" + number, ruleBrowserComponent, "Rule Browser");
             leftTabDock.addDockable(dock, new Position(3));
         }
         {
             ParameterPanel settings = new ParameterPanel(proofCenter);
-            Dockable dock = new DefaultDockable("settings", settings, "Settings");
+            Dockable dock = new DefaultDockable("settings" + number, settings, "Settings");
             leftTabDock.addDockable(dock, new Position(4));
 
             //show the proof tree
@@ -196,13 +209,13 @@ public class MainWindow extends JFrame {
         {
             ProgramPanel panel = new ProgramPanel(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
-            Dockable dock = new DefaultDockable("program", panel, "Program");
+            Dockable dock = new DefaultDockable("program" + number, panel, "Program");
             programTabDock.addDockable(dock, new Position(0));
         }
         {
             SourcePanel panel = new SourcePanel(proofCenter);
             proofCenter.addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, panel);
-            Dockable dock = new DefaultDockable("source", panel, "Sources");
+            Dockable dock = new DefaultDockable("source" + number, panel, "Sources");
             sourceTabDock.addDockable(dock, new Position(0));
         }
         {
@@ -211,37 +224,37 @@ public class MainWindow extends JFrame {
         }
         {
             // ExitAction is actually also a WindowListener. ...
-            // we call the bar manager so that no unnecessary copy 
+            // we call the bar manager so that no unnecessary copy
             // is created if it already exists.
-            addWindowListener((WindowListener) barManager.makeAction("general.close"));    
+            addWindowListener((WindowListener) barManager.makeAction("general.close"));
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         }
         setSize(1000, 700);
+    }
 
+    @Override
+    public void dispose() {
+        DockingManager.getDockModel().removeOwner(this);
+        super.dispose();
     }
 
     public SequentComponent getSequentComponent() {
         return sequentComponent;
     }
 
-
     public GoalList getGoalList() {
         return goalList;
     }
-
 
     public ProofComponent getProofComponent() {
         return proofComponent;
     }
 
-
     public RuleApplicationComponent getRuleApplicationComponent() {
         return ruleApplicationComponent;
     }
 
-
     public BarManager getBarManager() {
         return barManager;
     }
-
 }

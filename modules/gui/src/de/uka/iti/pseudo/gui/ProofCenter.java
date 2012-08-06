@@ -129,6 +129,12 @@ public class ProofCenter {
     public static final String STOP_REQUEST = "pseudo.stop_request";
 
     /**
+     * Notification signal to indicate that this proof center has reached the end
+     * of its live cycle. Resources should be freed.
+     */
+    public static final String TERMINATION = "pseudo.termination";
+
+    /**
      * The main window.
      */
     private final MainWindow mainWindow;
@@ -470,6 +476,16 @@ public class ProofCenter {
         changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
+    /**
+     * Adds a listener listening to a a certain kind of notification.
+     *
+     * @see NotificationSupport#addNotificationListener(String, NotificationListener)
+     *
+     * @param signal
+     *            the notification signal
+     * @param listener
+     *            the listener to handle signals
+     */
     public void addNotificationListener(String signal, NotificationListener listener) {
         Log.enter(signal, listener);
         notificationSupport.addNotificationListener(signal, listener);
