@@ -48,10 +48,10 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * This class is used to actually create the function symbols and rules for map
  * types.
- * 
+ *
  * <p>
  * Map types are printed as {boundVars}[domain]range
- * 
+ *
  * @author Timm Felden, Mattias Ulbrich
  */
 public class MapTypeRuleCreator {
@@ -62,7 +62,7 @@ public class MapTypeRuleCreator {
     private final ASTLocatedElement declaringLocation;
     private Sort sort;
     private List<TypeVariable> argumentTypes;
-    
+
     public void setSort(@NonNull Sort sort, @NonNull List<TypeVariable> argumentTypes) {
         this.sort = sort;
         this.argumentTypes = argumentTypes;
@@ -71,7 +71,7 @@ public class MapTypeRuleCreator {
     public void setBoundVariables(@NonNull List<TypeVariable> boundVars) {
         this.boundVars = boundVars;
     }
-    
+
     public void setDomain(@NonNull List<Type> domain) {
         this.domain = domain;
     }
@@ -82,7 +82,7 @@ public class MapTypeRuleCreator {
 
     /**
      * Create a new map type.
-     * 
+     *
      * @throws ASTVisitException
      *             if type variables appear in domain or range.
      */
@@ -105,13 +105,13 @@ public class MapTypeRuleCreator {
                     "Map type alias contains schema type(s) in domain",
                     declaringLocation);
         }
-        
+
         if(!TypeVariableCollector.collectSchema(range).isEmpty()) {
             throw new ASTVisitException(
                     "Map type alias contains schema type(s) in range",
                     declaringLocation);
         }
-        
+
         Set<TypeVariable> set = TypeVariableCollector.collect(domain);
         set.removeAll(boundVars);
         for (TypeVariable tv : set) {
@@ -123,7 +123,7 @@ public class MapTypeRuleCreator {
                         declaringLocation);
             }
         }
-       
+
         set = TypeVariableCollector.collect(range);
         set.removeAll(boundVars);
         for (TypeVariable tv : set) {
@@ -155,8 +155,9 @@ public class MapTypeRuleCreator {
         }
         sb.append("[");
         for (int i = 0; i < domain.size(); i++) {
-            if (i > 0)
+            if (i > 0) {
                 sb.append(", ");
+            }
             sb.append(domain.get(i));
         }
         sb.append("]");
@@ -177,14 +178,17 @@ public class MapTypeRuleCreator {
 
             // short cut introduced, because calculation of map equality is
             // expensive
-            if (boundVars.size() != m.boundVars.size() || domain.size() != m.domain.size())
+            if (boundVars.size() != m.boundVars.size() || domain.size() != m.domain.size()) {
                 return false;
+            }
 
-            if(!boundVars.equals(m.boundVars))
+            if(!boundVars.equals(m.boundVars)) {
                 return false;
+            }
 
-            if(!domain.equals(m.domain))
+            if(!domain.equals(m.domain)) {
                 return false;
+            }
 
             return range.equals(m.range);
         }
@@ -206,18 +210,18 @@ public class MapTypeRuleCreator {
     public List<Type> getDomain() {
         return Collections.unmodifiableList(domain);
     }
-    
+
     public Type getRange() {
         return range;
     }
-    
+
     public void addFunctionSymbols(@NonNull Environment env) throws ASTVisitException {
         try {
             Type args[] = Util.listToArray(argumentTypes, Type.class);
             Type map_t = TypeApplication.getInst(sort, args);
             Type[] storeDomain = new Type[domain.size() + 2];
             Type[] loadDomain = new Type[domain.size() + 1];
-            
+
             storeDomain[0] = map_t;
             loadDomain[0] = map_t;
             for (int i = 0; i < domain.size(); i++) {
@@ -227,7 +231,7 @@ public class MapTypeRuleCreator {
 
             String loadName = "$load_" + sort.getName();
             env.addFunction(new Function(loadName, range, loadDomain, false, false, declaringLocation));
-            
+
             String storeName = "$store_" + sort.getName();
             env.addFunction(new Function(storeName, map_t, storeDomain, false, false, declaringLocation));
         } catch (TermException e) {
@@ -240,6 +244,7 @@ public class MapTypeRuleCreator {
                             + sort, declaringLocation, e);
         }
     }
+
     /**
      * create rules needed in order to handle objects of the created map type
      * efficiently
@@ -248,13 +253,13 @@ public class MapTypeRuleCreator {
 
         checkFunctionPresent(env, "cond", new Type[] { Environment.getBoolType(),
                 TypeVariable.ALPHA, TypeVariable.ALPHA }, TypeVariable.ALPHA);
-        
+
         String name = sort.getName();
         Function $load = env.getFunction("$load_" + name);
         Function $store = env.getFunction("$store_" + name);
-        
+
         assert $load != null && $store != null : "Functions must already have been added";
-        
+
         try {
             addLoadStoreSameRule(name, $load, $store, env);
             addLoadStoreAssumeRule(name, $load, $store, env);
@@ -277,32 +282,32 @@ public class MapTypeRuleCreator {
             throw new ASTVisitException(
                     "Error while creating rules for map type " + name,
                     declaringLocation, e);
-        } 
-        
+        }
+
     }
 
     private void checkFunctionPresent(@NonNull Environment env,
             @NonNull String name, @DeepNonNull Type[] argTypes,
             @NonNull TypeVariable resultType) throws ASTVisitException {
-    
+
         Function f = env.getFunction(name);
-        
+
         if (f == null) {
             throw new ASTVisitException("Function symbol '" + name
                     + "' not defined, but needed for map types.",
                     declaringLocation);
         }
-        
+
         if(!Arrays.equals(f.getArgumentTypes(), argTypes) ||
                 !resultType.equals(f.getResultType())) {
             throw new ASTVisitException("Function symbol '" + name
                     + "' has unexpected signature, but needed for map types.",
                     declaringLocation);
         }
-            
+
     }
 
-    
+
 
     private void addLoadStoreSameRule(String name, Function $load,
             Function $store, Environment env) throws ASTVisitException,
@@ -316,11 +321,13 @@ public class MapTypeRuleCreator {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%d").append(i);
+        }
         sbFind.append(")");
 
         // %v
@@ -335,7 +342,7 @@ public class MapTypeRuleCreator {
 
         List<GoalAction> actions = new LinkedList<GoalAction>();
 
-        actions.add(new GoalAction("samegoal", null, false, replace, 
+        actions.add(new GoalAction("samegoal", null, false, replace,
                 Collections.<Term>emptyList(),
                 Collections.<Term>emptyList()));
 
@@ -343,19 +350,19 @@ public class MapTypeRuleCreator {
 
         tags.put("rewrite", "concrete");
 
-        Rule rule = new Rule(ruleName, Collections.<LocatedTerm>emptyList(), 
+        Rule rule = new Rule(ruleName, Collections.<LocatedTerm>emptyList(),
                 new LocatedTerm(find, MatchingLocation.BOTH),
                 Collections.<WhereClause>emptyList(), actions, tags, declaringLocation);
-        
+
         Log.log(Log.DEBUG, "Rule " + rule + " created");
-        
+
         env.addRule(rule);
     }
 
     private void addLoadStoreAssumeRule(String name, Function $load,
             Function $store, Environment env) throws EnvironmentException,
             ParseException, ASTVisitException, RuleException, TermException {
-        
+
         // /////////////// LOAD STORE SAME ASSUME
         String ruleName = name + "_load_store_same_assume";
         // find: $load($store(%m, %D, %v), %T)
@@ -366,26 +373,30 @@ public class MapTypeRuleCreator {
         Map<String, String> tags = new HashMap<String, String>();
 
         tags.put("rewrite", "concrete");
-        if (domain.size() == 1)
+        if (domain.size() == 1) {
             tags.put("dragdrop", "8");
+        }
 
         // $load($store(%m, %D, %v), %T)
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // add equality to the condition, to ensure, that %D and %T have the
         // same types.
         // AND(%di = %ti)
         StringBuilder sbCond = new StringBuilder("true");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+        }
 
         Term factory;
         factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + ", %v )", env);
@@ -403,10 +414,11 @@ public class MapTypeRuleCreator {
 
         List<LocatedTerm> assumes = new LinkedList<LocatedTerm>();
 
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             assumes.add(new LocatedTerm(Application.getInst(env.getFunction("$eq"), Environment.getBoolType(),
                     new Term[] { find.getSubterm(0).getSubterm(i + 1), find.getSubterm(i + 1) }),
                     MatchingLocation.ANTECEDENT));
+        }
 
         Rule rule = new Rule(ruleName, assumes, new LocatedTerm(find, MatchingLocation.BOTH), where, actions, tags,
                 declaringLocation);
@@ -428,7 +440,7 @@ public class MapTypeRuleCreator {
 
         Map<String, String> tags = new HashMap<String, String>();
 
-        tags.put("rewrite", "concrete");
+        tags.put("rewrite", "fol simp");
 
         // any other rules has only one assumption and can therefore be a
         // drag & drop rule
@@ -438,26 +450,30 @@ public class MapTypeRuleCreator {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // $load(%m, %T)
         StringBuilder sbReplace = new StringBuilder($load.getName());
         sbReplace.append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append(")");
 
         // add equality to the condition, to ensure, that %D and %T have the
         // same types, the actual terms are not relevant
         // AND(%di = %ti)
         StringBuilder sbCond = new StringBuilder("true");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbCond.append(" & ").append("%d").append(i).append(" = ").append("%t").append(i);
+        }
 
         Term factory;
         factory = TermMaker.makeAndTypeTerm("cond(" + sbCond + "," + sbFind + "," + sbReplace + ")", env);
@@ -523,24 +539,27 @@ public class MapTypeRuleCreator {
 
         Map<String, String> tags = new HashMap<String, String>();
 
-        tags.put("rewrite", "concrete");
+        tags.put("rewrite", "fol simp");
 
         // $load($store(%m, %D, %v), %T)
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // $load(%m, %T)
         StringBuilder sbReplace = new StringBuilder($load.getName());
         sbReplace.append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append(")");
 
         Term factory;
@@ -591,7 +610,7 @@ public class MapTypeRuleCreator {
 
         Map<String, String> tags = new HashMap<String, String>();
 
-        tags.put("rewrite", "split");
+        tags.put("rewrite", "fol simp");
 
         List<Term> none = new LinkedList<Term>();
 
@@ -601,25 +620,30 @@ public class MapTypeRuleCreator {
         StringBuilder sbFind = new StringBuilder();
         sbFind.append($load.getName()).append("(");
         sbFind.append($store.getName()).append("(%m, ");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append("%d").append(i).append(", ");
+        }
         sbFind.append("%v)");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbFind.append(", ").append("%t").append(i);
+        }
         sbFind.append(")");
 
         // cond($weq(%D, %T), retype(%v), $load(%m, %T))
         StringBuilder sbReplace = new StringBuilder("cond(");
-        if (0 == domain.size())
+        if (0 == domain.size()) {
             sbReplace.append("true");
+        }
         for (int i = 0; i < domain.size(); i++) {
-            if (i > 0)
+            if (i > 0) {
                 sbReplace.append("&");
+            }
             sbReplace.append("$weq(%d").append(i).append(", ").append("%t").append(i).append(")");
         }
         sbReplace.append(", retype(%v), ").append($load.getName()).append("(%m");
-        for (int i = 0; i < domain.size(); i++)
+        for (int i = 0; i < domain.size(); i++) {
             sbReplace.append(", ").append("%t").append(i);
+        }
         sbReplace.append("))");
 
         Term factory;
