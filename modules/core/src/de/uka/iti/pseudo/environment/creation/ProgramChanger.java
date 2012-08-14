@@ -294,7 +294,11 @@ public class ProgramChanger {
      * Delete a statement from the statement list.
      *
      * The statement at the given index is removed. All existing gotos targeting
-     * to index or above are decremented.
+     * <b>above</b> index are decremented.
+     *
+     * <p>
+     * The semantics of this operation is that deleting a <tt>skip</tt>
+     * statement preserves the semantics of a program.
      *
      * @param index
      *            the index of the statement to be deleted. Must be non-negative

@@ -101,7 +101,31 @@ program Bug1_after
      assume inv
      a := 0
      goto loop
-     
+
+program Bug2
+     a := 0
+     skip (* LOOPINV, inv *)
+  loop:
+     a := 1
+     a := 2
+     goto a, b
+  a: assume b=0
+     goto loop
+  b: assume !b=0 
+
+program Bug2_after
+     a := 0
+     assert inv
+     assume false
+     assume inv
+  loop:
+     a := 1
+     a := 2
+     goto a, b
+  a: assume b=0
+     goto loop
+  b: assume !b=0
+
 program Bug_termination
      a := 0
      b := 0

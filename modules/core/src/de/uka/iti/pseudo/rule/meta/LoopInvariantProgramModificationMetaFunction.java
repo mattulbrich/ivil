@@ -218,8 +218,8 @@ class LoopModifier {
         makeVarAtPreSymbol();
 
         index = insertProofObligations(index);
-        removeSkip(index);
-        insertAssumptions(index);
+        int newIndex = insertAssumptions(index);
+        removeSkip(newIndex);
 
         String name = env.createNewProgramName(program.getName());
         Program newProgram = programChanger.makeProgram(name);
@@ -448,7 +448,14 @@ class LoopModifier {
         result.add(new AssertStatement(sourceLineNumber, formula));
     }
 
-    private void insertAssumptions(int index) throws TermException {
+    /*
+     * Insert the loop assumptions.
+     *
+     * @param index
+     *            the index at (BEFORE) which assumptions are inserted
+     * @return the new index of the statement which was originally at index.
+     */
+    private int insertAssumptions(int index) throws TermException {
         int sourceLineNumber = programTerm.getStatement().getSourceLineNumber();
 
         for (Function f : modifiedAssignables) {
@@ -464,6 +471,7 @@ class LoopModifier {
         programChanger.insertAt(index, new AssumeStatement(sourceLineNumber, invariant));
         index ++;
 
+        return index;
     }
 
     /*
