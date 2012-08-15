@@ -174,7 +174,7 @@ public class Main {
             }
 
             if(errorcount == 0) {
-                System.out.println("All proof obligations have been discharged.");
+                System.err.println("All proof obligations have been discharged.");
             }
 
             System.exit(errorcount);

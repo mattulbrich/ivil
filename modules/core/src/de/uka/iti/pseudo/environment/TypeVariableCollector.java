@@ -84,6 +84,7 @@ public final class TypeVariableCollector {
 
         @Override
         public void visit(TypeVariableBinding typeVariableBinding) throws TermException {
+            super.visit(typeVariableBinding);
             typeVariableBinding.getBoundType().accept(typeVisitor, null);
         }
     };

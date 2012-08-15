@@ -15,6 +15,8 @@ import java.util.Collections;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
+import de.uka.iti.pseudo.environment.Function;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.SubtermSelector;
@@ -22,6 +24,9 @@ import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.term.creation.TermMatcher;
 
 public class TestWhereConditions extends TestCaseWithEnv {
@@ -70,6 +75,34 @@ public class TestWhereConditions extends TestCaseWithEnv {
         Term result = tm.getTermInstantiation().get("%x");
         assertEquals(makeTerm("\\var x2 as int"), result);
         assertTrue(fresh.check(null, new Term[] { result, makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") }, null, env));
+    }
+
+    public void testFreshTypeVar() throws Exception {
+        FreshTypeVariable fresh = new FreshTypeVariable();
+
+        // we need some function symbol ...
+        env = new Environment("none:temp", env);
+        env.addFunction(new Function("emptyset",
+                TermMaker.makeType("set('a)", env),
+                new Type[0], false, false, ASTLocatedElement.CREATED));
+
+        assertTrue(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'b; true)")}, null, env));
+        assertFalse(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'a; true)")}, null, env));
+        assertFalse(fresh.check(null, new Term[] { makeTerm("%x as 'a"), makeTerm("emptyset as set('a)")}, null, env));
+
+        TermMatcher tm = new TermMatcher();
+        fresh.addInstantiations(tm, new Term[] {
+                makeTerm("%a as %'a"),
+                makeTerm("(\\T_all 'a; (\\T_all 'a1; true))"),
+                makeTerm("emptyset as set('a2)") });
+
+        Type result = tm.getTypeInstantiation().get("a");
+        assertEquals(TypeVariable.getInst("a3"), result);
+
+        assertTrue(fresh.check(null, new Term[] {
+                makeTerm("arb as 'a3"),
+                makeTerm("(\\T_all 'a; (\\T_all 'a1; true))"),
+                makeTerm("emptyset as set('a2)")  }, null, env));
     }
 
     // was a bug

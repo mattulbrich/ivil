@@ -23,14 +23,36 @@ import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 
-// TODO Documentation needed
+/**
+ * This meta function can be used to create a new skolem function in a rule.
+ *
+ * @ivildoc "Meta function/$$skolem"
+ *
+ * <h2>Meta function <tt>$$skolem</tt></h2>
+ *
+ * This meta function can be used to create a new skolem function in a rule.
+ *
+ * <h3>Syntax</h3>
+ *  The meta function takes one argument of arbitrary type and returns
+ *  a term of the same type.
+ *
+ * <h3>Example:</h3>
+ * <pre>
+ * rule forall_right
+ *   find  |-  (\forall %x; %b)
+ *   replace  $$subst(%x, $$skolem(%x), %b)
+ * </pre>
+ *
+ * @author mattias ulbrich
+ */
 public class SkolemMetaFunction extends MetaFunction {
-    
+
     public static final String SKOLEM_NAME_PROPERTY = "skolemName";
-    
+
     public static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
+        @Override
         public String getLocation() { return "SKOLEMISED"; }};
-        
+
     public SkolemMetaFunction() throws EnvironmentException {
         super(TypeVariable.ALPHA, "$$skolem", TypeVariable.ALPHA);
     }
@@ -38,7 +60,7 @@ public class SkolemMetaFunction extends MetaFunction {
     @Override
     public Term evaluate(Application application, Environment env,
             RuleApplication ruleApp) throws TermException {
-        
+
         String property = SKOLEM_NAME_PROPERTY + "(" + application.getSubterm(0).toString(true) + ")";
         String name = ruleApp.getProperties().get(property);
         if(name == null) {
@@ -49,23 +71,23 @@ public class SkolemMetaFunction extends MetaFunction {
                 throw new TermException("There is no skolemisation stored for " + application);
             }
         }
-        
+
         Function newFunction = env.getFunction(name);
         if(newFunction == null) {
             try {
-                newFunction = new Function(name, application.getType(), new Type[0], 
+                newFunction = new Function(name, application.getType(), new Type[0],
                     false, false, SKOLEM);
-            
+
                 env.addFunction(newFunction);
             } catch (EnvironmentException e) {
                 throw new TermException(e);
             }
         }
-        
+
         return Application.getInst(newFunction, application.getType());
     }
 
-    
+
     /*
      * If the skolemised term is either a variable or a function symbol
      * use its name as prefix. Otherwise fall back to "sk"
@@ -76,14 +98,15 @@ public class SkolemMetaFunction extends MetaFunction {
         if (term instanceof Application) {
             // try to use function symbol name to skolemise
             Function innerFunct = ((Application) term).getFunction();
-            if(!(innerFunct instanceof NumberLiteral))
+            if(!(innerFunct instanceof NumberLiteral)) {
                 prefix = innerFunct.getName();
-            
+            }
+
         } else if (term instanceof Variable) {
             Variable var = (Variable) term;
             prefix = var.getName();
-        } 
-        
+        }
+
         return env.createNewFunctionName(prefix);
     }
 

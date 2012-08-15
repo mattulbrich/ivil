@@ -200,7 +200,30 @@ public final class Util {
      * @see Arrays#asList(Object...)
      */
     public static <E> List<E> readOnlyArrayList(@Nullable E /*@NonNull*/ [] array) {
-        return new ReadOnlyArrayList<E>(array);
+        return readOnlyArrayList(array, 0, array.length);
+    }
+
+    /**
+     * Wrap an immutable list object around an array. The elements in the array
+     * can by no means be replaced.
+     *
+     * <p>
+     * The result is closely related to {@link Arrays#asList(Object...)} but is
+     * unmodifiable.
+     *
+     * @param array
+     *            some array
+     *
+     * @param <E>
+     *            the element type of the array argument
+     *
+     * @return an immutable list wrapping the argument array.
+     *
+     * @see Arrays#asList(Object...)
+     */
+    public static <E> List<E> readOnlyArrayList(
+            @Nullable E /*@NonNull*/ [] array, int from, int to) {
+        return new ReadOnlyArrayList<E>(array, from, to);
     }
 
     /**
@@ -214,41 +237,67 @@ public final class Util {
     private static final class ReadOnlyArrayList<E extends /* @Nullable */Object>
             extends AbstractList<E> implements RandomAccess {
         private @Nullable final E[] array;
+        private final int from;
+        private final int to;
 
-        private ReadOnlyArrayList(@Nullable E[] array) {
+        private ReadOnlyArrayList(@Nullable E[] array, int from, int to) {
             if(array == null) {
                 throw new NullPointerException();
             }
+
+            if(from < 0) {
+                throw new IndexOutOfBoundsException("Must be within array bounds: " + from);
+            }
+
+            if(to > array.length) {
+                throw new IndexOutOfBoundsException("Must be at most array length (" +
+                        array.length + "): " + from);
+            }
+
+            if(to < from) {
+                throw new IndexOutOfBoundsException("Must be increasing: " +
+                        from + " ... " + to);
+            }
+
+            this.from = from;
+            this.to = to;
             this.array = array;
         }
 
         @Override
         public @Nullable E get(int index) {
-            return array[index];
+            return array[index + from];
         }
 
         @Override
         public int size() {
-            return array.length;
+            return to - from;
         }
 
         @Override
         public @Nullable E[] toArray() {
-            return array.clone();
+            if(from == 0 && to == array.length) {
+                return array.clone();
+            } else {
+                @SuppressWarnings("unchecked")
+                E[] result = (E[]) new Object[to - from];
+                System.arraycopy(array, from, result, 0, to-from);
+                return result;
+            }
         }
 
         @Override
         public int indexOf(Object o) {
             if (o == null) {
-                for (int i = 0; i < array.length; i++) {
+                for (int i = from; i < to; i++) {
                     if (array[i] == null) {
-                        return i;
+                        return i - from;
                     }
                 }
             } else {
-                for (int i = 0; i < array.length; i++) {
+                for (int i = from; i < to; i++) {
                     if (o.equals(array[i])) {
-                        return i;
+                        return i - from;
                     }
                 }
             }

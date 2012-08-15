@@ -81,7 +81,7 @@ import de.uka.iti.pseudo.util.Log;
  * </pre>
  *
  * <h3>See also:</h3>
- * <a href="ivil:/Meta function/moFreeVars">noFreeVars</a>
+ * <a href="ivil:/Where condition/noFreeVars">noFreeVars</a>
  *
  * <h3>Result:</h3>
  * <code>true</code> if the first argument (or its instantiation) is (or has

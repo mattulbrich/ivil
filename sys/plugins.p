@@ -58,6 +58,9 @@ plugin
     # check whether a variable is fresh for a term (or more terms)
     whereCondition : "de.uka.iti.pseudo.rule.where.FreshVariable"
 
+    # check whether a type variable is fresh for a term (or more terms)
+    whereCondition : "de.uka.iti.pseudo.rule.where.FreshTypeVariable"
+
     # check whether two terms have different types
     whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypes"
 
