@@ -16,6 +16,7 @@ import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.SchemaVariable;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.Type;
 
 /**
  * @ivildoc "Where condition/interactive"
@@ -48,6 +49,11 @@ public class Interactive extends WhereCondition {
      * The name of the condition and the property.
      */
     public static final String INTERACTION = "interact";
+
+    /**
+     * To indicate that the type is to be instantiated as well, use the
+     * following prefix
+     */
     public static final String INSTANTIATE_PREFIX = "instantiate ";
 
     /**
@@ -100,12 +106,20 @@ public class Interactive extends WhereCondition {
     public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
+
         if(ruleApp.hasMutableProperties()) {
             SchemaVariable sv = (SchemaVariable) formalArguments[0];
             Term actualTerm = actualArguments[0];
 
-            String typeString = actualTerm.getType().toString();;
+            Type actualType = actualTerm.getType();
+            String typeString = actualType.toString();
             if(isTypeMode(formalArguments)) {
+
+                if (!(actualType instanceof SchemaType)) {
+                    throw new RuleException("In type mode, the first argumnet must " +
+                            "be a schema term, not " + actualType);
+                }
+
                 typeString = INSTANTIATE_PREFIX + typeString;
             }
 

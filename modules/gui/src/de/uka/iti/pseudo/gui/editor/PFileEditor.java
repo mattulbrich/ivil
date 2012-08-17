@@ -65,7 +65,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 // TODO This editor has problems with "\r" characters!
 @SuppressWarnings("deprecation")
 public class PFileEditor extends JFrame implements ActionListener {
-    
+
     private static final long serialVersionUID = 8116827588545997986L;
     private static final String ERROR_FILE_PROPERTY = "errorFile";
     private static final String ERROR_LINE_PROPERTY = "errorLine";
@@ -78,30 +78,33 @@ public class PFileEditor extends JFrame implements ActionListener {
     private BarManager barManager;
     private UpdateThread updateThread;
     private String errorFilename;
-    
-    private ModificationListener modListener = 
-        new ModificationListener(this);
-    
-    private DocumentListener doclistener = new DocumentListener() {
 
+    private final ModificationListener modListener =
+        new ModificationListener(this);
+
+    private final DocumentListener doclistener = new DocumentListener() {
+
+        @Override
         public void changedUpdate(DocumentEvent e) {
             Log.enter(e);
             updateThread.changed();
             setHasUnsavedChanges(true);
         }
 
+        @Override
         public void insertUpdate(DocumentEvent e) {
             Log.enter(e);
             updateThread.changed();
             setHasUnsavedChanges(true);
         }
 
+        @Override
         public void removeUpdate(DocumentEvent e) {
             Log.enter(e);
             updateThread.changed();
             setHasUnsavedChanges(true);
         }
-        
+
     };
     private int errorLine;
     private EnvironmentCreationService syntaxChecker;
@@ -115,6 +118,7 @@ public class PFileEditor extends JFrame implements ActionListener {
         }
         boolean disposed = false;
         Object lock = new Object();
+        @Override
         public void run() {
             while(!disposed) {
                 try {
@@ -131,7 +135,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                 }
             }
         }
-        
+
         public void changed() {
             if(syntaxChecking ) {
                 synchronized(lock) {
@@ -141,18 +145,19 @@ public class PFileEditor extends JFrame implements ActionListener {
             }
         }
     }
-    
+
     public PFileEditor() throws IOException {
         this(null);
     }
 
-    
+
     public PFileEditor(@Nullable File file) throws IOException {
         init();
         loadFile(file);
-        
+
         // send property change to wordwrap to the editor.
         addPropertyChangeListener("editor.wordwrap", new PropertyChangeListener() {
+            @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 editor.setLineWrap((Boolean) evt.getNewValue());
             }
@@ -165,9 +170,10 @@ public class PFileEditor extends JFrame implements ActionListener {
         Container contentPane = getContentPane();
         {
             URL resource = BarManager.class.getResource("menu.xml");
-            if(resource == null)
+            if(resource == null) {
                 throw new IOException("cannot find menu.xml");
-            
+            }
+
             barManager = new BarManager(this, resource);
             barManager.putProperty(BarAction.PARENT_FRAME, this);
             barManager.putProperty(BarAction.EDITOR_FRAME, this);
@@ -204,6 +210,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             statusLine.setFont(statusLine.getFont().deriveFont(Font.PLAIN));
             final JPopupMenu popup = barManager.makePopup("editor.errorpopup");
             statusLine.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     if(SwingUtilities.isRightMouseButton(e)) {
                         Point p = e.getPoint();
@@ -218,17 +225,17 @@ public class PFileEditor extends JFrame implements ActionListener {
             updateThread.start();
         }
         {
-            JToolBar toolbar = barManager.makeToolbar("editor.toolbar"); 
+            JToolBar toolbar = barManager.makeToolbar("editor.toolbar");
             contentPane.add(toolbar, BorderLayout.NORTH);
             setJMenuBar(barManager.makeMenubar("editor.menubar"));
         }
         {
-            addWindowListener((WindowListener) barManager.makeAction("general.close"));    
+            addWindowListener((WindowListener) barManager.makeAction("general.close"));
             setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
             addWindowListener(modListener);
         }
     }
-    
+
     private void addErrorHighlighting() {
         URL url = null;
         try {
@@ -242,28 +249,28 @@ public class PFileEditor extends JFrame implements ActionListener {
             } else {
                 url = new URL("none:unnamed.p");
             }
-            
+
             // the checker may be null during initialisation. ...
             if(syntaxChecking) {
                 syntaxChecker.createEnvironment(inputStream, url);
             }
-            
+
             Log.log(Log.VERBOSE, "Syntax checked ... no errors");
-            
+
             markError(null, true);
         } catch (EnvironmentException e) {
             markError(e, url.toString().equals(e.getResource()));
         } catch (Exception e) {
             Log.stacktrace(Log.VERBOSE, e);
             markError(e, false);
-        } 
+        }
     }
 
     private void setErrorFilename(String fileName) {
         firePropertyChange(ERROR_FILE_PROPERTY, errorFilename, fileName);
         errorFilename = fileName;
     }
-    
+
     private void setErrorLine(int line) {
         firePropertyChange(ERROR_LINE_PROPERTY, errorLine, line);
         errorLine = line;
@@ -273,8 +280,9 @@ public class PFileEditor extends JFrame implements ActionListener {
     private void markError(final Exception exc, final boolean local) {
         assert !local || exc == null || exc instanceof EnvironmentException;
         Log.enter(Log.VERBOSE, exc);
-        
+
         Runnable action = new Runnable() {
+            @Override
             public void run() {
                 int from, to;
                 try {
@@ -289,8 +297,8 @@ public class PFileEditor extends JFrame implements ActionListener {
                             }
                         }
                     } else {
-                        EnvironmentException envEx = (EnvironmentException) exc; 
-                        if(envEx.hasErrorInformation()) { 
+                        EnvironmentException envEx = (EnvironmentException) exc;
+                        if(envEx.hasErrorInformation()) {
                             from = toIndex(envEx.getBeginLine(), envEx.getBeginColumn());
                             to = toIndex(envEx.getEndLine(), envEx.getEndColumn()) + 1;
                             setErrorLine(envEx.getBeginLine());
@@ -305,7 +313,7 @@ public class PFileEditor extends JFrame implements ActionListener {
                     // really should not happen
                     throw new Error(e);
                 }
-                
+
                 if(exc == null) {
                     statusLine.setForeground(Color.black);
                     String text = syntaxChecking ?
@@ -316,20 +324,25 @@ public class PFileEditor extends JFrame implements ActionListener {
                     setErrorFilename(null);
                 } else {
                     statusLine.setForeground(Color.red);
-                    
+
                     String message = exc.getMessage();
-                    if(message == null)
+                    if(message == null) {
                         message = "";
-                    
-                    if(errorLine == 0)
+                    }
+
+                    if(errorLine == 0) {
                         statusLine.setText("Error outside this file while parsing: " + shortMessage(message));
-                    else
+                    } else {
                         statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
+                    }
 
                     statusLine.setToolTipText("<html><pre>"
                             + GUIUtil.htmlentities(message).replace("\n",
                                     "<br/>") + "</pre>");
-                    
+
+                    Log.log(Log.DEBUG, "Error while parsing " + getFile());
+                    Log.stacktrace(exc);
+
                 }
 
                 getContentPane().invalidate();
@@ -338,16 +351,17 @@ public class PFileEditor extends JFrame implements ActionListener {
             }
 
             private String shortMessage(String message) {
-                
+
                 int index = message.indexOf('\n');
-                if(index != -1)
+                if(index != -1) {
                     return message.substring(0, index);
-                else
+                } else {
                     return message;
+                }
             }
 
         };
-        
+
         SwingUtilities.invokeLater(action);
     }
 
@@ -359,9 +373,9 @@ public class PFileEditor extends JFrame implements ActionListener {
             return 0;
         }
     }
-    
+
     // from http://www.java2s.com/Code/Java/Swing-JFC/AddingUndoandRedotoaTextComponent.htm
-   
+
 //    @SuppressWarnings("serial")
 //    private static void installUndoManager(JTextComponent textcomp) {
 //        final UndoManager undo = new UndoManager();
@@ -372,7 +386,7 @@ public class PFileEditor extends JFrame implements ActionListener {
 //                undo.addEdit(evt.getEdit());
 //            }
 //        });
-//        
+//
 //        textcomp.getActionMap().put("Undo",
 //            new AbstractAction("Undo") {
 //                public void actionPerformed(ActionEvent evt) {
@@ -384,9 +398,9 @@ public class PFileEditor extends JFrame implements ActionListener {
 //                    }
 //                }
 //           });
-//        
+//
 //        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
-//        
+//
 //        textcomp.getActionMap().put("Redo",
 //            new AbstractAction("Redo") {
 //                public void actionPerformed(ActionEvent evt) {
@@ -398,14 +412,15 @@ public class PFileEditor extends JFrame implements ActionListener {
 //                    }
 //                }
 //            });
-//        
+//
 //        textcomp.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
 //    }
-    
+
 
     public static void main(String[] args) {
         Util.registerURLHandlers();
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 try {
                     PFileEditor editor;
@@ -419,9 +434,10 @@ public class PFileEditor extends JFrame implements ActionListener {
                 }
             }
         });
-        
+
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent evt) {
         String command = evt.getActionCommand();
         if(command != null) {
@@ -439,25 +455,26 @@ public class PFileEditor extends JFrame implements ActionListener {
     public void setHasUnsavedChanges(boolean b) {
         boolean old = hasChanged;
         hasChanged = b;
-        if(hasChanged != old)
+        if(hasChanged != old) {
             updateTitle();
+        }
     }
 
     public String getContent() {
         return editor.getText();
     }
-    
+
     public void loadFile(File file) throws IOException {
-        EnvironmentCreationService checker; 
-        
+        EnvironmentCreationService checker;
+
         Log.enter(file);
         assert EventQueue.isDispatchThread();
-            
+
         if(file != null) {
             String content = Util.readFileAsString(file);
             editor.setText(content);
             editor.setCaretPosition(0);
-            
+
             String path = file.getPath();
             int dotPos = path.lastIndexOf('.');
             String ext = path.substring(dotPos + 1);
@@ -470,35 +487,37 @@ public class PFileEditor extends JFrame implements ActionListener {
             } else {
                 setProperty(SYNTAX_CHECKING_PROPERTY, true);
             }
-            
+
             modListener.setEditedFile(file);
-            
+
         } else {
             editor.setText("");
             checker = new PFileEnvironmentCreationService();
             setProperty(SYNTAX_CHECKING_PROPERTY, true);
             modListener.setEditedFile(null);
         }
-        
+
         this.editedFile = file;
-        
+
         editor.discardAllEdits();
         setProperty(SYNTAX_CHECKER_PROPERTY, checker);
         setHasUnsavedChanges(false);
         updateTitle();
-        
+
         Log.leave();
     }
 
     private void updateTitle() {
         StringBuilder sb = new StringBuilder();
         sb.append("ivil - Editor");
-        if(editedFile != null)
+        if(editedFile != null) {
             sb.append(" [" + editedFile + "]");
-        else
+        } else {
             sb.append(" <untitled>");
-        if(hasChanged)
+        }
+        if(hasChanged) {
             sb.append(" *");
+        }
         setTitle(sb.toString());
     }
 
@@ -531,11 +550,11 @@ public class PFileEditor extends JFrame implements ActionListener {
 
     public void setProperty(String property, Object newValue) {
         Object old = getProperty(property);
-        
+
         if("lineWrap".equals(property)) {
             editor.setLineWrap((Boolean)newValue);
         }
-        
+
         if(SYNTAX_CHECKING_PROPERTY.equals(property)) {
             syntaxChecking = (Boolean)newValue;
             if(syntaxChecking) {
@@ -544,23 +563,23 @@ public class PFileEditor extends JFrame implements ActionListener {
                 markError(null, true);
             }
         }
-        
+
         if(SYNTAX_CHECKER_PROPERTY.equals(property)) {
             syntaxChecker = (EnvironmentCreationService) newValue;
             updateThread.changed();
             // System.out.println(syntaxChecker);
         }
-        
+
         if("syntaxHighlight".equals(property)) {
             RSyntaxDocument rSyntaxDocument = (RSyntaxDocument) editor.getDocument();
             syntaxHighlighting = (Boolean)newValue;
-            if(syntaxHighlighting) { 
+            if(syntaxHighlighting) {
                 rSyntaxDocument.setSyntaxStyle(new IvilTokenMaker());
             } else {
                 rSyntaxDocument.setSyntaxStyle(new PlainTextTokenMaker());
             }
         }
-        
+
         firePropertyChange(property, old, newValue);
     }
 
@@ -569,19 +588,19 @@ public class PFileEditor extends JFrame implements ActionListener {
         if("lineWrap".equals(property)) {
             return editor.getLineWrap();
         }
-        
+
         if(SYNTAX_CHECKING_PROPERTY.equals(property)) {
-            return syntaxChecking; 
+            return syntaxChecking;
         }
-        
+
         if(SYNTAX_CHECKER_PROPERTY.equals(property)) {
-            return syntaxChecking; 
+            return syntaxChecking;
         }
-        
+
         if("syntaxHighlight".equals(property)) {
             return syntaxHighlighting ;
         }
-        
+
         return null;
     }
 }

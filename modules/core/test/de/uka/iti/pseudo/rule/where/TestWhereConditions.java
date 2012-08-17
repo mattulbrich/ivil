@@ -18,6 +18,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.proof.TermSelector;
@@ -114,7 +115,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(nofree.check(null, new Term[] { makeTerm("(\\forall x as int; (\\forall x as int; true) & x>0)") }, null, env));
     }
 
-    public void testInteractive() throws Exception {
+    public void testInteractiveSyntax() throws Exception {
         Interactive inter = new Interactive();
         Term intX = makeTerm("%x as int");
         Term alphaX = makeTerm("%x as %'x");
@@ -126,7 +127,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
         try {
             inter.checkSyntax(new Term[] { intX, Environment.getTrue() });
-            fail("should complain that x has not a type var type");
+            fail("should complain that x has not a schema type");
         } catch(RuleException ex) {
             if(VERBOSE) {
                 ex.printStackTrace();
@@ -162,11 +163,38 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     }
 
+    // was a bug
+    // originally "where interactive %x as %'x, true"
+    // but "%'x" was instantiated to "int"
+    public void testInteractiveInstantiated() throws Exception {
+        Interactive inter = new Interactive();
+        Term[] formal = {
+                makeTerm("%x as %'x"),
+                Environment.getTrue() };
+        Term[] actual = {
+                makeTerm("%x as int"),
+                Environment.getTrue() };
+
+        inter.checkSyntax(formal);
+        RuleApplication ra = new MutableRuleApplication();
+        inter.check(formal, formal, ra, env);
+        assertEquals(Collections.singletonMap(Interactive.INTERACTION + "(%x)",
+                    Interactive.INSTANTIATE_PREFIX + "%'x"),
+                ra.getProperties());
+
+        try {
+            inter.check(formal, actual, ra, env);
+            fail("Should have failed due to instantiation");
+        } catch (RuleException e) {
+            out(e);
+        }
+    }
+
     public void testNoFree() throws Exception {
 
         env = makeEnv("include \"$int.p\" " +
-        		"function int i1 " +
-        		"program Q assert true");
+                "function int i1 " +
+                "program Q assert true");
 
         NoFreeVars noFree = new NoFreeVars();
 
