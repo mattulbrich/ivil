@@ -51,7 +51,7 @@ import de.uka.iti.pseudo.util.Log;
  * </pre>
  *
  * <h3>See also:</h3>
- * <a href="ivil:/Meta function/freshVar">freshVar</a>
+ * <a href="ivil:/Where condition/freshVar">freshVar</a>
  *
  * <h3>Result:</h3>
  *

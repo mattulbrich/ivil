@@ -175,7 +175,7 @@ public abstract class TestCaseWithEnv extends TestCase {
     }
 
     /**
-     * Defbug output. Print to stderr is only performed if {@link #VERBOSE} is
+     * Debug output. Print to stderr is only performed if {@link #VERBOSE} is
      * set to true.
      *
      * @param message
@@ -183,9 +183,10 @@ public abstract class TestCaseWithEnv extends TestCase {
      */
     public static void out(Object message) {
         if(VERBOSE) {
-            System.err.println(message);
             if(message instanceof Throwable) {
                 ((Throwable)message).printStackTrace();
+            } else {
+                System.err.println(message);
             }
         }
     }

@@ -36,8 +36,11 @@ plugin
     # general substitution
     metaFunction : "de.uka.iti.pseudo.rule.meta.SubstMetaFunction"
 
-    # general substitution
-    metaFunction : "de.uka.iti.pseudo.rule.meta.SpecialiseMetaFunction"
+    # polymorphic type instantiation
+    metaFunction : "de.uka.iti.pseudo.rule.meta.TypeUnificationMetaFunction"
+
+    # polymorphic substitution
+    metaFunction : "de.uka.iti.pseudo.rule.meta.PolymorphicSubstMetaFunction"
 
     # skolem symbol generation
     metaFunction : "de.uka.iti.pseudo.rule.meta.SkolemMetaFunction"

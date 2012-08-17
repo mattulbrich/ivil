@@ -78,6 +78,32 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(fresh.check(null, new Term[] { result, makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") }, null, env));
     }
 
+    public void testCompatibleTypes() throws Exception {
+
+        CompatibleTypes ct = new CompatibleTypes();
+
+        assertTrue(ct.check(null, new Term[] { makeTerm("3"), makeTerm("5") }, null, env));
+        assertTrue(ct.check(null, new Term[] { makeTerm("type as 'b"), makeTerm("type as 'a") }, null, env));
+        assertTrue(ct.check(null, new Term[] { makeTerm("type as set('b)"), makeTerm("type as 'a") }, null, env));
+        assertTrue(ct.check(null, new Term[] {
+                makeTerm("type as poly('a, bool)"),
+                makeTerm("type as poly(int, 'b)") }, null, env));
+
+        assertFalse(ct.check(null, new Term[] { makeTerm("3"), makeTerm("true") }, null, env));
+        assertFalse(ct.check(null, new Term[] { makeTerm("type as set('b)"), makeTerm("type as poly('a,'a)") }, null, env));
+        assertFalse(ct.check(null, new Term[] {
+                makeTerm("type as poly('a, bool)"),
+                makeTerm("type as poly(int, 'a)") }, null, env));
+
+        try {
+            ct.check(null, new Term[] { makeTerm("type as %'a"), makeTerm("type as 'a") }, null, env);
+            fail("Should have failed because of the schema type");
+        } catch (RuleException e) {
+            out(e);
+        }
+
+    }
+
     public void testFreshTypeVar() throws Exception {
         FreshTypeVariable fresh = new FreshTypeVariable();
 
@@ -181,13 +207,6 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertEquals(Collections.singletonMap(Interactive.INTERACTION + "(%x)",
                     Interactive.INSTANTIATE_PREFIX + "%'x"),
                 ra.getProperties());
-
-        try {
-            inter.check(formal, actual, ra, env);
-            fail("Should have failed due to instantiation");
-        } catch (RuleException e) {
-            out(e);
-        }
     }
 
     public void testNoFree() throws Exception {

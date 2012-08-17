@@ -175,7 +175,7 @@ public class Environment {
     }
 
     /**
-     * registers all elements that have been defined through plugins.
+     * Registers all elements that have been defined through plugins.
      *
      * Currently this are only meta functions.
      *
@@ -965,13 +965,13 @@ public class Environment {
      */
     public @NonNull List<Binder> getAllBinders() {
         List<Binder> binders;
-    
+
         if (parentEnvironment == null) {
             binders = new ArrayList<Binder>();
         } else {
             binders = parentEnvironment.getAllBinders();
         }
-    
+
         binders.addAll(binderMap.values());
         return binders;
     }

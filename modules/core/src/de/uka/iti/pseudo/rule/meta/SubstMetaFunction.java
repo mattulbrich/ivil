@@ -23,6 +23,44 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.term.creation.RebuildingTermVisitor;
 
 // TODO Documentation needed
+
+/**
+ * This meta function can be used to substitute a logical variable (not a program variable) by an
+ * arbitrary term
+ *
+ * @ivildoc "Meta function/$$subst"
+ *
+ * <h2>Meta function <tt>$$subst</tt></h2>
+ *
+ * This meta function can be used to substitute a logical variable (not a program variable) by an
+ * arbitrary term in another term.
+ *
+ * <h3>Syntax</h3>
+ *
+ * The meta function <pre>
+ *    'a $$subst('b, 'b, 'a)
+ * </pre>
+ * takes three arguments and returns a term of the type of the last argument.
+ * The first argument denotes the variable to be substitued, the second denotes
+ * the value to replace with and the third denotes the target term in which every
+ * <i>free</i> occurrence of the first argument is replaced by the second argument.
+ * Bound occurrences are kept untouched.
+ *
+ * <h3>Example:</h3>
+ *
+ * <pre>
+ * rule
+ *   find  |-  (\forall %x; %b)
+ *   replace  $$subst(%x, $$skolem(%x), %b)
+ * </pre>
+ *
+ * <h3>See also:</h3>
+ * <a href="ivil:/Meta function/$$subst">$$subst</a><br/>
+ * <a href="ivil:/Meta function/$$polymorphicSubst">$$polymorphicSubst</a>
+ *
+ * @author mattias ulbrich
+ */
+
 public class SubstMetaFunction extends MetaFunction {
 
     public SubstMetaFunction() throws EnvironmentException {
@@ -43,7 +81,7 @@ public class SubstMetaFunction extends MetaFunction {
     public Term evaluate(Term toReplace, Term replaceWith, Term replaceIn, Environment env) throws TermException {
 
         if (!(toReplace instanceof Variable)) {
-            throw new TermException("only variables can be replaced");
+            throw new TermException("only variables can be substituted");
         }
 
         TermReplacer tr = new TermReplacer(env);

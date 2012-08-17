@@ -42,8 +42,13 @@ import de.uka.iti.pseudo.util.RewindMap;
  * </ul>
  *
  * <p>
- * We keep a map from {@link SchemaType}s to {@link Type}s as the
- * recorded substitution. This map is updated when unifying pairs of types.
+ * We keep a map from {@link SchemaType}s to {@link Type}s as the recorded
+ * substitution. This map is updated when unifying pairs of types.
+ *
+ * <p>
+ * This class unifies {@link SchemaType}s against regular types. To unify type
+ * variables against type applications, use class
+ * {@link de.uka.iti.pseudo.term.TypeVariableUnification}.
  *
  */
 @SuppressWarnings("nullness")

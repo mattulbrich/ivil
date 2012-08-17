@@ -113,9 +113,6 @@ public abstract class WhereCondition implements Mappable<String> {
      */
     private final String name;
 
-    // ////////////////////////////////////
-    // Instance material
-
     /**
      * Create a new where condition.
      *
@@ -149,9 +146,6 @@ public abstract class WhereCondition implements Mappable<String> {
         return env.getPluginManager().getPlugin(SERVICE_NAME,
                 WhereCondition.class, name);
     }
-
-    // ////////////////////////////////////
-    // Instance material
 
     /**
      * Gets the name of this condition.

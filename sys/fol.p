@@ -84,9 +84,9 @@ rule typed_forall_left
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
   where
     interact %inst as %'inst, true
-  add $$polymorphicSpec(%x as %'a, %inst, %b, true) |-
+  add $$polymorphicSubst(%x, %inst, %b) |-
   tags dragdrop "7"
-  
+  (*
 rule typed_forall_left_hide
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
   where
@@ -115,6 +115,7 @@ rule type_quant_right
   replace $$polymorphicSpec(arb as %'a, $$skolemType(arb as %'a), %b, false)
   tags rewrite "fol simp"
 
+*)
 (* TODO: existential type quantifications *)
 
 (*

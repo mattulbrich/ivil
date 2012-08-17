@@ -46,6 +46,7 @@ import de.uka.iti.pseudo.term.TestProgramTerm;
 import de.uka.iti.pseudo.term.TestStatements;
 import de.uka.iti.pseudo.term.TestTermComparator;
 import de.uka.iti.pseudo.term.TestTypeVariableBinding;
+import de.uka.iti.pseudo.term.TestTypeVariableUnification;
 import de.uka.iti.pseudo.term.TestUpdates;
 import de.uka.iti.pseudo.term.creation.TestSchemaCollectorVisitor;
 import de.uka.iti.pseudo.term.creation.TestSubtermReplacer;
@@ -110,7 +111,7 @@ public class AllCoreTests {
         //suite.addTestSuite(TestAppendMap.class);
         suite.addTestSuite(TestRewindSet.class);
         suite.addTestSuite(TestRewindMap.class);
-            suite.addTestSuite(TestHintParser.class);
+        suite.addTestSuite(TestHintParser.class);
         suite.addTestSuite(TestHintStrategy.class);
         suite.addTestSuite(TestHints.class);
         suite.addTestSuite(TestSMTLibTranslator.class);
@@ -122,6 +123,7 @@ public class AllCoreTests {
         suite.addTestSuite(TestXMLOutput.class);
         suite.addTestSuite(TestConcurrentSoftHashCache.class);
         suite.addTestSuite(TestMapTypes.class);
+        suite.addTestSuite(TestTypeVariableUnification.class);
         //$JUnit-END$
         return suite;
     }

@@ -20,12 +20,12 @@ import de.uka.iti.pseudo.term.Type;
 /**
  * The condition DifferentTypes returns true if the two actual arguments of the
  * condition have different ground types.
- * 
+ *
  * At the moment, the
  * {@link #check(Term[], Term[], RuleApplication, Environment)} method throws an
  * exception if type variables are encountered. This behaviour will most
  * probably be changed (was due to different semantics in earlier days).
- * 
+ *
  * @author mattias ulbrich
  */
 public class DifferentTypes extends WhereCondition {
@@ -37,7 +37,7 @@ public class DifferentTypes extends WhereCondition {
         super("differentTypes");
     }
 
-    @Override 
+    @Override
     public boolean check(Term[] formalArguments,
             Term[] actualArguments, RuleApplication ruleApp,
             Environment env) throws RuleException {
@@ -59,9 +59,11 @@ public class DifferentTypes extends WhereCondition {
 
     }
 
-    @Override public void checkSyntax(Term[] arguments) throws RuleException {
-        if (arguments.length != 2)
+    @Override
+    public void checkSyntax(Term[] arguments) throws RuleException {
+        if (arguments.length != 2) {
             throw new RuleException("differentTypes expects two arguments");
+        }
     }
 
 }

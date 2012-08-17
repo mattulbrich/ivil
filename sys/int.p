@@ -20,8 +20,7 @@
 include 
   "$base.p"
 
-plugin
-  # int literal evaluation
+plugin  # int literal evaluation
   metaFunction : "de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction"
 
   # check whether a term is a number literal
@@ -43,7 +42,13 @@ function  # infixes
         bool $gt(int, int)      infix >  50
         bool $gte(int, int)     infix >= 50
         bool $lte(int, int)     infix <= 50
-        
+
+# The following functions are there to have complete
+# for language support for Java but have no rules
+        int $iand(int, int)
+        int $ior(int, int)        
+        int $ixor(int, int)
+
 function  # prefixes
         int $neg(int)           prefix - 60
 
@@ -186,3 +191,12 @@ rule resolve_int_literals
     replace $$intEval(%t)
   tags rewrite "fol simp"
        verbosity "8"
+
+(*
+ * Rules for sum
+ *)
+rule empty_sum
+  find (\sum %v; %a; %a; %t)
+  replace 0
+  tags rewrite "fol simp"
+       verbosity "5"

@@ -114,12 +114,6 @@ public class Interactive extends WhereCondition {
             Type actualType = actualTerm.getType();
             String typeString = actualType.toString();
             if(isTypeMode(formalArguments)) {
-
-                if (!(actualType instanceof SchemaType)) {
-                    throw new RuleException("In type mode, the first argumnet must " +
-                            "be a schema term, not " + actualType);
-                }
-
                 typeString = INSTANTIATE_PREFIX + typeString;
             }
 

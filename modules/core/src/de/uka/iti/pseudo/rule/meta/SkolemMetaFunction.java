@@ -24,24 +24,35 @@ import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.Variable;
 
 /**
- * This meta function can be used to create a new skolem function in a rule.
+ * This meta function can be used to create a new skolem function symbol in a
+ * rule. It stores its name and type into a property in the
+ * {@link RuleApplication}.
  *
  * @ivildoc "Meta function/$$skolem"
  *
  * <h2>Meta function <tt>$$skolem</tt></h2>
  *
- * This meta function can be used to create a new skolem function in a rule.
+ * This meta function can be used to create a new skolem symbol. Since ivil does
+ * not support free variables (unbound) every skolem symbol is nullary function
+ * symbol.
  *
  * <h3>Syntax</h3>
- *  The meta function takes one argument of arbitrary type and returns
- *  a term of the same type.
+ *
+ * The meta function takes one argument of arbitrary type and returns a term of
+ * the same type. If applied twice or more often to the same term, it results in
+ * the same term. This term is new constant symbol which has not yet occurred in
+ * the proof.
  *
  * <h3>Example:</h3>
+ *
  * <pre>
  * rule forall_right
  *   find  |-  (\forall %x; %b)
  *   replace  $$subst(%x, $$skolem(%x), %b)
  * </pre>
+ *
+ * <h3>See also:</h3>
+ * <a href="ivil:/Meta function/$$subst">$$subst</a>
  *
  * @author mattias ulbrich
  */

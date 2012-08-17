@@ -52,6 +52,7 @@ import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.SchemaType;
 import de.uka.iti.pseudo.term.Term;
@@ -196,7 +197,10 @@ public class InteractiveRuleApplicationComponent extends
 
                     app.getSchemaVariableMapping().put(varname, term);
                     if(pair.typeMode) {
-                        assert type instanceof SchemaType : type + " MUST be a schema type by construction";
+                        if(!(type instanceof SchemaType)) {
+                            throw new RuleException("The type of " + varname +
+                                    " MUST be a schema type for type instantiation, not " + type);
+                        }
                         String tyvarName = ((SchemaType)type).getVariableName();
                         app.getTypeVariableMapping().put(tyvarName, term.getType());
                     }

@@ -42,7 +42,8 @@ function  # prefixes
     bool $not(bool)         prefix ! 45
 
 function  # consts
-    'a arb
+    'a arb         (* arbitrary unknown value *)
+    'a type        (* constant to denote types *)
     'b retype('a)  (* TODO still needed? *)
 
 binder

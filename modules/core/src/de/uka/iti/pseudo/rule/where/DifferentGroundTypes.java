@@ -23,9 +23,10 @@ import de.uka.iti.pseudo.term.Type;
  * function returns false instead of throwing an exception as DifferentTypes
  * would do. This is needed to check if two types can be guaranteed to be
  * unequal.
- * 
+ *
  * @author timm.felden@felden.com
  */
+@Deprecated
 public class DifferentGroundTypes extends WhereCondition {
 
     public DifferentGroundTypes() {
@@ -39,19 +40,22 @@ public class DifferentGroundTypes extends WhereCondition {
         Type type1 = actualArguments[0].getType();
         Type type2 = actualArguments[1].getType();
 
-        if (!TypeVariableCollector.collect(type1).isEmpty())
+        if (!TypeVariableCollector.collect(type1).isEmpty()) {
             return false;
+        }
 
-        if (!TypeVariableCollector.collect(type2).isEmpty())
+        if (!TypeVariableCollector.collect(type2).isEmpty()) {
             return false;
+        }
 
         return ! type1.equals(type2);
 
     }
 
     @Override public void checkSyntax(Term[] arguments) throws RuleException {
-        if (arguments.length != 2)
+        if (arguments.length != 2) {
             throw new RuleException("differentGroundTypes expects two arguments");
+        }
     }
 
 }
