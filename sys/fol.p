@@ -86,12 +86,12 @@ rule typed_forall_left
     interact %inst as %'inst, true
   add $$polymorphicSubst(%x, %inst, %b) |-
   tags dragdrop "7"
-  (*
+
 rule typed_forall_left_hide
   find (\T_all %'a; (\forall %x as %'a; %b)) |-
   where
     interact %inst as %'inst, true
-  replace $$polymorphicSpec(%x as %'a, %inst, %b, true)
+  replace $$polymorphicSubst(%x as %'a, %inst, %b)
   tags dragdrop "7"
        hiding "find"
 
@@ -99,23 +99,22 @@ rule type_quant_left
   find (\T_all %'a; %b) |-
   where
     interact %inst as %'inst, true
-  add $$polymorphicSpec(arb as %'a, %inst, %b, false) |-
+  add $$unifyTypes(type as %'a, type as %'inst, %b) |-
   tags dragdrop "4"
 
 rule type_quant_left_hide
   find (\T_all %'a; %b) |-
   where
     interact %inst as %'inst, true
-  replace $$polymorphicSpec(arb as %'a, %inst, %b, false)
+  replace $$unifyTypes(type as %'a, type as %'inst, %b)
   tags dragdrop "4"
        hiding "find"
 
 rule type_quant_right
   find |- (\T_all %'a; %b)
-  replace $$polymorphicSpec(arb as %'a, $$skolemType(arb as %'a), %b, false)
+  replace $$unifyTypes(type as %'a, $$skolemType(type as %'a), %b)
   tags rewrite "fol simp"
 
-*)
 (* TODO: existential type quantifications *)
 
 (*
@@ -165,33 +164,39 @@ rule cut_cond
  * Weakly typed equality
  *)
 
-plugin
-    # check whether two terms have different types, but returns false if typevariables are present
-    whereCondition : "de.uka.iti.pseudo.rule.where.DifferentGroundTypes"
- 
-rule weakly_typed_equality_different_ground_types
-  find  $weq(%a,%b)
-  where differentGroundTypes %a, %b 
+rule weakeq_incompatible_types
+  find  $weq(%a, %b)
+  where not compatibleTypes  %a, %b 
   replace false
-  tags rewrite "concrete"
+  tags rewrite "fol simp"
        verbosity "6"
        
-rule weakly_typed_equality_same_types
-  find  $weq(%a as %'a,%b as %'a)
+rule weakeq_same_types
+  find  $weq(%a as %'a, %b as %'a)
   replace %a = %b
-  tags rewrite "concrete"
+  tags rewrite "fol simp"
        verbosity "6"
+
+rule weakeq_apply_retype
+  assume $weq(%a as %'a, %b as %'b) |-
+  find retype(%a) as %'b
+  replace %b
 
 rule retype_identity
   find retype(%x as %'a) as %'a
   replace %x
   tags rewrite "concrete"
 
-rule apply_weq_retype
+rule weakeq_type_coercion_left
   assume $weq(%a as %'a, %b as %'b) |-
-  find retype(%a) as %'b
-  replace %b
+  find %form |-
+  replace $$unifyTypes(type as %'a, type as %'b, %form)
 
+rule weakeq_type_coercion_right
+  assume $weq(%a as %'a, %b as %'b) |-
+  find |- %form
+  replace $$unifyTypes(type as %'a, type as %'b, %form)
+  
 (*
  * Equality
  *)

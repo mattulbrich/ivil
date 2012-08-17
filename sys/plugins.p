@@ -67,6 +67,9 @@ plugin
     # check whether two terms have different types
     whereCondition : "de.uka.iti.pseudo.rule.where.DifferentTypes"
 
+    # check whether two terms have types which can be unified
+    whereCondition : "de.uka.iti.pseudo.rule.where.CompatibleTypes"
+
     # check whether a term has a unique top level function symbol
     whereCondition : "de.uka.iti.pseudo.rule.where.IsUnique"
 
