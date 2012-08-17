@@ -176,7 +176,7 @@
 			COMMAND RTA.RedoAction	
 		</redo>
 		
-		<findDialog text="Search..."  icon="img/findit.png">
+		<findDialog text="Search...">
 			ACTION editor/OpenSearchDialogAction
 			<tooltip>Search in the editor pane</tooltip>
 			<icon>img/find.png</icon>
