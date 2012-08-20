@@ -8,7 +8,7 @@ function
   int b 
   int c 
   int d 
-  int e
+  int e assignable
  
 
 (* Splitting the invariant! *)
@@ -23,3 +23,14 @@ program Q
   assert d=4 ; "Continuation preserves invariant"
   assume false
   assume (a=1 & b=2) & (c=3 & d=4)
+
+program P2
+  skip LOOPINV, {e:=7}((a=1 & b=2) & (c=3 & d=4))
+
+program Q2
+  assert {e:=7}(a=1) ; "Continuation preserves invariant"
+  assert {e:=7}(b=2) ; "Continuation preserves invariant"
+  assert {e:=7}(c=3) ; "Continuation preserves invariant"
+  assert {e:=7}(d=4) ; "Continuation preserves invariant"
+  assume false
+  assume {e:=7}((a=1 & b=2) & (c=3 & d=4))

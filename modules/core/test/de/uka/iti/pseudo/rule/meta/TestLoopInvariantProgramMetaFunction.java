@@ -253,6 +253,19 @@ public class TestLoopInvariantProgramMetaFunction extends TestCaseWithEnv  {
         assertEqualProgs(env.getProgram("Q"), env.getProgram("P'"));
     }
 
+    public void testSplittingInvariantUpdated() throws Exception {
+        env = testEnv("loopTest3.p.txt");
+        Program P2 = env.getProgram("P2");
+        assertNotNull(P2);
+        LiteralProgramTerm prog =
+                LiteralProgramTerm.getInst(0, Modality.BOX, P2, Environment.getTrue());
+
+        LoopModifier loopMod = new LoopModifier(prog, makeTerm("{e:=7}((a=1&b=2)&(c=3&d=4))"), null, env);
+        loopMod.apply();
+
+        assertEqualProgs(env.getProgram("Q2"), env.getProgram("P2'"));
+    }
+
     public void testGoBeyond() throws Exception {
 
         env = testEnv("loopTest1.p.txt");

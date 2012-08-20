@@ -32,6 +32,8 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.TypeVariable;
+import de.uka.iti.pseudo.term.Update;
+import de.uka.iti.pseudo.term.UpdateTerm;
 import de.uka.iti.pseudo.term.creation.TermFactory;
 import de.uka.iti.pseudo.term.statement.AssertStatement;
 import de.uka.iti.pseudo.term.statement.AssignmentStatement;
@@ -431,20 +433,31 @@ class LoopModifier {
         }
 
         ArrayList<AssertStatement> result = new ArrayList<AssertStatement>();
-        splitConjunction(invariant, result, sourceLineNumber);
+        splitConjunction(null, invariant, result, sourceLineNumber);
         return result;
     }
 
-    private void splitConjunction(Term formula,
+    private void splitConjunction(Update update, Term formula,
             ArrayList<AssertStatement> result, int sourceLineNumber) throws TermException {
         if (formula instanceof Application) {
             Function function = ((Application)formula).getFunction();
             if("$and".equals(function.getName())) {
-                splitConjunction(formula.getSubterm(0), result, sourceLineNumber);
-                splitConjunction(formula.getSubterm(1), result, sourceLineNumber);
+                splitConjunction(update, formula.getSubterm(0), result, sourceLineNumber);
+                splitConjunction(update, formula.getSubterm(1), result, sourceLineNumber);
                 return;
             }
         }
+
+        if(update == null && formula instanceof UpdateTerm) {
+            update = ((UpdateTerm)formula).getUpdate();
+            splitConjunction(update, formula.getSubterm(0), result, sourceLineNumber);
+            return;
+        }
+
+        if(update != null) {
+            formula = UpdateTerm.getInst(update, formula);
+        }
+
         result.add(new AssertStatement(sourceLineNumber, formula));
     }
 
