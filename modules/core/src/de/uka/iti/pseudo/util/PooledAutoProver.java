@@ -66,6 +66,9 @@ public class PooledAutoProver {
                 } catch (StrategyException e) {
                     exceptions.add(e);
                     return;
+                } catch (InterruptedException e) {
+                    Log.log(Log.DEBUG, "The strategy has been interrupted, bailing out");
+                    return;
                 }
 
                 if (ra != null) {
@@ -221,6 +224,7 @@ public class PooledAutoProver {
     public void stopAutoProve() {
         // code duplication from #stopAutoProve(boolean) to get rid of declared
         // exceptions.
+        pool.shutdownNow();
         shouldStop = true;
     }
 
@@ -239,6 +243,7 @@ public class PooledAutoProver {
      */
     public void stopAutoProve(boolean waitForJobs) throws CompoundException, InterruptedException {
         shouldStop = true;
+        pool.shutdownNow();
         if (waitForJobs) {
             waitAutoProve();
         }

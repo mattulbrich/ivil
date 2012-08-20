@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.TermVisitor;
 import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.TimingOutTask;
 
@@ -334,10 +335,16 @@ public class AutomaticProblemProver implements Callable<Result> {
                 }
 
                 if (ruleApplicationLimit != 0 && ruleApplicationLimit < count) {
-                    return new Result(false, file, name, "timed out");
+                    return new Result(false, file, name, "rule application limit reached");
                 }
 
-                RuleApplication ruleApp = strategy.findRuleApplication();
+                RuleApplication ruleApp;
+                try {
+                    ruleApp = strategy.findRuleApplication();
+                } catch (InterruptedException e) {
+                    Log.log(Log.DEBUG, "Automatic prove search has been interrupted");
+                    return new Result(false, file, name, "timed out");
+                }
 
                 if (ruleApp == null) {
                     break;

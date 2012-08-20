@@ -23,18 +23,18 @@ import de.uka.iti.pseudo.util.Util;
 
 /**
  * CompoundStrategy allows to combine different strategies.
- * 
+ *
  * To select find a rule application, one strategy after the other is asked. The
  * strategies to be considered are stored in an array ({@link #strategies})
  * which can be configured (e.g. by the UI)
  */
 public class CompoundStrategy extends AbstractStrategy {
-    
+
     private static final String STRATEGY_PACKAGE_PREFIX = "de.uka.iti.pseudo.auto.strategy.";
 
     /**
      * The {@link #strategies} are initialised to an array
-     * of instanced of the here mentioned classes 
+     * of instanced of the here mentioned classes
      */
     private static final Class<?>[] ORIGINAL_STRATEGIES = {
             SimplificationStrategy.class, BreakpointStrategy.class, SMTStrategy.class };
@@ -44,22 +44,22 @@ public class CompoundStrategy extends AbstractStrategy {
      * {@link #strategies}.
      */
     private StrategyManager strategyManager;
-    
+
     /**
      * The array of applied strategies. In order of application.
-     * 
+     *
      * @ivildoc "Environment property/strategies"
-     * 
+     *
      * The environment property <tt>CompoundStrategy.strategies</tt> can be used
      * to specifify the automatic strategies which are to be bundled to conduct
      * an automatic proof. The order in which they are specified gives their
      * order of application.
-     * 
+     *
      * <p>
      * Usually the default is a good value. If you want to deviate, specify a
      * comma separated list of implementing classes. If no package is given,
      * <tt>"de.uka.iti.pseudo.auto.strategy."</tt> is assumed.
-     * 
+     *
      * <p><b>Example:</b>
      * <pre>
      * properties
@@ -67,26 +67,26 @@ public class CompoundStrategy extends AbstractStrategy {
      *      "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"
      */
     private Strategy strategies[];
-    
+
     /**
      * If all my strategies are {@link AbstractStrategy}s themselves,
-     * we can apply better algorithms. 
+     * we can apply better algorithms.
      */
     // TODO Is this still needed?
 //    private boolean allAbstractStrategy;
 
     /**
      * To find an application, query one strategy after the other.
-     * 
+     *
      * If all children are {@link AbstractStrategy} themselves,
      * we can rely on the no-matching remembering of the superclass.
-     * 
+     *
      * @return the first rule application found, or null if no strategy returns
      *         an application.
      */
 //    public RuleApplication findRuleApplication()
 //            throws StrategyException {
-//        
+//
 //        if(allAbstractStrategy) {
 //            return super.findRuleApplication();
 //        } else {
@@ -100,7 +100,7 @@ public class CompoundStrategy extends AbstractStrategy {
 //    }
 
     /**
-     * Initialise the strategy. Create the initial {@link #strategies}. 
+     * Initialise the strategy. Create the initial {@link #strategies}.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -153,7 +153,7 @@ public class CompoundStrategy extends AbstractStrategy {
      * <li>All strategies must belong to the strategy manager
      * <li>No self reference may be stored
      * </ol>
-     * 
+     *
      * @return null if no problem, a problem description otherwise
      */
     private @Nullable String strategiesError() {
@@ -177,7 +177,7 @@ public class CompoundStrategy extends AbstractStrategy {
 
     /**
      * Gets the currently set strategies as immutable list.
-     * 
+     *
      * @return an immutable list containing the currently set strategies.
      */
     public List<Strategy> getStrategies() {
@@ -186,7 +186,7 @@ public class CompoundStrategy extends AbstractStrategy {
 
     /**
      * Sets the strategies. The given list is cloned to an array.
-     * 
+     *
      * @param strategies
      *            the new strategies
      * @throws StrategyException
@@ -205,7 +205,7 @@ public class CompoundStrategy extends AbstractStrategy {
     /**
      * The name of this strategy
      */
-    @Override 
+    @Override
     public String toString() {
         return "Compound Strategy";
     }
@@ -213,10 +213,10 @@ public class CompoundStrategy extends AbstractStrategy {
     /**
      * get a list of all possible strategies. Including those that have already
      * been used, but excluding "this".
-     * 
+     *
      * This is actually used to leak the information to the UI which allows to
      * add new strategies. The call is delegated to the strategy manager.
-     * 
+     *
      * @return the strategies known to the strategy manager.
      */
     public Collection<Strategy> getAllStrategies() {
@@ -224,10 +224,10 @@ public class CompoundStrategy extends AbstractStrategy {
         all.remove(this);
         return all;
     }
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * This method call is delegated to all inscribed strategies.
      */
     @Override public void beginSearch() throws StrategyException {
@@ -239,7 +239,7 @@ public class CompoundStrategy extends AbstractStrategy {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * This method call is delegated to all inscribed strategies.
      */
     @Override public void endSearch() {
@@ -250,13 +250,15 @@ public class CompoundStrategy extends AbstractStrategy {
     }
 
     /**
-     * delegates the search to all child strategies in order and returns the
+     * {@inheritDoc}
+     *
+     * <p>Delegates the search to all child strategies in order and returns the
      * first hit.
      */
-    @Override 
+    @Override
     public @Nullable RuleApplication findRuleApplication(ProofNode target)
-            throws StrategyException {
-        
+            throws StrategyException, InterruptedException {
+
         for (Strategy strategy : strategies) {
             RuleApplication ra = strategy.findRuleApplication(target);
             if(ra != null) {
@@ -265,7 +267,7 @@ public class CompoundStrategy extends AbstractStrategy {
         }
         return null;
     }
-    
+
     /**
      * {@inheritDoc}
      * <p>

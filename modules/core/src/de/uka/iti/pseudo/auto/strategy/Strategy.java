@@ -66,8 +66,11 @@ public interface Strategy {
      *
      * @throws StrategyException
      *             if the strategy has run into difficulties.
+     * @throws InterruptedException
+     *             strategies may choose to check for interruption and signal
+     *             that through this exception
      */
-    @Nullable RuleApplication findRuleApplication() throws StrategyException;
+    @Nullable RuleApplication findRuleApplication() throws StrategyException, InterruptedException;
 
     /**
      * Find an applicable rule application. The proof upon which the strategy
@@ -91,9 +94,12 @@ public interface Strategy {
      *            a proof node which is a leaf of the proof under consideration
      * @throws StrategyException
      *             if the strategy has run into difficulties.
+     * @throws InterruptedException
+     *             strategies may choose to check for interruption and signal
+     *             that through this exception
      */
     @Nullable RuleApplication findRuleApplication(@NonNull ProofNode node)
-            throws StrategyException;
+            throws StrategyException, InterruptedException;
 
     /**
      * Initialise this strategy.

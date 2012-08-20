@@ -88,10 +88,12 @@ public abstract class AbstractStrategy implements Strategy {
      *
      * @throws StrategyException
      *             if the strategy has run into difficulties.
+     * @throws InterruptedException
+     *             if the find algorithm has been interrupted
      */
     @Override
     public @Nullable RuleApplication findRuleApplication()
-            throws StrategyException {
+            throws StrategyException, InterruptedException {
         List<ProofNode> openGoals = proof.getOpenGoals();
 
         for (ProofNode goal : openGoals) {

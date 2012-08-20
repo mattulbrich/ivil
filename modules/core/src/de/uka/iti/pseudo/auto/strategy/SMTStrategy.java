@@ -107,7 +107,7 @@ public class SMTStrategy extends AbstractStrategy {
      */
     @Override
     public RuleApplication findRuleApplication(ProofNode target)
-            throws StrategyException {
+            throws StrategyException, InterruptedException {
 
         // retire if no rule found
         if(closingRule == null) {
@@ -133,6 +133,9 @@ public class SMTStrategy extends AbstractStrategy {
 
         try {
             result = solver.solve(sequent, env, closingRule.getProperties());
+        } catch(InterruptedException e) {
+            Log.log(Log.DEBUG, "SMT solver was interrupted, we relay this exception");
+            throw e;
         } catch (Exception e) {
             throw new StrategyException(
                  "The SMT solver raised an exception. You may consider changing the strategy.", e);
