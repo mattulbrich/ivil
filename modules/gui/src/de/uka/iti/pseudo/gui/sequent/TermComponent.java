@@ -410,7 +410,8 @@ public class TermComponent extends JTextPane {
      * interactions.
      */
     private String makeTermToolTip(TermTag termTag) {
-        String rval = termTag.getTerm().toString();
+        Term t = termTag.getTerm();
+        String rval = t.toString() + " as " + t.getType();
         if (rval.length() > 128) {
             rval = rval.substring(0, 125) + "...";
         }
