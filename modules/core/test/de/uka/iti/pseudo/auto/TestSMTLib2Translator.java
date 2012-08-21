@@ -144,6 +144,19 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
 
     }
 
+    public void testWeakEquality() throws Exception {
+        SMTLib2Translator trans = new SMTLib2Translator(env);
+
+        assertEquals("(= (fct.arb tyvar.a) (fct.arb tyvar.b))",
+                trans.translate(makeTerm("$weq(arb as 'a, arb as 'b)"), BOOL));
+
+        assertEquals("(= (u2i (fct.arb ty.int)) 3)",
+                trans.translate(makeTerm("$weq(arb as int, 3)"), BOOL));
+
+        assertEquals("(= (fct.arb tyvar.a) (i2u 3))",
+                trans.translate(makeTerm("$weq(arb as 'a, 3)"), BOOL));
+    }
+
     // detected a bug!
     public void testTypeQuant2() throws Exception {
         SMTLib2Translator trans = new SMTLib2Translator(env);

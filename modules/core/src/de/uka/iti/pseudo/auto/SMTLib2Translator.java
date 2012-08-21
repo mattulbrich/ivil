@@ -200,17 +200,26 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * the "cond" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
-    private @Nullable
-    final Function condFunction;
+    private @Nullable final Function condFunction;
 
     /**
      * the "$pattern" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
+    private final @Nullable Function patternFunction;
 
-    private @Nullable
-    final Function patternFunction;
-    private final Function equalityFunction;
+    /**
+     * the equality function from the environment must be treated separately.
+     * This may be null if the function is not defined
+     */
+    private final @Nullable Function equalityFunction;
+
+    /**
+     * the equality function from the environment must be treated separately.
+     * This may be null if the function is not defined
+     */
+    private final @Nullable Function weakEqualityFunction;
+
     /**
      * All axioms as they are extracted from the environment.
      */
@@ -289,8 +298,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
         condFunction = env.getFunction("cond");
         patternFunction = env.getFunction("$pattern");
-        // TODO think about weak eq.
         equalityFunction = env.getFunction("$eq");
+        weakEqualityFunction = env.getFunction("$weq");
         allAxioms = env.getAllAxioms();
         allSorts = env.getAllSorts();
     }
@@ -615,7 +624,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             return;
         }
 
-        if(function == equalityFunction) {
+        if(function == equalityFunction || function == weakEqualityFunction) {
             // smt equality does not have a type argument but ivil has. Make it manually
             StringBuilder sb = new StringBuilder();
             sb.append("(= ");
@@ -626,7 +635,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             ExpressionType type2 = typeToExpressionType(term1.getType());
 
             // If both the same type (that should always be the case
-            // unless weak equality is implemented), use that, otherwise
+            // unless for weak equality), use that, otherwise
             // resort to UNIVERSE
             ExpressionType type = (type1==type2) ? type1 : UNIVERSE;
 
