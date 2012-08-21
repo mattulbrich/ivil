@@ -27,12 +27,13 @@ import de.uka.iti.pseudo.term.Variable;
 
 // TODO Documentation needed
 public class SkolemTypeMetaFunction extends MetaFunction {
-    
+
     public static final String SKOLEMTYPE_NAME_PROPERTY = "skolemTypeName";
-    
+
     public static final ASTLocatedElement SKOLEM = new ASTLocatedElement() {
+        @Override
         public String getLocation() { return "SKOLEMISED"; }};
-        
+
     public SkolemTypeMetaFunction() throws EnvironmentException {
         super(TypeVariable.ALPHA, "$$skolemType", TypeVariable.BETA);
     }
@@ -40,32 +41,32 @@ public class SkolemTypeMetaFunction extends MetaFunction {
     @Override
     public Term evaluate(Application application, Environment env,
             RuleApplication ruleApp) throws TermException {
-        
+
         Type type = application.getSubterm(0).getType();
         if(!(type instanceof TypeVariable)) {
             throw new TermException("Type skolemisation only possible for type variables: " + type);
         }
-        
+
         TypeVariable typeVar = (TypeVariable) type;
-        
+
         String property = SKOLEMTYPE_NAME_PROPERTY + "(" + application.getSubterm(0).getType().toString() + ")";
         String name = ruleApp.getProperties().get(property);
         TypeVariable newTypeVar;
         if(name == null) {
             if(ruleApp.hasMutableProperties()) {
                 newTypeVar = calcSkolemName(typeVar, ruleApp);
-                ruleApp.getProperties().put(property, name);
+                ruleApp.getProperties().put(property, newTypeVar.getVariableName());
             } else {
                 throw new TermException("There is no type skolemisation stored for " + application);
             }
         } else {
             newTypeVar = TypeVariable.getInst(name);
         }
-        
+
         return Variable.getInst("irrelevant", newTypeVar);
     }
 
-    
+
     /*
      * Starting from the name of the typeVariable, return the first type
      * variable (iterate by adding suffixes) that does not appear in the
@@ -75,14 +76,14 @@ public class SkolemTypeMetaFunction extends MetaFunction {
         Sequent seq = ruleApp.getProofNode().getSequent();
         Set<TypeVariable> anteTypeVars = TypeVariableCollector.collectInTerms(seq.getAntecedent());
         Set<TypeVariable> succTypeVars = TypeVariableCollector.collectInTerms(seq.getSuccedent());
-        
+
         String orgName = typeVar.getVariableName();
         int suffix = 1;
         while(anteTypeVars.contains(typeVar) || succTypeVars.contains(typeVar)) {
             typeVar = TypeVariable.getInst(orgName + suffix);
             suffix ++;
         }
-        
+
         return typeVar;
     }
 

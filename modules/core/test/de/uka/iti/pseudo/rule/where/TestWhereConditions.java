@@ -78,6 +78,17 @@ public class TestWhereConditions extends TestCaseWithEnv {
         assertTrue(fresh.check(null, new Term[] { result, makeTerm("\\var x > 0"), makeTerm("(\\forall x1; x1 > 0)") }, null, env));
     }
 
+    public void testFreshVarInstType() throws Exception {
+        FreshVariable fresh = new FreshVariable();
+
+        TermMatcher tm = new TermMatcher();
+        tm.addTypeInstantiation("x", Environment.getIntType());
+        fresh.addInstantiations(tm, new Term[] { makeTerm("%x as %'x") });
+        Term result = tm.instantiate(makeTerm("%x as %'x"));
+        assertEquals(makeTerm("\\var x as int"), result);
+
+    }
+
     public void testCompatibleTypes() throws Exception {
 
         CompatibleTypes ct = new CompatibleTypes();
@@ -114,7 +125,7 @@ public class TestWhereConditions extends TestCaseWithEnv {
                 new Type[0], false, false, ASTLocatedElement.CREATED));
 
         assertTrue(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'b; true)")}, null, env));
-        assertFalse(fresh.check(null, new Term[] { makeTerm("arb as 'a"), makeTerm("(\\T_all 'a; true)")}, null, env));
+        assertFalse(fresh.check(null, new Term[] { makeTerm("type as 'a"), makeTerm("(\\T_all 'a; true)")}, null, env));
         assertFalse(fresh.check(null, new Term[] { makeTerm("%x as 'a"), makeTerm("emptyset as set('a)")}, null, env));
 
         TermMatcher tm = new TermMatcher();

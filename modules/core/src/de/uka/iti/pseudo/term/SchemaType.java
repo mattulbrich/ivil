@@ -89,6 +89,19 @@ public final class SchemaType extends Type {
         return name;
     }
 
+    /**
+     * Is this schema type created temporarily during parsing?
+     *
+     * A temporary schema type has a number as name.
+     *
+     * @return <code>true</code> iff this variable is temporary, i.e. if its
+     *         name is a natural number
+     */
+    public boolean isTemporary() {
+        char firstChar = name.charAt(0);
+        return firstChar >= '0' && firstChar <= '9';
+    }
+
     /*
      * (non-Javadoc)
      *

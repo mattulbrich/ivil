@@ -9,6 +9,9 @@ dist/
 bin/
 ivil.jar
 
+# log files
+log4j.log*
+
 #doxygen
 docwarn
 doxyfile
@@ -32,6 +35,7 @@ modules/exp/classes/
 modules/exp/classes-test/
 modules/exp/genSrc/
 javadoc/
+modules/*/TEST-*
 
 # directories which might exist:
 modules/core/classes7/

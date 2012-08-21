@@ -137,6 +137,12 @@ public class FreshTypeVariable extends WhereCondition {
                     TypeVariableCollector.collectInTerms(Util.readOnlyArrayList(actual));
 
             String newName = schemaTypeName;
+
+            // bugfix for unnamed variables
+            if(schemaType.isTemporary()) {
+                newName = "v" + newName;
+            }
+
             int count = 1;
             while (typeVariables.contains(TypeVariable.getInst(newName))) {
                 newName = schemaTypeName + count;

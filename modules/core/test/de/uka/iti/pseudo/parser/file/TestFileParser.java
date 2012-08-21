@@ -13,7 +13,6 @@ package de.uka.iti.pseudo.parser.file;
 import java.io.StringReader;
 import java.util.Map;
 
-import junit.framework.TestCase;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
@@ -25,13 +24,14 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.Parser;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 
-public class TestFileParser extends TestCase {
+public class TestFileParser extends TestCaseWithEnv {
 
     private Environment testEnv(String string) throws Exception {
         Parser fp = new Parser();
@@ -97,6 +97,17 @@ public class TestFileParser extends TestCase {
     // was a bug
     public void testDoubleReplace() throws Exception {
         assertEnvFail("rule doubleReplace find true samegoal replace true replace false");
+    }
+
+    // due to a bug
+    public void testWhereCondTyping() throws Exception {
+        env = testEnv("rule ext find %h=%h2 as int\n" +
+        		"where freshTypeVar type as %'a, %h, %h2\n" +
+        		"replace (\\T_all %'a; true)");
+        Rule r = env.getRule("ext");
+        WhereClause wc = r.getWhereClauses().get(0);
+        Term arg = wc.getArguments().get(0);
+        assertEquals(makeTerm("type as %'a"), arg);
     }
 
     public void testFindReplaceSameType() throws Exception {

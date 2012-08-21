@@ -102,15 +102,32 @@ public class WhereClause {
     }
 
     /**
-     * prints the where condition followed by a commatised list of the formal
-     * arguments.
+     * Prints the where condition followed by a comma-separated list of the
+     * formal arguments.
+     *
+     * @param typed
+     *            whether or not the argument types are to be added
+     *
+     * @return the where condition followed by the formal arguments
      */
-    @Override
-    public String toString() {
+    public String toString(boolean typed) {
         StringBuilder sb = new StringBuilder();
         sb.append(whereCondition.getName()).append(" ").append(
-                Util.commatize(getArguments()));
+                Util.commatize(getArguments(), typed));
         return sb.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * Prints the where condition followed by a comma-separated list of the
+     * formal arguments. It depends on the settings of {@link Term#SHOW_TYPES}
+     * whether the types of the arguments are added or not.
+     */
+   @Override
+    public String toString() {
+        return toString(Term.SHOW_TYPES);
     }
 
     /**

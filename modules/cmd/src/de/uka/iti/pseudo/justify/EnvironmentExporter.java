@@ -245,12 +245,12 @@ public class EnvironmentExporter {
 
         List<LocatedTerm> assumptions = r.getAssumptions();
         for (LocatedTerm lt : assumptions) {
-            pw.println("  assume " + mapSchematicTypes(lt.toString()));
+            pw.println("  assume " + mapSchematicTypes(lt.toString(true)));
         }
 
         List<WhereClause> whereClauses = r.getWhereClauses();
         for (WhereClause wc : whereClauses) {
-            pw.println("  where " + wc);
+            pw.println("  where " + mapSchematicTypes(wc.toString(true)));
         }
 
         List<GoalAction> goalActions = r.getGoalActions();
