@@ -28,9 +28,9 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.border.Border;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
@@ -69,17 +69,24 @@ import de.uka.iti.pseudo.util.settings.Settings;
  */
 public class TermComponent extends JTextPane {
 
-    public static final String TERM_COMPONENT_SELECTED_TAG =
-        "termComponent.popup.selectedTermTag";
+    private static final long serialVersionUID = -4415736579829917335L;
 
     /**
-     * The key is used to control the drag and drop mode.
+     * The key (to the ProofCenter notification mechanism) to indicate that
+     * a term has been selected.
      */
-    public static final String HIGHEST_PRIORITY_DRAG_AND_DROP = "pseudo.termcomponent.autoDnD";
+    public static final String TERM_COMPONENT_SELECTED_TAG =
+            "termComponent.popup.selectedTermTag";
+
+    /**
+     * The key (to the swing property system) is used to control the drag and
+     * drop mode.
+     */
+    public static final String HIGHEST_PRIORITY_DRAG_AND_DROP =
+            "pseudo.termcomponent.autoDnD";
 
     private static Settings S = Settings.getInstance();
 
-    private static final long serialVersionUID = -4415736579829917335L;
 
     /**
      * some UI constants
@@ -190,25 +197,10 @@ public class TermComponent extends JTextPane {
     private final int verbosityLevel;
 
     /**
-     * the popup menu to do things locally
+     * to handle drag and drop the original mouse position
+     * of the drag must be remembered.
      */
-    private final PopupMenuListener popupMenuListener = new PopupMenuListener() {
-
-        @Override public void popupMenuCanceled(PopupMenuEvent e) {
-        }
-
-        @Override public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-        }
-
-        @Override public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-            // Log.enter(e);
-            // proofCenter.firePropertyChange(TERM_COMPONENT_SELECTED_TAG,
-            // TermComponent.this, null);
-            //
-            // if (null != mouseSelection)
-            // Log.log(Log.VERBOSE, mouseSelection);
-        }
-    };
+    private MouseEvent dragOrigin;
 
     /**
      * Instantiates a new term component.
@@ -238,11 +230,13 @@ public class TermComponent extends JTextPane {
 
         //
         // Set display properties
+        // dnd support made manually as the lookandfeel checks
+        // whether the pointer is over selection
         setEditable(false);
+        setFocusable(false);
         setBorder(BORDER);
         setCaret(new NotScrollingCaret());
         annotatedString.appendToDocument(getDocument(), attributeFactory);
-        setDragEnabled(true);
         setTransferHandler(TermSelectionTransfer.getInstance());
 
         DefaultHighlighter highlight = new DefaultHighlighter();
@@ -252,11 +246,23 @@ public class TermComponent extends JTextPane {
             public void mouseExited(MouseEvent e) {
                 TermComponent.this.mouseExited();
             }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                TermComponent.this.mousePressed(e);
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                TermComponent.this.mouseReleased(e);
+            }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 TermComponent.this.mouseMoved(e.getPoint());
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                TermComponent.this.mouseDragged(e);
             }
         });
         addPropertyChangeListener("dropLocation", new PropertyChangeListener() {
@@ -285,12 +291,13 @@ public class TermComponent extends JTextPane {
         try {
             JPopupMenu popupMenu = proofCenter.getBarManager().makePopup(POPUP_PROPERTY);
             setComponentPopupMenu(popupMenu);
-            popupMenu.addPopupMenuListener(popupMenuListener);
+//            popupMenu.addPopupMenuListener(popupMenuListener);
         } catch (IOException ex) {
             Log.log(Log.DEBUG, "Disabling popup menu in term component");
             Log.stacktrace(ex);
         }
     }
+
 
     /*
      * store created attribute sets in a cache.
@@ -357,19 +364,28 @@ public class TermComponent extends JTextPane {
 
     };
 
+
     /*
      * Mouse exited the component: remove highlighting
      */
     private void mouseExited() {
         try {
             getHighlighter().changeHighlight(theHighlight, 0, 0);
-            setSelectionStart(0);
-            setSelectionEnd(0);
             mouseSelection = null;
         } catch (BadLocationException ex) {
             // this shant happen
             throw new Error(ex);
         }
+    }
+
+    protected void mousePressed(MouseEvent e) {
+        if(SwingUtilities.isLeftMouseButton(e)) {
+            dragOrigin = e;
+        }
+    }
+
+    protected void mouseReleased(MouseEvent e) {
+        dragOrigin = null;
     }
 
     /*
@@ -382,8 +398,6 @@ public class TermComponent extends JTextPane {
                 int begin = annotatedString.getBeginAt(index);
                 int end = annotatedString.getEndAt(index);
                 getHighlighter().changeHighlight(theHighlight, begin, end);
-                setSelectionStart(begin);
-                setSelectionEnd(end);
 
                 mouseSelection = annotatedString.getAttributeAt(index);
                 setToolTipText(makeTermToolTip(mouseSelection));
@@ -396,8 +410,6 @@ public class TermComponent extends JTextPane {
                 }
             } else {
                 getHighlighter().changeHighlight(theHighlight, 0, 0);
-                setSelectionStart(0);
-                setSelectionEnd(0);
                 mouseSelection = null;
             }
         } catch (BadLocationException ex) {
@@ -405,9 +417,15 @@ public class TermComponent extends JTextPane {
         }
     }
 
+    protected void mouseDragged(MouseEvent e) {
+        if(dragOrigin != null) {
+            getTransferHandler().exportAsDrag(this, dragOrigin, TransferHandler.COPY);
+        }
+    }
+
     /**
-     * Returns the unpretty text representation which is needed sometimes for
-     * interactions.
+     * Create the tool tip text: original text of the term with the type at the
+     * end. The string is shortened to 128 characters if necessary
      */
     private String makeTermToolTip(TermTag termTag) {
         Term t = termTag.getTerm();
