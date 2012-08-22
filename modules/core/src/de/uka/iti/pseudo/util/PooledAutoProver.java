@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
@@ -44,6 +45,9 @@ public class PooledAutoProver {
 
             synchronized (monitor) {
                 workCounter ++;
+                Log.log(Log.VERBOSE,
+                        "Created new job for node %d. Incrementing work counter to %d.",
+                        node.getNumber(), workCounter);
             }
 
         }
@@ -75,6 +79,9 @@ public class PooledAutoProver {
                     try {
                         node.getProof().apply(ra, env);
                         strategy.notifyRuleApplication(ra);
+                        for (ProofNode n : node.getChildren()) {
+                            pool.submit(new Job(n));
+                        }
                     } catch (ProofException e) {
                         Log.log(Log.ERROR, Dump.toString(ra));
                         Log.stacktrace(Log.ERROR, e);
@@ -83,11 +90,14 @@ public class PooledAutoProver {
                     } catch (StrategyException e) {
                         exceptions.add(e);
                         return;
+                    } catch (RejectedExecutionException e) {
+                        // due to a bug
+                        synchronized (monitor) {
+                            Log.log(Log.DEBUG, "Decreasing workcounter due to rejected execution");
+                            workCounter --;
+                        }
                     }
 
-                    for (ProofNode n : node.getChildren()) {
-                        pool.submit(new Job(n));
-                    }
                 } else {
                     Log.log(Log.TRACE, "could not find a rule application for " + node);
 
@@ -101,6 +111,9 @@ public class PooledAutoProver {
                         unclosableGoalsCount++;
                     }
                     workCounter --;
+                    Log.log(Log.VERBOSE,
+                            "Finished job for node %d. Decrementing work counter to %d.",
+                            node.getNumber(), workCounter);
                     if (workCounter == 0) {
                         monitor.notifyAll();
                     }
@@ -114,7 +127,7 @@ public class PooledAutoProver {
 
     // maybe change this to cachedThreadPool, but make strategies parallelize
     // first
-    private static ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
+    private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
 
     /**
      * The work counter counts the number of unfinished jobs.
@@ -173,12 +186,14 @@ public class PooledAutoProver {
     }
 
     /**
-     * Starts auto proving on the target node. Does nothing if node has
-     * children. You may invoke this while other nodes are processed, what will
-     * cause the new node to be enqueued on the todo list.
+     * Submits a new open proof goal to the job execution system.
+     *
+     * Does nothing if node has already fixed its children. You may invoke this
+     * while other nodes are processed, what will cause the new node to be
+     * enqueued on the todo list.
      *
      * @param node
-     *            node to be enqueued
+     *            node for which the job is to be enqueued
      */
     public void autoProve(@NonNull ProofNode node) {
         assert !shouldStop : "automatic prove request after stop";
@@ -208,6 +223,7 @@ public class PooledAutoProver {
     public void waitAutoProve() throws CompoundException, InterruptedException {
         synchronized (monitor) {
             while (0 != workCounter) {
+                Log.log(Log.DEBUG, "PooledAutoProver waiting for " + workCounter + " jobs.");
                 monitor.wait();
             }
         }
