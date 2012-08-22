@@ -66,6 +66,7 @@ public class ReloadAndReproveProblemAction extends BarAction implements
             if(proofCenter2 != null) {
                 proofXML.importProof(buffer.inputStream(), proofCenter2.getProof(),
                         proofCenter2.getEnvironment());
+                proofCenter2.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
             }
         } catch (Exception ex) {
             String tmp = "<no file>";

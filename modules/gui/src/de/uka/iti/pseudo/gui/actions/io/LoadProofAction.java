@@ -35,7 +35,7 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 
 /**
  * This action can be used to restore a previously serialised (saved) proof.
- * 
+ *
  * It needs a proof object that has not yet been tempered with.
  */
 @SuppressWarnings("serial")
@@ -45,7 +45,7 @@ public class LoadProofAction extends BarAction
     private JFileChooser fileChooser;
 
     // at the moment there is only one, so hard code it
-    private ProofImport proofImport = new ProofXML();
+    private final ProofImport proofImport = new ProofXML();
 
 //    public LoadProofAction() {
 //        super("Load proof ...", GUIUtil.makeIcon(LoadProofAction.class
@@ -55,14 +55,17 @@ public class LoadProofAction extends BarAction
 //                "load a proof to the currently active problem");
 //    }
 
+    @Override
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         final Proof origProof = getProofCenter().getProof();
 
@@ -73,28 +76,31 @@ public class LoadProofAction extends BarAction
                             "Root must not have children if loading a proof");
         }
 
-        if (fileChooser == null)
+        if (fileChooser == null) {
             fileChooser = new JFileChooser(".");
+        }
 
         getProofCenter().firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         final int result = fileChooser.showOpenDialog(getProofCenter().getMainWindow());
 
         (new SwingWorker<Void, Void>() {
+            @Override
             public Void doInBackground(){
                 try {
                     if (result == JFileChooser.APPROVE_OPTION) {
                         Environment env = getProofCenter().getEnvironment();
                         FileInputStream is = new FileInputStream(
                                 fileChooser.getSelectedFile());
-                        if (!proofImport.acceptsInput(is))
+                        if (!proofImport.acceptsInput(is)) {
                             throw new IOException("The input file "
                                     + fileChooser.getSelectedFile()
                                     + " is not accepted");
+                        }
 
-                        is = new FileInputStream(fileChooser
-                                .getSelectedFile());
+                        is = new FileInputStream(fileChooser.getSelectedFile());
 
                         proofImport.importProof(is, origProof, env);
+                        getProofCenter().fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
                         origProof.changesSaved();
                     }
 
@@ -109,7 +115,7 @@ public class LoadProofAction extends BarAction
                 }
                 return null;
             }
-        
+
             /**
              * after loading, update the listeners.
              */
