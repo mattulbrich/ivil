@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 19:54:52 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $impl(seqDom(x,i),$or($not(isPermN(x)),seqDom(x,seqGet(x,i))))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="impl_right" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%a">seqDom(x as seq(int),i as int) as bool</schemavariable>
+      <schemavariable name="%b">$or($not(isPermN(x as seq(int)) as bool) as bool,seqDom(x as seq(int),seqGet(x as seq(int),i as int) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="or_right" path="" id="1">
+      <find>S.0</find>
+      <schemavariable name="%a">$not(isPermN(x as seq(int)) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqDom(x as seq(int),seqGet(x as seq(int),i as int) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="not_right" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%b">isPermN(x as seq(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="isPermN_def" path="" id="3">
+      <find>A.1</find>
+      <schemavariable name="%p">x as seq(int)</schemavariable>
+      <typevariable name="p">seq(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="4">
+    </ruleApplication>
+  </steps>
+</proof>

@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 23:04:37 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $impl($and($and(isPermN(a),seqDom(a,i)),seqDom(a,j)),isPermN(seqSwap(a,i,j)))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="impl_right" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%a">$and($and(isPermN(a as seq(int)) as bool,seqDom(a as seq(int),i as int) as bool) as bool,seqDom(a as seq(int),j as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">isPermN(seqSwap(a as seq(int),i as int,j as int) as seq(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="1">
+      <find>A.0</find>
+      <schemavariable name="%a">$and(isPermN(a as seq(int)) as bool,seqDom(a as seq(int),i as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqDom(a as seq(int),j as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="2">
+      <find>A.0</find>
+      <schemavariable name="%a">isPermN(a as seq(int)) as bool</schemavariable>
+      <schemavariable name="%b">seqDom(a as seq(int),i as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="isPermN_def" path="" id="3">
+      <find>S.0</find>
+      <schemavariable name="%p">seqSwap(a as seq(int),i as int,j as int) as seq(int)</schemavariable>
+      <typevariable name="p">seq(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="isPermN_def" path="" id="4">
+      <find>A.0</find>
+      <schemavariable name="%p">a as seq(int)</schemavariable>
+      <typevariable name="p">seq(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="forall_right" path="" id="5">
+      <find>S.0</find>
+      <schemavariable name="%x">\var i as int</schemavariable>
+      <schemavariable name="%b">$impl(seqDom(seqSwap(a as seq(int),i as int,j as int) as seq(int),\var i as int) as bool,(\exists j as int;$and(seqDom(seqSwap(a as seq(int),i as int,j as int) as seq(int),\var j as int) as bool,$eq(seqGet(seqSwap(a as seq(int),i as int,j as int) as seq(int),\var j as int) as int,\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="skolemName(\var i as int)">i2</property>
+    </ruleApplication>
+    <ruleApplication rule="impl_right" path="" id="6">
+      <find>S.0</find>
+      <schemavariable name="%a">seqDom(seqSwap(a as seq(int),i as int,j as int) as seq(int),i2 as int) as bool</schemavariable>
+      <schemavariable name="%b">(\exists j as int;$and(seqDom(seqSwap(a as seq(int),i as int,j as int) as seq(int),\var j as int) as bool,$eq(seqGet(seqSwap(a as seq(int),i as int,j as int) as seq(int),\var j as int) as int,i2 as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="inDomSwap" path="" id="7">
+      <find>A.3</find>
+      <schemavariable name="%k">i2 as int</schemavariable>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq(int)</schemavariable>
+      <typevariable name="v2">int</typevariable>
+      <typevariable name="a">seq(int)</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="forall_left" path="" id="8">
+      <find>A.0</find>
+      <schemavariable name="%inst">i2 as int</schemavariable>
+      <schemavariable name="%x">\var i as int</schemavariable>
+      <schemavariable name="%b">$impl(seqDom(a as seq(int),\var i as int) as bool,(\exists j as int;$and(seqDom(a as seq(int),\var j as int) as bool,$eq(seqGet(a as seq(int),\var j as int) as int,\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="inst">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">int</property>
+    </ruleApplication>
+    <ruleApplication rule="inDomSwap" path="" id="9">
+      <find>S.0.0.0</find>
+      <schemavariable name="%k">\var j as int</schemavariable>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq(int)</schemavariable>
+      <typevariable name="a">seq(int)</typevariable>
+      <typevariable name="v2">int</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="i">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="getOfSwap" path="" id="10">
+      <find>S.0.0.1.0</find>
+      <schemavariable name="%k">\var j as int</schemavariable>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq(int)</schemavariable>
+      <typevariable name="a">seq(int)</typevariable>
+      <typevariable name="v12">int</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="i">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="impl_left" path="" id="11">
+      <find>A.4</find>
+      <schemavariable name="%a">seqDom(a as seq(int),i2 as int) as bool</schemavariable>
+      <schemavariable name="%b">(\exists j as int;$and(seqDom(a as seq(int),\var j as int) as bool,$eq(seqGet(a as seq(int),\var j as int) as int,i2 as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="0" id="12">
+      <find>S.1</find>
+      <assume>A.3</assume>
+      <schemavariable name="%b">seqDom(a as seq(int),i2 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="exists_left" path="1" id="13">
+      <find>A.4</find>
+      <schemavariable name="%x">\var j as int</schemavariable>
+      <schemavariable name="%b">$and(seqDom(a as seq(int),\var j as int) as bool,$eq(seqGet(a as seq(int),\var j as int) as int,i2 as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="skolemName(\var j as int)">j2</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1" id="14">
+      <find>A.4</find>
+      <schemavariable name="%a">seqDom(a as seq(int),j2 as int) as bool</schemavariable>
+      <schemavariable name="%b">$eq(seqGet(a as seq(int),j2 as int) as int,i2 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1" id="15">
+    </ruleApplication>
+  </steps>
+</proof>

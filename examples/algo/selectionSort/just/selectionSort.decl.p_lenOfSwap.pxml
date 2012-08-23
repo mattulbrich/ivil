@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 21:02:06 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqLen(seqSwap(a,i,j)),seqLen(a))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqSwapDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq('v2)</schemavariable>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="v10">'v2</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqLenDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">\var t as int</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%t">cond($eq(\var t as int,i as int) as bool,seqGet(a as seq('v2),j as int) as 'v2,cond($eq(\var t as int,j as int) as bool,seqGet(a as seq('v2),i as int) as 'v2,seqGet(a as seq('v2),\var t as int) as 'v2) as 'v2) as 'v2</schemavariable>
+      <schemavariable name="%b">seqLen(a as seq('v2)) as int</schemavariable>
+      <typevariable name="t">'v2</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="2">
+    </ruleApplication>
+  </steps>
+</proof>

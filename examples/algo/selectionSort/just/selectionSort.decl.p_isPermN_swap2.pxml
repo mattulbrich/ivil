@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 23:08:14 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $impl($and($and(isPerm(a,b),seqDom(a,i)),seqDom(a,j)),isPerm(b,seqSwap(a,i,j)))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="isPerm_symm" path="" id="0">
+      <find>S.0.1</find>
+      <schemavariable name="%a">seqSwap(a as seq('v2),i as int,j as int) as seq('v2)</schemavariable>
+      <schemavariable name="%b">b as seq('v2)</schemavariable>
+      <typevariable name="v1">'v2</typevariable>
+      <typevariable name="b">seq('v2)</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="impl_right" path="" id="1">
+      <find>S.0</find>
+      <schemavariable name="%a">$and($and(isPerm(a as seq('v2),b as seq('v2)) as bool,seqDom(a as seq('v2),i as int) as bool) as bool,seqDom(a as seq('v2),j as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">isPerm(seqSwap(a as seq('v2),i as int,j as int) as seq('v2),b as seq('v2)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="2">
+      <find>A.0</find>
+      <schemavariable name="%a">$and(isPerm(a as seq('v2),b as seq('v2)) as bool,seqDom(a as seq('v2),i as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqDom(a as seq('v2),j as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="3">
+      <find>A.0</find>
+      <schemavariable name="%a">isPerm(a as seq('v2),b as seq('v2)) as bool</schemavariable>
+      <schemavariable name="%b">seqDom(a as seq('v2),i as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="isPerm_swap" path="" id="4">
+      <find>S.0</find>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq('v2)</schemavariable>
+      <schemavariable name="%b">b as seq('v2)</schemavariable>
+      <typevariable name="b">seq('v2)</typevariable>
+      <typevariable name="v2">'v2</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="5">
+    </ruleApplication>
+  </steps>
+</proof>

@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 19:44:04 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqGet(seqId(n),i),cond($and($lte(0,i),$lt(i,n)),i,seqError))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqIdDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <schemavariable name="%n">n as int</schemavariable>
+      <typevariable name="n">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var t as int</schemavariable>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%b">n as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="" id="2">
+      <find>S.0.0.1</find>
+      <schemavariable name="%a">i as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="3">
+    </ruleApplication>
+  </steps>
+</proof>

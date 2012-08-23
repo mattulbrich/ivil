@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 19:53:13 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqGet(seqSwap(a,i,j),k),cond($and($lte(0,k),$lt(k,seqLen(a))),cond($eq(i,k),seqGet(a,j),cond($eq(j,k),seqGet(a,i),seqGet(a,k))),seqError))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqSwapDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq('v12)</schemavariable>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <typevariable name="a">seq('v12)</typevariable>
+      <typevariable name="v10">'v12</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%j">k as int</schemavariable>
+      <schemavariable name="%i">\var t as int</schemavariable>
+      <schemavariable name="%t">cond($eq(\var t as int,i as int) as bool,seqGet(a as seq('v12),j as int) as 'v12,cond($eq(\var t as int,j as int) as bool,seqGet(a as seq('v12),i as int) as 'v12,seqGet(a as seq('v12),\var t as int) as 'v12) as 'v12) as 'v12</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%b">seqLen(a as seq('v12)) as int</schemavariable>
+      <typevariable name="t">'v12</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="" id="2">
+      <find>S.0.0.1.0.0</find>
+      <schemavariable name="%a">k as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="" id="3">
+      <find>S.0.0.1.2.0.0</find>
+      <schemavariable name="%a">k as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="" id="4">
+      <find>S.0.0.1.2.2.1</find>
+      <schemavariable name="%a">k as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="5">
+    </ruleApplication>
+  </steps>
+</proof>

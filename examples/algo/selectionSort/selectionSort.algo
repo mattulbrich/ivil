@@ -3,17 +3,32 @@
  */
 
 uses "selectionSort.decl.p"
+uses "heapAbs.p"
+uses "SelSort.sort(int[]).p"
+uses "$seq.p"
+
+uses inline
+  plugin prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
+end
+
+option
+  mapFunction = "seqGet"
+
+abbreviation
+  @idx_inrange :=   0 <= _i < arrlen(_array)
+                  & 0 <= _j <= arrlen(_array)
+                  & 0 <= _t < arrlen(_array)
 
 algo selectionSort
 
 input
-  a : array(int)
+  a : seq(int)
   
 var
   i,j,t,n : int
   
 output
-  b : array(int)
+  b : seq(int)
   
 ensures
   isSorted(b)
@@ -22,48 +37,66 @@ ensures
   isPerm(a,b)
   
 do
-  b := a ;;
-  i := 1 ;;
-  n := length(a) ;;
+  b := a;
+  i := 0;
+  n := seqLen(a);
   
   if n = 0
   then 
     return
-  end ;;
+  end;
   
-  while i < n
-    inv i >= 1 & i <= n & 
+  while i < n-1
+    inv 0 <= i < n & 
         (\forall k; (\forall l; 
-          1<=k & k<=l & l<=i -> read(b,k) <= read(b,l))) &
+          0 <= k <= l <= i -> b[k] <= b[l])) &
         (\forall k; (\forall l;
-          1<=k & k<i & i<=l & l<=n -> read(b,k) <= read(b,l))) &
+          0 <= k < i <= l < n -> b[k] <= b[l])) &
         isPerm(a, b) &
-        length(b) = n
+        seqLen(b) = n
     var n - i
   do
-    t := i ;;
-    j := i+1 ;;
-    while j <= n
-      inv (\forall k; i<=k & k<j -> read(b,t) <= read(b, k))
+    t := i;
+    j := i+1;
+    while j < n
+      inv (\forall k; i <= k < j -> b[t] <= b[k])
         & (\forall k; (\forall l; 
-             1<=k & k<=l & l<=i -> read(b, k) <= read(b, l)))
+             0 <= k <= l <= i -> b[k] <= b[l]))
         & (\forall k; (\forall l;
-             1<=k & k<i & i <= l & l<=n -> read(b, k) <= read(b,l)))
-        & 1<=i & i<n
-        & i+1<=j & j<=n+1
-        & i<=t & t<=n
+             0 <= k < i <= l < n -> b[k] <= b[l]))
+        & 0 <= i < n
+        & i+1 <= j <= n
+        & i <= t < n
         & isPerm(a, b)
-        & length(b) = n
+        & seqLen(b) = n
       var (n - j) + 1
     do
-      if read(b, j) < read(b, t) 
+      if b[j] < b[t] 
       then
         t := j
-      end ;;
+      end;
+      mark 1;
       j := j+1
-    end ;;
+    end;
     
-    b := swap(b, i, t) ;;
+    b := seqSwap(b, i, t);
+    mark 2;
     i := i+1
   end
 end
+
+refine selectionSort as Java
+  requires _array != null & a = arrayAsIntSeq(h, _array)
+     var 42
+
+  ensures b = arrayAsIntSeq(h, _array)
+
+  mark 1 
+    inv b = arrayAsIntSeq(h, _array) & n = seqLen(b)
+        & i = _i & j = _j & t = _t & @idx_inrange & j < n
+    var 42
+
+  mark 2
+    inv b = arrayAsIntSeq(h, _array) & n = seqLen(b) 
+        & i = _i & j = _j & @idx_inrange
+    var 42

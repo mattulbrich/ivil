@@ -32,7 +32,6 @@ program selectionSort source "selectionSort.algo"
  after0:
  loop0:
  sourceline 57
-  skip LOOPINV, (((0 <= i) & (i < n)) & ((\forall k; (\forall l; (((0 <= k) & ((k <= l) & (l <= i))) -> (seqGet(b, k) <= seqGet(b, l))))) & ((\forall k; (\forall l; (((0 <= k) & ((k < i) & ((i <= l) & (l < n)))) -> (seqGet(b, k) <= seqGet(b, l))))) & (isPerm(a, b) & (seqLen(b) = n))))), (n - i)
  sourceline 49
   goto body0, after1
  body0:
@@ -43,7 +42,6 @@ program selectionSort source "selectionSort.algo"
   j := (i + 1)
  loop1:
  sourceline 72
-  skip LOOPINV, ((\forall k; (((i <= k) & (k < j)) -> (seqGet(b, t) <= seqGet(b, k)))) & ((\forall k; (\forall l; (((0 <= k) & ((k <= l) & (l <= i))) -> (seqGet(b, k) <= seqGet(b, l))))) & ((\forall k; (\forall l; (((0 <= k) & ((k < i) & ((i <= l) & (l < n)))) -> (seqGet(b, k) <= seqGet(b, l))))) & (((0 <= i) & (i < n)) & ((((i + 1) <= j) & (j <= n)) & (((i <= t) & (t < n)) & (isPerm(a, b) & (seqLen(b) = n)))))))), ((n - j) + 1)
  sourceline 61
   goto body1, after2
  body1:
@@ -59,6 +57,8 @@ program selectionSort source "selectionSort.algo"
  sourceline 77
   assume $not((seqGet(b, j) < seqGet(b, t))); "else"
  after3:
+ sourceline 78
+  skip MARK, 1, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & ((t = _t) & ((((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))) & (j < n))))))), 42 ; "marking stone"
  sourceline 79
   j := (j + 1)
   goto loop1
@@ -67,6 +67,8 @@ program selectionSort source "selectionSort.algo"
   assume $not((j < n))
  sourceline 82
   b := seqSwap(b, i, t)
+ sourceline 83
+  skip MARK, 2, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & (((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))))))), 42 ; "marking stone"
  sourceline 84
   i := (i + 1)
   goto loop0
@@ -74,8 +76,6 @@ program selectionSort source "selectionSort.algo"
  after1:
   assume $not((i < (n - 1)))
  endOfProgram: 
- sourceline 34
-  assert isSorted(b) ; "by ensures"
- sourceline 37
-  assert isPerm(a, b) ; "by ensures"
 
+
+problem (!((_array = null)) & (a = arrayAsIntSeq(h, _array))) |- [0; Java][<0;selectionSort>]((b = arrayAsIntSeq(h, _array)))

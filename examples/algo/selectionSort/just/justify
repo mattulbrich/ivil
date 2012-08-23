@@ -1,0 +1,18 @@
+#!/bin/sh
+
+cd `dirname $0`
+
+just ../selectionSort.decl.p
+
+for po in *.p
+do
+   echo "--- $po ---"
+   if [ -r "$po"xml ]
+   then
+      ivilc -DX-Dpseudo.showtypes=true -c $po || failed="$failed\n  $po"
+   else
+      ivilc $po || failed="$failed\n  $po"
+ fi
+done
+
+echo Failed PO:$failed

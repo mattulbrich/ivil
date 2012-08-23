@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 21:06:23 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- isPermN(seqId(n))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="isPermN_def" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%p">seqId(n as int) as seq(int)</schemavariable>
+      <typevariable name="p">seq(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="1">
+    </ruleApplication>
+  </steps>
+</proof>

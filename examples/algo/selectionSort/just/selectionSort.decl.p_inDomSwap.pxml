@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 19:53:50 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqDom(seqSwap(a,i,j),k),seqDom(a,k))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="inDom_def" path="" id="0">
+      <find>S.0.1</find>
+      <schemavariable name="%i">k as int</schemavariable>
+      <schemavariable name="%a">a as seq('v2)</schemavariable>
+      <typevariable name="v1">'v2</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="inDom_def" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">k as int</schemavariable>
+      <schemavariable name="%a">seqSwap(a as seq('v2),i as int,j as int) as seq('v2)</schemavariable>
+      <typevariable name="v1">'v2</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="lenOfSwap" path="" id="2">
+      <find>S.0.0.1.1</find>
+      <schemavariable name="%j">j as int</schemavariable>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%a">a as seq('v2)</schemavariable>
+      <typevariable name="v2">'v2</typevariable>
+      <typevariable name="a">seq('v2)</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="" id="3">
+      <find>S.0</find>
+      <schemavariable name="%t">$and($lte(0 as int,k as int) as bool,$lt(k as int,seqLen(a as seq('v2)) as int) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="" id="4">
+      <find>S.0</find>
+    </ruleApplication>
+  </steps>
+</proof>

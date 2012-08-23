@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 21:01:39 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqLen(seqId(n)),cond($gte(n,0),n,0))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqIdDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <schemavariable name="%n">n as int</schemavariable>
+      <typevariable name="n">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqLenDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">\var t as int</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%t">\var t as int</schemavariable>
+      <schemavariable name="%b">n as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="2">
+    </ruleApplication>
+  </steps>
+</proof>

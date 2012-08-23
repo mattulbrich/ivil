@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Jul 04 20:42:59 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- isPerm(a,a)</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="isPerm_symm" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%a">a as seq('v1)</schemavariable>
+      <schemavariable name="%b">a as seq('v1)</schemavariable>
+      <typevariable name="v1">'v1</typevariable>
+      <typevariable name="b">seq('v1)</typevariable>
+      <typevariable name="a">seq('v1)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="isPerm_def" path="" id="1">
+      <find>S.0</find>
+      <schemavariable name="%a">a as seq('v1)</schemavariable>
+      <schemavariable name="%b">a as seq('v1)</schemavariable>
+      <typevariable name="b">seq('v1)</typevariable>
+      <typevariable name="v14">'v1</typevariable>
+      <typevariable name="a">seq('v1)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="and_right" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%a">$eq(seqLen(a as seq('v1)) as int,seqLen(a as seq('v1)) as int) as bool</schemavariable>
+      <schemavariable name="%b">(\exists p as seq(int);$and($and(isPermN(\var p as seq(int)) as bool,$eq(seqLen(\var p as seq(int)) as int,seqLen(a as seq('v1)) as int) as bool) as bool,(\forall i as int;$impl(seqDom(\var p as seq(int),\var i as int) as bool,$eq(seqGet(a as seq('v1),\var i as int) as 'v1,seqGet(a as seq('v1),seqGet(\var p as seq(int),\var i as int) as int) as 'v1) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0" id="3">
+    </ruleApplication>
+    <ruleApplication rule="exists_right_hide" path="1" id="4">
+      <find>S.0</find>
+      <schemavariable name="%inst">seqId(seqLen(a as seq('v1)) as int) as seq(int)</schemavariable>
+      <schemavariable name="%x">\var p as seq(int)</schemavariable>
+      <schemavariable name="%b">$and($and(isPermN(\var p as seq(int)) as bool,$eq(seqLen(\var p as seq(int)) as int,seqLen(a as seq('v1)) as int) as bool) as bool,(\forall i as int;$impl(seqDom(\var p as seq(int),\var i as int) as bool,$eq(seqGet(a as seq('v1),\var i as int) as 'v1,seqGet(a as seq('v1),seqGet(\var p as seq(int),\var i as int) as int) as 'v1) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="inst">seq(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">seq(int)</property>
+    </ruleApplication>
+    <ruleApplication rule="and_right" path="1" id="5">
+      <find>S.0</find>
+      <schemavariable name="%a">$and(isPermN(seqId(seqLen(a as seq('v1)) as int) as seq(int)) as bool,$eq(seqLen(seqId(seqLen(a as seq('v1)) as int) as seq(int)) as int,seqLen(a as seq('v1)) as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">(\forall i as int;$impl(seqDom(seqId(seqLen(a as seq('v1)) as int) as seq(int),\var i as int) as bool,$eq(seqGet(a as seq('v1),\var i as int) as 'v1,seqGet(a as seq('v1),seqGet(seqId(seqLen(a as seq('v1)) as int) as seq(int),\var i as int) as int) as 'v1) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="isPermN_id" path="1,0" id="6">
+      <find>S.0.0</find>
+      <schemavariable name="%n">seqLen(a as seq('v1)) as int</schemavariable>
+      <typevariable name="n">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0" id="7">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,1" id="8">
+    </ruleApplication>
+  </steps>
+</proof>

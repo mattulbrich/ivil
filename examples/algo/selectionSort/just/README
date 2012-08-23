@@ -1,0 +1,3 @@
+instantiateion:
+
+(\forall n; n>=0 -> (\forall s; seqLen(s)=n & isPermN(s) -> (\forall i; (\forall j; seqDom(s,i) & seqDom(s,j) & seqGet(s,i)=seqGet(s,j) -> i=j))))
