@@ -4,23 +4,29 @@
  *)
 
 include "$base.p"
-include "java-out/jbc_preamble.p"
+include "$seq.p"
+include "$heap.p"
+include "$refinement.p"
+include "$symbex.p"
+include "$decproc.p"
+include "$set.p"
+include "$seq.p"
 
-plugin
-  prettyPrinter: "de.uka.iti.pseudo.prettyprint.plugin.JavaHeapPrettyPrinter"
+# plugin
+#   prettyPrinter: "de.uka.iti.pseudo.prettyprint.plugin.JavaHeapPrettyPrinter"
 
 function seq(int) arrayAsIntSeq(heap, ref)
 
 rule inArrayAsIntSeq
   find arrayAsIntSeq(%h, %r)
-  where freshVar %x, %h, %o
-  replace (\seqDef %x; 0; %h[%r, $array_length]; 
-      %h[%r, $array_index(%x)])
+  where freshVar %x as int, %h, %o
+  replace (\seqDef %x; 0; arrlen(%r); 
+      %h[%r, idxInt(%x)])
 
 rule getOfInArrayAsIntSeq
   find seqGet(arrayAsIntSeq(%h, %r), %i)
-  replace cond(0<=%i & %i < %h[%r,$array_length],
-               %h[%r, $array_index(%i)], seqError)
+  replace cond(0<=%i & %i < arrlen(%r),
+               %h[%r, idxInt(%i)], seqError)
   tags 
     derived
     rewrite "fol simp"
@@ -28,7 +34,7 @@ rule getOfInArrayAsIntSeq
 
 rule lenOfInArrayAsIntSeq
   find seqLen(arrayAsIntSeq(%h, %a))
-  replace %h[%a, $array_length]
+  replace arrlen(%a)
   tags
     derived
     rewrite "fol simp"

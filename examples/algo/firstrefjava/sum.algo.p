@@ -1,39 +1,33 @@
-# Automatically created on Wed Jul 04 18:06:38 CEST 2012
-include "$refinement.p"
-include "$int.p"
-include "$symbex.p"
-include "$decproc.p"
-include "$set.p"
-include "$seq.p"
+# Automatically created on Wed Aug 22 18:14:18 CEST 2012
 include "sum.decl.p"
-include "java-out/Sum.sum([I)I-1.p"
+include "Sum.sum(int[]).p"
 function set(int) setA 
 function int sumA assignable
 function set(int) sA assignable
 function int xA assignable
 
 program Sum source "sum.algo"
- sourceline 31
+ sourceline 26
   sumA := 0
- sourceline 32
+ sourceline 27
   sA := setA
  loop0:
- sourceline 34
+ sourceline 29
   skip LOOPINV, true, sA
- sourceline 33
+ sourceline 28
   goto body0, after0
  body0:
   assume (!(sA) = emptyset); "assume condition "
- sourceline 38
+ sourceline 33
   assert (\exists xA; (xA :: sA)) ; "assert before choose"
   havoc xA
   assume (xA :: sA)
- sourceline 39
+ sourceline 34
   sumA := (sumA + xA)
- sourceline 40
+ sourceline 35
   sA := (sA \ singleton(xA))
   goto loop0
- sourceline 33
+ sourceline 28
  after0:
   assume $not((!(sA) = emptyset))
  endOfProgram: 

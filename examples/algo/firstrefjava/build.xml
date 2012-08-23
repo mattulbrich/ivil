@@ -1,0 +1,22 @@
+
+<project name="Java verification" default="all" basedir=".">
+  <property name="compiler.dir" value="${user.home}/eclipse/pseudo.bytecode" />
+  <import file="${compiler.dir}/include.xml" />
+
+  <target name="algo">
+    <exec executable="algoc">
+      <arg value="sum.algo" />
+    </exec>
+  </target>
+
+  <target name="refine">
+    <exec executable="algoc">
+      <arg value="-ref" />
+      <arg value="sum.algo" />
+      <arg value="refinement.p" />
+    </exec>
+  </target>
+
+  <target name="all" depends="refine,algo,build-all" />
+
+</project>

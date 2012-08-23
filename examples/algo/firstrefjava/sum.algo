@@ -1,19 +1,14 @@
-uses "$refinement.p"
-uses "$int.p"
-uses "$symbex.p"
-uses "$decproc.p"
-uses "$set.p"
-uses "$seq.p"
 
 uses "sum.decl.p"
-uses "java-out/Sum.sum([I)I-1.p"
+
+uses "Sum.sum(int[]).p"
 
 abbreviation
   @injective :=
-   (\forall a; 0 <= a < $heap[array, $array_length] -> 
-     (\forall b; 0 <= b < $heap[array, $array_length] -> 
-         $heap[array, $array_index(a)] as int = 
-         $heap[array, $array_index(b)] -> a=b ))
+   (\forall a; 0 <= a < arrlen(_array) -> 
+     (\forall b; 0 <= b < arrlen(_array) ->
+         h[_array, idxInt(a)] = 
+         h[_array, idxInt(b)] -> a=b ))
 
 algo Sum
 
@@ -43,21 +38,21 @@ do
 end
 
 refine Sum as Java
-  requires setA = seqAsSet(arrayAsIntSeq($heap, array)) &
-           !array = $null & @injective
+  requires setA = seqAsSet(arrayAsIntSeq(h, _array)) &
+           !_array = null & @injective
     var 42 // setA
-  ensures sumA = $result
+  ensures sumA = resInt
 
   mark 1
-    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), 
-                        i, $heap[array, $array_length]))
-        & i >= 0 & i < $heap[array, $array_length]
-        & sumA = result
+    inv sA = seqAsSet(seqSub(arrayAsIntSeq(h, _array), 
+                        _i, arrlen(_array)))
+        & _i >= 0 & _i < arrlen(_array)
+        & sumA = _result
     var 42 // setA
 
   mark 2
-    inv sA = seqAsSet(seqSub(arrayAsIntSeq($heap, array), 
-                        i, $heap[array, $array_length]))
-        & i >= 0
-        & sumA = result
+    inv sA = seqAsSet(seqSub(arrayAsIntSeq(h, _array), 
+                        _i, arrlen(_array)))
+        & _i >= 0
+        & sumA = _result
     var 42 // setA
