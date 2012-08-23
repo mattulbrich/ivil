@@ -17,7 +17,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.AbstractList;
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -186,7 +185,7 @@ public final class Util {
      * can by no means be replaced.
      *
      * <p>
-     * The result is closely related to {@link Arrays#asList(Object...)} but is
+     * The result is closely related to {@link java.util.Arrays#asList(Object...)} but is
      * unmodifiable.
      *
      * @param array
@@ -197,29 +196,41 @@ public final class Util {
      *
      * @return an immutable list wrapping the argument array.
      *
-     * @see Arrays#asList(Object...)
+     * @see java.util.Arrays#asList(Object...)
      */
     public static <E> List<E> readOnlyArrayList(@Nullable E /*@NonNull*/ [] array) {
         return readOnlyArrayList(array, 0, array.length);
     }
 
     /**
-     * Wrap an immutable list object around an array. The elements in the array
-     * can by no means be replaced.
+     * Wrap an immutable list object around a part of an array. The elements in
+     * the array can by no means be replaced. Additionally, elements outside the
+     * given range cannot be accessed.
      *
      * <p>
-     * The result is closely related to {@link Arrays#asList(Object...)} but is
-     * unmodifiable.
+     * The range is given by to indices from and to. The first element of the
+     * resulting list is the element {@code array[from]} and the last is
+     * {@code array[to-1]} (to is exclusive).
+     *
+     * <p>
+     * The following must hold for the indices:
+     * {@code 0 <= from <= to <= array.length}
      *
      * @param array
      *            some array
+     *
+     * @param from
+     *            the array index of the first element in the result list.
+     *
+     * @param to
+     *            the array index of the last element in the result list plus 1.
      *
      * @param <E>
      *            the element type of the array argument
      *
      * @return an immutable list wrapping the argument array.
      *
-     * @see Arrays#asList(Object...)
+     * @see java.util.Arrays#asList(Object...)
      */
     public static <E> List<E> readOnlyArrayList(
             @Nullable E /*@NonNull*/ [] array, int from, int to) {

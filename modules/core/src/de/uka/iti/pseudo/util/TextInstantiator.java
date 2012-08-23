@@ -21,7 +21,7 @@ import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
  * This class is used to instantiate schema variables in strings.
- * 
+ *
  * The format is the following:
  * <table>
  * <tr>
@@ -54,64 +54,71 @@ import de.uka.iti.pseudo.term.statement.Statement;
  * schema update.</td>
  * </tr>
  * </table>
- * 
+ *
  */
 public class TextInstantiator {
-    
-    private RuleApplication ruleApp;
 
-    public TextInstantiator(RuleApplication ruleApp) {
+    private final RuleApplication ruleApp;
+
+    /**
+     * Instantiates a new text instantiator.
+     *
+     * @param ruleApp
+     *            the rule application from which the instantations are to be
+     *            taken
+     */
+    public TextInstantiator(@NonNull RuleApplication ruleApp) {
         super();
         this.ruleApp = ruleApp;
     }
 
     /**
      * Replace schema variables in a string.
-     * 
+     *
      * <p>
      * For instance <code>Assume {%c} in {%a}</code> might become
      * <code>Assume $eq(x,3) in [4; P]</code>
-     * 
+     *
      * <p>
      * Term{@link Term#toString())} is used to render the term.
-     * 
+     *
      * @param string
      *            the string to instantiate
-     * 
+     *
      * @return the string with schema variables replaced
      */
     public @NonNull String replaceInString(@NonNull String string) {
         return replaceInString(string, null);
     }
-    
+
     /**
      * Replace schema variables in a string.
-     * 
+     *
      * <p>
      * For instance <code>Assume {%c} in {%a}</code> might become
      * <code>Assume x = 3 in [4; P]</code>
-     * 
+     *
      * <p>
      * The provided pretty printer is used to render the term. If it is
      * <code>null</code>, defaults to {@link #replaceInString(String)}.
-     * 
+     *
      * <p><code>{{</code> can be used to produce a singe <code>{</code>.
-     * 
+     *
      * @param pp
      *            pretty printer to render the instantiations
      * @param string
      *            the string to instantiate
-     * 
+     *
      * @return the string with schema variables replaced
      */
     public @NonNull String replaceInString(@NonNull String string, PrettyPrint pp) {
-        
+
         StringBuilder retval = new StringBuilder();
         StringBuilder curley = new StringBuilder();
-        
+
         Map<String, Term> termMap = ruleApp.getSchemaVariableMapping();
         int len = string.length();
-        
+
         boolean inCurley = false;
         for (int i = 0; i < len; i++) {
             char c = string.charAt(i);
@@ -126,7 +133,7 @@ public class TextInstantiator {
                     inCurley = true;
                 }
                 break;
-                
+
             case '}':
                 String lookup = curley.toString();
                 String display = "??";
@@ -139,24 +146,32 @@ public class TextInstantiator {
                             display = pp.print(t).toString();
                         }
                     }
-                    
+
                 } else if(lookup.startsWith("explain %")) {
                     // retrieve explanation, overread "explain "
+                    // Checkstyle: IGNORE MagicNumberCheck
                     display = extractExplanation(termMap.get(lookup.substring(8)));
-                    
+
                 } else if(lookup.startsWith("explainOrQuote %")) {
                     // retrieve explanation, overread "explain "
+                    // Checkstyle: IGNORE MagicNumberCheck
                     Term term = termMap.get(lookup.substring(15));
                     display = extractExplanation(term);
-                    if(display.length() == 0)
+                    if(display.length() == 0) {
                         display = quoteStatement(term, pp);
-                    
+                    }
+
                 } else if(lookup.startsWith("property ")) {
+                    // retrieve property, overread "property "
+                    // Checkstyle: IGNORE MagicNumberCheck
                     String prop = ruleApp.getProperties().get(lookup.substring(9));
-                    if(prop != null)
+                    if(prop != null) {
                         display = prop;
-                    
+                    }
+
                 } else if(lookup.startsWith("upd ")) {
+                    // retrieve update, overread "upd "
+                    // Checkstyle: IGNORE MagicNumberCheck
                     String id = lookup.substring(4);
                     Update upd = ruleApp.getSchemaUpdateMapping().get(id);
                     if(upd != null) {
@@ -167,24 +182,25 @@ public class TextInstantiator {
                         }
                     }
                 }
-                
+
                 retval.append(display);
-                
+
                 inCurley = false;
                 curley.setLength(0);
                 break;
-                
+
             default:
-                if(inCurley)
+                if(inCurley) {
                     curley.append(c);
-                else
+                } else {
                     retval.append(c);
+                }
             }
         }
-        
+
         return retval.toString();
     }
-    
+
     private @NonNull String extractExplanation(Term term) {
         String ret = null;
         if (term instanceof LiteralProgramTerm) {
@@ -194,19 +210,20 @@ public class TextInstantiator {
         }
         return ret == null ? "" : ret;
     }
-    
+
     private @NonNull String quoteStatement(Term term, PrettyPrint pp) {
         String ret = null;
         if (term instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) term;
             Statement stm = prog.getStatement();
-            if(pp == null)
+            if(pp == null) {
                 ret = stm.toString();
-            else
+            } else {
                 ret = pp.print(stm).toString();
+            }
         }
         return ret == null ? "" : ret;
     }
-    
-    
+
+
 }

@@ -29,7 +29,7 @@ import nonnull.NonNull;
  *
  * @author mattias ulbrich
  */
-public class Log {
+public final class Log {
 
     /**
      * ERROR is a message level indicating a serious failure.
@@ -135,7 +135,8 @@ public class Log {
      */
     static {
         // bypass settings!
-        String className = System.getProperty("pseudo.logClass", "de.uka.iti.pseudo.util.SimpleLog");
+        String className =
+                System.getProperty("pseudo.logClass", "de.uka.iti.pseudo.util.SimpleLog");
         try {
             logImplementation = (LogImplementation) Class.forName(className).newInstance();
         } catch (Exception e) {
@@ -212,6 +213,8 @@ public class Log {
      *
      * Logging level <code>level</code> ist used.
      *
+     * @param level a non-negative integer indicating the level of log to use
+     *
      * @param message the message to log
      */
     public static void log(int level, Object message) {
@@ -249,7 +252,7 @@ public class Log {
      * @param string
      *            string to be printed out
      */
-    private static final void dbgPrint(int level, String string) {
+    private static void dbgPrint(int level, String string) {
         if(logImplementation != null) {
             logImplementation.doLog(level, string);
         }

@@ -14,37 +14,44 @@ import java.util.TimerTask;
 
 import nonnull.NonNull;
 
+/**
+ * @deprecated Apparently no longer used
+ *
+ * @author mattias
+ *
+ */
+@Deprecated
 public class TimingOutTask extends TimerTask {
-    
+
     private static Timer timer = null;
-    
+
     private static Timer getTimer() {
         if(timer == null) {
             timer = new Timer("Timing out timer", true);
         }
-        
+
         return timer;
     }
-    
+
     private Process process;
     private Thread thread;
-    
-    private long timeout;
-    
-    private boolean hasFinished = false; 
+
+    private final long timeout;
+
+    private boolean hasFinished = false;
 
     public TimingOutTask(long timeout, @NonNull Process process) {
         assert timeout > 0;
         this.timeout = timeout;
         this.process = process;
     }
-    
+
     public TimingOutTask(long timeout, @NonNull Thread thread) {
         assert timeout > 0;
         this.thread = thread;
         this.timeout = timeout;
     }
-    
+
     public TimingOutTask(int timeout) {
         assert timeout > 0;
         this.timeout = timeout;
@@ -61,12 +68,13 @@ public class TimingOutTask extends TimerTask {
         hasFinished = true;
         return super.cancel();
     }
-    
-    @Override 
+
+    @Override
     public synchronized void run() {
-        if(hasFinished())
+        if(hasFinished()) {
             return;
-            
+        }
+
         if(process != null) {
             try {
                 process.exitValue();
@@ -82,7 +90,7 @@ public class TimingOutTask extends TimerTask {
             assert false : "Either a process or a thread must be given";
         }
     }
-    
+
 
     /**
      * @return the hasFinished
@@ -90,6 +98,6 @@ public class TimingOutTask extends TimerTask {
     public boolean hasFinished() {
         return hasFinished;
     }
-    
-    
+
+
 }
