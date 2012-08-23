@@ -112,13 +112,11 @@ public class ParallelAutoProofWorker
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     try {
-                        ParallelAutoProofWorker.this.pool.stopAutoProve(true);
+                        halt();
                     } catch (Exception ex) {
                         Log.stacktrace(ex);
                         ExceptionDialog.showExceptionDialog(frame, ex);
                     }
-                    timer.stop();
-                    dialog.setVisible(false);
                 }
             });
             buttons.add(stop);
@@ -144,24 +142,20 @@ public class ParallelAutoProofWorker
 
         if (!isDone()) {
             timer.start();
-            // see below
-//            synchronized (this) {
-//                notifyAll();
-//            }
             dialog.setVisible(true);
         }
     }
 
     @Override
     public Void doInBackground() {
-        // get exceptions
         try {
             strategy.beginSearch();
 
             for (ProofNode node : nodes) {
-                pool.autoProve(node);
+                pool.submit(node);
             }
 
+            pool.start();
             pool.waitAutoProve();
 
             strategy.endSearch();
@@ -169,19 +163,6 @@ public class ParallelAutoProofWorker
             Log.stacktrace(e);
             ExceptionDialog.showExceptionDialog(parentFrame, e);
         }
-
-        // wait up to 0.1sec for the dialog to show up; this is an easy fix for
-        // a problem, caused by closing a proof to fast
-        // MU: Not comprehensible now.
-//        try {
-//            synchronized (this) {
-//                if (!dialog.isValid()) {
-//                    wait(100);
-//                }
-//            }
-//        } catch (InterruptedException e) {
-//            // really doesnt matter; if we got interrupted just continue
-//        }
 
         return null;
     }
@@ -220,14 +201,19 @@ public class ParallelAutoProofWorker
      *             thrown from pool.stopAutoProve
      */
     public void halt() throws CompoundException, InterruptedException {
-        pool.stopAutoProve(true);
+        pool.stopAutoProve();
     }
 
     @Override
     public void handleNotification(NotificationEvent event) {
         Log.enter(event);
         if(event.isSignal(ProofCenter.STOP_REQUEST)) {
-            pool.stopAutoProve();
+            try {
+                halt();
+            } catch (Exception e) {
+                Log.stacktrace(e);
+                ExceptionDialog.showExceptionDialog(parentFrame, e);
+            }
         }
     }
 }

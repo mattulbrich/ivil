@@ -12,9 +12,9 @@ package de.uka.iti.pseudo.util;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.auto.strategy.Strategy;
@@ -25,31 +25,28 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 
 /**
- * This class allows for pooled automatic proofing of problems. A global thread
- * pool is used to solve problems as fast as possible.
+ * This class allows for pooled automatic proofing of problems. A fixed
+ * collection of threads concurrently
  *
- * @author felden@ira.uka.de
+ * @author felden@ira.uka.de, mattias ulbrich
  */
 
 public class PooledAutoProver {
 
+    // TODO get thread pool size from environment or something more useful
     /**
-     * Internal representation of a prover job. Jobs will try to recursively
-     * solve all problems in parent.todo ????
+     * The size of the thread pool of this prover.
      */
-    private class Job implements Runnable {
-        final ProofNode node;
+    private final static int POOL_SIZE = 4;
 
-        private Job(ProofNode node) {
-            this.node = node;
+    /**
+     * The worker thread which actually works on the proof nodes.
+     */
+    private final class Worker extends Thread {
 
-            synchronized (monitor) {
-                workCounter ++;
-                Log.log(Log.VERBOSE,
-                        "Created new job for node %d. Incrementing work counter to %d.",
-                        node.getNumber(), workCounter);
-            }
-
+        private Worker(int number) {
+            super("Auto prove worker " + number);
+            Log.log(Log.VERBOSE, "Created new worker %d.", number);
         }
 
         /**
@@ -59,90 +56,105 @@ public class PooledAutoProver {
         @Override
         public void run() {
             RuleApplication ra = null;
+
+
             try {
 
-                if (shouldStop) {
+                if (isInterrupted()) {
+                    Log.log(Log.DEBUG, "Worker terminated");
                     return;
                 }
 
-                try {
+                while(true) {
+                    ProofNode node = getNodeFromQueue();
+
                     ra = strategy.findRuleApplication(node);
-                } catch (StrategyException e) {
-                    exceptions.add(e);
-                    return;
-                } catch (InterruptedException e) {
-                    Log.log(Log.DEBUG, "The strategy has been interrupted, bailing out");
-                    return;
-                }
-
-                if (ra != null) {
-                    try {
+                    if (ra != null) {
                         node.getProof().apply(ra, env);
                         strategy.notifyRuleApplication(ra);
-                        for (ProofNode n : node.getChildren()) {
-                            pool.submit(new Job(n));
-                        }
-                    } catch (ProofException e) {
-                        Log.log(Log.ERROR, Dump.toString(ra));
-                        Log.stacktrace(Log.ERROR, e);
-                        exceptions.add(e);
-                        return;
-                    } catch (StrategyException e) {
-                        exceptions.add(e);
-                        return;
-                    } catch (RejectedExecutionException e) {
-                        // due to a bug
+                        applicationsDone.incrementAndGet();
+                        waitingQueue.addAll(node.getChildren());
+
                         synchronized (monitor) {
-                            Log.log(Log.DEBUG, "Decreasing workcounter due to rejected execution");
-                            workCounter --;
+                            monitor.notifyAll();
                         }
-                    }
 
-                } else {
-                    Log.log(Log.TRACE, "could not find a rule application for " + node);
-
-                }
-
-            } finally {
-                synchronized (monitor) {
-                    if(ra != null) {
-                        applicationsDone++;
                     } else {
-                        unclosableGoalsCount++;
+                        unclosableGoalsCount.incrementAndGet();
+                        Log.log(Log.TRACE, "could not find a rule application for " + node);
                     }
-                    workCounter --;
-                    Log.log(Log.VERBOSE,
-                            "Finished job for node %d. Decrementing work counter to %d.",
-                            node.getNumber(), workCounter);
-                    if (workCounter == 0) {
-                        monitor.notifyAll();
-                    }
+
                 }
+            } catch (StrategyException e) {
+                exceptions.add(e);
+                stopAutoProve();
+            } catch (ProofException e) {
+                if(ra != null) {
+                    Log.log(Log.ERROR, Dump.toString(ra));
+                }
+                exceptions.add(e);
+                stopAutoProve();
+            } catch (InterruptedException e) {
+                Log.log(Log.DEBUG, "Worker has been interrupted, bailing out");
             }
         }
-    }
 
-    // TODO get thread pool size from environment or something more useful
-    private static int POOL_SIZE = 4;
+        private ProofNode getNodeFromQueue() throws InterruptedException {
+            ProofNode result = waitingQueue.poll();
+            while(result == null) {
+                if(Thread.interrupted()) {
+                    throw new InterruptedException("interrupted while polling queue");
+                }
 
-    // maybe change this to cachedThreadPool, but make strategies parallelize
-    // first
-    private final ExecutorService pool = Executors.newFixedThreadPool(POOL_SIZE);
+                synchronized (monitor) {
+                    waitingThreadsCount ++;
+
+                    // queue is definitely empty
+                    if(waitingThreadsCount == workerPool.length) {
+                        Log.log(Log.DEBUG, "All threads are waiting, stop auto prove");
+                        stopAutoProve();
+                    }
+
+                    monitor.wait();
+
+                    result = waitingQueue.poll();
+
+                    waitingThreadsCount --;
+                }
+            }
+            return result;
+        }
+    };
 
     /**
-     * The work counter counts the number of unfinished jobs.
+     * The producer/consumer list that holds all open goals.
      */
-    private int workCounter = 0;
+    private final BlockingQueue<ProofNode> waitingQueue =
+            new LinkedBlockingQueue<ProofNode>();
 
     /**
-     * The number of successfully applied rules
+     * The collection of special threads that work on the proof jobs.
      */
-    private int applicationsDone = 0;
+    private final Worker[] workerPool;
+
+    /**
+     * The number of successfully applied rules.
+     */
+    private final AtomicInteger applicationsDone = new AtomicInteger();
 
     /**
      * The number of goals that could not be closed with the current strategy.
      */
-    private int unclosableGoalsCount = 0;
+    private final AtomicInteger unclosableGoalsCount = new AtomicInteger();
+
+    /**
+     * The number of threads currently unemployed. If this reaches the total
+     * number of threads, nothing is left to be done.
+     *
+     * This needs not be atomic since it is synchronised externally using
+     * #monitor.
+     */
+    private int waitingThreadsCount = 0;
 
     /**
      * The strategy to be used in this search.
@@ -153,11 +165,6 @@ public class PooledAutoProver {
      * Environment to be used by this auto proofer.
      */
     private final Environment env;
-
-    /**
-     * Flag to signal jobs, that they should stop.
-     */
-    private boolean shouldStop = false;
 
     /**
      * This object is used to notify waiting threads and to ensure consistency
@@ -172,17 +179,20 @@ public class PooledAutoProver {
             Collections.synchronizedList(new LinkedList<Exception>());
 
     /**
-     * <b>Note</b>: it's up to the caller, to call strategy.begindSearch() and
-     * strategy.endSearch()
+     * Instantiates a new pooled auto prover.
      *
      * @param strategy
-     *            Strategy to be used by autoProof calls
+     *            the strategy to be used to find rule applications
      * @param environment
-     *            Environment to be used
+     *            the environment to be used
      */
     public PooledAutoProver(Strategy strategy, Environment environment) {
         this.strategy = strategy;
         this.env = environment;
+        this.workerPool = new Worker[POOL_SIZE];
+        for (int i = 0; i < workerPool.length; i++) {
+            workerPool[i] = new Worker(i);
+        }
     }
 
     /**
@@ -195,37 +205,43 @@ public class PooledAutoProver {
      * @param node
      *            node for which the job is to be enqueued
      */
-    public void autoProve(@NonNull ProofNode node) {
-        assert !shouldStop : "automatic prove request after stop";
-
-        pool.submit(new Job(node));
+    public void submit(@NonNull ProofNode node) {
+        waitingQueue.offer(node);
     }
 
     /**
-     * Only usable after all initial nodes have been submitted via autoProve
+     * Start the prove process by starting the threads if not happened yet.
      *
-     * @return true iff no more nodes are to be processed
+     * <b>Note</b>: it's up to the caller, to call
+     * {@link Strategy#beginSearch()} and {@link Strategy#endSearch()}
      */
-    public boolean done() {
-        return 0 == workCounter;
+    public void start() {
+        for (Worker worker : workerPool) {
+            try {
+                worker.start();
+            } catch (IllegalThreadStateException e) {
+                // just ignore that fact ... it does not hurt ?!
+                Log.stacktrace(e);
+            }
+        }
     }
 
     /**
-     * Waits for current automatic proving to finish.
+     * Waits for all threads to finish(). This call is blocking if any of the
+     * threads in the pool is still operating.
+     *
+     * It does not trigger a shutdown of the system. Do this by calling
+     * {@link #stopAutoProve()}.
      *
      * @throws CompoundException
-     *             thrown to indicate exceptions were thrown by jobs. The
-     *             created exceptions can be retrieved with getException()
+     *             contains the exceptions during the automatic prove process.
      *
      * @throws InterruptedException
-     *             rethrown, when interrupted, while waiting
+     *             if the thread was interrupted while waiting
      */
     public void waitAutoProve() throws CompoundException, InterruptedException {
-        synchronized (monitor) {
-            while (0 != workCounter) {
-                Log.log(Log.DEBUG, "PooledAutoProver waiting for " + workCounter + " jobs.");
-                monitor.wait();
-            }
+        for (Worker worker : workerPool) {
+            worker.join();
         }
 
         if (!exceptions.isEmpty()) {
@@ -238,55 +254,37 @@ public class PooledAutoProver {
      * does not block.
      */
     public void stopAutoProve() {
-        // code duplication from #stopAutoProve(boolean) to get rid of declared
-        // exceptions.
-        pool.shutdownNow();
-        shouldStop = true;
-    }
-
-    /**
-     * Asynchronously tells the current automatic proving to stop. This method
-     * may block if you set {@code waitForJobs}.
-     *
-     * @param waitForJobs
-     *            set to true if you want to block till all jobs have finished.
-     *
-     * @throws CompoundException
-     *             thrown if some jobs got exceptions
-     *
-     * @throws InterruptedException
-     *             rethrown, when interrupted, while waiting
-     */
-    public void stopAutoProve(boolean waitForJobs) throws CompoundException, InterruptedException {
-        shouldStop = true;
-        pool.shutdownNow();
-        if (waitForJobs) {
-            waitAutoProve();
+        for (Worker worker : workerPool) {
+            worker.interrupt();
         }
+
+//        shouldStop = true;
     }
 
     /**
-     * @return the number of already successfully applied RAs
+     * Gets the number of already successfully applied {@link RuleApplication}s.
+     *
+     * @return a non-negative number
      */
     public int getSuccessfullApplicationsCount() {
-        // note: no synchronization needed here, as reading integers is allways
-        // atomic
-        return applicationsDone;
+        return applicationsDone.get();
     }
 
     /**
-     * @return the number of jobs in the queue
+     * Gets the number of waiting proof nodes in the queue.
+     *
+     * @return a non-negative number
      */
     public int getOpenGoalsCount() {
-        return workCounter;
+        return waitingQueue.size();
     }
 
     /**
-     * @return the amount of currently unclosable goals, that should have been
-     *         clodes by the pool. this can be usefull as indicater to abort
-     *         autoproving
+     * Gets the number of goals for which no rule application could be found.
+     *
+     * @return a non-negative number
      */
     public int getUnclosableCount() {
-        return unclosableGoalsCount;
+        return unclosableGoalsCount.get();
     }
 }
