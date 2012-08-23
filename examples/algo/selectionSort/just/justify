@@ -3,6 +3,12 @@
 cd `dirname $0`
 
 just ../selectionSort.decl.p
+just ../heapAbs.p
+
+# unfortunately there are some include statements which have to changed
+# ... perhaps add some "-I" option to ivil one day
+sed -i -e 's/"sele/"..\/sele/' *.p
+
 
 for po in *.p
 do
@@ -11,7 +17,7 @@ do
    then
       ivilc -DX-Dpseudo.showtypes=true -c $po || failed="$failed\n  $po"
    else
-      ivilc $po || failed="$failed\n  $po"
+      ivilc -DX-Dpseudo.basedir=.. $po || failed="$failed\n  $po"
  fi
 done
 

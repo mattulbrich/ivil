@@ -1,5 +1,5 @@
 # Created by RuleJustification
-# Wed Jul 04 23:08:20 CEST 2012
+# Thu Aug 23 21:22:21 CEST 2012
 
 include
   "$base.p"
@@ -7,6 +7,7 @@ include
   "$symbex.p"
   "$decproc.p"
   "$seq.p"
+  "$bytecode.p"
 
 
 function seq(int) seqId(int)
@@ -27,13 +28,13 @@ properties
 
 rule seqSwapDef
   find seqSwap(%a as seq(%'v10),%i as int,%j as int) as seq(%'v10)
-  where freshVar %t, %a, %i, %j
+  where freshVar %t as int, %a as seq(%'v10), %i as int, %j as int
   samegoal
     replace (\seqDef %t as int;0 as int;seqLen(%a as seq(%'v10)) as int;cond($eq(%t as int,%i as int) as bool,seqGet(%a as seq(%'v10),%j as int) as %'v10,cond($eq(%t as int,%j as int) as bool,seqGet(%a as seq(%'v10),%i as int) as %'v10,seqGet(%a as seq(%'v10),%t as int) as %'v10) as %'v10) as %'v10) as seq(%'v10)
 
 rule seqIdDef
   find seqId(%n as int) as seq(int)
-  where freshVar %t, %n
+  where freshVar %t as int, %n as int
   samegoal
     replace (\seqDef %t as int;0 as int;%n as int;%t as int) as seq(int)
 
@@ -56,8 +57,8 @@ rule isPerm_def
 
 rule seqInvDef
   find seqInv(%s as seq(int)) as seq(int)
-  where freshVar %i, %s
-  where freshVar %j, %s
+  where freshVar %i as int, %s as seq(int)
+  where freshVar %j as int, %s as seq(int)
   samegoal
     replace (\seqDef %i as int;0 as int;seqLen(%s as seq(int)) as int;(\some %j as int;$and(seqDom(%s as seq(int),%j as int) as bool,$eq(seqGet(%s as seq(int),%j as int) as int,%i as int) as bool) as bool) as int) as seq(int)
 
