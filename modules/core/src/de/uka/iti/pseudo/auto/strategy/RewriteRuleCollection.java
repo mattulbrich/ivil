@@ -20,7 +20,6 @@ import java.util.Set;
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
@@ -43,23 +42,23 @@ import de.uka.iti.pseudo.util.Log;
 /**
  * A RewriteRuleCollection allows to find applicable rewrite rules for a goal in
  * a proof.
- * 
+ *
  * Collection ranges over all rules which have a certain property set to the
  * category of the collection. The category is a string value provided to the
  * constructor.
- * 
+ *
  * <p>
  * For a rule to be taken into consideration add
- * 
+ *
  * <pre>
  * tags rewrite &quot;category&quot;
  * </pre>
- * 
+ *
  * to the end of the rule declaration.
- * 
+ *
  * Rules are classified according to their toplevel symbol which allows quicker
  * matching since only rules with the appropriate toplevel symbol are checked.
- * 
+ *
  */
 @NonNull
 public class RewriteRuleCollection {
@@ -67,28 +66,28 @@ public class RewriteRuleCollection {
     /**
      * The map from toplevel symbols to applicable rules
      */
-    private Map<String, List<Rule>> classificationMap;
+    private final Map<String, List<Rule>> classificationMap;
 
     /**
      * A cache of terms which have no applicable rule in this collection. No
      * need to check once again.
-     * 
+     *
      * The mechanism works locally on a term. Hence, rules with assumptions will
      * break the soundness of caching. This can be switched off (set to
      * <code>null</code>) if the category contains assumption-rules.
      */
-    private @Nullable Set<Term> noMatchCache = 
+    private @Nullable Set<Term> noMatchCache =
             Collections.synchronizedSet(new HashSet<Term>());
 
     /**
      * The environment the rules come from
      */
-    private Environment env;
+    private final Environment env;
 
     /**
      * The category for which we collect rules
      */
-    private String category;
+    private final String category;
 
     /**
      * The number of rules in this collection
@@ -102,7 +101,7 @@ public class RewriteRuleCollection {
 
     /**
      * Instantiates a new rewrite rule collection.
-     * 
+     *
      * @param rules
      *            the rules to choose the collection from
      * @param category
@@ -110,7 +109,7 @@ public class RewriteRuleCollection {
      *            "rewrite"
      * @param env
      *            the environment we work in.
-     * @throws StrategyException 
+     * @throws StrategyException
      *            if a rule in rules is findless or has assumptions.
      */
     public RewriteRuleCollection(List<Rule> rules, String category,
@@ -124,20 +123,18 @@ public class RewriteRuleCollection {
 
     /**
      * Find an applicable rule application in a sequent.
-     * 
+     *
      * We apply a {@link RuleApplicationFinder} first to the antecedent then to
      * the succedent.
-     * 
+     *
      * @param node
      *            the proof node to find a rule for
-     * 
+     *
      * @return a rule application maker if we can find something, null otherwise
      */
     public @Nullable RuleApplicationMaker findRuleApplication(ProofNode node) {
 
-        Proof proof = node.getProof();
-
-        RuleApplicationFinder finder = new RuleApplicationFinder(proof, node, env);
+        RuleApplicationFinder finder = new RuleApplicationFinder(node, env);
         finder.setApplicationFilter(applicationFilter);
         Sequent seq = node.getSequent();
 
@@ -156,7 +153,7 @@ public class RewriteRuleCollection {
 
     /**
      * Gets the currently installed application filter.
-     * 
+     *
      * @return the application filter or null
      */
     public RuleApplicationFilter getApplicationFilter() {
@@ -166,7 +163,7 @@ public class RewriteRuleCollection {
     /**
      * Sets the application filter to be used in the future.
      * Setting it to null turns filtering off.
-     * 
+     *
      * @param applicationFilter
      *            the new application filter or null
      */
@@ -177,22 +174,22 @@ public class RewriteRuleCollection {
     /**
      * Select all rules from a list of rules which do belong to a certain
      * category.
-     * 
+     *
      * <p>
      * For a rule to be taken into consideration add
-     * 
+     *
      * <pre>
      * tags rewrite &quot;category&quot;
      * </pre>
-     * 
+     *
      * for the appropriate category to the end of the rule declaration.
-     * 
+     *
      * @param rules
      *            the rules to select a category from
      * @param category
      *            the value that the chosen rules need to have for the property
      *            {@value RuleTagConstants#KEY_REWRITE}
-     * 
+     *
      * @throws RuleException
      *             probably not at all
      */
@@ -215,7 +212,7 @@ public class RewriteRuleCollection {
             if (noMatchCache != null && rule.getAssumptions().size() != 0) {
                 Log.log(Log.WARNING, "Assumption-rule " + rule.getName() +
                         " tagged as rewrite. Switching of caching.");
-                noMatchCache = null;
+                deactivateCache();
             }
 
             String[] classifications = getClassification(findClause.getTerm()).split(",");
@@ -236,7 +233,7 @@ public class RewriteRuleCollection {
 
     /**
      * Gets the classification for a term.
-     * 
+     *
      * <p>
      * For most terms, this returns the single classification of the term:
      * <ul>
@@ -246,16 +243,16 @@ public class RewriteRuleCollection {
      * <li>For an updated term, get "[updated]"
      * <li>Else: get "[generic]"
      * </ul>
-     * 
+     *
      * <P>
      * For some schematic terms (at the moment {@link SchemaUpdateTerm}s), more
      * than one category can be returned. Categories are then separated by
      * commas. For example the schematic terms <tt>{ U ?}[%a: skip]%b</tt> has
      * the classification "[updated], [program]".
-     * 
+     *
      * @param term
      *            the term to classify
-     * 
+     *
      * @return the classification, comma separated if more than one.
      */
     private @NonNull String getClassification(@NonNull Term term) {
@@ -317,7 +314,7 @@ public class RewriteRuleCollection {
 
     /**
      * find a rule application for single a term at a position.
-     * 
+     *
      * @param finder the RuleApplicationFinder to be used
      * @param term
      * @param selector
@@ -380,9 +377,19 @@ public class RewriteRuleCollection {
         return classificationMap.get(classif);
     }
 
-    @Override 
+    @Override
     public String toString() {
         return "RuleCollection[" + category + "] with " + size + " rules";
+    }
+
+
+    /**
+     * Deactivate the no-match cache. This should be done if the state
+     * applicablility does not only depend on the term but also on non-local
+     * factors like assumptions or the result of a filter.
+     */
+    public void deactivateCache() {
+        noMatchCache = null;
     }
 
     /**
@@ -398,7 +405,7 @@ public class RewriteRuleCollection {
     /**
      * get an unmodifiable view of the nomatch cache. Mainly for testing
      * purposes.
-     * 
+     *
      * @return a view to the nomatch-cache, or <code>null</code> if the chache
      *         is deactivated.
      */

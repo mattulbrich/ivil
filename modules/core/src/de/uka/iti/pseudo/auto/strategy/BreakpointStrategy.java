@@ -38,10 +38,10 @@ import de.uka.iti.pseudo.term.statement.Statement;
 /**
  * The Class BreakpointStrategy implements the symbolic execution aware of
  * cycles and breakpoints.
- * 
+ *
  * There are number of parameters that can be set. See below for ivildoc
  * comments.
- * 
+ *
  * If desired the execution stops if a breakpoint is hit.
  */
 public class BreakpointStrategy extends AbstractStrategy implements
@@ -51,15 +51,15 @@ public class BreakpointStrategy extends AbstractStrategy implements
      * The break point manager stores all set breakpoints. It is there that we
      * query for points to stop at.
      */
-    private BreakpointManager breakPointManager = new BreakpointManager();
+    private final BreakpointManager breakPointManager = new BreakpointManager();
 
     /**
      * For detecting loops, code locations must be calculated. They are cached
      * here.
      */
-    private Map<ProofNode, Collection<CodeLocation<Program>>> codeLocationCache =
+    private final Map<ProofNode, Collection<CodeLocation<Program>>> codeLocationCache =
             new HashMap<ProofNode, Collection<CodeLocation<Program>>>();
-    
+
     /**
      * The set of rules which we consult
      */
@@ -70,7 +70,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
      */
     /**
      * @ivildoc "Environment property/obeyProgramBreakpoints"
-     * 
+     *
      * The environment property
      * <tt>BreakpointStrategy.obeyProgramBreakpoints</tt> can be used to specify
      * whether symbolic execution breakpoints set on level of the ivil program
@@ -81,7 +81,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * @ivildoc "Environment property/obeySourceBreakpoints"
-     * 
+     *
      * The environment property
      * <tt>BreakpointStrategy.obeySourceBreakpoints</tt> can be used to specify
      * whether symbolic execution breakpoints set on level of the source code
@@ -92,7 +92,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * @ivildoc "Environment property/stopAtSkip"
-     * 
+     *
      * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
      * used to specify whether symbolic execution should stop whenever reaching
      * a <tt>skip</tt> statement. The value can be "<code>true</code>" or "
@@ -102,7 +102,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * @ivildoc "Environment property/stopAtLoop"
-     * 
+     *
      * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
      * used to specify whether symbolic execution should stop whenever reaching
      * a statement which has been visited already earlier in the proof. The
@@ -112,7 +112,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * @ivildoc "Environment property/stopAtLoop"
-     * 
+     *
      * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
      * used to specify whether symbolic execution should stop whenever reaching
      * a goto statement of which one target lies before the current location.
@@ -130,6 +130,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
         ruleCollection = new RewriteRuleCollection(env.getAllRules(),
                 REWRITE_CATEGORY, env);
         ruleCollection.setApplicationFilter(this);
+        ruleCollection.deactivateCache();
 
         // obey settings in env
         {
@@ -153,7 +154,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
             }
 
             name = this.getClass().getSimpleName() + ".stopAtLoop";
-            if (env.hasProperty(name)) { 
+            if (env.hasProperty(name)) {
                 stopAtLoop = Boolean.parseBoolean(env.getProperty(name));
             }
 
@@ -173,10 +174,10 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * Decide whether a rule application is to be applied or not.
-     * 
+     *
      * We extract the program term and check whether it is at a breakpoint using
      * {@link #hasBreakpoint(LiteralProgramTerm)}.
-     * 
+     *
      * @return <code>false</code> iff at a breakpoint
      */
     @Override
@@ -189,12 +190,12 @@ public class BreakpointStrategy extends AbstractStrategy implements
         } catch (ProofException e) {
             throw new RuleException(e);
         }
-    
+
         // updated program term ==> go for the wrapped program
         if (!(find instanceof LiteralProgramTerm)) {
             find = find.getSubterm(0);
         }
-    
+
         if (find instanceof LiteralProgramTerm) {
             LiteralProgramTerm progTerm = (LiteralProgramTerm) find;
             if (hasBreakpoint(progTerm, proofNode)) {
@@ -205,7 +206,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
                     "Rules in 'symbex' MUST match a program term or updated program terms, this rule did not: "
                             + ruleApp.getRule().getName());
         }
-    
+
         return true;
     }
 
@@ -214,8 +215,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
         // check for stop at skip
         if (stopAtSkip) {
             Statement s = progTerm.getStatement();
-            if (s instanceof SkipStatement)
+            if (s instanceof SkipStatement) {
                 return true;
+            }
         }
 
         //
@@ -238,27 +240,27 @@ public class BreakpointStrategy extends AbstractStrategy implements
         // check for unwanted looping
         if (stopAtLoop) {
             CodeLocation<Program> codeLoc = CodeLocation.fromTerm(progTerm);
-            
+
             // find first parent w/o this codeLoc
             while(proofNode != null) {
                 if(!getCodeLocations(proofNode).contains(codeLoc)) {
                     break;
                 }
-                
+
                 proofNode = proofNode.getParent();
             }
-            
+
             // find another (older) ancestor w/ the codeLoc
             while(proofNode != null) {
                 if(getCodeLocations(proofNode).contains(codeLoc)) {
                     // found!
                     return true;
                 }
-                
+
                 proofNode = proofNode.getParent();
             }
         }
-        
+
 
         Program program = progTerm.getProgram();
         int number = progTerm.getProgramIndex();
@@ -320,7 +322,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     //
     // getter and setter
     //
-    
+
     public BreakpointManager getBreakpointManager() {
         return breakPointManager;
     }
@@ -376,9 +378,9 @@ public class BreakpointStrategy extends AbstractStrategy implements
 
     /**
      * Make integer from integer literal term.
-     * 
-     * @param term a number literal term. 
-     * 
+     *
+     * @param term a number literal term.
+     *
      * @throws RuntimeException
      *             if the term is not a number literal
      */
