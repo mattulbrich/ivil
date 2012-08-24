@@ -20,14 +20,14 @@ import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * Creates a job, that tries to close all open goals with the current strategy.
- * 
+ *
  * @author felden@ira.uka.de
  */
 public class AutoProofAction extends ParallelAutoProofAction {
 
     private static Icon GO_ICON =
         GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go.png"));
-    
+
     private static final long serialVersionUID = -7094117185284991811L;
 
     public AutoProofAction() {
@@ -44,5 +44,10 @@ public class AutoProofAction extends ParallelAutoProofAction {
     @Override
     protected Icon getGoIcon() {
         return GO_ICON;
+    }
+
+    @Override
+    protected boolean checkEnabled() {
+        return !getProofCenter().getProof().getRoot().isClosed();
     }
 }

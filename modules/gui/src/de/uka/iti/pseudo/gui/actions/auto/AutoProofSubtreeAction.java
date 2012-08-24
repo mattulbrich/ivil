@@ -17,21 +17,22 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.KeyStroke;
 
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * Tries to automatically close all nodes below the selected one with the
  * current strategy. If an inner node is selected, all children will be used.
- * 
+ *
  * @see AutoProofAction
- * 
+ *
  * @author felden@ira.uka.de
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class AutoProofSubtreeAction extends ParallelAutoProofAction {
-    
+
     private static Icon GO_ICON =
         GUIUtil.makeIcon(AutoProofAction.class.getResource("img/cog_go_sub.png"));
 
@@ -41,18 +42,26 @@ public class AutoProofSubtreeAction extends ParallelAutoProofAction {
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK));
     }
 
+    @Override
+    public void initialised() {
+        super.initialised();
+        getProofCenter().addPropertyChangeListener(ProofCenter.SELECTED_PROOFNODE, this);
+    }
+
     /**
      * Recursively searches for open nodes below current and adds them to list
-     * 
+     *
      * @param current
      * @param list
      */
     private void addOpenChildGoals(ProofNode current, List<ProofNode> list) {
-        if (null == current.getChildren())
+        if (null == current.getChildren()) {
             list.add(current);
-        else
-            for (ProofNode node : current.getChildren())
+        } else {
+            for (ProofNode node : current.getChildren()) {
                 addOpenChildGoals(node, list);
+            }
+        }
     }
 
     @Override
@@ -61,9 +70,14 @@ public class AutoProofSubtreeAction extends ParallelAutoProofAction {
         addOpenChildGoals(getProofCenter().getCurrentProofNode(), rval);
         return rval;
     }
-    
+
     @Override
     protected Icon getGoIcon() {
         return GO_ICON;
+    }
+
+    @Override
+    protected boolean checkEnabled() {
+        return !getProofCenter().getCurrentProofNode().isClosed();
     }
 }
