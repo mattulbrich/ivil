@@ -101,7 +101,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         "implies", "$equiv", "iff", "\\forall", "forall", "\\exists",
         "exists", "$gt", ">", "$lt", "<", "$gte", ">=", "$lte", "<=",
         "$plus", "+", "$minus", "-", "$mult", "*", "$div",
-        "div", "$neg", "-", "\\T_all", "forall", "\\T_exists", "exists" };
+        "div", "$mod", "mod", "$neg", "-", "\\T_all", "forall",
+        "\\T_exists", "exists" };
 
     /**
      * These symbols are predicates and, hence, result in a FORMULA rather than
