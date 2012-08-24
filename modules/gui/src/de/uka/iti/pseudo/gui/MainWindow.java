@@ -16,6 +16,7 @@ import java.net.URL;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -50,6 +51,15 @@ import de.uka.iti.pseudo.proof.ProofNode;
  */
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
+
+    /*
+     * The split pane registers some key strokes which are to used elsewhere.
+     * We remove the according infos from the look and feel. The keys are then
+     * available again.
+     */
+    static {
+        UIManager.getDefaults().remove("SplitPane.ancestorInputMap");
+    }
 
     /**
      * indicator for property changes on mainwindow that
@@ -100,7 +110,6 @@ public class MainWindow extends JFrame {
         SplitDock topDock = new SplitDock();
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(topDock, BorderLayout.CENTER);
-
 
         // Create the dockings
         TabDock leftTabDock = new TabDock();
