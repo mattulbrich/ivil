@@ -32,6 +32,7 @@ import java.util.Vector;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DropMode;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -45,8 +46,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.JTextComponent;
 
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.RuleApplicationComponent;
+import de.uka.iti.pseudo.gui.util.HistoryEditor;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.ImmutableRuleApplication;
@@ -195,6 +198,8 @@ public class InteractiveRuleApplicationComponent extends
                     assert typeConstraint == null || type.equals(term.getType()) :
                         "Types must not differ: " + type + " and " + term.getType();
 
+                    Main.getTermInputHistory().add(content);
+
                     app.getSchemaVariableMapping().put(varname, term);
                     if(pair.typeMode) {
                         if(!(type instanceof SchemaType)) {
@@ -320,7 +325,7 @@ public class InteractiveRuleApplicationComponent extends
             }
 
             instantiationsPanel.add(label, 0);
-            BracketMatchingTextArea textField = new BracketMatchingTextArea();
+            final BracketMatchingTextArea textField = new BracketMatchingTextArea();
             textField.addActionListener(this);
             textField.setDragEnabled(true);
             textField.setDropMode(DropMode.USE_SELECTION);
@@ -339,8 +344,8 @@ public class InteractiveRuleApplicationComponent extends
                 textField.setText("");
             }
 
-            Log.log("handler: " + textField.getTransferHandler());
-            instantiationsPanel.add(textField, 1);
+            JComponent history = new HistoryEditor(Main.getTermInputHistory().getHistory(), textField);
+            instantiationsPanel.add(history, 1);
             interactionList.add(new InteractionEntry(svName, svType, textField, typeMode));
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10, 10)));
         }

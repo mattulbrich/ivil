@@ -103,7 +103,9 @@ public class TermSelectionTransfer extends TransferHandler {
                 return dropOnTermComponent(tc, support);
             } else if (c instanceof JTextComponent) {
                 String text = (String) t.getTransferData(DataFlavor.stringFlavor);
-                ((JTextComponent) c).setText(text);
+                // MU replaced
+                // ((JTextComponent) c).setText(text);
+                ((JTextComponent)c).replaceSelection(text);
                 return true;
             }
         } catch (Exception e) {

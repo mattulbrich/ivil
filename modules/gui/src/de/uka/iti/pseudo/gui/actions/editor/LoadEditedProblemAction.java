@@ -18,46 +18,46 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.util.ExceptionDialog;
-import de.uka.iti.pseudo.util.GUIUtil;
 
 /**
  * This is the action to load a problem file.
- * 
+ *
  * It is embedded into the menu.
  */
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class LoadEditedProblemAction extends BarAction {
 
     public LoadEditedProblemAction() {
         super("Load problem ...");
         putValue(ACTION_COMMAND_KEY, "loadEditedProb");
-        putValue(SHORT_DESCRIPTION, "open the currently edited problem in a new prover window");
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         PFileEditor editor = getEditor();
         File file = editor.getFile();
-        
+
         if(file == null) {
             JOptionPane.showMessageDialog(getParentFrame(), "The content of this editor has not yet been saved to a file. Save it.");
             return;
         }
-        
+
         if(editor.hasUnsavedChanges()) {
             int res = JOptionPane
                     .showConfirmDialog(
                             getParentFrame(),
                             "There are unsafed changes in this editor window. Do you still want to launch the prover (on the old version)?",
                             "Unsafed", JOptionPane.YES_NO_OPTION);
-            if(res == JOptionPane.NO_OPTION)
+            if(res == JOptionPane.NO_OPTION) {
                 return;
+            }
         }
 
         try {
             Main.openProver(file);
         } catch(Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-        } 
+        }
     }
 }

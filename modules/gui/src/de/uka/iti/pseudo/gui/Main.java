@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.gui.util.InputHistory;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.proof.Proof;
@@ -96,6 +97,7 @@ public class Main {
      * in the menu.
      */
     private static final int NUMBER_OF_RECENT_FILES = 10;
+    private static final InputHistory INPUT_HISTORY = new InputHistory("termInput", 20);
 
     private static JFileChooser fileChooser[] = new JFileChooser[2];
 
@@ -211,10 +213,9 @@ public class Main {
         EDITORS.remove(editor);
 
         if (PROOF_CENTERS.isEmpty() && EDITORS.isEmpty()) {
-            System.exit(0);
+            exit(0);
         }
     }
-
 
     /**
      * Open a new {@link ProofCenter} for an environment loaded from a file.
@@ -423,8 +424,17 @@ public class Main {
         PROOF_CENTERS.remove(proofCenter);
 
         if (PROOF_CENTERS.isEmpty() && EDITORS.isEmpty()) {
-            System.exit(0);
+            exit(0);
         }
+    }
+
+    public static void exit(int exitValue) {
+        INPUT_HISTORY.saveToPreferences();
+        System.exit(exitValue);
+    }
+
+    public static InputHistory getTermInputHistory() {
+        return INPUT_HISTORY;
     }
 
     /**

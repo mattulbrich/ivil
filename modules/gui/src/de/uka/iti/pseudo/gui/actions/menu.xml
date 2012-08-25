@@ -53,6 +53,7 @@
         
         <experimentalMenu text="Experimental" mnemonic="X">
            experimental.exportSMT experimental.exportEnv file.reloadAndReprove
+           experimental.saveDock
         </experimentalMenu>
         
 	</prover>
@@ -148,6 +149,8 @@
             <icon>img/page_white_text_edit.png</icon>
         </open>
 		<loadAsProblem>ACTION editor/LoadEditedProblemAction
+		<tooltip>open the currently edited problem in a new prover window</tooltip>
+		<accelerator>control R</accelerator>
             <icon>img/link_go.png</icon>
         </loadAsProblem>
 		
@@ -213,14 +216,14 @@
 	
 	<file>
 		<loadProb>ACTION io/LoadProblemAction
-			<tooltip>open a problem file into a new window</tooltip>
+			<tooltip>open a proof obligation in a new window</tooltip>
 			<accelerator>control O</accelerator>
 			<mnemonic>O</mnemonic>
 			<text>Load problem ...</text>
 			<icon>img/page_white_text.png</icon>
 		</loadProb>
 		<loadURLProb>ACTION io/LoadProblemURLAction
-			<tooltip>open a problem from a URL into a new window</tooltip>
+			<tooltip>open a proof obligation from a URL in a new window</tooltip>
 			<mnemonic>U</mnemonic>
 			<text>Load problem from URL ...</text>
 			<icon>img/page_white_world.png</icon></loadURLProb>
@@ -318,6 +321,14 @@
 		<exportEnv>ACTION experiments/ExportEnvironmentAction
 			<text>Export the current environment</text>	
 		</exportEnv>
+		<saveDock>ACTION experiments/SaveDockAction
+                        <text>Save docking</text>
+                        <tooltip>Save the state of the docking windows to a file</tooltip>
+                </saveDock>
+                <loadDock>ACTION experiments/LoadDockAction
+                        <text>Load docking</text>
+                        <tooltip>Load the state of the docking windows from a file</tooltip>
+                </loadDock>
 	</experimental>  
 		
 	<general>
