@@ -26,6 +26,7 @@ import javax.swing.event.TreeSelectionListener;
 
 import com.javadocking.DockingManager;
 import com.javadocking.dock.Position;
+import com.javadocking.dock.SingleDock;
 import com.javadocking.dock.SplitDock;
 import com.javadocking.dock.TabDock;
 import com.javadocking.dockable.DefaultDockable;
@@ -40,6 +41,7 @@ import de.uka.iti.pseudo.gui.parameters.ParameterPanel;
 import de.uka.iti.pseudo.gui.sequent.SequentComponent;
 import de.uka.iti.pseudo.gui.source.ProgramPanel;
 import de.uka.iti.pseudo.gui.source.SourcePanel;
+import de.uka.iti.pseudo.gui.util.SameFrameDockingExecutor;
 import de.uka.iti.pseudo.proof.ProofNode;
 
 
@@ -53,12 +55,19 @@ import de.uka.iti.pseudo.proof.ProofNode;
 public class MainWindow extends JFrame {
 
     /*
-     * The split pane registers some key strokes which are to used elsewhere.
+     * 1) The JSplitPaneregisters some key strokes which are to used elsewhere.
      * We remove the according infos from the look and feel. The keys are then
      * available again.
+     *
+     * 2) Register a new docking model.
+     *
+     * 3) Replace the docking change executor to one which does not allow moving
+     * panels to other windows (where they do not belong!)
      */
     static {
         UIManager.getDefaults().remove("SplitPane.ancestorInputMap");
+        DockingManager.setDockModel(new FloatDockModel());
+        DockingManager.setDockingExecutor(new SameFrameDockingExecutor());
     }
 
     /**
@@ -100,7 +109,7 @@ public class MainWindow extends JFrame {
         // setup the bar manager
         URL resource = getClass().getResource("actions/menu.xml");
         if(resource == null) {
-            throw new IOException("resource actions/menu.properties not found");
+            throw new IOException("resource actions/menu.xml not found");
         }
         barManager = new BarManager(null, resource);
         barManager.putProperty(BarAction.CENTER, proofCenter);
@@ -113,17 +122,11 @@ public class MainWindow extends JFrame {
 
         // Create the dockings
         TabDock leftTabDock = new TabDock();
-        TabDock rightTabDock = new TabDock();
+//        TabDock rightTabDock = new TabDock();
+        SingleDock rightTabDock = new SingleDock();
         TabDock sourceTabDock = new TabDock();
         TabDock programTabDock = new TabDock();
         {
-            // Create the dock model for the docks.
-            // Give the dock model to the docking manager if not yet set.
-            if(DockingManager.getDockModel() == null) {
-                FloatDockModel dockModel = new FloatDockModel();
-                DockingManager.setDockModel(dockModel);
-            }
-
             // register this frame with the dock model
             DockModel dockModel = DockingManager.getDockModel();
             dockModel.addOwner("mainFrame" + number, this);
