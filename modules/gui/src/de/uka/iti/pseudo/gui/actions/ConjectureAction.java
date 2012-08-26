@@ -11,19 +11,26 @@ package de.uka.iti.pseudo.gui.actions;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+import javax.swing.text.JTextComponent;
 
 import de.uka.iti.pseudo.auto.strategy.Strategy;
+import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.actions.io.LoadProblemAction;
+import de.uka.iti.pseudo.gui.sequent.BracketMatchingTextArea;
+import de.uka.iti.pseudo.gui.util.HistoryEditor;
 import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -48,7 +55,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
     public ConjectureAction() {
         super("Add a Conjecture",
                 GUIUtil.makeIcon(LoadProblemAction.class.getResource("img/lightbulb_add.png")));
-        
+
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         putValue(SHORT_DESCRIPTION, "Add a hypothesis and prove it");
     }
@@ -66,14 +73,14 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
             proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
             proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
         }
-       
+
     }
 
     // TODO Do this on a task thread
     @Override
     public void actionPerformed(ActionEvent e) {
-        
-        conjecture = JOptionPane.showInputDialog("Conjecture");
+
+        conjecture = showInputDialog();
 
         if(conjecture == null) {
             return;
@@ -82,6 +89,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
         final ProofCenter proofCenter = getProofCenter();
          proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
         (new SwingWorker<Void, Void>() {
+            @Override
             public Void doInBackground() {
 
                 ProofNode currentProofNode = proofCenter.getCurrentProofNode();
@@ -89,7 +97,10 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
                 try {
 
-                    Term term = TermMaker.makeAndTypeTerm(conjecture, proofCenter.getEnvironment(), "user input");
+                    Term term = TermMaker.makeAndTypeTerm(conjecture,
+                            proofCenter.getEnvironment(), "user input");
+
+                    Main.getTermInputHistory().add(conjecture);
 
                     MutableRuleApplication ram = new MutableRuleApplication();
                     ram.setRule(cutRule);
@@ -118,11 +129,14 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                             proofCenter.apply(ra);
                             strategy.notifyRuleApplication(ra);
 
-                            for (ProofNode node : current.getChildren())
+                            for (ProofNode node : current.getChildren()) {
                                 todo.add(node);
-                        } else if (current.getChildren() != null)
-                            for (ProofNode node : current.getChildren())
+                            }
+                        } else if (current.getChildren() != null) {
+                            for (ProofNode node : current.getChildren()) {
                                 todo.add(node);
+                            }
+                        }
                     }
 
                     ProofNode next = currentProofNode.getChildren().get(0);
@@ -145,6 +159,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
                 return null;
             }
 
+            @Override
             public void done() {
                 proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
                 proofCenter.fireProoftreeChangedNotification(true);
@@ -152,6 +167,44 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
         }).execute();
     }
 
+    private String showInputDialog() {
+
+        JOptionPane.showInputDialog("alo");
+
+        final JTextComponent textField = new BracketMatchingTextArea();
+        Object[] messages = {
+                "Please enter the formula to add as hypothesis:",
+                new HistoryEditor(Main.getTermInputHistory().getHistory(), textField),
+        };
+
+        JOptionPane pane = new JOptionPane(
+                messages,
+                JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.OK_CANCEL_OPTION);
+
+        JDialog dialog = pane.createDialog(getParentFrame(), "Conjecture");
+        dialog.addWindowFocusListener(new WindowAdapter() {
+            private boolean gotFocus;
+
+            @Override
+            public void windowGainedFocus(WindowEvent e) {
+                if (!gotFocus) {
+                    textField.requestFocus();
+                    gotFocus = true;
+                }
+            }
+        });
+
+        dialog.setVisible(true);
+        Object selectedValue = pane.getValue();
+        if(selectedValue == null || selectedValue.equals(JOptionPane.CANCEL_OPTION)) {
+            return null;
+        }
+
+        return textField.getText();
+    }
+
+    @Override
     public void run() {
 
     }
@@ -160,7 +213,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
     public void propertyChange(PropertyChangeEvent evt) {
         reconsiderEnableState();
     }
-    
+
     @Override
     public void handleNotification(NotificationEvent event) {
         reconsiderEnableState();
@@ -176,6 +229,6 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
         setEnabled(!ongoing && isLeaf);
     }
 
-   
+
 
 }
