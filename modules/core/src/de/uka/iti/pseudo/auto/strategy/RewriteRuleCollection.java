@@ -131,8 +131,12 @@ public class RewriteRuleCollection {
      *            the proof node to find a rule for
      *
      * @return a rule application maker if we can find something, null otherwise
+     * @throws InterruptedException
+     *             if the thread has been interrupted, we catch that and throw
+     *             an acoording exception
      */
-    public @Nullable RuleApplicationMaker findRuleApplication(ProofNode node) {
+    public @Nullable RuleApplicationMaker findRuleApplication(ProofNode node)
+            throws InterruptedException {
 
         RuleApplicationFinder finder = new RuleApplicationFinder(node, env);
         finder.setApplicationFilter(applicationFilter);
@@ -294,7 +298,8 @@ public class RewriteRuleCollection {
      * match if it exists, null otherwise
      */
     private @Nullable RuleApplicationMaker findRuleApplication(
-            RuleApplicationFinder finder, List<Term> terms, boolean side) {
+            RuleApplicationFinder finder, List<Term> terms, boolean side)
+                    throws InterruptedException {
         for (int termno = 0; termno < terms.size(); termno++) {
             Term term = terms.get(termno);
             TermSelector ts = new TermSelector(side, termno); // ok
@@ -315,17 +320,29 @@ public class RewriteRuleCollection {
     /**
      * find a rule application for single a term at a position.
      *
-     * @param finder the RuleApplicationFinder to be used
+     * @param finder
+     *            the RuleApplicationFinder to be used
      * @param term
+     *            the term to search for
      * @param selector
-     * @return
+     *            the selector that belongs to term
+     * @return a rule application object if one has found, <code>null</code>
+     *         otherwise
+     * @throws InterruptedException
+     *             if the thread has been interrupted, we catch that and throw
+     *             an acoording exception
      */
     private @Nullable RuleApplicationMaker findRuleApplication(
-            RuleApplicationFinder finder, Term term, TermSelector selector) {
+            RuleApplicationFinder finder, Term term, TermSelector selector)
+                    throws InterruptedException {
 
         // do not look if the term is known to not match
         if(noMatchCache != null && noMatchCache.contains(term)) {
             return null;
+        }
+
+        if(Thread.interrupted()) {
+            throw new InterruptedException();
         }
 
         try {

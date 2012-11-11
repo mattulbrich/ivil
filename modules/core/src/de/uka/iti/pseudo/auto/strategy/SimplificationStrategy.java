@@ -99,7 +99,8 @@ public class SimplificationStrategy extends AbstractStrategy implements
      * Find rule application on a certain goal. Try all collections.
      */
     @Override
-    public @Nullable RuleApplicationMaker findRuleApplication(@NonNull ProofNode target) {
+    public @Nullable RuleApplicationMaker findRuleApplication(@NonNull ProofNode target)
+            throws InterruptedException {
 
         assert ruleCollections != null;
 

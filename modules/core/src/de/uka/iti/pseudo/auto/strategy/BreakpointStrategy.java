@@ -166,7 +166,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     }
 
     @Override
-    public @Nullable RuleApplication findRuleApplication(ProofNode target) {
+    public @Nullable RuleApplication findRuleApplication(ProofNode target) throws InterruptedException {
 
         RuleApplication ra = ruleCollection.findRuleApplication(target);
         return ra;
