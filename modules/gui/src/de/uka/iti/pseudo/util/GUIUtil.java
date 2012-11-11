@@ -130,6 +130,25 @@ public class GUIUtil {
         }
     }
 
+    /**
+     * Drain an input stream to a string.
+     *
+     * Read bytes from the input stream and dump them to a string which is then returned.
+     *
+     * @param is
+     *            the source to be drained
+     * @throws IOException
+     *             Signals that an I/O exception has occurred.
+     */
+    public static String drainStream(InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        StringBuilder result = new StringBuilder();
+        int read = 0;
+        while((read = is.read(buffer)) > 0) {
+            result.append(new String(buffer, 0, read));
+        }
+        return result.toString();
+    }
 
 
 }

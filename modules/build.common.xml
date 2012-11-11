@@ -22,6 +22,8 @@
   <target name="compile" depends="init, compile-init, copy"
           description="compiles the sources">
     <javac destdir="classes"
+	   source="${ivil.javac.source}"
+	   target="${ivil.javac.target}"
 	   debug="${ivil.debug}"
 	   includeantruntime="false">
       <src refid="ivil.sourcepath.compile" />
@@ -33,8 +35,12 @@
   <target name="compile-test" depends="init" 
 	  description="build test cases">
     <echo message="Compiling tests in ${ant.file}"/>
-    <javac srcdir="test" destdir="classes-test" 
-	   debug="${ivil.debug}" sourcepath="test"
+    <javac srcdir="test" 
+	   destdir="classes-test" 
+	   source="${ivil.javac.source}"
+	   target="${ivil.javac.target}"
+	   debug="${ivil.debug}" 
+	   sourcepath="test"
 	   includeantruntime="true">
       <classpath>
         <pathelement location="../../lib/junit.jar" />

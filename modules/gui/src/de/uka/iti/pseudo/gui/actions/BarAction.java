@@ -22,11 +22,11 @@ import de.uka.iti.pseudo.gui.editor.PFileEditor;
 public abstract class BarAction extends AbstractAction {
 
     private static final long serialVersionUID = -7639080330502488139L;
-    
+
     public static final String CENTER = "barmanager.center";
     public static final String PARENT_FRAME = "barmanager.parentframe";
     public static final String EDITOR_FRAME = "barmanager.editorframe";
-    
+
     public BarAction() {
         super();
     }
@@ -42,24 +42,24 @@ public abstract class BarAction extends AbstractAction {
     protected ProofCenter getProofCenter() {
         return (ProofCenter) getValue(CENTER);
     }
-    
+
     protected Frame getParentFrame() {
         return (Frame) getValue(PARENT_FRAME);
     }
-    
+
     protected PFileEditor getEditor() {
         return (PFileEditor) getValue(EDITOR_FRAME);
     }
 
     /**
-     * 
+     *
      * @return
      * @see AbstractAction#isSelected(Action)
      */
     protected boolean isSelected() {
         return Boolean.TRUE.equals(getValue(Action.SELECTED_KEY));
     }
-    
+
     protected void setSelected(boolean selected) {
         putValue(Action.SELECTED_KEY, selected);
     }
@@ -67,5 +67,5 @@ public abstract class BarAction extends AbstractAction {
     protected void setIcon(Icon icon) {
         putValue(SMALL_ICON, icon);
     }
-    
+
 }

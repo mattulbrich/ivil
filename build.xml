@@ -16,9 +16,11 @@
   <!-- YOU MAY CHANGE THIS -->
   
   <property name="ivil.debug" value="true" />
-  <property name="ivil.version" value="0.10" />
+  <property name="ivil.version" value="0.20" />
   <property name="ivil.keystoreAlias" value="mu2010" />
   <property name="ivil.keystorePassword" value="keystore" />
+  <property name="ivil.javac.source" value="1.6" />
+  <property name="ivil.javac.target" value="1.6" />
   <!-- UP TO HERE -->
 
   <target name="init">
@@ -70,7 +72,7 @@
         <attribute name="Implementation-Version" value="${ivil.version} - ${NOW}"/>
         <!-- log4j is an optional library, the runtime env will not complain if
              the file is absent -->
-        <attribute name="Class-Path" value="lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar lib/checkers-quals.jar"/>
+        <attribute name="Class-Path" value="samples.jar lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar lib/checkers-quals.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
         <attribute name="SplashScreen-Image" value="de/uka/iti/pseudo/gui/img/logo.png"/>
       </manifest>
@@ -82,9 +84,15 @@
     </jar>
   </target>
 
-  <target name="sign" depends="jar,sys.jar" description="signs the jar file">
+  <target name="samples.jar" description="create the file samples.jar containing the samples">
+    <jar jarfile="samples.jar" basedir="examples" includes="loadsamples/**">
+    </jar>
+  </target>
+
+  <target name="sign" depends="jar,sys.jar,samples.jar" description="signs the jar file">
     <signjar jar="ivil.jar" alias="${ivil.keystoreAlias}" storepass="${ivil.keystorePassword}" />
     <signjar jar="sys.jar" alias="${ivil.keystoreAlias}" storepass="${ivil.keystorePassword}" />
+    <signjar jar="samples.jar" alias="${ivil.keystoreAlias}" storepass="${ivil.keystorePassword}" />
   </target> 
 
   <target name="dist" depends="jar" description="package the software to deliver it">

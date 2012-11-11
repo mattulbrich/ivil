@@ -73,6 +73,7 @@ public class Main {
     private static final String CMDLINE_EDIT = "-edit";
     private static final String CMDLINE_PROG = "-prog";
     private static final String CMDLINE_PROOF = "-proof";
+    private static final String CMDLINE_SAMPLES = "-samples";
 
     private static Settings settings;
 
@@ -121,21 +122,24 @@ public class Main {
             @Override
             public void run() {
                 try {
-                printVersion();
+                    printVersion();
 
-                CommandLine commandLine = makeCommandLine();
-                commandLine.parse(args);
+                    CommandLine commandLine = makeCommandLine();
+                    commandLine.parse(args);
 
-                if(commandLine.isSet(CMDLINE_HELP)) {
-                    commandLine.printUsage(System.out);
-                    System.exit(0);
-                }
+                    if(commandLine.isSet(CMDLINE_HELP)) {
+                        commandLine.printUsage(System.out);
+                        System.exit(0);
+                    }
 
-                List<String> fileArguments = commandLine.getArguments();
+                    List<String> fileArguments = commandLine.getArguments();
 
-                if(fileArguments.isEmpty()) {
-                    startupWindow = new StartupWindow();
+                    if(fileArguments.isEmpty()) {
+                        startupWindow = new StartupWindow();
                         startupWindow.setVisible(true);
+                        if(commandLine.isSet(CMDLINE_SAMPLES)) {
+                            startupWindow.showSampleBrowser();
+                        }
                     } else {
                         File file = new File(fileArguments.get(0));
                         if (commandLine.isSet(CMDLINE_EDIT)) {
@@ -186,6 +190,7 @@ public class Main {
         cl.addOption(CMDLINE_CONFIG, "file", "Read configuration from a file overwriting defaults.");
         cl.addOption(CMDLINE_PROG, "program", "Specify the program to use as problem.");
         cl.addOption(CMDLINE_PROOF, "file", "Load proof from this file.");
+        cl.addOption(CMDLINE_SAMPLES, null, "Open the sample browser");
         return cl;
     }
 

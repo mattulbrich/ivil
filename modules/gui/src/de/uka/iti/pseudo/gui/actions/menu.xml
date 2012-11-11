@@ -30,7 +30,7 @@
 		</menubar>
 
 		<fileMenu text="File" mnemonic="F">
-			file.loadProb file.loadURLProb file.reloadProb file.recentProb file.loadProof file.saveProof 
+			file.sampleBrowser file.loadProb file.loadURLProb file.reloadProb file.recentProb file.loadProof file.saveProof 
 			SEPARATOR general.close general.exit
 		</fileMenu>
 		
@@ -64,7 +64,7 @@
 			startup.fileMenu	
 		</menubar>
 		<fileMenu text="File" mnemonic="F">
-			file.loadProb file.loadURLProb file.reloadProb file.recentProb SEPARATOR editor.open editor.new 
+			file.sampleBrowser SEPARATOR file.loadProb file.loadURLProb file.reloadProb file.recentProb SEPARATOR editor.open editor.new 
 			SEPARATOR general.exit	
 		</fileMenu>
 	</startup>
@@ -215,6 +215,11 @@
 	</prover>
 	
 	<file>
+	       <sampleBrowser>ACTION io/SampleBrowserAction
+	               <tooltip>Show a collection of samples provided with the tool</tooltip>
+	               <mnemonic>B</mnemonic>
+	               <text>Samples ...</text>
+	       </sampleBrowser>
 		<loadProb>ACTION io/LoadProblemAction
 			<tooltip>open a proof obligation in a new window</tooltip>
 			<accelerator>control O</accelerator>
