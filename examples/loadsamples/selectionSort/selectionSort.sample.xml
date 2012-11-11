@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">Selection sort</entry>
+<entry key="order">020</entry>
+<entry key="ivil">selectionSort.algo.p</entry>
+<entry key="file1">selectionSort.algo</entry>
+<entry key="file2">selectionSort.decl.p</entry>
+<entry key="description"><![CDATA[
+  <h1>Abstract Algorithm: Selection Sort</h1>
+
+  <p>Verify that the selection sort algorithm sorts a sequence of
+  integers. This example shows the verification of an algorithm
+  working on the level of pseudo code rather than on the level of
+  actual implementation.</p>
+  <p>The algorithm in pseudo code is taken and translated an
+  according proof obligation in ivil's format.</p>
+
+  <h4>Selection sort:</h4>
+
+  Sort sequence <i>a</i> into sequence <i>b</i> (both of
+  length <i>n</i>).
+
+  <pre>
+  b := a;
+  i := 0;
+  
+  if n = 0
+  then 
+    return
+  end;
+  while i &lt; n-1 do
+    t := i;
+    j := i+1;
+
+    while j &lt; n do
+      if b[j] &lt; b[t] then t := j end;
+      j := j+1
+    end;
+    
+    swap i and t in b;
+    i := i+1
+  end
+  </pre>
+ 
+]]></entry>
+</properties>

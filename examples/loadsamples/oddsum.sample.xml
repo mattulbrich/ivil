@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">Sum of odd naturals</entry>
+<entry key="order">010</entry>
+<entry key="ivil">oddsum.p</entry>
+<entry key="description"><![CDATA[
+  <h1>Sum of the first <i>n</i> odd naturals</h1>
+  <p>
+  It is a well-known theorem that the sum of the first <i>n</i> 
+  odd naturals equals <i>n<sup>2</sup></i>. For instance:
+  <ul>
+    <li>16 = 1 + 3 + 5 + 7</li>
+    <li>100 = 1 + 3 + ... + 19</li>
+  </ul>
+  </p>
+  <P> This example formulates a proof obligation asking to proof this
+    fact from the Peano axioms (using O for zero and <i>s</i> for
+    successor) together with a few lemmata: 
+    </p>
+  <h4>Peano axioms</h4>
+    <ul>
+      <li>(&forall; n. !s(n) = O) ,
+      <li>(&forall; n. (&forall; m. s(n) = s(m) -> n = m)) ,
+<li>  (&forall; n. plus(n, O) = n) ,
+  <li>(&forall; n. (&forall; m. plus(n, s(m)) = s(plus(n,m)))) ,
+    <li>(&forall; n. mult(n, O) = O) ,
+<li>  (&forall; n. (&forall; m. mult(n, s(m)) = plus(mult(n,m),n))) ,
+</ul>
+<h4>Definition of oddsum</h4>
+<ul>
+<li>  (&forall; n. oddsum(s(n)) = plus(oddsum(n), s(plus(n,n)))) ,
+<li>  oddsum(O) = O,
+</ul>
+<h4>Lemmata proved elsewhere</h4>
+<ul>
+<li>
+  (&forall; c. (&forall; a. (&forall; b.
+    plus(plus(a,b), c) = plus(a, plus(b,c))))) ,
+<li>
+  (&forall; a. (&forall; b. mult(a,b) = mult(b,a)))
+  </ul>
+
+<p>The induction axiom of Peano Arithmetic is not a single axiom but
+an axiom scheme which can be instantiated with arbitrary formulas. It
+can therefore not be encoded as a formula but is given as an inference 
+rule:
+<pre>
+
+  rule induction_on_naturals
+    find |- (\forall %n as N; %phi)
+    samegoal "Base Case"
+      replace $$subst(%n, O, %phi)
+    samegoal "Step Case"
+      replace (\forall %n; %phi -> $$subst(%n, s(%n), %phi))
+
+</pre>
+This shows that the mechanism of ivil is stronger than only applying
+SMT solvers as such a fact cannot be encoded (finitely) in FOL.<br>
+The present proof obligation can bre resolved by applying the
+induction rule on the conclusion. Then the automation (i.e., the SMT)
+solver can find the remainder on its own.
+</p>
+<p>The solver Z3 needs to be installed and accessible as "z3" in the
+path to run this example.</p> ]]></entry>
+</properties>

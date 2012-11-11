@@ -1,0 +1,75 @@
+/*
+ * Selection Sort in Pseudo code
+ */
+
+uses "selectionSort.decl.p"
+uses "$seq.p"
+
+option
+  mapFunction = "seqGet"
+
+algo selectionSort
+
+input
+  a : seq(int)
+  
+var
+  i,j,t,n : int
+  
+output
+  b : seq(int)
+  
+ensures
+  isSorted(b)
+  
+ensures
+  isPerm(a,b)
+  
+do
+  b := a;
+  i := 0;
+  n := seqLen(a);
+  
+  if n = 0
+  then 
+    return
+  end;
+  
+  while i < n-1
+    inv 0 <= i < n & 
+        (\forall k; (\forall l; 
+          0 <= k <= l <= i -> b[k] <= b[l])) &
+        (\forall k; (\forall l;
+          0 <= k < i <= l < n -> b[k] <= b[l])) &
+        isPerm(a, b) &
+        seqLen(b) = n
+    var n - i
+  do
+    t := i;
+    j := i+1;
+    while j < n
+      inv (\forall k; i <= k < j -> b[t] <= b[k])
+        & (\forall k; (\forall l; 
+             0 <= k <= l <= i -> b[k] <= b[l]))
+        & (\forall k; (\forall l;
+             0 <= k < i <= l < n -> b[k] <= b[l]))
+        & 0 <= i < n
+        & i+1 <= j <= n
+        & i <= t < n
+        & isPerm(a, b)
+        & seqLen(b) = n
+      var (n - j) + 1
+    do
+      if b[j] < b[t] 
+      then
+        t := j
+      end;
+      mark 1;
+      j := j+1
+    end;
+    
+    b := seqSwap(b, i, t);
+    mark 2;
+    i := i+1
+  end
+end

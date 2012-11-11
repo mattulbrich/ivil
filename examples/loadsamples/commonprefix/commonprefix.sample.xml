@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">Common prefix</entry>
+<entry key="order">030</entry>
+<entry key="ivil">A.m(int[],int,int)-normal_behaviour.p</entry>
+<entry key="file1">A.jspec</entry>
+<entry key="file2">A.java</entry>
+<entry key="description"><![CDATA[
+  <h1>Java implementation and specification</h1> 
+  <p>Given an array <tt>a</tt> of integers and to indices <tt>x,y</tt>
+    into the array, calculate the number of consecutive identical
+    integers.</p>
+  <p>The specification is given as comment annotations to a java
+  program. These specifications are added to the translation of the
+  Java byte code to create the compound proof obligation.</p>
+  ]]></entry>
+</properties>
