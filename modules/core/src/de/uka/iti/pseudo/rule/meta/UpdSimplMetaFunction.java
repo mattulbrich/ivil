@@ -17,8 +17,9 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.UpdateTerm;
 
+// TODO DOC
 public class UpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
-    
+
     public UpdSimplMetaFunction() throws EnvironmentException {
         super("$$updSimpl");
     }
@@ -26,20 +27,21 @@ public class UpdSimplMetaFunction extends AbstractUpdSimplMetaFunction {
     @Override
     public Term evaluate(Application application, Environment env,
             RuleApplication ruleApp) throws TermException {
-        
+
         Term arg = application.getSubterm(0);
-        
+
         if (arg instanceof UpdateTerm) {
             UpdateTerm updTerm = (UpdateTerm) arg;
-            
+
             Term resultTerm = applyUpdate(updTerm);
-            if (resultTerm == null)
+            if (resultTerm == null) {
                 throw new TermException("nothing to update");
+            }
 
             return resultTerm;
         } else {
             throw new TermException("Update Simplifier only applicable to update terms");
         }
     }
-    
+
 }

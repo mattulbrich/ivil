@@ -54,6 +54,17 @@ public class TestUpdSimplification extends TestCaseWithEnv {
 
     }
 
+    // was bug #1229: When applying an update over a binder, the bound variable
+    // must not appear in the update, otherwise the simplification is unsound.
+    public void testConflictUpdate() throws Exception {
+        try {
+            eval.evalutate(makeTerm("$$updSimpl({i1 := \\var x as int}(\\exists x as int; i1=5))"));
+            fail("conflicting update into binder should fail!");
+        } catch (TermException e) {
+            assertEquals("nothing to update", e.getMessage());
+        }
+    }
+
     public void testEmptyUpdateSimplification() throws Exception {
         assertEvalsTo("$$deepUpdSimpl({}i1)", "i1");
         assertEvalsTo("$$updSimpl({}i1)", "i1");
