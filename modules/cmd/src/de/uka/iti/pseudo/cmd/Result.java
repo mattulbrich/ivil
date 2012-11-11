@@ -113,11 +113,11 @@ public class Result {
     public void print(@NonNull PrintStream err) {
         err.print(file);
         if(name.length() > 0) {
-            err.println("#" + name);
+            err.print("#" + name);
         }
         err.println(" :");
         for (String m : messages) {
-            err.println(m);
+            err.println("  " + m);
         }
     }
 
