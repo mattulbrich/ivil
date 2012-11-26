@@ -146,6 +146,7 @@ rule dprg_havoc
   where freshVar %x, %phi
   samegoal replace (\exists %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
+       rewrite "symbex"
 
 (*
  * Rules for automation
@@ -366,14 +367,14 @@ rule autot_loop_invariant_update
 (*
  * Update simplification
  *)
-(*
+
 rule update_simplification
   find {U}%t
   where canEval $$updSimpl({U}%t)
   samegoal replace $$updSimpl({U}%t)
-  tags rewrite "updSimpl"
+  tags (* rewrite "updSimpl" *)
        verbosity "10"
-*)
+
 
 rule deep_update_simplification
   find { U }%t

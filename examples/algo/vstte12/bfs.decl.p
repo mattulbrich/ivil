@@ -23,7 +23,7 @@ axiom connect_def
     connect(a,b,n) = 
      cond(n <= 0,
           a = b,
-          (\exists x; connect(a,x,n-1) & b::succ(x))))))
+          (\exists x; connect(a,x,n-1) & b :: succ(x))))))
 
 axiom minconnect_def
   (\forall a; (\forall b; (\forall n;

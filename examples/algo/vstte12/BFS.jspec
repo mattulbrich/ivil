@@ -1,4 +1,4 @@
-@spec.SourceFile("./BFS.jspec") class BFS {
+class BFS {
 
     int size;
     boolean[][] adjacency;
@@ -14,12 +14,12 @@
       @   modifies "emptyset"
       @*/
     int first(boolean[] array) {
-	spec.Spec.loopinv("((0 <= _i & _i <= arrlen(_array) &\n	     (\\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(_array) - _i");
-
-
-
-
-
+	/*@ maintains 
+	  @  "0 <= _i & _i <= arrlen(_array) &
+	  @   (\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])"
+	  @ decreases "arrlen(_array) - _i"
+	  @ modifies "emptyset"
+	  @*/
         for(int i = 0; i < array.length; i++) {
             if(array[i]) {
                 return i;
@@ -35,12 +35,12 @@
       @   modifies "emptyset"
       @*/
     boolean isEmpty(boolean[] array) {
-	spec.Spec.loopinv("((0 <= i & i <= arrlen(array) &\n	     (\\forall j; 0<=j&j<_i -> !h[array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(array) - i");
-
-
-
-
-
+	/*@ maintains 
+	  @  "0 <= i & i <= arrlen(array) &
+	  @   (\forall j; 0<=j&j<_i -> !h[array, idxBool(j)])"
+	  @ decreases "arrlen(array) - i"
+	  @ modifies "emptyset"
+	  @*/
 	for(int i = 0; i < array.length; i++) {
 	    if(array[i]) {
 		return false;
@@ -56,12 +56,12 @@
       @   modifies "singleton(array)"
       @*/
     void clear(boolean[] array) {
-	spec.Spec.loopinv("((0 <= i & i <= arrlen(array) &\n	     (\\forall j; 0<=j&j<i -> !h[array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(singleton(array)))), arrlen(array) - i");
-
-
-
-
-
+	/*@ maintains
+	  @  "0 <= i & i <= arrlen(array) &
+	  @   (\forall j; 0<=j&j<i -> !h[array, idxBool(j)])"
+	  @ decreases "arrlen(array) - i"
+	  @ modifies "singleton(array)"
+	  @*/
 	for(int i = 0; i < array.length; i++) {
 	    array[i] = false;
 	}
@@ -76,13 +76,13 @@
       @   modifies "singleton(target)"
       @*/
     void copy(boolean[] target, boolean[] source) {
-	spec.Spec.loopinv("((0 <= _i & _i <= arrlen(_source) &\n	      (\\forall j; 0 <= j & j < _i ->\n	         h[_target, idxBool(j)] = h[_source, idxBool(j)])) & modHeap(h, ho, {h:=ho}(singleton(_target)))), arrlen(_source) - _i");
-
-
-
-
-
-
+	/*@ maintains 
+	  @   "0 <= _i & _i <= arrlen(_source) &
+	  @    (\forall j; 0 <= j & j < _i ->
+	  @       h[_target, idxBool(j)] = h[_source, idxBool(j)])"
+	  @ decreases "arrlen(_source) - _i"
+	  @ modifies "singleton(_target)"
+	  @*/
 	for(int i = 0; i < source.length; i++) {
 	    target[i] = source[i];
 	}
@@ -105,32 +105,32 @@
 	boolean[] C = new boolean[size];
 	boolean[] N = new boolean[size];
 	
-	spec.Spec.inline("assert !_V = _C\nassume !_V = _C");
-	spec.Spec.inline("assert !_V = _N\nassume !_V = _N");
-	spec.Spec.inline("assert !_N = _C\nassume !_N = _C");
+	//@ note "!_V = _C";
+	//@ note "!_V = _N";
+	//@ note "!_N = _C";
 
 	V[src] = true;
 	C[src] = true;
 	int d = 0;
 
-	spec.Spec.loopinv("((_d >= 0) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_C) \\/ singleton(_N)))), 2");
-
-
-
+	/*@ maintains "_d >= 0"
+	  @ decreases "2"
+	  @ modifies "singleton(_V) \/ singleton(_C) \/ singleton(_N)"
+	  @*/
 	while(!isEmpty(C)) {
 	    int v = first(C);
 
 	    // C is not empty:
-	    spec.Spec.inline("assert 0 <= _v & _v < h[_this, F_BFS_size]\nassume 0 <= _v & _v < h[_this, F_BFS_size]");
+	    //@ note "0 <= _v & _v < h[_this, F_BFS_size]";
 	    C[v] = false;
 	    if(v == dest) {
 		return d;
 	    }
 
-	    spec.Spec.loopinv("((0 <= _w & _w <= h[_this, F_BFS_size]) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_N)))), 2");
-
-
-
+	    /*@ maintains "0 <= _w & _w <= h[_this, F_BFS_size]"
+	      @ decreases "2"
+	      @ modifies "singleton(_V) \/ singleton(_N)"
+	      @*/
 	    for(int w = 0; w < size; w++) {
 		// ignore this if not a successor ...
 		if(adjacency[v][w] && !V[w]) {

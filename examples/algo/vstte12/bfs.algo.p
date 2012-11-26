@@ -1,4 +1,4 @@
-# Automatically created on Thu May 31 18:34:56 CEST 2012
+# Automatically created on Mon Nov 26 08:07:23 CET 2012
 include "bfs.decl.p"
 function vertex src 
 function vertex dest 
@@ -48,8 +48,8 @@ program bfs source "bfs.algo"
   goto endOfProgram ; "Return Statement"
   goto after1
  else0:
-  assume $not((v = dest)); "else"
  sourceline 55
+  assume $not((v = dest)); "else"
  after1:
  sourceline 57
   Vo := V
@@ -75,8 +75,8 @@ program bfs source "bfs.algo"
   N := (N \/ singleton(w))
   goto after3
  else1:
-  assume $not((!(w) :: V)); "else"
  sourceline 69
+  assume $not((!(w) :: V)); "else"
  after3:
   goto loop1
  after2:
@@ -91,24 +91,22 @@ program bfs source "bfs.algo"
   N := emptyset
  sourceline 76
   d := (d + 1)
- sourceline 77
-  assume (1 = 2)
   goto after4
  else2:
+ sourceline 77
   assume $not((C = emptyset)); "else"
- sourceline 78
  after4:
   goto loop0
  sourceline 35
  after0:
   assume $not(!((C = emptyset)))
- sourceline 82
-  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; " lemma by §(rule int_induction_match)"
-  assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, (d + (1 + i))))))) ; "use lemma"
- sourceline 85
-  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; " lemma by §(rule deep_update_simplification nested_quant_z3)"
+ sourceline 81
+  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; " lemma by §(rule int_induction_match)"
+  assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
+ sourceline 84
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j))))
   assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
- sourceline 88
+ sourceline 87
   d := -(1)
  endOfProgram: 
  sourceline 19

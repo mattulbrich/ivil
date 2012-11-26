@@ -1,0 +1,12 @@
+<project name="Java verification" default="build-all" basedir=".">
+  <property name="compiler.dir" value="${user.home}/eclipse/pseudo.bytecode" />
+  <property name="timeout" value="10" />
+  <import file="${compiler.dir}/include.xml" />
+
+  <target name="algo">
+    <exec executable="algoc">
+      <arg value="bfs.algo" />
+    </exec>
+  </target>
+
+</project>

@@ -73,8 +73,7 @@ do
      then
        C := N;
        N := {};
-       d := d+1;
-       assume 1=2
+       d := d+1
      end
          
    end;
@@ -83,12 +82,12 @@ do
      with "§(rule int_induction_match)";
 
    note (\forall j; j>d -> !minconnect(src, dest, j))
-     with "§(rule deep_update_simplification nested_quant_z3)";
+   ;//  with "§(rule deep_update_simplification nested_quant_z3)";
 
    d := -1
 end 
 
-(*
+/*
 
 The original invariant for second loop
            N = No \/ (succ(v) \ (V \/ tovisit))
@@ -96,4 +95,4 @@ The original invariant for second loop
 could (by proof obligation!) by identified as false: the 
 chosen value "w" could not fulfill this.
 
-*)
+*/
