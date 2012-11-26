@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.util.CommandLine;
+import de.uka.iti.pseudo.util.CompletedFuture;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -168,7 +169,11 @@ public class Main {
                         errorcount++;
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    if(verbose) {
+                        e.printStackTrace();
+                    } else {
+                        System.err.println(e.getMessage());
+                    }
                     errorcount++;
                 }
             }
@@ -231,10 +236,21 @@ public class Main {
      *
      * Parameters are set on the prover object.
      */
-    private static void handleSingleFile(File file) throws ParseException, ASTVisitException, IOException,
-            TermException {
+    private static void handleSingleFile(File file) throws ParseException,
+                ASTVisitException, IOException, TermException {
 
-        FileProblemProverBuilder builder = new FileProblemProverBuilder(file);
+        FileProblemProverBuilder builder;
+        try {
+            builder = new FileProblemProverBuilder(file);
+        } catch (Exception e) {
+            if(verbose) {
+                e.printStackTrace();
+            }
+            Result result = new Result(false, file, "",
+                    "Error while parsing", e.getMessage());
+            results.add(new CompletedFuture<Result>(result));
+            return;
+        }
 
         if (!builder.hasProblemDeclaration()) {
             if (verbose) {
@@ -254,6 +270,14 @@ public class Main {
         }
     }
 
+    /**
+     * Load a proof for a ivil problem file.
+     *
+     * The proof file's name is deduced.
+     *
+     * @param file
+     *            the file containing the problem
+     */
     private static void checkSingleFile(File file) {
         AutomaticProblemChecker checker = new AutomaticProblemChecker(file, proofFile);
         Future<Result> future = executor.submit(checker);

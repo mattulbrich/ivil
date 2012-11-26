@@ -1,3 +1,12 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.cmd;
 
 import java.io.File;
@@ -15,6 +24,13 @@ import de.uka.iti.pseudo.proof.serialisation.ProofImport;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.term.Sequent;
 
+
+
+/**
+ * This is called to load and check a proof for a problem.
+ *
+ * For a problem file "file.p", the proof "file.pxml" is loaded.
+ */
 public class AutomaticProblemChecker implements Callable<Result> {
 
     private final File file;
