@@ -55,10 +55,13 @@ rule seqLenDef
   replace cond(%a <= %b, %b-%a, 0)
   tags
     rewrite "fol simp"
-    
-axiom seqLenNonNeg
-  (\T_all 'a; (\forall s as seq('a); seqLen(s) >= 0))
 
+rule seqLenNonNeg
+  find seqLen(%s)
+  add seqLen(%s) >= 0 |-
+  tags
+    asAxiom
+    
 rule seqExtensionality
   find %s1 = %s2
   where freshVar %i, %s1, %s2

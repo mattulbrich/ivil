@@ -174,7 +174,7 @@ rule weakeq_incompatible_types
 rule weakeq_same_types
   find  $weq(%a as %'a, %b as %'a)
   replace %a = %b
-  tags rewrite "fol simp"
+  tags rewrite "fol simp"       
        verbosity "6"
 
 rule weakeq_apply_retype
@@ -185,7 +185,9 @@ rule weakeq_apply_retype
 rule retype_identity
   find retype(%x as %'a) as %'a
   replace %x
-  tags rewrite "concrete"
+  tags 
+    rewrite "concrete"
+    asAxiom
 
 rule weakeq_type_coercion_left
   assume $weq(%a as %'a, %b as %'b) |-

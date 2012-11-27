@@ -156,12 +156,18 @@ public class LoopInvariantProgramModificationMetaFunction extends MetaFunction {
         Term invariant = application.getSubterm(1);
         Term variant = application.getSubterm(2);
 
-        Application zero = Application.getInst(env.getNumberLiteral("0"), Environment.getIntType());
-
-        // "0" as variant means no variant.
-        if(zero.equals(variant)) {
+        // non-termination-box or
+        switch(programTerm.getModality()) {
+        case BOX_TERMINATION:
+            break;
+        case BOX:
+            // variant ignored for box modalities
             variant = null;
+            break;
+        case DIAMOND:
+            throw new TermException("This modification must not be applied to diamond modalities.");
         }
+
 
         // use an external object so that no state is stored in the meta
         // function
@@ -413,10 +419,10 @@ class LoopModifier {
 //        }
 
         if (variant != null) {
-          Term prec = tf.prec(variant, varAtPre);
-          AssertStatement assertion = new AssertStatement(sourceLineNumber, prec);
-          programChanger.insertAt(index, assertion, "Continuation reduces variant");
-          index++;
+            Term prec = tf.prec(variant, varAtPre);
+            AssertStatement assertion = new AssertStatement(sourceLineNumber, prec);
+            programChanger.insertAt(index, assertion, "Continuation reduces variant");
+            index++;
         }
 
         // was: programChanger.insertAt(index, new EndStatement(sourceLineNumber, Environment.getTrue()));

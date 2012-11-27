@@ -198,5 +198,13 @@ rule resolve_int_literals
 rule empty_sum
   find (\sum %v; %a; %a; %t)
   replace 0
-  tags rewrite "fol simp"
-       verbosity "5"
+  tags
+    rewrite "fol simp"
+    verbosity "5"
+
+# CHECK with bounds
+rule sum_plus1
+  find (\sum %v; %a; %b + 1; %t)
+  replace (\sum %v; %a; %b; %t) + $$subst(%v, %b, %t)
+  tags
+    rewrite "fol simp"

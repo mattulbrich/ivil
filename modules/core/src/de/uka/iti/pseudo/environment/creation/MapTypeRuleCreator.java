@@ -611,6 +611,7 @@ public class MapTypeRuleCreator {
         Map<String, String> tags = new HashMap<String, String>();
 
         tags.put("rewrite", "fol simp");
+        tags.put("asAxiom", "");
 
         List<Term> none = new LinkedList<Term>();
 

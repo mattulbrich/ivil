@@ -36,9 +36,10 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
         this.env = env;
     }
 
+    @Override
     protected void visitDefault(ASTElement arg) {
     }
-    
+
     private void visitChildren(ASTElement arg) throws ASTVisitException {
         for (ASTElement child : arg.getChildren()) {
             child.visit(this);
@@ -54,14 +55,14 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
     public void visit(ASTSortDeclarationBlock arg) throws ASTVisitException {
         visitChildren(arg);
     }
-    
+
     @Override
     public void visit(ASTSortDeclaration arg) throws ASTVisitException {
         if(arg.isMapAlias()) {
             registerMapType(arg);
         }
     }
-    
+
     /*
      * For a map type alias: add function symbols and according rules to the
      * environment.
@@ -70,7 +71,7 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
 
         MapTypeRuleCreator mapType = new MapTypeRuleCreator(arg);
         ASTMapType alias = arg.getAlias();
-        
+
         {
             Sort sort = env.getSort(arg.getName().image);
             assert sort != null : "The sort must have been registered earlier";
@@ -101,7 +102,7 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
             Type range = TermMaker.makeType(alias.getRange(), env);
             mapType.setRange(range);
         }
-        
+
         mapType.check();
 
         mapType.addFunctionSymbols(env);
@@ -115,6 +116,6 @@ public class MapTypeDefinitionVisitor extends ASTDefaultVisitor {
         }
         return result;
     }
-    
-    
+
+
 }

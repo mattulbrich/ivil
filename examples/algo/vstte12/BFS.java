@@ -89,10 +89,12 @@
     }
 
     /*@ contract
+      @   requires "!h[this, F_BFS_adjacency] = null"
       @   requires "h[this, F_BFS_size] > 0"
       @   requires "arrlen(h[this, F_BFS_adjacency]) = h[this, F_BFS_size]"
       @   requires "(\forall i; 0<=i & i < h[this, F_BFS_size] ->
-      @                arrlen(h[h[this, F_BFS_adjacency], idxRef(i)]) 
+      @              !h[h[this, F_BFS_adjacency], idxRef(i)] = null
+      @            &   arrlen(h[h[this, F_BFS_adjacency], idxRef(i)]) 
       @              = h[this, F_BFS_size])"
       @   requires "0 <= src & src < h[this, F_BFS_size]"
       @   requires "0 <= dest & dest < h[this, F_BFS_size]"
