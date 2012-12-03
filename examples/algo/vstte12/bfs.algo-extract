@@ -1,0 +1,41 @@
+algo bfs
+input
+   src, dest : vertex
+output
+   d : int
+   
+do
+  
+   V := {src};
+   C := {src};
+   N := {};
+   d := 0;
+
+   while !(C = {})
+   do
+     choose v such that v in C;
+     C := C \ {v};
+     if v = dest 
+     then 
+       return
+     end;
+     
+     iterate succ(v) with w in tovisit
+     do 
+       if not w in V
+       then
+         V := V \/ {w};
+         N := N \/ {w}
+       end
+     end;
+     
+     if C = {}
+     then
+       C := N;
+       N := {};
+       d := d+1
+     end
+         
+   end;
+   d := -1
+end

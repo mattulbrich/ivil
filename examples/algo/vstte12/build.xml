@@ -1,6 +1,12 @@
-<project name="Java verification" default="build-all" basedir=".">
+<project name="Java verification" default="full" basedir=".">
   <property name="compiler.dir" value="${user.home}/eclipse/pseudo.bytecode" />
-  <property name="timeout" value="10" />
+  <property name="timeout" value="90" />
+  <property name="build-targets" value="-a" />
+  <property name="verify-files"
+	    value="BFS.clear(boolean[]).p BFS.copy(boolean[],boolean[]).p 
+		   BFS.first(boolean[]).p BFS.isEmpty(boolean[]).p 
+		   BFS.minDistance.partial.p bfs.algo.p" />
+
   <import file="${compiler.dir}/include.xml" />
 
   <target name="algo">
@@ -8,5 +14,7 @@
       <arg value="bfs.algo" />
     </exec>
   </target>
+
+  <target name="full" depends="algo, verify" />
 
 </project>

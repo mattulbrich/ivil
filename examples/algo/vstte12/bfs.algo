@@ -82,7 +82,7 @@ do
      with "§(rule int_induction_match)";
 
    note (\forall j; j>d -> !minconnect(src, dest, j))
-   ;//  with "§(rule deep_update_simplification nested_quant_z3)";
+     with "§(rule deep_update_simplification nested_quant_z3)";
 
    d := -1
 end 

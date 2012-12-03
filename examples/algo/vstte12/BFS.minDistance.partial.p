@@ -6,5 +6,7 @@ properties
        BreakpointStrategy,
        KnowledgeStrategy,
        SMTStrategy"
+   SimplificationStrategy.splitMode
+      "DONT_SPLIT"
 
 problem [0; Java]true 

@@ -1,4 +1,4 @@
-# Automatically created on Mon Nov 26 08:07:23 CET 2012
+# Automatically created on Mon Dec 03 17:33:08 CET 2012
 include "bfs.decl.p"
 function vertex src 
 function vertex dest 
@@ -104,7 +104,7 @@ program bfs source "bfs.algo"
   assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; " lemma by §(rule int_induction_match)"
   assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
  sourceline 84
-  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j))))
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; " lemma by §(rule deep_update_simplification nested_quant_z3)"
   assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
  sourceline 87
   d := -(1)

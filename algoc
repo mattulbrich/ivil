@@ -1,0 +1,3 @@
+#!/bin/sh
+
+java -cp $HOME/ivil/ivil.jar de.uka.iti.pseudo.algo.Translation "$@"
