@@ -36,9 +36,9 @@ class BFS {
       @*/
     boolean isEmpty(boolean[] array) {
 	/*@ maintains 
-	  @  "0 <= i & i <= arrlen(array) &
-	  @   (\forall j; 0<=j&j<_i -> !h[array, idxBool(j)])"
-	  @ decreases "arrlen(array) - i"
+	  @  "0 <= _i & _i <= arrlen(_array) &
+	  @   (\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])"
+	  @ decreases "arrlen(_array) - _i"
 	  @ modifies "emptyset"
 	  @*/
 	for(int i = 0; i < array.length; i++) {
@@ -57,10 +57,10 @@ class BFS {
       @*/
     void clear(boolean[] array) {
 	/*@ maintains
-	  @  "0 <= i & i <= arrlen(array) &
-	  @   (\forall j; 0<=j&j<i -> !h[array, idxBool(j)])"
-	  @ decreases "arrlen(array) - i"
-	  @ modifies "singleton(array)"
+	  @  "0 <= _i & _i <= arrlen(_array) &
+	  @   (\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])"
+	  @ decreases "arrlen(_array) - _i"
+	  @ modifies "singleton(_array)"
 	  @*/
 	for(int i = 0; i < array.length; i++) {
 	    array[i] = false;
@@ -98,6 +98,7 @@ class BFS {
       @              = h[this, F_BFS_size])"
       @   requires "0 <= src & src < h[this, F_BFS_size]"
       @   requires "0 <= dest & dest < h[this, F_BFS_size]"
+      @   ensures "-1 <= resInt"
       @   modifies "freshObjects(h)"
       @   decreases "1"
       @*/

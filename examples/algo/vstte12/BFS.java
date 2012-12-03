@@ -35,7 +35,7 @@
       @   modifies "emptyset"
       @*/
     boolean isEmpty(boolean[] array) {
-	spec.Spec.loopinv("((0 <= i & i <= arrlen(array) &\n	     (\\forall j; 0<=j&j<_i -> !h[array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(array) - i");
+	spec.Spec.loopinv("((0 <= _i & _i <= arrlen(_array) &\n	     (\\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(_array) - _i");
 
 
 
@@ -56,7 +56,7 @@
       @   modifies "singleton(array)"
       @*/
     void clear(boolean[] array) {
-	spec.Spec.loopinv("((0 <= i & i <= arrlen(array) &\n	     (\\forall j; 0<=j&j<i -> !h[array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(singleton(array)))), arrlen(array) - i");
+	spec.Spec.loopinv("((0 <= _i & _i <= arrlen(_array) &\n	     (\\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(singleton(_array)))), arrlen(_array) - _i");
 
 
 
@@ -98,6 +98,7 @@
       @              = h[this, F_BFS_size])"
       @   requires "0 <= src & src < h[this, F_BFS_size]"
       @   requires "0 <= dest & dest < h[this, F_BFS_size]"
+      @   ensures "-1 <= resInt"
       @   modifies "freshObjects(h)"
       @   decreases "1"
       @*/
