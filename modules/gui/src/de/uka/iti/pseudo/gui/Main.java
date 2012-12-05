@@ -36,6 +36,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
+import de.uka.iti.pseudo.gui.actions.RecentProblemsMenu;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
 import de.uka.iti.pseudo.gui.util.InputHistory;
 import de.uka.iti.pseudo.parser.ASTVisitException;
@@ -74,6 +75,7 @@ public class Main {
     private static final String CMDLINE_PROG = "-prog";
     private static final String CMDLINE_PROOF = "-proof";
     private static final String CMDLINE_SAMPLES = "-samples";
+    private static final String CMDLINE_LAST = "-last";
 
     private static Settings settings;
 
@@ -134,7 +136,12 @@ public class Main {
 
                     List<String> fileArguments = commandLine.getArguments();
 
-                    if(fileArguments.isEmpty()) {
+                    if(commandLine.isSet(CMDLINE_LAST)) {
+                        String mostRecentProblem = RecentProblemsMenu.getMostRecentProblem();
+                        if(mostRecentProblem != null) {
+                            openProverFromURL(new URL(mostRecentProblem));
+                        }
+                    } else if(fileArguments.isEmpty()) {
                         startupWindow = new StartupWindow();
                         startupWindow.setVisible(true);
                         if(commandLine.isSet(CMDLINE_SAMPLES)) {
@@ -191,6 +198,7 @@ public class Main {
         cl.addOption(CMDLINE_PROG, "program", "Specify the program to use as problem.");
         cl.addOption(CMDLINE_PROOF, "file", "Load proof from this file.");
         cl.addOption(CMDLINE_SAMPLES, null, "Open the sample browser");
+        cl.addOption(CMDLINE_LAST, null, "Reload the most recent problem");
         return cl;
     }
 
