@@ -121,6 +121,7 @@
 
 
 	while(!isEmpty(C)) {
+	    spec.Spec.mark("1");
 	    int v = first(C);
 
 	    // C is not empty:
@@ -135,6 +136,7 @@
 
 
 	    for(int w = 0; w < size; w++) {
+		spec.Spec.mark("2");
 		// ignore this if not a successor ...
 		if(adjacency[v][w] && !V[w]) {
 		    V[w] = true;

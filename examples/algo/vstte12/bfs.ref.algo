@@ -1,0 +1,134 @@
+uses "bfs.decl.p"
+uses "ref-BFS.minDistance(int,int).p"
+
+uses inline
+function
+   int k(vertex) unique
+end
+
+abbreviation
+   @vars_coupled :=
+       V = (\set v; (\exists i; 0 <= i & i < size & h[_V, idxBool(k(v))]))
+     & V = (\set v; (\exists i; 0 <= i & i < size & h[_C, idxBool(k(v))]))
+     & N = (\set v; (\exists i; 0 <= i & i < size & h[_N, idxBool(k(v))]))
+     & d = _d
+     & k(src) = _src
+     & k(dest) = _dest
+     
+abbreviation
+   @arrays :=
+       !(_V=_N) & !(_N=_C) & !(_V=_C) &
+       arrlen(_V) = size &
+       arrlen(_N) = size &
+       arrlen(_C) = size   
+
+abbreviation
+   @succ :=
+       (\forall v; succ(v) = 
+               (\set w; (\exists i; 0 <= i & i < size & 
+                        h[h[h[_this, F_BFS_adjacency], idxRef(k(v))], idxBool(k(w))])))
+
+algo bfs
+input
+   src, dest : vertex
+output
+   d : int
+var
+   size : int
+   V, C, N : set(vertex)
+   Vo, Co, No : set(vertex)
+   tovisit : set(vertex)
+   v,w : vertex
+   
+requires 
+   finite(fullset as set(vertex))
+
+ensures
+   d >= -1
+   
+ensures
+   d < 0 -> (\forall m; m >= 0 -> not minconnect(src,dest,m))
+   
+ensures
+   d >= 0 -> minconnect(src, dest, d) 
+
+do
+   size := card(fullset as set(vertex));
+   
+   V := {src};
+   C := {src};
+   N := {};
+   d := 0;
+
+   while !(C = {})
+     inv d >= 0 &
+       (\forall x; x in C -> minconnect(src, x, d)) &
+       (\forall y; y in N <-> 
+           (\exists q; minconnect(src, q, d) & not q in C & y in succ(q))) &
+       (\forall z; z in V \ N <->
+           (\exists n; 0 <= n <= d & minconnect(src, z, n))) &
+       (\forall a; minconnect(src, a, d+1) ->
+           (\exists c; a in succ(c) & c in C) | a in N) &
+       (C = {} -> N = {}) &
+       C <: V &
+       N <: V &
+       not dest in (V \ N) \ C
+     var ^(V \ (C \/ N))
+   do
+     mark 1;
+     choose v such that v in C;
+     C := C \ {v};
+     if v = dest 
+     then 
+       return
+     end;
+     
+     Vo := V;
+     No := N;
+
+     iterate succ(v) with w in tovisit
+       inv tovisit <: succ(v) &
+           V = Vo \/ (succ(v) \ tovisit) &
+           N = No \/ (succ(v) \ (Vo \/ tovisit))
+     do 
+       mark 2;
+       if not w in V
+       then
+         V := V \/ {w};
+         N := N \/ {w}
+       end
+     end;
+     
+     if C = {}
+     then
+       C := N;
+       N := {};
+       d := d+1
+     end
+         
+   end;
+
+   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
+     with "§(rule int_induction_match)";
+
+   note (\forall j; j>d -> !minconnect(src, dest, j))
+     with "§(rule deep_update_simplification nested_quant_z3)";
+
+   d := -1
+end 
+
+refine bfs as Java 
+
+  requires @succ & k(src) = _src & k(dest) = _dest
+        &  fullset = (\set v; 0 <= k(v) < size)
+    var 43
+
+  ensures d = resInt
+
+  mark 1
+    inv @vars_coupled & @arrays
+    var 42
+
+  mark 2
+    inv @vars_coupled & @arrays & _v = k(v) & _w = k(w)
+    var 42

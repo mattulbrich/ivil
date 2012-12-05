@@ -121,6 +121,7 @@ class BFS {
 	  @ modifies "singleton(_V) \/ singleton(_C) \/ singleton(_N)"
 	  @*/
 	while(!isEmpty(C)) {
+	    //@ mark 1;
 	    int v = first(C);
 
 	    // C is not empty:
@@ -135,6 +136,7 @@ class BFS {
 	      @ modifies "singleton(_V) \/ singleton(_N)"
 	      @*/
 	    for(int w = 0; w < size; w++) {
+		//@ mark 2;
 		// ignore this if not a successor ...
 		if(adjacency[v][w] && !V[w]) {
 		    V[w] = true;

@@ -2,10 +2,13 @@
   <property name="compiler.dir" value="${user.home}/eclipse/pseudo.bytecode" />
   <property name="timeout" value="90" />
   <property name="build-targets" value="-a" />
+  <property name="build-ref-targets" value="-ref-noAssert BFS.minDistance(int,int)" />
   <property name="verify-files"
 	    value="BFS.clear(boolean[]).p BFS.copy(boolean[],boolean[]).p 
 		   BFS.first(boolean[]).p BFS.isEmpty(boolean[]).p 
 		   BFS.minDistance.partial.p bfs.algo.p" />
+  <property name="verify-ref-files"
+	    value="tobedone" />
 
   <import file="${compiler.dir}/include.xml" />
 
@@ -15,6 +18,13 @@
     </exec>
   </target>
 
-  <target name="full" depends="algo, verify" />
+  <target name="algo-ref">
+    <exec executable="algoc">
+      <arg value="-ref" />
+      <arg value="bfs.ref.algo" />
+    </exec>
+  </target>
+
+  <target name="full" depends="algo, algo-ref, verify, build-ref" />
 
 </project>

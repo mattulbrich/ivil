@@ -108,6 +108,7 @@ rule heap_newObject
   replace cond(%o = %ref, defaultVal, %h[%ref, %f])
   tags rewrite "fol simp"
        verbosity "5"
+       asAxiom
 
 (*
  * modHeap
