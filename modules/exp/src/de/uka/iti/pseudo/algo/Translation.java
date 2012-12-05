@@ -41,34 +41,39 @@ public class Translation {
     private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
     private final Map<String, String> options = new HashMap<String, String>();
 
-    public static void main(String[] args) throws ParseException, IOException, CommandLineException {
-        String source;
+    public static void main(String[] args) throws IOException, CommandLineException {
         CommandLine cl = createCommandLine();
+        List<String> clArgs = cl.getArguments();
         cl.parse(args);
 
-        List<String> clArgs = cl.getArguments();
-        if(clArgs.size() > 0) {
-            source = clArgs.get(0);
-        } else {
-            source = null;
+        String source = null;
+        try {
+            if(clArgs.size() > 0) {
+                source = clArgs.get(0);
+            } else {
+                source = null;
+            }
+
+            PrintWriter target;
+            if(clArgs.size() > 1) {
+                target = new PrintWriter(new FileWriter(clArgs.get(1)));
+            } else if(clArgs.size() > 0) {
+                target = new PrintWriter(new FileWriter(clArgs.get(0) + ".p"));
+            } else {
+                target = new PrintWriter(System.out);
+            }
+
+            Translation translation = new Translation(source);
+
+            if(cl.isSet("-ref")) {
+                translation.refinementMode = true;
+            }
+
+            translation.exportTo(target);
+        } catch (Exception e) {
+            System.err.println("Error while reading " + (source == null ? "<in>" : source));
+            e.printStackTrace();
         }
-
-        PrintWriter target;
-        if(clArgs.size() > 1) {
-            target = new PrintWriter(new FileWriter(clArgs.get(1)));
-        } else if(clArgs.size() > 0) {
-            target = new PrintWriter(new FileWriter(clArgs.get(0) + ".p"));
-        } else {
-            target = new PrintWriter(System.out);
-        }
-
-        Translation translation = new Translation(source);
-
-        if(cl.isSet("-ref")) {
-            translation.refinementMode = true;
-        }
-
-        translation.exportTo(target);
     }
 
     private static CommandLine createCommandLine() {
