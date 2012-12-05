@@ -263,29 +263,32 @@
 	</file>
 
 	<proof>
-        <prune>ACTION PruneAction
-          <icon>img/cut.png</icon>
-        </prune>
-        <pruneLast>ACTION PruneLastAction
-          <icon>img/cut_undo.png</icon>
-        </pruneLast>
+		<prune>ACTION proof/PruneAction
+			<icon>img/cut.png</icon>
+		</prune>
+		<pruneLast>ACTION proof/PruneLastAction
+			<icon>img/cut_undo.png</icon>
+		</pruneLast>
 		<auto>ACTION auto/AutoProofAction</auto>
 		<autoSubtree>ACTION auto/AutoProofSubtreeAction</autoSubtree>
 		<reintroduceHiddenTerm>ACTION sequent/ReintroduceHiddenTermAction
-            <icon>img/book_next_grey.png</icon>
-        </reintroduceHiddenTerm>
+			<icon>img/book_next_grey.png</icon>
+		</reintroduceHiddenTerm>
 		<axiom>ACTION InsertAxiomAction</axiom>
 		<conjecture>ACTION ConjectureAction
-		    <icon>img/lightbulb_add.png</icon>
+			<icon>img/lightbulb_add.png</icon>
 		</conjecture>
 		<decProc>TODO Decision Procedure</decProc>
 		<stepInstr>ACTION auto/StepInstructionAction
-            <icon>img/control_play.png</icon>
-        </stepInstr>
+			<icon>img/control_play.png</icon>
+		</stepInstr>
 		<stepSource>ACTION auto/StepSourceAction
-            <icon>img/control_fastforward.png</icon>
+			<icon>img/control_fastforward.png</icon>
 		</stepSource>
 		<snapshots>ACTION SnapshotManagerAction</snapshots>
+		<contextExtensions>COMPONENT de.uka.iti.pseudo.gui.actions.proof.ContextExtensionsMenu
+		      <params>proof</params> <!-- "sequent" in sequent view -->
+		</contextExtensions>	    
 	</proof>
 
 	<smt>
@@ -354,6 +357,7 @@
 		<popup>
 			proofComponent.expandHere proofComponent.expandAll settings.verbosity 
 			SEPARATOR proof.prune proof.conjecture proof.auto proof.autoSubtree
+			SEPARATOR proof.contextExtensions
 		</popup>
 		<expandHere>ACTION view/ExpandProofTreeBelowAction
 		    <icon>img/bullet_toggle_plus.png</icon>
@@ -369,6 +373,8 @@
 			termComponent.autoHere proof.axiom termComponent.reintroduceHiddenTerm
 			SEPARATOR
 			termComponent.copy termComponent.copyPretty
+			SEPARATOR
+			termComponent.contextExtensions
 		</popup>
 		<showInfo>ACTION sequent/ShowTermInformation</showInfo>
 		<jumpToIntroduction>ACTION sequent/JumpToIntroductionAction</jumpToIntroduction>
@@ -378,6 +384,9 @@
         </reintroduceHiddenTerm>
         <copy>ACTION sequent/CopyTerm</copy>
         <copyPretty>ACTION sequent/CopyPrettyTerm</copyPretty>
+        <contextExtensions>COMPONENT de.uka.iti.pseudo.gui.actions.proof.ContextExtensionsMenu
+             <params>term</params> <!-- "proof" in proof view -->
+        </contextExtensions> 
 	</termComponent>
 
 </barmanager>

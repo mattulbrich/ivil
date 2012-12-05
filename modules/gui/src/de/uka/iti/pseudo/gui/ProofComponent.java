@@ -207,7 +207,8 @@ public class ProofComponent extends JTree {
                     }
                 });
 
-        proofCenter.addNotificationListener(ProofCenter.PROOFNODES_HAVE_CHANGED, new NotificationListener() {
+        proofCenter.addNotificationListener(ProofCenter.PROOFNODES_HAVE_CHANGED,
+                new NotificationListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void handleNotification(NotificationEvent event) {
