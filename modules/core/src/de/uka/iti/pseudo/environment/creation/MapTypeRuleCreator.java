@@ -262,10 +262,11 @@ public class MapTypeRuleCreator {
 
         try {
             addLoadStoreSameRule(name, $load, $store, env);
-            addLoadStoreAssumeRule(name, $load, $store, env);
-            addLoadStoreOtherAssumeRule(name, $load, $store, env);
-            addLoadStoreOtherTypeRule(name, $load, $store, env);
             addLoadStoreCondRule(name, $load, $store, env);
+            // assumption rules are deactived to make fol simp assumption free
+//            addLoadStoreAssumeRule(name, $load, $store, env);
+//            addLoadStoreOtherAssumeRule(name, $load, $store, env);
+//            addLoadStoreOtherTypeRule(name, $load, $store, env);
         } catch (ParseException e) {
             throw new ASTVisitException(
                     "Error while creating rules for map type " + name,
@@ -278,10 +279,10 @@ public class MapTypeRuleCreator {
             throw new ASTVisitException(
                     "Error while creating rules for map type " + name,
                     declaringLocation, e);
-        } catch (TermException e) {
-            throw new ASTVisitException(
-                    "Error while creating rules for map type " + name,
-                    declaringLocation, e);
+//        } catch (TermException e) {
+//            throw new ASTVisitException(
+//                    "Error while creating rules for map type " + name,
+//                    declaringLocation, e);
         }
 
     }
@@ -349,6 +350,7 @@ public class MapTypeRuleCreator {
         Map<String, String> tags = new HashMap<String, String>();
 
         tags.put("rewrite", "concrete");
+        tags.put("verbosity", "8");
 
         Rule rule = new Rule(ruleName, Collections.<LocatedTerm>emptyList(),
                 new LocatedTerm(find, MatchingLocation.BOTH),
@@ -612,6 +614,7 @@ public class MapTypeRuleCreator {
 
         tags.put("rewrite", "fol simp");
         tags.put("asAxiom", "");
+        tags.put("verbosity", "8");
 
         List<Term> none = new LinkedList<Term>();
 

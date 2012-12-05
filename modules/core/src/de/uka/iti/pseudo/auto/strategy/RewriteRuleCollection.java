@@ -215,7 +215,7 @@ public class RewriteRuleCollection {
 
             if (noMatchCache != null && rule.getAssumptions().size() != 0) {
                 Log.log(Log.WARNING, "Assumption-rule " + rule.getName() +
-                        " tagged as rewrite. Switching of caching.");
+                        " tagged as rewrite. Switching of caching for " + category + ".");
                 deactivateCache();
             }
 
