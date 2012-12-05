@@ -7,7 +7,7 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui.actions;
+package de.uka.iti.pseudo.gui.actions.proof;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
@@ -16,6 +16,8 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JOptionPane;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.gui.actions.BarAction;
+import de.uka.iti.pseudo.gui.actions.BarManager;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
