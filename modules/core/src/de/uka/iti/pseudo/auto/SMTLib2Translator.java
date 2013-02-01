@@ -286,6 +286,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         }
     };
 
+    private int uniqueCounter;
+
     /**
      * Instantiates a new SMT-lib translator.
      *
@@ -847,6 +849,34 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             }
             assumptions.add(sb.toString());
         }
+
+        // Add for uniqueness
+        if(function.isUnique()) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Uniqueness of function symbol ").append(name).append("\n");
+
+            if (argTypes.length == 0) {
+                sb.append("(= (unique ").append(name).append(") ").append(uniqueCounter).append(")");
+
+            } else {
+                sb.append("(forall (");
+
+                for (int i = 0; i < argTypes.length; i++) {
+                    sb.append("(?x").append(i).append(" ").append(argTypes[i])
+                    .append(") ");
+                }
+
+                sb.append(") (= (unique (").append(name);
+                for (int i = 0; i < argTypes.length; i++) {
+                    sb.append(" ?x").append(i);
+                }
+                sb.append(")) ").append(uniqueCounter).append("))");
+            }
+
+            uniqueCounter++;
+            assumptions.add(sb.toString());
+        }
+
 
         return name;
     }

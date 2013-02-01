@@ -9,6 +9,8 @@
 (declare-fun termTrue () Universe)
 (declare-fun termFalse () Universe)
 
+(declare-fun unique (Universe) Int)
+
 (declare-fun u2i (Universe) Int)
 (declare-fun i2u (Int) Universe)
 
