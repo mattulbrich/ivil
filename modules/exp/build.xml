@@ -7,6 +7,11 @@
   
   <property name="ivil.testclass" value="de.uka.iti.pseudo.AllExpTests"/>
 
+  <path id="ivil.classpath.test">
+    <pathelement path="../gui/classes-test"/>
+    <pathelement path="../gui/classes"/>
+  </path>
+
   <path id="ivil.classpath.compile">
     <pathelement path="../core/classes"/>
     <pathelement path="../gui/classes"/>

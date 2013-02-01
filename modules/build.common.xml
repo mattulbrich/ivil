@@ -11,6 +11,9 @@
   <path id="ivil.sourcepath.compile">
     <pathelement path="src"/>
   </path>
+
+  <!-- this path can be overridden in submodules -->
+  <path id="ivil.classpath.test" />
   
   <target name="build" depends="compile" />
 
@@ -94,6 +97,7 @@
         <pathelement path="../../lib/nonnull.jar"/>
         <pathelement path="../../lib/junit.jar"/>
       </classpath>
+      <classpath refid="ivil.classpath.test"/>
       <test name="${ivil.testclass}"/>
       <formatter type="plain" />
       <formatter type="xml" />

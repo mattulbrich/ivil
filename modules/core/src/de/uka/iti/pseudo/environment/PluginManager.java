@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import de.uka.iti.pseudo.util.Log;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 
@@ -189,9 +191,15 @@ public final class PluginManager {
         prop.load(stream);
 
         for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-            Class<?> clss = Class.forName(entry.getValue().toString());
-            Service service = new Service(clss);
-            serviceMap.put(entry.getKey().toString(), service);
+            String name = entry.getValue().toString();
+            try {
+                Class<?> clss = Class.forName(name);
+                Service service = new Service(clss);
+                serviceMap.put(entry.getKey().toString(), service);
+            } catch (ClassNotFoundException e) {
+                Log.stacktrace(e);
+                Log.log(Log.WARNING, "Class " + name + " not found, service disabled");
+            }
         }
     }
 
