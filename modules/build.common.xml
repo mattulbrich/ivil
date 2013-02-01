@@ -41,7 +41,7 @@
 	   target="${ivil.javac.target}"
 	   debug="${ivil.debug}" 
 	   sourcepath="test"
-	   includeantruntime="true">
+	   includeantruntime="false">
       <classpath>
         <pathelement location="../../lib/junit.jar" />
       	<pathelement path="classes" />
