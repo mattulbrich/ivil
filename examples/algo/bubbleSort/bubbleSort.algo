@@ -1,0 +1,102 @@
+/*
+ * Selection Sort in Pseudo code
+ */
+
+uses "selectionSort.decl.p"
+uses "heapAbs.p"
+/* uses "SelSort.sort(int[]).p" */
+uses "$seq.p"
+
+uses inline
+  plugin prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
+  plugin contextExtension : "de.uka.iti.pseudo.gui.extensions.SplitPropositionalExtension"
+end
+
+option
+  mapFunction = "seqGet"
+
+abbreviation
+  @idx_inrange :=   0 <= _i < arrlen(_array)
+                  & 0 <= _j <= arrlen(_array)
+                  & 0 <= _t < arrlen(_array)
+
+algo selectionSort
+
+input
+  a : seq(int)
+  
+var
+  i,j,t,n,sum0 : int
+  changed : bool
+  
+output
+  b : seq(int)
+
+requires
+  (\forall i; 0<=i & i < seqLen(a) -> a[i] >= 0)
+  
+ensures
+  isSorted(b)
+  
+ensures
+  isPerm(a,b)
+  
+do
+  b := a;
+  i := 0;
+  j := 0;
+  n := seqLen(a);
+  
+  if n = 0
+  then 
+    return
+  end;
+
+  while j < n
+    inv 0 <= j <=n &
+      isPerm(a, b) & seqLen(b) = n &
+      (\forall k; (\forall l; 
+            n-j <= k <= l < n -> b[k] <= b[l])) &
+      (j != 0 -> (\forall k; 0 <= k <= n-j -> b[k] <= b[n-j]))
+    var n-j
+  do
+    i := 0;
+    while i < n - j - 1
+      inv 0 <= i <= n-j-1 &
+        isPerm(a, b) & seqLen(b) = n &
+        (\forall k; (\forall l;     
+            n-j <= k <= l < n -> b[k] <= b[l])) &
+        (\forall k;
+            0 <= k <= i -> b[k] <= b[i]) &
+      (j != 0 -> (\forall k; 0 <= k <= n-j -> b[k] <= b[n-j]))
+      var n - i
+    do
+      if b[i] > b[i+1] 
+      then
+         b := seqSwap(b, i, i+1)	
+      end;
+      i := i+1
+    end;
+    j := j+1
+  end
+end
+
+/*
+
+refine selectionSort as Java
+  requires _array != null & a = arrayAsIntSeq(h, _array)
+     var 42
+
+  ensures b = arrayAsIntSeq(h, _array)
+
+  mark 1 
+    inv b = arrayAsIntSeq(h, _array) & n = seqLen(b)
+        & i = _i & j = _j & t = _t & @idx_inrange & j < n
+    var 42
+
+  mark 2
+    inv b = arrayAsIntSeq(h, _array) & n = seqLen(b) 
+        & i = _i & j = _j & @idx_inrange
+    var 42
+
+*/
