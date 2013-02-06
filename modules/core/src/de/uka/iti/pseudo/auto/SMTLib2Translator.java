@@ -98,6 +98,12 @@ import de.uka.iti.pseudo.util.Util;
 public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTranslator {
 
     /**
+     * This prorperty key prefix can be used to define SMT2 inline code in .p
+     * files.
+     */
+    private static final String INLINE_DIRECTIVE = "smt2.inline.";
+
+    /**
      * Mapping of built-in functions to built-in smtlib function symbols.
      */
     private static final String[] BUILTIN_FUNCTIONS = { "false", "false",
@@ -243,6 +249,12 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     private final Collection<Axiom> allAxioms;
 
     /**
+     * All user specified inlined (that is given in SMT2) axioms are collected
+     * here.
+     */
+    private final String inlinedAxioms;
+
+    /**
      * All sorts as they are extraced from the environment.
      */
     private final List<Sort> allSorts;
@@ -319,6 +331,29 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         weakEqualityFunction = env.getFunction("$weq");
         allAxioms = env.getAllAxioms();
         allSorts = env.getAllSorts();
+        inlinedAxioms = extractInlinedAxioms(env);
+    }
+
+    /**
+     * Identify inlined smt2 axioms from an environment.
+     *
+     * These are properties beginning with "smt2.inline."
+     *
+     * @param env
+     *            the environment to scan
+     * @return "" if nothing found. The content otherwise
+     */
+    private @NonNull String extractInlinedAxioms(Environment env) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : env.getAllProperties().entrySet()) {
+            String key = entry.getKey();
+            if(key.startsWith(INLINE_DIRECTIVE)) {
+                sb.append("; -- Inlined axiom -- " + key + "\n");
+                sb.append(entry.getValue());
+                sb.append("\n; -- End -- " + key + "\n");
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -432,6 +467,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             builder.append("(declare-fun " + f + ")\n");
         }
 
+        builder.append(inlinedAxioms);
         exportAssumptions(builder);
 
         builder.append("\n; --- The sequent\n");

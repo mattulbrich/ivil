@@ -426,6 +426,31 @@ public class Environment {
         return Collections.unmodifiableMap(propertiesMap);
     }
 
+    /**
+     * Retrieve a map all defined properties.
+     *
+     * It contains all local properties and all properties of all parents. If a
+     * property is defined more than once, the most local definition wins.
+     *
+     * @return a freshly created property object
+     */
+    public @NonNull Map<String, String> getAllProperties() {
+        Map<String, String> result = new HashMap<String, String>();
+        addAllProperties(result);
+        return result;
+    }
+
+    /*
+     * Helper method to add the properties in the correct order:
+     * First the parent's, then mine.
+     */
+    private void addAllProperties(Map<String, String> map) {
+        if(parentEnvironment != null) {
+            parentEnvironment.addAllProperties(map);
+        }
+        map.putAll(propertiesMap);
+    }
+
     //
     // ---------- Handling sorts ----------
     //

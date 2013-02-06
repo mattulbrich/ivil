@@ -38,6 +38,7 @@ public class ExportSMTAction extends BarAction {
             FileWriter wr = new FileWriter(tmp);
             wr.write("; Sequent: " + seq.toString() + "\n");
             trans.export(seq, wr);
+            wr.write("\n;-- Launch check\n(check-sat)\n");
             wr.close();
 
             Object[] options = {"Open in editor", "OK"};
@@ -53,7 +54,7 @@ public class ExportSMTAction extends BarAction {
                 PFileEditor editor = Main.openEditor(tmp);
                 editor.setProperty("syntaxCheck", false);
                 editor.setProperty("syntaxHighlight", false);
-            } 
+            }
         } catch(Exception ex) {
             ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
         }

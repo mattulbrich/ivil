@@ -131,10 +131,30 @@ public abstract class TestCaseWithEnv extends TestCase {
      *             various things can fail during the translation.
      */
     protected static Environment makeEnv(String string) throws Exception {
+        return makeEnv(string, Environment.BUILT_IN_ENV);
+    }
+
+
+    /**
+     * Parse a string to produce an environment.
+     *
+     * The string is prefixed by {@code include "$base.p"}.
+     *
+     * @param string
+     *            the string to parse
+     *            @param env
+     *            the parent environment to set
+     *
+     * @return the environment which was represented by the argument
+     *
+     * @throws Exception
+     *             various things can fail during the translation.
+     */
+    protected static Environment makeEnv(String string, Environment parent) throws Exception {
         Parser fp = new Parser();
         ASTFile ast = fp.parseFile(new StringReader("include \"$base.p\" "
                 + string), "*test*");
-        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test");
+        EnvironmentMaker em = new EnvironmentMaker(fp, ast, "none:test", parent);
         Environment env = em.getEnvironment();
         return env;
     }
