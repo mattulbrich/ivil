@@ -24,12 +24,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Stack;
 import java.util.TreeSet;
 
 import nonnull.NonNull;
@@ -41,6 +43,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
+import de.uka.iti.pseudo.rule.where.NoFreeVars;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
 import de.uka.iti.pseudo.term.Binding;
@@ -59,6 +62,7 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
 import de.uka.iti.pseudo.term.creation.TypeMatchVisitor;
 import de.uka.iti.pseudo.term.creation.TypeUnification;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.Util;
 
 /**
@@ -105,6 +109,13 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         "\\T_exists", "exists" };
 
     /**
+     * These symbols are special quantifiers which are treated separately.
+     */
+    private static final List<String> QUANTIFIERS = Util
+            .readOnlyArrayList(new String[] { "\\forall", "\\exists",
+                    "\\T_all", "\\T_exists" });
+
+    /**
      * These symbols are predicates and, hence, result in a FORMULA rather than
      * in a TERM.
      */
@@ -116,11 +127,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             .readOnlyArrayList(new String[] { "true", "false", "and", "or",
                     "implies", "iff", "not", "<", ">", "<=", ">=", "=" });
 
-    private static final Comparator<TypeVariable> STRING_COMPARATOR =
-            new Comparator<TypeVariable>() {
+    private static final Comparator<Object> STRING_COMPARATOR =
+            new Comparator<Object>() {
         @Override
-        public int compare(TypeVariable tv1, TypeVariable tv2) {
-            return tv1.getVariableName().compareTo(tv2.getVariableName());
+        public int compare(Object o1, Object o2) {
+            return o1.toString().compareTo(o2.toString());
         }
     };
 
@@ -139,6 +150,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      * counter used to create new distinct symbols (its increment on creation)
      */
     private int unknownCounter = 0;
+
+    /**
+     * counter used to let every unique function symbol point to something different.
+     */
+    private int uniqueCounter;
 
     /**
      * a set of definitions of user created function symbols.
@@ -285,8 +301,6 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             throw new TermException(schemaType + " is a schema type? The translated terms must be toplevel!");
         }
     };
-
-    private int uniqueCounter;
 
     /**
      * Instantiates a new SMT-lib translator.
@@ -738,17 +752,129 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         String name = binder.getName();
         String translation = translationMap.get(name);
 
-        // only exists and forall are defined.
-        if (translation == null) {
-            defaultVisitTerm(binding);
+        if (QUANTIFIERS.contains(name)) {
+            QuantificationTranslator trans = new QuantificationTranslator(translation);
+            binding.visit(trans);
+            trans.ensurePattern();
+            result = trans.toString();
+            resultingType = BOOL;
             return;
         }
 
-        QuantificationTranslator trans = new QuantificationTranslator(translation);
-        binding.visit(trans);
-        trans.ensurePattern();
-        result = trans.toString();
-        resultingType = BOOL;
+        if(translation == null) {
+            translation = makeExtraBinderFunc(binder);
+            translationMap.put(name, translation);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("(" + translation );
+
+        // type arguments
+        Type[] argTypes = binder.getArgumentTypes();
+        TermMatcher matcher = new TermMatcher();
+        TypeMatchVisitor visitor = new TypeMatchVisitor(matcher);
+
+        TypeUnification.makeSchemaVariant(binder.getResultType())
+        .accept(visitor, binding.getType());
+
+        TypeUnification.makeSchemaVariant(binder.getVarType())
+        .accept(visitor, binding.getVariableType());
+
+        for (int i = 0; i < argTypes.length; i++) {
+            TypeUnification.makeSchemaVariant(argTypes[i])
+            .accept(visitor, binding.getSubterm(i).getType());
+        }
+
+        SortedSet<TypeVariable> typeVars = collectTypeVars(binder);
+        for (TypeVariable tv : typeVars) {
+            Type t = TypeUnification.makeSchemaVariant(tv);
+            assert t instanceof SchemaType : "either tv was not a type variable or the specification of makeSchemaVariant changed";
+
+            Type type = matcher.getTypeFor(((SchemaType) t).getVariableName());
+            assert type != null : "non-nullness: t has been set by the type match visitor";
+
+            String typeString = type.accept(typeToTerm, false);
+            sb.append(" ").append(typeString);
+        }
+        sb.append(" ");
+
+        // lambda arguments
+        Type[] bndArgTypes = binder.getArgumentTypes();
+        for (int i = 0; i < binder.getArity(); i++) {
+            String boundTerm = makeBoundTerm(binding.getVariable(),
+                    binding.getSubterm(i),
+                    typeToExpressionType(binder.getVarType()),
+                    typeToExpressionType(bndArgTypes[i]));
+            sb.append(boundTerm + " ");
+        }
+        sb.append(")");
+
+        result = sb.toString();
+        resultingType = typeToExpressionType(binder.getResultType());
+    }
+
+    private final Map<Pair<BindableIdentifier, Term>, String> boundTermMap =
+            new HashMap<Pair<BindableIdentifier,Term>, String>();
+
+    private String makeBoundTerm(BindableIdentifier var, Term term,
+            ExpressionType varType, ExpressionType targetType) throws TermException {
+        String content = translate(term, targetType);
+
+        Pair<BindableIdentifier, Term> key = Pair.make(var, term);
+        String cache = boundTermMap.get(key);
+        if(cache != null) {
+            return cache;
+        }
+
+        // if not cached: generate a fresh skolem lambda constant and specify it.
+        String name = "lambda." + boundTermMap.size();
+
+        SortedSet<Variable> vars = new TreeSet<Variable>(STRING_COMPARATOR);
+        vars.addAll(FreeVarFinder.getFreeVariables(term));
+        vars.remove(var);
+        StringBuilder sbTypeArgs = new StringBuilder();
+        StringBuilder sbVarDecl = new StringBuilder();
+        StringBuilder sbCallArgs = new StringBuilder();
+        for (Variable v : vars) {
+            Type t = v.getType();
+            ExpressionType exT = typeToExpressionType(t);
+
+            v.visit(this);
+            String realName = result;
+
+            sbTypeArgs.append(" ").append(exT);
+            sbVarDecl.append(" (").append(realName).append(" ")
+                    .append(exT).append(")");
+            sbCallArgs.append(" ").append(realName);
+        }
+
+        extrafuncs.add(name + " (" + sbTypeArgs + ") (Array " +
+                varType +
+                " " + targetType +")");
+
+        // parenthesis only allowed if args
+        String lambdaCall = (sbCallArgs.length() > 0) ?
+                "(" + name + sbCallArgs + ")" :
+                name;
+
+        var.visit(this);
+        assumptions.add("Lambda-Definition of " + name + "\n" +
+                "(forall ((?x " + varType + ")" +
+                sbVarDecl + ") " +
+                "(let ((" + result + " " + convert("?x", varType, resultingType) + ")) " +
+                "(= (select " + lambdaCall + " ?x) " +
+                content + ")))");
+
+
+        // parentheses are only allowed with arguments
+        String retVal;
+        if(sbCallArgs.length() > 0) {
+            retVal = "(" + name + sbCallArgs + ")";
+        } else {
+            retVal = name;
+        }
+        boundTermMap.put(key, retVal);
+        return retVal;
     }
 
     @Override
@@ -763,17 +889,90 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             throws TermException {
         String translation = translationMap.get(tBinding.getKind().toString());
 
-     // only exists and forall are defined.
-        if (translation == null) {
-            defaultVisitTerm(tBinding);
-            return;
-        }
+        assert translation != null : "All type quantifiers must be defined";
 
         QuantificationTranslator trans = new QuantificationTranslator(translation);
         tBinding.visit(trans);
         trans.ensurePattern();
         result = trans.toString();
         resultingType = BOOL;
+    }
+
+    private String makeExtraBinderFunc(Binder binder) throws TermException {
+        String binderName = binder.getName();
+        // drop the initial "\\"
+        String name = "bnd." + binderName.substring(1);
+        name = name.replace('$', '.');
+
+        // var type
+        Type fctVarType = binder.getVarType();
+        ExpressionType varType = typeToExpressionType(fctVarType);
+
+        // result type
+        Type fctResultType = binder.getResultType();
+        ExpressionType resultType = typeToExpressionType(fctResultType);
+
+        // argument types
+        Type[] fctArgTypes = binder.getArgumentTypes();
+        ExpressionType[] argTypes = new ExpressionType[fctArgTypes.length];
+        for (int i = 0; i < argTypes.length; i++) {
+            argTypes[i] = typeToExpressionType(fctArgTypes[i]);
+        }
+
+        SortedSet<TypeVariable> allTypeVariables = collectTypeVars(binder);
+
+        List<String> types = new ArrayList<String>();
+        types.addAll(Collections.nCopies(allTypeVariables.size(), "Type"));
+        for (ExpressionType exTy : argTypes) {
+            types.add("(Array " + varType + " " + exTy.toString() + ")");
+        }
+
+        extrafuncs.add(name + " (" + Util.join(types, " ") + ") " + resultType);
+
+        // typing only for Universe binders
+        if (resultType == UNIVERSE) {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("Typing for binder symbol ").append(name).append("\n");
+
+            assert argTypes.length > 0 : "Binder w/o arguments are not considered here";
+
+            sb.append("(forall (");
+
+            for (TypeVariable typeVariable : allTypeVariables) {
+                sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
+            }
+
+            for (int i = 0; i < argTypes.length; i++) {
+                sb.append("(?x").append(i).append(" ")
+                // types start with the type variables types and then the array types
+                .append(types.get(i + allTypeVariables.size()))
+                .append(") ");
+            }
+
+            sb.append(") (! (ty ");
+
+            StringBuilder fctcallsb = new StringBuilder();
+            {
+                fctcallsb.append("(").append(name);
+                for (TypeVariable typeVariable : allTypeVariables) {
+                    fctcallsb.append(" ?Type.")
+                    .append(typeVariable.getVariableName());
+                }
+                for (int i = 0; i < argTypes.length; i++) {
+                    fctcallsb.append(" ?x").append(i);
+                }
+                fctcallsb.append(")");
+            }
+            sb.append(fctcallsb).append(" ")
+            .append(fctResultType.accept(typeToTerm, true))
+            .append(") :pattern (")
+            .append(fctcallsb)
+            .append(")))");
+
+            assumptions.add(sb.toString());
+        }
+        return name;
     }
 
     private String makeExtraFunc(Function function) throws TermException {
@@ -851,6 +1050,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         }
 
         // Add for uniqueness
+        // TODO unique functions are injective!
+        // for a function f(a,b,c) introduce 3 inverse functions invfct1.f(f(a,b,c)) = a
         if(function.isUnique()) {
             StringBuilder sb = new StringBuilder();
             sb.append("Uniqueness of function symbol ").append(name).append("\n");
@@ -894,6 +1095,26 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         allTypeVariables.addAll(argumentTypeVariables);
         return allTypeVariables;
     }
+
+    private SortedSet<TypeVariable> collectTypeVars(Binder binder) {
+        Set<TypeVariable> resulttypeVariables =
+                TypeVariableCollector.collect(binder.getResultType());
+
+        Set<TypeVariable> vartypeVariables =
+                TypeVariableCollector.collect(binder.getVarType());
+
+        Set<TypeVariable> argumentTypeVariables =
+                TypeVariableCollector.collect(
+                        Util.readOnlyArrayList(binder.getArgumentTypes()));
+
+        SortedSet<TypeVariable> allTypeVariables = new TreeSet<TypeVariable>(STRING_COMPARATOR);
+        allTypeVariables.addAll(resulttypeVariables);
+        allTypeVariables.addAll(vartypeVariables);
+        allTypeVariables.addAll(argumentTypeVariables);
+
+        return allTypeVariables;
+    }
+
 
     //    /*
     //     * calculate the difference between two sets.
@@ -1230,5 +1451,61 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             sb.append(")");
             return sb.toString();
         }
+    }
+}
+
+/**
+ * This visitor is used to traverse the term. It calculates the set of free
+ * variables.
+ *
+ * FIXME remove the redundancy
+ *
+ * @see NoFreeVars.FreeVarChecker
+ */
+class FreeVarFinder extends DefaultTermVisitor.DepthTermVisitor {
+
+    /**
+     * The bound variables.
+     */
+    private final Stack<Variable> boundVariables = new Stack<Variable>();
+
+    /**
+     * The free variables.
+     */
+    private final Set<Variable> freeVariables = new HashSet<Variable>();
+
+    @Override
+    public void visit(Binding binding) throws TermException {
+        if (binding.getVariable() instanceof Variable) {
+            Variable variable = (Variable) binding.getVariable();
+            boundVariables.push(variable);
+            super.visit(binding);
+            boundVariables.pop();
+        } else {
+            // if schema variable bound
+            // LOG if we use logging once
+            Log.log(Log.WARNING,
+                    "We should actually only check unschematic terms, but: "
+                            + binding);
+            super.visit(binding);
+        }
+    }
+
+    @Override
+    public void visit(Variable variable) throws TermException {
+        if (!boundVariables.contains(variable)) {
+            freeVariables.add(variable);
+        }
+    }
+
+    public static Set<Variable> getFreeVariables(Term term) {
+        FreeVarFinder f = new FreeVarFinder();
+        try {
+            term.visit(f);
+        } catch (TermException e) {
+            // bever thrown
+            throw new Error();
+        }
+        return f.freeVariables;
     }
 }

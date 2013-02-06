@@ -13,7 +13,9 @@ package de.uka.iti.pseudo.auto;
 import static de.uka.iti.pseudo.auto.SMTLib2Translator.ExpressionType.BOOL;
 import static de.uka.iti.pseudo.auto.SMTLib2Translator.ExpressionType.INT;
 import static de.uka.iti.pseudo.auto.SMTLib2Translator.ExpressionType.UNIVERSE;
+import junit.framework.AssertionFailedError;
 import de.uka.iti.pseudo.TestCaseWithEnv;
+import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
@@ -39,8 +41,8 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
 
         t = makeTerm("(\\forall x as 'a; x = x)");
         assertEquals("(forall ((?Universe.x Universe)) " +
-        		"(! (implies (and (ty ?Universe.x tyvar.a))" +
-        		" (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
+                "(! (implies (and (ty ?Universe.x tyvar.a))" +
+                " (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
                 trans.translate(t, BOOL));
 
         t = makeTerm("(\\exists y; 0 <= y)");
@@ -49,8 +51,8 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
 
         t = makeTerm("(\\exists x as 'a; x = x)");
         assertEquals("(exists ((?Universe.x Universe)) " +
-        		"(! (and (and (ty ?Universe.x tyvar.a))" +
-        		" (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
+                "(! (and (and (ty ?Universe.x tyvar.a))" +
+                " (= ?Universe.x ?Universe.x)) :pattern ((ty ?Universe.x tyvar.a))))",
                 trans.translate(t, BOOL));
     }
 
@@ -230,7 +232,7 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         Term t = makeTerm("(\\forall x; (\\forall y; $pattern(x*y, x*y > 0)))");
         String tt = trans.translate(t, BOOL);
         assertEquals("(forall ((?Int.x Int) (?Int.y Int)) " +
-        		"(! (> (* ?Int.x ?Int.y) 0) :pattern ((* ?Int.x ?Int.y))))",
+                "(! (> (* ?Int.x ?Int.y) 0) :pattern ((* ?Int.x ?Int.y))))",
                 tt);
 
         // no default pattern like above
@@ -242,7 +244,7 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
                 "(! (implies (and (ty ?Universe.x ty.S) (ty ?Universe.y ty.S)) " +
                 "(fct.p ?Universe.x ?Universe.y)) " +
                 ":pattern ((fct.p ?Universe.x ?Universe.y))))",
-        tt);
+                tt);
     }
 
     public void testTyping() throws Exception {
@@ -303,7 +305,7 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         trans.translate(makeTerm("bf(s)"), BOOL);
         assertEquals("one assumption for s", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.s\n" +
-        		"(ty fct.s ty.S)", trans.assumptions.getLast());
+                "(ty fct.s ty.S)", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(boolResult(0))"), BOOL);
         assertEquals("no assumption for boolResult", assSize, trans.assumptions.size());
@@ -337,6 +339,68 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
                 ":pattern ((fct.tResult ?Type.a ?x0))))", trans.assumptions.getLast());
     }
 
+    public void testGeneralBinders() throws Exception {
+        env = makeEnv("sort S " +
+                "binder S (\\B S; S)");
+
+
+        SMTLib2Translator trans = new SMTLib2Translator(env);
+        String t = trans.translate(makeTerm("arb = (\\B x; x)"), BOOL);
+        assertEquals("(= (fct.arb ty.S) (bnd.B lambda.0 ))", t);
+
+        try {
+            assertTrue(trans.extrafuncs.contains("bnd.B ((Array Universe Universe)) Universe"));
+            assertTrue(trans.extrafuncs.contains("lambda.0 () (Array Universe Universe)"));
+        } catch (AssertionFailedError e) {
+            System.err.println("This failed, so print the functions:");
+            System.err.println(trans.extrafuncs);
+            throw e;
+        }
+    }
+
+    public void testPolymorphicBinders() throws Exception {
+        env = makeEnv("include \"$int.p\" " +
+                "sort set('a)" +
+                "binder set('a) (\\setComp 'a; bool)" +
+                "function bool in('a, set('a)) infix :: 50");
+
+        SMTLib2Translator trans = new SMTLib2Translator(env);
+        String t = trans.translate(makeTerm("(\\setComp x; x > 0)"), UNIVERSE);
+        assertEquals("(bnd.setComp ty.int lambda.0 )", t);
+
+        try {
+            assertTrue(trans.extrafuncs.contains("bnd.setComp (Type (Array Universe Bool)) Universe"));
+            assertTrue(trans.extrafuncs.contains("lambda.0 () (Array Universe Bool)"));
+        } catch (AssertionFailedError e) {
+            System.err.println("This failed, so print the functions:");
+            System.err.println(trans.extrafuncs);
+            throw e;
+        }
+
+        assertEquals("Lambda-Definition of lambda.0\n" +
+                    "(forall ((?x Universe)) (let ((?Int.x (u2i ?x))) " +
+                    "(= (select lambda.0 ?x) (> ?Int.x 0))))",
+                    trans.assumptions.getLast());
+
+        t = trans.translate(makeTerm("(\\forall y; y :: (\\setComp x; x > y))"), BOOL);
+        assertEquals("(forall ((?Int.y Int)) (fct.in ty.int (i2u ?Int.y)" +
+                " (bnd.setComp ty.int (lambda.1 ?Int.y) )))", t);
+
+        try {
+            assertTrue(trans.extrafuncs.contains("bnd.setComp (Type (Array Universe Bool)) Universe"));
+            assertTrue(trans.extrafuncs.contains("lambda.1 ( Int) (Array Universe Bool)"));
+        } catch (AssertionFailedError e) {
+            System.err.println("This failed, so print the functions:");
+            System.err.println(trans.extrafuncs);
+            throw e;
+        }
+
+        assertEquals("Lambda-Definition of lambda.1\n"+
+                "(forall ((?x Universe) (?Int.y Int)) (let ((?Int.x (u2i ?x))) " +
+                "(= (select (lambda.1 ?Int.y) ?x) (> ?Int.x ?Int.y))))",
+                trans.assumptions.getLast());
+    }
+
     // from a bug - a very nasty one indeed!!
     public void testFreeTypeVar() throws Exception {
         SMTLib2Translator trans = new SMTLib2Translator(env);
@@ -345,10 +409,11 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         env.addSort(new Sort("array", 1, ASTLocatedElement.CREATED));
         String t2 = trans.translate(makeTerm("(\\forall j as int; (\\forall v as 'ty_v; (\\T_all 'ty_v;true)))"), BOOL);
         assertEquals("(forall ((?Int.j Int) (?Universe.v Universe) (?Type.ty_v Type)) " +
-        		"(! (implies (and (ty ?Universe.v tyvar.ty_v)) true) " +
-        		":pattern ((ty ?Universe.v tyvar.ty_v))))", t2);
+                "(! (implies (and (ty ?Universe.v tyvar.ty_v)) true) " +
+                ":pattern ((ty ?Universe.v tyvar.ty_v))))", t2);
         assertTrue(trans.extrafuncs.contains("tyvar.ty_v () Type"));
 
     }
+
 
 }
