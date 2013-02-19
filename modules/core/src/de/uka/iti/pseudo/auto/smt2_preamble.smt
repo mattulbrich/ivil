@@ -1,6 +1,6 @@
 
-(declare-sort Universe )
-(declare-sort Type )
+(declare-sort Universe)
+(declare-sort Type)
 
 (declare-fun ty (Universe Type) Bool)
 (declare-fun ty.bool () Type)

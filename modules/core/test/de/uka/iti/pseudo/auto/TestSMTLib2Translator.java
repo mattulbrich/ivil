@@ -15,7 +15,6 @@ import static de.uka.iti.pseudo.auto.SMTLib2Translator.ExpressionType.INT;
 import static de.uka.iti.pseudo.auto.SMTLib2Translator.ExpressionType.UNIVERSE;
 import junit.framework.AssertionFailedError;
 import de.uka.iti.pseudo.TestCaseWithEnv;
-import de.uka.iti.pseudo.environment.Binder;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.Sort;
