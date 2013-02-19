@@ -65,6 +65,16 @@ rule lenOfSeqConcat
     rewrite "fol simp"
     asAxiom
 
+rule getOfSeqConcat
+  find seqGet(seqConcat(%seq, %seq2), %i)
+  replace cond(0 <= %i & %i < seqLen(%seq), 
+               seqGet(%seq, %i),
+               seqGet(%seq2, %i - seqLen(%seq)))
+  tags
+    derived
+    rewrite "fol simp"
+    asAxiom
+    
 rule seqLenOfSub
   find seqLen(seqSub(%a, %from, %to))
   replace cond(%from <= %to, %to-%from, 0)
