@@ -8,8 +8,8 @@ class A {
       @  ensures "0 <= resInt"
       @  ensures "resInt <= arrlen(a) - _x"
       @  ensures "resInt <= arrlen(a) - _y"
-      @  ensures "(\forall i; 0 <= i & i < resInt ->
-      @                 h[_a, idxInt(_x + i)] = h[_a, idxInt(_y + i)])"
+      @  ensures "(\forall j; 0 <= j & j < resInt ->
+      @                 h[_a, idxInt(_x + j)] = h[_a, idxInt(_y + j)])"
       @  ensures "resInt = arrlen(a) - _x |
       @           resInt = arrlen(a) - _y |
       @           !h[_a, idxInt(_x + resInt)] = h[_a, idxInt(_y + resInt)]"

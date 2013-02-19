@@ -1,6 +1,0 @@
-
-<project name="Java verification" default="build" basedir=".">
-  <property name="compiler.dir" value="../.." />
-  <property name="timeout" value="10" />
-  <import file="${compiler.dir}/include.xml" />
-</project>
