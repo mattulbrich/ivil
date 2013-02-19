@@ -169,8 +169,6 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
     private String showInputDialog() {
 
-        JOptionPane.showInputDialog("alo");
-
         final JTextComponent textField = new BracketMatchingTextArea();
         Object[] messages = {
                 "Please enter the formula to add as hypothesis:",

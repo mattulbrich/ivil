@@ -247,6 +247,8 @@ public final class PluginManager {
             Mappable<?> mappable = (Mappable<?>) instance;
             service.table.put(mappable.getKey(), instance);
         }
+
+        Log.log("Class %s registered for service %s", implementation, serviceName);
     }
 
     /**

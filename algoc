@@ -1,3 +1,6 @@
 #!/bin/sh
 
-java -cp $HOME/ivil/ivil.jar de.uka.iti.pseudo.algo.Translation "$@"
+CANONICAL=`readlink -f "$0"`
+BASE=`dirname "$CANONICAL"`
+
+java -cp $BASE/ivil.jar de.uka.iti.pseudo.algo.Translation "$@"
