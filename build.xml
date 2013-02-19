@@ -17,7 +17,7 @@
   
   <property name="ivil.debug" value="true" />
   <property name="ivil.version" value="0.20" />
-  <property name="ivil.keystoreAlias" value="mu2010" />
+  <property name="ivil.keystoreAlias" value="mu2013" />
   <property name="ivil.keystorePassword" value="keystore" />
   <property name="ivil.javac.source" value="1.6" />
   <property name="ivil.javac.target" value="1.6" />
