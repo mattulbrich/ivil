@@ -27,6 +27,9 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 @SuppressWarnings("serial")
 public class ExportSMTAction extends BarAction {
 
+    private static final String TMP_DIR =
+            System.getProperty("java.io.tmpdir", "");
+
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
@@ -34,7 +37,7 @@ public class ExportSMTAction extends BarAction {
             ProofNode proofNode = proofCenter.getCurrentProofNode();
             Sequent seq = proofNode.getSequent();
             SMTLib2Translator trans = new SMTLib2Translator(proofCenter.getEnvironment());
-            File tmp = File.createTempFile("ivilExport" + proofNode.getNumber() + ".", ".smt");
+            File tmp = createTempFile(proofNode.getNumber());
             FileWriter wr = new FileWriter(tmp);
             wr.write("; Sequent: " + seq.toString() + "\n");
             trans.export(seq, wr);
@@ -60,4 +63,14 @@ public class ExportSMTAction extends BarAction {
         }
     }
 
+    private File createTempFile(int number) {
+
+        int count = 0;
+        File tmpFile = new File(TMP_DIR, "ivilExport" + count + ".smt");
+        while(tmpFile.exists()) {
+            count ++;
+            tmpFile = new File(TMP_DIR, "ivilExport" + count + ".smt");
+        }
+        return tmpFile;
+    }
 }
