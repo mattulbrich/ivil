@@ -20,6 +20,7 @@ function
   reftype array(reftype) unique
   reftype typeof(ref)
   bool subtype(reftype, reftype)
+  bool interface(reftype)
 
   reftype array_int unique
   reftype array_char unique
@@ -52,6 +53,19 @@ rule covariant_arraytypes
     rewrite "fol simp"
     asAxiom
 
+rule singleInheritance
+  assume subtype(%a, %b) |-
+  find subtype(%a, %c) |-
+  add %a = C_null | subtype(%b,%c) | subtype(%c,%b) |
+       interface(%b) | interface(%c) |-
+
+axiom singleInheritance
+  (\forall a; (\forall b; (\forall c;
+    subtype(a, c)~~>
+    subtype(a, b) & subtype(a, c) ->
+    a = C_null | subtype(b,c) | subtype(c,b) |
+       interface(b) | interface(c) )))
+    
 rule object_is_top
   find subtype(%x, C_java_lang_Object)
   replace true
@@ -59,12 +73,26 @@ rule object_is_top
     asAxiom
     rewrite "fol simp"
 
+rule object_is_top2
+  find subtype(C_java_lang_Object, %x)
+  replace C_java_lang_Object = %x
+  tags
+    asAxiom
+    rewrite "fol simp"
+
+rule object_is_not_interface
+  find interface(C_java_lang_Object)
+  replace false
+  tags
+    asAxiom
+    rewrite "concrete"
+
 rule null_is_bottom
   find subtype(C_null, %x)
   replace true
   tags
     asAxiom
-    rewrite "fol simp"
+    rewrite "concrete"
 
 rule null_has_one_element
   find typeof(%x) = C_null

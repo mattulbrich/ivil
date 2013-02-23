@@ -21,6 +21,9 @@ include
   
 
 function
+
+  int jdiv(int, int)
+
   heap h assignable
   heap ho assignable
   heap pre_h assignable
@@ -49,3 +52,10 @@ rule freshObjects_def
   tags
     asAxiom
     rewrite "fol simp"
+
+rule jdiv_def
+  find jdiv(%n, %d)
+  replace cond(%n >= 0, %n/%d, (-%n)/(-%d))
+  tags
+    asAxiom
+    # rewrite "fol simp"

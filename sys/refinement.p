@@ -1,3 +1,8 @@
+
+#
+# This belongs to the bytecode translation to ivil
+#
+
 plugin
   metaFunction : "de.uka.iti.pseudo.rule.meta.RefinementModificationMetaFunction"
   contextExtension : "de.uka.iti.pseudo.gui.extensions.RefinementExpansionExt"
