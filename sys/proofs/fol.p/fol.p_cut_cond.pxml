@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Sun Feb 24 13:35:10 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- $not($and($impl($eq(cond(c,a,b),a),$not(c)),$impl($eq(cond(c,a,b),b),c)))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="not_right" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%b">$and($impl($eq(cond(c as bool,a as 'b,b as 'b) as 'b,a as 'b) as bool,$not(c as bool) as bool) as bool,$impl($eq(cond(c as bool,a as 'b,b as 'b) as 'b,b as 'b) as bool,c as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="" id="1">
+      <find>A.0</find>
+      <schemavariable name="%a">$impl($eq(cond(c as bool,a as 'b,b as 'b) as 'b,a as 'b) as bool,$not(c as bool) as bool) as bool</schemavariable>
+      <schemavariable name="%b">$impl($eq(cond(c as bool,a as 'b,b as 'b) as 'b,b as 'b) as bool,c as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="impl_left" path="" id="2">
+      <find>A.0</find>
+      <schemavariable name="%a">$eq(cond(c as bool,a as 'b,b as 'b) as 'b,a as 'b) as bool</schemavariable>
+      <schemavariable name="%b">$not(c as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="impl_left" path="0" id="3">
+      <find>A.0</find>
+      <schemavariable name="%a">$eq(cond(c as bool,a as 'b,b as 'b) as 'b,b as 'b) as bool</schemavariable>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cutOnThat" path="0,0" id="4">
+      <find>S.0.0.0</find>
+      <schemavariable name="%c">c as bool</schemavariable>
+      <typevariable name="c">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="cond_true" path="0,0,0" id="5">
+      <find>S.0.0</find>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0,0,0" id="6">
+      <find>S.0</find>
+      <schemavariable name="%t">a as 'b</schemavariable>
+      <typevariable name="t">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0,0,0" id="7">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="cond_false" path="0,0,1" id="8">
+      <find>S.0.0</find>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cond_known_right" path="0,0,1" id="9">
+      <find>S.1.0</find>
+      <assume>S.2</assume>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <schemavariable name="%c">c as bool</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0,0,1" id="10">
+      <find>S.1</find>
+      <schemavariable name="%t">b as 'b</schemavariable>
+      <typevariable name="t">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0,0,1" id="11">
+      <find>S.1</find>
+    </ruleApplication>
+    <ruleApplication rule="cond_known_left" path="0,1" id="12">
+      <find>S.0.0</find>
+      <assume>A.0</assume>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <schemavariable name="%c">c as bool</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0,1" id="13">
+      <find>S.0</find>
+      <schemavariable name="%t">a as 'b</schemavariable>
+      <typevariable name="t">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0,1" id="14">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1" id="15">
+      <find>A.0</find>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cond_known_right" path="1" id="16">
+      <find>A.0.0.0</find>
+      <assume>S.0</assume>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <schemavariable name="%c">c as bool</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="1" id="17">
+      <find>A.0.0</find>
+      <schemavariable name="%t">b as 'b</schemavariable>
+      <typevariable name="t">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="impl_true_l" path="1" id="18">
+      <find>A.0</find>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="1" id="19">
+      <find>S.0</find>
+      <assume>A.0</assume>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+  </steps>
+</proof>

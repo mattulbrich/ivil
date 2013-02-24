@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Sun Feb 24 13:34:51 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- $impl($not($eq(cond(c,a,b),b)),c)</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="impl_right" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%a">$not($eq(cond(c as bool,a as 'b,b as 'b) as 'b,b as 'b) as bool) as bool</schemavariable>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="" id="1">
+      <find>A.0</find>
+      <schemavariable name="%b">$eq(cond(c as bool,a as 'b,b as 'b) as 'b,b as 'b) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="replace_known_right" path="" id="2">
+      <find>S.1.0.0</find>
+      <assume>S.0</assume>
+      <schemavariable name="%b">c as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="cond_false" path="" id="3">
+      <find>S.1.0</find>
+      <schemavariable name="%a">a as 'b</schemavariable>
+      <schemavariable name="%b">b as 'b</schemavariable>
+      <typevariable name="b">'b</typevariable>
+      <typevariable name="a">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="" id="4">
+      <find>S.1</find>
+      <schemavariable name="%t">b as 'b</schemavariable>
+      <typevariable name="t">'b</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="" id="5">
+      <find>S.1</find>
+    </ruleApplication>
+  </steps>
+</proof>

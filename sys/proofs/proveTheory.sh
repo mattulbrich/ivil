@@ -23,7 +23,7 @@ target="$PROOFSDIR/$1"
 report="$target/report.xml"
 
 mkdir -p "$target"
-rm -f "$target"/*.p
+rm -f "$target"/"$1"_*.p
 rm -f "$report"
 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" >> "$report"
@@ -35,7 +35,7 @@ java -cp "$BASE/ivil.jar" \
    -Dpseudo.baseDir="$BASEDIR" \
    de.uka.iti.pseudo.justify.RuleJustification \
    -d "$target" \
-   -include "../proveHelper.p" \
+   -include "proveHelper.p" \
    "$SYSDIR/$1"
 
 #

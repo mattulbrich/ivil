@@ -68,13 +68,17 @@ rule forall_remove
   find (\forall %x; %b)
   where freshVar %x, %b
   replace %b
-  tags rewrite "fol simp"
+  tags 
+    rewrite "fol simp"
+    derived
 
 rule exists_remove
   find (\exists %x; %b)
   where freshVar %x, %b
   replace %b
-  tags rewrite "fol simp"
+  tags 
+    rewrite "fol simp"
+    derived
 
 (* 
  * universal type quantifications 
@@ -117,88 +121,6 @@ rule type_quant_right
 
 (* TODO: existential type quantifications *)
 
-(*
- * Conditionals
- *)
-rule cond_true
-  find  cond(true, %a, %b) 
-  replace  %a 
-  tags rewrite "concrete"
-       verbosity "8"
-
-rule cond_false
-  find  cond(false, %a, %b) 
-  replace  %b
-  tags rewrite "concrete"
-       verbosity "8"
-       
-rule cond_known_left
-  find  cond(%c, %a, %b) 
-  assume %c |-
-  replace  %a
-  tags rewrite "fol simp"
-       verbosity "8"
-       
-rule cond_known_right
-  find  cond(%c, %a, %b) 
-  assume |- %c
-  replace  %b
-  tags rewrite "fol simp"
-       verbosity "8"
-
-rule cut_cond
-  find cond(%c, %a, %b)
-  where 
-    toplevel
-  where
-    noFreeVars(%c)
-  samegoal "Assume true for {%c}"
-    add %c |-
-    replace %a
-  samegoal "Assume false for {%c}"
-    add |- %c
-    replace %b
-  tags rewrite "split"
-
-(*
- * Weakly typed equality
- *)
-
-rule weakeq_incompatible_types
-  find  $weq(%a, %b)
-  where not compatibleTypes  %a, %b 
-  replace false
-  tags rewrite "fol simp"
-       verbosity "6"
-       
-rule weakeq_same_types
-  find  $weq(%a as %'a, %b as %'a)
-  replace %a = %b
-  tags rewrite "fol simp"       
-       verbosity "6"
-
-rule weakeq_apply_retype
-  assume $weq(%a as %'a, %b as %'b) |-
-  find retype(%a) as %'b
-  replace %b
-
-rule retype_identity
-  find retype(%x as %'a) as %'a
-  replace %x
-  tags 
-    rewrite "concrete"
-    asAxiom
-
-rule weakeq_type_coercion_left
-  assume $weq(%a as %'a, %b as %'b) |-
-  find %form |-
-  replace $$unifyTypes(type as %'a, type as %'b, %form)
-
-rule weakeq_type_coercion_right
-  assume $weq(%a as %'a, %b as %'b) |-
-  find |- %form
-  replace $$unifyTypes(type as %'a, type as %'b, %form)
-  
 (*
  * Equality
  *)
@@ -266,6 +188,93 @@ rule equality_unique
   tags rewrite "fol simp"
        verbosity "8"
 
+(*
+ * Conditionals
+ *)
+rule cond_true
+  find  cond(true, %a, %b) 
+  replace  %a 
+  tags rewrite "concrete"
+       verbosity "8"
+
+rule cond_false
+  find  cond(false, %a, %b) 
+  replace  %b
+  tags rewrite "concrete"
+       verbosity "8"
+       
+rule cond_known_left
+  find  cond(%c, %a, %b) 
+  assume %c |-
+  replace  %a
+  tags rewrite "fol simp"
+       verbosity "8"
+       derived
+       
+rule cond_known_right
+  find  cond(%c, %a, %b) 
+  assume |- %c
+  replace  %b
+  tags rewrite "fol simp"
+       verbosity "8"
+       derived
+
+rule cut_cond
+  find cond(%c, %a, %b)
+  where 
+    toplevel
+  where
+    noFreeVars(%c)
+  samegoal "Assume true for {%c}"
+    add %c |-
+    replace %a
+  samegoal "Assume false for {%c}"
+    add |- %c
+    replace %b
+  tags 
+    rewrite "split"
+    derived
+
+(*
+ * Weakly typed equality
+ *)
+
+rule weakeq_incompatible_types
+  find  $weq(%a, %b)
+  where not compatibleTypes  %a, %b 
+  replace false
+  tags rewrite "fol simp"
+       verbosity "6"
+       
+rule weakeq_same_types
+  find  $weq(%a as %'a, %b as %'a)
+  replace %a = %b
+  tags rewrite "fol simp"       
+       verbosity "9"
+
+rule weakeq_apply_retype
+  assume $weq(%a as %'a, %b as %'b) |-
+  find retype(%a) as %'b
+  replace %b
+
+rule retype_identity
+  find retype(%x as %'a) as %'a
+  replace %x
+  tags 
+    rewrite "concrete"
+    verbosity "9"
+    asAxiom
+
+rule weakeq_type_coercion_left
+  assume $weq(%a as %'a, %b as %'b) |-
+  find %form |-
+  replace $$unifyTypes(type as %'a, type as %'b, %form)
+
+rule weakeq_type_coercion_right
+  assume $weq(%a as %'a, %b as %'b) |-
+  find |- %form
+  replace $$unifyTypes(type as %'a, type as %'b, %form)
+  
 (*
  * Pattern treatment
  *)
