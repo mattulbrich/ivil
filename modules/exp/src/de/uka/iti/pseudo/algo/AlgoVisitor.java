@@ -20,7 +20,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     public AlgoVisitor(Translation translation, boolean refinementMode) {
         this.translation = translation;
         this.refinementMode = refinementMode;
-        this.termVisitor = new TermVisitor(translation);
+        this.termVisitor = new TermVisitor(translation, statements);
     }
 
     public List<String> extractProgram(ASTAlgo node) {

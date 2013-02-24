@@ -1,17 +1,30 @@
 package de.uka.iti.pseudo.algo;
 
+import java.util.List;
+
 public class TermVisitor extends DefaultAlgoParserVisitor {
 
     private final Translation translation;
     private final String mapFunction;
+    private final List<String> statements;
 
     /**
+     * The statement list will be used to add assertions.
+     *
      * @param translation
+     *            the translation which is in use
+     * @param statements
+     *            the statement buffer containg the translation.
      */
-    public TermVisitor(Translation translation) {
+    public TermVisitor(Translation translation, List<String> statements) {
         super();
         this.translation = translation;
+        this.statements = statements;
         this.mapFunction = translation.getOption("mapFunction");
+    }
+
+    public TermVisitor(Translation translation) {
+        this(translation, null);
     }
 
     @Override
@@ -47,18 +60,30 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visit(ASTMapAccessExpression node, Object data) {
+        String map = visitChild(node, 0);
+        String index = visitChild(node, 1);
         if(mapFunction == null) {
-            return visitChild(node, 0) + "[" + visitChild(node, 1) + "]";
+            return map + "[" + index + "]";
         } else {
-            return mapFunction + "(" + visitChild(node, 0) + ", " + visitChild(node, 1) + ")";
+            if (statements != null && "seqGet".equals(mapFunction)) {
+                statements.add("  assert 0 <= (" + index + ") & (" +
+                        index + ") < seqLen(" + map + ") ; \"sequence index in range\"");
+            }
+            return mapFunction + "(" + map + ", " + index + ")";
         }
     }
 
     @Override
     public String visit(ASTBinaryExpression node, Object data) {
         assert node.jjtGetNumChildren() == 2;
-        return "(" + visitChild(node, 0) + " " +
-                node.jjtGetValue().toString() + " " +
+        String operator = node.jjtGetValue().toString();
+
+        if (statements != null && "/".equals(operator)) {
+            statements.add("  assert !" + visitChild(node, 1) +
+                    " = 0 ; \"check denominator not zero\"");
+        }
+
+        return "(" + visitChild(node, 0) + " " + operator + " " +
                 visitChild(node, 1) + ")";
     }
 
@@ -72,7 +97,13 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTApplicationExpression node, Object data) {
         StringBuilder sb = new StringBuilder();
-        sb.append(visitChild(node, 0));
+        String name = visitChild(node, 0);
+
+        if(statements != null && "card".equals(name)) {
+            statements.add("  assert finite(" + visitChild(node, 1) + ")");
+        }
+
+        sb.append(name);
         if(node.jjtGetNumChildren() > 1) {
             sb.append("(");
             sb.append(visitChild(node, 1));
