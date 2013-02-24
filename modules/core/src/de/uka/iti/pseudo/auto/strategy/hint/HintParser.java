@@ -28,14 +28,14 @@ import de.uka.iti.pseudo.environment.EnvironmentException;
 
 /**
  * The Class HintParser parses a string for potential proof hint annotations.
- * 
+ *
  * <h3>Proof hints</h3>
- * 
+ *
  * Hints are always initiated with a special character ({@link #INIT_CHAR},
  * followed by either an identifier or a list of space separated identifier in
  * parentheses. Extended identifiers containing spaces or any other character
  * can be quoted using 'single quotes'.
- * 
+ *
  * <h3>Returned objects</h3>
  */
 public final class HintParser {
@@ -52,7 +52,7 @@ public final class HintParser {
 
     /**
      * Instantiates a new hint parser.
-     * 
+     *
      * @param env
      *            the environment to work in
      */
@@ -62,7 +62,7 @@ public final class HintParser {
 
     /**
      * Parses hints from a string.
-     * 
+     *
      * @param string
      *            the string to parse
      * @return a list of freshly created rule finders.
@@ -81,7 +81,7 @@ public final class HintParser {
 
     /**
      * Parses hints from a reader.
-     * 
+     *
      * @param reader
      *            the reader to take characters from
      * @return a list of freshly created rule finders.
@@ -100,9 +100,9 @@ public final class HintParser {
 
     /**
      * Parses hints from a {@link PushbackReader}.
-     * 
+     *
      * The reader must be capable to accomodate another character.
-     * 
+     *
      * @param string
      *            the reader to take characters from.
      * @return a list of freshly created rule finders.
@@ -149,7 +149,7 @@ public final class HintParser {
 
     /*
      * Parses a hint.
-     * 
+     *
      * This assumes that the {@link #INIT_CHAR} has been parsed and we continue
      * from that point on. Is a state machine using states from State.
      */
@@ -217,10 +217,10 @@ public final class HintParser {
     /**
      * A hint has been parsed into a list of strings. Make a hint rule app
      * finder from that:
-     * 
+     *
      * (1) Get the corresponding ProofHint plugin from the environment (2)
      * create the rule app finder from the plugin
-     * 
+     *
      * @param list
      *            arguments to the hint
      * @return a fresh hint rule app finder

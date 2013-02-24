@@ -19,7 +19,7 @@ public class PropositionalExpansionExt implements ContextExtension {
         { "and_left", "or_right", "impl_right" };
 
     private final static String[] SPLIT_RULES =
-        { "and_right", "or_left", "impl_left" };
+        { "and_right"};// "or_left", "impl_left" };
 
     @Override public String getKey() {
         return "Propositional Expansion";
@@ -46,7 +46,7 @@ public class PropositionalExpansionExt implements ContextExtension {
             Environment env = proofCenter.getEnvironment();
 
             ProofNode n = openGoals.remove(0);
-            for (String rulename : ruleset) {
+            rules: for (String rulename : ruleset) {
                 Rule rule = env.getRule(rulename);
                 if(rule != null) {
                     RuleApplicationMaker ram = new RuleApplicationMaker(env);
@@ -59,6 +59,7 @@ public class PropositionalExpansionExt implements ContextExtension {
                             ram.matchInstantiations();
                             proofCenter.getProof().apply(ram, env);
                             openGoals.addAll(n.getChildren());
+                            continue rules;
                         } catch (ProofException e) {
                             // did not match, so what ...
                         }
@@ -71,6 +72,7 @@ public class PropositionalExpansionExt implements ContextExtension {
                             ram.matchInstantiations();
                             proofCenter.getProof().apply(ram, env);
                             openGoals.addAll(n.getChildren());
+                            continue rules;
                         } catch (ProofException e) {
                             // did not match, so what ...
                         }

@@ -75,6 +75,8 @@ public class RewriteRuleCollection {
      * The mechanism works locally on a term. Hence, rules with assumptions will
      * break the soundness of caching. This can be switched off (set to
      * <code>null</code>) if the category contains assumption-rules.
+     *
+     * The set is synchronised to allow for several strategy threads at a time.
      */
     private @Nullable Set<Term> noMatchCache =
             Collections.synchronizedSet(new HashSet<Term>());
