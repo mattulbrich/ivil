@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -62,12 +63,13 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F8, 0));
     }
 
+    @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
         if (proofCenter != null) {
-            
+
             axiomRule = proofCenter.getEnvironment().getRule("axiom");
-            
+
             if(axiomRule == null) {
                 setEnabled(false);
             } else {
@@ -75,42 +77,43 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
                 proofCenter.addNotificationListener(ProofCenter.PROOFTREE_HAS_CHANGED, this);
             }
         }
-        
+
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean) evt.getNewValue());
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         assert axiomRule != null : "this should only come up if the rule is defined";
-        
+
         ProofCenter pc = getProofCenter();
         Environment env = pc.getEnvironment();
         AxiomChooserDialog dlg = new AxiomChooserDialog(getParentFrame(),
                 env, pc.getPrettyPrinter());
-        
+
         Log.log(Log.TRACE, "before set visible");
         dlg.setVisible(true);
         String axiomName = dlg.getAxiomName();
-        
+
         Log.log("Selected axiom: " + axiomName);
-        
+
         if(axiomName != null) {
             Axiom axiom = env.getAxiom(axiomName);
             Proof proof = pc.getProof();
-            
+
             assert axiom != null : "the axiom must be found in the environment";
-            
+
             MutableRuleApplication ruleApp = new MutableRuleApplication();
             ruleApp.getProperties().put(AxiomCondition.AXIOM_NAME_PROPERTY, axiomName);
             ruleApp.setRule(axiomRule);
             ruleApp.getSchemaVariableMapping().put("%b", axiom.getTerm());
-            
+
             ProofNode node = pc.getCurrentProofNode();
-            
+
             ruleApp.setProofNode(node);
             try {
                 proof.apply(ruleApp, env);
@@ -118,7 +121,7 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
                 ex.printStackTrace();
             }
             pc.fireProoftreeChangedNotification(true);
-            
+
         }
     }
 
@@ -133,11 +136,11 @@ public class InsertAxiomAction extends BarAction implements InitialisingAction,
 
 @SuppressWarnings("serial")
 class AxiomChooserDialog extends JDialog {
-    
+
     private String axiomName = null;
 
     private JList axiomList;
-    
+
     /**
      * The font to use for printing rules
      */
@@ -163,8 +166,9 @@ class AxiomChooserDialog extends JDialog {
                     @Override
                     public void valueChanged(ListSelectionEvent e) {
                         Log.enter(e);
-                        if(e.getValueIsAdjusting())
+                        if(e.getValueIsAdjusting()) {
                             return;
+                        }
                         if(axiomList.isSelectionEmpty()) {
                             axiomFormula.setText("");
                         } else {
@@ -223,11 +227,12 @@ class AxiomChooserDialog extends JDialog {
         for (Axiom axiom : environment.getAllAxioms()) {
             ret.add(axiom.getName());
         }
+        Collections.sort(ret);
         Log.log(Log.TRACE, System.currentTimeMillis());
         Log.leave();
         return ret;
     }
-    
+
     /**
      * @return the axiomName
      */
@@ -235,5 +240,5 @@ class AxiomChooserDialog extends JDialog {
         return axiomName;
     }
 
-    
+
 }

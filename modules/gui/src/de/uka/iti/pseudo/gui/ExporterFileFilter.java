@@ -20,17 +20,19 @@ import de.uka.iti.pseudo.proof.serialisation.ProofExport;
  */
 public class ExporterFileFilter extends FileFilter {
 
-    private ProofExport exporter;
+    private final ProofExport exporter;
 
     public ExporterFileFilter(ProofExport exporter) {
         this.exporter = exporter;
     }
 
+    @Override
     public boolean accept(File f) {
         return f.isDirectory()
                 || f.getName().endsWith("." + getExporter().getFileExtension());
     }
 
+    @Override
     public String getDescription() {
         return getExporter().getName();
     }

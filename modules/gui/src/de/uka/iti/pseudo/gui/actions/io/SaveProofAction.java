@@ -41,10 +41,11 @@ import de.uka.iti.pseudo.util.GUIUtil;
  * implementing classes of {@link ProofExport} are listed as possible export
  * formats.
  */
-@SuppressWarnings("serial") 
-public class SaveProofAction extends BarAction 
+@SuppressWarnings("serial")
+public class SaveProofAction extends BarAction
     implements PropertyChangeListener, InitialisingAction {
-    
+
+    // moved to the xml config file
 //    public SaveProofAction() {
 //        super("Save proof ...", GUIUtil.makeIcon(SaveProofAction.class.getResource("../img/page_save.png")));
 //        putValue(ACTION_COMMAND_KEY, "saveProb");
@@ -52,30 +53,39 @@ public class SaveProofAction extends BarAction
 //        putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 //        putValue(MNEMONIC_KEY, KeyEvent.VK_S);
 //    }
-    
+
     /*
-     * Add myself as a listener to IN_PROOF messages. 
+     * Add myself as a listener to IN_PROOF messages.
      */
+    @Override
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
-    
+
     /*
      * We are only listening to IN_PROOF messages so we can disable and enable
      * ourselves directly.
      */
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
-    
+
     /*
      * Show a save As Dialog and save the data using a {@link ProofExport}.
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         JFileChooser fileChooser = Main.makeFileChooser(Main.PROOF_FILE);
-        
+
         while(true) {
+
+            ExporterFileFilter fileFilter = (ExporterFileFilter)fileChooser.getFileFilter();
+            String ext = fileFilter.getExporter().getFileExtension();
+            String resName = getProofCenter().getEnvironment().getResourceName();
+            String proposal = resName + "." + ext;
+            fileChooser.setSelectedFile(new File(proposal));
 
             MainWindow mainWindow = getProofCenter().getMainWindow();
             int result = fileChooser.showSaveDialog(mainWindow);
@@ -94,12 +104,14 @@ public class SaveProofAction extends BarAction
                 File selectedFile = fileChooser.getSelectedFile();
                 if(selectedFile.exists()) {
                     result = JOptionPane.showConfirmDialog(mainWindow, "File " +
-                            selectedFile + " exists. Overwrite?", 
+                            selectedFile + " exists. Overwrite?",
                             "Overwrite file", JOptionPane.YES_NO_CANCEL_OPTION);
-                    if(result == JOptionPane.NO_OPTION)
+                    if(result == JOptionPane.NO_OPTION) {
                         continue;
-                    if(result == JOptionPane.CANCEL_OPTION)
+                    }
+                    if(result == JOptionPane.CANCEL_OPTION) {
                         return;
+                    }
                 }
 
                 FileOutputStream os = null;
@@ -108,19 +120,20 @@ public class SaveProofAction extends BarAction
                     os = new FileOutputStream(selectedFile);
 
                     Proof proof = getProofCenter().getProof();
-                    proofExporter.exportProof(os, proof, 
+                    proofExporter.exportProof(os, proof,
                             getProofCenter().getEnvironment());
-                    
+
                     proof.changesSaved();
-                    
+
                 } catch (Exception ex) {
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
                 } finally {
-                    if(os != null)
+                    if(os != null) {
                         try { os.close();
                         } catch (IOException ioex) {
                             ioex.printStackTrace();
                         }
+                    }
                 }
                 return;
             } else {
