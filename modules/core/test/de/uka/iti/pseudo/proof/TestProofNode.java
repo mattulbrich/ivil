@@ -41,7 +41,7 @@ public class TestProofNode extends TestCaseWithEnv {
         boolean b = app.getTermMatcher().leftMatch(pattern, term);
         assertTrue(b);
         assertEquals(Environment.getBoolType(), app.getTypeVariableMapping().get("b"));
-        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
+        app.getTermMatcher().addInstantiation("%inst", makeTerm("3"));
 
         p.apply(app, env);
 
@@ -69,7 +69,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setFindSelector(new TermSelector("A.0"));
         app.setProofNode(p.getRoot());
         app.getTermMatcher().leftMatch(pattern, term);
-        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%inst as int"), makeTerm("3"));
+        app.getTermMatcher().addInstantiation("%inst", makeTerm("3"));
 
         p.apply(app, env);
 
@@ -193,7 +193,7 @@ public class TestProofNode extends TestCaseWithEnv {
         app.setRule(rule);
         app.setProofNode(p.getRoot());
         app.setFindSelector(new TermSelector("S.0"));
-        app.getTermMatcher().addInstantiation((SchemaVariable) makeTerm("%a as bool"), makeTerm("true"));
+        app.getTermMatcher().addInstantiation("%a", makeTerm("true"));
 
         p.apply(app, env);
 

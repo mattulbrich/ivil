@@ -202,8 +202,7 @@ public class TestTermUnification extends TestCaseWithEnv {
     public void testOccurCheck() throws Exception {
         TermMatcher mc = new TermMatcher();
         try {
-            mc.addInstantiation(SchemaVariable.getInst("%a", Environment
-                    .getIntType()), mt("%a + 2"));
+            mc.addInstantiation("%a", mt("%a + 2"));
             fail("should fail");
         } catch (TermException e) {
             // should fail

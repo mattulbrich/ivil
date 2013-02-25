@@ -254,7 +254,8 @@ public final class TermMatcher {
      * Adds an instantiation to the mapping.
      *
      * The schema variable must not already have been instantiated and the
-     * instantiation must not contain schema variables.
+     * instantiation must not contain schema variables. A schema variable
+     * of the same name must also not be instantiated already.
      *
      * <p>
      * <i>The latter condition is not mandatory and merely included because
@@ -272,15 +273,41 @@ public final class TermMatcher {
      */
     public void addInstantiation(@NonNull SchemaVariable sv,
             @NonNull Term term) throws TermException {
-        if(instantiation.get(sv.getName()) != null) {
+        addInstantiation(sv.getName(), term);
+    }
+
+    /**
+     * Adds an instantiation to the mapping.
+     *
+     * The schema variable must not already have been instantiated and the
+     * instantiation must not contain schema variables.
+     *
+     * <p>
+     * <i>The latter condition is not mandatory and merely included because
+     * this is the case needed in this application. Removing it would require
+     * attention because of possible circularities.</i>
+     *
+     * @param sv
+     *            the name of the schema variable to instantiate
+     * @param term
+     *            the schema-free term to instantiate
+     *
+     * @throws TermException
+     *             if sv is already instantiated or term contains schema
+     *             variables.
+     */
+    public void addInstantiation(@NonNull String sv,
+            @NonNull Term term) throws TermException {
+        if(instantiation.get(sv) != null) {
             throw new TermException("SchemaVariable " + sv + " already instantiated");
         }
         if(containsSchematic(term)) {
             throw new TermException("Instantiation " + term + " contains schema entity");
         }
 
-        instantiation.put(sv.getName(), term);
+        instantiation.put(sv, term);
     }
+
 
     /**
      * Adds an update instantiation to the mapping.

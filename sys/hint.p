@@ -33,6 +33,9 @@ plugin
     # proof hint to perform focus on last formula like §(expand funct_def 2)
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.ExpandProofHint"
 
+    # proof hint to perform instantiation on a gamma formula like
+    # §(inst j with 2) or §(inst '(\forall x.x*x>=0)' with 2)
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.InstantiateProofHint"
    
 (*
  * "Focus" reduces the sequent to one single formula,

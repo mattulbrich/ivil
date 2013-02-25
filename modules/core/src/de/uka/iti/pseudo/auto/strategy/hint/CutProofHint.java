@@ -22,16 +22,16 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 
 /**
  * The Class CutProofHint implements a proof hint which applies the cut rule.
- * 
+ *
  * @ivildoc "Proof hint/cut"
- * 
+ *
  * <h2>Proof hint <code>cut</code></h2>
- * 
+ *
  * In order to perform a case distinction on a branch, this hint can be used.
- * 
+ *
  * <h3>Arguments</h3>
  * cut takes one argument which is the formula upon which to perform the cut.
- * 
+ *
  * <h3>Example</h3>
  * <pre>
  * assert x*x >= 0 ; "examine by sign §(cut 'x >= 0')"
@@ -61,7 +61,7 @@ class CutHintAppFinder extends HintRuleAppFinder {
     public CutHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
         super(arguments);
         this.env = env;
-        
+
         if(arguments.size() != 2) {
             throw new StrategyException("The proofhint 'cut' expects exactly one argument");
         }
@@ -69,8 +69,8 @@ class CutHintAppFinder extends HintRuleAppFinder {
 
     /**
      * {@inheritDoc}
-     * 
-     * <p>The cut rule is applied only on the reasonNode. 
+     *
+     * <p>The cut rule is applied only on the reasonNode.
      */
     @Override
     public RuleApplication findRuleApplication(ProofNode node,
@@ -86,12 +86,12 @@ class CutHintAppFinder extends HintRuleAppFinder {
             Term formula = TermMaker.makeAndTypeTerm(arguments[1], env);
             RuleApplicationMaker ram = new RuleApplicationMaker(env);
             ram.setRule(env.getRule("cut"));
-            ram.getTermMatcher().addInstantiation(SchemaVariable.getInst("%inst", Environment.getBoolType()), formula);
+            ram.getTermMatcher().addInstantiation("%inst", formula);
             ram.setProofNode(node);
             return ram;
         } catch (Exception e) {
             throw new StrategyException("Cannot create cut formula from " + arguments[1], e);
         }
     }
-    
+
 }
