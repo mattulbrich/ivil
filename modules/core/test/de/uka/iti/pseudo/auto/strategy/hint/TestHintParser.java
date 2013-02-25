@@ -67,4 +67,11 @@ public class TestHintParser extends TestCaseWithEnv {
         assertEquals("[[mock, quoted string, unquoted, semi quoted]]", result.toString());
     }
 
+    public void testTwoHints() throws Exception {
+        HintParser parser = new HintParser(env);
+
+        List<HintRuleAppFinder> result = parser.parse("before §(mock 'quoted string') §(mock unquoted) after");
+        assertEquals("[[mock, quoted string], [mock, unquoted]]", result.toString());
+    }
+
 }

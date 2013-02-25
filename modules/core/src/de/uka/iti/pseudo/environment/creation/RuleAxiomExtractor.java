@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.environment.creation;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +165,14 @@ public class RuleAxiomExtractor {
 
         Term term = makeAxiomTerm(rule);
 
-        Axiom axiom = new Axiom(rule.getName(), term, GENERATED, ASTLocatedElement.CREATED);
+
+        Map<String, String> properties = GENERATED;
+        if(rule.getDefinedProperties().contains(RuleTagConstants.EXCLUDE_FROM_DP)) {
+            properties = new HashMap<String, String>(GENERATED);
+            properties.put(RuleTagConstants.EXCLUDE_FROM_DP, "");
+        }
+
+        Axiom axiom = new Axiom(rule.getName(), term, properties, ASTLocatedElement.CREATED);
 
         // DEBUG
 //        axiom.getTerm().visit(new ToplevelCheckVisitor());

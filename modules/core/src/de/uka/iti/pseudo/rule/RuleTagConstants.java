@@ -214,4 +214,15 @@ public final class RuleTagConstants {
      *
      */
     public static final String HINTS_ON_BRANCHES = "hintsOnBranches";
+
+    /**
+     * @ivildoc "Rule tag/excludeFromDP"
+     *
+     * <h2> Rule tag <tt>excludeFromDP</tt></h2>
+     *
+     * An axiom can be excluded from the translation to the decision procedure by
+     * adding this tag. It can still be applied interactively or brought to the
+     * sequent by an <a href="ivil:/Proof hint/axiom">axiom proof hint</a>.
+     */
+    public static final String EXCLUDE_FROM_DP = "excludeFromDP";
 }

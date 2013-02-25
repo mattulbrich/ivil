@@ -21,6 +21,10 @@ plugin
     # proof hint where a rule application is given like §(rule ruleName)
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.RuleProofHint"
 
+    # proof hint where an axiom is introduced like §(axiom axiomName)
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.AxiomProofHint"
+
+
     # proof hint to perform a case distinction like §(cut 'a > 0')
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.CutProofHint"
 

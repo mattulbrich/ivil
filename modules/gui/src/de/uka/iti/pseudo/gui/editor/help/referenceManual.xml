@@ -19,17 +19,17 @@
     </entry>
     <entry name="strategies">
       <![CDATA[
- 
+
  The environment property <tt>CompoundStrategy.strategies</tt> can be used
  to specifify the automatic strategies which are to be bundled to conduct
  an automatic proof. The order in which they are specified gives their
  order of application.
- 
+
  <p>
  Usually the default is a good value. If you want to deviate, specify a
  comma separated list of implementing classes. If no package is given,
  <tt>"de.uka.iti.pseudo.auto.strategy."</tt> is assumed.
- 
+
  <p><b>Example:</b>
  <pre>
  properties
@@ -61,7 +61,7 @@
     </entry>
     <entry name="stopAtSkip">
       <![CDATA[
- 
+
  The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
  used to specify whether symbolic execution should stop whenever reaching
  a <tt>skip</tt> statement. The value can be "<code>true</code>" or "
@@ -69,7 +69,7 @@
     </entry>
     <entry name="obeySourceBreakpoints">
       <![CDATA[
- 
+
  The environment property
  <tt>BreakpointStrategy.obeySourceBreakpoints</tt> can be used to specify
  whether symbolic execution breakpoints set on level of the source code
@@ -78,7 +78,7 @@
     </entry>
     <entry name="stopAtLoop">
       <![CDATA[
- 
+
  The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
  used to specify whether symbolic execution should stop whenever reaching
  a goto statement of which one target lies before the current location.
@@ -87,7 +87,7 @@
     </entry>
     <entry name="obeyProgramBreakpoints">
       <![CDATA[
- 
+
  The environment property
  <tt>BreakpointStrategy.obeyProgramBreakpoints</tt> can be used to specify
  whether symbolic execution breakpoints set on level of the ivil program
@@ -96,37 +96,6 @@
     </entry>
   </category>
   <category name="Rule tag">
-    <entry name="rewrite">
-      <![CDATA[
-
- <h2>Rule tag <tt>rewrite</tt></h2>
-
- "rewrite" expects a string argument.
-
- <p>
- It declares the set of rewrite rules to which a rule belongs. They list
- of known rule sets include the following:
- <ol>
- <li>"updSimpl" - update simplification</li>
- <li>"close" - rules to close goals</li>
- <li>"concrete" - rules involving operations on constants (
- <tt>false | a</tt> to <tt>a</tt>)</li>
- <li>"prop simp" - propositional simplification</li>
- <li>"fol simp" - first order simplification</li>
- </ol>
- Rule sets are applied in that order by the simplification strategy.
- There are other rule sets for more specific purposes. "symbex" is used
- for symbolic execution for instance.]]>
-    </entry>
-    <entry name="autoonly">
-      <![CDATA[
-
- <h2>Rule tag <tt>autoonly</tt></h2>
-
- "autoonly" does not take an argument.
-
- <p>It makes a rule invisible for manual application.]]>
-    </entry>
     <entry name="decisionProcedure">
       <![CDATA[
 
@@ -136,15 +105,6 @@
 
  <p>It denotes the decision procedure plugin to instantiate.]]>
     </entry>
-    <entry name="additionalParam">
-      <![CDATA[
- <h2>Rule tag <tt>additionalParam</tt></h2>
-
- "additionalParam" expects a string as argument.
-
- <p>The format of the string depends on the DP to be used.
- It is given to the DP on the command line.]]>
-    </entry>
     <entry name="hintsOnBranches">
       <![CDATA[
 
@@ -153,26 +113,6 @@
  "hintsOnBranches" takes a comma separated list of integer numbers as
  argument. It is used by the proof hint strategy to decide on which child
  branches hints are to be applied. The first child branch has number "0".]]>
-    </entry>
-    <entry name="asAxiom">
-      <![CDATA[
-
- <h2>Rule tag <tt>asAxiom</tt></h2>
-
- "asAxiom" does not take an argument.
-
- <p>It marks a rule to be translated into an axiom which allows it to
- be translated to SMT. This is not possible for all rules.]]>
-    </entry>
-    <entry name="derived">
-      <![CDATA[
-
- <h2>Rule tag <tt>derived</tt></h2>
-
- "derived" does not an need argument.
-
- <p>It marks a rule to be inferrable by the rules preceeding it (plus
- includes)]]>
     </entry>
     <entry name="display">
       <![CDATA[
@@ -218,6 +158,75 @@
  schema update.</td>
  </tr>
  </table>]]>
+    </entry>
+    <entry name="rewrite">
+      <![CDATA[
+
+ <h2>Rule tag <tt>rewrite</tt></h2>
+
+ "rewrite" expects a string argument.
+
+ <p>
+ It declares the set of rewrite rules to which a rule belongs. They list
+ of known rule sets include the following:
+ <ol>
+ <li>"updSimpl" - update simplification</li>
+ <li>"close" - rules to close goals</li>
+ <li>"concrete" - rules involving operations on constants (
+ <tt>false | a</tt> to <tt>a</tt>)</li>
+ <li>"prop simp" - propositional simplification</li>
+ <li>"fol simp" - first order simplification</li>
+ </ol>
+ Rule sets are applied in that order by the simplification strategy.
+ There are other rule sets for more specific purposes. "symbex" is used
+ for symbolic execution for instance.]]>
+    </entry>
+    <entry name="autoonly">
+      <![CDATA[
+
+ <h2>Rule tag <tt>autoonly</tt></h2>
+
+ "autoonly" does not take an argument.
+
+ <p>It makes a rule invisible for manual application.]]>
+    </entry>
+    <entry name="additionalParam">
+      <![CDATA[
+ <h2>Rule tag <tt>additionalParam</tt></h2>
+
+ "additionalParam" expects a string as argument.
+
+ <p>The format of the string depends on the DP to be used.
+ It is given to the DP on the command line.]]>
+    </entry>
+    <entry name="asAxiom">
+      <![CDATA[
+
+ <h2>Rule tag <tt>asAxiom</tt></h2>
+
+ "asAxiom" does not take an argument.
+
+ <p>It marks a rule to be translated into an axiom which allows it to
+ be translated to SMT. This is not possible for all rules.]]>
+    </entry>
+    <entry name="derived">
+      <![CDATA[
+
+ <h2>Rule tag <tt>derived</tt></h2>
+
+ "derived" does not an need argument.
+
+ <p>It marks a rule to be inferrable by the rules preceeding it (plus
+ includes)]]>
+    </entry>
+    <entry name="excludeFromDP">
+      <![CDATA[
+
+ <h2> Rule tag <tt>excludeFromDP</tt></h2>
+
+ An axiom can be excluded from the translation to the decision procedure by
+ adding this tag. It can still be applied interactively or brought to the
+ sequent by an <a href="ivil:/Proof hint/axiom">axiom proof hint</a>.]]>
     </entry>
     <entry name="fromRule">
       <![CDATA[
@@ -470,100 +479,6 @@
  against a term which is not in the scope of an update or a program modality,
  <code>false</code> otherwise. Does not fail.]]>
     </entry>
-    <entry name="unorderedTerms">
-      <![CDATA[
-
- TODO
-
- The where condition UnorderedTerms can be used to check whether two terms are
- in a certain order.
-
- It is used in the normalisation of equations
- <pre>
- rule equality_order
-   find %t = %u |-
-   where
-     unorderedTerms %t, %u
-   replace %u = %t
- </pre>
-
- It signals true iff the order value of %t is greater than the one of %u.]]>
-    </entry>
-    <entry name="interactive">
-      <![CDATA[
-
- This where condition can be used in rules to indicate that a schema variable
- should be instantiated interactively.
-
- <h4>One parameter</h4> The where condition places a property into the rule
- application indicating that the schema variable <code>%v</code> of type
- <code>T</code> is to be interactively instantiated. It is of the form
-
- <pre>
-   interact(%v) : T
- </pre>
-
- It is then the task of the interaction to process these properties and to
- amend the schema variable mapping of the rule application.
-
- <h4>Two parameters (type mode)</h4> The where condition can also carry a second parameter
- which must either be <code>true</code> or <code>false</code> (literally).
- <code>false</code> indicates the usual behaviour while <code>true</code> also
- allows to instantiate the type of the schema variable (<i>which <b>must</b> be
- schema type then). This is convenient for type instantiations.]]>
-    </entry>
-    <entry name="freshTypeVar">
-      <![CDATA[
-
- ... to be finished ...
-
- <h2>Where condition <tt>freshTypeVar</tt></h2>
-
- This condition can be used to ensure that a type variable does not occur free nor
- bound in terms.
-
- <p>
- This is an example of an <em>active</em> condition since it may add schema
- instantiations. If the first formal parameter has a schema type, this
- becomes instantiated with a new type variable which does not
- occur in the arguments.
-
- <p>
- The resulting variable is named after the first parameter to the condition,
- possibly with an added number as suffix.
-
- <p>
- This condition can also be used to check whether a variable does not appear
- freely in a term. See second Example
-
- <h3>Syntax</h3> The where condition expects a first parameter which can
- either be a variable or a schema variable. Any number of arbitrary terms may
- follow.
-
- <h3>Example:</h3>
-
- <pre>
-   to be done
- </pre>
-
- and (to check that a variable does not appear)
-
-  <pre>
-   rule T_all_remove
-    find (\T_all %'x; %b)
-    where freshTypeVar %'x, %b
-    replace %b
- </pre>
-
- <h3>See also:</h3>
- <a href="ivil:/Where condition/freshVar">noFreeVars</a>
-
- <h3>Result:</h3>
- <code>true</code> if the first argument (or its instantiation) is (or has
- been chosen by this condition) a variable which does not occur unbound in the
- remaining arguments. It fails if the first argument is not matched by a
- variable.]]>
-    </entry>
     <entry name="freshVar">
       <![CDATA[
 
@@ -694,66 +609,6 @@
  <code>true</code> if the all arguments appear toplevel in the sequent,
  <code>false</code> otherwise. Does never fail.]]>
     </entry>
-    <entry name="intLiteral">
-      <![CDATA[
- 
- <h2>Where condition <tt>intLiteral</tt></h2>
- This condition can be used to ensure that a term of integer type is a
- number literal.
- 
- <h3>Syntax</h3>
-   The where condition expects exactly one argument of type integer.
-   This can be a schema variable.
- 
- <h3>Example:</h3>
- <pre>
-   rule add_literal
-   find %a + %b
-   where intLiteral %a
-         intLiteral %b
-   replace $$intEval(%a + %b)
- </pre>
- 
- <h3>See also:</h3>
- <a href="ivil:/Meta function/intEval">intEval</a>
- 
- <h3>Result:</h3>
- 
- <code>true</code> if the argument is a number literal, 
- <code>false</code> otherwise,
- never fails.]]>
-    </entry>
-    <entry name="distinctAssumeAndFind">
-      <![CDATA[
- 
- <h2>Where condition <tt>distinctAssumeAndFind</tt></h2>
- 
- This condition can be used to ensure that the find clause does not match the
- same as any of the assume clauses.
- 
- <h3>Syntax</h3> The where condition expects no arguments.
- 
- <h3>Example:</h3>
- 
- <pre>
-   rule replace_known_left
-   assume  %b |-
-   find    %b 
-   where   toplevel
-   where   distinctAssumeAndFind
-   replace true
- </pre>
- 
- This prevents from replacing an antecedent
- 
- <h3>See also:</h3> <a href="ivil:/Where condition/toplevel">toplevel</a>
- 
- <h3>Result:</h3>
- 
- <code>true</code> if the find clauses does not match the same as an assume
- clause. <code>false</code> if the find clause matches against the same term
- in a sequent as an assumption.]]>
-    </entry>
     <entry name="presentInSequent">
       <![CDATA[
  
@@ -793,6 +648,160 @@
  <h3>Result:</h3>
  <code>true</code> if the all arguments appear toplevel in the sequent,
  <code>false</code> otherwise. Does never fail.]]>
+    </entry>
+    <entry name="unorderedTerms">
+      <![CDATA[
+
+ TODO
+
+ The where condition UnorderedTerms can be used to check whether two terms are
+ in a certain order.
+
+ It is used in the normalisation of equations
+ <pre>
+ rule equality_order
+   find %t = %u |-
+   where
+     unorderedTerms %t, %u
+   replace %u = %t
+ </pre>
+
+ It signals true iff the order value of %t is greater than the one of %u.]]>
+    </entry>
+    <entry name="interactive">
+      <![CDATA[
+
+ This where condition can be used in rules to indicate that a schema variable
+ should be instantiated interactively.
+
+ <h4>One parameter</h4> The where condition places a property into the rule
+ application indicating that the schema variable <code>%v</code> of type
+ <code>T</code> is to be interactively instantiated. It is of the form
+
+ <pre>
+   interact(%v) : T
+ </pre>
+
+ It is then the task of the interaction to process these properties and to
+ amend the schema variable mapping of the rule application.
+
+ <h4>Two parameters (type mode)</h4> The where condition can also carry a second parameter
+ which must either be <code>true</code> or <code>false</code> (literally).
+ <code>false</code> indicates the usual behaviour while <code>true</code> also
+ allows to instantiate the type of the schema variable (<i>which <b>must</b> be
+ schema type then). This is convenient for type instantiations.]]>
+    </entry>
+    <entry name="freshTypeVar">
+      <![CDATA[
+
+ ... to be finished ...
+
+ <h2>Where condition <tt>freshTypeVar</tt></h2>
+
+ This condition can be used to ensure that a type variable does not occur free nor
+ bound in terms.
+
+ <p>
+ This is an example of an <em>active</em> condition since it may add schema
+ instantiations. If the first formal parameter has a schema type, this
+ becomes instantiated with a new type variable which does not
+ occur in the arguments.
+
+ <p>
+ The resulting variable is named after the first parameter to the condition,
+ possibly with an added number as suffix.
+
+ <p>
+ This condition can also be used to check whether a variable does not appear
+ freely in a term. See second Example
+
+ <h3>Syntax</h3> The where condition expects a first parameter which can
+ either be a variable or a schema variable. Any number of arbitrary terms may
+ follow.
+
+ <h3>Example:</h3>
+
+ <pre>
+   to be done
+ </pre>
+
+ and (to check that a variable does not appear)
+
+  <pre>
+   rule T_all_remove
+    find (\T_all %'x; %b)
+    where freshTypeVar %'x, %b
+    replace %b
+ </pre>
+
+ <h3>See also:</h3>
+ <a href="ivil:/Where condition/freshVar">noFreeVars</a>
+
+ <h3>Result:</h3>
+ <code>true</code> if the first argument (or its instantiation) is (or has
+ been chosen by this condition) a variable which does not occur unbound in the
+ remaining arguments. It fails if the first argument is not matched by a
+ variable.]]>
+    </entry>
+    <entry name="distinctAssumeAndFind">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>distinctAssumeAndFind</tt></h2>
+ 
+ This condition can be used to ensure that the find clause does not match the
+ same as any of the assume clauses.
+ 
+ <h3>Syntax</h3> The where condition expects no arguments.
+ 
+ <h3>Example:</h3>
+ 
+ <pre>
+   rule replace_known_left
+   assume  %b |-
+   find    %b 
+   where   toplevel
+   where   distinctAssumeAndFind
+   replace true
+ </pre>
+ 
+ This prevents from replacing an antecedent
+ 
+ <h3>See also:</h3> <a href="ivil:/Where condition/toplevel">toplevel</a>
+ 
+ <h3>Result:</h3>
+ 
+ <code>true</code> if the find clauses does not match the same as an assume
+ clause. <code>false</code> if the find clause matches against the same term
+ in a sequent as an assumption.]]>
+    </entry>
+    <entry name="intLiteral">
+      <![CDATA[
+ 
+ <h2>Where condition <tt>intLiteral</tt></h2>
+ This condition can be used to ensure that a term of integer type is a
+ number literal.
+ 
+ <h3>Syntax</h3>
+   The where condition expects exactly one argument of type integer.
+   This can be a schema variable.
+ 
+ <h3>Example:</h3>
+ <pre>
+   rule add_literal
+   find %a + %b
+   where intLiteral %a
+         intLiteral %b
+   replace $$intEval(%a + %b)
+ </pre>
+ 
+ <h3>See also:</h3>
+ <a href="ivil:/Meta function/intEval">intEval</a>
+ 
+ <h3>Result:</h3>
+ 
+ <code>true</code> if the argument is a number literal, 
+ <code>false</code> otherwise,
+ never fails.]]>
     </entry>
     <entry name="axiom">
       <![CDATA[

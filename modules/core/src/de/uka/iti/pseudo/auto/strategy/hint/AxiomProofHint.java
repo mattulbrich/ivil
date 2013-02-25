@@ -14,13 +14,16 @@ import java.util.List;
 import java.util.Set;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
+import de.uka.iti.pseudo.environment.Axiom;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
-import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
+import de.uka.iti.pseudo.rule.where.AxiomCondition;
+import de.uka.iti.pseudo.term.SchemaVariable;
+import de.uka.iti.pseudo.term.TermException;
 
 /**
  * The Class RuleProofHint implements a proof hint which applies one rule.
@@ -41,45 +44,52 @@ import de.uka.iti.pseudo.rule.Rule;
  * assert emptyset &lt;: SetM ; "use the lemma §(rule emptyset_lemma)"
  * </pre>
  */
-public class RuleProofHint implements ProofHint {
+public class AxiomProofHint implements ProofHint {
 
     @Override
     public String getKey() {
-        return "rule";
+        return "axiom";
     }
 
     @Override
     public HintRuleAppFinder createRuleAppFinder(Environment env,
             List<String> arguments) throws StrategyException {
-        return new RuleHintAppFinder(env, arguments);
+        return new AxiomHintAppFinder(env, arguments);
     }
 }
 
-class RuleHintAppFinder extends HintRuleAppFinder {
+class AxiomHintAppFinder extends HintRuleAppFinder {
 
     private final Set<ProofNode> appliedProofNodes = new HashSet<ProofNode>();
-    private final Rule rules[];
+    private final Rule addAxiomRule;
+    private final Axiom axioms[];
     private final Environment env;
 
-    public RuleHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
+    public AxiomHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
         super(arguments);
         this.env = env;
 
         if(arguments.size() < 2) {
-            throw new StrategyException("The proofhint 'rule' expects at least one argument");
+            throw new StrategyException("The proofhint 'axiom' expects at least one argument");
         }
 
-        assert "rule".equals(arguments.get(0));
+        assert "axiom".equals(arguments.get(0));
 
-        rules = new Rule[arguments.size() - 1];
-        for (int i = 0; i < rules.length; i++) {
-            String ruleName = arguments.get(i + 1);
-            Rule rule = env.getRule(ruleName);
-            if(rule == null) {
-                throw new StrategyException("Unknown rule in proof hint: " + ruleName);
+        addAxiomRule = env.getRule("axiom");
+        if(addAxiomRule == null) {
+            throw new StrategyException("Rule 'axiom' not known!");
+        }
+
+        axioms = new Axiom[arguments.size() - 1];
+        for (int i = 0; i < axioms.length; i++) {
+            String axName = arguments.get(i + 1);
+            Axiom axiom = env.getAxiom(axName);
+            if(axiom == null) {
+                throw new StrategyException("Unknown axiom in proof hint: " + axName);
             }
-            this.rules[i] = rule;
+            this.axioms[i] = axiom;
         }
+
 
     }
 
@@ -90,22 +100,24 @@ class RuleHintAppFinder extends HintRuleAppFinder {
         // Only applicable to the reasonNode and direct successors if more than
         // one rule, not later
         int dist = distanceToReason(node, reasonNode);
-        if(dist >= rules.length) {
+        if(dist >= axioms.length) {
             return null;
         }
 
-        Rule rule = rules[dist];
+        Axiom axiom = axioms[dist];
 
         RuleApplicationMaker ram = new RuleApplicationMaker(env);
         ram.setProofNode(node);
-        ram.setRule(rule);
-        if(rule.getFindClause() != null) {
-            ram.setFindSelector(new TermSelector(TermSelector.SUCCEDENT, 0));
-            try {
-                ram.matchInstantiations();
-            } catch (ProofException e) {
-                throw new StrategyException("Error while instantiating rule " + rule.getName(), e);
-            }
+        ram.setRule(addAxiomRule);
+        try {
+            SchemaVariable b = SchemaVariable.getInst("%b", Environment.getBoolType());
+            ram.getTermMatcher().addInstantiation(b, axiom.getTerm());
+            ram.getProperties().put(AxiomCondition.AXIOM_NAME_PROPERTY, axiom.getName());
+            ram.matchInstantiations();
+        } catch (ProofException e) {
+            throw new StrategyException("Error while instantiating rule " + axiom.getName(), e);
+        } catch (TermException e) {
+            throw new StrategyException("Error while instantiating rule " + axiom.getName(), e);
         }
 
         appliedProofNodes.add(node);

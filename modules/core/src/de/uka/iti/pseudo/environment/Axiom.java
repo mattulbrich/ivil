@@ -10,6 +10,7 @@
 package de.uka.iti.pseudo.environment;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import nonnull.NonNull;
@@ -68,7 +69,7 @@ public final class Axiom {
             @NonNull ASTLocatedElement location) throws EnvironmentException {
         super();
         this.name = name;
-        this.properties = properties;
+        this.properties = new HashMap<String, String>(properties);
         this.term = term;
         this.location = location;
 

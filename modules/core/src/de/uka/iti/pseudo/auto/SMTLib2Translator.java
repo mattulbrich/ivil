@@ -44,6 +44,7 @@ import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Sort;
 import de.uka.iti.pseudo.environment.TypeVariableCollector;
+import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.rule.where.NoFreeVars;
 import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.BindableIdentifier;
@@ -605,9 +606,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      */
     private void includeAxioms() throws IOException, TermException {
         for (Axiom ax : allAxioms) {
-            String translation = translate(ax.getTerm(), BOOL);
-            assumptions.add("Axiom " + ax.getName() + " from environment\n"
-                    + translation);
+            if(!ax.getDefinedProperties().contains(RuleTagConstants.EXCLUDE_FROM_DP)) {
+                String translation = translate(ax.getTerm(), BOOL);
+                assumptions.add("Axiom " + ax.getName() + " from environment\n"
+                        + translation);
+            }
         }
     }
 
