@@ -200,25 +200,25 @@ public class TestWhereConditions extends TestCaseWithEnv {
 
     }
 
-    // was a bug
-    // originally "where interactive %x as %'x, true"
-    // but "%'x" was instantiated to "int"
-    public void testInteractiveInstantiated() throws Exception {
-        Interactive inter = new Interactive();
-        Term[] formal = {
-                makeTerm("%x as %'x"),
-                Environment.getTrue() };
-        Term[] actual = {
-                makeTerm("%x as int"),
-                Environment.getTrue() };
-
-        inter.checkSyntax(formal);
-        RuleApplication ra = new MutableRuleApplication();
-        inter.check(formal, formal, ra, env);
-        assertEquals(Collections.singletonMap(Interactive.INTERACTION + "(%x)",
-                    Interactive.INSTANTIATE_PREFIX + "%'x"),
-                ra.getProperties());
-    }
+//    // was a bug
+//    // originally "where interactive %x as %'x, true"
+//    // but "%'x" was instantiated to "int"
+//    public void testInteractiveInstantiated() throws Exception {
+//        Interactive inter = new Interactive();
+//        Term[] formal = {
+//                makeTerm("%x as %'x"),
+//                Environment.getTrue() };
+//        Term[] actual = {
+//                makeTerm("%x as int"),
+//                Environment.getTrue() };
+//
+//        inter.checkSyntax(formal);
+//        RuleApplication ra = new MutableRuleApplication();
+//        inter.check(formal, actual, ra, env);
+//        assertEquals(Collections.singletonMap(Interactive.INTERACTION + "(%x)",
+//                    Interactive.INSTANTIATE_PREFIX + "%'x"),
+//                ra.getProperties());
+//    }
 
     public void testNoFree() throws Exception {
 
