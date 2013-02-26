@@ -1,10 +1,25 @@
 uses "bfs.decl.p"
 uses "ref-BFS.minDistance(int,int).p"
 
+/* this can becomen general theory! */
 uses inline
 function
-   int k(vertex) unique
+   int k('a)
+   'a inv_k(int)
+
+axiom k_is_positive
+   (\T_all 'a; (\forall x as 'a; k(x) ~~> k(x) >= 0))
+
+axiom k_finite_bounded
+   (\T_all 'a; (\forall x as 'a; k(x) ~~> 
+       finite(fullset as set('a)) -> k(x) < card(fullset as set('a))))
+
+axiom k_injection
+   (\T_all 'a; (\forall x as 'a; k(x) ~~>
+       finite(fullset as set('a)) -> inv_k(k(x)) = x ))
+
 end
+
 
 abbreviation
    @vars_coupled :=
@@ -120,7 +135,8 @@ end
 refine bfs as Java 
 
   requires @succ & k(src) = _src & k(dest) = _dest
-        &  fullset = (\set v; 0 <= k(v) < size)
+        &  finite(fullset as set(vertex)) 
+        &  card(fullset as set(vertex)) = h[_this, F_BFS_size]
     var 43
 
   ensures d = resInt

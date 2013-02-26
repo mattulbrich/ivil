@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Tue Feb 26 13:24:34 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- false</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="cut" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%inst">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }($mem(k(S as set(int)) as int,S as set(int)) as bool)</schemavariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">bool</property>
+    </ruleApplication>
+    <ruleApplication rule="cut" path="0" id="1">
+      <find>A.0</find>
+      <schemavariable name="%inst">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }($mem(k(S as set(int)) as int,S as set(int)) as bool)</schemavariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">bool</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="0,0" id="2">
+      <find>A.1</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="0,0" id="3">
+      <find>A.0</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="in_setext" path="0,0" id="4">
+      <find>A.1</find>
+      <schemavariable name="%x">\var n as int</schemavariable>
+      <schemavariable name="%a">k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int</schemavariable>
+      <schemavariable name="%b">(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="exists_left" path="0,0" id="5">
+      <find>A.1</find>
+      <schemavariable name="%x">\var s as set(int)</schemavariable>
+      <schemavariable name="%b">$and($eq(k(\var s as set(int)) as int,k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int) as bool,$not($mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,\var s as set(int)) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">set(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="skolemName(\var s as set(int))">s4</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_unique" path="0,0" id="6">
+      <find>A.1.0</find>
+      <schemavariable name="%u">k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int</schemavariable>
+      <schemavariable name="%t">k(s4 as set(int)) as int</schemavariable>
+      <typevariable name="u">int</typevariable>
+      <typevariable name="t">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="0,0" id="7">
+      <find>A.1</find>
+      <schemavariable name="%a">$eq(s4 as set(int),(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as bool</schemavariable>
+      <schemavariable name="%b">$not($mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,s4 as set(int)) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_apply_reverse" path="0,0" id="8">
+      <find>A.0.0.0</find>
+      <assume>A.1</assume>
+      <schemavariable name="%u">s4 as set(int)</schemavariable>
+      <schemavariable name="%t">(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)</schemavariable>
+      <typevariable name="u">set(int)</typevariable>
+      <typevariable name="t">set(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_apply_reverse" path="0,0" id="9">
+      <find>A.0.1</find>
+      <assume>A.1</assume>
+      <schemavariable name="%u">s4 as set(int)</schemavariable>
+      <schemavariable name="%t">(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)</schemavariable>
+      <typevariable name="u">set(int)</typevariable>
+      <typevariable name="t">set(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_apply_reverse" path="0,0" id="10">
+      <find>A.2.0.0.0</find>
+      <assume>A.1</assume>
+      <schemavariable name="%u">s4 as set(int)</schemavariable>
+      <schemavariable name="%t">(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)</schemavariable>
+      <typevariable name="u">set(int)</typevariable>
+      <typevariable name="t">set(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="0,0" id="11">
+      <find>A.2</find>
+      <schemavariable name="%b">$mem(k(s4 as set(int)) as int,s4 as set(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="0,0" id="12">
+      <find>S.1</find>
+      <assume>A.0</assume>
+      <schemavariable name="%b">$mem(k(s4 as set(int)) as int,s4 as set(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="0,1" id="13">
+      <find>A.0</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="0,1" id="14">
+      <find>S.1</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="0,1" id="15">
+      <find>S.1</find>
+      <assume>A.0</assume>
+      <schemavariable name="%b">$mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut" path="1" id="16">
+      <find>S.0</find>
+      <schemavariable name="%inst">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }($mem(k(S as set(int)) as int,S as set(int)) as bool)</schemavariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">bool</property>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="1,0" id="17">
+      <find>S.1</find>
+      <assume>A.0</assume>
+      <schemavariable name="%b">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }($mem(k(S as set(int)) as int,S as set(int)) as bool)</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="18">
+      <find>S.2</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="19">
+      <find>S.1</find>
+      <schemavariable name="%t">$mem(k(S as set(int)) as int,S as set(int)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ S := (\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int) }</schemaupdate>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="in_setext" path="1,1" id="20">
+      <find>S.2</find>
+      <schemavariable name="%x">\var n as int</schemavariable>
+      <schemavariable name="%a">k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int</schemavariable>
+      <schemavariable name="%b">(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="exists_right_hide" path="1,1" id="21">
+      <find>S.2</find>
+      <schemavariable name="%inst">(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)</schemavariable>
+      <schemavariable name="%x">\var s as set(int)</schemavariable>
+      <schemavariable name="%b">$and($eq(k(\var s as set(int)) as int,k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int) as bool,$not($mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,\var s as set(int)) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="inst">set(int)</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">set(int)</property>
+    </ruleApplication>
+    <ruleApplication rule="and_right" path="1,1" id="22">
+      <find>S.2</find>
+      <schemavariable name="%a">$eq(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int) as bool</schemavariable>
+      <schemavariable name="%b">$not($mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="1,1,0" id="23">
+      <find>S.2</find>
+      <schemavariable name="%t">k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,1,0" id="24">
+      <find>S.2</find>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="false_right" path="1,1,1" id="25">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="not_right" path="1,1,1" id="26">
+      <find>S.1</find>
+      <schemavariable name="%b">$mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_antecedent" path="1,1,1" id="27">
+      <find>S.0</find>
+      <assume>A.0</assume>
+      <schemavariable name="%b">$mem(k((\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as int,(\set n as int;(\exists s as set(int);$and($eq(k(\var s as set(int)) as int,\var n as int) as bool,$not($mem(\var n as int,\var s as set(int)) as bool) as bool) as bool) as bool) as set(int)) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+  </steps>
+</proof>

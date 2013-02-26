@@ -1,8 +1,21 @@
-# Automatically created on Wed Dec 05 18:02:09 CET 2012
+# Automatically created on Tue Feb 26 13:41:09 CET 2013
 include "bfs.decl.p"
 include "ref-BFS.minDistance(int,int).p"
 function
-   int k(vertex) unique
+   int k('a)
+   'a inv_k(int)
+
+axiom k_is_positive
+   (\T_all 'a; (\forall x as 'a; k(x) ~~> k(x) >= 0))
+
+axiom k_finite_bounded
+   (\T_all 'a; (\forall x as 'a; k(x) ~~> 
+       finite(fullset as set('a)) -> k(x) < card(fullset as set('a))))
+
+axiom k_injection
+   (\T_all 'a; (\forall x as 'a; k(x) ~~>
+       finite(fullset as set('a)) -> inv_k(k(x)) = x ))
+
 
 function vertex src 
 function vertex dest 
@@ -19,47 +32,48 @@ function vertex v assignable
 function vertex w assignable
 
 program bfs source "bfs.ref.algo"
- sourceline 44
-  assume finite(((fullset) as set(vertex))) ; "by requirement"
- sourceline 56
-  size := card(((fullset) as set(vertex)))
- sourceline 58
-  V := singleton(src)
  sourceline 59
+  assume finite(((fullset) as set(vertex))) ; "by requirement"
+ sourceline 71
+  assert finite(((fullset) as set(vertex)))
+  size := card(((fullset) as set(vertex)))
+ sourceline 73
+  V := singleton(src)
+ sourceline 74
   C := singleton(src)
- sourceline 60
+ sourceline 75
   N := emptyset
- sourceline 61
+ sourceline 76
   d := 0
  loop0:
- sourceline 76
- sourceline 63
+ sourceline 91
+ sourceline 78
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
- sourceline 78
+ sourceline 93
   skip MARK, 1, (((V = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_V, idxBool(k(v))]))))) & ((V = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_C, idxBool(k(v))]))))) & ((N = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_N, idxBool(k(v))]))))) & ((d = _d) & ((k(src) = _src) & (k(dest) = _dest)))))) & (!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & (arrlen(_C) = size))))))), 42 ; "marking stone"
- sourceline 79
+ sourceline 94
   havoc v
   assume (v :: C)
- sourceline 80
+ sourceline 95
   C := (C \ singleton(v))
- sourceline 81
+ sourceline 96
   goto then0, else0
  then0:
   assume (v = dest); "then"
- sourceline 83
+ sourceline 98
   goto endOfProgram ; "Return Statement"
   goto after1
  else0:
- sourceline 84
+ sourceline 99
   assume $not((v = dest)); "else"
  after1:
- sourceline 86
+ sourceline 101
   Vo := V
- sourceline 87
+ sourceline 102
   No := N
- sourceline 89
+ sourceline 104
   tovisit := succ(v)
  loop1:
   goto body1, after2
@@ -68,48 +82,48 @@ program bfs source "bfs.ref.algo"
   havoc w
   assume w :: tovisit ; "choose element in tovisit"
   tovisit := tovisit \ singleton(w)
- sourceline 94
+ sourceline 109
   skip MARK, 2, (((V = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_V, idxBool(k(v))]))))) & ((V = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_C, idxBool(k(v))]))))) & ((N = (\set v; (\exists i; ((0 <= i) & ((i < size) & h[_N, idxBool(k(v))]))))) & ((d = _d) & ((k(src) = _src) & (k(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & (arrlen(_C) = size)))))) & ((_v = k(v)) & (_w = k(w))))), 42 ; "marking stone"
- sourceline 95
+ sourceline 110
   goto then1, else1
  then1:
   assume (!(w) :: V); "then"
- sourceline 97
+ sourceline 112
   V := (V \/ singleton(w))
- sourceline 98
+ sourceline 113
   N := (N \/ singleton(w))
   goto after3
  else1:
- sourceline 99
+ sourceline 114
   assume $not((!(w) :: V)); "else"
  after3:
   goto loop1
  after2:
   assume tovisit= emptyset
- sourceline 102
+ sourceline 117
   goto then2, else2
  then2:
   assume (C = emptyset); "then"
- sourceline 104
+ sourceline 119
   C := N
- sourceline 105
+ sourceline 120
   N := emptyset
- sourceline 106
+ sourceline 121
   d := (d + 1)
   goto after4
  else2:
- sourceline 107
+ sourceline 122
   assume $not((C = emptyset)); "else"
  after4:
   goto loop0
- sourceline 63
+ sourceline 78
  after0:
   assume $not(!((C = emptyset)))
   assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
   assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
- sourceline 117
+ sourceline 132
   d := -(1)
  endOfProgram: 
 
 
-problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(k(v))], idxBool(k(w))])))))) & ((k(src) = _src) & ((k(dest) = _dest) & (fullset = (\set v; ((0 <= k(v)) & (k(v) < size))))))) |- [0; Java][<0;bfs>]((d = resInt))
+problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(k(v))], idxBool(k(w))])))))) & ((k(src) = _src) & ((k(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- [0; Java][<0;bfs>]((d = resInt))
