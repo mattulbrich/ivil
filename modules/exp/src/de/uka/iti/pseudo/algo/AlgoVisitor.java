@@ -293,18 +293,18 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTNoteStatement node, Object data) {
         String expression = visitTermChild(node, 0);
-        if(!refinementMode) {
-            addSourceLineStatement(node);
-            Object extra = node.jjtGetValue();
-            String annotation;
-            if(extra != null) {
-                annotation = " ; " + Util.addQuotes("lemma by " + extra.toString());
-            } else {
-                annotation = "";
-            }
-            statements.add("  assert " + expression + annotation);
+        addSourceLineStatement(node);
+        Object extra = node.jjtGetValue();
+        String annotation;
+        if(extra != null) {
+            annotation = " ; " + Util.addQuotes("lemma by " + extra.toString());
+        } else {
+            annotation = "";
         }
-        statements.add("  assume " + expression + " ; \"use lemma\"");
+        statements.add("  assert " + expression + annotation);
+        if(!refinementMode) {
+            statements.add("  assume " + expression + " ; \"use lemma\"");
+        }
         return null;
     }
 
