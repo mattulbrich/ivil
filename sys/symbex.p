@@ -147,6 +147,7 @@ rule dprg_havoc
   samegoal replace (\exists %x; { %v := %x }$$incPrg(%a))
   tags display "|> havoc {%v}: {explain %a}"
        rewrite "symbex"
+       hintsOnBranches "0"
 
 (*
  * Rules for automation
@@ -232,6 +233,8 @@ rule auto_dia_assume
   samegoal "{explainOrQuote %a}"
     replace {U} %b 
   samegoal "..."
+    add {U} %b |-
+    # ^^^^^^^^^^ that is new
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
