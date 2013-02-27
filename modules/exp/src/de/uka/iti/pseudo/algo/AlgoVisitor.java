@@ -155,8 +155,15 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         }
 
         // make havocs
+        Object hint = node.jjtGetValue();
+        String annotation;
+        if(hint != null) {
+            annotation = "; " + Util.addQuotes("witness by " + hint.toString());
+        } else {
+            annotation = "";
+        }
         for (int i = 0; i < numChildren - 1; i++) {
-            statements.add("  havoc " + visitChild(node, i));
+            statements.add("  havoc " + visitChild(node, i) + annotation);
         }
 
         // make assumption
@@ -291,7 +298,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
             Object extra = node.jjtGetValue();
             String annotation;
             if(extra != null) {
-                annotation = " ; \" lemma by " + extra.toString() + "\"";
+                annotation = " ; " + Util.addQuotes("lemma by " + extra.toString());
             } else {
                 annotation = "";
             }

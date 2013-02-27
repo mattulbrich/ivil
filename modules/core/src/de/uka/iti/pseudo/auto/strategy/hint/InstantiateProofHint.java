@@ -52,6 +52,7 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
  * <li> The second argument must always be "with"
  * <li> The third argument is the term with which the quantified variable is to
  * be instantiated.
+ * <li> An optional fourth argument 'hide' may be added to apply the hiding rule
  * </ol>
  *
  * <h3>Example</h3>
@@ -86,12 +87,13 @@ class InstantiationHintAppFinder extends HintRuleAppFinder {
     private final Binder existsBinder;
     private final Rule forallRule;
     private final Rule existsRule;
+    private final boolean hides;
 
     public InstantiationHintAppFinder(Environment env, List<String> arguments) throws StrategyException {
         super(arguments);
         this.env = env;
 
-        if(arguments.size() != 4) {
+        if(arguments.size() < 4 || arguments.size() > 5) {
             throw new StrategyException("The proofhint 'inst' expects two argument");
         }
 
@@ -101,17 +103,31 @@ class InstantiationHintAppFinder extends HintRuleAppFinder {
             throw new StrategyException("The first and second argument must be separated by 'with'");
         }
 
+        if(arguments.size() == 5) {
+            if(!"hide".equals(arguments.get(4))) {
+                throw new StrategyException("The optional last argument must be 'hide' if specified");
+            }
+            this.hides = true;
+        } else {
+            this.hides = false;
+        }
+
         this.replaced = arguments.get(1);
         this.replacement = arguments.get(3);
 
         this.forallBinder = env.getBinder("\\forall");
-        this.existsBinder = env.getBinder("\\forall");
+        this.existsBinder = env.getBinder("\\exists");
         if(forallBinder == null || existsBinder == null) {
             throw new StrategyException("The quantifiers cannot be loaded");
         }
 
-        this.forallRule = env.getRule("forall_left");
-        this.existsRule = env.getRule("exists_right");
+        if(hides) {
+            this.forallRule = env.getRule("forall_left_hide");
+            this.existsRule = env.getRule("exists_right_hide");
+        } else {
+            this.forallRule = env.getRule("forall_left");
+            this.existsRule = env.getRule("exists_right");
+        }
         if(forallRule == null || existsRule == null) {
             throw new StrategyException("The quantifier rules cannot be loaded");
         }
@@ -137,6 +153,7 @@ class InstantiationHintAppFinder extends HintRuleAppFinder {
             // if the first character is '(' then a formula to be instantiated
             // has been given, otherwise this would be a variable.
             if(replaced.startsWith("(")) {
+                // TODO Implement instantiate + formula!
                 result = null ; //instantiateFormula(node, reasonNode);
             } else {
                 result = instantiateVariable(node, reasonNode);
@@ -145,7 +162,9 @@ class InstantiationHintAppFinder extends HintRuleAppFinder {
             throw new StrategyException("Instantiation proof hint failed", e);
         }
 
-        appliedProofNodes.add(result.getProofNode());
+        if(result != null) {
+            appliedProofNodes.add(result.getProofNode());
+        }
         return result;
     }
 

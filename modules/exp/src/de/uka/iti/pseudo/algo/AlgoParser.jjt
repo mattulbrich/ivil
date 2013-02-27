@@ -123,6 +123,7 @@ TOKEN : /* KEYWORDS */
 | < RETURN : "return" >
 | < ITERATE : "iterate" >
 | < ENSURES : "ensures" >
+| < WITNESS : "witness" >
 | < REQUIRES : "requires" >
 | < ABBREVIATION: "abbreviation" >
 }
@@ -279,12 +280,18 @@ void ReturnStatement() #ReturnStatement : {}
   "return"
 }
 
-void ChooseStatement() #ChooseStatement : {}
+void ChooseStatement() #ChooseStatement : 
+{
+  Token t = null;
+}
 {
   "choose"
     Identifier() ("," Identifier() )*
   "such" "that"
     Expression()
+   ( "with" t=<STRING_LITERAL> 
+       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
+    )?
 }
 
 void WhileStatement() #WhileStatement : {}
