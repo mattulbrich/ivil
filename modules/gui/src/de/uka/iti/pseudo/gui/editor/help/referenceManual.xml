@@ -390,17 +390,44 @@
     </entry>
     <entry name="cut">
       <![CDATA[
- 
+
  <h2>Proof hint <code>cut</code></h2>
- 
+
  In order to perform a case distinction on a branch, this hint can be used.
- 
+
  <h3>Arguments</h3>
  cut takes one argument which is the formula upon which to perform the cut.
- 
+
  <h3>Example</h3>
  <pre>
  assert x*x >= 0 ; "examine by sign §(cut 'x >= 0')"
+ </pre>]]>
+    </entry>
+    <entry name="inst">
+      <![CDATA[
+
+ <h2>Proof hint <code>inst</code></h2>
+
+ This hint can be used to instantiate a universal quantifier in the antecedent
+ or an existential one in the succedent.
+
+ <h3>Arguments</h3>
+
+ <tt>hint</tt> takes three arguments:
+ <ol>
+ <li> The first argument is either the quantified formula to be instantiated or
+ the variable name to be instantiated.
+ <li> The second argument must always be "with"
+ <li> The third argument is the term with which the quantified variable is to
+ be instantiated.
+ <li> An optional fourth argument 'hide' may be added to apply the hiding rule
+ </ol>
+
+ <h3>Example</h3>
+ Assuming that <code> (\forall x; p(x) = x+2)</code> is in the antecedent
+ <pre>
+ assert p(0) = 2 ; "use the quantifier by §(inst x with 0)"
+ assert !p(1) = 2 ; "use the quantifier by §(inst '(\forall x; p(x)=x+2)' with 0)"
  </pre>]]>
     </entry>
   </category>
