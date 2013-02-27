@@ -1,4 +1,4 @@
-# Automatically created on Wed Dec 05 15:50:46 CET 2012
+# Automatically created on Wed Dec 05 20:29:30 CET 2012
 include "bfs.decl.p"
 function vertex src 
 function vertex dest 

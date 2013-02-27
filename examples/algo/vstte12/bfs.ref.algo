@@ -4,44 +4,50 @@ uses "ref-BFS.minDistance(int,int).p"
 /* this can becomen general theory! */
 uses inline
 function
-   int k('a)
-   'a inv_k(int)
+   int vi('a)
+   'a iv(int)
 
-axiom k_is_positive
-   (\T_all 'a; (\forall x as 'a; k(x) ~~> k(x) >= 0))
+axiom vi_is_positive
+   (\T_all 'a; (\forall x as 'a; vi(x) ~~> vi(x) >= 0))
 
-axiom k_finite_bounded
-   (\T_all 'a; (\forall x as 'a; k(x) ~~> 
-       finite(fullset as set('a)) -> k(x) < card(fullset as set('a))))
+axiom vi_finite_bounded
+   (\T_all 'a; (\forall x as 'a; vi(x) ~~> 
+       finite(fullset as set('a)) -> vi(x) < card(fullset as set('a))))
 
-axiom k_injection
-   (\T_all 'a; (\forall x as 'a; k(x) ~~>
-       finite(fullset as set('a)) -> inv_k(k(x)) = x ))
+axiom vi_injection
+   (\T_all 'a; (\forall x as 'a; vi(x) ~~>
+       finite(fullset as set('a)) -> iv(vi(x)) = x ))
+
+axiom iv_injection
+   (\T_all 'a; (\forall i; iv(i) as 'a~~>
+          finite(fullset as set('a)) & 0<=i & i<card(fullset as set('a))
+       -> vi(iv(i) as 'a) = i))
 
 end
 
 
 abbreviation
    @vars_coupled :=
-       V = (\set v; (\exists i; 0 <= i & i < size & h[_V, idxBool(k(v))]))
-     & V = (\set v; (\exists i; 0 <= i & i < size & h[_C, idxBool(k(v))]))
-     & N = (\set v; (\exists i; 0 <= i & i < size & h[_N, idxBool(k(v))]))
+       V = (\set v; h[_V, idxBool(vi(v))])
+     & C = (\set v; h[_C, idxBool(vi(v))])
+     & N = (\set v; h[_N, idxBool(vi(v))])
      & d = _d
-     & k(src) = _src
-     & k(dest) = _dest
+     & vi(src) = _src
+     & vi(dest) = _dest
      
 abbreviation
    @arrays :=
        !(_V=_N) & !(_N=_C) & !(_V=_C) &
        arrlen(_V) = size &
        arrlen(_N) = size &
-       arrlen(_C) = size   
+       arrlen(_C) = size &
+       size = card(fullset as set(vertex))
 
 abbreviation
    @succ :=
        (\forall v; succ(v) = 
                (\set w; (\exists i; 0 <= i & i < size & 
-                        h[h[h[_this, F_BFS_adjacency], idxRef(k(v))], idxBool(k(w))])))
+                        h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))
 
 algo bfs
 input
@@ -91,7 +97,10 @@ do
      var ^(V \ (C \/ N))
    do
      mark 1;
-     choose v such that v in C;
+
+     choose v such that v in C
+       with "§(rule deep_update_simplification) §(inst x with 'iv(_v) as vertex' hide)";
+
      C := C \ {v};
      if v = dest 
      then 
@@ -134,7 +143,7 @@ end
 
 refine bfs as Java 
 
-  requires @succ & k(src) = _src & k(dest) = _dest
+  requires @succ & vi(src) = _src & vi(dest) = _dest
         &  finite(fullset as set(vertex)) 
         &  card(fullset as set(vertex)) = h[_this, F_BFS_size]
     var 43
@@ -146,5 +155,5 @@ refine bfs as Java
     var 42
 
   mark 2
-    inv @vars_coupled & @arrays & _v = k(v) & _w = k(w)
+    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w)
     var 42
