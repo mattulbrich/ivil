@@ -1090,39 +1090,102 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         }
 
         // Add for uniqueness
-        // TODO unique functions are injective!
-        // for a function f(a,b,c) introduce 3 inverse functions invfct1.f(f(a,b,c)) = a
         if(function.isUnique()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Uniqueness of function symbol ").append(name).append("\n");
-
-            if (argTypes.length == 0) {
-                sb.append("(= (unique ").append(name).append(") ").append(uniqueCounter).append(")");
-
-            } else {
-                sb.append("(forall (");
-
-                for (int i = 0; i < argTypes.length; i++) {
-                    sb.append("(?x").append(i).append(" ").append(argTypes[i])
-                    .append(") ");
-                }
-
-                sb.append(") (= (unique (").append(name);
-                for (int i = 0; i < argTypes.length; i++) {
-                    sb.append(" ?x").append(i);
-                }
-                sb.append(")) ").append(uniqueCounter).append("))");
-            }
-
+            String result = makeUniqueMapAssumption(name, argTypes, allTypeVariables, uniqueCounter);
             uniqueCounter++;
-            assumptions.add(sb.toString());
+            assumptions.add(result);
+
+            // for a function f(a,b,c) introduce 3 inverse functions invfct1.f(f(a,b,c)) = a
+            for (int arg = 0; arg < argTypes.length; arg++) {
+                result = makeUniquenessInArg(name, argTypes, allTypeVariables, arg, resultType);
+                assumptions.add(result);
+            }
         }
 
 
         return name;
     }
 
-    private SortedSet<TypeVariable> collectTypeVars(Function function) {
+    private String makeUniquenessInArg(String name, ExpressionType[] argTypes,
+            SortedSet<TypeVariable> allTypeVariables, int arg, ExpressionType resultType) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Uniqueness in parameter " + arg +" of " + name + "\n");
+        sb.append("(forall (");
+
+        for (TypeVariable typeVariable : allTypeVariables) {
+            sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
+        }
+
+        for (int i = 0; i < argTypes.length; i++) {
+            sb.append("(?x" + i + " " + argTypes[i] + ") ");
+        }
+
+        String inv = "inv" + name + "." + arg;
+        extrafuncs.add(inv + " (" + resultType + ") " + argTypes[arg]);
+
+        StringBuilder invoc = new StringBuilder();
+        {
+            invoc.append("(" + name);
+            for (TypeVariable typeVariable : allTypeVariables) {
+                invoc.append(" ?Type.").append(typeVariable.getVariableName());
+            }
+            for (int i = 0; i < argTypes.length; i++) {
+                invoc.append(" ?x").append(i);
+            }
+            invoc.append(")");
+        }
+
+        sb.append(") (! (= (" + inv + " " + invoc + ") ?x" + arg +
+                ") :pattern (" + invoc + ")))");
+
+        return sb.toString();
+    }
+
+    /*
+     * For a unique function symbol U return the assumption that
+     *
+     * u(...) = val in which counter is a value value
+     */
+    private static String makeUniqueMapAssumption(String name, ExpressionType[] argTypes,
+            SortedSet<TypeVariable> allTypeVariables, int uniqueCounter) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Uniqueness of function symbol ").append(name).append("\n");
+
+        if (argTypes.length == 0 && allTypeVariables.isEmpty()) {
+            sb.append("(= (unique ").append(name).append(") ").append(uniqueCounter).append(")");
+
+        } else {
+            sb.append("(forall (");
+
+            for (TypeVariable typeVariable : allTypeVariables) {
+                sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
+            }
+
+            for (int i = 0; i < argTypes.length; i++) {
+                sb.append("(?x").append(i).append(" ").append(argTypes[i])
+                .append(") ");
+            }
+
+            sb.append(") (! (= (unique ");
+            StringBuilder invoc = new StringBuilder();
+            {
+                invoc.append("(" + name);
+                for (TypeVariable typeVariable : allTypeVariables) {
+                    invoc.append(" ?Type.").append(typeVariable.getVariableName());
+                }
+                for (int i = 0; i < argTypes.length; i++) {
+                    invoc.append(" ?x").append(i);
+                }
+                invoc.append(")");
+            }
+            sb.append(invoc + ") " + uniqueCounter + ") :pattern (" + invoc + ")))");
+        }
+
+        String result = sb.toString();
+        return result;
+    }
+
+    private static SortedSet<TypeVariable> collectTypeVars(Function function) {
         Set<TypeVariable> resulttypeVariables =
                 TypeVariableCollector.collect(function.getResultType());
 
@@ -1136,7 +1199,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         return allTypeVariables;
     }
 
-    private SortedSet<TypeVariable> collectTypeVars(Binder binder) {
+    private static SortedSet<TypeVariable> collectTypeVars(Binder binder) {
         Set<TypeVariable> resulttypeVariables =
                 TypeVariableCollector.collect(binder.getResultType());
 
@@ -1155,39 +1218,6 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         return allTypeVariables;
     }
 
-
-    //    /*
-    //     * calculate the difference between two sets.
-    //     * Only creates a new Object if the difference is not empty.
-    //     */
-    //    private <E> Set<E> setDifference(Set<E> set, Set<E> toSubtract) {
-    //
-    //        if(toSubtract.containsAll(set)) {
-    //            return Collections.emptySet();
-    //        } else {
-    //            Set<E> result = new HashSet<E>(set);
-    //            result.removeAll(toSubtract);
-    //            return result;
-    //        }
-    //    }
-
-//    /**
-//     * Map a logic type to a smt type.
-//     *
-//     * @param type
-//     *            the logical type
-//     *
-//     * @return the string
-//     */
-//    private @NonNull String makeSort(@NonNull Type type) {
-//        if (Environment.getIntType().equals(type)) {
-//            return "Int";
-//        } else if(Environment.getBoolType().equals(type)) {
-//            return "Bool";
-//        } else {
-//            return "Universe";
-//        }
-//    }
 
     /**
      * Deduce the expression type from a smt type string.
