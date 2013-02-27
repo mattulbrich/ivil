@@ -15,6 +15,7 @@ import de.uka.iti.pseudo.term.Variable;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.TermUtil;
 
+// This does not seem to be hinished
 public class InstantiationStrategy extends AbstractStrategy {
 
     private static final String INSTANTIATION_MARKER = "ivil.instantiation";
@@ -80,8 +81,7 @@ public class InstantiationStrategy extends AbstractStrategy {
             RuleApplicationMaker result = new RuleApplicationMaker(env);
             result.setProofNode(node);
             result.setFindSelector(termSelector);
-            result.getTermMatcher().addInstantiation(
-                    SchemaVariable.getInst("%inst", Environment.getBoolType()), inst);
+            result.getTermMatcher().addInstantiation("%inst", inst);
 
             if(termSelector.isAntecedent()) {
                 result.setRule(forallLeft);
