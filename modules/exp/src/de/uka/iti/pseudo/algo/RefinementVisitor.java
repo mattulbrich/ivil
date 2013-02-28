@@ -49,8 +49,10 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
 
         String pre = translation.getCouplingInvariant("-1");
         String post = translation.getCouplingInvariant("0");
+        String initalvar = "INITIAL_VAR(" + translation.getCouplingVariant("-1") + ")";
 
-        return pre + " |- [0; " + concrProg + "][<0;" + abstrProg + ">](" + post + ")";
+        return pre + " |- " + initalvar +
+                " -> [0; " + concrProg + "][<0;" + abstrProg + ">](" + post + ")";
     }
 
 }

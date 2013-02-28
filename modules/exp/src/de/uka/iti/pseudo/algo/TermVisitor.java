@@ -66,8 +66,9 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
             return map + "[" + index + "]";
         } else {
             if (statements != null && "seqGet".equals(mapFunction)) {
-                statements.add("  assert 0 <= (" + index + ") & (" +
-                        index + ") < seqLen(" + map + ") ; \"sequence index in range\"");
+                // XXX find a more flexible solution here
+//                statements.add("  assert 0 <= (" + index + ") & (" +
+//                        index + ") < seqLen(" + map + ") ; \"sequence index in range\"");
             }
             return mapFunction + "(" + map + ", " + index + ")";
         }

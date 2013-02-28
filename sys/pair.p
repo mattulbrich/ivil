@@ -77,6 +77,7 @@ rule snd_concrete
 
 rule prec_pair
   find %p &< %q
-  replace fst(%p) &< fst(%q) | fst(%p) = fst(%q) & snd(%p) < snd(%q)
+  replace fst(%p) &< fst(%q) | fst(%p) = fst(%q) & snd(%p) &< snd(%q)
   tags 
     rewrite "fol simp"
+    asAxiom

@@ -12,9 +12,10 @@ properties
 
 function
   int MARK unique
+  bool INITIAL_VAR('a)
 
 rule refinement
-  find |- [%C][<%A>]%phi
-  replace $$refinementPrgMod([%C][<%A>]%phi)
+  find |- INITIAL_VAR(%V) -> [%C][<%A>]%phi
+  replace $$refinementPrgMod([%C][<%A>]%phi, %V)
 
 

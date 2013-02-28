@@ -7,6 +7,7 @@ import junit.framework.AssertionFailedError;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
+import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
@@ -16,6 +17,7 @@ import de.uka.iti.pseudo.util.Pair;
 public class TestRefinementModifier extends TestCaseWithEnv {
 
     private Map<String, Sequent> problems;
+    private Term inivar;
 //    private Function markAbs;
 //    private Function markConcr;
 
@@ -27,6 +29,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
                 makeEnvAndProblems(getClass().getResource("refinementMod.test.p"));
         env = r.fst();
         problems = r.snd();
+        this.inivar = makeTerm("inivar");
 
 //        markAbs = env.getFunction("$a");
 //        markConcr = env.getFunction("$c");
@@ -58,7 +61,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 
     public void testRefinementMod() throws Exception {
         Term problem = problems.get("refineMod").getSuccedent().get(0);
-        RefinementModifier rmod = new RefinementModifier(env, problem);
+        RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
 
         Term result = rmod.apply();
@@ -72,13 +75,14 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 //        PrettyPrint pp = new PrettyPrint(env);
 //        System.out.println(pp.print(result));
 
-        assertEqualTerms(makeTerm(makeResultTerm(0, 1, false, null, null) + " & "
+        assertEqualTerms(makeTerm(makeResultTerm(0, 1, false, "inivar as int", null) + " & "
                  + makeResultTerm(7, 4, true, "11", "x=1") + " & "
                  + makeResultTerm(4, 8, true, "22", "x=2") + ""), result);
     }
 
     private String makeResultTerm(int concr, int abs, boolean anon, String var, String pre) {
-        String glue = "($markA = $markC & ($markA = 1 -> x=1) & ($markA = 2 -> x=2) & ($markA = 0 -> x =0))";
+        String glue = "($markA = $markC & ($markA = 1 -> x=1 & 11 &< var) & " +
+        		"($markA = 2 -> x=2 & 22 &< var) & ($markA = 0 -> x =0))";
         String update =  anon ? "{ y := y1 || x := x1 }" :"";
         String anUpd = "{ $markA := 0 || $markC := 0}";
         String varUpd = var != null ? "{ var := " + var + "}" :"";
@@ -88,7 +92,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 
     public void testUsingTheMarks() throws Exception {
         Term problem = problems.get("using").getSuccedent().get(0);
-        RefinementModifier rmod = new RefinementModifier(env, problem);
+        RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
 
         try {
             Term result = rmod.apply();
@@ -105,14 +109,15 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 
     public void testUsingTheMarks2() throws Exception {
         Term problem = problems.get("using2").getSuccedent().get(0);
-        RefinementModifier rmod = new RefinementModifier(env, problem);
+        // deliberately without variant!
+        RefinementModifier rmod = new RefinementModifier(env, problem, null);
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
 
         Term result = rmod.apply();
         System.out.println(result);
-        String glue = "($markA = $markC & ($markA = 0 -> x=0))";
+        String glue = "($markA = $markC & ($markA = 0 -> x=0 ))";
         Term exp = makeTerm("{ $markA := 0 || $markC := 0 }[0;C_1'][<0;A_1'>]" + glue +
-                "&\n {}{ $markA := 0 || $markC := 0 }[2;C_1'][<2;A_1'>]" + glue);
+                "&\n { $markA := 0 || $markC := 0 }[2;C_1'][<2;A_1'>]" + glue);
 
         assertEquals(2, env.getProgram("C_1'").countStatements());
         assertEquals(2, env.getProgram("A_1'").countStatements());
@@ -121,7 +126,7 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 
     public void testUsingTheMarks3() throws Exception {
         Term problem = problems.get("using3").getSuccedent().get(0);
-        RefinementModifier rmod = new RefinementModifier(env, problem);
+        RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
 
         try {
             Term result = rmod.apply();
