@@ -30,6 +30,7 @@ import de.uka.iti.pseudo.term.ProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.UpdateTerm;
+import de.uka.iti.pseudo.util.TermUtil;
 
 /**
  * The Knowledge Strategy can be used as a specialised simplification strategy
@@ -93,26 +94,6 @@ public class KnowledgeStrategy extends AbstractStrategy {
         }
 
         return result;
-    }
-
-    /**
-     * Tests if the argument is an equality.
-     * (An application of the function "$eq").
-     *
-     * @param term
-     *            the term
-     *
-     * @return true, iff term is an equality
-     *
-     * TODO move this to TermUtil once it is available
-     */
-    private static boolean isEquality(Term term) {
-        if (term instanceof Application) {
-            Application application = (Application) term;
-            Function fct = application.getFunction();
-            return "$eq".equals(fct.getName());
-        }
-        return false;
     }
 
     /**
@@ -188,8 +169,9 @@ public class KnowledgeStrategy extends AbstractStrategy {
             antecedentEqualities = new HashMap<Term, TermSelector>();
             int index = 0;
             for (Term term : antecedent) {
-                if(isEquality(term)) {
-                    antecedentEqualities.put(term.getSubterm(0), new TermSelector(TermSelector.ANTECEDENT, index));
+                if(TermUtil.isEquality(term)) {
+                    antecedentEqualities.put(term.getSubterm(0),
+                            new TermSelector(TermSelector.ANTECEDENT, index));
                 }
                 index ++;
             }

@@ -14,11 +14,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Function;
-import de.uka.iti.pseudo.environment.NumberLiteral;
 import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
@@ -26,14 +23,15 @@ import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.RuleApplicationFilter;
 import de.uka.iti.pseudo.rule.RuleException;
-import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.SkipStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.TermUtil;
 
 /**
  * The Class BreakpointStrategy implements the symbolic execution aware of
@@ -228,9 +226,13 @@ public class BreakpointStrategy extends AbstractStrategy implements
                 GotoStatement gotoStm = (GotoStatement) s;
                 int currentIndex = progTerm.getProgramIndex();
                 for (Term target : gotoStm.getSubterms()) {
-                    int index = toInt(target);
-                    if (index <= currentIndex) {
-                        return true;
+                    try {
+                        int index = TermUtil.getIntLiteral(target);
+                        if (index <= currentIndex) {
+                            return true;
+                        }
+                    } catch (TermException e) {
+                        throw new Error(e);
                     }
                 }
             }
@@ -376,24 +378,4 @@ public class BreakpointStrategy extends AbstractStrategy implements
     // Helper function
     //
 
-    /**
-     * Make integer from integer literal term.
-     *
-     * @param term a number literal term.
-     *
-     * @throws RuntimeException
-     *             if the term is not a number literal
-     */
-    private int toInt(@NonNull Term term) {
-        if (term instanceof Application) {
-            Application appl = (Application) term;
-            Function f = appl.getFunction();
-            if (f instanceof NumberLiteral) {
-                NumberLiteral literal = (NumberLiteral) f;
-                return literal.getValue().intValue();
-            }
-        }
-        throw new RuntimeException("The term " + term
-                + " is not a number literal");
-    }
 }

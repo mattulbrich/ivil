@@ -28,6 +28,7 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.GotoStatement;
 import de.uka.iti.pseudo.term.statement.Statement;
+import de.uka.iti.pseudo.util.TermUtil;
 
 /**
  * A class which works on one program and allows to
@@ -435,7 +436,7 @@ public class ProgramChanger {
         List<Term> orgTargets = gotoSt.getSubterms();
         Term /*@Nullable*/ [] newTargets = null;
         for (int i = 0; i < gotoSt.countSubterms(); i++) {
-            int val = toInt(orgTargets.get(i));
+            int val = TermUtil.getIntLiteral(orgTargets.get(i));
             if (val >= index) {
                 if (newTargets == null) {
                     newTargets = new Term[orgTargets.size()];
@@ -463,21 +464,4 @@ public class ProgramChanger {
         return Application.getInst(f, Environment.getIntType(), new Term[0]);
     }
 
-    /**
-     * Make integer from term.
-     *
-     * @throws TermException
-     *             if the term is not a number literal
-     */
-    private int toInt(Term term) throws TermException {
-        if (term instanceof Application) {
-            Application appl = (Application) term;
-            Function f = appl.getFunction();
-            if (f instanceof NumberLiteral) {
-                NumberLiteral literal = (NumberLiteral) f;
-                return literal.getValue().intValue();
-            }
-        }
-        throw new TermException("The term " + term + " is not a number literal");
-    }
 }

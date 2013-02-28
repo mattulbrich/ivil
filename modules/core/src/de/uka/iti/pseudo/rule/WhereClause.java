@@ -176,13 +176,13 @@ public class WhereClause {
      * Allow this clause to actively instantiate schema entities.
      *
      * <p>
-     * This is an action and does not provide a possibilty to feedback
+     * This is an action and does not provide a possibility to feedback
      * information. Failures are to be reported by
      * {@link #applyTo(TermInstantiator, RuleApplication, ProofNode, Environment)}.
      *
      * <p>
      * This is not called when applying a rule application to a node. Then the
-     * instatiations need to have been done. It is called during finding of
+     * Instantiations need to have been done. It is called during finding of
      * applications, however.
      *
      * @param termMatcher

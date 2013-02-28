@@ -175,17 +175,20 @@ rule defaultVal_int
   replace 0
   tags rewrite "concrete"
        verbosity "5"
+       asAxiom
 
 rule defaultVal_ref
   find defaultVal as ref
   replace null
   tags rewrite "concrete"
        verbosity "5"
+       asAxiom
 
 rule defaultVal_bool
   find defaultVal as bool
   replace false
   tags rewrite "concrete"
        verbosity "5"
+       asAxiom
 
 problem true

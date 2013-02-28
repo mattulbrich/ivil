@@ -38,10 +38,12 @@ plugin
 
   # check whether a term does not contain modalities
   whereCondition : "de.uka.iti.pseudo.rule.where.ProgramFree"
+
+  # for diamond branches, have a better splitting rule
+  whereCondition : "de.uka.iti.pseudo.rule.where.ComplementaryBranches"
   
   # check whether a term is a Program at an updateAssignment position
 #  whereCondition : "de.uka.iti.pseudo.rule.where.IsUpdateStatement"
-
 
 (*
  * First the theoretical rules
@@ -173,6 +175,22 @@ rule auto_tbox_goto2
   tags rewrite "symbex"
        display "|> goto {%n}, {%k}"
 
+rule dia_dia_goto2_complementary
+  find |- { U ?}[< %p: goto %n1, %n2>]%psi
+  where 
+    complementaryBranches %p, %n1, %phi1, %n2, %phi2
+
+  samegoal "branchcase {%phi1}"
+    add {U}%phi1 |-
+    replace {U}$$incPrg($$jmpPrg(%p, %n1))
+
+  samegoal "branchcase {%phi2}"
+    add {U}%phi2 |-
+    replace {U}$$incPrg($$jmpPrg(%p, %n2))
+  
+  tags rewrite "symbex"
+       display "|> goto {%n1}, {%n2}"
+
 rule auto_dia_goto2
   find |- { U ?} [<%a : goto %n, %k>]%phi
   samegoal "goto {%n}, {%k}"
@@ -209,7 +227,6 @@ rule auto_dia_assert
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assert {%b}: {explain %a}"
-       hintsOnBranches "0"
 
 
 rule auto_box_assume
@@ -238,6 +255,7 @@ rule auto_dia_assume
     replace {U} $$incPrg(%a)
   tags rewrite "symbex"
        display "|> assume {%b}: {explain %a}"
+       hintsOnBranches "0"
 
 
 rule auto_box_havoc
