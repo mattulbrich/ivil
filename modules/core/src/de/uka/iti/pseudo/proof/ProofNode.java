@@ -44,27 +44,27 @@ import de.uka.iti.pseudo.util.Util;
 
 /**
  * A ProofNode describes a single node in the sequent calculus proof tree.
- * 
+ *
  * <p>
  * It has an immutable sequent attached to it and stores references to the
  * parent node in the tree and to all children nodes it possesses. This links
  * (the children in particular) may change throughout the life time of a proof
  * node.
- * 
+ *
  * <p>
  * A ProofNode is an open node if it has an open leaf node as a successor. A
  * leaf is open, if it has set the children field to "null". Only the root node
  * has parent reference which is null.
- * 
+ *
  * <p>
  * The apply method allows the associated proof to apply a rule on a leaf of the
  * tree. It is checked whether all clauses fit the current circumstances. If
  * they do the tree is expanded and new nodes are added as children.
- * 
+ *
  * <p>
  * A proof node carries information about the history of the terms in its
  * sequent. This information is updated and the information is kept track of.
- * 
+ *
  * @see Proof
  */
 public class ProofNode implements Comparable<ProofNode> {
@@ -94,8 +94,8 @@ public class ProofNode implements Comparable<ProofNode> {
      * The parent of this node in the proof tree
      */
     private @Nullable ProofNode parent;
-    
-    /*@ invariant (\forall ProofNode n; n != null && 
+
+    /*@ invariant (\forall ProofNode n; n != null &&
      *@  (\exists int i; i >= 0 & i < children.length; children[i] == n);
      *@  n.parent == this); @*/
 
@@ -104,29 +104,29 @@ public class ProofNode implements Comparable<ProofNode> {
      * This is set iff children have been calculated
      */
     private @Nullable ImmutableRuleApplication appliedRuleApp = null;
-    
-    /*@ invariant appliedRule == null <==> children == null; @*/  
-    
+
+    /*@ invariant appliedRule == null <==> children == null; @*/
+
     /**
      * This node's number which is unique throughout the proof.
      */
     private final int number;
-    
+
     /*@ invariant (\forall ProofNode n; n != null && n.proof == proof;
      *@     n.number == number ==> this == n); */
-    
+
     /**
      * The sequent history.
-     * This object is fixed in the constructor and cannot 
-     * be changed afterwards. 
+     * This object is fixed in the constructor and cannot
+     * be changed afterwards.
      */
     private final SequentHistory sequentHistory;
-    
+
     /**
      * This constructor is called when starting a new proof with an initial
      * sequent. It is only package visible since this is to be called only from
      * {@link Proof}.
-     * 
+     *
      * @param proof
      *            the proof to which this node belongs
      * @param parent
@@ -137,17 +137,17 @@ public class ProofNode implements Comparable<ProofNode> {
      *            the annotation which is used for all terms in the sequent to
      *            initially tag the sequent.
      */
-     ProofNode(@NonNull Proof proof, @NonNull Sequent sequent, 
+     ProofNode(@NonNull Proof proof, @NonNull Sequent sequent,
              @NonNull SequentHistory.Annotation initialAnnotation) {
          this(proof, null, sequent, new SequentHistory(sequent, initialAnnotation));
     }
-     
+
      /*
       * This constructor is called during rule application.
-      * 
+      *
       * It sets the attributes and asserts certain properties.
       */
-      private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent, 
+      private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent,
              @NonNull Sequent sequent,
              @NonNull SequentHistory history) {
          this.proof = proof;
@@ -155,37 +155,38 @@ public class ProofNode implements Comparable<ProofNode> {
          this.sequent = sequent;
          this.number = proof.makeFreshNumber();
          this.sequentHistory = history;
-         
+
          sequentHistory.fix();
-         
+
          assert sequentHistory.sizesAgreeWith(sequent);
          assert parent == null || parent.proof == proof;
      }
-    
+
     //
     // various getter methods
     //
-    
+
     /**
      * Gets the children nodes of this node.
-     * 
+     *
      * <p>Returns null iff this node is an open leaf.
-     * 
+     *
      * @return an unmodifiable list of proof nodes or null
      */
     public @Nullable List<ProofNode> getChildren() {
-        if(children != null)
+        if(children != null) {
             return Util.readOnlyArrayList(children);
-        else
+        } else {
             return null;
+        }
     }
 
     /**
      * Gets the rule application that has been applied to this
      * node.
-     * 
+     *
      * <p>Returns null iff this node is an open leaf.
-     * 
+     *
      * @return the applied rule or null
      */
     public @Nullable RuleApplication getAppliedRuleApp() {
@@ -194,9 +195,9 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /**
      * Gets the parent node of the proof tree
-     * 
+     *
      * <p>Returns null iff this node is the root of the proof tree.
-     * 
+     *
      * @return the parent node or null
      */
     public @Nullable ProofNode getParent() {
@@ -205,7 +206,7 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /**
      * Gets the sequent in this proof node.
-     * 
+     *
      * @return the sequent
      */
     public @NonNull Sequent getSequent() {
@@ -214,10 +215,10 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /**
      * get the number of this proof node in the proof.
-     * 
+     *
      * It is unique within the proof and used as index in RuleApplications. It
      * does not change troughout the lifetime of this bject.
-     * 
+     *
      * @return the non-negative unique index of this proof node
      */
     public int getNumber() {
@@ -226,64 +227,67 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /**
      * Gets a string summarizing this node.
-     * 
+     *
      * <p>
      * It tells whether this node is open or closed and about its size. The
      * string is used as label in {@link GoalList} objects.
-     * 
+     *
      * @return the summary string
      */
     public @NonNull String getSummaryString() {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append(number).append(": ");
-        if(appliedRuleApp != null)
+        if(appliedRuleApp != null) {
             sb.append("closed ");
-        else
+        } else {
             sb.append("open ");
-        
+        }
+
         sb.append("node, ")
             .append(sequent.getAntecedent().size())
             .append(" |- ").append(sequent.getSuccedent().size());
-        
+
         return sb.toString();
     }
-    
 
-    
+
+
     /**
      * Checks if this node is closed.
-     * 
+     *
      * <p>
      * A node is closed if there is no open leaf under it. A leaf is open iff
      * its children field is set to null
-     * 
+     *
      * @return true iff is closed
      */
     public boolean isClosed() {
-        if (children == null)
+        if (children == null) {
             return false;
+        }
 
         for (ProofNode child : children) {
-            if (!child.isClosed())
+            if (!child.isClosed()) {
                 return false;
+            }
         }
 
         return true;
     }
-    
+
     /**
      * Gets the associated proof.
-     * 
+     *
      * @return the proof
      */
     public @NonNull Proof getProof() {
         return proof;
     }
-    
+
     /**
      * Collect all open goals under this node into a collection.
-     * 
+     *
      * @param openGoals
      *            a list to add open goals to.
      */
@@ -295,18 +299,18 @@ public class ProofNode implements Comparable<ProofNode> {
                 child.collectOpenGoals(openGoals);
             }
         }
-            
+
     }
-    
+
     //
     // methods to modify the tree.
     // They are protected under the synchronisation of their proof object.
-    // 
-    
+    //
+
     /**
      * Remove any child from this node and set the applied rule to null.
      * Additionally, set the parent of all children to null.
-     * 
+     *
      * <p>This method is only package visible and should only be called from within
      * {@link Proof#prune(ProofNode)} which is a synchronised method.
      */
@@ -316,49 +320,34 @@ public class ProofNode implements Comparable<ProofNode> {
                 node.parent = null;
             }
         }
-        
+
         children = null;
         appliedRuleApp = null;
     }
 
     /**
      * Checks whether ruleApp can be applied or not.
+     *
+     * @deprecated Instead use a {@link CheckedRuleApplication} and do the check
+     *             there, then it needs not be repeated.
      */
+    @Deprecated
     public boolean applicable(RuleApplication ruleApp, Environment env) {
-        try{
-            if (appliedRuleApp != null)
-                throw new ProofException("Trying to apply proof to a non-leaf proof node");
-
-            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-            Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-            TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, updateMap, env);
-
-            Rule rule = ruleApp.getRule();
-
-            assert rule != null : "Rule in RuleApplication must not be null";
-
-            matchFindClause(ruleApp, inst, rule);
-            matchAssumeClauses(ruleApp, inst, rule);
-            verifyWhereClauses(ruleApp, inst, rule, env);
-            doActions(ruleApp, inst, env, rule);
-        } catch (ProofException e) {
-            return false;
-        }
-        return true;
+        CheckedRuleApplication cra = new CheckedRuleApplication(ruleApp);
+        return cra.isApplicable(env);
     }
 
     /**
-     * Apply a {@link RuleApplication} to this node. The find, where and assume 
+     * Apply a {@link RuleApplication} to this node. The find, where and assume
      * clauses are checked the action clauses executed.
-     * 
-     * <p>An immutable instance of the rule application is stored in this proof 
-     * node.  
-     * 
+     *
+     * <p>An immutable instance of the rule application is stored in this proof
+     * node.
+     *
      * <p>This method is only package visible and should only be called from within
      * {@link Proof#apply(RuleApplication, Environment)} which is a
      * synchronised method.
-     * 
+     *
      * @param ruleApp
      * @param inst
      * @param env
@@ -366,33 +355,22 @@ public class ProofNode implements Comparable<ProofNode> {
      * @throws ProofException
      */
     void apply(RuleApplication ruleApp, Environment env) throws ProofException {
-        if(appliedRuleApp != null)
+        if(appliedRuleApp != null) {
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
-        
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(
-                schemaMap, typeMap, updateMap, env);
-        
-        Rule rule = ruleApp.getRule();
-        
-        assert rule != null : "Rule in RuleApplication must not be null";
+        }
 
-        matchFindClause(ruleApp, inst, rule);
-        matchAssumeClauses(ruleApp, inst, rule);
-        verifyWhereClauses(ruleApp, inst, rule, env);
+
 
         children = doActions(ruleApp, inst, env, rule);
-        
+
         // TODO do this before checking the ruleApp. But:
         // "$$skolem" needs mutable properties to write its instantiation.
-        
+
         // capture the current state of the rule application in an
         // immutable copy. No need to copy if already immutable.
-        ImmutableRuleApplication immRuleApp; 
+        ImmutableRuleApplication immRuleApp;
         if(ruleApp instanceof ImmutableRuleApplication) {
-            immRuleApp = (ImmutableRuleApplication) ruleApp; 
+            immRuleApp = (ImmutableRuleApplication) ruleApp;
         } else {
             immRuleApp = new ImmutableRuleApplication(ruleApp);
         }
@@ -402,7 +380,7 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /*
      * Execute the action parts of a rule.
-     * 
+     *
      * A list of new proof nodes is returned. Each corresponds to one goal
      * description in the action part of a rule and its sequent contains the
      * adequate modification of the original sequent. Each contains an updated
@@ -417,11 +395,12 @@ public class ProofNode implements Comparable<ProofNode> {
         String ruleAppText = makeRuleAppAnnotation(rule, inst);
         TermSelector findSelector = ruleApp.getFindSelector();
         Annotation reasonAnnotation = null;
-        if(findSelector != null)
+        if(findSelector != null) {
             reasonAnnotation = sequentHistory.select(findSelector);
-        
+        }
+
         try {
-            
+
             for (GoalAction action : rule.getGoalActions()) {
                 antecedent.clear();
                 succedent.clear();
@@ -439,9 +418,9 @@ public class ProofNode implements Comparable<ProofNode> {
                     history = new SequentHistory(ruleAppText, reasonAnnotation, this);
                 break;
                 }
-                
+
                 Term replaceWith = action.getReplaceWith();
-                
+
                 if(replaceWith != null) {
                     Term instantiated = inst.instantiate(replaceWith);
                     instantiated = metaEval.evalutate(instantiated);
@@ -449,33 +428,34 @@ public class ProofNode implements Comparable<ProofNode> {
                     history.replaced(findSelector);
                 } else if(action.isRemoveOriginalTerm()) {
                     assert findSelector.isToplevel();
-                    if(findSelector.isAntecedent())
+                    if(findSelector.isAntecedent()) {
                         antecedent.remove(findSelector.getTermNo());
-                    else
+                    } else {
                         succedent.remove(findSelector.getTermNo());
+                    }
                     history.removed(findSelector);
                 }
-                
+
                 for (Term add : action.getAddAntecedent()) {
                     Term toAdd = inst.instantiate(add);
                     toAdd = metaEval.evalutate(toAdd);
                     antecedent.add(toAdd);
                     history.added(TermSelector.ANTECEDENT);
                 }
-                
+
                 for (Term add : action.getAddSuccedent()) {
                     Term toAdd = inst.instantiate(add);
                     toAdd = metaEval.evalutate(toAdd);
                     succedent.add(toAdd);
                     history.added(TermSelector.SUCCEDENT);
                 }
-                
+
                 Sequent seq = new Sequent(antecedent, succedent);
                 newNodes.add(new ProofNode(proof, this, seq, history));
             }
 
             return Util.listToArray(newNodes, ProofNode.class);
-            
+
         } catch (TermException e) {
             Log.log(Log.WARNING, "Failed rule application:");
             if(Log.isLogging(Log.DEBUG)) {
@@ -487,23 +467,24 @@ public class ProofNode implements Comparable<ProofNode> {
 
     /*
      * Extract an textual annotation from a rule description.
-     * 
+     *
      * If the rule has got a tag "display" this value has its {%c} schema
      * references instantiated and is returned.
-     * 
+     *
      * The name of the rule is returned if there is no such tag.
      */
     private String makeRuleAppAnnotation(Rule rule, TermInstantiator inst) {
         String annotation = rule.getProperty(RuleTagConstants.KEY_DISPLAY);
-        if(annotation == null)
+        if(annotation == null) {
             return rule.getName();
-        else
+        } else {
             return annotation;
+        }
     }
 
     /*
      * Replace a term in a sequent.
-     * 
+     *
      * The term is given by a term selector and the sequent as two lists.
      */
     private void replaceTerm(TermSelector sel, Term replaceWith,
@@ -526,92 +507,9 @@ public class ProofNode implements Comparable<ProofNode> {
         }
     }
 
-    /*
-     * Verify where clauses in a rule application using a terminstantiator.
-     */
-    private void verifyWhereClauses(RuleApplication ruleApp, TermInstantiator inst,
-            Rule rule, Environment env) throws ProofException {
-        for (WhereClause whereClause : rule.getWhereClauses()) {
-            try {
-                if(!whereClause.applyTo(inst, ruleApp, env)) {
-                    Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
-                    Log.log(Log.DEBUG, "Term inst: " + inst);
-                    throw new ProofException("WhereClause failed: " + whereClause + 
-                            ", instantiation: " + inst);
-                }
-            } catch (RuleException e) {
-                Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
-                Log.log(Log.DEBUG, "Term inst: " + inst);
-                throw new ProofException("WhereClause not applicable: " + whereClause, e);
-            }
-        }
-    }
 
-    /*
-     * Match find clause against the sequent.
-     * 
-     * If there is no find clause in this rule, just return.
-     */
-    private void matchFindClause(RuleApplication ruleApp, TermInstantiator inst,
-            Rule rule) throws ProofException {
-        
-        LocatedTerm findClause = rule.getFindClause();
-        if(findClause == null)
-            return;
-        
-        TermSelector findSelector = ruleApp.getFindSelector();
-        Term findSubTerm = findSelector.selectSubterm(sequent);
 
-        if (!findClause.isFittingSelect(findSelector)) {
-            throw new ProofException("Illegal selector for find");
-        }
-        
-        Term instantiated;
-        try {
-            instantiated = inst.instantiate(findClause.getTerm());
-        } catch (TermException e) {
-            throw new ProofException("cannot instantiate find clause", e);
-        }
-        
-        if(!findSubTerm.equals(instantiated))
-            throw new ProofException("find clause does not match: \nfind: " + findSubTerm + " \ninstantiated: " + instantiated);
-        
-        if(!findClause.isFittingSelect(findSelector))
-            throw new ProofException("find selector does match find clase: \n" + findClause + 
-                    "\n" + instantiated + " - " + findSelector);
-        
-        OptionalUpdateInstantiationChecker.check(ruleApp);
-    }
 
-    /*
-     * Match assume clauses against the sequent.
-     * 
-     * FIXME start with rule's clauses not with app's clauses
-     */
-    private void matchAssumeClauses(RuleApplication ruleApp,
-            TermInstantiator inst, Rule rule) throws ProofException {
-        
-        List<TermSelector> assumeSelectors = ruleApp.getAssumeSelectors();
-        int length = assumeSelectors.size();
-        
-        for (int i = 0; i < length; i++) {
-            TermSelector assSel = assumeSelectors.get(i);
-            assert assSel.isToplevel();
-            Term assumeTerm = assSel.selectTopterm(sequent);
-            LocatedTerm assumption = rule.getAssumptions().get(i);
-            if (!assumption.isFittingSelect(assSel)) {
-                throw new ProofException("Illegal selector for assume (" + i + ")");
-            }
-            Term instantiated;
-            try {
-                instantiated = inst.instantiate(assumption.getTerm());
-            } catch (TermException e) {
-                throw new ProofException("cannot instantiate assume clause", e);
-            }
-            if(!assumeTerm.equals(instantiated))
-                throw new ProofException("assumption clause does not match");
-        }
-    }
 
     public SequentHistory getSequentHistory() {
         return sequentHistory;
@@ -626,12 +524,12 @@ public class ProofNode implements Comparable<ProofNode> {
     public int compareTo(ProofNode o) {
         return number - o.number;
     }
-    
+
 //    /**
 //     * Get the list of program code locations which occur in the sequent. The
 //     * result of the search is cached in this object to make this operation less
 //     * expensive.
-//     * 
+//     *
 //     * @return an immutable view to the list of code locations.
 //     */
 //    public Set<CodeLocation<Program>> getCodeLocations() {
