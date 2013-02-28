@@ -87,16 +87,16 @@ end
 
 refine selectionSort as Java
   requires _array != null & a = arrayAsIntSeq(h, _array)
-     var 42
+     var pair(1, pair(n-i, n-j))
 
   ensures b = arrayAsIntSeq(h, _array)
 
   mark 1 
     inv b = arrayAsIntSeq(h, _array) & n = seqLen(b)
         & i = _i & j = _j & t = _t & @idx_inrange & j < n
-    var 42
+    var pair(0, pair(n-i, n-j))
 
   mark 2
     inv b = arrayAsIntSeq(h, _array) & n = seqLen(b) 
         & i = _i & j = _j & @idx_inrange
-    var 42
+    var pair(0, pair(n-i, n-j))
