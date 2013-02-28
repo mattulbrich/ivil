@@ -1097,7 +1097,8 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 
             // for a function f(a,b,c) introduce 3 inverse functions invfct1.f(f(a,b,c)) = a
             for (int arg = 0; arg < argTypes.length; arg++) {
-                result = makeUniquenessInArg(name, argTypes, allTypeVariables, arg, resultType);
+                result = makeUniquenessInArg(name, argTypes, allTypeVariables, arg,
+                        fctArgTypes[arg], resultType);
                 assumptions.add(result);
             }
         }
@@ -1107,7 +1108,9 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     }
 
     private String makeUniquenessInArg(String name, ExpressionType[] argTypes,
-            SortedSet<TypeVariable> allTypeVariables, int arg, ExpressionType resultType) {
+            SortedSet<TypeVariable> allTypeVariables, int arg,
+            Type fctArgTypes,
+            ExpressionType resultType) throws TermException {
         StringBuilder sb = new StringBuilder();
         sb.append("Uniqueness in parameter " + arg +" of " + name + "\n");
         sb.append("(forall (");
@@ -1134,9 +1137,11 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             }
             invoc.append(")");
         }
-
-        sb.append(") (! (= (" + inv + " " + invoc + ") ?x" + arg +
-                ") :pattern (" + invoc + ")))");
+        String xarg = "?x" + arg;
+        String ty = fctArgTypes.accept(typeToTerm, false);
+        sb.append(") (! (=> (ty " + xarg + " " + ty
+                +") (= (" + inv + " " + invoc + ") ?x" + arg +
+                ")) :pattern (" + invoc + ")))");
 
         return sb.toString();
     }

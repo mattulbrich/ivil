@@ -67,11 +67,13 @@ rule fst_concrete
   find fst(pair(%a,%b))
   replace %a
   tags rewrite "concrete"
+    asAxiom
 
 rule snd_concrete
   find snd(pair(%a,%b))
   replace %b
   tags rewrite "concrete"
+    asAxiom
 
 rule prec_pair
   find %p &< %q
