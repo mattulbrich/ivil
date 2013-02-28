@@ -312,28 +312,28 @@ public class TestSMTLib2Translator extends TestCaseWithEnv {
         trans.translate(makeTerm("bf(alphaResult(0))"), BOOL);
         assertEquals("one assumption for alphaResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.alphaResult\n" +
-                "(forall ((?Type.a Type) (?x0 Universe) ) " +
+                "(forall ((?Type.a Type) (?x0 Universe)) " +
                 "(! (ty (fct.alphaResult ?Type.a ?x0) ?Type.a) " +
                 ":pattern ((fct.alphaResult ?Type.a ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(betaResult(0) as int)"), BOOL);
         assertEquals("one assumption for betaResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.betaResult\n" +
-                "(forall ((?Type.a Type) (?Type.b Type) (?x0 Universe) ) " +
+                "(forall ((?Type.a Type) (?Type.b Type) (?x0 Universe)) " +
                 "(! (ty (fct.betaResult ?Type.a ?Type.b ?x0) ?Type.b) " +
                 ":pattern ((fct.betaResult ?Type.a ?Type.b ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(sResult(0))"), BOOL);
         assertEquals("one assumption for sResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.sResult\n" +
-                "(forall ((?Type.a Type) (?x0 Universe) ) " +
+                "(forall ((?Type.a Type) (?x0 Universe)) " +
                 "(! (ty (fct.sResult ?Type.a ?x0) ty.S) " +
                 ":pattern ((fct.sResult ?Type.a ?x0))))", trans.assumptions.getLast());
 
         trans.translate(makeTerm("bf(tResult(0))"), BOOL);
         assertEquals("one assumption for tResult", ++assSize, trans.assumptions.size());
         assertEquals("Typing for function symbol fct.tResult\n" +
-                "(forall ((?Type.a Type) (?x0 Universe) ) " +
+                "(forall ((?Type.a Type) (?x0 Universe)) " +
                 "(! (ty (fct.tResult ?Type.a ?x0) (ty.T ?Type.a)) " +
                 ":pattern ((fct.tResult ?Type.a ?x0))))", trans.assumptions.getLast());
     }

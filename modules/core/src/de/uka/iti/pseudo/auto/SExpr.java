@@ -159,7 +159,7 @@ final class SExpr implements Iterable<SExpr> {
                     buf.append(" ");
                 }
                 child.appendTo(buf);
-                passedFirst = false;
+                passedFirst = true;
             }
             buf.append(")");
         }
