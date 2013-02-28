@@ -341,6 +341,20 @@ rule in_setext
   find %a :: (\set %x; %b)
   replace $$subst(%x, %a, %b)
 
+# the following is there to trigger inclusion of bnd.set.
+axiom set_true_is_fullset
+  (\T_all 'a; (\set x; true) = fullset as set('a))
+
+properties smt2.inline.setComp  
+"(assert
+ (forall ((?a Type)
+          (?x Universe) 
+          (?l (Array Universe Bool)))
+         (= (fct..mem ?a ?x 
+             (bnd.set ?a ?l)) 
+            (select ?l ?x))))"
+
+
 (*
  * rules for seqAsSet
  *)
