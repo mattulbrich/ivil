@@ -279,7 +279,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
      *
      */
     @SuppressWarnings("nullness")
-    private final TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
+    final TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
         @Override
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
@@ -939,258 +939,50 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
     }
 
     private String makeExtraBinderFunc(Binder binder) throws TermException {
-        String binderName = binder.getName();
-        // drop the initial "\\"
-        String name = "bnd." + binderName.substring(1);
-        name = name.replace('$', '.');
 
-        // var type
-        Type fctVarType = binder.getVarType();
-        ExpressionType varType = typeToExpressionType(fctVarType);
+        SMTLib2SymbolTranslator strans = new SMTLib2SymbolTranslator(this, binder);
+        String name = strans.getName();
+        extrafuncs.add(strans.getDefinition());
 
-        // result type
-        Type fctResultType = binder.getResultType();
-        ExpressionType resultType = typeToExpressionType(fctResultType);
-
-        // argument types
-        Type[] fctArgTypes = binder.getArgumentTypes();
-        ExpressionType[] argTypes = new ExpressionType[fctArgTypes.length];
-        for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = typeToExpressionType(fctArgTypes[i]);
+        // only for Universe binders
+        if (strans.isUniverseFunction()) {
+            SExpr result = strans.makeTypingAxiom();
+            assumptions.add("Typing for binder symbol " + name + "\n" + result);
         }
 
-        SortedSet<TypeVariable> allTypeVariables = collectTypeVars(binder);
-
-        List<String> types = new ArrayList<String>();
-        types.addAll(Collections.nCopies(allTypeVariables.size(), "Type"));
-        for (ExpressionType exTy : argTypes) {
-            types.add("(Array " + varType + " " + exTy.toString() + ")");
-        }
-
-        extrafuncs.add(name + " (" + Util.join(types, " ") + ") " + resultType);
-
-        // typing only for Universe binders
-        if (resultType == UNIVERSE) {
-            StringBuilder sb = new StringBuilder();
-
-            sb.append("Typing for binder symbol ").append(name).append("\n");
-
-            assert argTypes.length > 0 : "Binder w/o arguments are not considered here";
-
-            sb.append("(forall (");
-
-            for (TypeVariable typeVariable : allTypeVariables) {
-                sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
-            }
-
-            for (int i = 0; i < argTypes.length; i++) {
-                sb.append("(?x").append(i).append(" ")
-                // types start with the type variables types and then the array types
-                .append(types.get(i + allTypeVariables.size()))
-                .append(") ");
-            }
-
-            sb.append(") (! (ty ");
-
-            StringBuilder fctcallsb = new StringBuilder();
-            {
-                fctcallsb.append("(").append(name);
-                for (TypeVariable typeVariable : allTypeVariables) {
-                    fctcallsb.append(" ?Type.")
-                    .append(typeVariable.getVariableName());
-                }
-                for (int i = 0; i < argTypes.length; i++) {
-                    fctcallsb.append(" ?x").append(i);
-                }
-                fctcallsb.append(")");
-            }
-            sb.append(fctcallsb).append(" ")
-            .append(fctResultType.accept(typeToTerm, true))
-            .append(") :pattern (")
-            .append(fctcallsb)
-            .append(")))");
-
-            assumptions.add(sb.toString());
-        }
         return name;
+
     }
 
     private String makeExtraFunc(Function function) throws TermException {
-        String fctName = function.getName();
-        String name = "fct." + fctName;
-        name = name.replace('$', '.');
 
-        Type fctResultType = function.getResultType();
-        ExpressionType resultType = typeToExpressionType(fctResultType);
-
-        Type[] fctArgTypes = function.getArgumentTypes();
-        ExpressionType[] argTypes = new ExpressionType[fctArgTypes.length];
-        for (int i = 0; i < argTypes.length; i++) {
-            argTypes[i] = typeToExpressionType(fctArgTypes[i]);
-        }
-
-        SortedSet<TypeVariable> allTypeVariables = collectTypeVars(function);
-
-        List<String> types = new ArrayList<String>();
-        types.addAll(Collections.nCopies(allTypeVariables.size(), "Type"));
-        for (ExpressionType exTy : argTypes) {
-            types.add(exTy.toString());
-        }
-
-        extrafuncs.add(name +" (" + Util.join(types, " ") + ") " + resultType);
+        SMTLib2SymbolTranslator strans = new SMTLib2SymbolTranslator(this, function);
+        String name = strans.getName();
+        extrafuncs.add(strans.getDefinition());
 
         // only for Universe functions
-        if (resultType == UNIVERSE) {
-            StringBuilder sb = new StringBuilder();
-            //   boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
-
-            sb.append("Typing for function symbol ").append(name).append("\n");
-
-            if (allTypeVariables.isEmpty() && argTypes.length == 0) {
-
-                // for a monomorphic constant symbols "bool c" add
-                // "(= (ty fct.c) ty.bool)"
-                sb.append("(ty ").append(name).append(" ").
-                append(fctResultType.accept(typeToTerm, false)).
-                append(")");
-
-            } else {
-                sb.append("(forall (");
-
-                for (TypeVariable typeVariable : allTypeVariables) {
-                    sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
-                }
-
-                for (int i = 0; i < argTypes.length; i++) {
-                    sb.append("(?x").append(i).append(" ").append(argTypes[i])
-                    .append(") ");
-                }
-
-                sb.append(") (! (ty ");
-
-                StringBuilder fctcallsb = new StringBuilder();
-                {
-                    fctcallsb.append("(").append(name);
-                    for (TypeVariable typeVariable : allTypeVariables) {
-                        fctcallsb.append(" ?Type.")
-                            .append(typeVariable.getVariableName());
-                    }
-                    for (int i = 0; i < argTypes.length; i++) {
-                        fctcallsb.append(" ?x").append(i);
-                    }
-                    fctcallsb.append(")");
-                }
-                sb.append(fctcallsb).append(" ")
-                        .append(fctResultType.accept(typeToTerm, true))
-                        .append(") :pattern (")
-                        .append(fctcallsb)
-                        .append(")))");
-            }
-            assumptions.add(sb.toString());
+        if (strans.isUniverseFunction()) {
+            SExpr result = strans.makeTypingAxiom();
+            assumptions.add("Typing for function symbol " + name + "\n" + result);
         }
 
         // Add for uniqueness
         if(function.isUnique()) {
-            String result = makeUniqueMapAssumption(name, argTypes, allTypeVariables, uniqueCounter);
+            SExpr result = strans.makeUniqueMapAssumption(uniqueCounter);
             uniqueCounter++;
-            assumptions.add(result);
+            assumptions.add("Uniqueness of function symbol " + name + "\n" + result);
 
             // for a function f(a,b,c) introduce 3 inverse functions invfct1.f(f(a,b,c)) = a
-            for (int arg = 0; arg < argTypes.length; arg++) {
-                result = makeUniquenessInArg(name, argTypes, allTypeVariables, arg,
-                        fctArgTypes[arg], resultType);
-                assumptions.add(result);
+            for (int arg = 0; arg < function.getArity(); arg++) {
+                result = strans.makeUniquenessInArg(arg);
+                assumptions.add("Uniqueness in parameter " + arg +" of " + name + "\n" + result);
             }
         }
-
 
         return name;
     }
 
-    private String makeUniquenessInArg(String name, ExpressionType[] argTypes,
-            SortedSet<TypeVariable> allTypeVariables, int arg,
-            Type fctArgTypes,
-            ExpressionType resultType) throws TermException {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Uniqueness in parameter " + arg +" of " + name + "\n");
-        sb.append("(forall (");
-
-        for (TypeVariable typeVariable : allTypeVariables) {
-            sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
-        }
-
-        for (int i = 0; i < argTypes.length; i++) {
-            sb.append("(?x" + i + " " + argTypes[i] + ") ");
-        }
-
-        String inv = "inv" + name + "." + arg;
-        extrafuncs.add(inv + " (" + resultType + ") " + argTypes[arg]);
-
-        StringBuilder invoc = new StringBuilder();
-        {
-            invoc.append("(" + name);
-            for (TypeVariable typeVariable : allTypeVariables) {
-                invoc.append(" ?Type.").append(typeVariable.getVariableName());
-            }
-            for (int i = 0; i < argTypes.length; i++) {
-                invoc.append(" ?x").append(i);
-            }
-            invoc.append(")");
-        }
-        String xarg = "?x" + arg;
-        String ty = fctArgTypes.accept(typeToTerm, false);
-        sb.append(") (! (=> (ty " + xarg + " " + ty
-                +") (= (" + inv + " " + invoc + ") ?x" + arg +
-                ")) :pattern (" + invoc + ")))");
-
-        return sb.toString();
-    }
-
-    /*
-     * For a unique function symbol U return the assumption that
-     *
-     * u(...) = val in which counter is a value value
-     */
-    private static String makeUniqueMapAssumption(String name, ExpressionType[] argTypes,
-            SortedSet<TypeVariable> allTypeVariables, int uniqueCounter) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Uniqueness of function symbol ").append(name).append("\n");
-
-        if (argTypes.length == 0 && allTypeVariables.isEmpty()) {
-            sb.append("(= (unique ").append(name).append(") ").append(uniqueCounter).append(")");
-
-        } else {
-            sb.append("(forall (");
-
-            for (TypeVariable typeVariable : allTypeVariables) {
-                sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
-            }
-
-            for (int i = 0; i < argTypes.length; i++) {
-                sb.append("(?x").append(i).append(" ").append(argTypes[i])
-                .append(") ");
-            }
-
-            sb.append(") (! (= (unique ");
-            StringBuilder invoc = new StringBuilder();
-            {
-                invoc.append("(" + name);
-                for (TypeVariable typeVariable : allTypeVariables) {
-                    invoc.append(" ?Type.").append(typeVariable.getVariableName());
-                }
-                for (int i = 0; i < argTypes.length; i++) {
-                    invoc.append(" ?x").append(i);
-                }
-                invoc.append(")");
-            }
-            sb.append(invoc + ") " + uniqueCounter + ") :pattern (" + invoc + ")))");
-        }
-
-        String result = sb.toString();
-        return result;
-    }
-
-    private static SortedSet<TypeVariable> collectTypeVars(Function function) {
+    static SortedSet<TypeVariable> collectTypeVars(Function function) {
         Set<TypeVariable> resulttypeVariables =
                 TypeVariableCollector.collect(function.getResultType());
 
@@ -1204,7 +996,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
         return allTypeVariables;
     }
 
-    private static SortedSet<TypeVariable> collectTypeVars(Binder binder) {
+    static SortedSet<TypeVariable> collectTypeVars(Binder binder) {
         Set<TypeVariable> resulttypeVariables =
                 TypeVariableCollector.collect(binder.getResultType());
 
@@ -1251,7 +1043,7 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
 //        }
 //    }
 
-    private ExpressionType typeToExpressionType(Type type) {
+    static ExpressionType typeToExpressionType(Type type) {
         if (Environment.getIntType().equals(type)) {
             return INT;
         } else if(Environment.getBoolType().equals(type)) {
