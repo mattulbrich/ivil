@@ -92,27 +92,51 @@ public class ComplementaryBranches extends WhereCondition {
             Statement stm1 = program.getStatement(index1);
             Statement stm2 = program.getStatement(index2);
 
+            //
+            // index1 must point to smt1: assume formula1
+            Term assumption1 = null;
             if (stm1 instanceof AssumeStatement) {
                 AssumeStatement assume = (AssumeStatement) stm1;
-                Term assumption = assume.getSubterms().get(0);
-                if(!testEqual(termMatcher, formula1, assumption)) {
+                assumption1 = assume.getSubterms().get(0);
+                if(!testEqual(termMatcher, formula1, assumption1)) {
                     return false;
                 }
             } else {
                 return false;
             }
 
+            //
+            // index2 must point to smt2: assume formula2
+            Term assumption2 = null;
             if (stm2 instanceof AssumeStatement) {
                 AssumeStatement assume = (AssumeStatement) stm2;
-                Term assumption = assume.getSubterms().get(0);
-                if(!testEqual(termMatcher, formula2, assumption)) {
+                assumption2 = assume.getSubterms().get(0);
+                if(!testEqual(termMatcher, formula2, assumption2)) {
                     return false;
                 }
             } else {
                 return false;
             }
 
-            return true;
+            //
+            // formula1 and formula2 must be complementary
+            if(TermUtil.isNegation(assumption1)) {
+                if(assumption1.getSubterm(0).equals(assumption2)) {
+                    // yes they are complementary
+                    return true;
+                }
+            }
+
+            //
+            // formula1 and formula2 must be complementary
+            if(TermUtil.isNegation(assumption2)) {
+                if(assumption2.getSubterm(0).equals(assumption1)) {
+                    // yes they are complementary
+                    return true;
+                }
+            }
+
+            return false;
 
         } catch (TermException e) {
             throw new RuleException("complementaryBranches: goto indices must be literals", e);

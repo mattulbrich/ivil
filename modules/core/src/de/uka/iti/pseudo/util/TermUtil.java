@@ -126,6 +126,17 @@ public final class TermUtil {
     }
 
     /**
+     * Checks if a term is a negation.
+     *
+     * @param term
+     *            the term to check
+     * @return true, iff term is a negation
+     */
+    public static boolean isNegation(Term term) {
+        return isFunctionApplication(term, "$not");
+    }
+
+    /**
      * Checks if a term is a function application of a certain function symbol.
      *
      * @param term
