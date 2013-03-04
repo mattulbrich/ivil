@@ -146,14 +146,14 @@ refine bfs as Java
   requires @succ & vi(src) = _src & vi(dest) = _dest
         &  finite(fullset as set(vertex)) 
         &  card(fullset as set(vertex)) = h[_this, F_BFS_size]
-    var 43
+    var pair(1, pair(V, V))
 
   ensures d = resInt
 
   mark 1
     inv @vars_coupled & @arrays
-    var 42
+    var pair(0, pair(V^(V \ (C \/ N)), tovisit))
 
   mark 2
-    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w)
-    var 42
+    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succs(v)
+    var pair(0, pair(V^(V \ (C \/ N)), tovisit))
