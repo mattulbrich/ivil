@@ -7,6 +7,9 @@ function
   int y assignable
   int readonly assignable
 
+  # placeholder for initial varialbe
+  int inivar
+
   int $markA assignable
   int $markC assignable
 

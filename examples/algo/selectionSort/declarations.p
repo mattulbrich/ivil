@@ -5,9 +5,22 @@
 #
 
 include "$bytecode.p"
-
+include "$intRange.p"
 (* Class Declarations *)
 function
   reftype C_SelSort unique
 
+(* Interfaces / Classes *)
+rule interface_C_SelSort
+  find interface(C_SelSort)
+  replace false
+  tags asAxiom 
+       rewrite "concrete"
+
 (* Class Hierarchy *)
+rule supertypes_C_SelSort
+  find subtype(C_SelSort, %x)
+  replace %x = C_SelSort
+        | subtype(C_java_lang_Object, %x)
+  tags asAxiom
+

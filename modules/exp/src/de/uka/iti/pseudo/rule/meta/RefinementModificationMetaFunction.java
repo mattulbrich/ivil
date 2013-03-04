@@ -8,13 +8,14 @@ import de.uka.iti.pseudo.term.Application;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
+import de.uka.iti.pseudo.term.TypeVariable;
 
 public class RefinementModificationMetaFunction extends MetaFunction {
 
     private static final Type BOOL = Environment.getBoolType();
 
     public RefinementModificationMetaFunction() throws EnvironmentException {
-        super(BOOL, "$$refinementPrgMod", BOOL);
+        super(BOOL, "$$refinementPrgMod", BOOL, TypeVariable.ALPHA);
     }
 
     @Override
@@ -22,7 +23,9 @@ public class RefinementModificationMetaFunction extends MetaFunction {
             RuleApplication ruleApp) throws TermException {
 
         RefinementModifier modifier =
-                new RefinementModifier(env, application.getSubterm(0));
+                new RefinementModifier(env,
+                        application.getSubterm(0),
+                        application.getSubterm(1));
 
         return modifier.apply();
     }

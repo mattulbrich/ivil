@@ -7,6 +7,8 @@ include
   "$decproc.p"
   "$seq.p"
   "$bytecode.p"
+  "$pair.p"
+  "$refinement.p"
 
 plugin 
   prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"

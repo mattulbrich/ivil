@@ -1,4 +1,4 @@
-# Automatically created on Thu Aug 23 21:07:59 CEST 2012
+# Automatically created on Fri Mar 01 00:24:51 CET 2013
 include "selectionSort.decl.p"
 include "heapAbs.p"
 include "SelSort.sort(int[]).p"
@@ -58,7 +58,7 @@ program selectionSort source "selectionSort.algo"
   assume $not((seqGet(b, j) < seqGet(b, t))); "else"
  after3:
  sourceline 78
-  skip MARK, 1, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & ((t = _t) & ((((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))) & (j < n))))))), 42 ; "marking stone"
+  skip MARK, 1, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & ((t = _t) & ((((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))) & (j < n))))))), pair(0, pair((n - i), (n - j))) ; "marking stone"
  sourceline 79
   j := (j + 1)
   goto loop1
@@ -68,7 +68,7 @@ program selectionSort source "selectionSort.algo"
  sourceline 82
   b := seqSwap(b, i, t)
  sourceline 83
-  skip MARK, 2, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & (((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))))))), 42 ; "marking stone"
+  skip MARK, 2, ((b = arrayAsIntSeq(h, _array)) & ((n = seqLen(b)) & ((i = _i) & ((j = _j) & (((0 <= _i) & (_i < arrlen(_array))) & (((0 <= _j) & (_j <= arrlen(_array))) & ((0 <= _t) & (_t < arrlen(_array))))))))), pair(0, pair((n - i), (n - j))) ; "marking stone"
  sourceline 84
   i := (i + 1)
   goto loop0
@@ -78,4 +78,4 @@ program selectionSort source "selectionSort.algo"
  endOfProgram: 
 
 
-problem (!((_array = null)) & (a = arrayAsIntSeq(h, _array))) |- [0; Java][<0;selectionSort>]((b = arrayAsIntSeq(h, _array)))
+problem (!((_array = null)) & (a = arrayAsIntSeq(h, _array))) |- INITIAL_VAR(pair(1, pair((n - i), (n - j)))) -> [0; Java][<0;selectionSort>]((b = arrayAsIntSeq(h, _array)))

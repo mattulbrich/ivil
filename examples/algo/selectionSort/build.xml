@@ -17,6 +17,6 @@
     </exec>
   </target>
 
-  <target name="all" depends="refine,algo,build-all" />
+  <target name="all" depends="refine,algo,build" />
 
 </project>
