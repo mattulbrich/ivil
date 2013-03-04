@@ -130,15 +130,24 @@ class BFS {
 	    if(v == dest) {
 		return d;
 	    }
-
-	    /*@ maintains "0 <= _w & _w <= h[_this, F_BFS_size]"
+	    
+	    /*@ maintains "0 <= _w (* & _w <= h[_this, F_BFS_size] *)"
 	      @ decreases "2"
 	      @ modifies "singleton(_V) \/ singleton(_N)"
 	      @*/
 	    for(int w = 0; w < size; w++) {
-		//@ mark 2;
 		// ignore this if not a successor ...
-		if(adjacency[v][w] && !V[w]) {
+		/*@ maintains "0 <= _w & _w <= h[_this, F_BFS_size]"
+		  @ decreases "2"
+		  @ modifies "singleton(_V) \/ singleton(_N)"
+		  @*/
+		while(w < size && !adjacency[v][w]) {
+		    w++;
+                }
+
+		//@ mark 2;
+
+		if(w < size && !V[w]) {
 		    V[w] = true;
 		    N[w] = true;
 		}

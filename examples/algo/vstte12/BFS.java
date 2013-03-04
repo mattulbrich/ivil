@@ -130,15 +130,24 @@
 	    if(v == dest) {
 		return d;
 	    }
-
-	    spec.Spec.loopinv("((0 <= _w & _w <= h[_this, F_BFS_size]) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_N)))), 2");
+	    
+	    spec.Spec.loopinv("((0 <= _w (* & _w <= h[_this, F_BFS_size] *)) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_N)))), 2");
 
 
 
 	    for(int w = 0; w < size; w++) {
-		spec.Spec.mark("2");
 		// ignore this if not a successor ...
-		if(adjacency[v][w] && !V[w]) {
+		spec.Spec.loopinv("((0 <= _w & _w <= h[_this, F_BFS_size]) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_N)))), 2");
+
+
+
+		while(w < size && !adjacency[v][w]) {
+		    w++;
+                }
+
+		spec.Spec.mark("2");
+
+		if(w < size && !V[w]) {
 		    V[w] = true;
 		    N[w] = true;
 		}

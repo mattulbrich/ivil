@@ -99,7 +99,7 @@ do
      mark 1;
 
      choose v such that v in C
-       with "§(rule deep_update_simplification) §(inst x with 'iv(_v) as vertex' hide)";
+       hint "§(rule deep_update_simplification) §(inst x1 with 'iv(_v) as vertex' hide)";
 
      C := C \ {v};
      if v = dest 
@@ -114,6 +114,7 @@ do
        inv tovisit <: succ(v) &
            V = Vo \/ (succ(v) \ tovisit) &
            N = No \/ (succ(v) \ (Vo \/ tovisit))
+       hint "§(rule deep_update_simplification) §(inst x1 with 'iv(_w) as vertex' hide)"
      do 
        mark 2;
        if not w in V
@@ -133,10 +134,10 @@ do
    end;
 
    note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
-     with "§(rule int_induction_match)";
+     hint "§(rule int_induction_match)";
 
    note (\forall j; j>d -> !minconnect(src, dest, j))
-     with "§(rule deep_update_simplification nested_quant_z3)";
+     hint "§(rule deep_update_simplification nested_quant_z3)";
 
    d := -1
 end 
@@ -151,7 +152,7 @@ refine bfs as Java
   ensures d = resInt
 
   mark 1
-    inv @vars_coupled & @arrays
+    inv @vars_coupled & @arrays & !C={}
     var 42
 
   mark 2
