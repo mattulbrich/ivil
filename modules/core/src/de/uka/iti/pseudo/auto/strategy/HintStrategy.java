@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.hint.HintParser;
@@ -78,12 +80,15 @@ public final class HintStrategy extends AbstractStrategy {
      */
     private boolean raiseErrors = true;
 
+    private Environment env;
+
     /* (non-Javadoc)
      * @see de.uka.iti.pseudo.auto.strategy.AbstractStrategy#init(de.uka.iti.pseudo.proof.Proof, de.uka.iti.pseudo.environment.Environment, de.uka.iti.pseudo.auto.strategy.StrategyManager)
      */
     @Override
     public void init(@NonNull Proof proof, @NonNull Environment env,
             @NonNull StrategyManager strategyManager) throws StrategyException {
+        this.env = env;
         super.init(proof, env, strategyManager);
         this.hintParser = new HintParser(env);
     }
@@ -117,7 +122,12 @@ public final class HintStrategy extends AbstractStrategy {
                 for (HintRuleAppFinder hint : hints) {
                     RuleApplication ruleApp = followHint(hint, node, reasonNode);
                     if(ruleApp != null) {
-                        return ruleApp;
+                        if(!ruleApp.getProofNode().applicable(ruleApp, env)) {
+                            Log.log(Log.DEBUG, ruleApp);
+                            throw new StrategyException("The hint came up with an illegal rule application");
+                        } else {
+                            return ruleApp;
+                        }
                     }
                 }
             }

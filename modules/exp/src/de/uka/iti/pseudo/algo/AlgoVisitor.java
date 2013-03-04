@@ -211,6 +211,14 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         String bodyLabel = idProducer.makeIdentifier("body");
         String afterLabel = idProducer.makeIdentifier("after");
 
+        Object hint = node.jjtGetValue();
+        String annotation;
+        if(hint != null) {
+            annotation = "; " + Util.addQuotes("witness by " + hint.toString());
+        } else {
+            annotation = "";
+        }
+
         addSourceLineStatement(node);
         statements.add("  " + as + " := " + expression);
         statements.add(" " + loopLabel + ":");
@@ -220,7 +228,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         statements.add("  goto " + bodyLabel + ", " + afterLabel);
         statements.add(" " + bodyLabel + ":");
         statements.add("  assume !" + as + "= emptyset; \"assume condition \"");
-        statements.add("  havoc " + with);
+        statements.add("  havoc " + with + annotation);
         statements.add("  assume " + with + " :: " + as + " ; \"choose element in " + as + "\"");
         statements.add("  " + as + " := " + as + " \\ singleton(" + with + ")");
         visitChild(node, 4);
