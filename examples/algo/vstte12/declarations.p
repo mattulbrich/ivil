@@ -5,7 +5,7 @@
 #
 
 include "$bytecode.p"
-
+include "$intRange.p"
 (* Class Declarations *)
 function
   reftype C_BFS unique
@@ -15,4 +15,17 @@ function
   field(int) F_BFS_size unique
   field(ref) F_BFS_adjacency unique
 
+(* Interfaces / Classes *)
+rule interface_C_BFS
+  find interface(C_BFS)
+  replace false
+  tags asAxiom 
+       rewrite "concrete"
+
 (* Class Hierarchy *)
+rule supertypes_C_BFS
+  find subtype(C_BFS, %x)
+  replace %x = C_BFS
+        | subtype(C_java_lang_Object, %x)
+  tags asAxiom
+

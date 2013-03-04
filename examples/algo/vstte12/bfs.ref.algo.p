@@ -1,4 +1,4 @@
-# Automatically created on Wed Feb 27 17:49:25 CET 2013
+# Automatically created on Thu Feb 28 15:30:37 CET 2013
 include "bfs.decl.p"
 include "ref-BFS.minDistance(int,int).p"
 function
@@ -57,9 +57,9 @@ program bfs source "bfs.ref.algo"
  body0:
   assume !((C = emptyset)); "assume condition "
  sourceline 99
-  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & (!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex))))))))))), 42 ; "marking stone"
+  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (!(C) = emptyset))), 42 ; "marking stone"
  sourceline 101
-  havoc v; "witness by §(rule deep_update_simplification) §(inst x with 'iv(_v) as vertex' hide)"
+  havoc v; "witness by §(rule deep_update_simplification) §(inst x1 with 'iv(_v) as vertex' hide)"
   assume (v :: C)
  sourceline 104
   C := (C \ singleton(v))
@@ -84,49 +84,51 @@ program bfs source "bfs.ref.algo"
   goto body1, after2
  body1:
   assume !tovisit= emptyset; "assume condition "
-  havoc w
+  havoc w; "witness by §(rule deep_update_simplification) §(inst x1 with 'iv(_w) as vertex' hide)"
   assume w :: tovisit ; "choose element in tovisit"
   tovisit := tovisit \ singleton(w)
- sourceline 118
-  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & ((_v = vi(v)) & (_w = vi(w))))), 42 ; "marking stone"
  sourceline 119
+  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & ((_v = vi(v)) & (_w = vi(w))))), 42 ; "marking stone"
+ sourceline 120
   goto then1, else1
  then1:
   assume (!(w) :: V); "then"
- sourceline 121
-  V := (V \/ singleton(w))
  sourceline 122
+  V := (V \/ singleton(w))
+ sourceline 123
   N := (N \/ singleton(w))
   goto after3
  else1:
- sourceline 123
+ sourceline 124
   assume $not((!(w) :: V)); "else"
  after3:
   goto loop1
  after2:
   assume tovisit= emptyset
- sourceline 126
+ sourceline 127
   goto then2, else2
  then2:
   assume (C = emptyset); "then"
- sourceline 128
-  C := N
  sourceline 129
-  N := emptyset
+  C := N
  sourceline 130
+  N := emptyset
+ sourceline 131
   d := (d + 1)
   goto after4
  else2:
- sourceline 131
+ sourceline 132
   assume $not((C = emptyset)); "else"
  after4:
   goto loop0
  sourceline 84
  after0:
   assume $not(!((C = emptyset)))
-  assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
-  assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
- sourceline 141
+ sourceline 136
+  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "lemma by §(rule int_induction_match)"
+ sourceline 139
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "lemma by §(rule deep_update_simplification nested_quant_z3)"
+ sourceline 142
   d := -(1)
  endOfProgram: 
 

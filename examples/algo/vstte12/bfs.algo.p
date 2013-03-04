@@ -1,4 +1,4 @@
-# Automatically created on Wed Dec 05 20:29:30 CET 2012
+# Automatically created on Thu Feb 28 14:33:55 CET 2013
 include "bfs.decl.p"
 function vertex src 
 function vertex dest 
@@ -18,6 +18,7 @@ program bfs source "bfs.algo"
  sourceline 16
   assume finite(((fullset) as set(vertex))) ; "by requirement"
  sourceline 28
+  assert finite(((fullset) as set(vertex)))
   size := card(((fullset) as set(vertex)))
  sourceline 30
   V := singleton(src)
@@ -101,10 +102,10 @@ program bfs source "bfs.algo"
  after0:
   assume $not(!((C = emptyset)))
  sourceline 81
-  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; " lemma by §(rule int_induction_match)"
+  assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "lemma by §(rule int_induction_match)"
   assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
  sourceline 84
-  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; " lemma by §(rule deep_update_simplification nested_quant_z3)"
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "lemma by §(rule deep_update_simplification nested_quant_z3)"
   assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
  sourceline 87
   d := -(1)
