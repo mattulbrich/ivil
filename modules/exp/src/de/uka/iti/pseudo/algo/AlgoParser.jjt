@@ -112,6 +112,7 @@ TOKEN : /* KEYWORDS */
 | < THEN : "then" >
 | < USES : "uses" >
 | < WITH : "with" >
+| < HINT : "hint" >
 | < WHILE : "while" >
 | < INPUT : "input" >
 | < CHOOSE : "choose" >
@@ -289,7 +290,7 @@ void ChooseStatement() #ChooseStatement :
     Identifier() ("," Identifier() )*
   "such" "that"
     Expression()
-   ( "with" t=<STRING_LITERAL> 
+   ( "hint" t=<STRING_LITERAL> 
        { jjtThis.jjtSetValue(stripQuotes(t.image)); }
     )?
 }
@@ -305,12 +306,18 @@ void WhileStatement() #WhileStatement : {}
   "end"
 }
 
-void IterateStatement() #IterateStatement : {}
+void IterateStatement() #IterateStatement : 
+{
+  Token t = null;
+}
 {
   "iterate" Expression() 
   "with" Identifier()
   "in" Identifier()
   "inv" Expression()
+  ( "hint" t=<STRING_LITERAL> 
+       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
+  )?
   "do"
     StatementBlock()
   "end"
@@ -338,7 +345,7 @@ void NoteStatement() #NoteStatement :
 { Token t = null; }
 {
   "note" Expression() 
-    ( "with" t=<STRING_LITERAL> 
+    ( "hint" t=<STRING_LITERAL> 
        { jjtThis.jjtSetValue(stripQuotes(t.image)); }
     )?
 }

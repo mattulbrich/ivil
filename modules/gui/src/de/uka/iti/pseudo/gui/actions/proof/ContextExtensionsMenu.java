@@ -45,10 +45,12 @@ public class ContextExtensionsMenu extends JMenu implements MenuListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            ProofCenter proofCenter = getProofCenter();
             try {
-                ext.run(getProofCenter());
+                ext.run(proofCenter);
+                proofCenter.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
             } catch (Exception ex) {
-                ExceptionDialog.showExceptionDialog(getProofCenter().getMainWindow(), ex);
+                ExceptionDialog.showExceptionDialog(proofCenter.getMainWindow(), ex);
             }
         }
 
