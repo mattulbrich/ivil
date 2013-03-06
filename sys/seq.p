@@ -28,6 +28,13 @@ rule seqOutside2
   tags
     derived
 
+rule seqOutside3
+  find |- seqError = seqGet(%s, %i) 
+  replace %i<0 | seqLen(%s) <= %i
+  tags
+    derived
+    rewrite "fol simp" 
+
 rule lenOfSeqEmpty
   find seqLen(seqEmpty)
   replace 0        
@@ -74,7 +81,24 @@ rule getOfSeqConcat
     derived
     rewrite "fol simp"
     asAxiom
-    
+  
+rule lenOfSeqAppend
+  find seqLen(seqAppend(%seq, %app))
+  replace seqLen(%seq) + 1
+  tags
+    derived
+    rewrite "fol simp"
+    asAxiom
+
+rule getOfSeqAppend
+  find seqGet(seqAppend(%seq, %app), %i)
+  replace cond(%i = seqLen(%seq), 
+               %app,
+               seqGet(%seq, %i))
+  tags
+    derived
+    rewrite "fol simp"
+    asAxiom  
 rule seqLenOfSub
   find seqLen(seqSub(%a, %from, %to))
   replace cond(%from <= %to, %to-%from, 0)

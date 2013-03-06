@@ -34,6 +34,7 @@ function
   seq('a) seqEmpty
   seq('a) seqSingleton('a)
   seq('a) seqConcat(seq('a), seq('a))
+  seq('a) seqAppend(seq('a), 'a)
   seq('a) seqSub(seq('a), int, int)
   seq('a) seqReverse(seq('a))
 
@@ -94,6 +95,12 @@ rule seqConcatDef
   replace (\seqDef %x; 0; seqLen(%a) + seqLen(%b); 
             cond(%x < seqLen(%a), seqGet(%a, %x), 
                                   seqGet(%b, %x-seqLen(%a))))
+
+rule seqAppendDef
+  find seqAppend(%a, %b)
+  where freshVar %x, %a, %b
+  replace (\seqDef %x; 0; seqLen(%a) + 1; 
+            cond(%x < seqLen(%a), seqGet(%a, %x), %b))                                  
 
 rule seqReverseDef
   find seqReverse(%a)
