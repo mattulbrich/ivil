@@ -212,4 +212,9 @@ public abstract class DefaultAlgoParserVisitor implements AlgoParserVisitor {
     public String visit(ASTCouplingFormula node, Object data) {
         return visitDefault(node, data);
     }
+
+    @Override
+    public String visit(ASTHint node, Object data) {
+        return visitDefault(node, data);
+    }
 }

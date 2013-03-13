@@ -104,6 +104,7 @@ TOKEN : /* KEYWORDS */
 | < VAR : "var" >
 | < INV : "inv" >
 | < ALGO : "algo" >
+// | < CALL : "call" >
 | < ELSE : "else" >
 | < MARK : "mark" >
 | < NOTE : "note" >
@@ -124,7 +125,6 @@ TOKEN : /* KEYWORDS */
 | < RETURN : "return" >
 | < ITERATE : "iterate" >
 | < ENSURES : "ensures" >
-| < WITNESS : "witness" >
 | < REQUIRES : "requires" >
 | < ABBREVIATION: "abbreviation" >
 }
@@ -266,6 +266,22 @@ void Statement() : {}
   | InlineStatement()
 }
 
+void Hint() #Hint :
+{
+  Token t;
+  String kind = "";
+}
+{
+  "hint" 
+  ( "[" t=<IDENTIFIER> "]" { kind = t.image; } )?
+
+  t=<STRING_LITERAL> 
+  { 
+    String annot = stripQuotes(t.image);
+    jjtThis.jjtSetValue(Pair.make(kind, annot));
+  }
+}
+
 void AssignmentStatement() #AssignmentStatement : {}
 {
   Identifier() ":=" Expression()
@@ -284,15 +300,15 @@ void ReturnStatement() #ReturnStatement : {}
 void ChooseStatement() #ChooseStatement : 
 {
   Token t = null;
+  int identifierCount = 1;
 }
 {
   "choose"
-    Identifier() ("," Identifier() )*
+    Identifier() ("," Identifier() { identifierCount ++; } )*
   "such" "that"
     Expression()
-   ( "hint" t=<STRING_LITERAL> 
-       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
-    )?
+   ( Hint() )*
+    { jjtThis.jjtSetValue((Integer)identifierCount); }
 }
 
 void WhileStatement() #WhileStatement : {}
@@ -315,9 +331,7 @@ void IterateStatement() #IterateStatement :
   "with" Identifier()
   "in" Identifier()
   "inv" Expression()
-  ( "hint" t=<STRING_LITERAL> 
-       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
-  )?
+  ( Hint() )*
   "do"
     StatementBlock()
   "end"
@@ -330,6 +344,18 @@ void IfStatement() #IfStatement : {}
   ( "else" StatementBlock() )?
   "end"
 }
+
+/*
+void CallStatement() #CallStatement : {}
+{
+  "call" Identifier()
+  (
+    "with"
+    Identifier() "=" Expression()
+    ( "," Identifier() "=" Expression() )*
+  )?
+}
+*/
 
 void AssertStatement() #AssertStatement : {}
 {
@@ -345,9 +371,7 @@ void NoteStatement() #NoteStatement :
 { Token t = null; }
 {
   "note" Expression() 
-    ( "hint" t=<STRING_LITERAL> 
-       { jjtThis.jjtSetValue(stripQuotes(t.image)); }
-    )?
+    ( Hint() )*
 }
 
 void MarkStatement() #MarkStatement :

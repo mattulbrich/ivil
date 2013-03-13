@@ -23,6 +23,8 @@ import java.util.Set;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.CommandLineException;
+import de.uka.iti.pseudo.util.Pair;
+import de.uka.iti.pseudo.util.Util;
 
 public class Translation {
 
@@ -194,6 +196,22 @@ public class Translation {
 
     public String getOption(String option) {
         return options.get(option);
+    }
+
+    public String retrieveHint(Node node, String... kind) {
+        List<String> kindList = Util.readOnlyArrayList(kind);
+        int count = node.jjtGetNumChildren();
+        for (int i = 0; i < count; i++) {
+            Node child = node.jjtGetChild(i);
+            if (child instanceof ASTHint) {
+                ASTHint hint = (ASTHint) child;
+                Pair<?,?> data = (Pair<?, ?>) hint.jjtGetValue();
+                if(kindList.contains(data.fst().toString())) {
+                    return data.snd().toString();
+                }
+            }
+        }
+        return null;
     }
 
 }

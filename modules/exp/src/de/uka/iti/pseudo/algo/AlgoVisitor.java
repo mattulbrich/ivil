@@ -137,38 +137,53 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visit(ASTChooseStatement node, Object data) {
-        int numChildren = node.jjtGetNumChildren();
-        String phi = visitTermChild(node, numChildren-1);
+        int identifierCount = (Integer)node.jjtGetValue();
+        String phi = visitTermChild(node, identifierCount);
 
         addSourceLineStatement(node);
 
         // make quantification, the check only in non-ref mode
         if(!refinementMode) {
             StringBuilder quant = new StringBuilder("  assert ");
-            for(int i = 0; i < numChildren - 1; i++) {
+            for(int i = 0; i < identifierCount; i++) {
                 quant.append("(\\exists " + visitChild(node, i) + "; ");
             }
             quant.append(phi);
-            quant.append(Util.duplicate(")", numChildren-1));
-            quant.append(" ; \"assert before choose\"");
+            quant.append(Util.duplicate(")", identifierCount));
+
+            String hint = translation.retrieveHint(node, "witness", "");
+            String annotation;
+            if(hint != null) {
+                annotation = Util.addQuotes("witness by " + hint);
+            } else {
+                annotation = "\"assert existence\"";
+            }
+
+            quant.append(" ; " + annotation);
             statements.add(quant.toString());
         }
 
         // make havocs
-        Object hint = node.jjtGetValue();
+        String hint = translation.retrieveHint(node, "refwitness");
         String annotation;
         if(hint != null) {
-            annotation = "; " + Util.addQuotes("witness by " + hint.toString());
+            annotation = "; " + Util.addQuotes("witness by " + hint);
         } else {
             annotation = "";
         }
-        for (int i = 0; i < numChildren - 1; i++) {
+        for (int i = 0; i < identifierCount; i++) {
             statements.add("  havoc " + visitChild(node, i) + annotation);
         }
 
         // make assumption
         statements.add("  assume " + phi);
         return null;
+    }
+
+    @Override
+    public String visit(ASTCallStatement node, Object data) {
+        String name = "hallo";
+        return "hello world";
     }
 
     @Override
@@ -211,7 +226,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         String bodyLabel = idProducer.makeIdentifier("body");
         String afterLabel = idProducer.makeIdentifier("after");
 
-        Object hint = node.jjtGetValue();
+        String hint = translation.retrieveHint(node, "");
         String annotation;
         if(hint != null) {
             annotation = "; " + Util.addQuotes("witness by " + hint.toString());
@@ -302,14 +317,16 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     public String visit(ASTNoteStatement node, Object data) {
         String expression = visitTermChild(node, 0);
         addSourceLineStatement(node);
-        Object extra = node.jjtGetValue();
+
+        String hint = translation.retrieveHint(node, "");
         String annotation;
-        if(extra != null) {
-            annotation = " ; " + Util.addQuotes("lemma by " + extra.toString());
+        if(hint != null) {
+            annotation = " ; " + Util.addQuotes("lemma by " + hint);
         } else {
             annotation = "";
         }
         statements.add("  assert " + expression + annotation);
+
         if(!refinementMode) {
             statements.add("  assume " + expression + " ; \"use lemma\"");
         }
