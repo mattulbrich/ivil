@@ -9,7 +9,7 @@ sort node
 
 plugin
   prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.UnicodePrettyPrinter"
-
+  contextExtension : "de.uka.iti.pseudo.gui.extensions.SplitPropositionalExtension"
 properties
   CompoundStrategy.strategies
   "HintStrategy, SimplificationStrategy, BreakpointStrategy, SMTStrategy"
@@ -22,11 +22,11 @@ binder
   'a (\argmin 'a; bool; int)
 
 rule argmin_expand
-  find (\argmin %x; %b; %e)
+  find (\argmin %x as %'a; %b; %e)
   where toplevel
   where freshVar %limit, %b, %e
   samegoal "{%e} has a lower limited"
-    add |- (\exists %limit; (\forall %x; %b -> %e >= %limit))
+    add |- finite(fullset as set(%'a)) | (\exists %limit; (\forall %x; %b -> %e >= %limit))
   samegoal "{%b} has a witness"
     add |- (\exists %x; %b)
   samegoal "argmin is the minimum"

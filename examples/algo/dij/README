@@ -1,0 +1,33 @@
+Proof for dij.algo.p
+====================
+20 sec automation
+
+Interaction:
+ Witness: (\argmin n; 
+   !n :: visited1 & 
+   n :: dom_distance1;
+   $load(distance1, n))
+ then 1x argmin-expansion
+
+
+8th loop invariant:
+   CD: y4 = o3
+         EX -> n2 & auto
+     : y4 != o3 
+         use the forall y exists x from antecedent & auto
+
+10th loop invariant
+   CD: a5 in visited1 or a5=n2 & auto :-)
+
+Outer Loop 6th invariant
+   CD: n2 = a2 clsoes automatically
+     : n2 != a2
+      have $load(distance1, a2) = $load(distance2, a2)
+      have $load(distance1, b3) <= $load(distance2, b3)
+      instantiate (∀a; (∀b; a ∊ visited1 ∧ (b ∊ dom_distance1 ∧ 〈a, b〉 ∊ dom_weight) ⟹ distance1[b] ≤ distance1[a] + weight(a, b))) with a2 b3
+
+Reduces Variant:
+  Use n2 as witness
+
+Post condition:
+   Set-equality and eq to imp and auto

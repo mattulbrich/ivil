@@ -1,8 +1,33 @@
-uses "dij.algo.p"
-  
+uses "dij.decl.p"
+
+option
+   mapFunction = "$load"
+
 algo Dij
+
+requires
+   finite(fullset as set(node))
+
+requires
+   (\forall x; (\forall y; weight(x,y) >= 0))
+
+ensures visited = dom_distance
+
+ensures (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y)))
+
+ensures (\forall a; a::dom_distance ->
+            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+              distance[b] <= distance[a] + weight(a,b)))
+
+ensures (\forall p; (\forall q; p::dom_distance & 
+            pair(p,q)::dom_weight -> q::dom_distance))
+
+
 input
    start : node
+
 output
    old_dom_distance, dom_distance : set(node)
    old_distance, distance : map(node, int)   
@@ -14,18 +39,12 @@ var
    visited : set(node)
    nbors0, nbors : set(node)
 do
-   /* 
-    * We may safely assume that there are only finite many nodes
-    * and that weights are non-negative
-    */
-   assume finit(fullset as set(node)) ;;
-   assume (\forall x; (\forall y; weight(x,y) >= 0)) ;;
    
-   dom_distance := emptyset ;;
-   distance[start] := 0 ;;
-   dom_distance := singleton(start) ;;
+   dom_distance := emptyset ;
+   distance[start] := 0 ;
+   dom_distance := singleton(start) ;
 
-   visited := emptyset ;;
+   visited := emptyset ;
 
    /* while exists node not in visited */
    while !emptyset = (dom_distance \ visited)
@@ -52,27 +71,27 @@ do
        (\forall p; (\forall q; p::visited & 
             pair(p,q)::dom_weight -> q::dom_distance)) 
 
-     var card(dom_distance \ visited)
+     var ^visited
    do
 
      choose n such that 
         !n :: visited &
         n :: dom_distance &
         (\forall m; m::dom_distance \ visited -> 
-            distance[n] <= distance[m]) ;;
+            distance[n] <= distance[m]) ;
             
-     visited := visited \/ singleton(n) ;;     
+     visited := visited \/ singleton(n) ;     
 
      /* festzustellen: */
-     note visited <: dom_distance with "§(pick A.2 A.11 S.0)" ;;
+     note visited <: dom_distance /* hint "§(pick A.2 A.11 S.0)" */ ;
      
      /* foreach node m with (n,m) in edges which is not visited 
       * iterate {n} <| weight |>> visited using S and s */
      
-     old_distance := distance ;;
-     old_dom_distance := dom_distance ;;
-     nbors0 := (\set k; pair(n,k) :: dom_weight & !k::visited) ;;
-     nbors := nbors0 ;;
+     old_distance := distance ;
+     old_dom_distance := dom_distance ;
+     nbors0 := (\set k; pair(n,k) :: dom_weight & !k::visited) ;
+     nbors := nbors0 ;
      
      while (\exists t; t::nbors)
        inv nbors <: nbors0 &
@@ -109,36 +128,23 @@ do
            (\forall p; (\forall q; p::visited & !q::nbors &
               pair(p,q)::dom_weight -> q::dom_distance))
               
-       var card(nbors)
+       var nbors
      do
-       choose o such that o :: nbors ;;
-       nbors := nbors \ singleton(o) ;;
+       choose o such that o :: nbors ;
+       nbors := nbors \ singleton(o) ;
 
        /* there must be an edge */
-       assert pair(n,o) :: dom_weight ;;
+       assert pair(n,o) :: dom_weight ;
        
        /* d := distance[n] + weigth(n,m); */
-       d := distance[n] + weight(n,o) ;;
+       d := distance[n] + weight(n,o) ;
 
        if !o::dom_distance | d < distance[o]
        then
-         dom_distance := dom_distance \/ singleton(o) ;;
+         dom_distance := dom_distance \/ singleton(o) ;
          distance[o] := d
        end
      end
-   end ;;
-   
-   /* post conditions */
-   assert visited = dom_distance ;;
-   assert (\forall y; y::dom_distance \ singleton(start)-> 
-	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
-	      distance[y] = distance[x] + weight(x,y))) ;;
-   assert (\forall a; a::dom_distance ->
-            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
-              distance[b] <= distance[a] + weight(a,b)))
-/* to be done ...              
-   ;;
-   assert (\forall p; (\forall q; p::dom_distance & 
-            pair(p,q)::dom_weight -> q::dom_distance))*/
-            
+   end
+               
  end
