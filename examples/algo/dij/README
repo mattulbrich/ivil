@@ -1,6 +1,9 @@
 Proof for dij.algo.p
 ====================
 20 sec automation
+run: algoc dij.algo
+ivil dij.algo.p
+stored proof under dij.algo.pxml
 
 Interaction:
  Witness: (\argmin n; 

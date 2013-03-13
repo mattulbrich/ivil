@@ -153,8 +153,8 @@ refine bfs as Java
 
   mark 1
     inv @vars_coupled & @arrays & !C={}
-    var pair(0, pair(V^(V \ (C \/ N)), tovisit))
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))
 
   mark 2
-    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succs(v)
-    var pair(0, pair(V^(V \ (C \/ N)), tovisit))
+    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))

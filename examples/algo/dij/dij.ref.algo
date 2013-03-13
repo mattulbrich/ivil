@@ -1,0 +1,93 @@
+uses "dij.decl.p"
+
+option
+   mapFunction = "$load"
+
+algo Dij
+
+requires
+   finite(fullset as set(node))
+
+requires
+   (\forall x; (\forall y; weight(x,y) >= 0))
+
+ensures visited = dom_distance
+
+ensures (\forall y; y::dom_distance \ singleton(start)-> 
+	    (\exists x; x::dom_distance & pair(x,y)::dom_weight & 
+	      distance[y] = distance[x] + weight(x,y)))
+
+ensures (\forall a; a::dom_distance ->
+            (\forall b; b::dom_distance & pair(a,b)::dom_weight ->
+              distance[b] <= distance[a] + weight(a,b)))
+
+ensures (\forall p; (\forall q; p::dom_distance & 
+            pair(p,q)::dom_weight -> q::dom_distance))
+
+
+input
+   start : node
+
+output
+   old_dom_distance, dom_distance : set(node)
+   old_distance, distance : map(node, int)   
+
+var 
+   n,o : node
+   s : prod(node, node)
+   d : int
+   visited : set(node)
+   nbors0, nbors : set(node)
+do
+   
+   dom_distance := emptyset ;
+   distance[start] := 0 ;
+   dom_distance := singleton(start) ;
+
+   visited := emptyset ;
+
+   /* while exists node not in visited */
+   while !emptyset = (dom_distance \ visited)
+     inv true var 0
+   do
+
+     choose n such that 
+        !n :: visited &
+        n :: dom_distance &
+        (\forall m; m::dom_distance \ visited -> 
+            distance[n] <= distance[m]) ;
+            
+     visited := visited \/ singleton(n) ;     
+
+     /* festzustellen: */
+     note visited <: dom_distance /* hint "§(pick A.2 A.11 S.0)" */ ;
+     
+     /* foreach node m with (n,m) in edges which is not visited 
+      * iterate {n} <| weight |>> visited using S and s */
+     
+     old_distance := distance ;
+     old_dom_distance := dom_distance ;
+     nbors0 := (\set k; pair(n,k) :: dom_weight & !k::visited) ;
+     nbors := nbors0 ;
+     
+     while (\exists t; t::nbors)
+       inv true var 0
+     do
+       choose o such that o :: nbors ;
+       nbors := nbors \ singleton(o) ;
+
+       /* there must be an edge */
+       assert pair(n,o) :: dom_weight ;
+       
+       /* d := distance[n] + weigth(n,m); */
+       d := distance[n] + weight(n,o) ;
+
+       if !o::dom_distance | d < distance[o]
+       then
+         dom_distance := dom_distance \/ singleton(o) ;
+         distance[o] := d
+       end
+     end
+   end
+               
+ end

@@ -25,6 +25,6 @@
     </exec>
   </target>
 
-  <target name="full" depends="algo, algo-ref, verify, build-ref" />
+  <target name="full" depends="algo, algo-ref, verify, build-ref, algo-ref, verify-ref" />
 
 </project>

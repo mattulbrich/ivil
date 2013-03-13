@@ -1,4 +1,4 @@
-# Automatically created on Thu Feb 28 15:30:37 CET 2013
+# Automatically created on Wed Mar 13 01:40:00 CET 2013
 include "bfs.decl.p"
 include "ref-BFS.minDistance(int,int).p"
 function
@@ -57,9 +57,9 @@ program bfs source "bfs.ref.algo"
  body0:
   assume !((C = emptyset)); "assume condition "
  sourceline 99
-  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (!(C) = emptyset))), 42 ; "marking stone"
+  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (!(C) = emptyset))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
  sourceline 101
-  havoc v; "witness by §(rule deep_update_simplification) §(inst x1 with 'iv(_v) as vertex' hide)"
+  havoc v
   assume (v :: C)
  sourceline 104
   C := (C \ singleton(v))
@@ -88,7 +88,7 @@ program bfs source "bfs.ref.algo"
   assume w :: tovisit ; "choose element in tovisit"
   tovisit := tovisit \ singleton(w)
  sourceline 119
-  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & ((_v = vi(v)) & (_w = vi(w))))), 42 ; "marking stone"
+  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & ((_v = vi(v)) & ((_w = vi(w)) & (tovisit = ((\set v; (vi(v) > _w)) /\ succ(v))))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
  sourceline 120
   goto then1, else1
  then1:
@@ -133,4 +133,4 @@ program bfs source "bfs.ref.algo"
  endOfProgram: 
 
 
-problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- [0; Java][<0;bfs>]((d = resInt))
+problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- INITIAL_VAR(pair(1, pair(V, V))) -> [0; Java][<0;bfs>]((d = resInt))

@@ -9,14 +9,14 @@
   BFS.copy auto
 
   At uni: 6,0 sec
-  Run at home: 
+  Run at home: 3.7 sec
     time ivilc BFS.clear\(boolean\[\]\).p BFS.first\(boolean\[\]\).p BFS.isEmpty\(boolean\[\]\).p BFS.copy\(boolean\[\]\,boolean\[\]\).p 
 
 * Partial exception freeness of the BFS.minDistance algorithm
   BFS.mindistance.partial.p
 
   At uni:24 sec
-  At home:
+  At home:22sec
     time ivilc -s -t 30 BFS.minDistance.partial.p
 
 * Refinement. here we go.

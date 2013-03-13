@@ -181,12 +181,6 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     }
 
     @Override
-    public String visit(ASTCallStatement node, Object data) {
-        String name = "hallo";
-        return "hello world";
-    }
-
-    @Override
     public String visit(ASTWhileStatement node, Object data) {
         String condition = visitTermChild(node, 0);
         String invariant = visitTermChild(node, 1);
@@ -221,6 +215,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         String with = visitTermChild(node, 1);
         String as = visitTermChild(node, 2);
         String inv = visitTermChild(node, 3);
+        int last = node.jjtGetNumChildren() - 1;
 
         String loopLabel = idProducer.makeIdentifier("loop");
         String bodyLabel = idProducer.makeIdentifier("body");
@@ -246,7 +241,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         statements.add("  havoc " + with + annotation);
         statements.add("  assume " + with + " :: " + as + " ; \"choose element in " + as + "\"");
         statements.add("  " + as + " := " + as + " \\ singleton(" + with + ")");
-        visitChild(node, 4);
+        visitChild(node, last);
         statements.add("  goto " + loopLabel);
 
         statements.add(" " + afterLabel + ":");

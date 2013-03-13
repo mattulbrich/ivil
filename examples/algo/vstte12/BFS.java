@@ -143,6 +143,8 @@
 
 		while(w < size && !adjacency[v][w]) {
 		    w++;
+                    // this is a marker:
+		    spec.Spec.inline("skip");
                 }
 
 		spec.Spec.mark("2");

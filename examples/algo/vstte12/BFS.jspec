@@ -143,6 +143,8 @@ class BFS {
 		  @*/
 		while(w < size && !adjacency[v][w]) {
 		    w++;
+                    // this is a marker:
+		    /*@ inline "skip"; @*/
                 }
 
 		//@ mark 2;
