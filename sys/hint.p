@@ -41,7 +41,11 @@ plugin
     # §(inst j with 2) or §(inst '(\forall x.x*x>=0)' with 2)
     proofHint : "de.uka.iti.pseudo.auto.strategy.hint.InstantiateProofHint"
    
-(*
+    # proof hint to perform instantiation on last formula like §(witness 'x1 + 1')
+    # performs update simplification
+    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.WitnessProofHint"
+ (*
+
  * "Focus" reduces the sequent to one single formula,
  * usually used to remove context knowledge to concentrate
  * on one aspect. There is an according hint.
