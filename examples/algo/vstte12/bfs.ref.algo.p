@@ -27,7 +27,7 @@ function vertex dest
 function int d assignable
 function int size assignable
 function set(vertex) V assignable
-function set(vertex) C assignable
+function set(vertex) C assignable 
 function set(vertex) N assignable
 function set(vertex) Vo assignable
 function set(vertex) Co assignable
@@ -133,4 +133,4 @@ program bfs source "bfs.ref.algo"
  endOfProgram: 
 
 
-problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- [0; Java][<0;bfs>]((d = resInt))
+problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))), INITIAL_VAR(3) |- [0; Java][<0;bfs>]((d = resInt))

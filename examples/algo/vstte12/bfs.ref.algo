@@ -156,5 +156,6 @@ refine bfs as Java
     var 42
 
   mark 2
-    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w)
+    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w) &
+        tovisit = (\set x. vi(x) >= _w) /\ succs(v)
     var 42
