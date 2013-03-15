@@ -6,21 +6,21 @@ class BFS {
 
     /*@ contract
       @   requires "!array = null"
-      @   ensures "-1 <= resInt & resInt < arrlen(array)"
-      @   ensures "resInt >= 0 -> h[array, idxBool(resInt)] &
-      @               (\forall i; 0<=i & i<resInt -> !h[array, idxBool(i)])"
+      @   ensures "-1 = resInt | from <= resInt & resInt < arrlen(array)"
+      @   ensures "resInt >= from -> h[array, idxBool(resInt)] &
+      @               (\forall i; from<=i & i<resInt -> !h[array, idxBool(i)])"
       @   ensures "resInt = -1 -> (\forall i; 0<=i & i<arrlen(array) -> 
       @                            !h[array,idxBool(i)])"
       @   modifies "emptyset"
       @*/
-    int first(boolean[] array) {
+    int first(boolean[] array, int from) {
 	/*@ maintains 
-	  @  "0 <= _i & _i <= arrlen(_array) &
+	  @  "from <= _i & _i <= arrlen(_array) &
 	  @   (\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])"
 	  @ decreases "arrlen(_array) - _i"
 	  @ modifies "emptyset"
 	  @*/
-        for(int i = 0; i < array.length; i++) {
+        for(int i = from; i < array.length; i++) {
             if(array[i]) {
                 return i;
             }
@@ -122,7 +122,7 @@ class BFS {
 	  @*/
 	while(!isEmpty(C)) {
 	    //@ mark 1;
-	    int v = first(C);
+	    int v = first(C, 0);
 
 	    // C is not empty:
 	    //@ note "0 <= _v & _v < h[_this, F_BFS_size]";
@@ -135,31 +135,33 @@ class BFS {
 	      @ decreases "2"
 	      @ modifies "singleton(_V) \/ singleton(_N)"
 	      @*/
-	    for(int w = 0; w < size; w++) {
-		// ignore this if not a successor ...
-		/*@ maintains "0 <= _w & _w <= h[_this, F_BFS_size]"
-		  @ decreases "2"
-		  @ modifies "singleton(_V) \/ singleton(_N)"
-		  @*/
-		while(w < size && !adjacency[v][w]) {
-		    w++;
-                    // this is a marker:
-		    /*@ inline "skip"; @*/
-                }
 
-		//@ mark 2;
+	    //@ mark 2;
+	    int w = 0;
+	    while(true) {
+		
+		w = first(adjacency[v], w);
 
+		if(w == -1) {
+		    break;
+		}
+		//@ mark 3;
 		if(w < size && !V[w]) {
 		    V[w] = true;
 		    N[w] = true;
 		}
-	    }
 
+		//@ mark 4;
+		w++;
+	    }
+	    //@ mark 5;
 	    if(isEmpty(C)) {
 		copy(C, N);
 		clear(N);
 		d ++;
 	    }    
+
+	    //@ mark 6;
 	}
 	
 	return -1;

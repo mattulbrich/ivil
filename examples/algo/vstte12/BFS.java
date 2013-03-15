@@ -6,21 +6,21 @@
 
     /*@ contract
       @   requires "!array = null"
-      @   ensures "-1 <= resInt & resInt < arrlen(array)"
-      @   ensures "resInt >= 0 -> h[array, idxBool(resInt)] &
-      @               (\forall i; 0<=i & i<resInt -> !h[array, idxBool(i)])"
+      @   ensures "-1 = resInt | from <= resInt & resInt < arrlen(array)"
+      @   ensures "resInt >= from -> h[array, idxBool(resInt)] &
+      @               (\forall i; from<=i & i<resInt -> !h[array, idxBool(i)])"
       @   ensures "resInt = -1 -> (\forall i; 0<=i & i<arrlen(array) -> 
       @                            !h[array,idxBool(i)])"
       @   modifies "emptyset"
       @*/
-    int first(boolean[] array) {
-	spec.Spec.loopinv("((0 <= _i & _i <= arrlen(_array) &\n	     (\\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(_array) - _i");
+    int first(boolean[] array, int from) {
+	spec.Spec.loopinv("((from <= _i & _i <= arrlen(_array) &\n	     (\\forall j; 0<=j&j<_i -> !h[_array, idxBool(j)])) & modHeap(h, ho, {h:=ho}(emptyset))), arrlen(_array) - _i");
 
 
 
 
 
-        for(int i = 0; i < array.length; i++) {
+        for(int i = from; i < array.length; i++) {
             if(array[i]) {
                 return i;
             }
@@ -122,7 +122,7 @@
 
 	while(!isEmpty(C)) {
 	    spec.Spec.mark("1");
-	    int v = first(C);
+	    int v = first(C, 0);
 
 	    // C is not empty:
 	    spec.Spec.inline("assert 0 <= _v & _v < h[_this, F_BFS_size]\nassume 0 <= _v & _v < h[_this, F_BFS_size]");
@@ -135,31 +135,33 @@
 
 
 
-	    for(int w = 0; w < size; w++) {
-		// ignore this if not a successor ...
-		spec.Spec.loopinv("((0 <= _w & _w <= h[_this, F_BFS_size]) & modHeap(h, ho, {h:=ho}(singleton(_V) \\/ singleton(_N)))), 2");
 
+	    spec.Spec.mark("2");
+	    int w = 0;
+	    while(true) {
+		
+		w = first(adjacency[v], w);
 
-
-		while(w < size && !adjacency[v][w]) {
-		    w++;
-                    // this is a marker:
-		    spec.Spec.inline("skip");
-                }
-
-		spec.Spec.mark("2");
-
+		if(w == -1) {
+		    break;
+		}
+		spec.Spec.mark("3");
 		if(w < size && !V[w]) {
 		    V[w] = true;
 		    N[w] = true;
 		}
-	    }
 
+		spec.Spec.mark("4");
+		w++;
+	    }
+	    spec.Spec.mark("5");
 	    if(isEmpty(C)) {
 		copy(C, N);
 		clear(N);
 		d ++;
 	    }    
+
+	    spec.Spec.mark("6");
 	}
 	
 	return -1;

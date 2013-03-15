@@ -3,6 +3,9 @@ uses "ref-BFS.minDistance(int,int).p"
 
 /* this can becomen general theory! */
 uses inline
+plugin
+  contextExtension: "de.uka.iti.pseudo.gui.extensions.OopsExt"
+
 function
    int vi('a)
    'a iv(int)
@@ -46,8 +49,8 @@ abbreviation
 abbreviation
    @succ :=
        (\forall v; succ(v) = 
-               (\set w; (\exists i; 0 <= i & i < size & 
-                        h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))
+               (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))
+     & (\forall i; 0<=i<size -> arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)
 
 algo bfs
 input
@@ -110,27 +113,31 @@ do
      Vo := V;
      No := N;
 
+     mark 2;
      iterate succ(v) with w in tovisit
        inv tovisit <: succ(v) &
            V = Vo \/ (succ(v) \ tovisit) &
            N = No \/ (succ(v) \ (Vo \/ tovisit))
        hint "§(rule deep_update_simplification) §(inst x1 with 'iv(_w) as vertex' hide)"
      do 
-       mark 2;
+       mark 3;
        if not w in V
        then
          V := V \/ {w};
          N := N \/ {w}
-       end
+       end;
+       mark 4
      end;
-     
+
+     mark 5;
+
      if C = {}
      then
        C := N;
        N := {};
        d := d+1
-     end
-         
+     end;
+     mark 6
    end;
 
    note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
@@ -151,10 +158,29 @@ refine bfs as Java
 
   ensures d = resInt
 
-  mark 1
-    inv @vars_coupled & @arrays & !C={}
+  /* proved */
+
+  mark 1 /*proved*/
+    inv @vars_coupled & @arrays & @succ & !C={}
     var pair(0, pair(^(V \ (C \/ N)), tovisit))
 
-  mark 2
-    inv @vars_coupled & @arrays & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
+  mark 2 /*proved*/
+    inv @vars_coupled & @arrays &  @succ & _v = vi(v)
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+
+  mark 3
+    inv @vars_coupled & @arrays &  @succ & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+
+  mark 4
+    inv @vars_coupled & @arrays & @succ & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+
+
+  mark 5
+    inv @vars_coupled & @arrays & @succ & _v = vi(v) 
+    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+
+  mark 6
+    inv @vars_coupled & @arrays & @succ & _v = vi(v) 
     var pair(0, pair(^(V \ (C \/ N)), tovisit))

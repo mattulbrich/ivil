@@ -1,6 +1,9 @@
-# Automatically created on Wed Mar 13 01:40:00 CET 2013
+# Automatically created on Fri Mar 15 00:16:09 CET 2013
 include "bfs.decl.p"
 include "ref-BFS.minDistance(int,int).p"
+plugin
+  contextExtension: "de.uka.iti.pseudo.gui.extensions.OopsExt"
+
 function
    int vi('a)
    'a iv(int)
@@ -37,48 +40,50 @@ function vertex v assignable
 function vertex w assignable
 
 program bfs source "bfs.ref.algo"
- sourceline 65
+ sourceline 68
   assume finite(((fullset) as set(vertex))) ; "by requirement"
- sourceline 77
+ sourceline 80
   assert finite(((fullset) as set(vertex)))
   size := card(((fullset) as set(vertex)))
- sourceline 79
-  V := singleton(src)
- sourceline 80
-  C := singleton(src)
- sourceline 81
-  N := emptyset
  sourceline 82
+  V := singleton(src)
+ sourceline 83
+  C := singleton(src)
+ sourceline 84
+  N := emptyset
+ sourceline 85
   d := 0
  loop0:
- sourceline 97
- sourceline 84
+ sourceline 100
+ sourceline 87
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
- sourceline 99
-  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (!(C) = emptyset))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
- sourceline 101
+ sourceline 102
+  skip MARK, 1, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & (!(C) = emptyset)))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
+ sourceline 104
   havoc v
   assume (v :: C)
- sourceline 104
+ sourceline 107
   C := (C \ singleton(v))
- sourceline 105
+ sourceline 108
   goto then0, else0
  then0:
   assume (v = dest); "then"
- sourceline 107
+ sourceline 110
   goto endOfProgram ; "Return Statement"
   goto after1
  else0:
- sourceline 108
+ sourceline 111
   assume $not((v = dest)); "else"
  after1:
- sourceline 110
-  Vo := V
- sourceline 111
-  No := N
  sourceline 113
+  Vo := V
+ sourceline 114
+  No := N
+ sourceline 116
+  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & (_v = vi(v))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
+ sourceline 117
   tovisit := succ(v)
  loop1:
   goto body1, after2
@@ -87,50 +92,56 @@ program bfs source "bfs.ref.algo"
   havoc w; "witness by §(rule deep_update_simplification) §(inst x1 with 'iv(_w) as vertex' hide)"
   assume w :: tovisit ; "choose element in tovisit"
   tovisit := tovisit \ singleton(w)
- sourceline 119
-  skip MARK, 2, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & ((_v = vi(v)) & ((_w = vi(w)) & (tovisit = ((\set v; (vi(v) > _w)) /\ succ(v))))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
- sourceline 120
+ sourceline 123
+  skip MARK, 3, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & ((_v = vi(v)) & ((_w = vi(w)) & (tovisit = ((\set v; (vi(v) > _w)) /\ succ(v)))))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
+ sourceline 124
   goto then1, else1
  then1:
   assume (!(w) :: V); "then"
- sourceline 122
+ sourceline 126
   V := (V \/ singleton(w))
- sourceline 123
+ sourceline 127
   N := (N \/ singleton(w))
   goto after3
  else1:
- sourceline 124
+ sourceline 128
   assume $not((!(w) :: V)); "else"
  after3:
+ sourceline 129
+  skip MARK, 4, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & ((_v = vi(v)) & ((_w = vi(w)) & (tovisit = ((\set v; (vi(v) > _w)) /\ succ(v)))))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
   goto loop1
  after2:
   assume tovisit= emptyset
- sourceline 127
+ sourceline 132
+  skip MARK, 5, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & (_v = vi(v))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
+ sourceline 134
   goto then2, else2
  then2:
   assume (C = emptyset); "then"
- sourceline 129
+ sourceline 136
   C := N
- sourceline 130
+ sourceline 137
   N := emptyset
- sourceline 131
+ sourceline 138
   d := (d + 1)
   goto after4
  else2:
- sourceline 132
+ sourceline 139
   assume $not((C = emptyset)); "else"
  after4:
+ sourceline 140
+  skip MARK, 6, (((V = (\set v; h[_V, idxBool(vi(v))])) & ((C = (\set v; h[_C, idxBool(vi(v))])) & ((N = (\set v; h[_N, idxBool(vi(v))])) & ((d = _d) & ((vi(src) = _src) & (vi(dest) = _dest)))))) & ((!((_V = _N)) & (!((_N = _C)) & (!((_V = _C)) & ((arrlen(_V) = size) & ((arrlen(_N) = size) & ((arrlen(_C) = size) & (size = card(((fullset) as set(vertex)))))))))) & (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & (_v = vi(v))))), pair(0, pair(^((V \ (C \/ N))), tovisit)) ; "marking stone"
   goto loop0
- sourceline 84
+ sourceline 87
  after0:
   assume $not(!((C = emptyset)))
- sourceline 136
+ sourceline 143
   assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "lemma by §(rule int_induction_match)"
- sourceline 139
+ sourceline 146
   assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "lemma by §(rule deep_update_simplification nested_quant_z3)"
- sourceline 142
+ sourceline 149
   d := -(1)
  endOfProgram: 
 
 
-problem ((\forall v; (succ(v) = (\set w; (\exists i; ((0 <= i) & ((i < size) & h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))])))))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- INITIAL_VAR(pair(1, pair(V, V))) -> [0; Java][<0;bfs>]((d = resInt))
+problem (((\forall v; (succ(v) = (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))) & (\forall i; (((0 <= i) & (i < size)) -> (arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)))) & ((vi(src) = _src) & ((vi(dest) = _dest) & (finite(((fullset) as set(vertex))) & (card(((fullset) as set(vertex))) = h[_this, F_BFS_size]))))) |- INITIAL_VAR(pair(1, pair(V, V))) -> [0; Java][<0;bfs>]((d = resInt))
