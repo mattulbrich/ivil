@@ -297,17 +297,29 @@ program Java source "./BFS.jspec"
     (* IINC *)
     _w := _w + 1
   Label37:
+<<<<<<< HEAD
    sourceline 147
+=======
+   sourceline 146
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* LDC + INVOKESTATIC - Specification injection *)
     skip
     (* GOTO *)
     goto Label30
   Label33:
+<<<<<<< HEAD
    sourceline 150
     (* LDC + INVOKESTATIC - Specification injection *)
     skip MARK, 2
   Label38:
    sourceline 152
+=======
+   sourceline 149
+    (* LDC + INVOKESTATIC - Specification injection *)
+    skip MARK, 2
+  Label38:
+   sourceline 151
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ILOAD *)
     st_0_int := _w
     (* ALOAD *)
@@ -337,7 +349,11 @@ program Java source "./BFS.jspec"
   Label43:
     assume !branchCond
   Label44:
+<<<<<<< HEAD
    sourceline 153
+=======
+   sourceline 152
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ALOAD *)
     st_0_ref := _V
     (* ILOAD *)
@@ -348,7 +364,11 @@ program Java source "./BFS.jspec"
     (* BASTORE *)
     h := h[st_0_ref, idxBool(st_1_int) := st_2_bool]
   Label45:
+<<<<<<< HEAD
    sourceline 154
+=======
+   sourceline 153
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ALOAD *)
     st_0_ref := _N
     (* ILOAD *)
@@ -365,7 +385,11 @@ program Java source "./BFS.jspec"
     (* GOTO *)
     goto Label25
   Label28:
+<<<<<<< HEAD
    sourceline 158
+=======
+   sourceline 157
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ALOAD *)
     st_0_ref := _this
     (* ALOAD *)
@@ -389,7 +413,11 @@ program Java source "./BFS.jspec"
   Label47:
     assume !branchCond
   Label49:
+<<<<<<< HEAD
    sourceline 159
+=======
+   sourceline 158
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ALOAD *)
     st_0_ref := _this
     (* ALOAD *)
@@ -405,7 +433,11 @@ program Java source "./BFS.jspec"
     assume (\forall i; 0 <= i & i < arrlen(st_1_ref) -> 
            h[st_1_ref, idxBool(i)] = h[st_2_ref, idxBool(i)]) ; "postcondition for BFS.copy"
   Label50:
+<<<<<<< HEAD
    sourceline 160
+=======
+   sourceline 159
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ALOAD *)
     st_0_ref := _this
     (* ALOAD *)
@@ -419,6 +451,7 @@ program Java source "./BFS.jspec"
     assume (\forall i; 0 <= i & i < arrlen(st_1_ref) -> 
                                   !h[st_1_ref, idxBool(i)]) ; "postcondition for BFS.clear"
   Label51:
+<<<<<<< HEAD
    sourceline 161
     (* IINC *)
     _d := _d + 1
@@ -428,6 +461,17 @@ program Java source "./BFS.jspec"
     goto Label11
   Label14:
    sourceline 165
+=======
+   sourceline 160
+    (* IINC *)
+    _d := _d + 1
+  Label48:
+   sourceline 162
+    (* GOTO *)
+    goto Label11
+  Label14:
+   sourceline 164
+>>>>>>> 9e85d552ffd1d8c462519c72fe7aa770b2c332c4
     (* ICONST_M1 *)
     st_0_int := -1
     (* IRETURN *)

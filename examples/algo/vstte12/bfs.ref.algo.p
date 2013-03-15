@@ -27,7 +27,7 @@ function vertex dest
 function int d assignable
 function int size assignable
 function set(vertex) V assignable
-function set(vertex) C assignable
+function set(vertex) C assignable 
 function set(vertex) N assignable
 function set(vertex) Vo assignable
 function set(vertex) Co assignable

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Thu Aug 23 21:20:58 CEST 2012</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqGet(arrayAsIntSeq(h1,r),i),cond($and($lte(0,i),$lt(i,arrlen(r))),$load_heap(h1,r,idxInt(i)),seqError))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="inArrayAsIntSeq" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%h">h1 as heap</schemavariable>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%r">r as ref</schemavariable>
+      <typevariable name="r">ref</typevariable>
+      <typevariable name="h">heap</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%t">$load_heap(h1 as heap,r as ref,idxInt(\var x as int) as field(int)) as int</schemavariable>
+      <schemavariable name="%b">arrlen(r as ref) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="" id="2">
+    </ruleApplication>
+  </steps>
+</proof>
