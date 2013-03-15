@@ -37,6 +37,7 @@ function
   seq('a) seqAppend(seq('a), 'a)
   seq('a) seqSub(seq('a), int, int)
   seq('a) seqReverse(seq('a))
+  seq('a) seqUpdate(seq('a), int, 'a)
 
 
 (*
@@ -106,3 +107,9 @@ rule seqReverseDef
   find seqReverse(%a)
   where freshVar %x, %a
   replace (\seqDef %x; 0; seqLen(%a); seqGet(%a, seqLen(%a) - 1 - %x))
+
+rule seqUpdateDef
+  find seqUpdate(%a, %i, %v)
+  where freshVar %x, %a, %i, %v
+  replace (\seqDef %x; 0; seqLen(%a); cond(%i=%x, %v, seqGet(%a, %x)))
+

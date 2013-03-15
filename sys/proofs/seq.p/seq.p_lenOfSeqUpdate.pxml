@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Fri Mar 15 21:54:34 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqLen(seqUpdate(seq,i,v)),seqLen(seq))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="seqUpdateDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%i">i as int</schemavariable>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%v">v as 'v</schemavariable>
+      <schemavariable name="%a">seq as seq('v)</schemavariable>
+      <typevariable name="v">'v</typevariable>
+      <typevariable name="a">seq('v)</typevariable>
+      <typevariable name="i">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqLenDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%t">cond($eq(i as int,\var x as int) as bool,v as 'v,seqGet(seq as seq('v),\var x as int) as 'v) as 'v</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%b">seqLen(seq as seq('v)) as int</schemavariable>
+      <typevariable name="t">'v</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="" id="2">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$minus(seqLen(seq as seq('v)) as int,0 as int) as int</schemavariable>
+      <schemavariable name="%b">0 as int</schemavariable>
+      <schemavariable name="%c">$lte(0 as int,seqLen(seq as seq('v)) as int) as bool</schemavariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0" id="3">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1" id="4">
+    </ruleApplication>
+  </steps>
+</proof>

@@ -133,6 +133,25 @@ rule getOfSeqReverse
     rewrite "fol simp"
     asAxiom
 
+rule lenOfSeqUpdate
+  find seqLen(seqUpdate(%seq, %i, %v))
+  replace seqLen(%seq)
+  tags 
+    derived
+    rewrite "fol simp"
+    asAxiom
+
+rule getOfSeqUpdate
+  find seqGet(seqUpdate(%seq, %i, %v), %j)
+  replace cond(0 <= %j & %j < seqLen(%seq) & %i=%j,
+               %v,
+               seqGet(%seq, %j))
+  tags
+    derived
+    rewrite "fol simp"
+    asAxiom
+
+
 (*
  * lemmata for seqEmpty
  *)
