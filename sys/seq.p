@@ -98,7 +98,8 @@ rule getOfSeqAppend
   tags
     derived
     rewrite "fol simp"
-    asAxiom  
+    asAxiom
+
 rule seqLenOfSub
   find seqLen(seqSub(%a, %from, %to))
   replace cond(%from <= %to, %to-%from, 0)
