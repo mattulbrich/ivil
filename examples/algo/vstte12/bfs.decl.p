@@ -1,3 +1,5 @@
+include "$heap.p"
+include "$seq.p"
 include "$set.p"
 include "$pair.p"
 include "$int.p"
@@ -66,3 +68,30 @@ rule nested_quant_z3
     timeout "4000"
     additionalParams "PULL_NESTED_QUANTIFIERS=true"
     autoonly
+
+
+(*
+ * Rule for array as sequences
+ *)
+
+function
+  seq(bool) boolArrAsSeq(heap, ref)
+
+rule boolArrAsSeqDef
+  find boolArrAsSeq(%h, %r)
+  where freshVar %x, %h, %r
+  replace (\seqDef %x; 0; arrlen(%r); %h[%r, idxBool(%x)])
+
+rule getOfBoolArrSeq
+  find seqGet(boolArrAsSeq(%h, %r), %i)
+  replace cond(0 <= %i & %i < arrlen(%r), %h[%r, idxBool(%i)], seqError)
+  tags derived
+       rewrite "fol simp"
+       asAxiom
+
+rule lenOfBoolArrSeq
+  find seqLen(boolArrAsSeq(%h, %r))
+  replace arrlen(%r)
+  tags derived
+       rewrite "fol simp"
+       asAxiom

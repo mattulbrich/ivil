@@ -5,182 +5,137 @@ uses "ref-BFS.minDistance(int,int).p"
 uses inline
 plugin
   contextExtension: "de.uka.iti.pseudo.gui.extensions.OopsExt"
-
-function
-   int vi('a)
-   'a iv(int)
-
-axiom vi_is_positive
-   (\T_all 'a; (\forall x as 'a; vi(x) ~~> vi(x) >= 0))
-
-axiom vi_finite_bounded
-   (\T_all 'a; (\forall x as 'a; vi(x) ~~> 
-       finite(fullset as set('a)) -> vi(x) < card(fullset as set('a))))
-
-axiom vi_injection
-   (\T_all 'a; (\forall x as 'a; vi(x) ~~>
-       finite(fullset as set('a)) -> iv(vi(x)) = x ))
-
-axiom iv_injection
-   (\T_all 'a; (\forall i; iv(i) as 'a~~>
-          finite(fullset as set('a)) & 0<=i & i<card(fullset as set('a))
-       -> vi(iv(i) as 'a) = i))
-
 end
 
 
 abbreviation
    @vars_coupled :=
-       V = (\set v; h[_V, idxBool(vi(v))])
-     & C = (\set v; h[_C, idxBool(vi(v))])
-     & N = (\set v; h[_N, idxBool(vi(v))])
-     & d = _d
-     & vi(src) = _src
-     & vi(dest) = _dest
+       a_V = boolArrAsSeq(h, _V)
+     & a_C = boolArrAsSeq(h, _C)
+     & a_N = boolArrAsSeq(h, _N)
+     & a_d = _d
+     & a_src = _src
+     & a_dest = _dest
+     & a_size = h[_this, F_BFS_size]
      
 abbreviation
    @arrays :=
        !(_V=_N) & !(_N=_C) & !(_V=_C) &
-       arrlen(_V) = size &
-       arrlen(_N) = size &
-       arrlen(_C) = size &
-       size = card(fullset as set(vertex))
+       !(_V=h[_this, F_BFS_adjacency]) & 
+       !(_N=h[_this, F_BFS_adjacency]) & 
+       !(_C=h[_this, F_BFS_adjacency]) &
+       !(_V=_this) & !(_N=_this) & !(_C=_this) &
+       (\forall i; 0<=i<a_size ->
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _V &
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _N &
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _C) &
+       arrlen(_V) = a_size &
+       arrlen(_N) = a_size &
+       arrlen(_C) = a_size
 
 abbreviation
    @succ :=
-       (\forall v; succ(v) = 
-               (\set w; h[h[h[_this, F_BFS_adjacency], idxRef(vi(v))], idxBool(vi(w))]))
-     & (\forall i; 0<=i<size -> arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = size)
+       (\forall v; 0<=v<a_size -> a_succ(v) = boolArrAsSeq(h,
+                   h[h[_this, F_BFS_adjacency], idxRef(v)]))
+     & (\forall i; 0<=i<a_size -> arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = a_size)
 
-algo bfs
+algo bfs_array
 input
-   src, dest : vertex
+   a_src, a_dest : int
 output
-   d : int
+   a_d : int
 var
-   size : int
-   V, C, N : set(vertex)
-   Vo, Co, No : set(vertex)
-   tovisit : set(vertex)
-   v,w : vertex
-   
-requires 
-   finite(fullset as set(vertex))
-
-ensures
-   d >= -1
-   
-ensures
-   d < 0 -> (\forall m; m >= 0 -> not minconnect(src,dest,m))
-   
-ensures
-   d >= 0 -> minconnect(src, dest, d) 
-
+   a_size : int
+   a_V, a_C, a_N : seq(bool)
+   a_v,a_w,a_t : int
 do
-   size := card(fullset as set(vertex));
    
-   V := {src};
-   C := {src};
-   N := {};
-   d := 0;
+   a_V := (\seqDef i; 0; a_size; i = a_src);
+   a_C := (\seqDef i; 0; a_size; i = a_src);
+   a_N := (\seqDef i; 0; a_size; false);
+   a_d := 0;
 
-   while !(C = {})
-     inv d >= 0 &
-       (\forall x; x in C -> minconnect(src, x, d)) &
-       (\forall y; y in N <-> 
-           (\exists q; minconnect(src, q, d) & not q in C & y in succ(q))) &
-       (\forall z; z in V \ N <->
-           (\exists n; 0 <= n <= d & minconnect(src, z, n))) &
-       (\forall a; minconnect(src, a, d+1) ->
-           (\exists c; a in succ(c) & c in C) | a in N) &
-       (C = {} -> N = {}) &
-       C <: V &
-       N <: V &
-       not dest in (V \ N) \ C
-     var ^(V \ (C \/ N))
+   while (\exists k; 0<=k<a_size & seqGet(a_C, k))
+     inv true var 0
    do
      mark 1;
 
-     choose v such that v in C
-       hint "§(rule deep_update_simplification) §(inst x1 with 'iv(_v) as vertex' hide)";
+     choose a_v such that 0<=a_v<a_size & seqGet(a_C, a_v);
+     a_C := seqUpdate(a_C, a_v, false);
 
-     C := C \ {v};
-     if v = dest 
+     if a_v = a_dest 
      then 
        return
      end;
-     
-     Vo := V;
-     No := N;
+ 
+     mark 2;    
+     a_w := 0;
+     while (\exists i; a_w<=i<a_size & seqGet(a_succ(a_v), i))
+       inv true var 0
+     do
+       a_t := a_w;
+       choose a_w such that a_t<=a_w<a_size & seqGet(a_succ(a_v), a_w)
+                     & (\forall j; a_t <= j < a_w -> !seqGet(a_succ(a_v), j));
 
-     mark 2;
-     iterate succ(v) with w in tovisit
-       inv tovisit <: succ(v) &
-           V = Vo \/ (succ(v) \ tovisit) &
-           N = No \/ (succ(v) \ (Vo \/ tovisit))
-       hint "§(rule deep_update_simplification) §(inst x1 with 'iv(_w) as vertex' hide)"
-     do 
        mark 3;
-       if not w in V
+  
+       if not seqGet(a_V, a_w)
        then
-         V := V \/ {w};
-         N := N \/ {w}
+         a_V := seqUpdate(a_V, a_w, true);
+         a_N := seqUpdate(a_N, a_w, true)
        end;
-       mark 4
-     end;
 
+       mark 4;
+       a_w := a_w + 1
+     end;
+     
      mark 5;
 
-     if C = {}
+     if !(\exists i; 0 <= i < a_size & seqGet(a_C, i))
      then
-       C := N;
-       N := {};
-       d := d+1
+       a_C := a_N;
+       a_N := (\seqDef i; 0; a_size; false);
+       a_d := a_d+1
      end;
+         
      mark 6
+
    end;
 
-   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
-     hint "§(rule int_induction_match)";
-
-   note (\forall j; j>d -> !minconnect(src, dest, j))
-     hint "§(rule deep_update_simplification nested_quant_z3)";
-
-   d := -1
+   a_d := -1
 end 
 
-refine bfs as Java 
+refine bfs_array as Java 
 
-  requires @succ & vi(src) = _src & vi(dest) = _dest
-        &  finite(fullset as set(vertex)) 
-        &  card(fullset as set(vertex)) = h[_this, F_BFS_size]
-    var pair(1, pair(V, V))
+  requires @succ & a_src = _src & a_dest = _dest &  
+           a_size = h[_this, F_BFS_size]
+    var 0
 
-  ensures d = resInt
+  ensures a_d = resInt
 
-  /* proved */
+  mark 1
+    inv @vars_coupled & @arrays & @succ & 
+        (\exists i; 0<=i<arrlen(_C) & h[_C, idxBool(i)])
+    var 0
 
-  mark 1 /*proved*/
-    inv @vars_coupled & @arrays & @succ & !C={}
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
-
-  mark 2 /*proved*/
-    inv @vars_coupled & @arrays &  @succ & _v = vi(v)
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+  mark 2
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size
+    var 0
 
   mark 3
-    inv @vars_coupled & @arrays &  @succ & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+    inv @vars_coupled & @arrays &  @succ & a_v = _v 
+     &  0 <= _v< a_size & a_w = _w & 0 <= _w< a_size
+    var 0
 
   mark 4
-    inv @vars_coupled & @arrays & @succ & _v = vi(v) & _w = vi(w) & tovisit = (\set v; vi(v) > _w) /\ succ(v)
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
-
+    inv @vars_coupled & @arrays & @succ & a_v = _v 
+     &  0 <= _v< a_size & a_w = _w & 0 <= _w< a_size
+    var 0
 
   mark 5
-    inv @vars_coupled & @arrays & @succ & _v = vi(v) 
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size
+    var 0
 
   mark 6
-    inv @vars_coupled & @arrays & @succ & _v = vi(v) 
-    var pair(0, pair(^(V \ (C \/ N)), tovisit))
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size 
+    var 0
