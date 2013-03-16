@@ -15,6 +15,7 @@ plugin
 sort vertex
 
 function set(vertex) succ(vertex)
+function seq(bool) a_succ(int)
 
 function 
   bool connect(vertex, vertex, int)

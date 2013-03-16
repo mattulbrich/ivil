@@ -1,4 +1,4 @@
-# Automatically created on Fri Mar 15 00:16:09 CET 2013
+# Automatically created on Fri Mar 15 22:58:54 CET 2013
 include "bfs.decl.p"
 include "ref-BFS.minDistance(int,int).p"
 plugin
@@ -30,7 +30,7 @@ function vertex dest
 function int d assignable
 function int size assignable
 function set(vertex) V assignable
-function set(vertex) C assignable 
+function set(vertex) C assignable
 function set(vertex) N assignable
 function set(vertex) Vo assignable
 function set(vertex) Co assignable

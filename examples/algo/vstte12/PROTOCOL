@@ -21,4 +21,5 @@
 
 * Refinement. here we go.
   
-  
+* Intermediate step in refinement: set -> sequences
+  PO like   succ(v1) \ {iv(a_w2)} = {x | a_w2 < vi(x)} /\ succ(v1)   after the first round remain open

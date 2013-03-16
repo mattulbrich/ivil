@@ -1,0 +1,213 @@
+uses "bfs.decl.p"
+uses "$refinement.p"
+uses "$seq.p"
+
+uses inline
+plugin
+  contextExtension: "de.uka.iti.pseudo.gui.extensions.OopsExt"
+
+function
+   int vi(vertex)
+   vertex iv(int)
+
+axiom vi_is_positive
+   (\forall x as vertex; vi(x) ~~> vi(x) >= 0)
+
+axiom vi_finite_bounded
+   (\forall x as vertex; vi(x) ~~> 
+       finite(fullset as set(vertex)) -> vi(x) < card(fullset as set(vertex)))
+
+axiom vi_injection
+   (\forall x as vertex; vi(x) ~~>
+       finite(fullset as set(vertex)) -> iv(vi(x)) = x)
+
+axiom iv_injection
+   (\forall i; iv(i) ~~>
+          finite(fullset as set(vertex)) & 0<=i & i<card(fullset as set(vertex))
+       -> vi(iv(i)) = i)
+
+end
+     
+abbreviation
+  @sets := C = (\set x; seqGet(a_C, vi(x))) & seqLen(a_C) = size 
+         & N = (\set x; seqGet(a_N, vi(x))) & seqLen(a_N) = size 
+         & V = (\set x; seqGet(a_V, vi(x))) & seqLen(a_V) = size 
+         & d = a_d
+
+algo bfs
+input
+   src, dest : vertex
+output
+   d : int
+var
+   size : int
+   V, C, N : set(vertex)
+   Vo, Co, No : set(vertex)
+   tovisit : set(vertex)
+   v,w : vertex
+   
+requires 
+   finite(fullset as set(vertex))
+
+ensures
+   d >= -1
+   
+ensures
+   d < 0 -> (\forall m; m >= 0 -> not minconnect(src,dest,m))
+   
+ensures
+   d >= 0 -> minconnect(src, dest, d) 
+
+do
+   
+   V := {src};
+   C := {src};
+   N := {};
+   d := 0;
+
+
+
+   while !(C = {})
+     inv true var 0
+   do
+
+     mark 1;
+
+     choose v such that v in C;
+     C := C \ {v};
+     if v = dest 
+     then 
+       return
+     end;
+     
+     mark 2;
+
+     iterate succ(v) with w in tovisit
+       inv true
+     do 
+       mark 3;
+       if not w in V
+       then
+         V := V \/ {w};
+         N := N \/ {w}
+       end;
+       mark 4
+     end;
+     
+     mark 5;
+
+     if C = {}
+     then
+       C := N;
+       N := {};
+       d := d+1
+     end;
+
+     mark 6
+         
+   end;
+
+   d := -1
+end 
+
+algo bfs_array
+input
+   a_src, a_dest : int
+output
+   a_d : int
+var
+   a_size : int
+   a_V, a_C, a_N : seq(bool)
+   a_v,a_w,a_t : int
+do
+   
+   a_V := (\seqDef i; 0; a_size; i = a_src);
+   a_C := (\seqDef i; 0; a_size; i = a_src);
+   a_N := (\seqDef i; 0; a_size; false);
+   a_d := 0;
+
+   while (\exists k; 0<=k<a_size & seqGet(a_C, k))
+     inv true var 0
+   do
+      mark 1;
+
+     choose a_v such that 0<=a_v<a_size & seqGet(a_C, a_v);
+     a_C := seqUpdate(a_C, a_v, false);
+
+     if a_v = a_dest 
+     then 
+       return
+     end;
+ 
+     mark 2;    
+     a_w := 0;
+     while (\exists i; a_w<=i<a_size & seqGet(a_succ(a_v), i))
+       inv true var 0
+     do
+       a_t := a_w;
+       choose a_w such that a_t<=a_w<a_size & seqGet(a_succ(a_v), a_w)
+                     & (\forall j; a_t <= j < a_w -> !seqGet(a_succ(a_v), a_w));
+
+       mark 3;
+  
+       if not seqGet(a_V, a_w)
+       then
+         a_V := seqUpdate(a_V, a_w, true);
+         a_N := seqUpdate(a_N, a_w, true)
+       end;
+
+       mark 4;
+       a_w := a_w + 1
+     end;
+     
+     mark 5;
+
+     if !(\exists i; 0 <= i < a_size & seqGet(a_C, i))
+     then
+       a_C := a_N;
+       a_N := (\seqDef i; 0; a_size; false);
+       a_d := a_d+1
+     end;
+         
+     mark 6
+
+   end;
+
+   a_d := -1
+end 
+
+refine bfs as bfs_array
+  requires    
+     finite(fullset as set(vertex)) & card(fullset as set(vertex)) = size &
+     a_size = size &  a_src = vi(src) & a_dest = vi(dest) &
+     (\forall v; succ(v) = 
+        (\set x; seqGet(a_succ(vi(v)), vi(x)))) 
+    var 0
+
+    ensures d = a_d 
+
+  mark 1
+    inv @sets & C != {}
+    var 0
+
+  mark 2
+    inv @sets & vi(v) = a_v
+    var 0
+
+  mark 3
+    inv @sets & vi(v) = a_v & vi(w) = a_w 
+      & tovisit = {x : vi(x) > a_w} /\ succ(v)
+    var 0
+
+  mark 4
+    inv @sets & vi(v) = a_v & vi(w) = a_w
+      & tovisit = {x : vi(x) > a_w} /\ succ(v)
+    var 0
+
+  mark 5
+    inv @sets & vi(v) = a_v
+    var 0
+
+  mark 6
+    inv @sets & vi(v) = a_v
+    var 0

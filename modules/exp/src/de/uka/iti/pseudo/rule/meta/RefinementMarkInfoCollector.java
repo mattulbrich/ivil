@@ -35,7 +35,7 @@ class RefinementMarkInfoCollector extends DefaultStatementVisitor {
             this.index = index;
             this.literal = literal;
             this.couplingInvariant = couplingInvariant;
-            this.couplingVar = couplingVar;
+            this.couplingVar = null; // TODO couplingVar;
         }
     }
 
