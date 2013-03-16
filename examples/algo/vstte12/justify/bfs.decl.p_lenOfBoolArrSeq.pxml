@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Sat Mar 16 12:36:55 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqLen(boolArrAsSeq(h,r)),arrlen(r))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="boolArrAsSeqDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%h">h as heap</schemavariable>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%r">r as ref</schemavariable>
+      <typevariable name="r">ref</typevariable>
+      <typevariable name="h">heap</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqLenDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%t">$load_heap(h as heap,r as ref,idxBool(\var x as int) as field(bool)) as bool</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%b">arrlen(r as ref) as int</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="" id="2">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$minus(arrlen(r as ref) as int,0 as int) as int</schemavariable>
+      <schemavariable name="%b">0 as int</schemavariable>
+      <schemavariable name="%c">$lte(0 as int,arrlen(r as ref) as int) as bool</schemavariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0" id="3">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1" id="4">
+    </ruleApplication>
+  </steps>
+</proof>

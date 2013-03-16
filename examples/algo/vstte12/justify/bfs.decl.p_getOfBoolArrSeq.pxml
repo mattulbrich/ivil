@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Sat Mar 16 12:36:37 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- $eq(seqGet(boolArrAsSeq(h,r),i),cond($and($lte(0,i),$lt(i,arrlen(r))),$load_heap(h,r,idxBool(i)),seqError))</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="boolArrAsSeqDef" path="" id="0">
+      <find>S.0.0.0</find>
+      <schemavariable name="%h">h as heap</schemavariable>
+      <schemavariable name="%x">\var x as int</schemavariable>
+      <schemavariable name="%r">r as ref</schemavariable>
+      <typevariable name="r">ref</typevariable>
+      <typevariable name="h">heap</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="seqGetDef" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%j">i as int</schemavariable>
+      <schemavariable name="%i">\var x as int</schemavariable>
+      <schemavariable name="%t">$load_heap(h as heap,r as ref,idxBool(\var x as int) as field(bool)) as bool</schemavariable>
+      <schemavariable name="%a">0 as int</schemavariable>
+      <schemavariable name="%b">arrlen(r as ref) as int</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <typevariable name="b">int</typevariable>
+      <typevariable name="a">int</typevariable>
+      <typevariable name="j">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="plus_zero" path="" id="2">
+      <find>S.0.0.1.2.0</find>
+      <schemavariable name="%a">i as int</schemavariable>
+      <typevariable name="a">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="" id="3">
+      <find>S.0.0</find>
+      <schemavariable name="%a">$load_heap(h as heap,r as ref,idxBool(i as int) as field(bool)) as bool</schemavariable>
+      <schemavariable name="%b">seqError as bool</schemavariable>
+      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,$minus(arrlen(r as ref) as int,0 as int) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="0" id="4">
+      <find>S.0.1</find>
+      <schemavariable name="%a">$load_heap(h as heap,r as ref,idxBool(i as int) as field(bool)) as bool</schemavariable>
+      <schemavariable name="%b">seqError as bool</schemavariable>
+      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,arrlen(r as ref) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="0,0" id="5">
+      <find>S.0</find>
+      <schemavariable name="%t">$load_heap(h as heap,r as ref,idxBool(i as int) as field(bool)) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0,0" id="6">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="and_right" path="0,1" id="7">
+      <find>S.1</find>
+      <schemavariable name="%a">$lte(0 as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,arrlen(r as ref) as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0,1,0" id="8">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="0,1,1" id="9">
+    </ruleApplication>
+    <ruleApplication rule="cut_cond" path="1" id="10">
+      <find>S.0.1</find>
+      <schemavariable name="%a">$load_heap(h as heap,r as ref,idxBool(i as int) as field(bool)) as bool</schemavariable>
+      <schemavariable name="%b">seqError as bool</schemavariable>
+      <schemavariable name="%c">$and($lte(0 as int,i as int) as bool,$lt(i as int,arrlen(r as ref) as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="c">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0" id="11">
+    </ruleApplication>
+    <ruleApplication rule="equality_refl" path="1,1" id="12">
+      <find>S.0</find>
+      <schemavariable name="%t">seqError as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,1" id="13">
+      <find>S.0</find>
+    </ruleApplication>
+  </steps>
+</proof>
