@@ -71,6 +71,12 @@ rule seqExtensionality
     (\forall %i; 0<=%i & %i < seqLen(%s1) 
         -> seqGet(%s1,%i) = seqGet(%s2,%i))
 
+axiom seqExtensionality
+  (\T_all 'a; (\forall s1 as seq('a); (\forall s2;
+       seqLen(s1) = seqLen(s2) &
+       (\forall i; 0<=i & i < seqLen(s1) -> seqGet(s1,i)=seqGet(s2,i))
+    -> s1 = s2)))
+
 (*
  * derived constructors,
  * definitorial extensions
