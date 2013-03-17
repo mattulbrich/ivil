@@ -78,7 +78,11 @@ public class AnnotatedString implements Backend<NoExceptions> {
         /**
          * The node is an inner node and this should be reflected in the terms.
          */
-        CLOSED
+        CLOSED,
+        /**
+         * Program variables have diferent colors again.
+         */
+        ASSIGNABLE
     }
 
     /**

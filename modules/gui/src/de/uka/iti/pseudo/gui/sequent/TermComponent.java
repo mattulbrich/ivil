@@ -116,6 +116,10 @@ public class TermComponent extends JTextPane {
     private static final Color VARIABLE_FOREGROUND =
         S.getColor("pseudo.termcomponent.variableforeground", Color.MAGENTA);
 
+    // assignable program variables should be noticed
+    private static final Color ASSIGNABLE_FOREGROUND =
+        S.getColor("pseudo.termcomponent.assignableforeground", Color.BLUE);
+
     // types should be painted less noticeable
     private static final Color TYPE_FOREGROUND =
         S.getColor("pseudo.termcomponent.typeforeground", Color.LIGHT_GRAY);
@@ -176,7 +180,7 @@ public class TermComponent extends JTextPane {
     /**
      * the line width calculated from the width (in characters)
      */
-    private int lineWidth;
+    private int lineWidth = -1;
 
     /**
      * the collection of highlighting objects. Used to mark find and assume
@@ -230,6 +234,7 @@ public class TermComponent extends JTextPane {
         this.prettyPrinter = proofCenter.getPrettyPrinter();
         this.verbosityLevel = (Integer)proofCenter.getProperty(ProofCenter.TREE_VERBOSITY);
         this.annotatedString = prettyPrinter.print(t, computeLineWidth());
+        annotatedString.print(""+computeLineWidth());
         this.open = open;
 
         assert history != null;
@@ -291,6 +296,7 @@ public class TermComponent extends JTextPane {
                 if(newLineWidth != lineWidth) {
                     annotatedString = prettyPrinter.print(term, newLineWidth);
                     setText("");
+                    annotatedString.print(""+newLineWidth);
                     annotatedString.appendToDocument(getDocument(), attributeFactory);
                     lineWidth = newLineWidth;
                 }
@@ -364,8 +370,12 @@ public class TermComponent extends JTextPane {
                     case TYPE:
                         StyleConstants.setForeground(retval, TYPE_FOREGROUND);
                         break;
+                    case ASSIGNABLE:
+                        StyleConstants.setForeground(retval, ASSIGNABLE_FOREGROUND);
+                        break;
                     case CLOSED:
                         StyleConstants.setItalic(retval, true);
+                        break;
                     }
                 }
 
@@ -716,7 +726,7 @@ public class TermComponent extends JTextPane {
      */
     private int computeLineWidth() {
         // assumes we have a uniform font width
-        int maxChars = getVisibleRect().width /
+        int maxChars = getSize().width /
                 getFontMetrics(getFont()).charWidth('W');
 
         if (maxChars > 1) {

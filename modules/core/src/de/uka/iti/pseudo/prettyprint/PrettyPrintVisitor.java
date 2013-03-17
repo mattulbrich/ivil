@@ -223,7 +223,11 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
      */
     private void printApplication(Application application, String fctname)
             throws TermException {
+        boolean assignable = application.getFunction().isAssignable();
         printer.beginBlock(fctname.length() + 1);
+        if(assignable) {
+            printer.setStyle(Style.ASSIGNABLE);
+        }
         appendName(fctname);
         List<Term> subterms = application.getSubterms();
         if (subterms.size() > 0) {
@@ -243,6 +247,9 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         if (pp.isTyped()) {
             printer.setStyle(Style.TYPE);
             printer.append(" as " + application.getType());
+            printer.resetPreviousStyle();
+        }
+        if(assignable) {
             printer.resetPreviousStyle();
         }
         printer.endBlock();
@@ -396,8 +403,8 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
         List<Assignment> assignments = updateTerm.getAssignments();
         visit(assignments);
 
-        printer.append(" }").breakBlock(0, PrettyPrintLayouter.DEFAULT_INDENTATION);
-        printer.resetPreviousStyle();
+        printer.append(" }").resetPreviousStyle().
+            breakBlock(0, PrettyPrintLayouter.DEFAULT_INDENTATION);
         printer.beginTerm(0);
         visitMaybeParen(updateTerm.getSubterm(0), Integer.MAX_VALUE);
         printer.endTerm();
