@@ -14,6 +14,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.datatransfer.Transferable;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPopupMenu;
@@ -41,8 +44,10 @@ import javax.swing.text.StyleConstants;
 
 import nonnull.NonNull;
 import de.uka.iti.pseudo.gui.ProofCenter;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString.Style;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString.TermElement;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
-import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -53,8 +58,6 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
 import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.util.AnnotatedString.Element;
-import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
 import de.uka.iti.pseudo.util.TextInstantiator;
@@ -147,7 +150,7 @@ public class TermComponent extends JTextPane {
      * the tag of the term which is currently highlighted by the mouse
      * can be null
      */
-    private TermTag mouseSelection;
+    private SubtermSelector mouseSelection;
 
     /**
      * the position of term within its sequent
@@ -162,13 +165,18 @@ public class TermComponent extends JTextPane {
     /**
      * The annotated string containing the pretty printed term.
      */
-    private final AnnotatedStringWithStyles<TermTag> annotatedString;
+    private AnnotatedString annotatedString;
 
     /**
      * The highlight object as returned by the highlighter.
      * Used to highlight the mouse-selected subterm.
      */
     private Object theHighlight;
+
+    /**
+     * the line width calculated from the width (in characters)
+     */
+    private int lineWidth;
 
     /**
      * the collection of highlighting objects. Used to mark find and assume
@@ -221,7 +229,7 @@ public class TermComponent extends JTextPane {
         this.proofCenter = proofCenter;
         this.prettyPrinter = proofCenter.getPrettyPrinter();
         this.verbosityLevel = (Integer)proofCenter.getProperty(ProofCenter.TREE_VERBOSITY);
-        this.annotatedString = prettyPrinter.print(t);
+        this.annotatedString = prettyPrinter.print(t, computeLineWidth());
         this.open = open;
 
         assert history != null;
@@ -276,6 +284,18 @@ public class TermComponent extends JTextPane {
                 }
             }
         });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int newLineWidth = computeLineWidth();
+                if(newLineWidth != lineWidth) {
+                    annotatedString = prettyPrinter.print(term, newLineWidth);
+                    setText("");
+                    annotatedString.appendToDocument(getDocument(), attributeFactory);
+                    lineWidth = newLineWidth;
+                }
+            }
+        });
 
         try {
             theHighlight = highlight.addHighlight(0, 0,
@@ -302,64 +322,58 @@ public class TermComponent extends JTextPane {
     /*
      * store created attribute sets in a cache.
      */
-    private static Map<String, AttributeSet> attributeCache =
-        new HashMap<String, AttributeSet>();
+    private static Map<Set<Style>, AttributeSet> attributeCache =
+        new HashMap<Set<Style>, AttributeSet>();
 
     /*
      * This is used by AnnotatedStringWithStyles to construct styles.
      */
-    private final AnnotatedStringWithStyles.AttributeSetFactory attributeFactory =
-        new AnnotatedStringWithStyles.AttributeSetFactory() {
+    private final AnnotatedString.AttributeSetFactory attributeFactory =
+        new AnnotatedString.AttributeSetFactory() {
         @Override
-        public AttributeSet makeStyle(String descr) {
+        public AttributeSet makeStyle(Set<Style> styles) {
 
-            if (!open) {
-                descr += " closed";
+            if(!open) {
+                styles.add(Style.CLOSED);
             }
 
-            AttributeSet cached = attributeCache.get(descr);
+            AttributeSet cached = attributeCache.get(styles);
 
-            if (cached != null) {
-                return cached;
+            if (cached == null) {
+
+                MutableAttributeSet retval = new SimpleAttributeSet();
+                if(FONT != null) {
+                    StyleConstants.setFontFamily(retval, FONT.getFamily());
+                    StyleConstants.setFontSize(retval, FONT.getSize());
+                }
+
+                for (Style style : styles) {
+                    switch(style) {
+                    case PROGRAM:
+                        StyleConstants.setBackground(retval, PROGRAM_BACKGROUND);
+                        break;
+                    case UPDATE:
+                        StyleConstants.setBackground(retval, UPDATE_BACKGROUND);
+                        break;
+                    case KEYWORD:
+                        StyleConstants.setBold(retval, true);
+                        break;
+                    case VARIABLE:
+                        StyleConstants.setForeground(retval, VARIABLE_FOREGROUND);
+                        break;
+                    case TYPE:
+                        StyleConstants.setForeground(retval, TYPE_FOREGROUND);
+                        break;
+                    case CLOSED:
+                        StyleConstants.setItalic(retval, true);
+                    }
+                }
+
+                attributeCache.put(styles, retval);
+                cached = retval;
             }
 
-            MutableAttributeSet retval = new SimpleAttributeSet();
-            if(FONT != null) {
-                StyleConstants.setFontFamily(retval, FONT.getFamily());
-                StyleConstants.setFontSize(retval, FONT.getSize());
-            }
-
-
-            if (descr.contains("closed")) {
-                //                StyleConstants.setForeground(retval, BORDER_COLOR);
-                StyleConstants.setItalic(retval, true);
-            }
-
-            if (descr.contains("program")) {
-                StyleConstants.setBackground(retval, PROGRAM_BACKGROUND);
-            }
-
-            if (descr.contains("update")) {
-                StyleConstants.setBackground(retval, UPDATE_BACKGROUND);
-            }
-
-            if (descr.contains("keyword")) {
-                StyleConstants.setBold(retval, true);
-            }
-
-            if (descr.contains("variable"))
-             {
-                StyleConstants.setForeground(retval, VARIABLE_FOREGROUND);
-            // StyleConstants.setItalic(retval, true);
-            }
-
-            if (descr.contains("type")) {
-                StyleConstants.setForeground(retval, TYPE_FOREGROUND);
-            }
-
-            attributeCache.put(descr, retval);
-
-            return retval;
+            return cached;
         }
 
     };
@@ -395,11 +409,12 @@ public class TermComponent extends JTextPane {
         int index = viewToModel(p);
         try {
             if (index >= 0 && index < annotatedString.length()) {
-                int begin = annotatedString.getBeginAt(index);
-                int end = annotatedString.getEndAt(index);
+                TermElement element = annotatedString.getTermElementAt(index);
+                int begin = element.getBegin();
+                int end = element.getEnd();
                 getHighlighter().changeHighlight(theHighlight, begin, end);
 
-                mouseSelection = annotatedString.getAttributeAt(index);
+                mouseSelection = annotatedString.getTermElementAt(index).getSubtermSelector();
                 setToolTipText(makeTermToolTip(mouseSelection));
 
                 Log.enter(p);
@@ -427,8 +442,16 @@ public class TermComponent extends JTextPane {
      * Create the tool tip text: original text of the term with the type at the
      * end. The string is shortened to 128 characters if necessary
      */
-    private String makeTermToolTip(TermTag termTag) {
-        Term t = termTag.getTerm();
+    private String makeTermToolTip(SubtermSelector termTag) {
+        Term t;
+        try {
+            t = termTag.selectSubterm(term);
+        } catch (ProofException e) {
+            Log.log(Log.WARNING, "Cannot create tooltip for " + termTag);
+            Log.stacktrace(Log.WARNING, e);
+            return "";
+        }
+
         String rval = t.toString() + " as " + t.getType();
         if (rval.length() > 128) {
             rval = rval.substring(0, 125) + "...";
@@ -450,19 +473,26 @@ public class TermComponent extends JTextPane {
      *            tag to print info on
      *
      */
-    public String makeFormatedTermHistory(TermTag termTag) {
-        Term term = termTag.getTerm();
+    public String makeFormatedTermHistory(SubtermSelector termTag) {
+        Term locterm;
+        try {
+            locterm = termTag.selectSubterm(term);
+        } catch (ProofException e) {
+            Log.log(Log.WARNING, "Cannot create history for " + termTag);
+            Log.stacktrace(Log.WARNING, e);
+            return "";
+        }
 
         StringBuilder sb = new StringBuilder();
 
         //
         // type
-        sb.append("<html><dl><dt>Type:</dt><dd>").append(term.getType()).append("</dd>\n");
+        sb.append("<html><dl><dt>Type:</dt><dd>").append(locterm.getType()).append("</dd>\n");
 
         //
         // statement
         if (term instanceof LiteralProgramTerm) {
-            LiteralProgramTerm prog = (LiteralProgramTerm) term;
+            LiteralProgramTerm prog = (LiteralProgramTerm) locterm;
             String stm = prettyPrinter.print(prog.getStatement()).toString();
             sb.append("<dt>Statement:</dt><dd>").append(stm).append("</dd>\n");
         }
@@ -550,12 +580,13 @@ public class TermComponent extends JTextPane {
      */
     public TermSelector getTermAt(Point point) {
         int charIndex = viewToModel(point);
-        TermTag termTag = annotatedString.getAttributeAt(charIndex);
-        if(termTag == null) {
+        SubtermSelector sel =
+                annotatedString.getTermElementAt(charIndex).getSubtermSelector();
+        if(sel == null) {
             return null;
         }
 
-        return termTag.getTermSelector(termSelector);
+        return new TermSelector(termSelector, sel);
     }
 
     // stolen from KeY
@@ -592,13 +623,11 @@ public class TermComponent extends JTextPane {
             throw new IndexOutOfBoundsException();
         }
 
-        int termNo = selector.getLinearIndex(term);
-
         int begin = -1;
         int end = -1;
-        for(Element<TermTag> block : annotatedString.getAllAnnotations()) {
-            TermTag tag = block.getAttr();
-            if(tag.getTotalPos() == termNo) {
+        for(TermElement block : annotatedString.getAllTermElements()) {
+            SubtermSelector sel = block.getSubtermSelector();
+            if(sel.equals(selector)) {
                 begin = block.getBegin();
                 end = block.getEnd();
                 break;
@@ -606,13 +635,12 @@ public class TermComponent extends JTextPane {
         }
 
         if(begin == -1) {
-            Log.log(Log.DEBUG, "cannot mark subterm number " + termNo + " in " + annotatedString);
+            Log.log(Log.WARNING, "cannot mark subterm " + selector + " in " + annotatedString);
             return;
         }
 
         try {
-            Object mark = getHighlighter().addHighlight(begin, end,
-                    MARKINGS[type]);
+            Object mark = getHighlighter().addHighlight(begin, end, MARKINGS[type]);
             marks.add(mark);
         } catch (BadLocationException e) {
             throw new Error(e);
@@ -638,14 +666,19 @@ public class TermComponent extends JTextPane {
             return null;
         }
 
-        return new TermSelectionTransferable(this, mouseSelection.getTermSelector(termSelector), mouseSelection
-                .getTerm().toString(true));
+        try {
+            return new TermSelectionTransferable(this,
+                    new TermSelector(termSelector, mouseSelection),
+                    mouseSelection.selectSubterm(term).toString(true));
+        } catch (ProofException e) {
+            throw new Error(e);
+        }
     }
 
     /**
      * basic getter
      */
-    public TermTag getMouseSelection() {
+    public SubtermSelector getMouseSelection() {
         return mouseSelection;
     }
 
@@ -665,7 +698,32 @@ public class TermComponent extends JTextPane {
         if (null == mouseSelection) {
             return new ArrayList<RuleApplication>(0);
         } else {
-            return proofCenter.getApplicableRules(mouseSelection.getTermSelector(termSelector));
+            return proofCenter.getApplicableRules(new TermSelector(termSelector, mouseSelection));
         }
     }
+
+    public Term getTerm() {
+        return term;
+    }
+
+    /**
+     * Computes the line width.
+     *
+     * Uses the dimensions and fontmetrics. Needs a proportional font.
+     * (taken from KeY!)
+     *
+     * @return the number of characters in one line
+     */
+    private int computeLineWidth() {
+        // assumes we have a uniform font width
+        int maxChars = getVisibleRect().width /
+                getFontMetrics(getFont()).charWidth('W');
+
+        if (maxChars > 1) {
+            maxChars -= 1;
+        }
+
+        return maxChars;
+    }
+
 }

@@ -7,8 +7,12 @@
   
   <property name="ivil.testclass" value="de.uka.iti.pseudo.AllGuiTests"/>
   
+    <path id="ivil.classpath.test">
+      <pathelement path="../../lib/jpplib.jar"/>
+    </path>
     <path id="ivil.classpath.compile">
       <pathelement path="../core/classes"/>
+      <pathelement path="../../lib/jpplib.jar"/>
       <pathelement path="../../lib/javadocking.jar"/>
       <pathelement path="../../lib/checkers-quals.jar"/>
       <pathelement path="../../lib/rsyntaxtextarea.jar"/>

@@ -9,7 +9,11 @@
 
   <path id="ivil.classpath.compile">
     <pathelement path="classes"/>
+    <pathelement path="../../lib/jpplib.jar"/>
     <pathelement path="../../lib/checkers-quals.jar"/>
+  </path>
+  <path id="ivil.classpath.test">
+    <pathelement path="../../lib/jpplib.jar"/>
   </path>
   <path id="ivil.sourcepath.compile">
     <pathelement path="src"/>

@@ -195,6 +195,7 @@ public class ConjectureAction extends BarAction implements InitialisingAction,
 
         dialog.setVisible(true);
         Object selectedValue = pane.getValue();
+        System.out.println(selectedValue);
         if(selectedValue == null || selectedValue.equals(JOptionPane.CANCEL_OPTION)) {
             return null;
         }

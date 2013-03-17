@@ -26,14 +26,14 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.sequent.TermComponent;
-import de.uka.iti.pseudo.prettyprint.TermTag;
+import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * GUI Action to show additional information about the selected term.
- * 
+ *
  * <p>
  * This action is part of the popup menu in a term component. Before showing the
  * popup the property {@value TermComponent#TERM_COMPONENT_SELECTED_TAG} is set
@@ -42,7 +42,7 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 @SuppressWarnings("serial")
 public class ShowTermInformation
-    extends BarAction 
+    extends BarAction
  implements InitialisingAction, NotificationListener,
         PropertyChangeListener {
 
@@ -80,7 +80,7 @@ public class ShowTermInformation
         window.setVisible(false);
     }
 
-    @Override 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (text.length() != 0) {
             window.setVisible(true);
@@ -99,14 +99,16 @@ public class ShowTermInformation
         assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
 
         text = "";
-        
-        TermComponent component = (TermComponent) evt.getParameter(0);
-        TermTag selectedTermTag = component.getMouseSelection();
-        if (null == selectedTermTag)
-            return;
 
-        if (Boolean.TRUE.equals(getProofCenter().getProperty(ProofCenter.ONGOING_PROOF)))
+        TermComponent component = (TermComponent) evt.getParameter(0);
+        SubtermSelector selectedTermTag = component.getMouseSelection();
+        if (null == selectedTermTag) {
             return;
+        }
+
+        if (Boolean.TRUE.equals(getProofCenter().getProperty(ProofCenter.ONGOING_PROOF))) {
+            return;
+        }
 
         text = component.makeFormatedTermHistory(selectedTermTag);
         editorPane.setText(text);
@@ -121,8 +123,9 @@ public class ShowTermInformation
             setEnabled(!(Boolean) evt.getNewValue());
             // close the information window, as the history wont update during
             // auto proofing
-            if (!isEnabled())
+            if (!isEnabled()) {
                 window.setVisible(false);
+            }
         }
     }
 }

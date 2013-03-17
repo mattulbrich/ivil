@@ -72,7 +72,7 @@
         <attribute name="Implementation-Version" value="${ivil.version} - ${NOW}"/>
         <!-- log4j is an optional library, the runtime env will not complain if
              the file is absent -->
-        <attribute name="Class-Path" value="samples.jar lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar lib/checkers-quals.jar"/>
+        <attribute name="Class-Path" value="samples.jar lib/javadocking.jar lib/nonnull.jar lib/log4j.jar lib/rsyntaxtextarea.jar lib/checkers-quals.jar lib/jpplib.jar"/>
         <attribute name="Main-Class" value="de.uka.iti.pseudo.gui.Main"/>
         <attribute name="SplashScreen-Image" value="de/uka/iti/pseudo/gui/img/logo.png"/>
       </manifest>

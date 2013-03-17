@@ -8,23 +8,17 @@
  * The system is protected by the GNU General Public License.
  * See LICENSE.TXT (distributed with this file) for details.
  */
-package de.uka.iti.pseudo.gui;
-
-import java.util.ArrayList;
-import java.util.List;
+package de.uka.iti.pseudo.prettyprint;
 
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Function;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString;
 import de.uka.iti.pseudo.prettyprint.PrettyPrint;
-import de.uka.iti.pseudo.prettyprint.TermTag;
 import de.uka.iti.pseudo.term.Term;
-import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.creation.DefaultTermVisitor;
 import de.uka.iti.pseudo.term.creation.TermMaker;
-import de.uka.iti.pseudo.util.AnnotatedString;
 
 public class TestPrettyPrint extends TestCaseWithEnv {
 
@@ -47,7 +41,8 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("{b1 := true}{i1:=0}i2", "{ b1 := true }{ i1 := 0 }i2");
         testTerm("[[%a : assert %b]]%phi", "[[ %a : assert %b ]]%phi");
         testTerm("! !b1", "! !b1");
-        testTerm("! -5 = -3", "! -5 = -3");
+        testTerm("-5 = -3", "-5 = -3");
+        testTerm("! (-5 = -3)", "! -5 = -3");
         testTerm("!((!b1) = true)", "!(!b1) = true");
         testTerm("!(1=1)", "!1 = 1");
         testTerm("(\\forall x; x = 5)", "(\\forall x; x = 5)");
@@ -76,75 +71,36 @@ public class TestPrettyPrint extends TestCaseWithEnv {
 
     public void testAnnotations1() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("i1 + i2 + i3", env);
-        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
+        AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("i1 + i2 + i3", as.toString());
-        assertEquals(0, as.getBeginAt(3));
-        assertEquals(7, as.getEndAt(3));
-        assertEquals(0, as.getBeginAt(9));
-        assertEquals(12, as.getEndAt(9));
-        assertEquals(10, as.getBeginAt(10));
-        assertEquals(12, as.getEndAt(10));
+        assertEquals("[Element[begin=0;end=7;attr=0], " +
+                "Element[begin=0;end=2;attr=0.0], " +
+                "Element[begin=5;end=7;attr=0.1], " +
+                "Element[begin=10;end=12;attr=1]]", as.describeAllElements());
     }
 
     public void testAnnotations2() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("{ i1 := i2 + i3 }(i1 = i3)", env);
-        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
+        AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("{ i1 := i2 + i3 }(i1 = i3)", as.toString());
-        assertEquals(8, as.getBeginAt(11));
-        assertEquals(15, as.getEndAt(11));
-        assertEquals(0, as.getBeginAt(2));
-        assertEquals(26, as.getEndAt(2));
-        assertEquals(17, as.getBeginAt(17));
-        assertEquals(26, as.getEndAt(17));
-        assertEquals(17, as.getBeginAt(21));
-        assertEquals(26, as.getEndAt(21));
+        assertEquals("[Element[begin=8;end=15;attr=1], " +
+                "Element[begin=8;end=10;attr=1.0], " +
+                "Element[begin=13;end=15;attr=1.1], " +
+                "Element[begin=17;end=26;attr=0], " +
+                "Element[begin=18;end=20;attr=0.0], " +
+                "Element[begin=23;end=25;attr=0.1]]", as.describeAllElements());
 
     }
 
     public void testAnnotations3() throws Exception {
         Term t = TermMaker.makeAndTypeTerm("1 + (2 + 3)", env);
         // 01234567890
-        AnnotatedString<TermTag> as = PrettyPrint.print(env, t);
+        AnnotatedString as = PrettyPrint.print(env, t);
         assertEquals("1 + (2 + 3)", as.toString());
-        assertEquals(0, as.getBeginAt(0));
-        assertEquals(1, as.getEndAt(0));
-        assertEquals(0, as.getBeginAt(1));
-        assertEquals(11, as.getEndAt(1));
-        assertEquals(4, as.getBeginAt(4));
-        assertEquals(11, as.getEndAt(4));
-        assertEquals(5, as.getBeginAt(5));
-        assertEquals(6, as.getEndAt(5));
-        assertEquals(4, as.getBeginAt(7));
-        assertEquals(11, as.getEndAt(7));
-    }
-
-    private void testOrderEqual(String string) throws Exception {
-        Term t = TermMaker.makeAndTypeTerm(string, env);
-        AnnotatedString<TermTag> astring = PrettyPrint.print(env, t);
-        List<TermTag> annotations = astring.getAllAttributes();
-
-        SubtermCollector sc = new SubtermCollector();
-        t.visit(sc);
-
-        assertEquals(sc.subtermsInOrder.size(), annotations.size());
-        for (TermTag termTag : annotations) {
-            int pos = termTag.getTotalPos();
-            assertEquals(sc.subtermsInOrder.get(pos), termTag.getTerm());
-        }
-    }
-
-    public void testTyvarBinding() throws Exception {
-
-    }
-
-    private class SubtermCollector extends DefaultTermVisitor.DepthTermVisitor {
-        private final List<Term> subtermsInOrder = new ArrayList<Term>();
-
-        @Override
-        protected void defaultVisitTerm(Term term) throws TermException {
-            subtermsInOrder.add(term);
-            super.defaultVisitTerm(term);
-        }
+        assertEquals("[Element[begin=0;end=1;attr=0], " +
+                "Element[begin=4;end=11;attr=1], " +
+                "Element[begin=5;end=6;attr=1.0], " +
+                "Element[begin=9;end=10;attr=1.1]]", as.describeAllElements());
     }
 
     // this needs to be the last test!
@@ -174,16 +130,13 @@ public class TestPrettyPrint extends TestCaseWithEnv {
         testTerm("(\\forall Xx; Xx >0)", "ALL x ; x > 0");
     }
 
-    // these need to be the last test!
-    public void testOrderConincidesWithSubtermCollector() throws Exception {
-        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+    public void testIndention() throws Exception {
+        Term t = TermMaker.makeAndTypeTerm("111111 + (222222222 + 3333333)", env);
         pp = new PrettyPrint(env);
-        testOrderEqual("1 + 2 +3");
-        testOrderEqual("1 + (2+3)");
-        testOrderEqual("{ i1 := i2 + i3 }(i1 = i3)");
-        testOrderEqual("[[ %a : goto %n, %k ]]%b");
-        testOrderEqual("[ 6 ; P ]b1");
-        testOrderEqual("f(g(3,4))");
+
+        assertEquals("  111111\n" +
+                     "+ (  222222222\n" +
+                     "   + 3333333)", pp.print(t, 10).toString());
     }
 
 }

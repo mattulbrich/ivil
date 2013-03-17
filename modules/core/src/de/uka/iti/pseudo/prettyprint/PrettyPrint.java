@@ -30,13 +30,27 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.statement.Assignment;
 import de.uka.iti.pseudo.term.statement.Statement;
-import de.uka.iti.pseudo.util.AnnotatedStringWithStyles;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString.Style;
+import de.uka.iti.pseudo.prettyprint.PrettyPrintLayouter;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
 
-// TODO: Auto-generated Javadoc
-
-
+/**
+ * This class is the entry point to the pretty priting system of ivil. There are
+ * static and dynamic entry points to this class.
+ *
+ * <pre>
+ * PrettyPrint.print(env, term)
+ * </pre>
+ *
+ * can be used to write a term sporadically. Programs, statments, rules can be
+ * pretty printed as well.
+ *
+ * An {@link AnnotatedString} is returned by the methods, possibly with linebreaks;
+ *
+ * @see AnnotatedString
+ * @author mattze
+ */
 public class PrettyPrint {
 
     public static final String TYPED_PROPERTY = "pseudo.pp.typed";
@@ -73,15 +87,10 @@ public class PrettyPrint {
     private boolean printPlugins = true;
 
     /**
-     * whether or not updates should appear on separate lines
-     */
-    private boolean breakUpdates = false;
-
-    /**
      * the style (attribute string) to be set in the beginning.
      * may be null if no special attributes are to be set.
      */
-    private String initialStyle;
+    private Style initialStyle;
 
     /**
      * create a new pretty printer with the default properties preset.
@@ -126,8 +135,12 @@ public class PrettyPrint {
      *            the term to pretty print
      * @return a freshly created annotated string object
      */
-    public AnnotatedStringWithStyles<TermTag> print(Term term) {
-        return print(term, new AnnotatedStringWithStyles<TermTag>());
+    public AnnotatedString print(Term term) {
+        return print(term, Integer.MAX_VALUE);
+    }
+
+    public AnnotatedString print(Term term, int linewidth) {
+        return print(term, new PrettyPrintLayouter(linewidth));
     }
 
     /**
@@ -142,7 +155,7 @@ public class PrettyPrint {
      *            the annotated string to append the term to
      * @return printer
      */
-    public AnnotatedStringWithStyles<TermTag> print(Term term, AnnotatedStringWithStyles<TermTag> printer) {
+    public AnnotatedString print(Term term, PrettyPrintLayouter printer) {
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
 
         try {
@@ -155,16 +168,20 @@ public class PrettyPrint {
             if(initialStyle != null) {
                 printer.resetPreviousStyle();
             }
+
+            if(!printer.hasEmptyStack()) {
+                throw new TermException("Cannot render: " + term);
+            }
+
+            return printer.getAnnotatedString();
         } catch (TermException e) {
             // not thrown in this code
-            // FIXME ... I did receive a call however!
-            e.printStackTrace();
-            throw new Error(e);
+            Log.log(Log.WARNING, "A term cannot be pretty-printed: %s", term);
+            Log.stacktrace(Log.WARNING, e);
+            AnnotatedString result = new AnnotatedString(0);
+            result.print(term.toString(true));
+            return result;
         }
-
-        assert printer.hasEmptyStack();
-
-        return printer;
     }
 
     /** TODO DOC
@@ -177,13 +194,13 @@ public class PrettyPrint {
      *            the term to pretty print
      * @return a freshly created annotated string object
      */
-    public AnnotatedStringWithStyles<TermTag> print(Statement statement) {
-        return print(statement, new AnnotatedStringWithStyles<TermTag>());
+    public AnnotatedString print(Statement statement) {
+        return print(statement, new PrettyPrintLayouter());
     }
 
     /** TODO DOC */
-    private AnnotatedStringWithStyles<TermTag> print(Statement statement,
-            AnnotatedStringWithStyles<TermTag> printer) {
+    private AnnotatedString print(Statement statement,
+            PrettyPrintLayouter printer) {
 
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
@@ -201,9 +218,9 @@ public class PrettyPrint {
             throw new Error(e);
         }
 
-        assert printer.hasEmptyStack();
+        assert printer.hasEmptyStack() : "The annotation stack has not been emptied: " + statement;
 
-        return printer;
+        return printer.getAnnotatedString();
     }
 
     /**
@@ -221,8 +238,8 @@ public class PrettyPrint {
      *            the list to pretty print
      * @return a freshly created annotated string object.
      */
-    public AnnotatedStringWithStyles<TermTag> print(@DeepNonNull List<Assignment> assignments) {
-        return print(assignments, new AnnotatedStringWithStyles<TermTag>());
+    public AnnotatedString print(@DeepNonNull List<Assignment> assignments) {
+        return print(assignments, new PrettyPrintLayouter());
     }
 
     /**
@@ -241,8 +258,8 @@ public class PrettyPrint {
      *            the annotated string to append the term to
      * @return the argument printer
      */
-    public AnnotatedStringWithStyles<TermTag> print(List<Assignment> assignmentList,
-            AnnotatedStringWithStyles<TermTag> printer) {
+    public AnnotatedString print(List<Assignment> assignmentList,
+            PrettyPrintLayouter printer) {
 
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
         try {
@@ -260,7 +277,7 @@ public class PrettyPrint {
             // not thrown in this code
             throw new Error(e);
         }
-        return printer;
+        return printer.getAnnotatedString();
     }
 
     /**
@@ -279,7 +296,7 @@ public class PrettyPrint {
      *
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
+    public static @NonNull AnnotatedString print(
             @NonNull Environment env, @NonNull Term term) {
         return print(env, term, false);
     }
@@ -302,7 +319,7 @@ public class PrettyPrint {
      *
      * @return the annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
+    public static @NonNull AnnotatedString print(
             @NonNull Environment env, @NonNull Term term, boolean typed) {
         PrettyPrint pp = new PrettyPrint(env, typed);
 
@@ -328,7 +345,7 @@ public class PrettyPrint {
      *
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
+    public static @NonNull AnnotatedString print(
             @NonNull Environment env, @NonNull LocatedTerm lterm) {
         return print(env, lterm, false);
     }
@@ -354,33 +371,30 @@ public class PrettyPrint {
      *
      * @return an annotated string
      */
-    public static @NonNull AnnotatedStringWithStyles<TermTag> print(
+    public static @NonNull AnnotatedString print(
             @NonNull Environment env, @NonNull LocatedTerm lterm,
             boolean typed) {
         PrettyPrint pp = new PrettyPrint(env, typed);
-        AnnotatedStringWithStyles<TermTag> retval;
+        PrettyPrintLayouter retval;
+        retval = new PrettyPrintLayouter();
 
         switch (lterm.getMatchingLocation()) {
         case ANTECEDENT:
-            retval = pp.print(lterm.getTerm());
+            pp.print(lterm.getTerm(), retval);
             retval.append(" |-");
-            assert retval.hasEmptyStack();
-            return retval;
+            break;
 
         case SUCCEDENT:
-            retval = new AnnotatedStringWithStyles<TermTag>();
             retval.append("|- ");
             pp.print(lterm.getTerm(), retval);
-            assert retval.hasEmptyStack();
-            return retval;
+            break;
 
         case BOTH:
-            retval = pp.print(lterm.getTerm());
-            assert retval.hasEmptyStack();
-            return retval;
+            pp.print(lterm.getTerm(), retval);
+            break;
         }
-        // unreachable
-        throw new Error();
+
+        return retval.getAnnotatedString();
     }
 
     /**
@@ -464,7 +478,7 @@ public class PrettyPrint {
 
 
     /**
-     * Checks if is typed.
+     * Checks if the printer is typed.
      *
      * @return true, if is typed
      */
@@ -473,7 +487,7 @@ public class PrettyPrint {
     }
 
     /**
-     * Checks if is printing fix.
+     * Checks if the printer is printing infix and prefix.
      *
      * @return true, if is printing fix
      */
@@ -529,10 +543,8 @@ public class PrettyPrint {
 
 
     /**
-     * The underlying annotating string
+     * The system to manage properties
      */
-    //private AnnotatedStringWithStyles<Term> printer;
-
     private PropertyChangeSupport propertiesSupport;
 
 
@@ -541,7 +553,7 @@ public class PrettyPrint {
      *
      * @return a string or possibly null
      */
-    public @Nullable String getInitialStyle() {
+    public @Nullable Style getInitialStyle() {
         return initialStyle;
     }
 
@@ -554,23 +566,11 @@ public class PrettyPrint {
      * @param initialStyle
      *   the style to be set at top level, or null if none is to be set
      */
-    public void setInitialStyle(@Nullable String initialStyle) {
-        String old = this.initialStyle;
+    public void setInitialStyle(@Nullable Style initialStyle) {
+        Style old = this.initialStyle;
         this.initialStyle = initialStyle;
         firePropertyChanged(INITIALSTYLE_PROPERTY, old, initialStyle);
     }
-
-    // TODO DOC
-    public boolean isPrintingProgramModifications() {
-        return breakUpdates;
-    }
-
-    public void setbreakUpdates(boolean printProgramModifications) {
-        boolean old = this.breakUpdates;
-        this.breakUpdates = printProgramModifications;
-        firePropertyChanged(PRINT_FIX_PROPERTY, old, printProgramModifications);
-    }
-
 
     /**
      * get the environment upon which the pretty printer relies.
@@ -584,7 +584,8 @@ public class PrettyPrint {
     /**
      * Adds the property change listener.
      *
-     * @param listener the listener
+     * @param listener
+     *            the listener
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         if(propertiesSupport == null) {
@@ -593,6 +594,14 @@ public class PrettyPrint {
         propertiesSupport.addPropertyChangeListener(listener);
     }
 
+    /**
+     * Adds a property change listener for a particular property.
+     *
+     * @param property
+     *            the property
+     * @param listener
+     *            the listener
+     */
     public void addPropertyChangeListener(String property,
             PropertyChangeListener listener) {
         if(propertiesSupport == null) {
@@ -615,9 +624,12 @@ public class PrettyPrint {
     /**
      * Fire property changed.
      *
-     * @param property the property
-     * @param oldVal the old val
-     * @param newVal the new val
+     * @param property
+     *            the property
+     * @param oldVal
+     *            the old value
+     * @param newVal
+     *            the new value
      */
     private <E> void firePropertyChanged(String property, E oldVal, E newVal) {
         if(propertiesSupport != null && !Util.equalOrNull(oldVal, newVal)) {
