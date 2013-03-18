@@ -22,7 +22,8 @@
 				proof.auto proof.pruneLast SEPARATOR
 				prover.openInEditor SEPARATOR 
 				file.loadProb file.loadProof file.saveProof SEPARATOR
-				proof.stepInstr proof.stepSource smt.active proof.conjecture proof.snapshots
+				proof.stepInstr proof.stepSource smt.active smt.patient 
+				proof.conjecture proof.snapshots
 		</toolbar>
 
 		<menubar>
@@ -302,7 +303,12 @@
 			<text>Keep SMT window open</text>
 			<tooltip>Keep the SMT solver status window open after completion</tooltip>
 			<mnemonic>W</mnemonic>
-		</keepwindowopen>	
+		</keepwindowopen>
+		<patient>ACTION SMTPatientAction
+			<icon>img/smt_patient.png</icon>
+			<tooltip>Run constraint solver with longer timeout</tooltip>
+			<text>Run SMT solver patiently</text>
+		</patient>
 	</smt>
 
 	<settings>

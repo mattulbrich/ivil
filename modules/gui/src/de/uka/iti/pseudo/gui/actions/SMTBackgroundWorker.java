@@ -9,29 +9,8 @@
  */
 package de.uka.iti.pseudo.gui.actions;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
-import javax.swing.border.EtchedBorder;
 
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.util.SwingWorker2;
@@ -62,16 +41,11 @@ import de.uka.iti.pseudo.util.Pair;
         implements NotificationListener {
 
     /**
-     * The labels into which the results are to be reported.
-     */
-    private final List<JLabel> resultLabels = new LinkedList<JLabel>();
-
-    /**
      * The dialog which reports about the progress.
      */
-    private JDialog dialog;
+    private SMTProgressDialog dialog;
 
-    private final SMTBackgroundAction action;
+    private final SMTAction action;
 
     private final ProofCenter proofCenter;
 
@@ -80,8 +54,8 @@ import de.uka.iti.pseudo.util.Pair;
     /**
      * This worker should listen to stop requests (if run in background)
      */
-    public SMTBackgroundWorker(SMTBackgroundAction action, ProofCenter proofCenter) {
-        this.action = action;
+    public SMTBackgroundWorker(SMTAction smtAction, ProofCenter proofCenter) {
+        this.action = smtAction;
         this.proofCenter = proofCenter;
         proofCenter.addNotificationListener(ProofCenter.STOP_REQUEST, this);
         proofCenter.addNotificationListener(ProofCenter.TERMINATION, this);
@@ -93,7 +67,9 @@ import de.uka.iti.pseudo.util.Pair;
         Log.enter();
         assert (Boolean)proofCenter.getProperty(ProofCenter.ONGOING_PROOF);
 
-        List<ProofNode> provableNodes = new ArrayList<ProofNode>(action.getProvableNodes());
+        List<ProofNode> provableNodes =
+                new ArrayList<ProofNode>(action.getProvableNodes());
+
         if (!provableNodes.isEmpty()) {
 
             // automatic rules: do not bother with window & rules, just do it.
@@ -123,25 +99,22 @@ import de.uka.iti.pseudo.util.Pair;
             openGoals = new ArrayList<ProofNode>(proofCenter.getProof().getOpenGoals());
 
             // trigger the window;
-            int i = 0;
             for (ProofNode proofNode : openGoals) {
                 Boolean status = action.getStatus(proofNode.getSequent());
                 if(status != null) {
                     String text = status ? "(cached VALID)" : "(cached open)";
-                    publish(Pair.<Integer, String>make(i, text));
+                    publish(Pair.<Integer, String>make(proofNode.getNumber(), text));
                 }
-                i++;
             }
 
-            i = 0;
             for (ProofNode proofNode : openGoals) {
-
+                int number = proofNode.getNumber();
                 if(isCancelled()) {
                     Log.log(Log.VERBOSE, "SMT background worker interrupted");
                     return null;
                 }
 
-                publish(Pair.<Integer, String>make(i, "--- checking ---"));
+                publish(Pair.<Integer, String>make(number, "--- checking ---"));
                 // check for cache hit or solve it
                 boolean proveable = action.isProvable(proofNode);
 
@@ -152,15 +125,14 @@ import de.uka.iti.pseudo.util.Pair;
 
                     try {
                         proofCenter.apply(ra);
-                        publish(Pair.<Integer, String>make(i, "CLOSED"));
+                        publish(Pair.<Integer, String>make(number, "CLOSED"));
                     } catch (ProofException e) {
-                        publish(Pair.<Integer, String>make(i, "exception"));
+                        publish(Pair.<Integer, String>make(number, "exception"));
                         throw e;
                     }
                 } else {
-                    publish(Pair.<Integer, String>make(i, "open"));
+                    publish(Pair.<Integer, String>make(number, "open"));
                 }
-                i++;
             }
         }
 
@@ -180,9 +152,11 @@ import de.uka.iti.pseudo.util.Pair;
             ExceptionDialog.showExceptionDialog(action.getParentFrame(), innerException);
         }
 
-        if(dialog != null &&
-                proofCenter.getProperty(SMTBackgroundAction.SMT_KEEPWINDOWOPEN_PROPERTY) != Boolean.TRUE) {
-            dialog.dispose();
+        if(dialog != null) {
+            dialog.finished();
+            if(proofCenter.getProperty(SMTProgressDialog.SMT_KEEPWINDOWOPEN_PROPERTY) != Boolean.TRUE) {
+                dialog.dispose();
+            }
         }
 
         proofCenter.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
@@ -201,112 +175,16 @@ import de.uka.iti.pseudo.util.Pair;
                 showProgressWindow();
             }
 
-            for (Pair<Integer, String> result : chunks) {
-                Integer index = result.fst();
-                int nodeNo = openGoals.get(index).getNumber();
-                JLabel label = resultLabels.get(index);
-                String text = "Node " + nodeNo + ": " + result.snd();
-                label.setText(text);
-
-                // scroll the label visible
-                label.scrollRectToVisible(new Rectangle(label.getSize()));
-            }
+            dialog.addResults(chunks);
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     public void showProgressWindow() {
-        dialog = new JDialog(action.getParentFrame(), "Applying the SMT solver", false);
-
-        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-
-        JPanel panel = new JPanel();
-        {
-            panel.setLayout(new GridBagLayout());
-            dialog.getContentPane().add(panel);
-            panel.setBorder(BorderFactory.createTitledBorder("Open goals"));
-        }
-        {
-            JPanel goalLabels = new JPanel();
-            {
-                GridLayout gridLayout = new GridLayout(0,1);
-                goalLabels.setLayout(gridLayout);
-                JScrollPane scroll = new JScrollPane(goalLabels);
-                panel.add(scroll,
-                        new GridBagConstraints(0, 0, 1, 1, 1., 1.,
-                                GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(
-                                        2, 2, 2, 2), 0, 0));
-            }
-            int count = openGoals.size();
-            for (int i = 0; i < count; i++) {
-                ProofNode goal = openGoals.get(i);
-                String text = "Node " + goal.getNumber();
-                JLabel label = new JLabel(text);
-                label.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
-                        BorderFactory.createEmptyBorder(5, 2, 5, 2)));
-                resultLabels.add(label);
-                goalLabels.add(label);
-            }
-        }
-        {
-            JCheckBox keepOpen = new JCheckBox("Keep open after completion");
-            keepOpen.setSelected(proofCenter.getProperty(SMTBackgroundAction.SMT_KEEPWINDOWOPEN_PROPERTY) == Boolean.TRUE);
-            keepOpen.addItemListener(new ItemListener() {
-                @Override public void itemStateChanged(ItemEvent e) {
-                    Log.enter(e);
-                    boolean selectionState = e.getStateChange() == ItemEvent.SELECTED;
-                    proofCenter.firePropertyChange(SMTBackgroundAction.SMT_KEEPWINDOWOPEN_PROPERTY, selectionState);
-                }
-            });
-            panel.add(keepOpen, new GridBagConstraints(0, 1, 1, 1, 0, 0,
-                    GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
-                            10, 2, 2, 2), 0, 0));
-        }
-
-        JPanel buttons = new JPanel();
-        panel.add(buttons, new GridBagConstraints(0, 2, 1, 1, 0, 0,
-                GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(
-                        5, 2, 2, 2), 0, 0));
-        {
-            JButton stop = new JButton("Stop/Close");
-            stop.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if(isDone()) {
-                        dialog.dispose();
-                    } else {
-                        Log.log(Log.TRACE, "Requesting cancel");
-                        cancel(true);
-                    }
-                }
-            });
-            buttons.add(stop);
-        }
-        {
-            // TODO Have a skip button to jump to next goal.
-            JButton skip = new JButton("Skip");
-            buttons.add(skip);
-            skip.setEnabled(false);
-        }
-        {
-            JButton bg = new JButton("Background");
-            bg.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    dialog.setVisible(false);
-                }
-            });
-            buttons.add(bg);
-        }
-        Dimension d = panel.getPreferredSize();
-        d.height = Math.min(400, d.height);
-        panel.setPreferredSize(d);
-        dialog.pack();
-        dialog.setResizable(true);
-        dialog.setLocationRelativeTo(action.getParentFrame());
-        dialog.setVisible(true);
+        dialog = new SMTProgressDialog(action.getParentFrame(),
+                action.getWindowTitle(), action.getProofCenter());
+        dialog.showDialog();
     }
 
     // act on STOP_REQUEST
