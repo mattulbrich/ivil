@@ -60,6 +60,7 @@ import de.uka.iti.pseudo.term.LiteralProgramTerm;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotScrollingCaret;
+import de.uka.iti.pseudo.util.Pair;
 import de.uka.iti.pseudo.util.TextInstantiator;
 import de.uka.iti.pseudo.util.Util;
 import de.uka.iti.pseudo.util.settings.Settings;
@@ -89,7 +90,6 @@ public class TermComponent extends JTextPane {
             "pseudo.termcomponent.autoDnD";
 
     private static Settings S = Settings.getInstance();
-
 
     /**
      * some UI constants
@@ -144,6 +144,10 @@ public class TermComponent extends JTextPane {
     private final HighlightPainter[] MARKINGS = {
             new DefaultHighlighter.DefaultHighlightPainter(DARK_MARKING_COLOR),
             new DefaultHighlighter.DefaultHighlightPainter(LIGHT_MARKING_COLOR) };
+
+    // remember the lighted subterms in here
+    private final List<Pair<Integer, SubtermSelector>> markedSubterms =
+            new ArrayList();
 
     /**
      * The term displayed
@@ -234,7 +238,6 @@ public class TermComponent extends JTextPane {
         this.prettyPrinter = proofCenter.getPrettyPrinter();
         this.verbosityLevel = (Integer)proofCenter.getProperty(ProofCenter.TREE_VERBOSITY);
         this.annotatedString = prettyPrinter.print(t, computeLineWidth());
-        annotatedString.print(""+computeLineWidth());
         this.open = open;
 
         assert history != null;
@@ -296,9 +299,11 @@ public class TermComponent extends JTextPane {
                 if(newLineWidth != lineWidth) {
                     annotatedString = prettyPrinter.print(term, newLineWidth);
                     setText("");
-                    annotatedString.print(""+newLineWidth);
                     annotatedString.appendToDocument(getDocument(), attributeFactory);
                     lineWidth = newLineWidth;
+                    for (Pair<Integer, SubtermSelector> p : markedSubterms) {
+                        addMarkSubterm(p.snd(), p.fst());
+                    }
                 }
             }
         });
@@ -633,14 +638,26 @@ public class TermComponent extends JTextPane {
             throw new IndexOutOfBoundsException();
         }
 
+        markedSubterms.add(Pair.make(type, selector));
+        addMarkSubterm(selector, type);
+    }
+
+    private void addMarkSubterm(SubtermSelector selector, int type) {
+
         int begin = -1;
         int end = -1;
-        for(TermElement block : annotatedString.getAllTermElements()) {
-            SubtermSelector sel = block.getSubtermSelector();
-            if(sel.equals(selector)) {
-                begin = block.getBegin();
-                end = block.getEnd();
-                break;
+        if(selector.getDepth() == 0) {
+            // toplevel term --> implicitly stored
+            begin = 0;
+            end = getDocument().getLength();
+        } else {
+            for(TermElement block : annotatedString.getAllTermElements()) {
+                SubtermSelector sel = block.getSubtermSelector();
+                if(sel.equals(selector)) {
+                    begin = block.getBegin();
+                    end = block.getEnd();
+                    break;
+                }
             }
         }
 
@@ -665,6 +682,7 @@ public class TermComponent extends JTextPane {
             getHighlighter().removeHighlight(highlight);
         }
         marks.clear();
+        markedSubterms.clear();
     }
 
     /**
