@@ -36,11 +36,11 @@ do
      inv d >= 0 &
        (\forall x; x in C -> minconnect(src, x, d)) &
        (\forall y; y in N <-> 
-           (\exists q; minconnect(src, q, d) & not q in C & y in succ(q))) &
-       (\forall z; z in V \ N <->
-           (\exists n; 0 <= n <= d & minconnect(src, z, n))) &
-       (\forall a; minconnect(src, a, d+1) ->
-           (\exists c; a in succ(c) & c in C) | a in N) &
+           minconnect(src, y, d+1) & y :: V) &
+       (\forall z; z::V \ N  <->
+           (\exists n; 0 <= n <= d & connect(src, z, n))) &
+       (\forall w; minconnect(src,w,d+1) -> 
+           w in N | (\exists q; w in succ(q) & q in C)) &
        (C = {} -> N = {}) &
        C <: V &
        N <: V &
@@ -79,10 +79,10 @@ do
    end;
 
    note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
-     with "§(rule int_induction_match)";
+     hint "§(rule int_induction_match)";
 
    note (\forall j; j>d -> !minconnect(src, dest, j))
-     with "§(rule deep_update_simplification nested_quant_z3)";
+     /* hint "§(inst i with 'j-d1-1')" */;
 
    d := -1
 end 

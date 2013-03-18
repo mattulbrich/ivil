@@ -1,4 +1,4 @@
-# Automatically created on Thu Feb 28 14:33:55 CET 2013
+# Automatically created on Mon Mar 18 23:18:17 CET 2013
 include "bfs.decl.p"
 function vertex src 
 function vertex dest 
@@ -30,13 +30,13 @@ program bfs source "bfs.algo"
   d := 0
  loop0:
  sourceline 48
-  skip LOOPINV, ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (\exists q; (minconnect(src, q, d) & ((!(q) :: C) & (y :: succ(q))))))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & minconnect(src, z, n))))) & ((\forall a; (minconnect(src, a, (d + 1)) -> ((\exists c; ((a :: succ(c)) & (c :: C))) | (a :: N)))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
+  skip LOOPINV, ((d >= 0) & ((\forall x; ((x :: C) -> minconnect(src, x, d))) & ((\forall y; ((y :: N) <-> (minconnect(src, y, (d + 1)) & (y :: V)))) & ((\forall z; ((z :: (V \ N)) <-> (\exists n; (((0 <= n) & (n <= d)) & connect(src, z, n))))) & ((\forall w; (minconnect(src, w, (d + 1)) -> ((w :: N) | (\exists q; ((w :: succ(q)) & (q :: C)))))) & (((C = emptyset) -> (N = emptyset)) & ((C <: V) & ((N <: V) & (!(dest) :: ((V \ N) \ C)))))))))), ^((V \ (C \/ N)))
  sourceline 35
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
  sourceline 50
-  assert (\exists v; (v :: C)) ; "assert before choose"
+  assert (\exists v; (v :: C)) ; "assert existence"
   havoc v
   assume (v :: C)
  sourceline 51
@@ -105,7 +105,7 @@ program bfs source "bfs.algo"
   assert (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "lemma by §(rule int_induction_match)"
   assume (\forall i; ((i >= 0) -> (\forall a; !(minconnect(src, a, ((d + 1) + i)))))) ; "use lemma"
  sourceline 84
-  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "lemma by §(rule deep_update_simplification nested_quant_z3)"
+  assert (\forall j; ((j > d) -> !(minconnect(src, dest, j))))
   assume (\forall j; ((j > d) -> !(minconnect(src, dest, j)))) ; "use lemma"
  sourceline 87
   d := -(1)

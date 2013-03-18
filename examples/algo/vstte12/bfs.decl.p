@@ -23,19 +23,17 @@ function
   bool connect(vertex, vertex, int)
   bool minconnect(vertex, vertex, int)
 
-
-
 axiom connect_def
   (\forall a; (\forall b; (\forall n;
-    connect(a,b,n) = 
+    connect(a,b,n) <->
      cond(n <= 0,
           a = b,
           (\exists x; connect(a,x,n-1) & b :: succ(x))))))
 
 axiom minconnect_def
   (\forall a; (\forall b; (\forall n;
-    minconnect(a,b,n) = connect(a,b,n) &
-                        (\forall m; 0<=m & m <n -> !connect(a,b,m)))))
+    minconnect(a,b,n) <-> connect(a,b,n) &
+                          (\forall m; 0<=m & m <n -> !connect(a,b,m)))))
 
 (*
  * The following rules apply the definitions from above
@@ -56,6 +54,18 @@ rule minconnect_def
   replace connect(%a, %b, %n) &
         (\forall %m; 0 <= %m & %m < %n -> !connect(%a, %b, %m))
   tags derived
+
+rule minconnect_reduce
+  find minconnect(%a, %b, %n) |-
+  where freshVar %q, %a, %b, %n
+  add %n > 0 -> (\exists %q; %b :: succ(%q) & minconnect(%a,%q,%n-1)) |-
+  tags derived
+
+axiom minconnect_reduce
+  (\forall a; (\forall b; (\forall n;
+    minconnect(a,b,n) & n > 0 -> 
+      (\exists q; b :: succ(q) & minconnect(a,q,n-1)))))
+      
 
 rule oops
 closegoal
