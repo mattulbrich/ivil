@@ -22,6 +22,7 @@ import de.uka.iti.pseudo.gui.sequent.TermComponent;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.SubtermSelector;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
 
@@ -66,16 +67,16 @@ public class CopyTerm
     public void handleNotification(NotificationEvent evt) {
         assert TermComponent.TERM_COMPONENT_SELECTED_TAG.equals(evt.getSignal());
 
-        TermComponent termComp = (TermComponent) evt.getParameter(0);
-        SubtermSelector selectedTermTag = termComp.getMouseSelection();
+        TermComponent termComponent = (TermComponent) evt.getParameter(0);
+        SubtermSelector selectedTermTag = termComponent.getMouseSelection();
         if (null == selectedTermTag) {
             return;
         }
 
         try {
-            target = selectedTermTag.selectSubterm(termComp.getTerm());
+            target = selectedTermTag.selectSubterm(termComponent.getTerm());
         } catch (ProofException e) {
-            target = null;
+            Log.stacktrace(Log.WARNING, e);
         }
     }
 

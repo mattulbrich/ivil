@@ -237,7 +237,7 @@ public class TermComponent extends JTextPane {
         this.proofCenter = proofCenter;
         this.prettyPrinter = proofCenter.getPrettyPrinter();
         this.verbosityLevel = (Integer)proofCenter.getProperty(ProofCenter.TREE_VERBOSITY);
-        this.annotatedString = prettyPrinter.print(t, computeLineWidth());
+        this.annotatedString = prettyPrinter.print(t);
         this.open = open;
 
         assert history != null;
