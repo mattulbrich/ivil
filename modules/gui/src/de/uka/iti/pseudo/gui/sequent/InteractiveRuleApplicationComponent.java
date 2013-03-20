@@ -10,10 +10,12 @@
 package de.uka.iti.pseudo.gui.sequent;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -29,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DropMode;
@@ -39,6 +43,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JWindow;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -94,6 +99,16 @@ public class InteractiveRuleApplicationComponent extends
      * The property key to mark a rule application as manual.
      */
     public static final String MANUAL_RULEAPP = "ivil.manualRuleapp";
+
+    /**
+     * override the default behaviour of the tab key.
+     */
+    private static final Action TRANSFER_FOCUS_ACTION = new AbstractAction("transferFocus") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((Component) e.getSource()).transferFocus();
+            }
+        };
 
     public InteractiveRuleApplicationComponent(ProofCenter proofCenter, List<RuleApplication> ruleApps) {
         super(proofCenter);
@@ -327,9 +342,11 @@ public class InteractiveRuleApplicationComponent extends
             instantiationsPanel.add(label, 0);
             final BracketMatchingTextArea textField = new BracketMatchingTextArea();
             textField.addActionListener(this);
+            textField.setFont(RULE_FONT);
             textField.setDragEnabled(true);
             textField.setDropMode(DropMode.USE_SELECTION);
             textField.setTransferHandler(TermSelectionTransfer.getInstance());
+            setTabHandler(textField);
 
             // try to initialize the text field with a formula from the clip
             // board
@@ -351,6 +368,10 @@ public class InteractiveRuleApplicationComponent extends
         }
     }
 
+    private static void setTabHandler(BracketMatchingTextArea textArea) {
+        textArea.getInputMap().put(KeyStroke.getKeyStroke ( "TAB" ), "transferFocus" );
+        textArea.getActionMap().put("transferFocus", TRANSFER_FOCUS_ACTION);
+    }
 }
 
 /**

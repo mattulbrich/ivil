@@ -15,6 +15,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
@@ -35,22 +36,26 @@ import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.NotificationEvent;
 import de.uka.iti.pseudo.util.NotificationListener;
+import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * A component to display a rule application.
- * 
+ *
  * It allows for extension!
- * 
+ *
  * @see InteractiveRuleApplicationComponent
  */
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 
 public class RuleApplicationComponent extends JPanel implements PropertyChangeListener, NotificationListener {
-    
+
     /**
      * The font to use for printing rules
      */
-    private static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
+    protected static final Font RULE_FONT = new Font("Monospaced", Font.PLAIN, 12);
+
+    private static final int DEFAULT_RULEAPP_WIDTH =
+            Settings.getInstance().getInteger("pseudo.gui.ruleappwidth", 40);
 
     /**
      * The rule application to display
@@ -77,10 +82,10 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
      * The underlying proof center.
      */
     protected ProofCenter proofCenter;
-    
+
     /**
      * Instantiates a new rule application component.
-     * 
+     *
      * @param proofCenter
      *            the proof center to use
      */
@@ -129,9 +134,9 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
 
     /**
      * Display a rule application.
-     * 
+     *
      * called by {@link #setRuleApplication(RuleApplication)}.
-     * 
+     *
      */
     private void displayRuleApp(RuleApplication app) {
         if(app == null) {
@@ -142,12 +147,12 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
             setInstantiations(app);
         }
     }
-    
+
     /**
      * Sets the instantiations.
-     * 
+     *
      * Can be overridden.
-     * 
+     *
      * @param app
      *            the new instantiations
      */
@@ -157,23 +162,31 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
             String schemaName = entry.getKey();
             Term t = entry.getValue();
             assert t != null;
-            
+
             JLabel label = new JLabel(schemaName + " as " + t.getType());
             instantiationsPanel.add(label);
-            
-            JTextField textField = new JTextField();
-            textField.setText(proofCenter.getPrettyPrinter().print(t).toString());
+
+            JTextArea textField = new JTextArea() {
+                @Override
+                public void scrollRectToVisible(Rectangle aRect) {
+                    // do nothing to prevent scrolling
+                }
+            };
+            textField.setText(proofCenter.getPrettyPrinter()
+                    .print(t, DEFAULT_RULEAPP_WIDTH).toString());
             textField.setEditable(false);
+            textField.setFont(RULE_FONT);
+            textField.setBackground(getBackground());
             instantiationsPanel.add(textField);
             instantiationsPanel.add(Box.createRigidArea(new Dimension(10,10)));
         }
-        
+
     }
 
     /**
      * Using the pretty printer of the proof center, dump the rule to its text
      * area.
-     * 
+     *
      * @param rule
      *            the rule to print
      */
@@ -184,7 +197,7 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
 
     /**
      * Sets the rule application.
-     * 
+     *
      * @param ruleApplication
      *            the new rule application
      */
@@ -195,7 +208,7 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
 
     /**
      * Gets the rule application.
-     * 
+     *
      * @return the rule application
      */
     protected RuleApplication getRuleApplication() {
@@ -204,7 +217,7 @@ public class RuleApplicationComponent extends JPanel implements PropertyChangeLi
 
     /**
      * Gets the proof center.
-     * 
+     *
      * @return the proof center
      */
     protected ProofCenter getProofCenter() {
