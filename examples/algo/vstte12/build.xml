@@ -16,12 +16,21 @@
     <exec executable="algoc">
       <arg value="bfs.algo" />
     </exec>
+    <exec executable="algoc">
+      <arg value="bfs.array.algo" />
+      <arg value="bfs.array.algo.p" />
+    </exec>
   </target>
 
   <target name="algo-ref">
     <exec executable="algoc">
       <arg value="-ref" />
       <arg value="bfs.ref.algo" />
+    </exec>
+    <exec executable="algoc">
+      <arg value="-ref" />
+      <arg value="bfs.array.algo" />
+      <arg value="bfs.array.ref.p" />
     </exec>
   </target>
 

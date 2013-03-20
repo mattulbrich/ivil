@@ -1,4 +1,4 @@
-# Automatically created on Wed Mar 20 10:40:08 CET 2013
+# Automatically created on Wed Mar 20 10:48:32 CET 2013
 include "bfs.decl.p"
 include "$refinement.p"
 include "$seq.p"
@@ -63,13 +63,13 @@ program bfs source "bfs.array.algo"
   d := 0
  loop0:
  sourceline 71
-  skip LOOPINV, true, 0
  sourceline 70
   goto body0, after0
  body0:
   assume !((C = emptyset)); "assume condition "
+ sourceline 74
+  skip MARK, 1, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & !((C = emptyset))), 0 ; "marking stone"
  sourceline 76
-  assert (\exists v; (v :: C)) ; "assert existence"
   havoc v
   assume (v :: C)
  sourceline 77
@@ -85,16 +85,19 @@ program bfs source "bfs.array.algo"
  sourceline 81
   assume $not((v = dest)); "else"
  after1:
+ sourceline 83
+  skip MARK, 2, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
  sourceline 85
   tovisit := succ(v)
  loop1:
-  skip LOOPINV, true, tovisit
   goto body1, after2
  body1:
   assume !tovisit= emptyset; "assume condition "
   havoc w
   assume w :: tovisit ; "choose element in tovisit"
   tovisit := tovisit \ singleton(w)
+ sourceline 88
+  skip MARK, 3, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & ((vi(v) = a_v) & ((vi(w) = a_w) & (tovisit = ((\set x ; (vi(x) > a_w)) /\ succ(v)))))), 0 ; "marking stone"
  sourceline 89
   goto then1, else1
  then1:
@@ -108,9 +111,13 @@ program bfs source "bfs.array.algo"
  sourceline 93
   assume $not((!(w) :: V)); "else"
  after3:
+ sourceline 94
+  skip MARK, 4, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & ((vi(v) = a_v) & ((vi(w) = a_w) & (tovisit = ((\set x ; (vi(x) > a_w)) /\ succ(v)))))), 0 ; "marking stone"
   goto loop1
  after2:
   assume tovisit= emptyset
+ sourceline 97
+  skip MARK, 5, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
  sourceline 99
   goto then2, else2
  then2:
@@ -126,6 +133,8 @@ program bfs source "bfs.array.algo"
  sourceline 104
   assume $not((C = emptyset)); "else"
  after4:
+ sourceline 106
+  skip MARK, 6, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
   goto loop0
  sourceline 70
  after0:
@@ -133,12 +142,6 @@ program bfs source "bfs.array.algo"
  sourceline 110
   d := -(1)
  endOfProgram: 
- sourceline 53
-  assert (d >= -(1)) ; "by ensures"
- sourceline 56
-  assert ((d < 0) -> (\forall m; ((m >= 0) -> !(minconnect(src, dest, m))))) ; "by ensures"
- sourceline 59
-  assert ((d >= 0) -> minconnect(src, dest, d)) ; "by ensures"
 
 program bfs_array source "bfs.array.algo"
  sourceline 124
@@ -151,13 +154,13 @@ program bfs_array source "bfs.array.algo"
   a_d := 0
  loop0:
  sourceline 130
-  skip LOOPINV, true, 0
  sourceline 129
   goto body0, after0
  body0:
   assume (\exists k; (((0 <= k) & (k < a_size)) & seqGet(a_C, k))); "assume condition "
+ sourceline 132
+  skip MARK, 1, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & !((C = emptyset))), 0 ; "marking stone"
  sourceline 134
-  assert (\exists a_v; (((0 <= a_v) & (a_v < a_size)) & seqGet(a_C, a_v))) ; "assert existence"
   havoc a_v
   assume (((0 <= a_v) & (a_v < a_size)) & seqGet(a_C, a_v))
  sourceline 135
@@ -173,11 +176,12 @@ program bfs_array source "bfs.array.algo"
  sourceline 140
   assume $not((a_v = a_dest)); "else"
  after1:
+ sourceline 142
+  skip MARK, 2, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
  sourceline 143
   a_w := 0
  loop1:
  sourceline 145
-  skip LOOPINV, true, 0
  sourceline 144
   goto body1, after2
  body1:
@@ -185,9 +189,10 @@ program bfs_array source "bfs.array.algo"
  sourceline 147
   a_t := a_w
  sourceline 148
-  assert (\exists a_w; (((a_t <= a_w) & (a_w < a_size)) & (seqGet(a_succ(a_v), a_w) & (\forall j; (((a_t <= j) & (j < a_w)) -> !(seqGet(a_succ(a_v), j))))))) ; "assert existence"
   havoc a_w
   assume (((a_t <= a_w) & (a_w < a_size)) & (seqGet(a_succ(a_v), a_w) & (\forall j; (((a_t <= j) & (j < a_w)) -> !(seqGet(a_succ(a_v), j))))))
+ sourceline 151
+  skip MARK, 3, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & ((vi(v) = a_v) & ((vi(w) = a_w) & (tovisit = ((\set x ; (vi(x) > a_w)) /\ succ(v)))))), 0 ; "marking stone"
  sourceline 153
   goto then1, else1
  then1:
@@ -201,12 +206,16 @@ program bfs_array source "bfs.array.algo"
  sourceline 157
   assume $not(!(seqGet(a_V, a_w))); "else"
  after3:
+ sourceline 159
+  skip MARK, 4, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & ((vi(v) = a_v) & ((vi(w) = a_w) & (tovisit = ((\set x ; (vi(x) > a_w)) /\ succ(v)))))), 0 ; "marking stone"
  sourceline 160
   a_w := (a_w + 1)
   goto loop1
  sourceline 144
  after2:
   assume $not((\exists i; (((a_w <= i) & (i < a_size)) & seqGet(a_succ(a_v), i))))
+ sourceline 163
+  skip MARK, 5, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
  sourceline 165
   goto then2, else2
  then2:
@@ -222,6 +231,8 @@ program bfs_array source "bfs.array.algo"
  sourceline 170
   assume $not(!((\exists i; (((0 <= i) & (i < a_size)) & seqGet(a_C, i))))); "else"
  after4:
+ sourceline 172
+  skip MARK, 6, (((C = (\set x; seqGet(a_C, vi(x)))) & ((seqLen(a_C) = size) & ((N = (\set x; seqGet(a_N, vi(x)))) & ((seqLen(a_N) = size) & ((V = (\set x; seqGet(a_V, vi(x)))) & ((seqLen(a_V) = size) & (d = a_d))))))) & (vi(v) = a_v)), 0 ; "marking stone"
   goto loop0
  sourceline 129
  after0:
@@ -230,3 +241,5 @@ program bfs_array source "bfs.array.algo"
   a_d := -(1)
  endOfProgram: 
 
+
+problem (finite(((fullset) as set(vertex))) & ((card(((fullset) as set(vertex))) = size) & ((a_size = size) & ((a_src = vi(src)) & ((a_dest = vi(dest)) & (\forall v; (succ(v) = (\set x; seqGet(a_succ(vi(v)), vi(x)))))))))) |- INITIAL_VAR(0) -> [0; bfs_array][<0;bfs>]((d = a_d))

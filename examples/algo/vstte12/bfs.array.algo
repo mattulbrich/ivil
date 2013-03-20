@@ -146,7 +146,7 @@ do
      do
        a_t := a_w;
        choose a_w such that a_t<=a_w<a_size & seqGet(a_succ(a_v), a_w)
-                     & (\forall j; a_t <= j < a_w -> !seqGet(a_succ(a_v), a_w));
+              & (\forall j; a_t <= j < a_w -> !seqGet(a_succ(a_v), j));
 
        mark 3;
   

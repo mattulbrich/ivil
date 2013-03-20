@@ -1,0 +1,1420 @@
+<?xml version="1.0"?>
+<proof format="1"><info>
+    <date>Wed Mar 20 09:47:38 CET 2013</date>
+    <version>0.0</version>
+    <problem> |- [0;bfs_array]true</problem>
+    <hash>to be done</hash>
+  </info>
+  <steps>
+    <ruleApplication rule="prg_assignment" path="" id="0">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[0;bfs_array](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="" id="1">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[1;bfs_array](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="2">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }([2;bfs_array](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="3">
+      <find>S.0.2</find>
+      <schemavariable name="%t">(\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="" id="4">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[2;bfs_array](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="5">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }([3;bfs_array](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="6">
+      <find>S.0.3</find>
+      <schemavariable name="%t">(\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="" id="7">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[3;bfs_array](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="8">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_d := 0 as int }([4;bfs_array](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="" id="9">
+      <find>S.0.4</find>
+      <schemavariable name="%t">0 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_loop_invariant_variant_update" path="" id="10">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%inv">true as bool</schemavariable>
+      <schemavariable name="%var">0 as int</schemavariable>
+      <schemavariable name="%a">[4;bfs_array](true as bool) as bool</schemavariable>
+      <typevariable name="var">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="inv">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="0" id="11">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="0" id="12">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="13">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_d as int</schemavariable>
+      <schemavariable name="%a">[6;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := 0 as int }</schemaupdate>
+      <property name="skolemName(a_d as int)">a_d1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="14">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_d := a_d1 as int }([7;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="15">
+      <find>S.0.4</find>
+      <schemavariable name="%t">a_d1 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="16">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_t as int</schemavariable>
+      <schemavariable name="%a">[7;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int }</schemaupdate>
+      <property name="skolemName(a_t as int)">a_t1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="17">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_t := a_t1 as int }([8;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="18">
+      <find>S.0.5</find>
+      <schemavariable name="%t">a_t1 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="19">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_C as seq(bool)</schemavariable>
+      <schemavariable name="%a">[8;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">seq(bool)</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int }</schemaupdate>
+      <property name="skolemName(a_C as seq(bool))">a_C1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="20">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_C := a_C1 as seq(bool) }([9;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="21">
+      <find>S.0.5</find>
+      <schemavariable name="%t">a_C1 as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_C := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="22">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_N as seq(bool)</schemavariable>
+      <schemavariable name="%a">[9;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">seq(bool)</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) }</schemaupdate>
+      <property name="skolemName(a_N as seq(bool))">a_N1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="23">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_N := a_N1 as seq(bool) }([10;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="24">
+      <find>S.0.5</find>
+      <schemavariable name="%t">a_N1 as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="25">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_V as seq(bool)</schemavariable>
+      <schemavariable name="%a">[10;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">seq(bool)</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) }</schemaupdate>
+      <property name="skolemName(a_V as seq(bool))">a_V1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="26">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_V := a_V1 as seq(bool) }([11;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="27">
+      <find>S.0.5</find>
+      <schemavariable name="%t">a_V1 as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_V := (\seqDef i as int;0 as int;a_size as int;$eq(\var i as int,a_src as int) as bool) as seq(bool) || a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="28">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_w as int</schemavariable>
+      <schemavariable name="%a">[11;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) }</schemaupdate>
+      <property name="skolemName(a_w as int)">a_w1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="29">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := a_w1 as int }([12;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="30">
+      <find>S.0.6</find>
+      <schemavariable name="%t">a_w1 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1" id="31">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_v as int</schemavariable>
+      <schemavariable name="%a">[12;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int }</schemaupdate>
+      <property name="skolemName(a_v as int)">a_v1</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="32">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_v := a_v1 as int }([13;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="33">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_v1 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1" id="34">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[13;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1" id="35">
+      <find>A.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="true_left" path="1" id="36">
+      <find>A.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_goto2" path="1" id="37">
+      <find>S.0</find>
+      <schemavariable name="%k">50 as int</schemavariable>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[14;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">15 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0" id="38">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[15;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">(\exists k as int;$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var k as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0" id="39">
+      <find>A.0</find>
+      <schemavariable name="%t">(\exists k as int;$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var k as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="exists_left" path="1,0" id="40">
+      <find>A.0</find>
+      <schemavariable name="%x">\var k as int</schemavariable>
+      <schemavariable name="%b">$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C1 as seq(bool),\var k as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="skolemName(\var k as int)">k</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0" id="41">
+      <find>A.0</find>
+      <schemavariable name="%a">$and($lte(0 as int,k as int) as bool,$lt(k as int,a_size as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqGet(a_C1 as seq(bool),k as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0" id="42">
+      <find>A.0</find>
+      <schemavariable name="%a">$lte(0 as int,k as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(k as int,a_size as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0" id="43">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[16;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">(\exists a_v as int;$and($and($lte(0 as int,\var a_v as int) as bool,$lt(\var a_v as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var a_v as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,0" id="44">
+      <find>S.0</find>
+      <schemavariable name="%t">(\exists a_v as int;$and($and($lte(0 as int,\var a_v as int) as bool,$lt(\var a_v as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var a_v as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0,0" id="45">
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1" id="46">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_v as int</schemavariable>
+      <schemavariable name="%a">[17;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+      <property name="skolemName(a_v as int)">a_v2</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1" id="47">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_v := a_v2 as int }([18;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1" id="48">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_v2 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1" id="49">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[18;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$and($and($lte(0 as int,a_v as int) as bool,$lt(a_v as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),a_v as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1" id="50">
+      <find>A.3</find>
+      <schemavariable name="%t">$and($and($lte(0 as int,a_v as int) as bool,$lt(a_v as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),a_v as int) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1" id="51">
+      <find>A.3</find>
+      <schemavariable name="%a">$and($lte(0 as int,a_v2 as int) as bool,$lt(a_v2 as int,a_size as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqGet(a_C1 as seq(bool),a_v2 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1" id="52">
+      <find>A.3</find>
+      <schemavariable name="%a">$lte(0 as int,a_v2 as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(a_v2 as int,a_size as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1" id="53">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[19;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_C := seqUpdate(a_C as seq(bool),a_v as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1" id="54">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_C := seqUpdate(a_C as seq(bool),a_v as int,false as bool) as seq(bool) }([20;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1" id="55">
+      <find>S.0.7</find>
+      <schemavariable name="%t">seqUpdate(a_C as seq(bool),a_v as int,false as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_goto2" path="1,0,1" id="56">
+      <find>S.0</find>
+      <schemavariable name="%k">24 as int</schemavariable>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[20;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">21 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,0" id="57">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[21;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$eq(a_v as int,a_dest as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,0" id="58">
+      <find>A.6</find>
+      <schemavariable name="%t">$eq(a_v as int,a_dest as int) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="equality_order" path="1,0,1,0" id="59">
+      <find>A.6</find>
+      <schemavariable name="%u">a_dest as int</schemavariable>
+      <schemavariable name="%t">a_v2 as int</schemavariable>
+      <typevariable name="u">int</typevariable>
+      <typevariable name="t">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,0" id="60">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[22;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">52 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_end" path="1,0,1,0" id="61">
+      <find>S.0.0</find>
+      <schemavariable name="%a">[52;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,0" id="62">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,0" id="63">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1" id="64">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[24;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not($eq(a_v as int,a_dest as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1" id="65">
+      <find>A.6</find>
+      <schemavariable name="%t">$not($eq(a_v as int,a_dest as int) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1,0,1,1" id="66">
+      <find>A.6</find>
+      <schemavariable name="%b">$eq(a_v2 as int,a_dest as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1" id="67">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[25;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_w := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1" id="68">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := 0 as int }([26;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1" id="69">
+      <find>S.0.7</find>
+      <schemavariable name="%t">0 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_loop_invariant_variant_update" path="1,0,1,1" id="70">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%inv">true as bool</schemavariable>
+      <schemavariable name="%var">0 as int</schemavariable>
+      <schemavariable name="%a">[26;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="var">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="inv">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,0" id="71">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,1,0" id="72">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1,1,1" id="73">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_t as int</schemavariable>
+      <schemavariable name="%a">[28;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int }</schemaupdate>
+      <property name="skolemName(a_t as int)">a_t2</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="74">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_t := a_t2 as int }([29;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="75">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_t2 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1,1,1" id="76">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_N as seq(bool)</schemavariable>
+      <schemavariable name="%a">[29;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="v">seq(bool)</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int }</schemaupdate>
+      <property name="skolemName(a_N as seq(bool))">a_N2</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="77">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_N := a_N2 as seq(bool) }([30;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="78">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_N2 as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1,1,1" id="79">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_V as seq(bool)</schemavariable>
+      <schemavariable name="%a">[30;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="v">seq(bool)</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) }</schemaupdate>
+      <property name="skolemName(a_V as seq(bool))">a_V2</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="80">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_V := a_V2 as seq(bool) }([31;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="81">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_V2 as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_V := a_V1 as seq(bool) || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1,1,1" id="82">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_w as int</schemavariable>
+      <schemavariable name="%a">[31;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) }</schemaupdate>
+      <property name="skolemName(a_w as int)">a_w2</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="83">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := a_w2 as int }([32;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="84">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_w2 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_w := 0 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1" id="85">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[32;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1" id="86">
+      <find>A.6</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="true_left" path="1,0,1,1,1" id="87">
+      <find>A.6</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_goto2" path="1,0,1,1,1" id="88">
+      <find>S.0</find>
+      <schemavariable name="%k">47 as int</schemavariable>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[33;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">34 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0" id="89">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[34;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(a_w as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var i as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0" id="90">
+      <find>A.6</find>
+      <schemavariable name="%t">(\exists i as int;$and($and($lte(a_w as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var i as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="exists_left" path="1,0,1,1,1,0" id="91">
+      <find>A.6</find>
+      <schemavariable name="%x">\var i as int</schemavariable>
+      <schemavariable name="%b">$and($and($lte(a_w2 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var i as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="skolemName(\var i as int)">i</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,0" id="92">
+      <find>A.6</find>
+      <schemavariable name="%a">$and($lte(a_w2 as int,i as int) as bool,$lt(i as int,a_size as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqGet(a_succ(a_v2 as int) as seq(bool),i as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,0" id="93">
+      <find>A.6</find>
+      <schemavariable name="%a">$lte(a_w2 as int,i as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i as int,a_size as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,0" id="94">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[35;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_t := a_w as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0" id="95">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_t := a_w as int }([36;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0" id="96">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_w as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0,1,1,1,0" id="97">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[36;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">(\exists a_w as int;$and($and($and($lte(a_t as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var a_w as int) as bool) as bool,(\forall j as int;$impl($and($lte(a_t as int,\var j as int) as bool,$lt(\var j as int,\var a_w as int) as bool) as bool,$not(seqGet(a_succ(a_v as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_t := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,0" id="98">
+      <find>S.0</find>
+      <schemavariable name="%t">(\exists a_w as int;$and($and($and($lte(a_t as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var a_w as int) as bool) as bool,(\forall j as int;$impl($and($lte(a_t as int,\var j as int) as bool,$lt(\var j as int,\var a_w as int) as bool) as bool,$not(seqGet(a_succ(a_v as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_t := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="exists_right_hide" path="1,0,1,1,1,0,0" id="99">
+      <find>S.0</find>
+      <schemavariable name="%inst">(\argmin a_w as int;$and($and($lte(a_w2 as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var a_w as int) as bool) as bool;\var a_w as int) as int</schemavariable>
+      <schemavariable name="%x">\var a_w as int</schemavariable>
+      <schemavariable name="%b">$and($and($and($lte(a_w2 as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var a_w as int) as bool) as bool,(\forall j as int;$impl($and($lte(a_w2 as int,\var j as int) as bool,$lt(\var j as int,\var a_w as int) as bool) as bool,$not(seqGet(a_succ(a_v2 as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="inst">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">int</property>
+    </ruleApplication>
+    <ruleApplication rule="argmin_expand" path="1,0,1,1,1,0,0" id="100">
+      <find>S.0.0.0.0.1</find>
+      <schemavariable name="%x">\var a_w as int</schemavariable>
+      <schemavariable name="%limit">\var limit as int</schemavariable>
+      <schemavariable name="%e">\var a_w as int</schemavariable>
+      <schemavariable name="%b">$and($and($lte(a_w2 as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var a_w as int) as bool) as bool</schemavariable>
+      <typevariable name="e">int</typevariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="or_right" path="1,0,1,1,1,0,0,0" id="101">
+      <find>S.2</find>
+      <schemavariable name="%a">finite(fullset as set(int)) as bool</schemavariable>
+      <schemavariable name="%b">(\exists limit as int;(\forall a_w as int;$impl($and($and($lte(a_w2 as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var a_w as int) as bool) as bool,$gte(\var a_w as int,\var limit as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+    </ruleApplication>
+    <ruleApplication rule="exists_right" path="1,0,1,1,1,0,0,0" id="102">
+      <find>S.3</find>
+      <schemavariable name="%inst">a_w2 as int</schemavariable>
+      <schemavariable name="%x">\var limit as int</schemavariable>
+      <schemavariable name="%b">(\forall a_w as int;$impl($and($and($lte(a_w2 as int,\var a_w as int) as bool,$lt(\var a_w as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var a_w as int) as bool) as bool,$gte(\var a_w as int,\var limit as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="inst">int</typevariable>
+      <property name="ivil.manualRuleapp">true</property>
+      <property name="interact(%inst)">int</property>
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0,1,1,1,0,0,0" id="103">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0,1,1,1,0,0,1" id="104">
+    </ruleApplication>
+    <ruleApplication rule="auto_smt_close" path="1,0,1,1,1,0,0,2" id="105">
+    </ruleApplication>
+    <ruleApplication rule="auto_box_havoc" path="1,0,1,1,1,0,1" id="106">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%v">a_w as int</schemavariable>
+      <schemavariable name="%a">[37;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="v">int</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_t := a_w2 as int }</schemaupdate>
+      <property name="skolemName(a_w as int)">a_w3</property>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1" id="107">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := a_w3 as int }([38;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_t := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1" id="108">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_w3 as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_t := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0,1" id="109">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[38;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$and($and($lte(a_t as int,a_w as int) as bool,$lt(a_w as int,a_size as int) as bool) as bool,$and(seqGet(a_succ(a_v as int) as seq(bool),a_w as int) as bool,(\forall j as int;$impl($and($lte(a_t as int,\var j as int) as bool,$lt(\var j as int,a_w as int) as bool) as bool,$not(seqGet(a_succ(a_v as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1" id="110">
+      <find>A.9</find>
+      <schemavariable name="%t">$and($and($lte(a_t as int,a_w as int) as bool,$lt(a_w as int,a_size as int) as bool) as bool,$and(seqGet(a_succ(a_v as int) as seq(bool),a_w as int) as bool,(\forall j as int;$impl($and($lte(a_t as int,\var j as int) as bool,$lt(\var j as int,a_w as int) as bool) as bool,$not(seqGet(a_succ(a_v as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,0,1" id="111">
+      <find>A.9</find>
+      <schemavariable name="%a">$and($lte(a_w2 as int,a_w3 as int) as bool,$lt(a_w3 as int,a_size as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">$and(seqGet(a_succ(a_v2 as int) as seq(bool),a_w3 as int) as bool,(\forall j as int;$impl($and($lte(a_w2 as int,\var j as int) as bool,$lt(\var j as int,a_w3 as int) as bool) as bool,$not(seqGet(a_succ(a_v2 as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,0,1" id="112">
+      <find>A.9</find>
+      <schemavariable name="%a">$lte(a_w2 as int,a_w3 as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(a_w3 as int,a_size as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,0,1" id="113">
+      <find>A.10</find>
+      <schemavariable name="%a">seqGet(a_succ(a_v2 as int) as seq(bool),a_w3 as int) as bool</schemavariable>
+      <schemavariable name="%b">(\forall j as int;$impl($and($lte(a_w2 as int,\var j as int) as bool,$lt(\var j as int,a_w3 as int) as bool) as bool,$not(seqGet(a_succ(a_v2 as int) as seq(bool),\var j as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_goto2" path="1,0,1,1,1,0,1" id="114">
+      <find>S.0</find>
+      <schemavariable name="%k">44 as int</schemavariable>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[39;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">40 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0,1,0" id="115">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[40;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not(seqGet(a_V as seq(bool),a_w as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="116">
+      <find>A.13</find>
+      <schemavariable name="%t">$not(seqGet(a_V as seq(bool),a_w as int) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1,0,1,1,1,0,1,0" id="117">
+      <find>A.13</find>
+      <schemavariable name="%b">seqGet(a_V2 as seq(bool),a_w3 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,0,1,0" id="118">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[41;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_V := seqUpdate(a_V as seq(bool),a_w as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="119">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_V := seqUpdate(a_V as seq(bool),a_w as int,true as bool) as seq(bool) }([42;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="120">
+      <find>S.0.7</find>
+      <schemavariable name="%t">seqUpdate(a_V as seq(bool),a_w as int,true as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,0,1,0" id="121">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[42;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_N := seqUpdate(a_N as seq(bool),a_w as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="122">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_N := seqUpdate(a_N as seq(bool),a_w as int,true as bool) as seq(bool) }([43;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="123">
+      <find>S.0.7</find>
+      <schemavariable name="%t">seqUpdate(a_N as seq(bool),a_w as int,true as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,0,1,0" id="124">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[43;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">45 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,0,1,0" id="125">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[45;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_w := $plus(a_w as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="126">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := $plus(a_w as int,1 as int) as int }([46;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0" id="127">
+      <find>S.0.7</find>
+      <schemavariable name="%t">$plus(a_w as int,1 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,0,1,0" id="128">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[46;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">26 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0,1,1,1,0,1,0" id="129">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[26;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0,0" id="130">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,1,1,0,1,0,0" id="131">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0,1,0,1" id="132">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[27;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">false as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,0,1" id="133">
+      <find>A.13</find>
+      <schemavariable name="%t">false as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_w2 as int || a_V := seqUpdate(a_V2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_N := seqUpdate(a_N2 as seq(bool),a_w3 as int,true as bool) as seq(bool) || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_false_left" path="1,0,1,1,1,0,1,0,1" id="134">
+      <find>A.13</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0,1,1" id="135">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[44;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not($not(seqGet(a_V as seq(bool),a_w as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,1" id="136">
+      <find>A.13</find>
+      <schemavariable name="%t">$not($not(seqGet(a_V as seq(bool),a_w as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_not" path="1,0,1,1,1,0,1,1" id="137">
+      <find>A.13</find>
+      <schemavariable name="%b">seqGet(a_V2 as seq(bool),a_w3 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,0,1,1" id="138">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[45;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_w := $plus(a_w as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,1" id="139">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_w := $plus(a_w as int,1 as int) as int }([46;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,1" id="140">
+      <find>S.0.7</find>
+      <schemavariable name="%t">$plus(a_w as int,1 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := a_w3 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,0,1,1" id="141">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[46;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">26 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0,1,1,1,0,1,1" id="142">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[26;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,1,0" id="143">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,1,1,0,1,1,0" id="144">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,0,1,1,1" id="145">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[27;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">false as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,0,1,1,1" id="146">
+      <find>A.14</find>
+      <schemavariable name="%t">false as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_t := a_w2 as int || a_w := $plus(a_w3 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_false_left" path="1,0,1,1,1,0,1,1,1" id="147">
+      <find>A.14</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,1" id="148">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[47;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not((\exists i as int;$and($and($lte(a_w as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1" id="149">
+      <find>A.6</find>
+      <schemavariable name="%t">$not((\exists i as int;$and($and($lte(a_w as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v as int) as seq(bool),\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1,0,1,1,1,1" id="150">
+      <find>A.6</find>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(a_w2 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_succ(a_v2 as int) as seq(bool),\var i as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_goto2" path="1,0,1,1,1,1" id="151">
+      <find>S.0</find>
+      <schemavariable name="%k">54 as int</schemavariable>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[48;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">49 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="k">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,1,0" id="152">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[49;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not((\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="153">
+      <find>A.6</find>
+      <schemavariable name="%t">$not((\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var i as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1,0,1,1,1,1,0" id="154">
+      <find>A.6</find>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool),\var i as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="getOfSeqUpdate" path="1,0,1,1,1,1,0" id="155">
+      <find>S.3.0.1</find>
+      <schemavariable name="%j">\var i as int</schemavariable>
+      <schemavariable name="%i">a_v2 as int</schemavariable>
+      <schemavariable name="%v">false as bool</schemavariable>
+      <schemavariable name="%seq">a_C1 as seq(bool)</schemavariable>
+      <typevariable name="v">bool</typevariable>
+      <typevariable name="seq">seq(bool)</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,1,0" id="156">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[50;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_C := a_N as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="157">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_C := a_N as seq(bool) }([51;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="158">
+      <find>S.0.7</find>
+      <schemavariable name="%t">a_N as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,1,0" id="159">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[51;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="160">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }([52;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="161">
+      <find>S.0.7</find>
+      <schemavariable name="%t">(\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool)</schemavariable>
+      <typevariable name="t">seq(bool)</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,0,1,1,1,1,0" id="162">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[52;bfs_array''](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := $plus(a_d as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="163">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_d := $plus(a_d as int,1 as int) as int }([53;bfs_array''](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0" id="164">
+      <find>S.0.7</find>
+      <schemavariable name="%t">$plus(a_d as int,1 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,1,0" id="165">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[53;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">55 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,1,0" id="166">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[55;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">4 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0,1,1,1,1,0" id="167">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[4;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := $plus(a_d1 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0,0" id="168">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := $plus(a_d1 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,1,1,1,0,0" id="169">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,1,0,1" id="170">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[5;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">false as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := $plus(a_d1 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,0,1" id="171">
+      <find>A.6</find>
+      <schemavariable name="%t">false as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_v := a_v2 as int || a_t := a_t2 as int || a_V := a_V2 as seq(bool) || a_w := a_w2 as int || a_C := a_N2 as seq(bool) || a_N := (\seqDef i as int;0 as int;a_size as int;false as bool) as seq(bool) || a_d := $plus(a_d1 as int,1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_false_left" path="1,0,1,1,1,1,0,1" id="172">
+      <find>A.6</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,1,1" id="173">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[54;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not($not((\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var i as int) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,1" id="174">
+      <find>A.6</find>
+      <schemavariable name="%t">$not($not((\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var i as int) as bool) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_not" path="1,0,1,1,1,1,1" id="175">
+      <find>A.6</find>
+      <schemavariable name="%b">(\exists i as int;$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool),\var i as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="exists_left" path="1,0,1,1,1,1,1" id="176">
+      <find>A.6</find>
+      <schemavariable name="%x">\var i as int</schemavariable>
+      <schemavariable name="%b">$and($and($lte(0 as int,\var i as int) as bool,$lt(\var i as int,a_size as int) as bool) as bool,seqGet(seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool),\var i as int) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="x">int</typevariable>
+      <property name="skolemName(\var i as int)">i1</property>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,1,1" id="177">
+      <find>A.6</find>
+      <schemavariable name="%a">$and($lte(0 as int,i1 as int) as bool,$lt(i1 as int,a_size as int) as bool) as bool</schemavariable>
+      <schemavariable name="%b">seqGet(seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool),i1 as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="and_left" path="1,0,1,1,1,1,1" id="178">
+      <find>A.6</find>
+      <schemavariable name="%a">$lte(0 as int,i1 as int) as bool</schemavariable>
+      <schemavariable name="%b">$lt(i1 as int,a_size as int) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="getOfSeqUpdate" path="1,0,1,1,1,1,1" id="179">
+      <find>A.7</find>
+      <schemavariable name="%j">i1 as int</schemavariable>
+      <schemavariable name="%i">a_v2 as int</schemavariable>
+      <schemavariable name="%v">false as bool</schemavariable>
+      <schemavariable name="%seq">a_C1 as seq(bool)</schemavariable>
+      <typevariable name="v">bool</typevariable>
+      <typevariable name="seq">seq(bool)</typevariable>
+      <typevariable name="j">int</typevariable>
+      <typevariable name="i">int</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_goto1" path="1,0,1,1,1,1,1" id="180">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[55;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%n">4 as int</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="n">int</typevariable>
+      <typevariable name="phi">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assert" path="1,0,1,1,1,1,1" id="181">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[4;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,1,0" id="182">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,0,1,1,1,1,1,0" id="183">
+      <find>S.0</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,0,1,1,1,1,1,1" id="184">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[5;bfs_array''](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">false as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,0,1,1,1,1,1,1" id="185">
+      <find>A.9</find>
+      <schemavariable name="%t">false as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_v := a_v2 as int || a_C := seqUpdate(a_C1 as seq(bool),a_v2 as int,false as bool) as seq(bool) || a_t := a_t2 as int || a_N := a_N2 as seq(bool) || a_V := a_V2 as seq(bool) || a_w := a_w2 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_false_left" path="1,0,1,1,1,1,1,1" id="186">
+      <find>A.9</find>
+    </ruleApplication>
+    <ruleApplication rule="auto_box_assume" path="1,1" id="187">
+      <find>S.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[50;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">$not((\exists k as int;$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var k as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="188">
+      <find>A.0</find>
+      <schemavariable name="%t">$not((\exists k as int;$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C as seq(bool),\var k as int) as bool) as bool) as bool) as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="not_left" path="1,1" id="189">
+      <find>A.0</find>
+      <schemavariable name="%b">(\exists k as int;$and($and($lte(0 as int,\var k as int) as bool,$lt(\var k as int,a_size as int) as bool) as bool,seqGet(a_C1 as seq(bool),\var k as int) as bool) as bool) as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="prg_assignment" path="1,1" id="190">
+      <find>S.0.0</find>
+      <schemavariable name="%phi">true as bool</schemavariable>
+      <schemavariable name="%a">[51;bfs_array'](true as bool) as bool</schemavariable>
+      <typevariable name="a">bool</typevariable>
+      <typevariable name="phi">bool</typevariable>
+      <schemaupdate name="U">{ a_d := $neg(1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="191">
+      <find>S.0</find>
+      <schemavariable name="%t">{ a_d := $neg(1 as int) as int }([52;bfs_array'](true as bool) as bool)</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="192">
+      <find>S.0.7</find>
+      <schemavariable name="%t">$neg(1 as int) as int</schemavariable>
+      <typevariable name="t">int</typevariable>
+      <schemaupdate name="U">{ a_d := a_d1 as int || a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="prg_end" path="1,1" id="193">
+      <find>S.0.0</find>
+      <schemavariable name="%a">[52;bfs_array'](true as bool) as bool</schemavariable>
+      <schemavariable name="%b">true as bool</schemavariable>
+      <typevariable name="b">bool</typevariable>
+      <typevariable name="a">bool</typevariable>
+    </ruleApplication>
+    <ruleApplication rule="deep_update_simplification" path="1,1" id="194">
+      <find>S.0</find>
+      <schemavariable name="%t">true as bool</schemavariable>
+      <typevariable name="t">bool</typevariable>
+      <schemaupdate name="U">{ a_t := a_t1 as int || a_C := a_C1 as seq(bool) || a_N := a_N1 as seq(bool) || a_V := a_V1 as seq(bool) || a_w := a_w1 as int || a_v := a_v1 as int || a_d := $neg(1 as int) as int }</schemaupdate>
+    </ruleApplication>
+    <ruleApplication rule="close_true_right" path="1,1" id="195">
+      <find>S.0</find>
+    </ruleApplication>
+  </steps>
+</proof>

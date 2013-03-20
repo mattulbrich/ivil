@@ -1,4 +1,5 @@
-* bfs.algo can be verified fully automatically.
+* ERROR IN SPEC: Manual interaction needed!
+  bfs.algo can be verified fully automatically.
   Autoactive annotations to invoke special Z3
   Autoacitve annotation to do integer induction
 
@@ -20,6 +21,11 @@
     time ivilc -s -t 30 BFS.minDistance.partial.p
 
 * Refinement. here we go.
+
+  [0;bfs_arry]true goes automatic
+
+  Contradiction between seqGet(a_succ(a_v1), a_w2) and (\forall x; !x :: succ(v1)) both in succ
+   Witness is iv(a_w2)
   
 * Intermediate step in refinement: set -> sequences
   PO like   succ(v1) \ {iv(a_w2)} = {x | a_w2 < vi(x)} /\ succ(v1)   after the first round remain open
