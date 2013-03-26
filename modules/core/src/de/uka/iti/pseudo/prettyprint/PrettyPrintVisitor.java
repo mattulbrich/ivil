@@ -292,6 +292,7 @@ class PrettyPrintVisitor implements TermVisitor, StatementVisitor {
                 printer.beginTerm(i);
                 t.visit(this);
                 printer.endTerm();
+                i++;
             }
             printer.append(")");
             printer.endBlock();
