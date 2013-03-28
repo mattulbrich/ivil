@@ -1,0 +1,45 @@
+uses "$base.p"
+uses "$refinement.p"
+uses "$int.p"
+uses "$symbex.p"
+uses "$decproc.p"
+uses "$set.p"
+uses "$seq.p"
+
+
+
+algo C
+input n : int
+var S: seq(int)
+do
+  if !(\exists i; 0<=i<seqLen(S) & seqGet(S,i) = n)
+  then
+    S := seqAppend(S, n)
+  end
+end
+
+algo I
+input _n : int
+var _S : seq(int)
+    _i : int
+do
+  _i := 0 ;
+  while _i < seqLen(_S)
+    inv 0 <= _i <= seqLen(S) &
+        (\forall j; 0<=j<_i -> !seqGet(_S,j) = _n)
+    var seqLen(_S) - _i
+  do
+    if seqGet(_S, _i) = _n
+    then
+      return
+    end
+  end;
+  
+  _S := seqAppend(_S,_n)
+end
+
+refine C as I
+  requires S = _S & _n = n
+  var 0
+  ensures S = _S
+
