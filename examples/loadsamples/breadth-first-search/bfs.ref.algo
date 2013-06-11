@@ -1,0 +1,136 @@
+uses "bfs.decl.p"
+uses "ref-BFS.minDistance(int,int).p"
+
+
+
+abbreviation
+   @vars_coupled :=
+       a_V = boolArrAsSeq(h, _V)
+     & a_C = boolArrAsSeq(h, _C)
+     & a_N = boolArrAsSeq(h, _N)
+     & a_d = _d
+     & a_src = _src
+     & a_dest = _dest
+     & a_size = h[_this, F_BFS_size]
+     
+abbreviation
+   @arrays :=
+       !(_V=_N) & !(_N=_C) & !(_V=_C) &
+       !(_V=h[_this, F_BFS_adjacency]) & 
+       !(_N=h[_this, F_BFS_adjacency]) & 
+       !(_C=h[_this, F_BFS_adjacency]) &
+       !(_V=_this) & !(_N=_this) & !(_C=_this) &
+       (\forall i; 0<=i<a_size ->
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _V &
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _N &
+          h[h[_this, F_BFS_adjacency], idxRef(i)] != _C) &
+       arrlen(_V) = a_size &
+       arrlen(_N) = a_size &
+       arrlen(_C) = a_size
+
+abbreviation
+   @succ :=
+       (\forall v; 0<=v<a_size -> a_succ(v) = boolArrAsSeq(h,
+                   h[h[_this, F_BFS_adjacency], idxRef(v)]))
+     & (\forall i; 0<=i<a_size -> arrlen(h[h[_this, F_BFS_adjacency], idxRef(i)]) = a_size)
+
+algo bfs_array
+input
+   a_src, a_dest : int
+output
+   a_d : int
+var
+   a_size : int
+   a_V, a_C, a_N : seq(bool)
+   a_v,a_w,a_t : int
+do
+   
+   a_V := (\seqDef i; 0; a_size; i = a_src);
+   a_C := (\seqDef i; 0; a_size; i = a_src);
+   a_N := (\seqDef i; 0; a_size; false);
+   a_d := 0;
+
+   while (\exists k; 0<=k<a_size & seqGet(a_C, k))
+     inv true var 0
+   do
+     mark 1;
+
+     choose a_v such that 0<=a_v<a_size & seqGet(a_C, a_v);
+     a_C := seqUpdate(a_C, a_v, false);
+
+     if a_v = a_dest 
+     then 
+       return
+     end;
+ 
+     mark 2;    
+     a_w := 0;
+     while (\exists i; a_w<=i<a_size & seqGet(a_succ(a_v), i))
+       inv true var 0
+     do
+       a_t := a_w;
+       choose a_w such that a_t<=a_w<a_size & seqGet(a_succ(a_v), a_w)
+                     & (\forall j; a_t <= j < a_w -> !seqGet(a_succ(a_v), j));
+
+       mark 3;
+  
+       if not seqGet(a_V, a_w)
+       then
+         a_V := seqUpdate(a_V, a_w, true);
+         a_N := seqUpdate(a_N, a_w, true)
+       end;
+
+       mark 4;
+       a_w := a_w + 1
+     end;
+     
+     mark 5;
+
+     if !(\exists i; 0 <= i < a_size & seqGet(a_C, i))
+     then
+       a_C := a_N;
+       a_N := (\seqDef i; 0; a_size; false);
+       a_d := a_d+1
+     end;
+         
+     mark 6
+
+   end;
+
+   a_d := -1
+end 
+
+refine bfs_array as Java 
+
+  requires @succ & a_src = _src & a_dest = _dest &  
+           a_size = h[_this, F_BFS_size]
+    var 0
+
+  ensures a_d = resInt
+
+  mark 1
+    inv @vars_coupled & @arrays & @succ & 
+        (\exists i; 0<=i<arrlen(_C) & h[_C, idxBool(i)])
+    var 0
+
+  mark 2
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size
+    var 0
+
+  mark 3
+    inv @vars_coupled & @arrays &  @succ & a_v = _v 
+     &  0 <= _v< a_size & a_w = _w & 0 <= _w< a_size
+    var 0
+
+  mark 4
+    inv @vars_coupled & @arrays & @succ & a_v = _v 
+     &  0 <= _v< a_size & a_w = _w & 0 <= _w< a_size
+    var 0
+
+  mark 5
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size
+    var 0
+
+  mark 6
+    inv @vars_coupled & @arrays & @succ & a_v = _v & 0 <= _v< a_size 
+    var 0

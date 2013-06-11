@@ -5,3 +5,8 @@ oddsum.sample.xml
 selectionSort/selectionSort.sample.xml
 commonprefix/commonprefix.sample.xml
 summax/summax.sample.xml
+breadth-first-search/bfs.algo.sample.xml
+breadth-first-search/bfs.copy.sample.xml
+breadth-first-search/bfs.technical.sample.xml
+breadth-first-search/bfs.array.sample.xml
+breadth-first-search/bfs.ref.sample.xml
