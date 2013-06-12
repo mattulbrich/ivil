@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +79,7 @@ final class RefinementModifier {
     private Map<Integer, MarkInfo> markInfoAbstract;
     private final Environment env;
     private final TermFactory tf;
-    private final Set<Function> modifiedProgramVars = new HashSet<Function>();
+    private final Set<Function> modifiedProgramVars = new LinkedHashSet<Function>();
 
     /**
      * This visitor collects program variables written within a program. They

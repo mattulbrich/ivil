@@ -52,7 +52,7 @@ import javax.swing.UIManager;
 public class ExceptionDialog extends JDialog {
     private static final long serialVersionUID = -3300467843405170589L;
 
-    private Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
+    private final Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
     private JLabel jIcon;
     private JTextArea jTextArea;
     private JScrollPane jScrollPane;
@@ -60,12 +60,13 @@ public class ExceptionDialog extends JDialog {
     private JButton jOK;
     private JPanel jPanel1;
     private JComponent jError;
-    private Throwable exception;
+    private final Throwable exception;
     private String message;
-    private Dimension firstSize;
+    private final Dimension firstSize;
 
     private static int MIN_WIDTH = 300;
     private static int LINE_LENGTH = 72;
+    private static int MAX_LINES = 32;
 
     private ExceptionDialog(Window w, String message, Throwable throwable) {
         super(w, "Fehler", ModalityType.APPLICATION_MODAL);
@@ -119,6 +120,7 @@ public class ExceptionDialog extends JDialog {
                     jPanel1.add(jDetails);
                     jDetails.setText("Details ...");
                     jDetails.addActionListener(new ActionListener() {
+                        @Override
                         public void actionPerformed(ActionEvent evt) {
                             jDetailsActionPerformed(evt);
                         }
@@ -129,6 +131,7 @@ public class ExceptionDialog extends JDialog {
                     jPanel1.add(jOK);
                     jOK.setText("OK");
                     jOK.addActionListener(new ActionListener() {
+                        @Override
                         public void actionPerformed(ActionEvent evt) {
                             setVisible(false);
                         }
@@ -160,7 +163,7 @@ public class ExceptionDialog extends JDialog {
             PrintWriter pw = new PrintWriter(out);
             exception.printStackTrace(pw);
             verboseTrace(exception, pw);
-            
+
             jTextArea.setText(out.toString());
             // jTextArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
             setSize(new Dimension(firstSize.width, firstSize.height * 2));
@@ -170,12 +173,12 @@ public class ExceptionDialog extends JDialog {
             setSize(firstSize);
         }
     }
-    
+
     private void verboseTrace(Throwable throwable, PrintWriter pw) {
         if(throwable == null) {
             return;
         }
-        
+
         if (throwable instanceof CompoundException) {
             CompoundException compEx = (CompoundException) throwable;
             for (Exception ex : compEx) {
@@ -196,11 +199,13 @@ public class ExceptionDialog extends JDialog {
     private JComponent mkErrorPanel() {
         // Primitive line wrapping
 
-        if (message == null)
+        if (message == null) {
             return new JLabel("");
+        }
 
-        if (message.length() <= LINE_LENGTH)
+        if (message.length() <= LINE_LENGTH) {
             return new JLabel(message);
+        }
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -213,15 +218,20 @@ public class ExceptionDialog extends JDialog {
 
             if (p > 0) {
                 panel.add(new JLabel(message.substring(0, p)));
-                message = message.substring(p + 1);
+                if(panel.getComponentCount() > MAX_LINES) {
+                    message = "[This message has been truncated]";
+                } else {
+                    message = message.substring(p + 1);
+                }
             } else {
                 panel.add(new JLabel(message));
                 message = "";
             }
         }
 
-        if (!message.trim().isEmpty())
+        if (!message.trim().isEmpty()) {
             panel.add(new JLabel(message));
+        }
 
         return panel;
     }
@@ -242,7 +252,7 @@ public class ExceptionDialog extends JDialog {
 
         if(Log.isLogging(Log.WARNING)) {
             if(!EventQueue.isDispatchThread()) {
-                Log.log(Log.WARNING, "Show exception not on AWT thread, but on: " + 
+                Log.log(Log.WARNING, "Show exception not on AWT thread, but on: " +
                         Thread.currentThread().getName());
             }
         }
@@ -268,9 +278,9 @@ public class ExceptionDialog extends JDialog {
         showExceptionDialog(
                 new JFrame(),
                 "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890");
-        
+
         CompoundException cex = new CompoundException(Arrays.asList(new Exception("Ex1"), new RuntimeException("Ex2")));
-        
+
         showExceptionDialog(new JFrame(), new Throwable("Test compound ex", cex));
         System.exit(0);
     }
@@ -283,12 +293,14 @@ public class ExceptionDialog extends JDialog {
             super(message);
         }
 
+        @Override
         public void printStackTrace(PrintWriter s) {
             synchronized (s) {
                 s.println("Stack Trace:");
                 StackTraceElement[] trace = getStackTrace();
-                for (int i = 1; i < trace.length; i++)
+                for (int i = 1; i < trace.length; i++) {
                     s.println("\tat " + trace[i]);
+                }
             }
         }
     }

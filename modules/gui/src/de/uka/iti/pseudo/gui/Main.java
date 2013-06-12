@@ -164,7 +164,7 @@ public class Main {
                                 String proofFile = commandLine.getString(CMDLINE_PROOF, "");
                                 ProofImport proofImport = new ProofXML();
                                 proofImport.importProof(new FileInputStream(proofFile),
-                                        center.getProof(), center.getEnvironment());
+                                        center.getProof(), center.getEnvironment(), null);
                             }
                         }
                     }

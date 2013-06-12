@@ -65,7 +65,7 @@ public class ReloadAndReproveProblemAction extends BarAction implements
             ProofCenter proofCenter2 = Main.openProverFromURL(url);
             if(proofCenter2 != null) {
                 proofXML.importProof(buffer.inputStream(), proofCenter2.getProof(),
-                        proofCenter2.getEnvironment());
+                        proofCenter2.getEnvironment(), null);
                 proofCenter2.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
             }
         } catch (Exception ex) {

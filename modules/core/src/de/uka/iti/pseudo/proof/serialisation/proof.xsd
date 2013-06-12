@@ -30,6 +30,7 @@
 				<xs:element ref="version"/>
 				<xs:element ref="problem"/>
 				<xs:element ref="hash"/>
+				<xs:element ref="stepcount"/>
 				<xs:element ref="comment" minOccurs="0"/>
 			</xs:sequence>
 		</xs:complexType>
@@ -40,6 +41,7 @@
 	<xs:element name="problem" type="xs:string"/>
 	<xs:element name="hash" type="xs:string"/>
 	<xs:element name="comment" type="xs:string"/>
+	<xs:element name="stepcount" type="xs:integer"/>
 
 	<xs:element name="steps">
 		<xs:complexType>

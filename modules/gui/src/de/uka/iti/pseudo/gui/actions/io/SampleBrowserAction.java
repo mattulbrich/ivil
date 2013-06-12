@@ -18,24 +18,33 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.zip.GZIPInputStream;
 
+import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.ProgressMonitor;
+import javax.swing.ProgressMonitorInputStream;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -45,10 +54,15 @@ import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rsyntaxtextarea.TokenMaker;
 
 import de.uka.iti.pseudo.gui.Main;
+import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.gui.editor.IvilTokenMaker;
 import de.uka.iti.pseudo.gui.editor.PFileEditor;
+import de.uka.iti.pseudo.gui.util.ProgressMonitorIndicator;
+import de.uka.iti.pseudo.proof.ProofException;
+import de.uka.iti.pseudo.proof.serialisation.ProofImport;
+import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
@@ -109,6 +123,10 @@ class Sample extends Properties implements Comparable<Sample> {
         return getProperty("ivil", null);
     }
 
+    public String getProof() {
+        return getProperty("proof", null);
+    }
+
     public String getFile(int pos) {
         return getProperty("file" + pos, null);
     }
@@ -129,6 +147,7 @@ class SampleBrowser extends JDialog {
     protected Sample selectedSample;
     private final Vector<Sample> allSamples = new Vector<Sample>();
     private JTabbedPane tabs;
+    private AbstractButton loadProofButton;
 
     public SampleBrowser(Frame owner) {
         super(owner, "Sample Browser", true);
@@ -178,6 +197,7 @@ class SampleBrowser extends JDialog {
                     @Override public void valueChanged(ListSelectionEvent e) {
                         if(!e.getValueIsAdjusting()) {
                             selectedSample = (Sample) list.getSelectedValue();
+                            loadProofButton.setEnabled(selectedSample.getProof() != null);
                             createTabs();
                         }
                     }
@@ -197,7 +217,7 @@ class SampleBrowser extends JDialog {
             JPanel buttons = new JPanel();
             cp.add(buttons, BorderLayout.SOUTH);
             {
-                JButton button = new JButton("OK");
+                JButton button = new JButton("Open");
                 button.addActionListener(new ActionListener() {
                     @Override public void actionPerformed(ActionEvent e) {
                         try {
@@ -213,6 +233,24 @@ class SampleBrowser extends JDialog {
                 getRootPane().setDefaultButton(button);
                 buttons.add(button);
             }
+            cp.add(buttons, BorderLayout.SOUTH);
+            {
+                loadProofButton = new JButton("Open with proof");
+                loadProofButton.addActionListener(new ActionListener() {
+                    @Override public void actionPerformed(ActionEvent e) {
+                        try {
+                            URL resource = getClass().getResource(SampleBrowserAction.SAMPLES_DIR +
+                                    selectedSample.getPath() + selectedSample.getSource());
+                            ProofCenter pc = Main.openProverFromURL(resource);
+                            loadProof(pc);
+                        } catch (Exception ex) {
+                            ExceptionDialog.showExceptionDialog(SampleBrowser.this, ex);
+                        }
+                    }
+                });
+                loadProofButton.setEnabled(false);
+                buttons.add(loadProofButton);
+            }
             {
                 JButton button = new JButton("Cancel");
                 button.addActionListener(new ActionListener() {
@@ -223,6 +261,48 @@ class SampleBrowser extends JDialog {
                 buttons.add(button);
             }
         }
+    }
+
+    protected void loadProof(final ProofCenter pc) throws IOException, ProofException {
+        String proof = selectedSample.getProof();
+        assert proof != null : "Sample must have a proof reference";
+
+        URL resource = getClass().getResource(SampleBrowserAction.SAMPLES_DIR +
+                selectedSample.getPath() + proof);
+        if(resource == null) {
+            throw new FileNotFoundException("Cannot load the proof: " + proof);
+        }
+
+        InputStream inputStream = resource.openStream();
+
+        if(proof.endsWith(".gz")) {
+            // if gzipped: unzip
+            inputStream = new GZIPInputStream(inputStream);
+        }
+
+        final InputStream stream = inputStream;
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+
+            ProgressMonitor pm = new ProgressMonitor(SampleBrowser.this, "Replaying proof", "", 0, 1000);
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                ProofImport proofImport = new ProofXML();
+                proofImport.importProof(stream, pc.getProof(), pc.getEnvironment(),
+                        new ProgressMonitorIndicator(pm));
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                SampleBrowser.this.setVisible(false);
+                pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+            }
+        };
+
+        pc.firePropertyChange(ProofCenter.ONGOING_PROOF, true);
+        worker.execute();
     }
 
     protected void createTabs() {
