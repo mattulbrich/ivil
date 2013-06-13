@@ -10,6 +10,7 @@
   <path id="ivil.classpath.test">
     <pathelement path="../gui/classes-test"/>
     <pathelement path="../gui/classes"/>
+    <pathelement path="../../lib/jpplib.jar"/>
   </path>
 
   <path id="ivil.classpath.compile">

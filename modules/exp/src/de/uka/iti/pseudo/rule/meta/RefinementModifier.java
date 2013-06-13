@@ -71,7 +71,8 @@ final class RefinementModifier {
     private @NonNull Function markAbstractProgvar;
     // this variable is created lazily as its type is not known a priori
     private @Nullable Function variantProgvar;
-    private final @Nullable Term initialVariant;
+    private final @NonNull Term initialVariant;
+    private final boolean usesVariants;
     private final String skipMarkIndidicator;
     private Map<Integer, MarkInfo> markInfoConcrete;
     private Map<Integer, MarkInfo> markInfoAbstract;
@@ -121,8 +122,9 @@ final class RefinementModifier {
             throw new TermException("Post-condition needs to be a program term");
         }
 
-        if (programTerm.getModality() != Modality.BOX) {
-            throw new TermException("Outer modality needs to be [.]");
+        if (programTerm.getModality() != Modality.BOX &&
+                programTerm.getModality() != Modality.BOX_TERMINATION) {
+            throw new TermException("Outer modality needs to be [.] or [[.]]");
         }
 
         if (innerProgramTerm.getModality() != Modality.DIAMOND) {
@@ -130,6 +132,8 @@ final class RefinementModifier {
         }
 
         this.initialVariant = initialVariant;
+        this.usesVariants = !initialVariant.equals(Environment.getFalse());
+
         this.markConcreteProgvar = addFreshProgVar(CONCRETE_MARK_NAME, Environment.getIntType());
         this.markAbstractProgvar = addFreshProgVar(ABSTRACT_MARK_NAME, Environment.getIntType());
         this.postcondition = innerProgramTerm.getSubterm(0);
@@ -196,7 +200,7 @@ final class RefinementModifier {
         Term c = LiteralProgramTerm.getInst(indexConcr,
                 programTerm.getModality(), concrPrime, a);
 
-        if(initialVariant != null) {
+        if(usesVariants) {
             Update varUpd = makeVariantUpdate(initialVariant);
             c = tf.upd(varUpd, c);
         }
@@ -218,13 +222,19 @@ final class RefinementModifier {
                 t = tf.impl(inv, t);
             }
 
-            Term variant = absInfo.couplingVar;
-            if(variant != null) {
+            if(usesVariants) {
+                Term variant = absInfo.couplingVar;
+                if(variant == null) {
+                    throw new TermException("Missing coupling variant at mark " + absInfo.literal);
+                }
                 Update varUpd = makeVariantUpdate(variant);
                 t = tf.upd(varUpd, t);
             }
 
-            Term term = tf.upd(anonUpd, tf.upd(markUpdate, t));
+            Term term = tf.upd(markUpdate, t);
+            if(!anonUpd.isEmpty()) {
+                term = tf.upd(anonUpd, term);
+            }
 
             result = tf.and(result, term);
         }
@@ -369,11 +379,14 @@ final class RefinementModifier {
             if(inv == null) {
                 inv = Environment.getTrue();
             }
-            Term var = info.couplingVar;
             Term varCheck;
-            if(var == null) {
+            if(!usesVariants) {
                 varCheck = Environment.getTrue();
             } else {
+                Term var = info.couplingVar;
+                if(var == null) {
+                    throw new TermException("Missing variant in mark " + info.literal);
+                }
                 ensureVariantProgVar(var);
                 varCheck = tf.prec(var, tf.cons(variantProgvar));
             }

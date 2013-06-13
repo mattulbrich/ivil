@@ -7,10 +7,13 @@ import junit.framework.AssertionFailedError;
 import de.uka.iti.pseudo.TestCaseWithEnv;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.Program;
-import de.uka.iti.pseudo.term.Application;
+import de.uka.iti.pseudo.prettyprint.AnnotatedString;
+import de.uka.iti.pseudo.prettyprint.PrettyPrint;
+import de.uka.iti.pseudo.term.Modality;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
+import de.uka.iti.pseudo.term.creation.DefaultTermVisitor.DepthTermVisitor;
 import de.uka.iti.pseudo.term.statement.Statement;
 import de.uka.iti.pseudo.util.Pair;
 
@@ -35,9 +38,15 @@ public class TestRefinementModifier extends TestCaseWithEnv {
 //        markConcr = env.getFunction("$c");
     }
 
-    private static void assertEqualTerms(Term t1, Term t2) {
+    private void assertEqualTerms(Term t1, Term t2) {
         if(!t1.equals(t2)) {
-            assertEquals(t1.toString(true), t2.toString(true));
+            PrettyPrint pp = new PrettyPrint(env);
+            AnnotatedString s1 = pp.print(t1, 80);
+            System.out.println(s1);
+            System.out.println("---");
+            AnnotatedString s2 = pp.print(t2, 80);
+            System.out.println(s2);
+            assertEquals(s1.toString(), s2.toString());
         }
     }
 
@@ -80,10 +89,34 @@ public class TestRefinementModifier extends TestCaseWithEnv {
                  + makeResultTerm(4, 8, true, "22", "x=2") + ""), result);
     }
 
+    public void testTerminatingRefinementMod() throws Exception {
+        Term problem = problems.get("terminatingRefMod").getSuccedent().get(0);
+        RefinementModifier rmod = new RefinementModifier(env, problem, inivar);
+        rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
+
+        Term result = rmod.apply();
+        final Program cPrime = env.getProgram("C'");
+
+        PrettyPrint pp = new PrettyPrint(env);
+        System.out.println(pp.print(result,40));
+
+        DepthTermVisitor v = new DepthTermVisitor() {
+            @Override
+            public void visit(de.uka.iti.pseudo.term.LiteralProgramTerm ltp) throws TermException {
+                super.visit(ltp);
+                if(ltp.getProgram() == cPrime) {
+                    assertEquals(Modality.BOX_TERMINATION, ltp.getModality());
+                }
+            }
+        };
+
+        result.visit(v);
+    }
+
     private String makeResultTerm(int concr, int abs, boolean anon, String var, String pre) {
         String glue = "($markA = $markC & ($markA = 1 -> x=1 & 11 &< var) & " +
         		"($markA = 2 -> x=2 & 22 &< var) & ($markA = 0 -> x =0))";
-        String update =  anon ? "{ y := y1 || x := x1 }" :"";
+        String update =  anon ? "{ x := x1 || y := y1 }" :"";
         String anUpd = "{ $markA := 0 || $markC := 0}";
         String varUpd = var != null ? "{ var := " + var + "}" :"";
         String assum = pre != null ? pre + " -> " : "";
@@ -110,12 +143,12 @@ public class TestRefinementModifier extends TestCaseWithEnv {
     public void testUsingTheMarks2() throws Exception {
         Term problem = problems.get("using2").getSuccedent().get(0);
         // deliberately without variant!
-        RefinementModifier rmod = new RefinementModifier(env, problem, null);
+        RefinementModifier rmod = new RefinementModifier(env, problem, Environment.getFalse());
         rmod.setMarkFunctions(env.getFunction("$markA"), env.getFunction("$markC"));
 
         Term result = rmod.apply();
         System.out.println(result);
-        String glue = "($markA = $markC & ($markA = 0 -> x=0 ))";
+        String glue = "($markA = $markC & ($markA = 1 -> true & true) & ($markA = 0 -> x=0 ))";
         Term exp = makeTerm("{ $markA := 0 || $markC := 0 }[0;C_1'][<0;A_1'>]" + glue +
                 "&\n { $markA := 0 || $markC := 0 }[2;C_1'][<2;A_1'>]" + glue);
 

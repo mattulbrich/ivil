@@ -27,7 +27,7 @@ import de.uka.iti.pseudo.term.TypeVariable;
 public class TestSMTLib2Translator extends TestCaseWithEnv {
 
     public TestSMTLib2Translator() {
-        System.err.println("New constructor");
+//        System.err.println("New constructor");
     }
 
     public void testQuantifiers() throws Exception {

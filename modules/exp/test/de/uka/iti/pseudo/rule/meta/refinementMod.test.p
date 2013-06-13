@@ -94,6 +94,9 @@ program C_2
 problem refineMod:
   [0;C][<1;A>](x=0)
 
+problem terminatingRefMod:
+  [[0;C]][<1;A>](x=0)
+
 problem using:
   [0;C_0][<0;SKIP>]true
 

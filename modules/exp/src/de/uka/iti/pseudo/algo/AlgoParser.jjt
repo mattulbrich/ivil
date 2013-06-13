@@ -603,10 +603,10 @@ void CouplingFormula() #CouplingFormula :
     (
       "mark" t=<INTEGER_LITERAL> { no = t.image; }
       "inv" Expression()
-      "var" Expression()
+      [ "var" Expression() ]
     |
       "requires" { no = "-1"; } Expression()
-      "var" Expression()
+      [ "var" Expression() ]
     | 
       "ensures" { no = "0"; } Expression()
     )
