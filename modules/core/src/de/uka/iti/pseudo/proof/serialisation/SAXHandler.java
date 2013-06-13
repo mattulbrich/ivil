@@ -180,36 +180,9 @@ class SAXHandler extends DefaultHandler {
 
             } else if (name.equals("ruleApplication")) {
                 // matchRuleApp();
-                try {
-                    proof.apply(ram, env);
-                } catch (Exception e) {
-//                    e.printStackTrace();
-                    RuleApplicationMaker ram2 = new RuleApplicationMaker(env);
-                    ram2.setFindSelector(ram.getFindSelector());
-                    ram2.setProofNode(ram.getProofNode());
-                    ram2.setRule(ram.getRule());
-                    for (TermSelector ts : ram.getAssumeSelectors()) {
-                        ram2.pushAssumptionSelector(ts);
-                    }
-                    for(Map.Entry entry : ram.getProperties().entrySet()) {
-                        ram2.getProperties().put(entry.getKey().toString(), entry.getValue().toString());
-                    }
-
-                    if(ram.getSchemaVariableMapping().containsKey("%inst")) {
-                        try {
-                            ram2.getTermMatcher().addInstantiation("%inst",
-                                    ram.getSchemaVariableMapping().get("%inst"));
-                        } catch (TermException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        }
-                    }
-
-                    ram2.matchInstantiations();
-
-                    proof.apply(ram2, env);
-                }
+                proof.apply(ram, env);
                 ram = null;
+
                 if(indicator != null) {
                     applicationCounter ++;
                     if(applicationCounter % 50 == 0) {
