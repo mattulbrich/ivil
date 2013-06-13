@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.GZIPInputStream;
 
 import javax.swing.AbstractButton;
@@ -298,6 +299,12 @@ class SampleBrowser extends JDialog {
             protected void done() {
                 SampleBrowser.this.setVisible(false);
                 pc.firePropertyChange(ProofCenter.ONGOING_PROOF, false);
+                try {
+                    get();
+                } catch (InterruptedException e) {
+                } catch (ExecutionException e) {
+                    ExceptionDialog.showExceptionDialog(null, e);
+                }
             }
         };
 
