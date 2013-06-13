@@ -155,7 +155,7 @@ public class PrettyPrint {
      *            the annotated string to append the term to
      * @return printer
      */
-    public AnnotatedString print(Term term, PrettyPrintLayouter printer) {
+    private AnnotatedString print(Term term, PrettyPrintLayouter printer) {
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
 
         try {
