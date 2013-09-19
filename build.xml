@@ -9,7 +9,8 @@
     <file name="./modules/core/build.xml"/>
     <file name="./modules/gui/build.xml"/>
     <file name="./modules/cmd/build.xml"/>
-    <file name="./modules/boogie/build.xml"/> 
+    <file name="./modules/boogie/build.xml"/>
+    <file name="./modules/algo/build.xml"/>
     <file name="./modules/exp/build.xml"/>
   </filelist>
 
@@ -19,8 +20,8 @@
   <property name="ivil.version" value="0.20" />
   <property name="ivil.keystoreAlias" value="mu2013" />
   <property name="ivil.keystorePassword" value="keystore" />
-  <property name="ivil.javac.source" value="1.6" />
-  <property name="ivil.javac.target" value="1.6" />
+  <property name="ivil.javac.source" value="1.7" />
+  <property name="ivil.javac.target" value="1.7" />
   <!-- UP TO HERE -->
 
   <target name="init">
@@ -59,6 +60,7 @@
       <fileset dir="modules/gui/classes/" />
       <fileset dir="modules/cmd/classes/" />
       <fileset dir="modules/boogie/classes/" />
+      <fileset dir="modules/algo/classes/" />
       <fileset dir="modules/exp/classes/" />
       <zipfileset dir="." includes="VERSION" prefix="META-INF"/>
       
@@ -134,6 +136,7 @@
         <pathelement location="modules/gui/src"/>
         <pathelement location="modules/cmd/src"/>
         <pathelement location="modules/boogie/src"/>
+        <pathelement location="modules/algo/src"/>
         <pathelement location="modules/exp/src"/>
       </sourcepath>
       <classpath>
