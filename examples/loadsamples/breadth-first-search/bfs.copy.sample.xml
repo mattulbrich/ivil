@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">bfs - helper method</entry>
+<entry key="order">081</entry>
+<entry key="ivil">BFS.copy(boolean[],boolean[]).p</entry>
+<entry key="file1">BFS.jspec</entry>
+<entry key="description"><![CDATA[
+  <h1>Implementation: Breadth first search</h1>
+
+  <p>The implementation of the search has got some helper functions which
+  can be verified automatically. copying an array to another array is an
+  example.</p>
+
+  <h2>Code</h2>
+  <pre>
+    /*@ contract
+      @   requires "!target = null"
+      @   requires "!source = null"
+      @   requires "arrlen(source) = arrlen(target)"
+      @   ensures "(\forall i; 0 <= i & i < arrlen(target) -> 
+      @     h[target, idxBool(i)] = h[source, idxBool(i)])"
+      @   modifies "singleton(target)"
+      @*/
+    void copy(boolean[] target, boolean[] source) {
+	/*@ maintains 
+	  @   "0 <= _i & _i <= arrlen(_source) &
+	  @    (\forall j; 0 <= j & j < _i ->
+	  @       h[_target, idxBool(j)] = h[_source, idxBool(j)])"
+	  @ decreases "arrlen(_source) - _i"
+	  @ modifies "singleton(_target)"
+	  @*/
+	for(int i = 0; i < source.length; i++) {
+	    target[i] = source[i];
+	}
+    }
+</pre>
+ 
+]]></entry>
+</properties>

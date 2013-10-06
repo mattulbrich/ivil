@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">bfs - technical check</entry>
+<entry key="order">083</entry>
+<entry key="ivil">BFS.minDistance.partial.p</entry>
+<entry key="file1">BFS.jspec</entry>
+<entry key="description"><![CDATA[
+  <h1>Implementation: Breadth first search</h1>
+
+  <p>The implementation is free of runtime exceptions.
+  This fact can be proved automatically given some helping
+  light-weight specifications which talk about created 
+  references and lengths of arrays.</p>
+
+  <p>This proof obligation is only about partial correctness.
+  Termination is shown during the refinement.</p>
+</pre>
+ 
+]]></entry>
+</properties>

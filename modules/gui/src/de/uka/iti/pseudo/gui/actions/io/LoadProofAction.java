@@ -17,12 +17,14 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JFileChooser;
+import javax.swing.ProgressMonitor;
 import javax.swing.SwingWorker;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
+import de.uka.iti.pseudo.gui.util.ProgressMonitorIndicator;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.serialisation.ProofImport;
@@ -86,6 +88,7 @@ public class LoadProofAction extends BarAction
         (new SwingWorker<Void, Void>() {
             @Override
             public Void doInBackground(){
+                ProgressMonitor pm = new ProgressMonitor(getParentFrame(), "Replaying proof", "", 0, 1000);
                 try {
                     if (result == JFileChooser.APPROVE_OPTION) {
                         Environment env = getProofCenter().getEnvironment();
@@ -99,7 +102,7 @@ public class LoadProofAction extends BarAction
 
                         is = new FileInputStream(fileChooser.getSelectedFile());
 
-                        proofImport.importProof(is, origProof, env);
+                        proofImport.importProof(is, origProof, env, new ProgressMonitorIndicator(pm));
                         getProofCenter().fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
                         origProof.changesSaved();
                     }
@@ -112,6 +115,8 @@ public class LoadProofAction extends BarAction
 //                        e.printStackTrace();
 //                    }
                     ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
+                } finally {
+                    pm.close();
                 }
                 return null;
             }

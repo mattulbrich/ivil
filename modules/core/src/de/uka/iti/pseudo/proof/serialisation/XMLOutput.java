@@ -44,6 +44,9 @@ public class XMLOutput {
             out.start("version").append("0.0").end().newline();
             out.start("problem").appendEncoded(proof.getRoot().getSequent().toString()).end().newline();
             out.start("hash").append("to be done").end().newline();
+            out.start("stepcount").
+                append(Integer.toString(countSteps(proof.getRoot()))).
+                end().newline();
             out.end().newline();
         }
         out.start("steps").newline();
@@ -53,6 +56,20 @@ public class XMLOutput {
         out.end().newline();
         out.end();
         out.flush();
+    }
+
+    private int countSteps(ProofNode node) {
+        List<ProofNode> children = node.getChildren();
+        if(children == null) {
+            return 1;
+        }
+
+        int sum = 1;
+        for (ProofNode child : children) {
+            sum += countSteps(child);
+        }
+
+        return sum;
     }
 
     private void exportProofNode(ProofNode node) throws IOException {

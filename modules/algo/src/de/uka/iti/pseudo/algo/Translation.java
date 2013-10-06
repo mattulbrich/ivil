@@ -38,7 +38,7 @@ public class Translation {
 
     private boolean refinementMode;
 
-    final Map<String, String> abbreviations = new HashMap<String, String>();
+    private final Map<String, String> abbreviations = new HashMap<String, String>();
     private final Map<String, String> couplingInvariantMap = new HashMap<String, String>();
     private final Map<String, String> couplingVariantMap = new HashMap<String, String>();
     private final Map<String, String> options = new HashMap<String, String>();
@@ -85,12 +85,13 @@ public class Translation {
     }
 
     public Translation(String sourceFile) throws IOException, ParseException {
-        this.sourceFile = sourceFile;
 
         if(sourceFile == null) {
-            parser = new AlgoParser(System.in);
+            this.sourceFile = "<in>";
+            this.parser = new AlgoParser(System.in);
         } else {
-            parser = new AlgoParser(new FileInputStream(sourceFile));
+            this.sourceFile = sourceFile;
+            this.parser = new AlgoParser(new FileInputStream(sourceFile));
         }
     }
 

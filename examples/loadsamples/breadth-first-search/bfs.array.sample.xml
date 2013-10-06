@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">bfs - refinement 1</entry>
+<entry key="order">083</entry>
+<entry key="ivil">bfs.array.ref.p</entry>
+<entry key="file1">bfs.array.algo</entry>
+<entry key="file2">bfs.algo</entry>
+<entry key="proof">bfs.array.ref.pxml.gz</entry>
+<entry key="description"><![CDATA[
+  <h1>Refinement: Breadth first search</h1>
+
+  <p>This is the first refinement: The abstract representation using
+  sets of nodes is replaced by arrays over booleans</p>
+
+  <p>Verifying this algorithm requires some user interaction.</p>
+ 
+]]></entry>
+</properties>

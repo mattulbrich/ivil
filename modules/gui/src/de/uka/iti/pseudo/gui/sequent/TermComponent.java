@@ -506,7 +506,7 @@ public class TermComponent extends JTextPane {
 
         //
         // statement
-        if (term instanceof LiteralProgramTerm) {
+        if (locterm instanceof LiteralProgramTerm) {
             LiteralProgramTerm prog = (LiteralProgramTerm) locterm;
             String stm = prettyPrinter.print(prog.getStatement()).toString();
             sb.append("<dt>Statement:</dt><dd>").append(stm).append("</dd>\n");

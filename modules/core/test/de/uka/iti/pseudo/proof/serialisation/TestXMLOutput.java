@@ -64,8 +64,8 @@ public class TestXMLOutput extends TestCaseWithEnv {
         String[] lines = writer.toString().split(" *\n *");
         assertEquals("<?xml version=\"1.0\"?>", lines[0]);
         assertEquals("<problem> |- $eq(arb,arb)</problem>", lines[4]);
-        assertEquals("<schemavariable name=\"%t\">arb as 'a</schemavariable>", lines[10]);
-        assertEquals("<typevariable name=\"t\">'a</typevariable>", lines[11]);
+        assertEquals("<schemavariable name=\"%t\">arb as 'a</schemavariable>", lines[11]);
+        assertEquals("<typevariable name=\"t\">'a</typevariable>", lines[12]);
     }
 
 

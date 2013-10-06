@@ -4,6 +4,7 @@
 <project name="ivil - common tasks" default="build" basedir=".">
   
   <target name="init">
+    <echo message="Working on project ${ant.project.name}"/>
     <mkdir dir="classes"/>
     <mkdir dir="classes-test"/>
   </target>

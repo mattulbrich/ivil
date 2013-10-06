@@ -1,0 +1,98 @@
+uses "bfs.decl.p"
+     
+algo bfs
+input
+   src, dest : vertex
+output
+   d : int
+var
+   size : int
+   V, C, N : set(vertex)
+   Vo, Co, No : set(vertex)
+   tovisit : set(vertex)
+   v,w : vertex
+   
+requires 
+   finite(fullset as set(vertex))
+
+ensures
+   d >= -1
+   
+ensures
+   d < 0 -> (\forall m; m >= 0 -> not minconnect(src,dest,m))
+   
+ensures
+   d >= 0 -> minconnect(src, dest, d) 
+
+do
+   size := card(fullset as set(vertex));
+   
+   V := {src};
+   C := {src};
+   N := {};
+   d := 0;
+
+   while !(C = {})
+     inv d >= 0 &
+       (\forall x; x in C -> minconnect(src, x, d)) &
+       (\forall y; y in N <-> 
+           minconnect(src, y, d+1) & y :: V) &
+       (\forall z; z::V \ N  <->
+           (\exists n; 0 <= n <= d & connect(src, z, n))) &
+       (\forall w; minconnect(src,w,d+1) -> 
+           w in N | (\exists q; w in succ(q) & q in C)) &
+       (C = {} -> N = {}) &
+       C <: V &
+       N <: V &
+       not dest in (V \ N) \ C
+     var ^(V \ (C \/ N))
+   do
+     choose v such that v in C;
+     C := C \ {v};
+     if v = dest 
+     then 
+       return
+     end;
+     
+     Vo := V;
+     No := N;
+
+     iterate succ(v) with w in tovisit
+       inv tovisit <: succ(v) &
+           V = Vo \/ (succ(v) \ tovisit) &
+           N = No \/ (succ(v) \ (Vo \/ tovisit))
+     do 
+       if not w in V
+       then
+         V := V \/ {w};
+         N := N \/ {w}
+       end
+     end;
+     
+     if C = {}
+     then
+       C := N;
+       N := {};
+       d := d+1
+     end
+         
+   end;
+
+   note (\forall i; i>=0 -> (\forall a; !minconnect(src, a, d+1+i)))
+     hint "§(rule int_induction_match)";
+
+   note (\forall j; j>d -> !minconnect(src, dest, j))
+     /* hint "§(inst i with 'j-d1-1')" */;
+
+   d := -1
+end 
+
+/*
+
+The original invariant for second loop
+           N = No \/ (succ(v) \ (V \/ tovisit))
+
+could (by proof obligation!) by identified as false: the 
+chosen value "w" could not fulfill this.
+
+*/

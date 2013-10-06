@@ -63,7 +63,7 @@ public class AutomaticProblemChecker implements Callable<Result> {
         FileInputStream fis = new FileInputStream(proofFileName);
 
         ProofImport proofImp = new ProofXML();
-        proofImp.importProof(fis, proof, env);
+        proofImp.importProof(fis, proof, env, null);
 
         if(proof.hasOpenGoals()) {
             return new Result(false, file, entry.getKey(),

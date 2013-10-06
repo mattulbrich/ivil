@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">bfs - algorithm</entry>
+<entry key="order">080</entry>
+<entry key="ivil">bfs.algo.p</entry>
+<entry key="file1">bfs.algo</entry>
+<entry key="file2">bfs.decl.p</entry>
+<entry key="proof">bfs.algo.pxml.gz</entry>
+<entry key="description"><![CDATA[
+  <h1>Abstract Algorithm: Breadth first search</h1>
+
+  <p>Verify that the presented algorithm finds the shortest path
+  between two vertices in an unweighted graph. It uses breadth first 
+  search with two nested while-loops.</p>
+
+  <p>The connection properties are modelled using two predicates
+  connect and minconnect which are defined in bfs.decl.p.</p>
+
+  <p>Verifying this algorithm requires some user interaction.</p>
+
+  <h2>Original Algorithm</h2>
+  <pre>
+V <- {source};
+C <- {source};
+N <- {};
+d <- 0;
+while C is not empty do
+
+  remove one vertex v from C;
+  if v = dest then return d; endif
+  for each w in succ(v) do
+    if w is not in V then
+      add w to V;
+      add w to N;
+    endif
+  endfor
+  if C is empty then
+    C <- N;
+    N <- {};
+    d <- d+1;
+  endif
+endwhile
+fail "no path"
+</pre>
+ 
+]]></entry>
+</properties>

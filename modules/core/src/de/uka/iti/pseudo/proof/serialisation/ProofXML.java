@@ -29,31 +29,34 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.RuleApplicationMaker;
+import de.uka.iti.pseudo.util.ProgressIndicator;
 
 /**
  * This class can be used to save and load {@link Proof}s to XML documents.
- * 
+ *
  * It implements both the import and the export interface.
- * 
+ *
  * Import is however handled by {@link SAXHandler} which constructs
  * {@link RuleApplicationMaker} from the XML content.
- * 
+ *
  * Export is handled using a {@link XMLWriter}, a very simple XML export
  * facility.
  */
 
 public class ProofXML implements ProofImport, ProofExport {
-    
+
+    @Override
     public boolean acceptsInput(InputStream is)  throws IOException {
         return true;
     }
 
-    public void importProof(InputStream is, Proof proof, Environment env)  throws IOException, ProofException {
+    @Override
+    public void importProof(InputStream is, Proof proof, Environment env, ProgressIndicator indicator)  throws IOException, ProofException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             factory.setSchema(makeSchema());
             SAXParser parser = factory.newSAXParser();
-            SAXHandler handler = new SAXHandler(env, proof, true);
+            SAXHandler handler = new SAXHandler(env, proof, indicator, true);
             parser.parse(is, handler);
         } catch (ParserConfigurationException e) {
             throw new IOException(e);
@@ -61,35 +64,39 @@ public class ProofXML implements ProofImport, ProofExport {
             throw new IOException(e);
         }
     }
-    
+
     private Schema makeSchema() throws IOException, SAXException {
         SchemaFactory schemaFactory = SchemaFactory
                 .newInstance("http://www.w3.org/2001/XMLSchema");
         InputStream is = getClass().getResourceAsStream("proof.xsd");
-        if(is == null)
+        if(is == null) {
             throw new FileNotFoundException("XSD resource proof.xsd not available");
-        
+        }
+
         Schema schema = schemaFactory
                 .newSchema(new Source[] { new StreamSource(is) });
-        
+
         return schema;
     }
 
+    @Override
     public void exportProof(OutputStream os, Proof proof, Environment env)
             throws IOException {
-        
+
         OutputStreamWriter writer = new OutputStreamWriter(os);
-        
+
         XMLOutput out = new XMLOutput(writer);
         out.export(proof);
-        
+
         writer.flush();
     }
 
+    @Override
     public String getFileExtension() {
         return "pxml";
     }
 
+    @Override
     public String getName() {
         return "PXML -- proof XML file";
     }

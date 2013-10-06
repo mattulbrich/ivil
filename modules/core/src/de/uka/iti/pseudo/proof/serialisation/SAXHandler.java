@@ -24,14 +24,17 @@ import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
+import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.term.Term;
+import de.uka.iti.pseudo.term.TermException;
 import de.uka.iti.pseudo.term.Type;
 import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.TermMaker;
 import de.uka.iti.pseudo.util.Dump;
 import de.uka.iti.pseudo.util.Log;
+import de.uka.iti.pseudo.util.ProgressIndicator;
 
 // TODO DOC ! !
 class SAXHandler extends DefaultHandler {
@@ -45,11 +48,14 @@ class SAXHandler extends DefaultHandler {
     private MutableRuleApplication ram;
     private int goalNo = 0;
 //	private boolean ignoreExceptions;
+    private final ProgressIndicator indicator;
+    private int applicationCounter = 0;
 
-    public SAXHandler(Environment env, Proof proof, boolean ignoreExceptions) {
+    public SAXHandler(Environment env, Proof proof, ProgressIndicator indicator, boolean ignoreExceptions) {
         super();
         this.env = env;
         this.proof = proof;
+        this.indicator = indicator;
 //        this.ignoreExceptions = ignoreExceptions;
     }
 
@@ -176,7 +182,21 @@ class SAXHandler extends DefaultHandler {
                 // matchRuleApp();
                 proof.apply(ram, env);
                 ram = null;
+
+                if(indicator != null) {
+                    applicationCounter ++;
+                    if(applicationCounter % 50 == 0) {
+                        indicator.setProgress(applicationCounter);
+                    }
+                }
+            } else if(name.equals("stepcount")) {
+                int stepCount = Integer.parseInt(content.toString());
+                if(indicator != null) {
+                    indicator.setMaximum(stepCount);
+                }
             }
+        } catch (NumberFormatException e) {
+            throwSAXException(content, e);
         } catch (FormatException e) {
             throwSAXException(content, e);
         } catch (ParseException e) {

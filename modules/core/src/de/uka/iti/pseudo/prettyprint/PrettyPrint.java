@@ -139,6 +139,20 @@ public class PrettyPrint {
         return print(term, Integer.MAX_VALUE);
     }
 
+    /**
+     * pretty print a term using the currently set properties on this object.
+     *
+     * The result is an annotated String in which to every character the
+     * innermost containing subterm can be obtained.
+     *
+     * @param term
+     *            the term to pretty print
+     *
+     * @param linewidth
+     *            length of a line, a positive number
+     *
+     * @return a freshly created annotated string object
+     */
     public AnnotatedString print(Term term, int linewidth) {
         return print(term, new PrettyPrintLayouter(linewidth));
     }
@@ -155,7 +169,7 @@ public class PrettyPrint {
      *            the annotated string to append the term to
      * @return printer
      */
-    public AnnotatedString print(Term term, PrettyPrintLayouter printer) {
+    private AnnotatedString print(Term term, PrettyPrintLayouter printer) {
         PrettyPrintVisitor visitor = new PrettyPrintVisitor(this, printer);
 
         try {
