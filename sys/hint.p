@@ -16,6 +16,13 @@
  * Other rules for hints are defined in plugins.p
  *)
 
+(*
+ * You propably need:
+ * properties
+ * CompoundStrategy.strategies 
+ *   "HintStrategy,SimplificationStrategy,BreakpointStrategy,SMTStrategy"
+ *)
+
 plugin
  
     # proof hint where a rule application is given like §(rule ruleName)

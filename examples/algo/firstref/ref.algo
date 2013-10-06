@@ -1,10 +1,9 @@
-uses "$refinement.p"
 uses "$int.p"
 uses  "$symbex.p"
 uses  "$decproc.p"
 uses  "$set.p"
 uses  "$seq.p"
-
+uses "$refinement.p"
 abbreviation
   @seqC_injective :=
    (\forall a; 0 <= a < seqLen(seqC) -> 
@@ -30,10 +29,10 @@ do
     inv true
     var sA
   do
+    mark 1;
     choose xA such that xA :: sA;
     sumA := sumA + xA;
-    sA := sA \ {xA};
-    mark 1
+    sA := sA \ {xA}
   end
 end
 
@@ -58,17 +57,16 @@ do
     inv true
     var seqLen(seqC)-i
   do
+    mark 1;
     sumC := sumC + seqGet(seqC, i);
-    i := i+1;
-    mark 1
+    i := i+1
   end
 end
 
 refine A as C
-  requires setA = seqAsSet(seqC)
+  requires setA = seqAsSet(seqC) &  @seqC_injective
     var 42 // setA
   ensures sumA = sumC
   mark 1
-    inv sA = seqAsSet(seqSub(seqC, i, seqLen(seqC))) & sumC=sumA &
-         @seqC_injective & i>=0
+    inv sA = seqAsSet(seqSub(seqC, i, seqLen(seqC))) & sumC=sumA & i>=0 & i < seqLen(seqC)
     var 42 // setA

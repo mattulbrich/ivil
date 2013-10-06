@@ -54,6 +54,7 @@ function  # prefixes
 
 binder
         int (\sum int; int; int; int)
+        int (\prod int; int; int; int)
 
 (*
  * Rules concerning + and -
@@ -208,3 +209,34 @@ rule sum_plus1
   replace (\sum %v; %a; %b; %t) + $$subst(%v, %b, %t)
   tags
     rewrite "fol simp"
+
+(*
+ * Rules for prod
+ *)
+rule empty_prod
+  find (\prod %v; %a; %a; %t)
+  replace 1
+  tags
+    rewrite "fol simp"
+    verbosity "5"
+
+# CHECK with bounds
+rule prod_def
+  find (\prod %v; %a; %b; %t)
+  replace cond(%b > %a,
+               (\prod %v; %a; %b-1; %t) * $$subst(%v, %b-1, %t),
+               1)
+
+rule prod_plus1
+  find (\prod %v; %a; %b + 1; %t)
+  replace cond(%b >= %a, 
+               (\prod %v; %a; %b; %t) * $$subst(%v, %b, %t),
+               1)
+  tags
+    rewrite "fol simp"    
+
+rule prod_lower
+  find (\prod %v; %a; %b; %t)
+  replace cond(%b > %a, 
+               (\prod %v; %a+1; %b; %t) * $$subst(%v, %a, %t),
+               1)

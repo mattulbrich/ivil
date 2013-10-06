@@ -41,13 +41,14 @@ rule lenOfSeqEmpty
   tags
     derived
     rewrite "concrete"
+    asAxiom
 
 rule getOfSeqEmpty
   find seqGet(seqEmpty, %i)
   replace seqError
   tags
     derived
-    rewrite "concrete"
+    rewrite "concrete"    
 
 rule lenOfSeqSingleton
   find seqLen(seqSingleton(%x))
@@ -55,6 +56,7 @@ rule lenOfSeqSingleton
   tags
     derived
     rewrite "fol simp"
+    asAxiom
 
 rule getOfSeqSingleton
   find seqGet(seqSingleton(%x), %i)
