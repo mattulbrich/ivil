@@ -1,22 +1,33 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.algo;
 
 import java.io.StringReader;
+
+import de.uka.iti.pseudo.algo.data.ParsedData;
 
 import junit.framework.TestCase;
 
 public class TestTermVisitor extends TestCase {
 
     public TermVisitor termVisit;
-    private Translation translation;
+    private ParsedData parsedData;
 
     @Override
     protected void setUp() throws Exception {
-        translation = new Translation((String)null);
-        termVisit = new TermVisitor(translation);
+        parsedData = new ParsedData();
+        termVisit = new TermVisitor(parsedData);
     }
 
     public void testAbbrevIdentifier() throws Exception {
-        translation.putAbbreviation("@test", "TEST");
+        parsedData.putAbbreviation("@test", "TEST");
         check("@test", "TEST");
     }
 

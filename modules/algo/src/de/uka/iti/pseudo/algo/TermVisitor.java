@@ -1,30 +1,47 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.algo;
 
 import java.util.List;
 
+import nonnull.Nullable;
+import de.uka.iti.pseudo.algo.data.ParsedData;
+
 public class TermVisitor extends DefaultAlgoParserVisitor {
 
-    private final Translation translation;
+    private final ParsedData parsedData;
     private final String mapFunction;
-    private final List<String> statements;
+    private final String mapCheckPredicate;
+
+    /**
+     * The statement list will be used to add assertions.
+     */
+    private final @Nullable List<String> statements;
 
     /**
      * The statement list will be used to add assertions.
      *
-     * @param translation
-     *            the translation which is in use
+     * @param parsedData
+     *            the storage for parsed data to be used
      * @param statements
-     *            the statement buffer containg the translation.
+     *            the statement buffer containing the translation.
      */
-    public TermVisitor(Translation translation, List<String> statements) {
-        super();
-        this.translation = translation;
+    public TermVisitor(ParsedData parsedData, List<String> statements) {
+        this.parsedData = parsedData;
         this.statements = statements;
-        this.mapFunction = translation.getOption("mapFunction");
+        this.mapFunction = parsedData.getOption("mapFunction");
+        this.mapCheckPredicate = parsedData.getOption("mapCheckPredicate");
     }
 
-    public TermVisitor(Translation translation) {
-        this(translation, null);
+    public TermVisitor(ParsedData parsedData) {
+        this(parsedData, null);
     }
 
     @Override
@@ -39,7 +56,7 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visit(ASTAbbrevIdentifier node, Object data) {
-        return translation.getAbbreviatedTerm(node.jjtGetValue());
+        return parsedData.getAbbreviation(node.jjtGetValue());
     }
 
     @Override
@@ -65,10 +82,10 @@ public class TermVisitor extends DefaultAlgoParserVisitor {
         if(mapFunction == null) {
             return map + "[" + index + "]";
         } else {
-            if (statements != null && "seqGet".equals(mapFunction)) {
-                // XXX find a more flexible solution here
-//                statements.add("  assert 0 <= (" + index + ") & (" +
-//                        index + ") < seqLen(" + map + ") ; \"sequence index in range\"");
+            if (statements != null && mapCheckPredicate != null) {
+                statements.add(
+                        String.format("  assert %s(%s, %s) ; \"index in range check\"",
+                                mapCheckPredicate, map, index));
             }
             return mapFunction + "(" + map + ", " + index + ")";
         }

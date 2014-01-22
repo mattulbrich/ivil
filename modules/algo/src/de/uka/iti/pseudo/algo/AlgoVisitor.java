@@ -1,115 +1,79 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
 package de.uka.iti.pseudo.algo;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import de.uka.iti.pseudo.algo.data.ParsedAlgorithm;
+import de.uka.iti.pseudo.algo.data.ParsedData;
+import de.uka.iti.pseudo.algo.data.RefinementDeclaration;
 import de.uka.iti.pseudo.util.Util;
 
 public class AlgoVisitor extends DefaultAlgoParserVisitor {
 
-    private String programName;
     private final TermVisitor termVisitor;
-    private final Translation translation;
-    private final List<String> statements = new ArrayList<String>();
-    private final List<String> requirements = new ArrayList<String>();
-    private final List<String> ensures = new ArrayList<String>();
+    private final ParsedData parsedData;
+    private final ParsedAlgorithm parsedAlgo;
+    private final List<String> statements;
     private final IdentifierProducer idProducer = new IdentifierProducer();
-    private String firstLine;
+
     private final boolean refinementMode;
 
-    public AlgoVisitor(Translation translation, boolean refinementMode) {
-        this.translation = translation;
+    public AlgoVisitor(ParsedData parsedData, ParsedAlgorithm algo, boolean refinementMode) {
+        this.parsedData = parsedData;
+        this.parsedAlgo = algo;
         this.refinementMode = refinementMode;
-        this.termVisitor = new TermVisitor(translation, statements);
+        this.statements = this.parsedAlgo.getTranslation();
+        this.termVisitor = new TermVisitor(parsedData, this.statements);
     }
 
-    public List<String> extractProgram(ASTAlgo node) {
-        node.jjtAccept(this, null);
+    public void extractProgram() {
 
-        ArrayList<String> result = new ArrayList<String>();
-        result.add(firstLine);
-        result.addAll(requirements);
-        result.addAll(statements);
-        result.add(" endOfProgram: ");
-        result.addAll(ensures);
-        result.add("");
-        return result;
+        parsedAlgo.addDeclarationsTo(parsedData);
+
+        String sourceFile = parsedData.getSourceFile();
+        if(sourceFile != null) {
+            statements.add("program " + parsedAlgo.getName() + " source \"" + sourceFile + "\"");
+        } else {
+            statements.add("program " + parsedAlgo.getName());
+        }
+
+        addRequirements();
+        parsedAlgo.getStatementBlock().jjtAccept(this, null);
+        statements.add(" endOfProgram: ");
+        addGuarantees();
+        statements.add("");
+    }
+
+    private void addRequirements() {
+        for (SimpleNode req : parsedAlgo.getRequirements()) {
+            addSourceLineStatement(req);
+            String exp = req.jjtAccept(termVisitor, null);
+            statements.add("  assume " + exp);
+        }
+    }
+
+    private void addGuarantees() {
+        for (SimpleNode gu : parsedAlgo.getGuarantees()) {
+            addSourceLineStatement(gu);
+            String exp = gu.jjtAccept(termVisitor, null);
+            statements.add("  assert " + exp);
+        }
     }
 
     private String visitTermChild(SimpleNode node, int i) {
         return node.jjtGetChild(i).jjtAccept(termVisitor, null);
     }
 
-    private String addDeclarations(SimpleNode node, String mode) {
-        int count = node.jjtGetNumChildren();
-        List<String> identifiers = new ArrayList<String>();
-
-        for (int i = 0; i < count; i++) {
-            Node n = node.jjtGetChild(i);
-            String val = n.jjtAccept(this, null);
-            if (n instanceof ASTIdentifier) {
-                identifiers.add(val);
-            } else {
-                assert n instanceof ASTType;
-                for (String string : identifiers) {
-                    translation.addFunctionSymbol(string, val, mode);
-                }
-                identifiers.clear();
-            }
-        }
-
-        return null;
-    }
-
     private void addSourceLineStatement(SimpleNode node) {
         statements.add(" sourceline " + node.jjtGetFirstToken().beginLine);
-    }
-
-    @Override
-    public String visit(ASTAlgo node, Object data) {
-
-        programName = visitChild(node, 0);
-        String sourceFile = translation.getSourceFile();
-        if(sourceFile != null) {
-            firstLine = "program " + programName + " source \"" + sourceFile + "\"";
-        } else {
-            firstLine = ("program " + programName);
-        }
-
-        node.childrenAccept(this, data);
-        return null;
-    }
-
-    @Override
-    public String visit(ASTInputDecl node, Object data) {
-        return addDeclarations(node, "");
-    }
-
-    @Override
-    public String visit(ASTOutputDecl node, Object data) {
-        return addDeclarations(node, "assignable");
-    }
-
-    @Override
-    public String visit(ASTVarDecl node, Object data) {
-        return addDeclarations(node, "assignable");
-    }
-
-    @Override
-    public String visit(ASTRequiresDecl node, Object data) {
-        requirements.add(" sourceline " + node.jjtGetFirstToken().beginLine);
-        requirements.add("  assume " + visitTermChild(node, 0) + " ; \"by requirement\"");
-        return null;
-    }
-
-    @Override
-    public String visit(ASTEnsuresDecl node, Object data) {
-        // ensures only in non-ref mode
-        if(!refinementMode) {
-            ensures.add(" sourceline " + node.jjtGetFirstToken().beginLine);
-            ensures.add("  assert " + visitTermChild(node, 0) + " ; \"by ensures\"");
-        }
-        return null;
     }
 
     @Override
@@ -151,7 +115,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
             quant.append(phi);
             quant.append(Util.duplicate(")", identifierCount));
 
-            String hint = translation.retrieveHint(node, "witness", "");
+            String hint = parsedData.retrieveHint(node, "witness", "");
             String annotation;
             if(hint != null) {
                 annotation = Util.addQuotes("witness by " + hint);
@@ -164,7 +128,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         }
 
         // make havocs
-        String hint = translation.retrieveHint(node, "refwitness");
+        String hint = parsedData.retrieveHint(node, "refwitness");
         String annotation;
         if(hint != null) {
             annotation = "; " + Util.addQuotes("witness by " + hint);
@@ -221,7 +185,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         String bodyLabel = idProducer.makeIdentifier("body");
         String afterLabel = idProducer.makeIdentifier("after");
 
-        String hint = translation.retrieveHint(node, "");
+        String hint = parsedData.retrieveHint(node, "");
         String annotation;
         if(hint != null) {
             annotation = "; " + Util.addQuotes("witness by " + hint.toString());
@@ -313,7 +277,7 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
         String expression = visitTermChild(node, 0);
         addSourceLineStatement(node);
 
-        String hint = translation.retrieveHint(node, "");
+        String hint = parsedData.retrieveHint(node, "");
         String annotation;
         if(hint != null) {
             annotation = " ; " + Util.addQuotes("lemma by " + hint);
@@ -331,10 +295,11 @@ public class AlgoVisitor extends DefaultAlgoParserVisitor {
     @Override
     public String visit(ASTMarkStatement node, Object data) {
         if(refinementMode) {
+            RefinementDeclaration refDecl = parsedData.getRefinementDeclartion();
             addSourceLineStatement(node);
             String markPoint = (String) node.jjtGetValue();
-            String markInvariant = translation.getCouplingInvariant(markPoint);
-            String markVariant = translation.getCouplingVariant(markPoint);
+            String markInvariant = refDecl.getCouplingInvariant(markPoint);
+            String markVariant = refDecl.getCouplingVariant(markPoint);
             statements.add(String.format("  skip MARK, %s, %s, %s ; \"marking stone\"",
                     markPoint, markInvariant, markVariant));
         }
