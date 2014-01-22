@@ -25,6 +25,7 @@ import de.uka.iti.pseudo.algo.data.ParsedData;
 import de.uka.iti.pseudo.algo.data.RefinementDeclaration;
 import de.uka.iti.pseudo.util.CommandLine;
 import de.uka.iti.pseudo.util.CommandLineException;
+import de.uka.iti.pseudo.util.Util;
 
 public class Translation {
 
@@ -42,6 +43,12 @@ public class Translation {
         CommandLine cl = createCommandLine();
         List<String> clArgs = cl.getArguments();
         cl.parse(args);
+
+        if(cl.isSet("-help")) {
+            System.out.println("This is ivil-algo " + Util.getIvilVersion());
+            cl.printUsage(System.out);
+            System.exit(0);
+        }
 
         String source = null;
         try {
@@ -64,7 +71,7 @@ public class Translation {
 
             translation.refinementMode = cl.isSet("-ref");
 
-            if(cl.isSet("-prog")) {
+            if(cl.isSet("-algo")) {
                 translation.algos = cl.getString("-prog", null);
             }
 
@@ -76,6 +83,7 @@ public class Translation {
 
     private static CommandLine createCommandLine() {
         CommandLine cl = new CommandLine();
+        cl.addOption("-help", null, "Show usage");
         cl.addOption("-ref", null, "Extract the refinement from the algorithm");
         cl.addOption("-algo", "algoName", "Choose the algorithms for which to export a PO (comma-sep)");
         return cl;
@@ -123,10 +131,14 @@ public class Translation {
 
         Collection<String> algosToExport = determineAlgosToExtract();
 
-        for (String string : algosToExport) {
-            ParsedAlgorithm algo = parsedData.getAlgorithms().get(string);
-            AlgoVisitor algoVisitor = new AlgoVisitor(parsedData, algo, refinementMode);
-            algoVisitor.extractProgram();
+        for (String name : algosToExport) {
+            ParsedAlgorithm algo = parsedData.getAlgorithms().get(name);
+            if(algo == null) {
+                System.err.println("Unknown algorithm " + name + "; ignore it.");
+            } else {
+                AlgoVisitor algoVisitor = new AlgoVisitor(parsedData, algo, refinementMode);
+                algoVisitor.extractProgram();
+            }
         }
 
         for (String string : parsedData.getDeclarations()) {
@@ -134,12 +146,30 @@ public class Translation {
         }
 
         pw.println();
-
-//        for (String string : visitor.getPrograms()) {
-//            pw.println(string);
-//        }
+        for (String string : algosToExport) {
+            ParsedAlgorithm algo = parsedData.getAlgorithms().get(string);
+            if(algo != null) {
+                for (String line : algo.getTranslation()) {
+                    pw.println(line);
+                }
+            }
+        }
 
         pw.flush();
+
+        if(refinementMode) {
+            RefinementDeclaration refDecl = parsedData.getRefinementDeclartion();
+            String abstrProg = refDecl.getAbstrAlgoName();
+            String concrProg = refDecl.getConcrAlgoName();
+
+            String pre = refDecl.getCouplingInvariant("-1");
+            String post = refDecl.getCouplingInvariant("0");
+
+            pw.println();
+            pw.println("(* The refinement proof obligation *)");
+            pw.println("problem " + pre + " |- " +
+                    "[0; " + concrProg + "][<0;" + abstrProg + ">](" + post + ")");
+        }
 
     }
 

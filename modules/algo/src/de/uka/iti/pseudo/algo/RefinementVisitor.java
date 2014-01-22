@@ -24,6 +24,17 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
     }
 
     @Override
+    public String visit(ASTStart node, Object data) {
+        for (Node child : node.children) {
+            if (child instanceof ASTRefinement) {
+                ASTRefinement ref = (ASTRefinement) child;
+                ref.jjtAccept(this, data);
+            }
+        }
+        return null;
+    }
+
+    @Override
     public String visit(ASTCouplingFormula node, Object data) {
         String key = (String) node.jjtGetValue();
         String value = node.jjtGetChild(0).jjtAccept(termVisitor, null);
@@ -41,10 +52,10 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
 
         String abstrProg = visitChild(node, 0);
         String concrProg = visitChild(node, 1);
+        refinementDecl = new RefinementDeclaration(abstrProg, concrProg);
 
         node.childrenAccept(this, data);
 
-        refinementDecl = new RefinementDeclaration(abstrProg, concrProg);
         parsedData.setRefinementDeclartion(refinementDecl);
 
         return null;
@@ -57,7 +68,7 @@ public class RefinementVisitor extends DefaultAlgoParserVisitor {
 
     @Override
     public String visitDefault(SimpleNode node, Object data) {
-        throw new Error("JavaVisitor must not visit a node of type "
+        throw new Error("RefinementVisitor must not visit a node of type "
                 + node.getClass().getSimpleName());
     }
 
