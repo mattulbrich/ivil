@@ -31,6 +31,9 @@ modules/cmd/classes/
 modules/cmd/classes-test/
 modules/gui/classes/
 modules/gui/classes-test/
+modules/algo/classes/
+modules/algo/classes-test/
+modules/algo/genSrc/
 modules/exp/classes/
 modules/exp/classes-test/
 modules/exp/genSrc/

@@ -19,7 +19,7 @@ import de.uka.iti.pseudo.algo.TestTermVisitor;
 public class AllAlgoTests {
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(AllExpTests.class.getName());
+        TestSuite suite = new TestSuite(AllAlgoTests.class.getName());
         //$JUnit-BEGIN$
         suite.addTestSuite(TestAlgoVisitor.class);
         suite.addTestSuite(TestChainedRelationVisitor.class);
