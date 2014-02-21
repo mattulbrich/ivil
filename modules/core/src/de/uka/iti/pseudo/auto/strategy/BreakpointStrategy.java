@@ -59,9 +59,18 @@ public class BreakpointStrategy extends AbstractStrategy implements
             new HashMap<ProofNode, Collection<CodeLocation<Program>>>();
 
     /**
-     * The set of rules which we consult
+     * The default name of the set of rules which we consult.
+     *
+     * @ivildoc "Environment property/rewrite"
+     *
+     * The environment property
+     * <tt>BreakpointStrategy.rewrite</tt> can be used to specify the rewrite category
+     * which is to be used for symbolic execution. This is useful if an alternate set
+     * of symbolic execution rules is to be installed.
+     *
+     * <p>If not specified the default "symbex" is used.
      */
-    private static final String REWRITE_CATEGORY = "symbex";
+    private static final String DEFAULT_REWRITE_CATEGORY = "symbex";
 
     /*
      * The configurable properties
@@ -125,11 +134,8 @@ public class BreakpointStrategy extends AbstractStrategy implements
     public void init(Proof proof, Environment env,
             StrategyManager strategyManager) throws StrategyException {
         super.init(proof, env, strategyManager);
-        ruleCollection = new RewriteRuleCollection(env.getAllRules(),
-                REWRITE_CATEGORY, env);
-        ruleCollection.setApplicationFilter(this);
-        ruleCollection.deactivateCache();
 
+        String rewriteCategory = DEFAULT_REWRITE_CATEGORY;
         // obey settings in env
         {
             String name;
@@ -160,7 +166,17 @@ public class BreakpointStrategy extends AbstractStrategy implements
             if (env.hasProperty(name)) {
                 stopAtJumpBack = Boolean.parseBoolean(env.getProperty(name));
             }
+
+            name = this.getClass().getSimpleName() + ".rewrite";
+            if (env.hasProperty(name)) {
+                rewriteCategory = env.getProperty(name);
+            }
         }
+
+        ruleCollection = new RewriteRuleCollection(env.getAllRules(), rewriteCategory, env);
+        ruleCollection.setApplicationFilter(this);
+        ruleCollection.deactivateCache();
+
     }
 
     @Override
