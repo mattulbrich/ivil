@@ -99,12 +99,15 @@
 
   <target name="dist" depends="jar" description="package the software to deliver it">
     <zip destfile="ivil.zip" >
-      <fileset dir="." includes="examples/**" excludes="**/*~*" />
-      <fileset dir="." includes="sys/**" excludes="**/*~*" />
-      <fileset dir="." includes="lib/javadocking.jar" />
-      <fileset dir="." includes="lib/rsyntaxtextarea.jar" />
-      <fileset dir="." includes="lib/nonnull.jar" />
-      <fileset dir="." includes="ivil.jar" />
+      <zipfileset dir="." includes="examples/**"
+                  excludes="**/*~*" prefix="ivil"/>
+      <zipfileset dir="." includes="sys/**" excludes="**/*~*" prefix="ivil"/>
+      <zipfileset dir="." includes="lib/javadocking.jar" prefix="ivil" />
+      <zipfileset dir="." includes="lib/rsyntaxtextarea.jar" prefix="ivil" />
+      <zipfileset dir="." includes="lib/nonnull.jar" prefix="ivil" />
+      <zipfileset dir="." includes="lib/jpplib.jar" prefix="ivil" />
+      <zipfileset dir="." includes="ivil.jar" prefix="ivil" />
+      <zipfileset dir="." includes="ivil" prefix="ivil" filemode="755" />
     </zip>
   </target>
 
