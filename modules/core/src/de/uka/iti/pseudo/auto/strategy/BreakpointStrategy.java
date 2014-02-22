@@ -110,7 +110,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     /**
      * @ivildoc "Environment property/stopAtLoop"
      *
-     * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+     * The environment property <tt>BreakpointStrategy.stopAtLoop</tt> can be
      * used to specify whether symbolic execution should stop whenever reaching
      * a statement which has been visited already earlier in the proof. The
      * value can be "<code>true</code>" or " <code>false</code>".
@@ -120,7 +120,7 @@ public class BreakpointStrategy extends AbstractStrategy implements
     /**
      * @ivildoc "Environment property/stopAtLoop"
      *
-     * The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+     * The environment property <tt>BreakpointStrategy.stopAtJumpBack</tt> can be
      * used to specify whether symbolic execution should stop whenever reaching
      * a goto statement of which one target lies before the current location.
      * This happens usually only at the end of a loop. The value can be "

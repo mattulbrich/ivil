@@ -89,11 +89,20 @@
     <entry name="stopAtLoop">
       <![CDATA[
 
- The environment property <tt>BreakpointStrategy.stopAtSkip</tt> can be
+ The environment property <tt>BreakpointStrategy.stopAtJumpBack</tt> can be
  used to specify whether symbolic execution should stop whenever reaching
  a goto statement of which one target lies before the current location.
  This happens usually only at the end of a loop. The value can be "
  <code>true</code>" or " <code>false</code>".]]>
+    </entry>
+    <entry name="blacklist">
+      <![CDATA[
+
+ The environment property <tt>RewriteRuleCollection.blacklist</tt> can be used
+ to specify whether the names of rules which are to be <em>excluded</em>
+ from automatic application. Thus rules which are annotated as automatic
+ rules can still be excluded from application. If more than one rule is to
+ be named, separate the names by commas.]]>
     </entry>
     <entry name="obeyProgramBreakpoints">
       <![CDATA[

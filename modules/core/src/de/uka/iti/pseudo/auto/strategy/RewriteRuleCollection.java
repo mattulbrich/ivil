@@ -9,6 +9,7 @@
  */
 package de.uka.iti.pseudo.auto.strategy;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
@@ -62,6 +64,17 @@ import de.uka.iti.pseudo.util.Log;
  */
 @NonNull
 public class RewriteRuleCollection {
+
+    /**
+     * @ivildoc "Environment property/blacklist"
+     *
+     * The environment property <tt>RewriteRuleCollection.blacklist</tt> can be used
+     * to specify whether the names of rules which are to be <em>excluded</em>
+     * from automatic application. Thus rules which are annotated as automatic
+     * rules can still be excluded from application. If more than one rule is to
+     * be named, separate the names by commas.
+     */
+    private static final String REWRITE_BLACKLIST_PROPERTY = "RewriteRuleCollection.blacklist";
 
     /**
      * The map from toplevel symbols to applicable rules
@@ -119,8 +132,8 @@ public class RewriteRuleCollection {
         this.category = category;
         classificationMap = new HashMap<String, List<Rule>>();
         this.size = 0;
-        collectRules(rules, category);
         this.env = env;
+        collectRules(rules, category);
     }
 
     /**
@@ -202,10 +215,13 @@ public class RewriteRuleCollection {
     private void collectRules(List<Rule> rules, String category)
             throws StrategyException {
 
+        Set<String> blackList = makeBlackRuleList(env);
+
         for (Rule rule : rules) {
 
             String rwProperty = rule.getProperty(RuleTagConstants.KEY_REWRITE);
-            if (rwProperty == null || !category.equals(rwProperty)) {
+            if (rwProperty == null || !category.equals(rwProperty)
+                     || blackList.contains(rule.getName())) {
                 continue;
             }
 
@@ -235,6 +251,17 @@ public class RewriteRuleCollection {
             size++;
         }
 
+    }
+
+    private static Set<String> makeBlackRuleList(Environment env) {
+        String prop = env.getProperty(REWRITE_BLACKLIST_PROPERTY);
+        if(prop != null) {
+            String[] array = prop.split(" *, *");
+            List<String> list = Arrays.asList(array);
+            return new TreeSet<String>(list);
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     /**
