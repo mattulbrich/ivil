@@ -38,7 +38,6 @@ import de.uka.iti.pseudo.util.Log;
 public class RecentProblemsMenu extends JMenu implements MenuListener {
 
     private static final long serialVersionUID = 2656732349530151485L;
-    private final JFrame parentWindow;
 
     private class LoadProblem extends AbstractAction implements PropertyChangeListener {
         private static final long serialVersionUID = 6547255936403664041L;
@@ -76,7 +75,7 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
                         String message = "'" + selectedFile + "' cannot be loaded. " +
                                 "Do you want to open an editor to analyse?";
                         boolean answer = ExceptionDialog.showExceptionDialog(
-                                RecentProblemsMenu.this.getParentWindow(),
+                                RecentProblemsMenu.this.getParentFrame(),
                                 message, ex, "Open in Editor");
 
                         if(answer) {
@@ -84,19 +83,18 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
                         }
                     } else {
                         ExceptionDialog.showExceptionDialog(
-                                RecentProblemsMenu.this.getParentWindow(), ex);
+                                RecentProblemsMenu.this.getParentFrame(), ex);
                     }
                 }
             } catch(IOException ex) {
                 ExceptionDialog.showExceptionDialog(
-                        RecentProblemsMenu.this.getParentWindow(), ex);
+                        RecentProblemsMenu.this.getParentFrame(), ex);
             }
         }
     }
 
-    public RecentProblemsMenu(JFrame parentWindow) {
+    public RecentProblemsMenu() {
         super("Recent problems ...");
-        this.parentWindow = parentWindow;
         addMenuListener(this);
     }
 
@@ -155,8 +153,8 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
     /**
      * @return the parentWindow
      */
-    public JFrame getParentWindow() {
-        return parentWindow;
+    public JFrame getParentFrame() {
+        return (JFrame) getClientProperty(BarAction.PARENT_FRAME);
     }
 
 }
