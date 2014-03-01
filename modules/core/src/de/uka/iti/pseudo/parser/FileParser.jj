@@ -78,13 +78,14 @@ ASTProblemSequent Problem():
 
 ASTPlugins PluginsBlock():
 {
-  Token first, service, implementation;
+  Token first, service, implementation, classpath=null;
   List<ASTPluginDeclaration> pairs = new ArrayList<ASTPluginDeclaration>();
 }
 {
-        first="plugin"
-        ( service=<IDENTIFIER> ":" implementation=<STRING>
-             { pairs.add(new ASTPluginDeclaration(service, implementation)); }
+        first="plugins"
+        ( "source" classpath=<STRING> )?
+        ( service=<IDENTIFIER> implementation=<STRING>
+             { pairs.add(new ASTPluginDeclaration(service, implementation, classpath)); }
         )+
     { return new ASTPlugins(first, pairs); }
 }

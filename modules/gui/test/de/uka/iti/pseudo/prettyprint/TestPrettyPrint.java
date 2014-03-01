@@ -105,7 +105,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
 
     // this needs to be the last test!
     public void testPPPlugin() throws Exception {
-        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        env.getPluginManager().register(null, PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
         pp = new PrettyPrint(env);
 
         testTerm("f(3)", "{-3-}");
@@ -120,7 +120,7 @@ public class TestPrettyPrint extends TestCaseWithEnv {
     public void testNameReplacing() throws Exception {
 
         env = new Environment("none:generated", env);
-        env.getPluginManager().register(PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
+        env.getPluginManager().register(null, PrettyPrint.SERVICE_NAME, "de.uka.iti.pseudo.gui.MockPrettyPrintPlugin");
         env.addFunction(new Function("Xtest", Environment.getBoolType(),
                 new Type[0], false, false, ASTLocatedElement.CREATED));
 

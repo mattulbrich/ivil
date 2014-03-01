@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import nonnull.Nullable;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
 import de.uka.iti.pseudo.parser.ASTElement;
@@ -46,7 +48,6 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
             resultEx.setEndLine(problemtoken.endLine);
             resultEx.setBeginColumn(problemtoken.beginColumn);
             resultEx.setEndColumn(problemtoken.endColumn);
-            resultEx.setResource(url.toString());
             throw resultEx;
 
         } catch (ASTVisitException e) {
@@ -60,11 +61,42 @@ public class PFileEnvironmentCreationService extends EnvironmentCreationService 
                 resultEx.setEndLine(token.endLine);
                 resultEx.setBeginColumn(token.beginColumn);
                 resultEx.setEndColumn(token.endColumn);
-                resultEx.setResource(ast.getFileName());
             }
+
+            resultEx.setCauseResource(getCauseLocation(e));
 
             throw resultEx;
         }
+    }
+
+    /**
+     * Get the location of a {@link ASTVisitException} wrapped in this
+     * exception, possibly several times.
+     *
+     * Descent to the {@linkplain #getCause() cause} of this exception while
+     * exceptions in the chain are of type {@link ASTVisitException}. Return the
+     * location of the exception embedded most deeply within this chain.
+     *
+     * If the cause of this exception is not a {@link ASTVisitException}, return
+     * null.
+     * @param e
+     *
+     * @return the located of the most embedded {@link ASTVisitException} along
+     *         the cause chain, <code>null</code> if cause is not of that type.
+     */
+    public @Nullable String getCauseLocation(Throwable ex) {
+        String result = null;
+        while(ex != null) {
+            Throwable cause = ex.getCause();
+
+            if (cause instanceof ASTVisitException) {
+                ASTVisitException astEx = (ASTVisitException) cause;
+                result = astEx.getLocation().getLocation();
+            }
+
+            ex = cause;
+        }
+        return result;
     }
 
     @Override

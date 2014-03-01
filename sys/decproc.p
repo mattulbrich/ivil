@@ -13,12 +13,12 @@
  * This file contains rules to contact decision procedures.
  *)
 
-plugin 
+plugins 
   # ask a decision procedure.
-  whereCondition : "de.uka.iti.pseudo.rule.where.AskDecisionProcedure"
+  whereCondition "de.uka.iti.pseudo.rule.where.AskDecisionProcedure"
 
   # register "Z3"
-  decisionProcedure : "de.uka.iti.pseudo.auto.Z3SMT"
+  decisionProcedure "de.uka.iti.pseudo.auto.Z3SMT"
 
 (*
  * The rule auto_smt_close is special since it is the one used

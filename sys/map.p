@@ -19,8 +19,8 @@ include
 
 include "$fol.p"
 
-plugin
-  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.MapPrettyPrinter"
+plugins
+  prettyPrinter "de.uka.iti.pseudo.prettyprint.plugin.MapPrettyPrinter"
 
 sort
   map('d, 'r)

@@ -5,9 +5,9 @@
 
 include "$base.p"
 
-plugin
-  metaFunction : "de.uka.iti.pseudo.rule.meta.RefinementModificationMetaFunction"
-  contextExtension : "de.uka.iti.pseudo.gui.extensions.RefinementExpansionExt"
+plugins
+  metaFunction "de.uka.iti.pseudo.rule.meta.RefinementModificationMetaFunction"
+  contextExtension "de.uka.iti.pseudo.gui.extensions.RefinementExpansionExt"
 
 properties
   skipmark.refinement "MARK"

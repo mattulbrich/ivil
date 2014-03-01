@@ -11,7 +11,7 @@ public class TestHintParser extends TestCaseWithEnv {
 
     public TestHintParser() throws Exception {
         this.env = new Environment("none:*mockHints*", env);
-        this.env.getPluginManager().register(
+        this.env.getPluginManager().register(null,
                 HintStrategy.PROOF_HINT_SERVICE_NAME,
                 "de.uka.iti.pseudo.auto.strategy.hint.MockProofHint");
     }

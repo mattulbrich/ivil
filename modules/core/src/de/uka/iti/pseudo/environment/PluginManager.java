@@ -12,9 +12,13 @@ package de.uka.iti.pseudo.environment;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +127,12 @@ public final class PluginManager {
      */
     private final Map<String, Service> serviceMap = new HashMap<String, Service>();
 
+    private Map<URL, ClassLoader> classLoaderCache;
+
+    private final String resourceName;
+
+    private ClassLoader parentResult;
+
     /**
      * An instance of class Service holds more information on a particular
      * plugin service which is provided by this manager.
@@ -154,17 +164,22 @@ public final class PluginManager {
     /**
      * Instantiates a new plugin manager with a given parent reference.
      *
-     * The configuration is read from the resource <code>PluginManager.properties</code>.
+     * The configuration is read from the resource
+     * <code>PluginManager.properties</code>.
      *
+     * @param resourceName
+     *            the resource where the environment is stored, it needs to be a
+     *            URL
      * @param parentManager
      *            the parent manager to set
      *
      * @throws EnvironmentException
      *             if reading the configuration fails
      */
-    public PluginManager(@Nullable PluginManager parentManager)
+    public PluginManager(@NonNull String resourceName, @Nullable PluginManager parentManager)
             throws EnvironmentException {
 
+        this.resourceName = resourceName;
         this.parentManager = parentManager;
         try {
             makeServiceTable();
@@ -209,17 +224,20 @@ public final class PluginManager {
      * The service must be known to this manager and the implementation that has
      * been provided must be instantiateable.
      *
+     * @param classpath
+     *            if non-<code>null</code> it holds the classpath where the
+     *            class has to be looked up.
      * @param serviceName
      *            the name of the service to register with.
      * @param implementation
-     *            the name of the implementing class (the plugin
-     *            implementation)
+     *            the name of the implementing class (the plugin implementation)
      *
      * @throws EnvironmentException
      *             if no creating an instance of the class fails or if the class
      *             does not have the needed type
      */
-    public void register(@NonNull String serviceName, @NonNull String implementation)
+    public void register(@Nullable String classpath,
+            @NonNull String serviceName, @NonNull String implementation)
             throws EnvironmentException {
 
         Service service = serviceMap.get(serviceName);
@@ -227,9 +245,11 @@ public final class PluginManager {
             throw new EnvironmentException("Unknown service: " + serviceName);
         }
 
+        ClassLoader classLoader = getClassLoader(classpath);
+
         Object instance;
         try {
-            Class<?> clss = Class.forName(implementation);
+            Class<?> clss = classLoader.loadClass(implementation);
             instance = clss.newInstance();
         } catch (Exception e) {
             throw new EnvironmentException("Class " + implementation
@@ -249,6 +269,44 @@ public final class PluginManager {
         }
 
         Log.log("Class %s registered for service %s", implementation, serviceName);
+    }
+
+    private ClassLoader getClassLoader(@Nullable String classpath) throws EnvironmentException {
+
+        if(classpath == null) {
+            return ClassLoader.getSystemClassLoader();
+        }
+
+        try {
+            URL resource = new URL(resourceName);
+            URL url = new URL(resource, classpath);
+            return getClassLoader(url);
+
+        } catch (MalformedURLException e) {
+            throw new EnvironmentException("Cannot create URL for " + resourceName, e);
+        }
+    }
+
+    private ClassLoader getClassLoader(@NonNull URL url) {
+        if(classLoaderCache != null) {
+            ClassLoader cached = classLoaderCache.get(url);
+            if(cached != null) {
+                return cached;
+            }
+        }
+
+        if(parentManager != null) {
+            parentResult = parentManager.getClassLoader(url);
+        }
+
+        if(classLoaderCache == null) {
+            classLoaderCache = new HashMap<URL, ClassLoader>();
+        }
+
+        URLClassLoader result = new URLClassLoader(new URL[] { url });
+        classLoaderCache.put(url, result);
+
+        return result;
     }
 
     /**

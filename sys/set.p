@@ -17,8 +17,9 @@
 
 include "$setdefs.p"
 include "$int.p"
-plugin
-  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SetPrettyPrinter"
+
+plugins
+  prettyPrinter "de.uka.iti.pseudo.prettyprint.plugin.SetPrettyPrinter"
 
 (*
  * rules with equality

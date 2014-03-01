@@ -20,11 +20,11 @@
 include 
   "$base.p"
 
-plugin  # int literal evaluation
-  metaFunction : "de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction"
+plugins  # int literal evaluation
+  metaFunction "de.uka.iti.pseudo.rule.meta.IntEvalMetaFunction"
 
   # check whether a term is a number literal
-  whereCondition : "de.uka.iti.pseudo.rule.where.IntLiteral"
+  whereCondition "de.uka.iti.pseudo.rule.where.IntLiteral"
 
 function  # infixes
         int $pow(int, int)      infix ^  80

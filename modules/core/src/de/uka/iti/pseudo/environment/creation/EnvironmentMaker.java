@@ -25,6 +25,7 @@ import java.util.Map;
 import nonnull.NonNull;
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.EnvironmentException;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.parser.ParseException;
 import de.uka.iti.pseudo.parser.Parser;
@@ -248,10 +249,14 @@ public class EnvironmentMaker {
         for (ASTPlugins block : plugins) {
             List<ASTPluginDeclaration> pairs = SelectList.select(ASTPluginDeclaration.class, block.getChildren());
             for (ASTPluginDeclaration decl : pairs) {
+                String classPath = null;
+                if(decl.getClasspath() != null) {
+                    classPath = Util.stripQuotes(decl.getClasspath().image);
+                }
                 String serviceName = decl.getServiceName().image;
                 String implementation = Util.stripQuotes(decl.getImplementationClass().image);
                 try {
-                    env.getPluginManager().register(serviceName, implementation);
+                    env.getPluginManager().register(classPath, serviceName, implementation);
                 } catch (EnvironmentException e) {
                     throw new ASTVisitException(decl, e);
                 }
@@ -282,8 +287,14 @@ public class EnvironmentMaker {
                         continue;
                     }
 
-                    EnvironmentMaker includeMaker = new EnvironmentMaker(
-                            parser, res, env.getParent());
+                    EnvironmentMaker includeMaker;
+                    try {
+                        includeMaker = new EnvironmentMaker(
+                                parser, res, env.getParent());
+                    } catch (ParseException e) {
+                        throw new ASTVisitException("Error while parsing " + filename,
+                                new ASTLocatedElement.Fixed(res.toExternalForm()), e);
+                    }
                     Environment innerEnv = includeMaker.getEnvironment();
                     innerEnv.setFixed();
                     env.setParent(innerEnv);
@@ -291,12 +302,11 @@ public class EnvironmentMaker {
                 } catch (FileNotFoundException e) {
                     throw new ASTVisitException("Cannot include " + filename
                             + " (not found)", block, e);
-                } catch (ParseException e) {
-                    throw new ASTVisitException("Error while parsing file "
-                            + filename, block, e);
                 } catch (EnvironmentException e) {
                     throw new ASTVisitException(block, e);
                 } catch (IOException e) {
+                    throw new ASTVisitException(block, e);
+                } catch (ASTVisitException e) {
                     throw new ASTVisitException(block, e);
                 }
             }

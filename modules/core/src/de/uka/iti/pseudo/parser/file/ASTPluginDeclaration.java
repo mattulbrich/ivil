@@ -16,20 +16,23 @@ import de.uka.iti.pseudo.parser.Token;
 
 public class ASTPluginDeclaration extends ASTElement {
 
-    private Token serviceName;
-    private Token implementationClass;
-    
-    public ASTPluginDeclaration(Token serviceName, Token implementationClass) {
-        super();
+    private final Token serviceName;
+    private final Token implementationClass;
+    private final Token classpath;
+
+    public ASTPluginDeclaration(Token serviceName, Token implementationClass, Token classpath) {
         this.serviceName = serviceName;
         this.implementationClass = implementationClass;
+        this.classpath = classpath;
     }
 
-    @Override public Token getLocationToken() {
+    @Override
+    public Token getLocationToken() {
         return serviceName;
     }
 
-    @Override public void visit(ASTVisitor v) throws ASTVisitException {
+    @Override
+    public void visit(ASTVisitor v) throws ASTVisitException {
         v.visit(this);
     }
 
@@ -39,6 +42,10 @@ public class ASTPluginDeclaration extends ASTElement {
 
     public Token getImplementationClass() {
         return implementationClass;
+    }
+
+    public Token getClasspath() {
+        return classpath;
     }
 
 }

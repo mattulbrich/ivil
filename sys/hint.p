@@ -23,34 +23,34 @@
  *   "HintStrategy,SimplificationStrategy,BreakpointStrategy,SMTStrategy"
  *)
 
-plugin
+plugins
  
     # proof hint where a rule application is given like §(rule ruleName)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.RuleProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.RuleProofHint"
 
     # proof hint where an axiom is introduced like §(axiom axiomName)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.AxiomProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.AxiomProofHint"
 
 
     # proof hint to perform a case distinction like §(cut 'a > 0')
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.CutProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.CutProofHint"
 
     # proof hint to perform pick formulas like §(pick A.0 A.1 S.2)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.PickProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.PickProofHint"
 
     # proof hint to perform focus on last formula like §(focus)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.FocusProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.FocusProofHint"
 
     # proof hint to perform focus on last formula like §(expand funct_def 2)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.ExpandProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.ExpandProofHint"
 
     # proof hint to perform instantiation on a gamma formula like
     # §(inst j with 2) or §(inst '(\forall x.x*x>=0)' with 2)
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.InstantiateProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.InstantiateProofHint"
    
     # proof hint to perform instantiation on last formula like §(witness 'x1 + 1')
     # performs update simplification
-    proofHint : "de.uka.iti.pseudo.auto.strategy.hint.WitnessProofHint"
+    proofHint "de.uka.iti.pseudo.auto.strategy.hint.WitnessProofHint"
  (*
 
  * "Focus" reduces the sequent to one single formula,

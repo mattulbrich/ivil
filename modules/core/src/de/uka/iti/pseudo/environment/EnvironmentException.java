@@ -87,14 +87,14 @@ public class EnvironmentException extends Exception {
     /**
      * @return the resource
      */
-    public @Nullable String getResource() {
+    public @Nullable String getCauseResource() {
         return resource;
     }
 
     /**
      * @param resource the resource to set
      */
-    public void setResource(String resource) {
+    public void setCauseResource(String resource) {
         this.resource = resource;
     }
 
@@ -165,8 +165,7 @@ public class EnvironmentException extends Exception {
     @AssertNonNullIfTrue("getResource()")
     public boolean hasErrorInformation() {
         return beginColumn != -1 && beginLine != -1 &&
-               endLine != -1 && endColumn != -1 &&
-               resource != null;
+               endLine != -1 && endColumn != -1;
     }
 
 }

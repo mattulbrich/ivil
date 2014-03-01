@@ -17,30 +17,30 @@
 include
    "$fol.p"
 
-plugin
+plugins
   # increment program counter
-  metaFunction : "de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction"
+  metaFunction "de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction"
 
   # jump to new program counter
-  metaFunction : "de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction"
+  metaFunction "de.uka.iti.pseudo.rule.meta.JmpPrgMetaFunction"
 
   # the loop invariant program changements
-  metaFunction : "de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction"
+  metaFunction "de.uka.iti.pseudo.rule.meta.LoopInvariantProgramModificationMetaFunction"
 
   # the general single-step update simplifier
-  metaFunction : "de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction"
+  metaFunction "de.uka.iti.pseudo.rule.meta.UpdSimplMetaFunction"
 
   # the general deep update simplifier
-  metaFunction : "de.uka.iti.pseudo.rule.meta.DeepUpdSimplMetaFunction"
+  metaFunction "de.uka.iti.pseudo.rule.meta.DeepUpdSimplMetaFunction"
   
   # process an update statment
-  #metaFunction : "de.uka.iti.pseudo.rule.meta.ApplyUpdateStatement"
+  #metaFunction "de.uka.iti.pseudo.rule.meta.ApplyUpdateStatement"
 
   # check whether a term does not contain modalities
-  whereCondition : "de.uka.iti.pseudo.rule.where.ProgramFree"
+  whereCondition "de.uka.iti.pseudo.rule.where.ProgramFree"
 
   # for diamond branches, have a better splitting rule
-  whereCondition : "de.uka.iti.pseudo.rule.where.ComplementaryBranches"
+  whereCondition "de.uka.iti.pseudo.rule.where.ComplementaryBranches"
   
   # check whether a term is a Program at an updateAssignment position
 #  whereCondition : "de.uka.iti.pseudo.rule.where.IsUpdateStatement"

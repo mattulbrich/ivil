@@ -1240,7 +1240,7 @@ public class Environment {
                 parentEnvironment != null ?
                         parentEnvironment.pluginManager : null;
 
-            pluginManager = new PluginManager(parentManger);
+            pluginManager = new PluginManager(resourceName, parentManger);
         }
 
         return pluginManager;
