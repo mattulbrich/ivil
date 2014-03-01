@@ -63,15 +63,18 @@ public class ExceptionDialog extends JDialog {
     private final Throwable exception;
     private String message;
     private final Dimension firstSize;
+    private final String alternateButtonText;
+    private boolean alternateHasBeenPressed;
 
     private static int MIN_WIDTH = 300;
     private static int LINE_LENGTH = 72;
     private static int MAX_LINES = 32;
 
-    private ExceptionDialog(Window w, String message, Throwable throwable) {
-        super(w, "Fehler", ModalityType.APPLICATION_MODAL);
+    private ExceptionDialog(Window w, String message, Throwable throwable, String alternateButton) {
+        super(w, "Error", ModalityType.APPLICATION_MODAL);
         this.exception = throwable;
         this.message = message;
+        this.alternateButtonText = alternateButton;
         initGUI();
         firstSize = getSize();
     }
@@ -126,10 +129,22 @@ public class ExceptionDialog extends JDialog {
                         }
                     });
                 }
+                if(alternateButtonText != null) {
+                    JButton jAlternate = new JButton();
+                    jAlternate.setText(alternateButtonText);
+                    jAlternate.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            alternateHasBeenPressed = true;
+                            setVisible(false);
+                        }
+                    });
+                    jPanel1.add(jAlternate);
+                }
                 {
                     jOK = new JButton();
                     jPanel1.add(jOK);
-                    jOK.setText("OK");
+                    jOK.setText("Close");
                     jOK.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent evt) {
@@ -150,6 +165,10 @@ public class ExceptionDialog extends JDialog {
             }
         }
         pack();
+    }
+
+    private boolean isAlternatePressed() {
+        return alternateHasBeenPressed;
     }
 
     private void jDetailsActionPerformed(ActionEvent evt) {
@@ -239,7 +258,7 @@ public class ExceptionDialog extends JDialog {
     public static void showExceptionDialog(Window parentComponent,
             Throwable throwable) {
         showExceptionDialog(parentComponent, throwable.getLocalizedMessage(),
-                throwable);
+                throwable, null);
     }
 
     public static void showExceptionDialog(Window owner, String message) {
@@ -248,6 +267,21 @@ public class ExceptionDialog extends JDialog {
 
     public static void showExceptionDialog(Window parentComponent,
             String message, Throwable throwable) {
+        showExceptionDialog(parentComponent, message, throwable, null);
+    }
+
+    public static boolean showExceptionDialog(Window owner, String message, String alternateButton) {
+        return showExceptionDialog(owner, new StackTraceThrowable(message), alternateButton);
+    }
+
+    public static boolean showExceptionDialog(Window parentComponent,
+            Throwable throwable, String alternateButton) {
+        return showExceptionDialog(parentComponent, throwable.getLocalizedMessage(),
+                throwable, alternateButton);
+    }
+
+    public static boolean showExceptionDialog(Window parentComponent,
+            String message, Throwable throwable, String alternateButton) {
         Log.stacktrace(Log.DEBUG, throwable);
 
         if(Log.isLogging(Log.WARNING)) {
@@ -258,10 +292,11 @@ public class ExceptionDialog extends JDialog {
         }
 
         ExceptionDialog dlg = new ExceptionDialog(parentComponent, message,
-                throwable);
+                throwable, alternateButton);
         dlg.setLocationRelativeTo(parentComponent);
         dlg.setVisible(true);
         dlg.dispose();
+        return dlg.isAlternatePressed();
     }
 
     public static void main(String[] args) {
@@ -278,6 +313,13 @@ public class ExceptionDialog extends JDialog {
         showExceptionDialog(
                 new JFrame(),
                 "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890");
+        showExceptionDialog(
+                new JFrame(),
+                new Exception(
+                "1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890 1234567890"));
+
+        System.out.println(showExceptionDialog(new JFrame(), "Message to display", "Extra Button"));
+        System.out.println(showExceptionDialog(new JFrame(), "Message to display (2)", new RuntimeException("Exceptional text"), "Extra Button"));
 
         CompoundException cex = new CompoundException(Arrays.asList(new Exception("Ex1"), new RuntimeException("Ex2")));
 
