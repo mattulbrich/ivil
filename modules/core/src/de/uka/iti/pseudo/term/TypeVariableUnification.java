@@ -1,3 +1,13 @@
+/*
+ * This file is part of
+ *    ivil - Interactive Verification on Intermediate Language
+ *
+ * Copyright (C) 2009-2012 Karlsruhe Institute of Technology
+ *
+ * The system is protected by the GNU General Public License.
+ * See LICENSE.TXT (distributed with this file) for details.
+ */
+
 package de.uka.iti.pseudo.term;
 
 import java.util.Iterator;
@@ -126,7 +136,19 @@ public class TypeVariableUnification {
         }
     };
 
-    protected boolean occursIn(TypeVariable typeVariable, Type type) {
+    /**
+     * Check whether a type varible occurs in a type.
+     *
+     * This implements the occur-check needed for unification.
+     *
+     * @param typeVariable
+     *            type variable to search for
+     * @param type
+     *            type to search the variable in
+     * @return <code>true</code> iff <tt>typeVariable</tt> occurs in
+     *         <tt>type</tt>.
+     */
+    protected boolean occursIn(@NonNull TypeVariable typeVariable, @NonNull Type type) {
         try {
             type.accept(TYPEVAR_DETECTOR, typeVariable);
             return false;
@@ -175,7 +197,22 @@ public class TypeVariableUnification {
         }
     }
 
-    public void unify(Type type1, Type type2) throws TermException {
+    /**
+     * Try to unify two types.
+     *
+     * If the current substitution can be augmented such that the two types can
+     * be made equal, this is done so. If there is no possibility to do so, the
+     * state of the unification is not changed and an exception is raised
+     *
+     * @param type1
+     *            one of two types to unify
+     * @param type2
+     *            one of two types to unify
+     * @throws TermException
+     *             if the two types cannot be unified. State of object is not
+     *             changed in this case.
+     */
+    public void unify(@NonNull Type type1, @NonNull Type type2) throws TermException {
         int rewindPos = typeVarMap.getRewindPosition();
         try {
             type1.<Void,Type>accept(unifier, type2);
@@ -190,8 +227,21 @@ public class TypeVariableUnification {
         return typeVarMap;
     }
 
-    public Type instantiate(Type argument) throws TermException {
-        return argument.accept(instantiator, null);
+    /**
+     * Instantiate a type according to the substitution stored in this object.
+     * All type variables in the domain of the substitution in the argument are replaced.
+     * @param argument type in which type variables are to be instantiated.
+     * @return the argument type in which type variables have been instantiated.
+     * @throws TermException
+     */
+    public @NonNull Type instantiate(@NonNull Type argument) {
+        try {
+            return argument.accept(instantiator, null);
+        } catch (TermException e) {
+            Log.log(Log.ERROR, "This is expected to never happen");
+            Log.stacktrace(Log.ERROR, e);
+            throw new Error(e);
+        }
     }
 
 }

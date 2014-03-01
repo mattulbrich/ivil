@@ -35,33 +35,36 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * This class is the base class to visitors which change the structure of a term
  * locally.
- * 
+ *
  * Since the term datastructure is immutable, this mechanism must be used to
  * partially change a term, i.e. to produce a new term which is identical to the
  * original but at certain places.
- * 
+ *
  * The visitor visits into depth and only if a resulting item is not null,
  * reconstructs a parent item. It is hence guaranteed to reuse as much term
  * structure as possible.
- * 
+ *
  * The mechanism does not traverse schema programs terms
  */
-@SuppressWarnings({"nullness"})
+@SuppressWarnings("nullness")
 public class RebuildingTermVisitor extends DefaultTermVisitor {
 
     /**
      * stores the result of a visitation.
-     * 
-     * May contain null to indicate that the last subterm has not changed due to 
-     * the rebuilding. 
+     *
+     * May contain null to indicate that the last subterm has not changed due to
+     * the rebuilding.
      */
+    // Checkstyle: IGNORE VisibilityModifier
+    // - this needs to be accessible since return values are not supported by the visitor
     protected @Nullable Term resultingTerm;
-    
+
     /**
      * {@inheritDoc}
-     * 
+     *
      * the default action is to not change the term.
      */
+    @Override
     protected void defaultVisitTerm(Term term) throws TermException {
         resultingTerm = null;
     }
@@ -69,12 +72,12 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     /**
      * Implement this method if your visitation needs to adapt types of terms
      * also (for instance type variable instantiation).
-     * 
+     *
      * One may for instance change change the type of an application but not the
      * function symbol (in case of polymorphism)
-     * 
+     *
      * This implementation just returns the argument
-     * 
+     *
      * @param type
      *            the type to potentially modify
      * @return the modified type
@@ -84,7 +87,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     protected Type modifyType(Type type) throws TermException {
         return type;
     }
-    
+
     /*
      * a variable is rebuilt only if the type modification changes the type.
      */
@@ -94,13 +97,14 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingTerm == null) {
             Type varType = variable.getType();
             Type type = modifyType(varType);
-            if(!type.equals(varType))
+            if(!type.equals(varType)) {
                 resultingTerm = Variable.getInst(variable.getName(), type);
+            }
         }
     }
 
     /*
-     * a schema variable is rebuilt only if the 
+     * a schema variable is rebuilt only if the
      * type modification changes the type.
      */
     @Override
@@ -109,11 +113,12 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingTerm == null) {
             Type varType = schemaVariable.getType();
             Type type = modifyType(varType);
-            if(!type.equals(varType))
+            if(!type.equals(varType)) {
                 resultingTerm = SchemaVariable.getInst(schemaVariable.getName(), type);
+            }
         }
     }
-    
+
     /*
      * a binding is rebuilt if any of its arguments or the type have changed
      */
@@ -131,13 +136,13 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                     args[i] = resultingTerm;
                 }
             }
-            
+
             /*
              * sub classes may choose to do things with bound variables
-             * as well. 
+             * as well.
              */
             visitBindingVariable(binding);
-            
+
             Term bindingReplacement = resultingTerm == null ? binding
                     .getVariable() : resultingTerm;
 
@@ -146,7 +151,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
                         "Only a variable or schema variable can be bound in a binder",
                         binding, bindingReplacement);
             }
-            
+
             Type modifiedType = modifyType(binding.getType());
             if(args != null) {
                 resultingTerm = Binding.getInst(binding.getBinder(), modifiedType,
@@ -161,9 +166,9 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
         }
     }
-    
+
     /*
-     * a type variable binding is rebuilt if its argument or 
+     * a type variable binding is rebuilt if its argument or
      * the type variable have changed
      */
     @Override
@@ -171,26 +176,27 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         defaultVisitTerm(tyVarBinding);
         if(resultingTerm == null) {
             boolean changed = false;
-            
+
             Term subterm = tyVarBinding.getSubterm();
             subterm.visit(this);
             if(resultingTerm != null) {
                 subterm = resultingTerm;
                 changed = true;
             }
-            
+
             /*
              * sub classes may choose to do things with bound variables
-             * as well. 
+             * as well.
              */
             Type boundType = tyVarBinding.getBoundType();
             Type modifiedType = modifyType(boundType);
-            
+
             if (!(modifiedType instanceof TypeVariable)
                     && !(modifiedType instanceof SchemaType)) {
-                throw new TermException("The bound type of a type quantification must be a type variable or schema type: " + modifiedType);
+                throw new TermException("The bound type of a type quantification " +
+                        "must be a type variable or schema type: " + modifiedType);
             }
-            
+
             if(boundType != modifiedType) {
                 changed = true;
                 boundType = modifiedType;
@@ -204,14 +210,14 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
         }
     }
-    
+
 //    /**
 //     * Some implementations may choose to visit the bound type variable and change it.
-//     * 
+//     *
 //     * They can then override this method according to their needs.
-//     * 
+//     *
 //     * The default behaviour is to NOT change the type variable
-//     * 
+//     *
 //     * @param tyVarBinding binding to visit the bound type variable in.
 //     */
 //    protected TypeVariable visitBindingTypeVariable(TypeVariableBinding tyVarBinding) {
@@ -221,14 +227,19 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
     /**
      * Some implementations may choose to visit the bound variable as a subterm
      * and others may not.
-     * 
-     * They can then override this method according to their needs.
-     * It should return its result in resultingTerm which may be null if 
-     * nothing should be changed or may contain a {@link BindableIdentifier}.
-     * 
+     *
+     * They can then override this method according to their needs. It should
+     * return its result in resultingTerm which may be null if nothing should be
+     * changed or may contain a {@link BindableIdentifier}.
+     *
      * The default behaviour is to NOT visit the variable
-     * 
-     * @param binding binding to visit the bound variable in.
+     *
+     * @param binding
+     *            binding to visit the bound variable in.
+     *
+     * @throws TermException
+     *             while this implementation does not throw exceptions,
+     *             subclasses may do so
      */
     protected void visitBindingVariable(Binding binding) throws TermException {
         resultingTerm = null;
@@ -253,18 +264,18 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
             Type modifiedType = modifyType(application.getType());
             if(args != null) {
-                resultingTerm = Application.getInst(application.getFunction(), 
+                resultingTerm = Application.getInst(application.getFunction(),
                         modifiedType, args);
             } else if(!modifiedType.equals(application.getType())) {
                 args = Util.listToArray(application.getSubterms(), Term.class);
-                resultingTerm = Application.getInst(application.getFunction(), 
+                resultingTerm = Application.getInst(application.getFunction(),
                         modifiedType, args);
             } else {
                 resultingTerm = null;
             }
         }
     }
-    
+
     /*
      * an update term is is rebuilt if any of its assignments is modified
      * or if the updated term is modified.
@@ -277,15 +288,17 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingTerm == null) {
             updateTerm.getSubterm(0).visit(this);
             Term childResult = resultingTerm;
-            
+
             List<Assignment> assignments = updateTerm.getAssignments();
             Assignment[] newAssignments = visitAssignments(assignments);
-            
+
             if(newAssignments != null || childResult != null) {
-                if(newAssignments == null)
+                if(newAssignments == null) {
                     newAssignments = Util.listToArray(assignments, Assignment.class);
-                if(childResult == null)
+                }
+                if(childResult == null) {
                     childResult = updateTerm.getSubterm(0);
+                }
                 Update update = new Update(newAssignments);
                 resultingTerm = UpdateTerm.getInst(update, childResult);
             } else {
@@ -293,7 +306,7 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
             }
         }
     }
-    
+
     /*
      * a literal program term is rebuilt if the suffix term is modified.
      * Types are always boolean
@@ -304,46 +317,48 @@ public class RebuildingTermVisitor extends DefaultTermVisitor {
         if(resultingTerm == null) {
             literalProgramTerm.getSuffixTerm().visit(this);
             Term childResult = resultingTerm;
-            
+
             if(childResult != null) {
                 resultingTerm = LiteralProgramTerm.getInst(
-                        literalProgramTerm.getProgramIndex(), 
+                        literalProgramTerm.getProgramIndex(),
                         literalProgramTerm.getModality(),
-                        literalProgramTerm.getProgram(), 
+                        literalProgramTerm.getProgram(),
                         childResult);
             }
         }
     }
-    
+
     @Override
     public void visit(SchemaProgramTerm schemaProgramTerm) throws TermException {
         defaultVisitTerm(schemaProgramTerm);
         if(resultingTerm == null) {
             schemaProgramTerm.getSuffixTerm().visit(this);
             Term childResult = resultingTerm;
-            
+
             if(childResult != null) {
                 resultingTerm = SchemaProgramTerm.getInst(
-                        schemaProgramTerm.getSchemaVariable(), 
+                        schemaProgramTerm.getSchemaVariable(),
                         schemaProgramTerm.getModality(),
-                        schemaProgramTerm.getMatchingStatement(), 
+                        schemaProgramTerm.getMatchingStatement(),
                         childResult);
             }
         }
     }
-    
+
     /*
      * a schema update term is is rebuilt if the updated term is modified.
      * The type is not taken into consideration, this is always the type
      * of the child term.
      */
+    @Override
     public void visit(SchemaUpdateTerm schemaUpdateTerm) throws TermException {
         defaultVisitTerm(schemaUpdateTerm);
         if(resultingTerm == null) {
             schemaUpdateTerm.getSubterm(0).visit(this);
             boolean optional = schemaUpdateTerm.isOptional();
             if(resultingTerm != null) {
-                resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(), optional, resultingTerm);
+                resultingTerm = SchemaUpdateTerm.getInst(schemaUpdateTerm.getSchemaIdentifier(),
+                        optional, resultingTerm);
             }
         }
     }

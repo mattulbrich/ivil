@@ -12,6 +12,8 @@ package de.uka.iti.pseudo.term.creation;
 import java.util.List;
 import java.util.Map;
 
+import nonnull.NonNull;
+
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
@@ -26,22 +28,34 @@ import de.uka.iti.pseudo.term.statement.Statement;
 
 /**
  * This class refines the instantiation checking of schema program terms.
- * 
+ *
  * Matching statements are not allowed in the super class, here they are, but
  * the schema statement must match the concrete one.
- * 
+ *
  * This class is used by {@link ProofNode} to check that a
  * {@link RuleApplication} is indeed allowed.
- * 
+ *
  * @see ProofNode#applicable(RuleApplication, Environment)
  * @see ProofNode#apply(RuleApplication, Environment)
  */
 public class ProgramComparingTermInstantiator extends TermInstantiator {
 
-    public ProgramComparingTermInstantiator(Map<String, Term> termMap,
-            Map<String, Type> typeMap,
-            Map<String, Update> updateMap,
-            Environment env) {
+    /**
+     * Instantiates a new program comparing term instantiator.
+     *
+     * @param termMap
+     *            the map used for schema to term instantiation
+     * @param typeMap
+     *            the map used for schema to type instantiations
+     * @param updateMap
+     *            the map used for schema to update instantiations
+     * @param env
+     *            the environment to rely upon.
+     */
+    public ProgramComparingTermInstantiator(@NonNull Map<String, Term> termMap,
+            @NonNull Map<String, Type> typeMap,
+            @NonNull Map<String, Update> updateMap,
+            @NonNull Environment env) {
         super(termMap, typeMap, updateMap);
     }
 

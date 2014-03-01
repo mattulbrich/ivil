@@ -73,8 +73,7 @@ public class TypeUnification {
     private final static TypeVisitor<Void, SchemaType> SCHEMA_DETECTOR =
             new DefaultTypeVisitor<SchemaType>() {
                 @Override
-                public Void visit(SchemaType stv1, SchemaType stv2)
-                        throws TermException {
+                public Void visit(SchemaType stv1, SchemaType stv2) throws TermException {
                     if (stv1.equals(stv2)) {
                         throw new TermException("SchemaType found!");
                     }

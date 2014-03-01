@@ -15,6 +15,13 @@ import de.uka.iti.pseudo.term.TypeApplication;
 import de.uka.iti.pseudo.term.TypeVariable;
 import de.uka.iti.pseudo.term.TypeVisitor;
 
+/**
+ * This class implements a depth visitor for types. For type applications the
+ * visitor is applied to all arguments.
+ *
+ * @param <A>
+ *            The type of the additional argument passed to the visit methods.
+ */
 @SuppressWarnings("nullness")
 public class DefaultTypeVisitor<A> implements TypeVisitor<Void, A> {
 

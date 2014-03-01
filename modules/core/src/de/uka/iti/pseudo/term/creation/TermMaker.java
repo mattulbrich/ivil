@@ -108,6 +108,32 @@ import de.uka.iti.pseudo.util.SelectList;
 @SuppressWarnings("nullness")
 public class TermMaker extends ASTDefaultVisitor {
 
+    /*
+     * The result... fields hold intermediate calculation results.
+     */
+    private Term resultTerm;
+    private Type resultType;
+    private Statement resultStatement;
+    private Assignment resultAssignment;
+
+    /**
+     * The environment to use.
+     */
+    private final Environment env;
+
+    /**
+     * The linenumber to be set when creating statements.
+     * This must be set from outside, is not changed within the visitor code
+     * but given to statements when creating them.
+     */
+    private int sourceLineNumber;
+
+    /**
+     * For the resolution of identifiers it is crucial to keep track of all
+     * bound variable names.
+     */
+    private final Stack<String> boundIdentifiers = new Stack<String>();
+
     /**
      * create a new TermMaker for an environment.
      *
@@ -416,33 +442,6 @@ public class TermMaker extends ASTDefaultVisitor {
     @Override
     protected void visitDefault(ASTElement arg) throws ASTVisitException {
     }
-
-    /*
-     * The result... fields hold intermediate calculation results.
-     */
-    private Term resultTerm;
-    private Type resultType;
-    private Statement resultStatement;
-    private Assignment resultAssignment;
-
-    /**
-     * The environment to use.
-     */
-    private final Environment env;
-
-    /**
-     * The linenumber to be set when creating statements.
-     * This must be set from outside, is not changed within the visitor code
-     * but given to statements when creating them.
-     */
-    private int sourceLineNumber;
-
-    /**
-     * For the resolution of identifiers it is crucial to keep track of all
-     * bound variable names.
-     */
-    private final Stack<String> boundIdentifiers = new Stack<String>();
-
 
     /*
      * Visit all subterms of a node and collect the results as an array of

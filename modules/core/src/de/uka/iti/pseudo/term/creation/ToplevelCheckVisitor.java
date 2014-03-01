@@ -57,8 +57,11 @@ import de.uka.iti.pseudo.term.Variable;
  */
 public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
 
+    /**
+     * During visitation this stack holds the bound variables, which are
+     * allowed. Free variables are rejected.
+     */
     private final Stack<Variable> allowedVariables = new Stack<Variable>();
-    private final boolean boolCheck;
 
     /**
      * Instantiates a new toplevel check visitor.
@@ -80,14 +83,14 @@ public class ToplevelCheckVisitor extends DefaultTermVisitor.DepthTermVisitor {
      *            <code>false</code>.
      */
     public ToplevelCheckVisitor(boolean boolCheck) {
-        this.boolCheck = boolCheck;
+//        this.boolCheck = boolCheck;
     }
 
     @SuppressWarnings("nullness")
     private static TypeVisitor<Void, Void> schemaDetector = new DefaultTypeVisitor<Void>() {
         @Override
         public Void visit(SchemaType st, Void parameter) throws TermException {
-                throw new TermException("Top level term contains schema type " + st);
+            throw new TermException("Top level term contains schema type " + st);
         }
     };
 

@@ -44,7 +44,7 @@ import de.uka.iti.pseudo.util.Util;
  * {@link #instantiate(Type)} instead of the visiting types and terms with this
  * object.
  */
-@SuppressWarnings({"nullness"})
+@SuppressWarnings("nullness")
 public class TermInstantiator extends RebuildingTermVisitor {
 
     /**
@@ -141,7 +141,7 @@ public class TermInstantiator extends RebuildingTermVisitor {
             typesInstantiated = false;
             Type newType = type.accept(typeInstantiator, null);
             if(typesInstantiated) {
-                type = newType;
+                return newType;
             }
         }
 

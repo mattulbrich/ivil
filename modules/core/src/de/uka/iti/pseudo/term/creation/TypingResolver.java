@@ -384,8 +384,7 @@ public class TypingResolver extends ASTDefaultVisitor {
      * visit child term, add constraint for that to be boolean,
      */
     @Override
-    public void visit(ASTTypevarBinderTerm typevarBinderTerm)
-            throws ASTVisitException {
+    public void visit(ASTTypevarBinderTerm typevarBinderTerm) throws ASTVisitException {
 
         super.visit(typevarBinderTerm);
 

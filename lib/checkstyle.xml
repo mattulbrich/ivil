@@ -257,9 +257,10 @@
       <module name="SimplifyBooleanExpression"/>
       <module name="SimplifyBooleanReturn"/>
       <module name="StringLiteralEquality"/>
+      <!-- commented 2014-03-01
       <module name="ParameterAssignment">
         <property name="severity" value="warning"/>
-      </module>
+      </module>-->
       <module name="DeclarationOrder">
         <property name="severity" value="warning"/>
       </module>
