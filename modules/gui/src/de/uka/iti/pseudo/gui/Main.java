@@ -165,6 +165,8 @@ public class Main {
                                 ProofImport proofImport = new ProofXML();
                                 proofImport.importProof(new FileInputStream(proofFile),
                                         center.getProof(), center.getEnvironment(), null);
+                                center.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
+                                center.getProof().changesSaved();
                             }
                         }
                     }

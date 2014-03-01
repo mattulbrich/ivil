@@ -12,10 +12,13 @@ package de.uka.iti.pseudo.gui.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.event.MenuEvent;
@@ -23,20 +26,21 @@ import javax.swing.event.MenuListener;
 
 import nonnull.Nullable;
 import de.uka.iti.pseudo.gui.Main;
-import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * Presents a List of recently used problems. Very useful for manual testing and
  * demonstration.
  *
- * @author timm.felden@felden.com
+ * @author timm.felden@felden.com, mulbrich@ira.uka.de
  */
 public class RecentProblemsMenu extends JMenu implements MenuListener {
 
     private static final long serialVersionUID = 2656732349530151485L;
+    private final JFrame parentWindow;
 
-    static public class LoadProblem extends AbstractAction implements PropertyChangeListener {
+    private class LoadProblem extends AbstractAction implements PropertyChangeListener {
         private static final long serialVersionUID = 6547255936403664041L;
         private final String location;
 
@@ -59,16 +63,40 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                Main.openProverFromURL(new URL(location));
-            } catch (Exception ex) {
-                ExceptionDialog.showExceptionDialog(null, ex);
+                URL url = new URL(location);
+                try {
+                    Main.openProverFromURL(url);
+                } catch (IOException ex) {
+                    // prevent the exception from going to the next catch-all
+                    throw ex;
+                } catch(Exception ex) {
+                    Log.log(Log.DEBUG, ex);
+                    if(url.getProtocol().equals("file")) {
+                        String selectedFile = url.getFile();
+                        String message = "'" + selectedFile + "' cannot be loaded. " +
+                                "Do you want to open an editor to analyse?";
+                        boolean answer = ExceptionDialog.showExceptionDialog(
+                                RecentProblemsMenu.this.getParentWindow(),
+                                message, ex, "Open in Editor");
+
+                        if(answer) {
+                            Main.openEditor(new File(selectedFile));
+                        }
+                    } else {
+                        ExceptionDialog.showExceptionDialog(
+                                RecentProblemsMenu.this.getParentWindow(), ex);
+                    }
+                }
+            } catch(IOException ex) {
+                ExceptionDialog.showExceptionDialog(
+                        RecentProblemsMenu.this.getParentWindow(), ex);
             }
         }
-
     }
 
-    public RecentProblemsMenu() {
+    public RecentProblemsMenu(JFrame parentWindow) {
         super("Recent problems ...");
+        this.parentWindow = parentWindow;
         addMenuListener(this);
     }
 
@@ -122,6 +150,13 @@ public class RecentProblemsMenu extends JMenu implements MenuListener {
         } else {
             return null;
         }
+    }
+
+    /**
+     * @return the parentWindow
+     */
+    public JFrame getParentWindow() {
+        return parentWindow;
     }
 
 }

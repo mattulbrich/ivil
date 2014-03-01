@@ -24,10 +24,10 @@ import de.uka.iti.pseudo.util.settings.Settings;
 
 /**
  * This is the action to load a problem file.
- * 
+ *
  * It is embedded into the menu.
  */
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class LoadProblemURLAction extends BarAction implements PropertyChangeListener {
 
 //    public LoadProblemURLAction() {
@@ -37,30 +37,32 @@ public class LoadProblemURLAction extends BarAction implements PropertyChangeLis
 //        putValue(MNEMONIC_KEY, KeyEvent.VK_U);
 //        putValue(SHORT_DESCRIPTION, "open a problem from a URL into a new window");
 //    }
-    
+
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
-    
+
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         Settings settings = Settings.getInstance();
         String initialValue = settings.getProperty("pseudo.defaultURL", "http://");
-        
+
         String result = JOptionPane.showInputDialog(getParentFrame(), "Enter the URL of the problem file to load", initialValue);
         if(result != null) {
-            
+
             try {
                 URL url = new URL(result);
                 Main.openProverFromURL(url);
             } catch(Exception ex) {
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
-            }       
-            
+            }
+
         }
     }
 

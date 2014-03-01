@@ -23,23 +23,25 @@ import de.uka.iti.pseudo.util.ExceptionDialog;
 /**
  * This allows for reloading of the problem. If no problem was loaded yet, the
  * last attempt to load a file will be repeated.
- * 
+ *
  * @author timm.felden@felden.com
  */
 
 public class ReloadProblemAction extends BarAction implements
 		PropertyChangeListener {
-	
+
     private static final long serialVersionUID = 8652614246864976171L;
 
     public void initialised() {
         getProofCenter().addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
     }
-    
+
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         // Buggy: Two windows with same content would pop up. (MU)
 //        // try to get the path of the currently opened problem; if there is one
@@ -55,13 +57,13 @@ public class ReloadProblemAction extends BarAction implements
         // get url of the last problem
         Preferences prefs = Preferences.userNodeForPackage(Main.class);
         String allProblems = prefs.get("recent problems", null);
-        
+
         if(allProblems == null) {
-            ExceptionDialog.showExceptionDialog(getParentFrame(), 
+            ExceptionDialog.showExceptionDialog(getParentFrame(),
                     "The history contains no problem to be reloaded");
             return;
         }
-         
+
         String recent[] = allProblems.split("\n");
 
         try {

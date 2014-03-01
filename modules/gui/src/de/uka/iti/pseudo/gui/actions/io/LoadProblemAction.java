@@ -24,13 +24,14 @@ import de.uka.iti.pseudo.gui.ProofCenter;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This is the action to load a problem file.
- * 
+ *
  * It is embedded into the menu.
  */
-@SuppressWarnings("serial") 
+@SuppressWarnings("serial")
 public class LoadProblemAction extends BarAction implements InitialisingAction, PropertyChangeListener {
 
 //    public LoadProblemAction() {
@@ -40,46 +41,49 @@ public class LoadProblemAction extends BarAction implements InitialisingAction, 
 //        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
 //        putValue(SHORT_DESCRIPTION, "open a problem file into a new window");
 //    }
-    
+
+    @Override
     public void initialised() {
         ProofCenter proofCenter = getProofCenter();
-        if(proofCenter != null)
+        if(proofCenter != null) {
             proofCenter.addPropertyChangeListener(ProofCenter.ONGOING_PROOF, this);
+        }
     }
-    
+
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         setEnabled(!(Boolean)evt.getNewValue());
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        
+
         JFileChooser fileChooser = Main.makeFileChooser(Main.PROBLEM_FILE);
         int result = fileChooser.showOpenDialog(getParentFrame());
         if(result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
                 URL selectedURL = selectedFile.toURI().toURL();
-                
+
                 Main.openProverFromURL(selectedURL);
-                
+
             } catch(IOException ex) {
+                Log.log(Log.DEBUG, ex);
                 ExceptionDialog.showExceptionDialog(getParentFrame(), ex);
             } catch(Exception ex) {
-                ex.printStackTrace();
-                int res = JOptionPane.showConfirmDialog(getParentFrame(), "'" + selectedFile + 
-                        "' cannot be loaded. Do you want to open an editor to analyse?",
-                        "Error in File",
-                        JOptionPane.YES_NO_OPTION);
-                
-                if(res == JOptionPane.YES_OPTION) {
+                Log.log(Log.DEBUG, ex);
+                String message = "'" + selectedFile +
+                        "' cannot be loaded. Do you want to open an editor to analyse?";
+                boolean answer = ExceptionDialog.showExceptionDialog(getParentFrame(),
+                        message, ex, "Open in Editor");
+
+                if(answer) {
                     try {
                         Main.openEditor(selectedFile);
                     } catch (IOException e1) {
                         ExceptionDialog.showExceptionDialog(getParentFrame(), e1);
                     }
-                    
                 }
-                    
             }
         }
     }
