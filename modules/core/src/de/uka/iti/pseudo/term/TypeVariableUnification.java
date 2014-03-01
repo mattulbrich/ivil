@@ -29,9 +29,6 @@ import de.uka.iti.pseudo.util.RewindMap;
  */
 public class TypeVariableUnification {
 
-    private final RewindMap<TypeVariable, Type> typeVarMap =
-            new RewindMap<TypeVariable, Type>();
-
     /**
      * A visitor to detect schema types.
      * It throws a {@link TermException} if it finds one.
@@ -46,6 +43,9 @@ public class TypeVariableUnification {
             return null;
         }
     };
+
+    private final RewindMap<TypeVariable, Type> typeVarMap =
+            new RewindMap<TypeVariable, Type>();
 
     /**
      * This visitor is used to actually apply the substitution.
@@ -66,9 +66,9 @@ public class TypeVariableUnification {
             new TypeVisitor<Void, Type>() {
 
         @Override
-        public Void visit(SchemaType schemaTypeVariable, Type argument)
-                throws TermException {
-            throw new TermException("Schema types must not appear in the unification of user types");
+        public Void visit(SchemaType schemaTypeVariable, Type argument) throws TermException {
+            throw new TermException("Schema types must not appear " +
+                    "in the unification of user types");
         }
 
         @Override
@@ -79,7 +79,8 @@ public class TypeVariableUnification {
                 // type variable is not assigned
                 // now add it to the map if occur checks passed and not schematic
                 if(argument instanceof SchemaType) {
-                    throw new TermException("Schema types must not appear in the unification of user types");
+                    throw new TermException("Schema types must not appear " +
+                            "in the unification of user types");
                 }
                 Type inst = instantiate(argument);
                 if (occursIn(typeVariable, inst)) {
@@ -103,7 +104,8 @@ public class TypeVariableUnification {
                 Sort sort1 = app.getSort();
                 Sort sort2 = otherApp.getSort();
                 if(sort1 != sort2) {
-                    throw new UnificationException("Incompatible sorts: " + sort1 + " and " + sort2, app, parameter);
+                    throw new UnificationException("Incompatible sorts: " + sort1 + " and " +
+                                sort2, app, parameter);
                 }
 
                 //
@@ -116,7 +118,8 @@ public class TypeVariableUnification {
                 }
 
             } else {
-                throw new TermException("Schema types must not appear in the unification of user types");
+                throw new TermException("Schema types must not appear in " +
+                        "the unification of user types");
             }
 
             return null;

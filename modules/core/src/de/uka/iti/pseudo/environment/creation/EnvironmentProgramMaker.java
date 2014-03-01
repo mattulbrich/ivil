@@ -76,7 +76,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
 
     /**
      * The raw statements are kept as a list of pairs of assigned source line numbers
-     * and statement ast objects
+     * and statement ast objects.
      */
     private final List<Pair<Integer,ASTStatement>> rawStatements =
         new ArrayList<Pair<Integer, ASTStatement>>();
@@ -89,7 +89,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     /**
      * The resulting list of annotations.
      */
-    private final List</*@Nullable*/String> statementAnnotations = new ArrayList</*@Nullable*/String>();
+    private final List</*@Nullable*/String> statementAnnotations =
+            new ArrayList</*@Nullable*/String>();
 
     /**
      * The last set source line number.
@@ -132,7 +133,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
                         String label = id.getSymbol().image;
                         Integer val = labelMap.get(label);
                         if(val == null) {
-                            throw new ASTVisitException("Unknown label in goto statement: " + label, id);
+                            throw new ASTVisitException(
+                                    "Unknown label in goto statement: " + label, id);
                         }
                         ast.replaceChild(term, new ASTNumberLiteralTerm(mkToken(val)));
                     }
@@ -142,7 +144,7 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     }
 
     /**
-     * Given an integer, create a parser token of type NATURAL
+     * Given an integer, create a parser token of type NATURAL.
      *
      * @param val
      *            the integer to make a token form, non-negative
@@ -211,14 +213,16 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
      */
     private boolean detectSchemaObject(Statement statement) throws TermException {
         ToplevelCheckVisitor check = new ToplevelCheckVisitor(false);
-         for (Term subterm : statement.getSubterms()) {
-             subterm.visit(check);
-         }
-         return false;
+        for (Term subterm : statement.getSubterms()) {
+            subterm.visit(check);
+        }
+        return false;
     }
 
     /**
-     * by default, a statement is wrapped into a pair along with the current
+     * {@inheritDoc}
+     * <p>
+     * By default, a statement is wrapped into a pair along with the current
      * source line number and stored in rawStatements.
      */
     @Override
@@ -227,7 +231,9 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     }
 
     /**
-     * source line statements change the currently set line number
+     * {@inheritDoc}
+     * <p>
+     * source line statements change the currently set line number.
      */
     @Override
     public void visit(ASTSourceLineStatement arg) throws ASTVisitException {
@@ -238,6 +244,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
      * map labels to their position in the program.
      * Complain if the label has already been defined.
      */
@@ -245,13 +253,15 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
     public void visit(ASTLabelStatement arg) throws ASTVisitException {
         String label = arg.getLabel().image;
         if(labelMap.containsKey(label)) {
-            throw new ASTVisitException("The label " + label + " has already been defined earlier", arg);
+            throw new ASTVisitException(
+                    "The label " + label + " has already been defined earlier", arg);
         }
         labelMap.put(label, rawStatements.size());
     }
 
     /**
-     * The entry point for a program declaration.
+     * {@inheritDoc}
+     * <p>The entry point for a program declaration.
      * Clear all storing structures, visit children and store resulting program.
      */
     @Override
@@ -284,7 +294,8 @@ public class EnvironmentProgramMaker extends ASTDefaultVisitor {
                 sourceResource = new URL(res, sourceFilename);
             }
 
-            Program program = new Program(name, sourceResource, statements, statementAnnotations, arg);
+            Program program =
+                    new Program(name, sourceResource, statements, statementAnnotations, arg);
             env.addProgram(program);
         } catch (EnvironmentException e) {
             throw new ASTVisitException(arg, e);

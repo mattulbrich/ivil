@@ -64,7 +64,7 @@ public class EnvironmentMaker {
     private final List<String> importedFilenames = new ArrayList<String>();
 
     /**
-     * The parser to use to parse include files
+     * The parser to use to parse include files.
      */
     private final Parser parser;
 
@@ -89,10 +89,9 @@ public class EnvironmentMaker {
      *             some error happened during ast traversal.
      * @throws IOException
      *             if the URL/file cannot be read successfully.
-     * @throws MalformedURLException
      */
     public EnvironmentMaker(Parser parser, File file)
-    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+            throws ParseException, ASTVisitException, IOException {
         this(parser, file.toURI().toURL(), Environment.BUILT_IN_ENV);
     }
 
@@ -115,10 +114,9 @@ public class EnvironmentMaker {
      *             some error happened during ast traversal.
      * @throws IOException
      *             if the URL/file cannot be read successfully.
-     * @throws MalformedURLException
      */
     public EnvironmentMaker(Parser parser, URL url)
-    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+            throws ParseException, ASTVisitException, IOException {
         this(parser, url, Environment.BUILT_IN_ENV);
     }
 
@@ -131,6 +129,8 @@ public class EnvironmentMaker {
      *
      * @param parser
      *            the parser to use for include instructions
+     * @param stream
+     *            the input stream from which the environment is to be parsed.
      * @param resource
      *            the url to parse, its name is used as name for the environment
      *
@@ -140,10 +140,9 @@ public class EnvironmentMaker {
      *             some error happened during ast traversal.
      * @throws IOException
      *             if the URL/file cannot be read successfully.
-     * @throws MalformedURLException
      */
-    public EnvironmentMaker(Parser parser, InputStream stream, URL resource)
-    throws ParseException, ASTVisitException, MalformedURLException, IOException {
+    public EnvironmentMaker(Parser parser, @NonNull InputStream stream, URL resource)
+            throws ParseException, ASTVisitException, IOException {
         this(parser,
                 parser.parseFile(new InputStreamReader(stream), resource.toString()),
                 resource.toExternalForm(),
@@ -171,7 +170,7 @@ public class EnvironmentMaker {
      *             if the URL/file cannot be read successfully.
      */
     private EnvironmentMaker(Parser parser, URL res, Environment parent)
-    throws ASTVisitException, ParseException, IOException {
+            throws ASTVisitException, ParseException, IOException {
         this(parser, parser.parseURL(res), res.toExternalForm(), parent);
 
     }
@@ -236,18 +235,14 @@ public class EnvironmentMaker {
     }
 
     /*
-     * convert the AST term problem description to a real term object.
-     */
-
-
-    /*
      * register all defined plugins with the plugin manager.
      */
     private void doPlugins(ASTFile astFile) throws ASTVisitException {
 
         List<ASTPlugins> plugins = SelectList.select(ASTPlugins.class, astFile.getChildren());
         for (ASTPlugins block : plugins) {
-            List<ASTPluginDeclaration> pairs = SelectList.select(ASTPluginDeclaration.class, block.getChildren());
+            List<ASTPluginDeclaration> pairs =
+                    SelectList.select(ASTPluginDeclaration.class, block.getChildren());
             for (ASTPluginDeclaration decl : pairs) {
                 String classPath = null;
                 if(decl.getClasspath() != null) {
@@ -270,8 +265,11 @@ public class EnvironmentMaker {
         }
     }
 
+    /*
+     * read all includes. The resulting environments are cascaded and set as the
+     * parent to the currently built environment.
+     */
     private void doIncludes(ASTFile astFile) throws ASTVisitException  {
-        // TODO method documentation
         SelectList<ASTIncludeDeclarationBlock> includes =
                 SelectList.select(ASTIncludeDeclarationBlock.class, astFile.getChildren());
         for (ASTIncludeDeclarationBlock block : includes) {
@@ -283,7 +281,6 @@ public class EnvironmentMaker {
                     URL res = mkFile(astFile.getFileName(), filename);
 
                     if(env.hasParentResource(res.toExternalForm())) {
-                        // System.err.println("WARNING: cyclicly including environments, involving: " + file);
                         continue;
                     }
 
@@ -314,7 +311,7 @@ public class EnvironmentMaker {
     }
 
     /**
-     * Get the environment which has been created during the constructor call
+     * Get the environment which has been created during the constructor call.
      *
      * @return the environment
      */
@@ -348,12 +345,12 @@ public class EnvironmentMaker {
     private URL mkFile(String toplevel, String filename) throws IOException {
 
         if (filename.charAt(0) == '$') {
-            filename = filename.substring(1);
+            String cleanfilename = filename.substring(1);
 
             // search in SYS_DIR
             String[] paths = SYS_DIR.split(File.pathSeparator);
             for (String path : paths) {
-                File file = new File(path, filename);
+                File file = new File(path, cleanfilename);
                 if(file.exists()) {
                     URL url = file.toURI().toURL();
                     return url;
@@ -361,7 +358,7 @@ public class EnvironmentMaker {
             }
 
             // then as resource, particularly for webstart.
-            URL resource = getClass().getResource("/sys/" + filename);
+            URL resource = getClass().getResource("/sys/" + cleanfilename);
             if(resource != null) {
                 return resource;
             }

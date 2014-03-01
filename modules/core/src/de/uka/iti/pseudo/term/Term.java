@@ -32,6 +32,7 @@ public abstract class Term {
      * whether terms are to be output with or without types.
      *
      * TODO Make this final again
+     * Checkstyle: IGNORE VisibilityModifierCheck|StaticVariableNameCheck
      */
     public static boolean SHOW_TYPES = Boolean.getBoolean("pseudo.showtypes");
 

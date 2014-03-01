@@ -36,8 +36,12 @@ import de.uka.iti.pseudo.util.settings.Settings;
  */
 public class Z3SMT implements DecisionProcedure {
 
+    private static final int LIMIT_TO_5_DIGITS = 10000;
+
+    private static final int MS_PER_SECOND = 1000;
+
     /**
-     * The system settings to read from
+     * The system settings to read from.
      */
     private static Settings settings = Settings.getInstance();
 
@@ -45,14 +49,14 @@ public class Z3SMT implements DecisionProcedure {
      * If this flag is set, the challenge is kept after solving and saved to a
      * file.
      */
-    private static boolean KEEP_CHALLENGES =
+    private final static boolean KEEP_CHALLENGES =
         settings.getBoolean("pseudo.z3.keepFile", false);
 
     /**
      * The the SMT Lib Version 1 format if <code>true</code>, otherwise use the
      * more flexible SMT Lib Version 2 format.
      */
-    private static boolean USE_SMT1 =
+    private final static boolean USE_SMT1 =
         settings.getBoolean("pseudo.z3.useSMT1", false);
 
     private final Set<Sequent> cache = new HashSet<Sequent>();
@@ -63,7 +67,8 @@ public class Z3SMT implements DecisionProcedure {
     }
 
     /* (non-Javadoc)
-     * @see de.uka.iti.pseudo.auto.DecisionProcedure#solve(de.uka.iti.pseudo.term.Sequent, de.uka.iti.pseudo.environment.Environment, int)
+     * @see de.uka.iti.pseudo.auto.DecisionProcedure#solve(de.uka.iti.pseudo.term.Sequent,
+     *  de.uka.iti.pseudo.environment.Environment, int)
      */
     @Override
     public Pair<Result, String> solve(final Sequent sequent, final Environment env,
@@ -190,7 +195,9 @@ public class Z3SMT implements DecisionProcedure {
     private void dumpTmp(String challenge) {
         Writer w = null;
         try {
-            File tmp = File.createTempFile("ivil" + ((System.currentTimeMillis() / 1000) % 10000) + "_", ".smt");
+            File tmp = File.createTempFile("ivil" +
+                    ((System.currentTimeMillis() / MS_PER_SECOND) % LIMIT_TO_5_DIGITS) +
+                    "_", ".smt");
             w  = new FileWriter(tmp);
             w.write(challenge);
             w.close();
@@ -207,6 +214,5 @@ public class Z3SMT implements DecisionProcedure {
             }
         }
     }
-
 
 }

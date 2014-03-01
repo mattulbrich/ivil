@@ -67,7 +67,7 @@ public class EnvironmentProblemExtractor {
     public static final String TERMINATION_PROPERTY = "ProofObligation.termination";
 
     /**
-     * The Settings object stored locally
+     * The Settings object stored locally.
      */
     private static final Settings SETTINGS = Settings.getInstance();
 
@@ -132,7 +132,7 @@ public class EnvironmentProblemExtractor {
 
     /**
      * Creates the problems for the programs of the file, if no explicit problem
-     * description is given
+     * description is given.
      */
     private void createProgramProblems() throws TermException {
 
@@ -213,12 +213,14 @@ public class EnvironmentProblemExtractor {
         String identifier;
         if(idTok == null) {
             if(problemSequents.size() > 0) {
-                throw new ASTVisitException("An unnamed problem must be the only problem in environment", seq);
+                throw new ASTVisitException(
+                        "An unnamed problem must be the only problem in environment", seq);
             }
             identifier = "";
         } else {
             if(problemSequents.containsKey("")) {
-                throw new ASTVisitException("An unnamed problem must be the only one in enviroment", seq);
+                throw new ASTVisitException(
+                        "An unnamed problem must be the only one in enviroment", seq);
             }
             identifier = idTok.image;
             if(problemSequents.containsKey(identifier)) {
