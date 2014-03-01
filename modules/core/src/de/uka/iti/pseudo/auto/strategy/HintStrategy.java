@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.auto.strategy.hint.HintParser;
