@@ -61,7 +61,6 @@ public final class BPLFileEnvironmentCreationService extends EnvironmentCreation
                 envEx.setEndColumn(problemToken.endColumn);
                 envEx.setEndLine(problemToken.endLine);
             }
-            envEx.setResource(url.toString());
             throw envEx;
         } catch (TermException e) {
             // should not be called actually
