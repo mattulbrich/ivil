@@ -293,7 +293,7 @@ Natural               = {Digit}+
 |  "infix"
 |  "newgoal"
 |  "not"
-|  "plugin"
+|  "plugins"
 |  "prefix"
 |  "problem"
 |  "program"

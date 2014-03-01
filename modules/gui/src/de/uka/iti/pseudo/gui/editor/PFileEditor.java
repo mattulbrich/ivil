@@ -56,6 +56,8 @@ import de.uka.iti.pseudo.environment.creation.EnvironmentCreationService;
 import de.uka.iti.pseudo.environment.creation.PFileEnvironmentCreationService;
 import de.uka.iti.pseudo.gui.actions.BarAction;
 import de.uka.iti.pseudo.gui.actions.BarManager;
+import de.uka.iti.pseudo.parser.ASTLocatedElement;
+import de.uka.iti.pseudo.parser.ASTVisitException;
 import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.Util;
@@ -257,12 +259,9 @@ public class PFileEditor extends JFrame implements ActionListener {
 
             Log.log(Log.VERBOSE, "Syntax checked ... no errors");
 
-            markError(null, true);
-        } catch (EnvironmentException e) {
-            markError(e, url.toString().equals(e.getResource()));
+            markError(null);
         } catch (Exception e) {
-            Log.stacktrace(Log.VERBOSE, e);
-            markError(e, false);
+            markError(e);
         }
     }
 
@@ -277,44 +276,15 @@ public class PFileEditor extends JFrame implements ActionListener {
     }
 
 
-    private void markError(final Exception exc, final boolean local) {
-        assert !local || exc == null || exc instanceof EnvironmentException;
+    private void markError(final Exception exc) {
         Log.enter(Log.VERBOSE, exc);
 
         Runnable action = new Runnable() {
             @Override
             public void run() {
-                int from, to;
-                try {
-                    if(exc == null || !local) {
-                        from = to = 0;
-                        setErrorLine(0);
-                        // bugfix:
-                        if (exc instanceof EnvironmentException) {
-                            EnvironmentException envEx = (EnvironmentException) exc;
-                            if(envEx.hasErrorInformation()) {
-                                setErrorFilename(envEx.getResource());
-                            }
-                        }
-                    } else {
-                        EnvironmentException envEx = (EnvironmentException) exc;
-                        if(envEx.hasErrorInformation()) {
-                            from = toIndex(envEx.getBeginLine(), envEx.getBeginColumn());
-                            to = toIndex(envEx.getEndLine(), envEx.getEndColumn()) + 1;
-                            setErrorLine(envEx.getBeginLine());
-                        } else {
-                            from = to = 0;
-                            setErrorLine(0);
-                            setErrorFilename(null);
-                        }
-                    }
-                    editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
-                } catch (BadLocationException e) {
-                    // really should not happen
-                    throw new Error(e);
-                }
-
                 if(exc == null) {
+                    setErrorLine(0);
+                    setErrorFilename(null);
                     statusLine.setForeground(Color.black);
                     String text = syntaxChecking ?
                             "syntax check successful" :
@@ -322,28 +292,54 @@ public class PFileEditor extends JFrame implements ActionListener {
                     statusLine.setText(text);
                     statusLine.setToolTipText(null);
                     setErrorFilename(null);
-                } else {
-                    statusLine.setForeground(Color.red);
-
-                    String message = exc.getMessage();
-                    if(message == null) {
-                        message = "";
+                    try {
+                        editor.getHighlighter().changeHighlight(errorHighlighting, 0, 0);
+                    } catch (BadLocationException e) {
+                        Log.log(Log.WARNING, "Bad Location that should not be");
+                        Log.stacktrace(Log.WARNING, e);
                     }
-
-                    if(errorLine == 0) {
-                        statusLine.setText("Error outside this file while parsing: " + shortMessage(message));
-                    } else {
-                        statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
-                    }
-
-                    statusLine.setToolTipText("<html><pre>"
-                            + GUIUtil.htmlentities(message).replace("\n",
-                                    "<br/>") + "</pre>");
-
-                    Log.log(Log.DEBUG, "Error while parsing " + getFile());
-                    Log.stacktrace(exc);
-
+                    return;
                 }
+
+                try {
+                    if (exc instanceof EnvironmentException) {
+                        EnvironmentException envEx = (EnvironmentException) exc;
+                        if(envEx.hasErrorInformation()) {
+                            int from = toIndex(envEx.getBeginLine(), envEx.getBeginColumn());
+                            int to = toIndex(envEx.getEndLine(), envEx.getEndColumn()) + 1;
+                            setErrorLine(envEx.getBeginLine());
+                            setErrorFilename(envEx.getCauseResource());
+                            editor.getHighlighter().changeHighlight(errorHighlighting, from, to);
+                        } else {
+                            setErrorLine(0);
+                            setErrorFilename(null);
+                            editor.getHighlighter().changeHighlight(errorHighlighting, 0, 0);
+                        }
+                    }
+                } catch (BadLocationException e) {
+                    Log.log(Log.WARNING, "Bad location should really not happen");
+                    Log.stacktrace(Log.WARNING, e);
+                }
+
+                statusLine.setForeground(Color.red);
+
+                String message = exc.getMessage();
+                if(message == null || message.isEmpty()) {
+                    message = exc.getClass().toString();
+                }
+
+                if(errorLine == 0) {
+                    statusLine.setText("Error while parsing: " + shortMessage(message));
+                } else {
+                    statusLine.setText("Error in line " + errorLine + ": " + shortMessage(message));
+                }
+
+                statusLine.setToolTipText("<html><pre>"
+                        + GUIUtil.htmlentities(message).replace("\n",
+                                "<br/>") + "</pre>");
+
+                Log.log(Log.DEBUG, "Error while parsing " + getFile());
+                Log.stacktrace(Log.DEBUG, exc);
 
                 getContentPane().invalidate();
                 getContentPane().doLayout();
@@ -560,7 +556,7 @@ public class PFileEditor extends JFrame implements ActionListener {
             if(syntaxChecking) {
                 updateThread.changed();
             } else {
-                markError(null, true);
+                markError(null);
             }
         }
 

@@ -21,9 +21,9 @@ import de.uka.iti.pseudo.gui.Main;
 import de.uka.iti.pseudo.gui.actions.BarManager.InitialisingAction;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 
-@SuppressWarnings("serial") 
-public class PopupOpenErrorFile 
-    extends BarAction 
+@SuppressWarnings("serial")
+public class PopupOpenErrorFile
+    extends BarAction
     implements InitialisingAction, PropertyChangeListener{
 
     private String errorFile;
@@ -32,10 +32,12 @@ public class PopupOpenErrorFile
         super("Open erroneous file");
         putValue(SHORT_DESCRIPTION, "open the file containing the error in a new window");
     }
-    
+
+    @Override
     public void actionPerformed(ActionEvent e) {
-        if(errorFile == null)
+        if(errorFile == null) {
             return;
+        }
         try {
             URL url = new URL(errorFile);
             if(!"file".equals(url.getProtocol())) {
@@ -50,11 +52,13 @@ public class PopupOpenErrorFile
         }
     }
 
+    @Override
     public void initialised() {
         getEditor().addPropertyChangeListener("errorFile", this);
         setEnabled(false);
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent evt) {
         errorFile = (String) evt.getNewValue();
         setEnabled(errorFile != null);
