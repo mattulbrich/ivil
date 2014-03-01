@@ -1,8 +1,8 @@
 include "$base.p"
 
-plugin
-  metaFunction : "de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction"
-  proofHint : "de.uka.iti.pseudo.auto.strategy.hint.MockProofHint"
+plugins
+  metaFunction "de.uka.iti.pseudo.rule.meta.IncPrgMetaFunction"
+  proofHint "de.uka.iti.pseudo.auto.strategy.hint.MockProofHint"
   
 rule oops closegoal
 

@@ -138,7 +138,7 @@ public class TestFileParser extends TestCaseWithEnv {
     }
 
     public void testMetaInAxiom() throws Exception {
-        assertEnvFail("plugin metaFunction : \"de.uka.iti.pseudo.parser.file.TestFileParser$MockMeta\"" +
+        assertEnvFail("plugins metaFunction \"de.uka.iti.pseudo.parser.file.TestFileParser$MockMeta\"" +
         		"axiom metaAxiom $$mock");
     }
 
