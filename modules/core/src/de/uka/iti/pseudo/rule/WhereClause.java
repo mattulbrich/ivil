@@ -33,7 +33,7 @@ import de.uka.iti.pseudo.util.Util;
 public class WhereClause {
 
     /**
-     * The where condition employed in this clause
+     * The where condition employed in this clause.
      */
     private final WhereCondition whereCondition;
 
@@ -43,7 +43,7 @@ public class WhereClause {
     private final boolean inverted;
 
     /**
-     * The arguments applied to the condition
+     * The arguments applied to the condition.
      */
     private @NonNull final Term[] arguments;
 
@@ -125,7 +125,7 @@ public class WhereClause {
      * formal arguments. It depends on the settings of {@link Term#SHOW_TYPES}
      * whether the types of the arguments are added or not.
      */
-   @Override
+    @Override
     public String toString() {
         return toString(Term.SHOW_TYPES);
     }
@@ -155,9 +155,10 @@ public class WhereClause {
      *             the arguments to the condition do not correspond to the
      *             expected form.
      */
-    public boolean applyTo(TermInstantiator inst, RuleApplication ruleApp, Environment env) throws RuleException {
+    public boolean applyTo(TermInstantiator inst, RuleApplication ruleApp, Environment env)
+            throws RuleException {
 
-        Term actualArgs[];
+        Term[] actualArgs;
         try {
             actualArgs = new Term[arguments.length];
             for (int i = 0; i < actualArgs.length; i++) {
@@ -190,8 +191,10 @@ public class WhereClause {
      *            can be performed.
      * @param ruleApp
      *            The rule application in whose context the rule is applied.
-     * @param env The environment in whose context the rule is applied.
+     * @param env
+     *            The environment in whose context the rule is applied.
      * @throws RuleException
+     *             the whre condition may fail with such an exception.
      */
     public void addInstantiations(TermMatcher termMatcher,
             RuleApplication ruleApp, Environment env) throws RuleException {

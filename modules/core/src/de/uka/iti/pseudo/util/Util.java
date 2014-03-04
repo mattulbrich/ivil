@@ -20,6 +20,7 @@ import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
 
@@ -404,6 +405,9 @@ public final class Util {
 
                 @Override
                 public E next() {
+                    if(cur >= array.length) {
+                        throw new NoSuchElementException();
+                    }
                     E result = array[cur];
                     cur ++;
                     return result;

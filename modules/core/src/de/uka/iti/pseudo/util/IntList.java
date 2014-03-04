@@ -23,7 +23,7 @@ import nonnull.NonNull;
  * The data is stored in a {@code int[]} array, however, and all operation are
  * kept free from boxing and unboxing if the interface methods are not used.
  */
-public class IntList extends AbstractList<Integer> {
+public class IntList extends AbstractList<Integer> implements Cloneable {
 
     /**
      * An empty array to indicate an empty list.

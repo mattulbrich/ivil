@@ -138,15 +138,24 @@ public class Z3SMT implements DecisionProcedure {
 
             StringBuilder msg = new StringBuilder();
             BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String answerLine = r.readLine();
-            msg.append(answerLine).append("\n");
+            String answerLine;
+            try {
+                answerLine = r.readLine();
+                msg.append(answerLine).append("\n");
+            } finally {
+                r.close();
+            }
 
             r = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String line = r.readLine();
-            while(line != null) {
-                msg.append(line).append("\n");
-                line = r.readLine();
-                // System.err.println(line);
+            try {
+                String line = r.readLine();
+                while(line != null) {
+                    msg.append(line).append("\n");
+                    line = r.readLine();
+                    // System.err.println(line);
+                }
+            } finally {
+                r.close();
             }
 
             Pair<Result, String> result;

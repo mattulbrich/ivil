@@ -63,31 +63,31 @@ import de.uka.iti.pseudo.util.Util;
 /**
  * The Class SMTLibTranslator translates a term / formula / sequent to its
  * corresponding SMTLib counterpart.
- * 
+ *
  * <p>
  * The translation assumes that certain names have their intended meaning. For
  * instance, <code>$add</code> should be the addition of integers as defined by
  * the rules in <code>$int.p</code>.
- * 
+ *
  * <p>
  * Ivil does not distinguish between boolean terms and formulas. The translation
  * has to, however. Therefore, a mechanism is used which lazily translates a
  * formula to a term (or vice versa) only if needed.
- * 
+ *
  * <p>
  * Since the type system of ivil is by far more complex than the simple type
  * system of smt, we map most of the types to one type "Universe" and introduce
  * type predicates. Hence, type quantification becomes regular quantification
  * and for every type a function symbol is introduced. For every constant symbol
  * a typing axiom is assumed.
- * 
+ *
  * <p>
  * Integer treatment is (as far as possible) kept apart from the universe
  * treatment.
- * 
+ *
  * <p>
  * <a href="http://goedel.cs.uiowa.edu/smtlib/">Page of SMT-LIB</a>
- * 
+ *
  * @author mattias ulbrich
  */
 public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTranslator {
@@ -117,13 +117,13 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * map storing how function symbols are mapped to SMT counterparts.
      */
-    private Map<String, String> translationMap = new HashMap<String, String>();
+    private final Map<String, String> translationMap = new HashMap<String, String>();
 
     /**
      * map storing the type variables which appear only in result types of
      * function symbols.
      */
-    private Map<String, Set<TypeVariable>> freeTypeVarMap = new HashMap<String, Set<TypeVariable>>();
+    private final Map<String, Set<TypeVariable>> freeTypeVarMap = new HashMap<String, Set<TypeVariable>>();
 
     /**
      * counter used to create new distinct symbols (its increment on creation)
@@ -150,14 +150,14 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * a set of assumptions that are due to the translation.
-     * 
+     *
      * If the content contains more than one line, everything but the last line
      * is taken to be comment.
      */
     /* package */LinkedList<String> assumptions = new LinkedList<String>();
 
     /**
-     * Strings treated as smt expressions can be of these three kinds. 
+     * Strings treated as smt expressions can be of these three kinds.
      */
     public static enum ExpressionType {
         FORMULA, INT, UNIVERSE
@@ -169,7 +169,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
      * to be of the type {@link #requestedType}.
      */
     private ExpressionType requestedType = FORMULA;
-    
+
     /**
      * Used by the visit functions to pass on the expression type of a
      * translation. The string in {@link #result} has to be of this type.
@@ -187,50 +187,53 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
      * updated by {@link #visit(Binding)} and
      * {@link #visit(TypeVariableBinding)}
      */
-    private Deque<String> quantifiedVariables = new LinkedList<String>();
+    private final Deque<String> quantifiedVariables = new LinkedList<String>();
 
     /**
      * the "cond" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
-    private @Nullable Function condFunction;
+    private @Nullable
+    final Function condFunction;
 
     /**
      * the "$pattern" function from the environment must be treated separately. This
      * may be null if the function is not defined.
      */
 
-    private @Nullable Function patternFunction;
+    private @Nullable
+    final Function patternFunction;
 
     /**
      * All axioms as they are extracted from the environment.
      */
-    private Collection<Axiom> allAxioms;
-    
+    private final Collection<Axiom> allAxioms;
+
     /**
      * All sorts as they are extraced from the environment.
      */
-    private List<Sort> allSorts;
+    private final List<Sort> allSorts;
 
     /**
      * This type visitor is used to translate a type into a term of type meta
      * type Type.
-     * 
+     *
      * For instance {@code set(int)} is translated to {@code (ty.set ty.int)}
      * and {@code product('a, list(bool))} becomes {@code (ty.product tyvar.a
      * (ty.list ty.bool)}.
-     * 
+     *
      * A type variable {@code 'a} is translated either to {@code tyvar.a} if the
      * variable is not under a quantifier and to {@code ?Type.a} if under a
      * quantifier.
-     * 
+     *
      * The quantification context is taken from the {@link #quantifiedVariables}
      * stack. If the parameter to the visitor is set to <code>true</code>, then
      * the translation treats every occurrence as bound.
-     * 
+     *
      */
     @SuppressWarnings("nullness")
-    private TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
+    private final TypeVisitor<String, Boolean> typeToTerm = new TypeVisitor<String, Boolean>() {
+        @Override
         public String visit(TypeApplication typeApplication, Boolean parameter)
                 throws TermException {
 
@@ -268,7 +271,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Instantiates a new SMT-lib translator.
-     * 
+     *
      * @param env
      *            the environment to use.
      */
@@ -285,20 +288,20 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Translate a term to its smt-lib counterpart.
-     * 
+     *
      * <p>
      * Possibly, sort and constant definitions are written to the appropriate
      * storages.
-     * 
+     *
      * @param term
      *            the term to translate
-     * 
+     *
      * @param asType
      *            defines which kind of expression the result has be assured to
      *            be in
-     * 
+     *
      * @return the string representing the translation
-     * 
+     *
      * @throws TermException
      *             if the translation fails for whatever reason
      */
@@ -310,28 +313,28 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
             result = convert(result, resultingType, asType);
             resultingType = asType;
         }
-        
+
         assert resultingType == asType;
         return result;
     }
 
     /**
      * Translate a sequent to its smt-lib counterpart, i.e., a formula.
-     * 
+     *
      * <p>
      * Possibly, sort and constant definitions are written to the appropriate
      * storages.
-     * 
+     *
      * <p>
      * The resulting formula is a conjunction of all formulas on the sequent's
      * lhs (positive) and all formulas of the rhs (negative). For the empty
      * sequent <code>"(and true)"</code> is returned.
-     * 
+     *
      * @param sequent
      *            the sequent to translate
-     * 
+     *
      * @return the string representing the translation
-     * 
+     *
      * @throws TermException
      *             if the translation fails for whatever reason
      */
@@ -411,11 +414,11 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /*
      * Add type meta symbols for all types of the environment.
-     * 
+     *
      * For every nullary type constructor C we get a constant "(ty.C Type)", for
      * every constructor D of higher arity a symbol with an according number of
      * parameters is added.
-     * 
+     *
      * Assumptions are added which ensure that the symbols are distinct and that
      * the constructors are injective functions.
      */
@@ -510,11 +513,17 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
             throw new IOException("Resource smt1_preamble.smt not found");
         }
         Reader r = new InputStreamReader(stream);
-        char[] buffer = new char[1024];
-        int read = r.read(buffer);
-        while (read != -1) {
-            pw.append(new String(buffer, 0, read));
-            read = r.read(buffer);
+        try {
+            char[] buffer = new char[1024];
+            int read = r.read(buffer);
+            while (read != -1) {
+                pw.append(new String(buffer, 0, read));
+                read = r.read(buffer);
+            }
+        } finally {
+            if(r != null) {
+                r.close();
+            }
         }
     }
 
@@ -531,15 +540,16 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /*
      * by default replace by a new unknown symbol.
-     * 
+     *
      * TODO cache replacement results => use same symbol for identical terms but
      * ... do this on a per-translation basis!
-     * 
+     *
      * TODO add typing axioms also for those elements?!
-     * 
+     *
      * We have to add bound variables as parameters! Otherwise the follwing will
      * be proven by SMT: <pre> (\forall x as int; ({a:=0}x)=x) -> c1=c2 </pre>
      */
+    @Override
     protected void defaultVisitTerm(Term term) throws TermException {
         String name = "unknown" + unknownCounter;
         StringBuilder signature = new StringBuilder();
@@ -567,16 +577,17 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         case INT:
             extrafuncs.add("(" + name + signature + " Int)");
         }
-        
+
         resultingType = requestedType;
     }
 
     /*
      * Translate an application.
      * This is quite complicated.
-     * 
+     *
      * Special treatment for conditional terms and propositional junctors.
      */
+    @Override
     public void visit(Application application) throws TermException {
         Function function = application.getFunction();
         String name = function.getName();
@@ -597,7 +608,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
             result = sb.toString();
             return;
         }
-        
+
         if (function == patternFunction) {
             StringBuilder sb = new StringBuilder();
             Term pattern = application.getSubterm(0);
@@ -659,7 +670,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
                 Type type = matcher.getTypeFor(((SchemaType) t).getVariableName());
                 assert type != null : "non-nullness: t has been set by the type match visitor";
-                    
+
                 String typeString = type.accept(typeToTerm, false);
                 sb.append(" ").append(typeString);
             }
@@ -691,6 +702,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         }
     }
 
+    @Override
     public void visit(Binding binding) throws TermException {
         Binder binder = binding.getBinder();
         String name = binder.getName();
@@ -701,39 +713,39 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
             defaultVisitTerm(binding);
             return;
         }
-        
+
         // delegated to recursive method to handle nested quantifiers
         Pair<String, String> innerContent = getBinderContent(binder, binding);
-        
+
         result = "(" + translation + innerContent.fst() + " " + innerContent.snd() + ")";
         resultingType = FORMULA;
     }
-    
+
     private Pair<String, String>
            getBinderContent(Binder binder, Term formula) throws TermException {
 
         if (!(formula instanceof Binding)) {
             return Pair.make("", translate(formula, FORMULA));
         }
-            
+
         Binding binding = (Binding) formula;
 
         if(binding.getBinder() != binder) {
             return Pair.make("", translate(formula, FORMULA));
         }
-        
+
         Term innerFormula = binding.getSubterm(0);
         BindableIdentifier variable = binding.getVariable();
         assert variable instanceof Variable;
-        
+
         Type varType = variable.getType();
         String boundType = makeSort(varType);
         String bound = "?" + boundType + "." + variable.getName();
-        
+
         quantifiedVariables.push(bound);
         Pair<String, String> innerContent = getBinderContent(binder, innerFormula);
         quantifiedVariables.pop();
-        
+
         String declaration = " (" + bound + " " + boundType + ")";
         String guard;
         if ("Universe".equals(boundType)) {
@@ -744,11 +756,12 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         } else {
             guard = innerContent.snd();
         }
-        
+
         return Pair.make(declaration + innerContent.fst(), guard);
-        
+
     }
 
+    @Override
     public void visit(Variable variable) throws TermException {
         String sort = makeSort(variable.getType());
         String name = variable.getName();
@@ -756,6 +769,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         result = "?" + sort + "." + name;
     }
 
+    @Override
     public void visit(TypeVariableBinding typeVariableBinding)
             throws TermException {
         String quant = typeVariableBinding.getKind() == Kind.ALL ? "forall"
@@ -791,11 +805,11 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
         Set<TypeVariable> resultTypeVariables =
                 TypeVariableCollector.collect(function.getResultType());
-        
+
         Set<TypeVariable> argumentTypeVariables =
                 TypeVariableCollector.collect(
                         Util.readOnlyArrayList(function.getArgumentTypes()));
-        
+
         Set<TypeVariable> resultOnlyTypeVariables =
             setDifference(resultTypeVariables, argumentTypeVariables);
 
@@ -809,29 +823,29 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
         if (!"Int".equals(resultType)) {
             StringBuilder sb = new StringBuilder();
             boolean varInResult = !resultTypeVariables.isEmpty() && argTypes.length > 0;
-            
+
             sb.append("Typing for function symbol ").append(name).append("\n");
-            
+
             if (resultTypeVariables.isEmpty() &&
                     argumentTypeVariables.isEmpty() && argTypes.length == 0) {
-                
+
                 // for a monomorphic constant symbols "bool c" add
                 // "(= (ty fct.c) ty.bool)"
                 sb.append("(= (ty ").append(name).append(") ").
                         append(fctResultType.accept(typeToTerm, false)).
                         append(                                ")");
-                
+
             } else {
                 sb.append("(forall ");
-                
+
                 for (TypeVariable typeVariable : resultOnlyTypeVariables) {
                     sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
                 }
-                
+
                 for (TypeVariable typeVariable : argumentTypeVariables) {
                     sb.append("(?Type.").append(typeVariable.getVariableName()).append(" Type) ");
                 }
-                
+
                 for (int i = 0; i < argTypes.length; i++) {
                     sb.append("(?x").append(i).append(" ").append(argTypes[i])
                         .append(") ");
@@ -861,7 +875,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
                 for (int i = 0; i < argTypes.length; i++) {
                     sb.append(" ?x").append(i);
                 }
-            
+
                 sb.append(")) ").
                 append(fctResultType.accept(typeToTerm, true)).append("))")
                         .append(varInResult ? ")" : "");
@@ -874,7 +888,7 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /*
      * calculate the difference between two sets.
-     * Only creates a new Object if the difference is not empty. 
+     * Only creates a new Object if the difference is not empty.
      */
     private <E> Set<E> setDifference(Set<E> set, Set<E> toSubtract) {
 
@@ -889,10 +903,10 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Map a logic type to a smt type.
-     * 
+     *
      * @param type
      *            the logical type
-     * 
+     *
      * @return the string
      */
     private @NonNull String makeSort(@NonNull Type type) {
@@ -905,15 +919,15 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
 
     /**
      * Deduce the expression type from a smt type string.
-     * 
+     *
      * This maps {@code "Int"} to {@link ExpressionType#INT} and {@code
      * "Universe"} to {@link ExpressionType#UNIVERSE}.
-     * 
+     *
      * @param sort
      *            the sort to translate
-     * 
+     *
      * @return the according expression type
-     * 
+     *
      * @throws IllegalArgumentException
      *             if the argument is neither {@code "Int"} nor {@code
      *             "Universe"}.
@@ -931,16 +945,16 @@ public class SMTLib1Translator extends DefaultTermVisitor implements SMTLibTrans
     /**
      * Convert an expression of some expression type into a possibly different
      * type.
-     * 
+     *
      * @param expr
      *            the expression as string
      * @param from
      *            the expression type in which the first argument is to be read
      * @param to
      *            the expression type to convert the argument to
-     * 
+     *
      * @return the converted expression
-     * 
+     *
      * @throws RuntimeException if an undoable conversion is requested (likely a bug)
      */
     @SuppressWarnings("fallthrough")

@@ -23,6 +23,7 @@ import de.uka.iti.pseudo.gui.util.BufferOutputStream;
 import de.uka.iti.pseudo.proof.serialisation.ProofXML;
 import de.uka.iti.pseudo.util.ExceptionDialog;
 import de.uka.iti.pseudo.util.GUIUtil;
+import de.uka.iti.pseudo.util.Log;
 
 /**
  * This action loads the url of the currently open proof center into a new frame
@@ -69,14 +70,17 @@ public class ReloadAndReproveProblemAction extends BarAction implements
                 proofCenter2.fireNotification(ProofCenter.PROOFTREE_HAS_CHANGED);
             }
         } catch (Exception ex) {
+            Log.stacktrace(ex);
             String tmp = "<no file>";
             try {
-                 tmp = File.createTempFile("ivilReloadProof", ".pxml").getAbsolutePath();
-                 FileOutputStream fos = new FileOutputStream(tmp);
-                 GUIUtil.drainStream(buffer.inputStream(), fos);
+                if(buffer != null) {
+                    tmp = File.createTempFile("ivilReloadProof", ".pxml").getAbsolutePath();
+                    FileOutputStream fos = new FileOutputStream(tmp);
+                    GUIUtil.drainStream(buffer.inputStream(), fos);
+                }
             } catch (Exception ex2) {
                 tmp = "<no file>";
-                ex2.printStackTrace();
+                Log.stacktrace(ex2);
             }
 
             ExceptionDialog.showExceptionDialog(getParentFrame(),

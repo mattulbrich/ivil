@@ -128,6 +128,12 @@ public class SMTStrategy extends AbstractStrategy {
             }
         }
 
+        if(solver == null) {
+            Log.log(Log.DEBUG, "No solver has been specified");
+            throw new StrategyException("No solver has been specified in the environment. " +
+                    "This can be done using property " + RuleTagConstants.KEY_DECISION_PROCEDURE);
+        }
+
         Sequent sequent = target.getSequent();
         Pair<Result, String> result;
 

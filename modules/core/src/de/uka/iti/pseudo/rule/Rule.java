@@ -23,7 +23,6 @@ import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.util.Util;
 
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class Rule encapsulates a logical rule with several elements:
  * <ol>
@@ -33,7 +32,7 @@ import de.uka.iti.pseudo.util.Util;
  * <li>zero or more where clauses (side conditions)
  * <li>one or more goal actions
  * <li>zero or more named properties (in a string to string map)
- * </li>
+ * </ol>
  *
  * Rules are immutable objects.
  *
@@ -46,46 +45,80 @@ public final class Rule {
 //    private static final String NEWLINE = "\n";
 
     /**
-     * The name of this rule
+     * The name of this rule.
      */
-    private @NonNull
-    final String name;
+    private final @NonNull String name;
 
     /**
      * The set of assumptions. no null in here.
      */
-    private @DeepNonNull
-    final LocatedTerm assumptions[];
+    private final @DeepNonNull LocatedTerm[] assumptions;
 
     /**
-     * The find clause.
+     * The find clause of this rule.
+     * <code>null</code> if the rule has no such clause.
      */
-    private @Nullable
-    final LocatedTerm findClause;
+    private final @Nullable LocatedTerm findClause;
 
     /**
-     * The where clauses.
+     * The where clauses of this rule.
+     * An array of length 0 if this rule has no clauses.
      */
-    private @DeepNonNull
-    final WhereClause whereClauses[];
+    private final @DeepNonNull WhereClause[] whereClauses;
 
     /**
-     * The goal actions. a non-empty array.
+     * The goal actions. A non-empty array.
      */
-    private @DeepNonNull
-    final GoalAction goalActions[];
+    private final @DeepNonNull GoalAction[] goalActions;
 
     /**
-     * The properties.
+     * The properties attached to this rule.
      */
-    private @NonNull
-    final Map<String, String> properties;
+    private final @NonNull Map<String, String> properties;
 
     /**
-     * The location
+     * The location of the rule definitions (for error messages mainly).
      */
-    private @NonNull
-    final ASTLocatedElement location;
+    private final @NonNull ASTLocatedElement location;
+
+    /**
+     * Instantiates a new immutable rule.
+     *
+     * @param name
+     *            rule's name
+     * @param assumes
+     *            the assumptions
+     * @param find
+     *            the find clause
+     * @param wheres
+     *            the where clauses
+     * @param actions
+     *            the goal action, must not be the empty list
+     * @param properties
+     *            the properties
+     * @param location
+     *            the location of the declaration in the sources
+     *
+     * @throws RuleException
+     *             if the elements do not compose a valid rule.
+     */
+    public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes,
+            @Nullable LocatedTerm find, @NonNull List<WhereClause> wheres,
+            @NonNull List<GoalAction> actions,
+            @NonNull Map<String, String> properties,
+            @NonNull ASTLocatedElement location)
+            throws RuleException {
+        this.name = name;
+        this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
+        this.findClause = find;
+        this.whereClauses = Util.listToArray(wheres, WhereClause.class);
+        this.goalActions = Util.listToArray(actions, GoalAction.class);
+        this.properties = properties;
+        this.location = location;
+
+        checkRule();
+    }
+
 
     /**
      * gets a property. Properties are specified using the "tag" keyword in
@@ -124,7 +157,7 @@ public final class Rule {
      * @return an unmodifiable collection of strings.
      */
     public Collection<String> getDefinedProperties() {
-    	return properties.keySet();
+        return properties.keySet();
     }
 
     /**
@@ -181,43 +214,6 @@ public final class Rule {
         return Util.readOnlyArrayList(goalActions);
     }
 
-    /**
-     * Instantiates a new rule.
-     *
-     * @param name
-     *            rule's name
-     * @param assumes
-     *            the assumptions
-     * @param find
-     *            the find clause
-     * @param wheres
-     *            the where clauses
-     * @param actions
-     *            the goal action, must not be the empty list
-     * @param properties
-     *            the properties
-     * @param location
-     *            the location of the declaration in the sources
-     *
-     * @throws RuleException
-     *             if the elements do not compose a valid rule.
-     */
-    public Rule(@NonNull String name, @NonNull List<LocatedTerm> assumes,
-            @Nullable LocatedTerm find, @NonNull List<WhereClause> wheres,
-            @NonNull List<GoalAction> actions,
-            @NonNull Map<String, String> properties,
-            @NonNull ASTLocatedElement location)
-            throws RuleException {
-        this.name = name;
-        this.assumptions = Util.listToArray(assumes, LocatedTerm.class);
-        this.findClause = find;
-        this.whereClauses = Util.listToArray(wheres, WhereClause.class);
-        this.goalActions = Util.listToArray(actions, GoalAction.class);
-        this.properties = properties;
-        this.location = location;
-
-        checkRule();
-    }
 
     /*
      * Check rule. raise an exception if the elements are not valid for a rule.
@@ -233,8 +229,9 @@ public final class Rule {
         for (GoalAction goalAction : getGoalActions()) {
             if(goalAction.isRemoveOriginalTerm() &&
                     (findClause == null ||
-                            findClause.getMatchingLocation() == MatchingLocation.BOTH)) {
-                throw new RuleException("Goal action contains remove element where find is not present or not top level");
+                    findClause.getMatchingLocation() == MatchingLocation.BOTH)) {
+                throw new RuleException("Goal action contains remove element " +
+                        "where find is not present or not top level");
             }
 
             Term replaceWith = goalAction.getReplaceWith();
@@ -243,7 +240,8 @@ public final class Rule {
                     throw new RuleException("Find-less rules must not have a replace clause");
                 }
                 if(!findClause.getTerm().getType().equals(replaceWith.getType())) {
-                    throw new RuleException("Find clause and replace clause must have the same type");
+                    throw new RuleException("Find clause and replace clause " +
+                            "must have the same type");
                 }
             }
         }

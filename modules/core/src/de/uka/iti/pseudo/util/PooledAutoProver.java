@@ -206,7 +206,7 @@ public class PooledAutoProver {
      *            node for which the job is to be enqueued
      */
     public void submit(@NonNull ProofNode node) {
-        waitingQueue.offer(node);
+        waitingQueue.add(node);
     }
 
     /**

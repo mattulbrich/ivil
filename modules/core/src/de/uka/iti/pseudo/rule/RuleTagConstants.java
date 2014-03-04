@@ -21,13 +21,6 @@ package de.uka.iti.pseudo.rule;
 public final class RuleTagConstants {
 
     /**
-     * Instantiation impossible
-     */
-    private RuleTagConstants() {
-        throw new Error("though shalt not instantiate");
-    }
-
-    /**
      * @ivildoc "Rule tag/decisionProcedure"
      *
      * <h2>Rule tag <tt>decisionProcedure</tt></h2>
@@ -225,4 +218,12 @@ public final class RuleTagConstants {
      * sequent by an <a href="ivil:/Proof hint/axiom">axiom proof hint</a>.
      */
     public static final String EXCLUDE_FROM_DP = "excludeFromDP";
+
+    /**
+     * Make instantiation impossible.
+     */
+    private RuleTagConstants() {
+        throw new Error("though shalt not instantiate");
+    }
+
 }

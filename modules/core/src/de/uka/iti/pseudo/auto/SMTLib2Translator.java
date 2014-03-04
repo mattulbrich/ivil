@@ -593,11 +593,17 @@ public class SMTLib2Translator extends DefaultTermVisitor implements SMTLibTrans
             throw new IOException("Resource smt2_preamble.smt not found");
         }
         Reader r = new InputStreamReader(stream);
-        char[] buffer = new char[1024];
-        int read = r.read(buffer);
-        while (read != -1) {
-            pw.append(new String(buffer, 0, read));
-            read = r.read(buffer);
+        try {
+            char[] buffer = new char[1024];
+            int read = r.read(buffer);
+            while (read != -1) {
+                pw.append(new String(buffer, 0, read));
+                read = r.read(buffer);
+            }
+        } finally {
+            if(r != null) {
+                r.close();
+            }
         }
     }
 

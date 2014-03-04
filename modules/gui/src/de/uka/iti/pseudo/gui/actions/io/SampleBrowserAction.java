@@ -69,6 +69,7 @@ import de.uka.iti.pseudo.util.GUIUtil;
 import de.uka.iti.pseudo.util.Log;
 import de.uka.iti.pseudo.util.settings.Settings;
 
+@SuppressWarnings("serial")
 public class SampleBrowserAction extends BarAction implements InitialisingAction {
 
     public static final String SAMPLES_DIR = "/loadsamples/";
@@ -95,6 +96,7 @@ public class SampleBrowserAction extends BarAction implements InitialisingAction
 
 }
 
+@SuppressWarnings("serial")
 class Sample extends Properties implements Comparable<Sample> {
 
     @Override
@@ -144,6 +146,7 @@ class Sample extends Properties implements Comparable<Sample> {
     }
 }
 
+@SuppressWarnings("serial")
 class SampleBrowser extends JDialog {
     protected Sample selectedSample;
     private final Vector<Sample> allSamples = new Vector<Sample>();
@@ -179,6 +182,12 @@ class SampleBrowser extends JDialog {
             }
         } catch (Exception e) {
             Log.stacktrace(Log.ERROR, e);
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                Log.stacktrace(Log.ERROR, e);
+            }
         }
 
         Collections.sort(allSamples);
