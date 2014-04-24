@@ -10,8 +10,8 @@ properties
   CompoundStrategy.strategies 
     "HintStrategy,SimplificationStrategy,BreakpointStrategy,SMTStrategy"
 
-plugin 
-  contextExtension :
+plugins
+  contextExtension 
     "de.uka.iti.pseudo.gui.extensions.PropositionalExpansionExt"
 
 sort vertex
