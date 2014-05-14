@@ -14,6 +14,7 @@ import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.environment.WhereCondition;
+import de.uka.iti.pseudo.proof.FilterRuleApplication;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
 import de.uka.iti.pseudo.proof.TermSelector;
@@ -57,59 +58,15 @@ public class CanEvaluateMeta extends WhereCondition {
     /**
      * This class wraps a rule application and makes its properties immutable.
      */
-    private static class ProtectedRuleApplication implements RuleApplication {
-        private final RuleApplication wrappedApplication;
+    private static class ProtectedRuleApplication extends FilterRuleApplication {
 
-        public ProtectedRuleApplication(RuleApplication wrappedApplication) {
-            this.wrappedApplication = wrappedApplication;
-        }
-
-        @Override
-        public List<TermSelector> getAssumeSelectors() {
-            return wrappedApplication.getAssumeSelectors();
-        }
-
-        @Override
-        public TermSelector getFindSelector() {
-            return wrappedApplication.getFindSelector();
-        }
-
-        @Override
-        public ProofNode getProofNode() {
-            return wrappedApplication.getProofNode();
-        }
-
-        @Override
-        public Map<String, String> getProperties() {
-            return wrappedApplication.getProperties();
-        }
-
-        @Override
-        public Rule getRule() {
-            return wrappedApplication.getRule();
-        }
-
-        @Override
-        public Map<String, Term> getSchemaVariableMapping() {
-            return wrappedApplication.getSchemaVariableMapping();
-        }
-
-        @Override
-        public Map<String, Update> getSchemaUpdateMapping() {
-            return wrappedApplication.getSchemaUpdateMapping();
-        }
-
-        @Override
-        public Map<String, Type> getTypeVariableMapping() {
-            return wrappedApplication.getTypeVariableMapping();
+        public ProtectedRuleApplication(RuleApplication app) {
+            super(app);
         }
 
         @Override
         public boolean hasMutableProperties() {
             return false;
         }
-
-
-
     }
 }

@@ -37,6 +37,7 @@ import de.uka.iti.pseudo.proof.MutableRuleApplication;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplicationCertificate;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.where.Interactive;
 import de.uka.iti.pseudo.term.SchemaType;
@@ -278,14 +279,16 @@ public class TermSelectionTransfer extends TransferHandler {
                 }
             }
 
+            RuleApplicationCertificate cert = new RuleApplicationCertificate(ra, env);
             // check if ra is still applicable
-            if (!ra.getProofNode().applicable(ra, env)) {
+            // it is checked now and needs not be checked again.
+            if (!ra.getProofNode().applicable(cert)) {
                 continue;
             }
 
             // adjust level; if level is invalid, map it to 0
             lvl = lvl > 0 && lvl < 10 ? lvl : 0;
-            bucket.get(lvl).add(ra);
+            bucket.get(lvl).add(cert);
         }
 
         return bucket;

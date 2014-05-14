@@ -21,6 +21,7 @@ import de.uka.iti.pseudo.environment.Environment;
 import de.uka.iti.pseudo.proof.Proof;
 import de.uka.iti.pseudo.proof.ProofNode;
 import de.uka.iti.pseudo.proof.RuleApplication;
+import de.uka.iti.pseudo.proof.RuleApplicationCertificate;
 import de.uka.iti.pseudo.proof.TermSelector;
 import de.uka.iti.pseudo.rule.Rule;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
@@ -106,7 +107,7 @@ public final class HintStrategy extends AbstractStrategy {
      *
      * <p>
      * A rule application is found by searching the parent nodes of the given
-     * node. If any of them is attributed with hits, the according
+     * node. If any of them is attributed with hints, the according
      * {@link HintRuleAppFinder} are inquired for a rule application. The first
      * found application is returned.
      */
@@ -120,11 +121,12 @@ public final class HintStrategy extends AbstractStrategy {
                 for (HintRuleAppFinder hint : hints) {
                     RuleApplication ruleApp = followHint(hint, node, reasonNode);
                     if(ruleApp != null) {
-                        if(!ruleApp.getProofNode().applicable(ruleApp, env)) {
-                            Log.log(Log.DEBUG, ruleApp);
+                        RuleApplicationCertificate rac = new RuleApplicationCertificate(ruleApp, env);
+                        if(!ruleApp.getProofNode().applicable(rac)) {
+                            Log.log(Log.DEBUG, rac);
                             throw new StrategyException("The hint came up with an illegal rule application");
                         } else {
-                            return ruleApp;
+                            return rac;
                         }
                     }
                 }

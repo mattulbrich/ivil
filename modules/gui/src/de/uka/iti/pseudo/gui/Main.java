@@ -280,6 +280,8 @@ public class Main {
                 EnvironmentCreationService.createEnvironmentByExtension(url);
 
         Environment env = result.fst();
+//        env.setFixed();
+
         Map<String, Sequent> problemSeqs = result.snd();
 
         if (problemSeqs.isEmpty()) {

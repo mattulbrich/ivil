@@ -76,7 +76,7 @@ public class Proof {
      * access with automatic proofs.
      */
     private @DeepNonNull List<ProofNode> openGoals = 
-        Collections.synchronizedList(new LinkedList<ProofNode>());
+            Collections.synchronizedList(new LinkedList<ProofNode>());
 
     /**
      * A flag which is true iff the proof has been modified after the last call
@@ -89,7 +89,7 @@ public class Proof {
      * the nodes using this counter.
      */
     private int proofNodeCounter = 0;
-    
+
     /**
      * This mutex is used to ensure apply and prune are atomic operations.
      */
@@ -146,27 +146,31 @@ public class Proof {
      * @throws ProofException
      *             may be thrown if the application is not successful.
      */
-    public void apply(@NonNull RuleApplication ruleApp,
-            Environment env)
+    public void apply(RuleApplication ruleApp, Environment env) throws ProofException {
+        RuleApplicationCertificate ruleAppCert = new RuleApplicationCertificate(ruleApp, env);
+        apply(ruleAppCert);
+    }
+
+    public void apply(@NonNull RuleApplicationCertificate ruleAppCert)
             throws ProofException {
-    
+
         ProofNode goal;
-        
-        goal = ruleApp.getProofNode();
+
+        goal = ruleAppCert.getProofNode();
         synchronized(mutex){
             int goalno = openGoals.indexOf(goal);
-    
+
             if (goalno == -1) {
                 throw new ProofException(
                         "The rule application points to a non-existant or non-goal proof node");
             }
-    
-            goal.apply(ruleApp, env);
-    
+
+            goal.apply(ruleAppCert);
+
             openGoals.remove(goalno);
             assert goal.getChildren() != null : "nullness: children after proofnode.apply";
             openGoals.addAll(goalno, goal.getChildren());
-    
+
             fireNodeChanged(goal);
         }
     }
@@ -248,8 +252,8 @@ public class Proof {
         changedSinceSave = true;
         observable.notifyObservers(proofNode);
     }
-    
-    
+
+
 
     /**
      * Adds an observer to the set of observers for this proof, provided 
@@ -286,7 +290,7 @@ public class Proof {
     public List<ProofNode> getOpenGoals() {
         return Collections.unmodifiableList(openGoals);
     }
-    
+
     /**
      * Checks for open goals on this proof.
      * 
@@ -345,4 +349,5 @@ public class Proof {
         proofNodeCounter++;
         return proofNodeCounter;
     }
+
 }

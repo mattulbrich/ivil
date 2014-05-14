@@ -10,30 +10,22 @@
 package de.uka.iti.pseudo.proof;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import nonnull.NonNull;
 import nonnull.Nullable;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Program;
 import de.uka.iti.pseudo.proof.SequentHistory.Annotation;
 import de.uka.iti.pseudo.rule.GoalAction;
-import de.uka.iti.pseudo.rule.LocatedTerm;
 import de.uka.iti.pseudo.rule.Rule;
-import de.uka.iti.pseudo.rule.RuleException;
 import de.uka.iti.pseudo.rule.RuleTagConstants;
-import de.uka.iti.pseudo.rule.WhereClause;
 import de.uka.iti.pseudo.rule.meta.MetaEvaluator;
-import de.uka.iti.pseudo.term.CodeLocation;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.term.Term;
 import de.uka.iti.pseudo.term.TermException;
-import de.uka.iti.pseudo.term.Type;
-import de.uka.iti.pseudo.term.Update;
 import de.uka.iti.pseudo.term.creation.ProgramComparingTermInstantiator;
 import de.uka.iti.pseudo.term.creation.SubtermReplacer;
 import de.uka.iti.pseudo.term.creation.TermInstantiator;
@@ -75,12 +67,6 @@ public class ProofNode implements Comparable<ProofNode> {
     private final Sequent sequent;
 
     /**
-     * Since this is often queried, the list of code locations is cached in this
-     * field.
-     */
-//    private @Nullable Set<CodeLocation<Program>> codeLocations = null;
-
-    /**
      * The associated proof.
      */
     private final Proof proof;
@@ -94,7 +80,7 @@ public class ProofNode implements Comparable<ProofNode> {
      * The parent of this node in the proof tree
      */
     private @Nullable ProofNode parent;
-    
+
     /*@ invariant (\forall ProofNode n; n != null && 
      *@  (\exists int i; i >= 0 & i < children.length; children[i] == n);
      *@  n.parent == this); @*/
@@ -104,24 +90,24 @@ public class ProofNode implements Comparable<ProofNode> {
      * This is set iff children have been calculated
      */
     private @Nullable ImmutableRuleApplication appliedRuleApp = null;
-    
+
     /*@ invariant appliedRule == null <==> children == null; @*/  
-    
+
     /**
      * This node's number which is unique throughout the proof.
      */
     private final int number;
-    
+
     /*@ invariant (\forall ProofNode n; n != null && n.proof == proof;
      *@     n.number == number ==> this == n); */
-    
+
     /**
      * The sequent history.
-     * This object is fixed in the constructor and cannot 
+     * This object is fixed in the constructor and cannot
      * be changed afterwards. 
      */
     private final SequentHistory sequentHistory;
-    
+
     /**
      * This constructor is called when starting a new proof with an initial
      * sequent. It is only package visible since this is to be called only from
@@ -137,35 +123,36 @@ public class ProofNode implements Comparable<ProofNode> {
      *            the annotation which is used for all terms in the sequent to
      *            initially tag the sequent.
      */
-     ProofNode(@NonNull Proof proof, @NonNull Sequent sequent, 
-             @NonNull SequentHistory.Annotation initialAnnotation) {
-         this(proof, null, sequent, new SequentHistory(sequent, initialAnnotation));
+    ProofNode(@NonNull Proof proof, @NonNull Sequent sequent,
+            @NonNull SequentHistory.Annotation initialAnnotation) {
+        this(proof, null, sequent,
+                new SequentHistory(sequent, initialAnnotation));
     }
-     
-     /*
-      * This constructor is called during rule application.
-      * 
-      * It sets the attributes and asserts certain properties.
-      */
-      private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent, 
-             @NonNull Sequent sequent,
-             @NonNull SequentHistory history) {
-         this.proof = proof;
-         this.parent = parent;
-         this.sequent = sequent;
-         this.number = proof.makeFreshNumber();
-         this.sequentHistory = history;
-         
-         sequentHistory.fix();
-         
-         assert sequentHistory.sizesAgreeWith(sequent);
-         assert parent == null || parent.proof == proof;
-     }
-    
+
+    /*
+     * This constructor is called during rule application.
+     *
+     * It sets the attributes and asserts certain properties.
+     */
+    private ProofNode(@NonNull Proof proof, @Nullable ProofNode parent,
+            @NonNull Sequent sequent,
+            @NonNull SequentHistory history) {
+        this.proof = proof;
+        this.parent = parent;
+        this.sequent = sequent;
+        this.number = proof.makeFreshNumber();
+        this.sequentHistory = history;
+
+        sequentHistory.fix();
+
+        assert sequentHistory.sizesAgreeWith(sequent);
+        assert parent == null || parent.proof == proof;
+    }
+
     //
     // various getter methods
     //
-    
+
     /**
      * Gets the children nodes of this node.
      * 
@@ -235,22 +222,22 @@ public class ProofNode implements Comparable<ProofNode> {
      */
     public @NonNull String getSummaryString() {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append(number).append(": ");
         if(appliedRuleApp != null)
             sb.append("closed ");
         else
             sb.append("open ");
-        
+
         sb.append("node, ")
-            .append(sequent.getAntecedent().size())
-            .append(" |- ").append(sequent.getSuccedent().size());
-        
+        .append(sequent.getAntecedent().size())
+        .append(" |- ").append(sequent.getSuccedent().size());
+
         return sb.toString();
     }
-    
 
-    
+
+
     /**
      * Checks if this node is closed.
      * 
@@ -271,7 +258,7 @@ public class ProofNode implements Comparable<ProofNode> {
 
         return true;
     }
-    
+
     /**
      * Gets the associated proof.
      * 
@@ -280,7 +267,7 @@ public class ProofNode implements Comparable<ProofNode> {
     public @NonNull Proof getProof() {
         return proof;
     }
-    
+
     /**
      * Collect all open goals under this node into a collection.
      * 
@@ -295,14 +282,13 @@ public class ProofNode implements Comparable<ProofNode> {
                 child.collectOpenGoals(openGoals);
             }
         }
-            
     }
-    
+
     //
     // methods to modify the tree.
     // They are protected under the synchronisation of their proof object.
     // 
-    
+
     /**
      * Remove any child from this node and set the applied rule to null.
      * Additionally, set the parent of all children to null.
@@ -316,7 +302,7 @@ public class ProofNode implements Comparable<ProofNode> {
                 node.parent = null;
             }
         }
-        
+
         children = null;
         appliedRuleApp = null;
     }
@@ -324,24 +310,14 @@ public class ProofNode implements Comparable<ProofNode> {
     /**
      * Checks whether ruleApp can be applied or not.
      */
-    public boolean applicable(RuleApplication ruleApp, Environment env) {
+    public boolean applicable(RuleApplicationCertificate ruleApp) {
         try{
             if (appliedRuleApp != null)
                 throw new ProofException("Trying to apply proof to a non-leaf proof node");
 
-            Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-            Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-            Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-            TermInstantiator inst = new ProgramComparingTermInstantiator(schemaMap, typeMap, updateMap, env);
+            ruleApp.ensureVerified();
 
-            Rule rule = ruleApp.getRule();
-
-            assert rule != null : "Rule in RuleApplication must not be null";
-
-            matchFindClause(ruleApp, inst, rule);
-            matchAssumeClauses(ruleApp, inst, rule);
-            verifyWhereClauses(ruleApp, inst, rule, env);
-            doActions(ruleApp, inst, env, rule);
+            doActions(ruleApp, ruleApp.getEnvironment());
         } catch (ProofException e) {
             return false;
         }
@@ -365,38 +341,21 @@ public class ProofNode implements Comparable<ProofNode> {
      * @param whereClauseProperties
      * @throws ProofException
      */
-    void apply(RuleApplication ruleApp, Environment env) throws ProofException {
+    void apply(RuleApplicationCertificate rac) throws ProofException {
         if(appliedRuleApp != null)
             throw new ProofException("Trying to apply proof to a non-leaf proof node");
-        
-        Map<String, Term> schemaMap = ruleApp.getSchemaVariableMapping();
-        Map<String, Type> typeMap = ruleApp.getTypeVariableMapping();
-        Map<String, Update> updateMap = ruleApp.getSchemaUpdateMapping();
-        TermInstantiator inst = new ProgramComparingTermInstantiator(
-                schemaMap, typeMap, updateMap, env);
-        
-        Rule rule = ruleApp.getRule();
-        
-        assert rule != null : "Rule in RuleApplication must not be null";
 
-        matchFindClause(ruleApp, inst, rule);
-        matchAssumeClauses(ruleApp, inst, rule);
-        verifyWhereClauses(ruleApp, inst, rule, env);
+        rac.ensureVerified();
 
-        children = doActions(ruleApp, inst, env, rule);
-        
-        // TODO do this before checking the ruleApp. But:
-        // "$$skolem" needs mutable properties to write its instantiation.
-        
-        // capture the current state of the rule application in an
-        // immutable copy. No need to copy if already immutable.
-        ImmutableRuleApplication immRuleApp; 
-        if(ruleApp instanceof ImmutableRuleApplication) {
-            immRuleApp = (ImmutableRuleApplication) ruleApp; 
-        } else {
-            immRuleApp = new ImmutableRuleApplication(ruleApp);
+        Environment env = rac.getEnvironment();
+        children = doActions(rac, env);
+
+        if(!rac.hasMonotoneProperties()) {
+            throw new ProofException("The application has modified existing properties");
         }
 
+        ImmutableRuleApplication immRuleApp;
+        immRuleApp = new ImmutableRuleApplication(rac);
         this.appliedRuleApp = immRuleApp;
     }
 
@@ -408,8 +367,16 @@ public class ProofNode implements Comparable<ProofNode> {
      * adequate modification of the original sequent. Each contains an updated
      * history track.
      */
-    private ProofNode[] doActions(RuleApplication ruleApp, TermInstantiator inst, Environment env, Rule rule)
-        throws ProofException {
+    private ProofNode[] doActions(RuleApplication ruleApp, Environment env)
+            throws ProofException {
+
+        Rule rule = ruleApp.getRule();
+        TermInstantiator inst = new ProgramComparingTermInstantiator(
+                ruleApp.getSchemaVariableMapping(),
+                ruleApp.getTypeVariableMapping(),
+                ruleApp.getSchemaUpdateMapping(),
+                env);
+
         List<ProofNode> newNodes = new LinkedList<ProofNode>();
         List<Term> antecedent = new ArrayList<Term>();
         List<Term> succedent = new ArrayList<Term>();
@@ -419,9 +386,9 @@ public class ProofNode implements Comparable<ProofNode> {
         Annotation reasonAnnotation = null;
         if(findSelector != null)
             reasonAnnotation = sequentHistory.select(findSelector);
-        
+
         try {
-            
+
             for (GoalAction action : rule.getGoalActions()) {
                 antecedent.clear();
                 succedent.clear();
@@ -437,11 +404,11 @@ public class ProofNode implements Comparable<ProofNode> {
                     break;
                 default:
                     history = new SequentHistory(ruleAppText, reasonAnnotation, this);
-                break;
+                    break;
                 }
-                
+
                 Term replaceWith = action.getReplaceWith();
-                
+
                 if(replaceWith != null) {
                     Term instantiated = inst.instantiate(replaceWith);
                     instantiated = metaEval.evalutate(instantiated);
@@ -455,27 +422,27 @@ public class ProofNode implements Comparable<ProofNode> {
                         succedent.remove(findSelector.getTermNo());
                     history.removed(findSelector);
                 }
-                
+
                 for (Term add : action.getAddAntecedent()) {
                     Term toAdd = inst.instantiate(add);
                     toAdd = metaEval.evalutate(toAdd);
                     antecedent.add(toAdd);
                     history.added(TermSelector.ANTECEDENT);
                 }
-                
+
                 for (Term add : action.getAddSuccedent()) {
                     Term toAdd = inst.instantiate(add);
                     toAdd = metaEval.evalutate(toAdd);
                     succedent.add(toAdd);
                     history.added(TermSelector.SUCCEDENT);
                 }
-                
+
                 Sequent seq = new Sequent(antecedent, succedent);
                 newNodes.add(new ProofNode(proof, this, seq, history));
             }
 
             return Util.listToArray(newNodes, ProofNode.class);
-            
+
         } catch (TermException e) {
             Log.log(Log.WARNING, "Failed rule application:");
             if(Log.isLogging(Log.DEBUG)) {
@@ -526,94 +493,12 @@ public class ProofNode implements Comparable<ProofNode> {
         }
     }
 
-    /*
-     * Verify where clauses in a rule application using a terminstantiator.
+    /**
+     * Gets the history for all term in the sequent.
+     *
+     * @return the sequent history
      */
-    private void verifyWhereClauses(RuleApplication ruleApp, TermInstantiator inst,
-            Rule rule, Environment env) throws ProofException {
-        for (WhereClause whereClause : rule.getWhereClauses()) {
-            try {
-                if(!whereClause.applyTo(inst, ruleApp, env)) {
-                    Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
-                    Log.log(Log.DEBUG, "Term inst: " + inst);
-                    throw new ProofException("WhereClause failed: " + whereClause + 
-                            ", instantiation: " + inst);
-                }
-            } catch (RuleException e) {
-                Log.log(Log.ERROR, "WhereClause failed: " + whereClause);
-                Log.log(Log.DEBUG, "Term inst: " + inst);
-                throw new ProofException("WhereClause not applicable: " + whereClause, e);
-            }
-        }
-    }
-
-    /*
-     * Match find clause against the sequent.
-     * 
-     * If there is no find clause in this rule, just return.
-     */
-    private void matchFindClause(RuleApplication ruleApp, TermInstantiator inst,
-            Rule rule) throws ProofException {
-        
-        LocatedTerm findClause = rule.getFindClause();
-        if(findClause == null)
-            return;
-        
-        TermSelector findSelector = ruleApp.getFindSelector();
-        Term findSubTerm = findSelector.selectSubterm(sequent);
-
-        if (!findClause.isFittingSelect(findSelector)) {
-            throw new ProofException("Illegal selector for find");
-        }
-        
-        Term instantiated;
-        try {
-            instantiated = inst.instantiate(findClause.getTerm());
-        } catch (TermException e) {
-            throw new ProofException("cannot instantiate find clause", e);
-        }
-        
-        if(!findSubTerm.equals(instantiated))
-            throw new ProofException("find clause does not match: \nfind: " + findSubTerm + " \ninstantiated: " + instantiated);
-        
-        if(!findClause.isFittingSelect(findSelector))
-            throw new ProofException("find selector does match find clase: \n" + findClause + 
-                    "\n" + instantiated + " - " + findSelector);
-        
-        OptionalUpdateInstantiationChecker.check(ruleApp);
-    }
-
-    /*
-     * Match assume clauses against the sequent.
-     * 
-     * FIXME start with rule's clauses not with app's clauses
-     */
-    private void matchAssumeClauses(RuleApplication ruleApp,
-            TermInstantiator inst, Rule rule) throws ProofException {
-        
-        List<TermSelector> assumeSelectors = ruleApp.getAssumeSelectors();
-        int length = assumeSelectors.size();
-        
-        for (int i = 0; i < length; i++) {
-            TermSelector assSel = assumeSelectors.get(i);
-            assert assSel.isToplevel();
-            Term assumeTerm = assSel.selectTopterm(sequent);
-            LocatedTerm assumption = rule.getAssumptions().get(i);
-            if (!assumption.isFittingSelect(assSel)) {
-                throw new ProofException("Illegal selector for assume (" + i + ")");
-            }
-            Term instantiated;
-            try {
-                instantiated = inst.instantiate(assumption.getTerm());
-            } catch (TermException e) {
-                throw new ProofException("cannot instantiate assume clause", e);
-            }
-            if(!assumeTerm.equals(instantiated))
-                throw new ProofException("assumption clause does not match");
-        }
-    }
-
-    public SequentHistory getSequentHistory() {
+    public @NonNull SequentHistory getSequentHistory() {
         return sequentHistory;
     }
 
@@ -626,18 +511,40 @@ public class ProofNode implements Comparable<ProofNode> {
     public int compareTo(ProofNode o) {
         return number - o.number;
     }
-    
-//    /**
-//     * Get the list of program code locations which occur in the sequent. The
-//     * result of the search is cached in this object to make this operation less
-//     * expensive.
-//     * 
-//     * @return an immutable view to the list of code locations.
-//     */
-//    public Set<CodeLocation<Program>> getCodeLocations() {
-//        if(codeLocations == null) {
-//            codeLocations = CodeLocation.findCodeLocations(sequent);
-//        }
-//        return Collections.unmodifiableSet(codeLocations);
-//    }
+
+    //    /**
+    //     * Get the list of program code locations which occur in the sequent. The
+    //     * result of the search is cached in this object to make this operation less
+    //     * expensive.
+    //     *
+    //     * @return an immutable view to the list of code locations.
+    //     */
+    //    public Set<CodeLocation<Program>> getCodeLocations() {
+    //        if(codeLocations == null) {
+    //            codeLocations = CodeLocation.findCodeLocations(sequent);
+    //        }
+    //        return Collections.unmodifiableSet(codeLocations);
+    //    }
+
+    /**
+     * This class wraps a rule application and makes its properties immutable.
+     */
+    private static class AddPropRuleApp extends FilterRuleApplication {
+        private Map<String, String> properties;
+
+        public AddPropRuleApp(RuleApplication app) {
+            super(app);
+            this.properties = new HashMap<String, String>(app.getProperties());
+        }
+
+        @Override
+        public Map<String, String> getProperties() {
+            return properties;
+        }
+
+        @Override
+        public boolean hasMutableProperties() {
+            return true;
+        }
+    }
 }
