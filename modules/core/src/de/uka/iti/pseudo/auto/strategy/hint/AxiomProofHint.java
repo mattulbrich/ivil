@@ -47,7 +47,7 @@ import de.uka.iti.pseudo.term.TermException;
 public class AxiomProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "axiom";
     }
 

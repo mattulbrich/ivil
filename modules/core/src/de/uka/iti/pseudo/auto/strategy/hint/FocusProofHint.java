@@ -53,7 +53,7 @@ import de.uka.iti.pseudo.rule.Rule;
 public class FocusProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "focus";
     }
 

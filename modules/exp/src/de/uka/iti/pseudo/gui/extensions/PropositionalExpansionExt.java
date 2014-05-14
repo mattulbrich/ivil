@@ -21,7 +21,7 @@ public class PropositionalExpansionExt implements ContextExtension {
     private final static String[] SPLIT_RULES =
         { "and_right"};// "or_left", "impl_left" };
 
-    @Override public String getKey() {
+    @Override public String getName() {
         return "Propositional Expansion";
     }
 

@@ -15,7 +15,7 @@ import de.uka.iti.pseudo.term.Term;
 public class RefinementExpansionExt implements ContextExtension {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "Refinement";
     }
 

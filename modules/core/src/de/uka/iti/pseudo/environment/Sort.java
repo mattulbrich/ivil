@@ -18,7 +18,7 @@ import de.uka.iti.pseudo.parser.ASTLocatedElement;
  *
  * It has a name and a number of argument types.
  */
-public final class Sort {
+public final class Sort implements Named {
 
     /**
      * The name of the sort.
@@ -58,6 +58,7 @@ public final class Sort {
      *
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }

@@ -10,7 +10,7 @@
 package de.uka.iti.pseudo.gui.extensions;
 
 import nonnull.NonNull;
-import de.uka.iti.pseudo.environment.Mappable;
+import de.uka.iti.pseudo.environment.Named;
 import de.uka.iti.pseudo.gui.ProofCenter;
 
 /**
@@ -23,7 +23,7 @@ import de.uka.iti.pseudo.gui.ProofCenter;
  * @author mattias ulbrich
  */
 
-public interface ContextExtension extends Mappable<String> {
+public interface ContextExtension extends Named {
 
     /**
      * Gets the name of this extension.
@@ -33,7 +33,7 @@ public interface ContextExtension extends Mappable<String> {
      * @return a constant string
      */
     @Override
-    public @NonNull String getKey();
+    public @NonNull String getName();
 
     /**
      * Gets the description of this macro.

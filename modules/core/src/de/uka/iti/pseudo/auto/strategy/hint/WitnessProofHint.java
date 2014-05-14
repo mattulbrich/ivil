@@ -63,7 +63,7 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 public class WitnessProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "witness";
     }
 

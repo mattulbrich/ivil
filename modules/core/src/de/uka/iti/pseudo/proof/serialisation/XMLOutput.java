@@ -126,7 +126,7 @@ public class XMLOutput {
 
         // schema variables
         for(Entry<String, Term> entry : ruleApp.getSchemaVariableMapping().entrySet()) {
-            // if(isInteractive(entry.getKey(), ruleApp)) {
+            // if(isInteractive(entry.getName(), ruleApp)) {
             out.start("schemavariable", "name", entry.getKey());
             out.appendEncoded(entry.getValue().toString(true)).end().newline();
             // }

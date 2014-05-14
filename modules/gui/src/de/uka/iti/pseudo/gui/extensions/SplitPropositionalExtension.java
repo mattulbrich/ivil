@@ -11,7 +11,7 @@ import de.uka.iti.pseudo.proof.RuleApplicationMaker;
 public class SplitPropositionalExtension implements ContextExtension {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "Splitting Expansion";
     }
 

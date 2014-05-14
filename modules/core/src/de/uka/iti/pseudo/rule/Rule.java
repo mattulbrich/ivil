@@ -17,6 +17,7 @@ import java.util.Map;
 import nonnull.DeepNonNull;
 import nonnull.NonNull;
 import nonnull.Nullable;
+import de.uka.iti.pseudo.environment.Named;
 import de.uka.iti.pseudo.parser.ASTLocatedElement;
 import de.uka.iti.pseudo.parser.file.MatchingLocation;
 import de.uka.iti.pseudo.term.Term;
@@ -37,7 +38,7 @@ import de.uka.iti.pseudo.util.Util;
  * Rules are immutable objects.
  *
  */
-public final class Rule {
+public final class Rule implements Named {
 
 //    /**
 //     * new line character for pretty printing
@@ -165,6 +166,7 @@ public final class Rule {
      *
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }

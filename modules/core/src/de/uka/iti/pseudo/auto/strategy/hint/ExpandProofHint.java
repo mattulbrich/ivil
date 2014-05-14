@@ -67,10 +67,10 @@ import de.uka.iti.pseudo.util.Util;
 public class ExpandProofHint implements ProofHint {
 
     /* (non-Javadoc)
-     * @see de.uka.iti.pseudo.environment.Mappable#getKey()
+     * @see de.uka.iti.pseudo.environment.Mappable#getName()
      */
     @Override
-    public String getKey() {
+    public String getName() {
         return "expand";
     }
 

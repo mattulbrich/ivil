@@ -95,7 +95,7 @@ import de.uka.iti.pseudo.term.creation.TermMatcher;
  * @see Rule
  * @see WhereClause
  */
-public abstract class WhereCondition implements Mappable<String> {
+public abstract class WhereCondition implements Named {
 
     // ////////////////////////////////////
     // Static material
@@ -152,21 +152,10 @@ public abstract class WhereCondition implements Mappable<String> {
      *
      * @return the name of this condition
      */
+    @Override
     public @NonNull
     String getName() {
         return name;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>
-     * For where conditions, the name is the unique key.
-     */
-    @Override
-    public @NonNull
-    String getKey() {
-        return getName();
     }
 
     /**

@@ -31,7 +31,7 @@ import de.uka.iti.pseudo.term.Type;
  * </pre>
  *
  */
-public class Binder {
+public class Binder implements Named {
 
     /**
      * The name of the binder, starting with a backslash.
@@ -87,6 +87,7 @@ public class Binder {
      *
      * @return the name of the binder, a string beginning with a backslash
      */
+    @Override
     public @NonNull String getName() {
         return name;
     }

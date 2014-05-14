@@ -13,13 +13,13 @@ import java.io.IOException;
 import java.util.Map;
 
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Mappable;
+import de.uka.iti.pseudo.environment.Named;
 import de.uka.iti.pseudo.proof.ProofException;
 import de.uka.iti.pseudo.term.Sequent;
 import de.uka.iti.pseudo.util.Pair;
 
 // TODO DOC
-public interface DecisionProcedure extends Mappable<String> {
+public interface DecisionProcedure extends Named {
 
     public static final String SERVICE_NAME = "decisionProcedure";
 

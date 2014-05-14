@@ -65,7 +65,7 @@ import de.uka.iti.pseudo.term.creation.TermMaker;
 public class InstantiateProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "inst";
     }
 

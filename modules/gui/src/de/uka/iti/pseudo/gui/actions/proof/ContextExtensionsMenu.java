@@ -38,7 +38,7 @@ public class ContextExtensionsMenu extends JMenu implements MenuListener {
          *            URL to the problem to be loaded
          */
         public ApplyExtensionAction(ContextExtension ext) {
-            super(ext.getKey());
+            super(ext.getName());
             this.ext = ext;
             putValue(SHORT_DESCRIPTION, ext.getDescription());
         }

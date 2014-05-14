@@ -56,7 +56,7 @@ import de.uka.iti.pseudo.term.Sequent;
 public class PickProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "pick";
     }
 

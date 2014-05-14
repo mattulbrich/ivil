@@ -44,7 +44,7 @@ import de.uka.iti.pseudo.rule.Rule;
 public class RuleProofHint implements ProofHint {
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "rule";
     }
 

@@ -52,7 +52,7 @@ import nonnull.Nullable;
  *
  * <p>
  * If a service implements the {@link Mappable} interface, which provides a key
- * via the method {@link Mappable#getKey()}, any implementation is also added to
+ * via the method {@link Mappable#getName()}, any implementation is also added to
  * hash table under that key from which it can be retrieved using the method
  * {@link #getPlugin(String, Class, Object)}.
  *
@@ -145,10 +145,10 @@ public final class PluginManager {
         private final Class<?> type;
 
         /**
-         * A service may implement {@link Mappable}. If it does, it is added to
+         * A service may implement {@link Named}. If it does, it is added to
          * this table under its key.
          */
-        private final Map<Object, Object> table = new HashMap<Object, Object>();
+        private final Map<String, Object> table = new HashMap<String, Object>();
 
         /**
          * The list holding all registered plugins for that service.
@@ -263,9 +263,9 @@ public final class PluginManager {
         }
 
         service.list.add(instance);
-        if (instance instanceof Mappable) {
-            Mappable<?> mappable = (Mappable<?>) instance;
-            service.table.put(mappable.getKey(), instance);
+        if (instance instanceof Named) {
+            Named mappable = (Named) instance;
+            service.table.put(mappable.getName(), instance);
         }
 
         Log.log("Class %s registered for service %s", implementation, serviceName);

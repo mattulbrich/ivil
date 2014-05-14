@@ -94,7 +94,7 @@
 // this.next = entry.next;
 // }
 //
-// public K getKey() {
+// public K getName() {
 // return key;
 // }
 //
@@ -140,7 +140,7 @@
 // public AppendMap(@NonNull Map<K, V> map) {
 // this();
 // for (Map.Entry<K, V> entry : map.entrySet()) {
-// put(entry.getKey(), entry.getValue());
+// put(entry.getName(), entry.getValue());
 // }
 // }
 //

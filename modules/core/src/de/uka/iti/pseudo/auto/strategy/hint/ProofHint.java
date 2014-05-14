@@ -13,7 +13,7 @@ import java.util.List;
 
 import de.uka.iti.pseudo.auto.strategy.StrategyException;
 import de.uka.iti.pseudo.environment.Environment;
-import de.uka.iti.pseudo.environment.Mappable;
+import de.uka.iti.pseudo.environment.Named;
 
 /**
  * The Interface ProofHint is the entry point of the plugin "proofHint".
@@ -32,13 +32,13 @@ import de.uka.iti.pseudo.environment.Mappable;
  * behaviour depends on the configuration of the hints. They can take string
  * arguments.
  */
-public interface ProofHint extends Mappable<String> {
+public interface ProofHint extends Named {
 
     /**
      * Creates the a new rule app finder for the given configuration.
      *
      * The first element of the list of arguments need to equal the
-     * {@link #getKey() key} of this object
+     * {@link #getName() key} of this object
      *
      * @param env
      *            the environment in which the creation takes place

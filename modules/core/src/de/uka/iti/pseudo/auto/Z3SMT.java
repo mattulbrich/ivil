@@ -62,7 +62,7 @@ public class Z3SMT implements DecisionProcedure {
     private final Set<Sequent> cache = new HashSet<Sequent>();
 
     @Override
-    public String getKey() {
+    public String getName() {
         return "Z3";
     }
 

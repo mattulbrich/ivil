@@ -100,7 +100,7 @@
 //    }
 //
 //    @Override
-//    public String getKey() {
+//    public String getName() {
 //        return "Z3-outdated";
 //    }
 //

@@ -28,7 +28,7 @@ import de.uka.iti.pseudo.util.Util;
  *
  * @see de.uka.iti.pseudo.environment.creation.ProgramChanger
  */
-public final class Program {
+public final class Program implements Named {
 
     /**
      * The Constant OUT_OF_BOUNDS_STATEMENT is used when an index ouside the
@@ -160,6 +160,7 @@ public final class Program {
      *
      * @return the name of the program
      */
+    @Override
     public @NonNull String getName() {
         return name;
     }

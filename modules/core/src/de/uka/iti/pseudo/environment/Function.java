@@ -37,7 +37,7 @@ import de.uka.iti.pseudo.term.Type;
  *   Set('a) $Nil
  * </pre>
  */
-public class Function {
+public class Function implements Named {
 
     /**
      * The name of the function.
@@ -127,6 +127,7 @@ public class Function {
      *
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }
