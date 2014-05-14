@@ -8,8 +8,8 @@ include
   "$seq.p"
 #  "$bytecode.p"
 
-plugin 
-  prettyPrinter : "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
+plugins
+  prettyPrinter "de.uka.iti.pseudo.prettyprint.plugin.SeqPrettyPrinter"
 
 properties 
   # SMTStrategy.closingRule "patient_smt"
