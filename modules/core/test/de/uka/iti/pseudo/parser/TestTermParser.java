@@ -271,7 +271,7 @@ public class TestTermParser extends TestCaseWithEnv {
                 new Type[0], false, true, ASTLocatedElement.CREATED);
         Binder locB = new Binder("\\local_b", intType,
                 intType,
-                new Type[] {intType},
+                new Type[] { intType },
                 ASTLocatedElement.CREATED);
         Sort locS = new Sort("local_s", 0, ASTLocatedElement.CREATED);
         Program locP = new Program("local_p",
@@ -291,13 +291,14 @@ public class TestTermParser extends TestCaseWithEnv {
                 t.getSubterm(1));
 
         t = makeTerm("(\\local_b x; i1)", local);
-        assertEquals(Binding.getInst(locB, intType, Variable.getInst("x", intType), new Term[0]),
+        assertEquals(Binding.getInst(locB, intType, Variable.getInst("x", intType),
+                new Term[] { makeTerm("i1") }),
                 t);
 
-        t = makeTerm("\\var x as local_s");
+        t = makeTerm("\\var x as local_s", local);
         assertEquals(TypeApplication.getInst(locS), t.getType());
 
-        t = makeTerm("[0; local_p]true");
+        t = makeTerm("[0; local_p]true", local);
         assertEquals(locP, ((LiteralProgramTerm)t).getProgram());
     }
 

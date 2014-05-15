@@ -531,6 +531,9 @@ public class TermMaker extends ASTDefaultVisitor {
         try {
             String binderSymb = binderTerm.getBinderToken().image;
             Binder binder = env.getBinder(binderSymb);
+            if(binder == null) {
+                binder = local.getBinder(binderSymb);
+            }
 
             // checked elsewhere
             assert binder != null;
